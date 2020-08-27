@@ -1,66 +1,5 @@
 namespace pygmalion
 {
-	template<bool HASSQUARE1, bool HASSQUARE2, int SQUAREBITS, int CHANNELCOUNT, int DATABITS>
-	class moveBase
-	{
-	public:
-		constexpr static bool hasSquare1{ HASSQUARE1 };
-		constexpr static bool hasSquare2{ HASSQUARE2 };
-		constexpr static int squareBits{ SQUAREBITS };
-		constexpr static int square1Bits{ hasSquare1 ? squareBits : 1 };
-		constexpr static int square2Bits{ hasSquare2 ? squareBits : 1 };
-		constexpr static int dataBits{ DATABITS > 0 ? DATABITS : 1 };
-		constexpr static int channelCount{ CHANNELCOUNT };
-		constexpr static int channelBits{ channelCount > 1 ? requiredUnsignedBits(channelCount) : 1 };
-		constexpr static int totalBits{ square1Bits + square2Bits + channelBits + dataBits };
-		using baseType = typename int_traits<requiredBitBytes(totalBits)>::UTYPE;
-		using channelType = typename int_traits<requiredBitBytes(channelBits)>::UTYPE;
-		using dataType = typename int_traits<requiredBitBytes(dataBits)>::UTYPE;
-		using squareType = typename int_traits<requiredBitBytes(squareBits)>::UTYPE;
-	private:
-		baseType m_Square1 : square1Bits;
-		baseType m_Square2 : square2Bits;
-		baseType m_Channel : channelBits;
-		baseType m_Data : dataBits;
-	protected:
-		constexpr moveBase(const squareType square1, const squareType square2, const channelType channel, const dataType data) noexcept :
-			m_Square1{ static_cast<baseType>(square1 * hasSquare1) },
-			m_Square2{ static_cast<baseType>(square2 * hasSquare2) },
-			m_Channel{ static_cast<baseType>(channelCount > 1 ? channel : 0) },
-			m_Data{ static_cast<baseType>(DATABITS > 0 ? data : 0) }
-		{
-		}
-		constexpr moveBase() noexcept :
-			m_Square1{ 0 },
-			m_Square2{ 0 },
-			m_Channel{ 0 },
-			m_Data{ 0 }
-		{
-		}
-		constexpr squareType square1() const noexcept
-		{
-			return static_cast<squareType>(m_Square1 * hasSquare1);
-		}
-		constexpr squareType square2() const noexcept
-		{
-			return static_cast<squareType>(m_Square2 * hasSquare2);
-		}
-		constexpr dataType data() const noexcept
-		{
-			return static_cast<dataType>(DATABITS > 0 ? m_Data : 0);
-		}
-		constexpr channelType channel() const noexcept
-		{
-			return static_cast<channelType>(channelCount > 1 ? m_Channel : 0);
-		}
-		constexpr moveBase(const moveBase&) noexcept = default;
-		constexpr moveBase(moveBase&&) noexcept = default;
-		constexpr moveBase& operator=(const moveBase&) noexcept = default;
-		constexpr moveBase& operator=(moveBase&&) noexcept = default;
-		~moveBase() noexcept = default;
-	public:
-	};
-
 	template<int COUNTRANKS, int COUNTFILES, int PIECECOUNT, int PLAYERCOUNT, int CUSTOMFLAGCOUNT, int HASHLENGTH, int COUNTMOVES, typename INSTANCE>
 	class board
 	{
@@ -80,7 +19,7 @@ namespace pygmalion
 		using rank = enumeration<COUNTRANKS>;
 		using file = enumeration<COUNTFILES>;
 		using instanceType = INSTANCE;
-		using hashValue = typename int_traits<requiredBitBytes(hashLength)>::UTYPE;
+		using hashValue = typename hashBase<hashLength>::hashValue;
 		using bitsType = bitfield<countSquares>;
 		using gamestate = enumeration<countGamestateBits>;
 		using player = enumeration<countPlayers>;
@@ -107,6 +46,10 @@ namespace pygmalion
 		{
 			return static_cast<flags>(flags(1) << bit);
 		}
+		const static hash<hashLength, player::countValues> m_PlayerHash;
+		const static hash<hashLength, square::countValues> m_SquareHash;
+		const static hash<hashLength, piece::countValues> m_PieceHash;
+		const static hash<hashLength, countFlags> m_FlagHash;
 	private:
 		std::array<bitsType, countPieces> m_PieceOccupancy;
 		std::array<bitsType, countPlayers> m_PlayerOccupancy;
@@ -119,14 +62,11 @@ namespace pygmalion
 		constexpr static flags flagsFromPlayer(const player p) noexcept
 		{
 			assert(p.isValid());
-			const flags f = p;
-			return f;
+			return p;
 		}
 		constexpr static player playerFromFlags(const flags f) noexcept
 		{
-			const player p = f & playermask;
-			assert(p.isValid());
-			return p;
+			return f & playermask;
 		}
 	public:
 		constexpr hashValue getHash() const noexcept
@@ -155,18 +95,16 @@ namespace pygmalion
 		{
 			return m_Flags;
 		}
-		constexpr static auto pieceHash(const player p, const piece pc, const square sq)
+		constexpr static hashValue pieceHash(const player p, const piece pc, const square sq)
 		{
 			assert(p.isValid());
-			assert(pc.isValid());
-			assert(sq.isValid());
 			return instanceType::pieceHash_Implementation(p, pc, sq);
 		}
-		constexpr static auto flagsHash(const flags f)
+		constexpr static hashValue flagsHash(flags f)
 		{
 			assert(f >= 0);
 			assert(f < (size_t(1) << countFlags));
-			return instanceType::flagsHash_Implementation(f);
+			return instanceType::flagHash_Implementation(f);
 		}
 		constexpr static auto open() noexcept
 		{
@@ -226,25 +164,25 @@ namespace pygmalion
 			assert(p.isValid());
 			return m_PlayerOccupancy[p];
 		}
-		constexpr auto totalOccupancy() const noexcept
+		constexpr bitsType totalOccupancy() const noexcept
 		{
-			bitsType value{ bitsType(0) };
 			constexpr const bool preferPlayers{ countPlayers < countPieces };
+			bitsType value(0);
 			if (preferPlayers)
 			{
-				for (const auto i : player::range)
+				for (const auto p : player::range)
 				{
-					value |= m_PlayerOccupancy[i];
+					value |= m_PlayerOccupancy[p];
 				}
 			}
 			else
 			{
-				for (const auto i : piece::range)
+				for (const auto pc : piece::range)
 				{
-					value |= m_PieceOccupancy[i];
+					value |= m_PieceOccupancy[pc];
 				}
 			}
-			return std::move(value);
+			return value;
 		}
 		constexpr bool isOccupied(const square sq) const noexcept
 		{
@@ -262,7 +200,6 @@ namespace pygmalion
 			assert(p.isValid());
 			assert(pc.isValid());
 			assert(sq.isValid());
-#if !defined(NDEBUG)
 			for (const auto i : piece::range)
 			{
 				assert(!pieceOccupancy(i).checkBit(sq));
@@ -271,7 +208,6 @@ namespace pygmalion
 			{
 				assert(!playerOccupancy(i).checkBit(sq));
 			}
-#endif
 			m_PlayerOccupancy[p].setBit(sq);
 			m_PieceOccupancy[pc].setBit(sq);
 		}
@@ -297,7 +233,8 @@ namespace pygmalion
 		constexpr board() noexcept :
 			m_PieceOccupancy{ },
 			m_PlayerOccupancy{ },
-			m_Flags{ 0 }
+			m_Flags{ 0 },
+			m_Hash{ 0 }
 		{
 
 		}
@@ -334,13 +271,13 @@ namespace pygmalion
 				return m_IsNullMove;
 			}
 		};
-		template<typename MOVEDATA, typename MOVE, typename STACK>
+		template<typename MOVEDATA, typename STACK>
 		class stack
 		{
 		public:
 			using stackType = STACK;
 			using movedataType = MOVEDATA;
-			using moveType = MOVE;
+			using moveType = typename instanceType::moveType;
 			using movelistType = movelist<moveType, maxMoveCount>;
 			using indexType = typename movelistType::counterType;
 		private:

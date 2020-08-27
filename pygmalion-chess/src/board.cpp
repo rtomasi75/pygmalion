@@ -2,6 +2,10 @@
 
 namespace pygmalion::chess
 {
+	const hash<board::hashLength, board::countSquares* board::countPieces* board::countPlayers> board::m_PieceHash;
+
+	const hash<board::hashLength, board::countFlags> board::m_FlagHash;
+
 	board::movedata::movedata(const board& position, const player oldPlayer) noexcept :
 		movedataBase(position, oldPlayer),
 		m_OldHash{ position.getHash() },
@@ -72,8 +76,8 @@ namespace pygmalion::chess
 		}
 	}
 
-	board::boardStack::boardStack(const boardStack& parent, const move mv) noexcept :
-		stack<movedata, move, boardStack>(parent, mv),
+	board::boardStack::boardStack(const boardStack& parent, const moveType mv) noexcept :
+		stack<movedata, boardStack>(parent, mv),
 		m_AttackedSquaresValid{ false,false },
 		m_IsCheckValid{ false },
 		m_OtherPlayer{ movingPlayer().next() }
@@ -81,7 +85,7 @@ namespace pygmalion::chess
 	}
 
 	board::boardStack::boardStack(instanceType& position, const player oldPlayer) noexcept :
-		stack<movedata, move, boardStack>(position, oldPlayer),
+		stack<movedata, boardStack>(position, oldPlayer),
 		m_AttackedSquaresValid{ false,false },
 		m_IsCheckValid{ false },
 		m_OtherPlayer{ movingPlayer().next() }
@@ -211,7 +215,7 @@ namespace pygmalion::chess
 	}
 
 	board::board() noexcept :
-		pygmalion::board<8, 8, 6, 2, 12, 64, 254, pygmalion::chess::board>(),
+		pygmalion::board<8, 8, 6, 2, 12, 64, 255, pygmalion::chess::board>(),
 		m_Material{ score::zero() },
 		m_DistanceToDraw{ DrawingDistance },
 		m_PawnstructureHash{ 0 },

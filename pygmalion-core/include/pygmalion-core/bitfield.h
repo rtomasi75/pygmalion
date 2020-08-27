@@ -5,17 +5,18 @@ namespace pygmalion
 	{
 	public:
 		constexpr static int bitCount{ BITCOUNT };
-		using bitsType = typename int_traits<requiredBitBytes(bitCount)>::UTYPE;
+		using traitsType = int_traits<requiredBitBytes(bitCount)>;
+		using baseType = typename traitsType::UTYPE;
 		using invertorType = invertBits<requiredBitBytes(bitCount), bitCount>;
 		using multiplierType = multiplyBits<requiredBitBytes(bitCount), bitCount>;
 	private:
-		bitsType m_Bits;
+		baseType m_Bits;
 	public:
-		constexpr bitsType bits() const noexcept
+		constexpr baseType bits() const noexcept
 		{
 			return m_Bits;
 		}
-		constexpr bitfield(const bitsType value) noexcept :
+		constexpr bitfield(const baseType value) noexcept :
 			m_Bits(value)
 		{
 
@@ -32,37 +33,37 @@ namespace pygmalion
 		~bitfield() noexcept = default;
 		constexpr static auto setMask(const int bit) noexcept
 		{
-			return bitfield(int_traits<requiredBitBytes(bitCount)>::setMask(bit));
+			return bitfield(traitsType::setMask(bit));
 		}
 		constexpr static auto clearMask(const int bit) noexcept
 		{
-			return bitfield(int_traits<requiredBitBytes(bitCount)>::setMask(bit));
+			return bitfield(traitsType::setMask(bit));
 		}
 		constexpr void setBit(const int bit) noexcept
 		{
-			int_traits<requiredBitBytes(bitCount)>::setBit(m_Bits, bit);
+			traitsType::setBit(m_Bits, bit);
 		}
 		constexpr void clearBit(const int bit) noexcept
 		{
-			int_traits<requiredBitBytes(bitCount)>::clearBit(m_Bits, bit);
+			traitsType::clearBit(m_Bits, bit);
 		}
 		constexpr bool checkBit(const int bit) const noexcept
 		{
-			return int_traits<requiredBitBytes(bitCount)>::checkBit(m_Bits, bit);
+			return traitsType::checkBit(m_Bits, bit);
 		}
-		constexpr auto operator|(const bitfield other) const noexcept
+		constexpr bitfield operator|(const bitfield other) const noexcept
 		{
 			return bitfield(m_Bits | other.m_Bits);
 		}
-		constexpr auto operator&(const bitfield other) const noexcept
+		constexpr bitfield operator&(const bitfield other) const noexcept
 		{
 			return bitfield(m_Bits & other.m_Bits);
 		}
-		constexpr auto operator^(const bitfield other) const noexcept
+		constexpr bitfield operator^(const bitfield other) const noexcept
 		{
 			return bitfield(m_Bits ^ other.m_Bits);
 		}
-		constexpr auto operator~() const noexcept
+		constexpr bitfield operator~() const noexcept
 		{
 			return bitfield(invertorType::perform(m_Bits));
 		}
@@ -138,13 +139,13 @@ namespace pygmalion
 		{
 			return int_traits<requiredBitBytes(bitCount)>::rand_sparse();
 		}
-		constexpr static auto empty() noexcept
+		constexpr static bitfield empty() noexcept
 		{
 			return bitfield(0);
 		}
-		constexpr static auto universe() noexcept
+		constexpr static bitfield universe() noexcept
 		{
-			return ~bitfield(0);
+			return bitfield(invertorType::perform(0));
 		}
 		class iterator
 		{
@@ -210,4 +211,5 @@ namespace pygmalion
 			return endValue;
 		}
 	};
+
 }

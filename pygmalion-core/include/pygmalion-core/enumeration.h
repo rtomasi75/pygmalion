@@ -1,10 +1,11 @@
 namespace pygmalion
 {
-	template<size_t COUNT>
+	template<int COUNT>
 	class enumeration
 	{
 	public:
-		using baseType = typename int_traits<requiredSignedBytes(COUNT)>::STYPE;
+		constexpr static int countValues{ COUNT };
+		using baseType = typename int_traits<requiredSignedBytes(countValues)>::STYPE;
 		enum valueType : baseType
 		{
 			invalid = -1
@@ -36,13 +37,12 @@ namespace pygmalion
 		constexpr auto next() const noexcept
 		{
 			assert(this->isValid());
-			return enumeration(static_cast<valueType>(((static_cast<baseType>(m_Value) + 1) % static_cast<baseType>(COUNT))));
+			return enumeration(static_cast<valueType>(((static_cast<baseType>(m_Value) + 1) % static_cast<baseType>(countValues))));
 		}
 		constexpr bool isValid() const noexcept
 		{
 			return (static_cast<baseType>(m_Value) >= 0) && (static_cast<baseType>(m_Value) < COUNT);
 		}
-		constexpr static valueType countValues{ COUNT };
 		constexpr auto operator%=(const enumeration divisor) noexcept
 		{
 			m_Value = static_cast<valueType>(static_cast<baseType>(m_Value) % static_cast<baseType>(divisor.m_Value));

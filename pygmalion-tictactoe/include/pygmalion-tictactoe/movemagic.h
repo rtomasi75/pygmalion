@@ -24,7 +24,7 @@ namespace pygmalion::tictactoe
 		using moveType = typename movegen::moveType;
 	private:
 	public:
-		static void initializeValue_Implementation(movelistType& moves, const movemagicinfo& info, const bitsType& bitboard, const bitsType& premask) noexcept
+		static void initializeValue_Implementation(movelistType& moves, const movemagicinfo& info, const bitsType bitboard, const bitsType premask) noexcept
 		{
 			const bitsType masked{ bitboard & premask };
 			moves.clear();
@@ -33,7 +33,7 @@ namespace pygmalion::tictactoe
 		}
 		constexpr static bitsType calculatePremask(const movemagicinfo& info) noexcept
 		{
-			return bitsType::universe();
+			return bitsType(bitsType::universe().bits() & ((1 << bitsType::bitCount) - 1));
 		}
 		movemagic(const movemagicinfo& info) noexcept :
 #if defined(PYGMALION_CPU_BMI2)

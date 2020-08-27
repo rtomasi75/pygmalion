@@ -1,37 +1,13 @@
 namespace pygmalion::tictactoe
 {
-	class board : public pygmalion::board<3, 3, 1, 2, 0, 8, 9, pygmalion::tictactoe::board>
+	class board : public pygmalion::board<3, 3, 1, 2, 0, 16, 9, pygmalion::tictactoe::board>
 	{
 	private:
-		constexpr static std::array<hashValue, 1 << countFlags> m_FlagHash
-		{
-			hashValue(0x0000000000000000),
-			hashValue(0xF8D626AAAF278509)
-		};
-		constexpr static std::array<std::array<std::array<hashValue, 9>, 1>, 2> m_PieceHash
-		{
-			hashValue(0x56436C9FE1A1AA8D),
-			hashValue(0xEFAC4B70633B8F81),
-			hashValue(0xBB215798D45DF7AF),
-			hashValue(0x45F20042F24F1768),
-			hashValue(0x930F80F4E8EB7462),
-			hashValue(0xFF6712FFCFD75EA1),
-			hashValue(0xAE623FD67468AA70),
-			hashValue(0xDD2C5BC84BC8D8FC),
-			hashValue(0x7EED120D54CF2DD9),
-			hashValue(0x7F9B6AF1EBF78BAF),
-			hashValue(0x58627E1A149BBA21),
-			hashValue(0x2CD16E2ABD791E33),
-			hashValue(0xD363EFF5F0977996),
-			hashValue(0x0CE2A38C344A6EED),
-			hashValue(0x1A804AADB9CFA741),
-			hashValue(0x907F30421D78C5DE),
-			hashValue(0x501F65EDB3034D07),
-			hashValue(0x37624AE5A48FA6E9)
-		};
+		static const hash<hashLength, countSquares* countPieces* countPlayers> m_PieceHash;
+		static const hash<hashLength, countFlags> m_FlagHash;
 	public:
 		constexpr board() noexcept :
-			pygmalion::board<3, 3, 1, 2, 0, 8, 9, pygmalion::tictactoe::board>()
+			pygmalion::board<3, 3, 1, 2, 0, 16, 9, pygmalion::tictactoe::board>()
 		{
 		}
 		constexpr board(const board&) noexcept = default;
@@ -39,14 +15,6 @@ namespace pygmalion::tictactoe
 		~board() = default;
 		constexpr board& operator=(const board&) = default;
 		constexpr board& operator=(board&&) = default;
-		constexpr static hashValue pieceHash_Implementation(const player p, const piece pc, const square sq)
-		{
-			return m_PieceHash[p][pc][sq];
-		}
-		constexpr static hashValue flagsHash_Implementation(const flags f)
-		{
-			return m_FlagHash[f];
-		}
 		class move : public moveBase<false, true, requiredUnsignedBits(countSquares), 1, 0>
 		{
 		private:
@@ -67,7 +35,7 @@ namespace pygmalion::tictactoe
 			}
 			constexpr move(const move&) noexcept = default;
 			constexpr move(move&&) noexcept = default;
-			constexpr move& operator=(const move&) noexcept = default;
+			constexpr move& operator=(const move& other) noexcept = default;
 			constexpr move& operator=(move&&) noexcept = default;
 			~move() noexcept = default;
 		};
@@ -101,7 +69,7 @@ namespace pygmalion::tictactoe
 				return m_TargetSquare;
 			}
 		};
-		class boardStack : public stack<movedata, move, boardStack>
+		class boardStack : public stack<movedata, boardStack>
 		{
 		public:
 			bool isMoveLegal_Implementation(const moveType& move) const noexcept;
@@ -123,6 +91,23 @@ namespace pygmalion::tictactoe
 			position.removePiece(0, md.targetSquare(), md.movingPlayer());
 			position.setMovingPlayer(md.movingPlayer());
 			position.setHash(md.oldHash());
+		}
+		constexpr static hashValue pieceHash_Implementation(const player p, const piece pc, const square sq)
+		{
+			assert(p.isValid());
+			assert(pc.isValid());
+			assert(sq.isValid());
+			return m_PieceHash[(p * piece::countValues + pc) * square::countValues + sq];
+		}
+		constexpr static hashValue flagHash_Implementation(flags f)
+		{
+			assert(f >= 0);
+			assert(f < (size_t(1) << countFlags));
+			const bitfield<hashLength> fl(f);
+			hashValue h{ 0 };
+			for (const auto bit : fl)
+				h |= m_FlagHash[bit];
+			return h;
 		}
 	};
 

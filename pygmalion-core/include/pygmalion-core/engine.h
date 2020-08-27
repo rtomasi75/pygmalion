@@ -301,6 +301,21 @@ namespace pygmalion
 #if defined(PYGMALION_CPU_ALPHA)
 					eng.outputStream() << "  ARM64" << std::endl;
 #endif
+#if defined(PYGMALION_CPU_MMX)
+					eng.outputStream() << "  MMX" << std::endl;
+#endif
+#if defined(PYGMALION_CPU_SSE)
+					eng.outputStream() << "  SSE" << std::endl;
+#endif
+#if defined(PYGMALION_CPU_SSE2)
+					eng.outputStream() << "  SSE2" << std::endl;
+#endif
+#if defined(PYGMALION_CPU_SSE3)
+					eng.outputStream() << "  SSE3" << std::endl;
+#endif
+#if defined(PYGMALION_CPU_SSSE3)
+					eng.outputStream() << "  SSSE3" << std::endl;
+#endif
 #if defined(PYGMALION_CPU_BMI2)
 					eng.outputStream() << "  BMI2" << std::endl;
 #endif

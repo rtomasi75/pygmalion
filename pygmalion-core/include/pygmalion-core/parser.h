@@ -26,7 +26,7 @@ namespace pygmalion
 		static std::string toString(const std::uint8_t val) noexcept
 		{
 			std::stringstream sstr;
-			sstr << "0x" << std::setfill('0') << std::setw(sizeof(std::uint8_t) * 2) << std::hex << val;
+			sstr << "0x" << std::setfill('0') << std::setw(sizeof(std::uint8_t) * 2) << std::hex << (int)val;
 			return sstr.str();
 		}
 		template<int BITS>

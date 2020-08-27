@@ -2,14 +2,17 @@
 
 namespace pygmalion::tictactoe
 {
+	const hash<board::hashLength, board::countSquares* board::countPieces* board::countPlayers> board::m_PieceHash;
+
+	const hash<board::hashLength, board::countFlags> board::m_FlagHash;
 
 	board::boardStack::boardStack(const boardStack& parent, const move mv) noexcept :
-		stack<movedata, move, boardStack>(parent, mv)
+		stack<movedata, boardStack>(parent, mv)
 	{
 	}
 
 	board::boardStack::boardStack(instanceType& position, const player oldPlayer) noexcept :
-		stack<movedata, move, boardStack>(position, oldPlayer)
+		stack<movedata, boardStack>(position, oldPlayer)
 	{
 	}
 

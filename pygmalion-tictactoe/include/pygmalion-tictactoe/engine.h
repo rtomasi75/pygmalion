@@ -87,7 +87,7 @@ namespace pygmalion::tictactoe
 					parser::parseToken(remainder, table, remainder2);
 					if (table == "moves" || table == "move" || table == "m")
 					{
-#if !(defined(PYGMALION_CPU_BMI2)&&defined(PYGMALION_CPU_X64))
+#if !defined(PYGMALION_CPU_BMI2)
 						eng.outputStream() << "refreshing move magics..." << std::endl;
 						movegen::magic() = movemagic(movemagicinfo());
 						eng.outputStream() << "...done." << std::endl;

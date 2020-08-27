@@ -45,6 +45,7 @@ namespace pygmalion::tictactoe
 			}
 			str << "+-+-+-+" << std::endl;
 			str << " A B C" << std::endl;
+			str << "hash: " << parser::toString(board.getHash()) << std::endl;
 		}
 		static std::string moveToString_Implementation(const boardType& position, const moveType mv) noexcept
 		{

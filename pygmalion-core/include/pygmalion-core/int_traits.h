@@ -11,7 +11,7 @@ namespace pygmalion
 		using STYPE = std::int8_t;
 		using SLONG = std::int16_t;
 		using UTYPE = std::uint8_t;
-		static auto populationCount(const UTYPE value) noexcept
+		static int populationCount(const UTYPE value) noexcept
 		{
 			return pygmalion::bitmanip::populationCount8(value);
 		}
@@ -60,7 +60,7 @@ namespace pygmalion
 			UTYPE ru{ 0 };
 			for (int k = 0; k < sizeof(UTYPE); k++)
 			{
-				ru |= static_cast<UTYPE>(std::rand() & 0xFF) << (k * sizeof(UTYPE));
+				ru |= static_cast<UTYPE>(std::rand() & 0xFF) << k;
 			}
 			return ru;
 		}
@@ -77,7 +77,7 @@ namespace pygmalion
 		using STYPE = std::int16_t;
 		using SLONG = std::int32_t;
 		using UTYPE = std::uint16_t;
-		static auto populationCount(const UTYPE value) noexcept
+		static int populationCount(const UTYPE value) noexcept
 		{
 			return pygmalion::bitmanip::populationCount16(value);
 		}
@@ -126,7 +126,7 @@ namespace pygmalion
 			UTYPE ru{ 0 };
 			for (int k = 0; k < sizeof(UTYPE); k++)
 			{
-				ru |= static_cast<UTYPE>(std::rand() & 0xFF) << (k * sizeof(UTYPE));
+				ru |= static_cast<UTYPE>(std::rand() & 0xFF) << k;
 			}
 			return ru;
 		}
@@ -142,7 +142,11 @@ namespace pygmalion
 		using STYPE = std::int32_t;
 		using SLONG = std::int64_t;
 		using UTYPE = std::uint32_t;
-		static auto populationCount(const UTYPE value) noexcept
+		static UTYPE bits_not(const UTYPE value) noexcept
+		{
+			return ~value;
+		}
+		static int populationCount(const UTYPE value) noexcept
 		{
 			return pygmalion::bitmanip::populationCount32(value);
 		}
@@ -191,7 +195,7 @@ namespace pygmalion
 			UTYPE ru{ 0 };
 			for (int k = 0; k < sizeof(UTYPE); k++)
 			{
-				ru |= static_cast<UTYPE>(std::rand() & 0xFF) << (k * sizeof(UTYPE));
+				ru |= static_cast<UTYPE>(std::rand() & 0xFF) << k;
 			}
 			return ru;
 		}
@@ -207,7 +211,23 @@ namespace pygmalion
 		using STYPE = std::int64_t;
 		using SLONG = std::int64_t;
 		using UTYPE = std::uint64_t;
-		static auto populationCount(const UTYPE value) noexcept
+		static UTYPE bits_and(const UTYPE value1, const UTYPE value2) noexcept
+		{
+			return value1 & value2;
+		}
+		static UTYPE bits_or(const UTYPE value1, const UTYPE value2) noexcept
+		{
+			return value1 | value2;
+		}
+		static UTYPE bits_xor(const UTYPE value1, const UTYPE value2) noexcept
+		{
+			return value1 ^ value2;
+		}
+		static UTYPE bits_not(const UTYPE value) noexcept
+		{
+			return ~value;
+		}
+		static int populationCount(const UTYPE value) noexcept
 		{
 			return pygmalion::bitmanip::populationCount64(value);
 		}
@@ -256,7 +276,7 @@ namespace pygmalion
 			UTYPE ru{ 0 };
 			for (int k = 0; k < sizeof(UTYPE); k++)
 			{
-				ru |= static_cast<UTYPE>(std::rand() & 0xFF) << (k * sizeof(UTYPE));
+				ru |= static_cast<UTYPE>(std::rand() & 0xFF) << (8 * k);
 			}
 			return ru;
 		}
@@ -268,10 +288,10 @@ namespace pygmalion
 
 	constexpr static size_t requiredSignedBytes(const size_t number) noexcept
 	{
-		if (sizeof(size_t) > 4)
+		if (number >= (size_t(1) << 31))
 		{
-			if (number >= (size_t(1) << 31))
-				return 8;
+			assert(sizeof(size_t) > 4);
+			return 8;
 		}
 		if (number >= (size_t(1) << 15))
 			return 4;
@@ -281,10 +301,10 @@ namespace pygmalion
 	}
 	constexpr static size_t requiredUnsignedBytes(const size_t number) noexcept
 	{
-		if (sizeof(size_t) > 4)
+		if (static_cast<std::uint64_t>(number) >= (std::uint64_t(1) << 32))
 		{
-			if (number >= (std::uint64_t(1) << 32))
-				return 8;
+			assert(sizeof(size_t) > 4);
+			return 8;
 		}
 		if (number >= (size_t(1) << 16))
 			return 4;
