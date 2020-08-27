@@ -304,6 +304,15 @@ namespace pygmalion
 #if defined(PYGMALION_CPU_BMI2)
 					eng.outputStream() << "  BMI2" << std::endl;
 #endif
+#if defined(PYGMALION_CPU_AVX)
+					eng.outputStream() << "  AVX" << std::endl;
+#endif
+#if defined(PYGMALION_CPU_AVX2)
+					eng.outputStream() << "  AVX2" << std::endl;
+#endif
+#if defined(PYGMALION_CPU_AVX512)
+					eng.outputStream() << "  AVX512" << std::endl;
+#endif
 					eng.outputStream() << std::endl;
 					return true;
 				}

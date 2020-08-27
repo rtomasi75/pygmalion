@@ -50,7 +50,6 @@ namespace pygmalion::chess
 		m_WhiteKing{ position.kingSquare(whitePlayer) },
 		m_BlackKing{ position.kingSquare(blackPlayer) }
 	{
-		assert(!mv.isNull());
 		if (m_IsCapture)
 		{
 			if (mv.isEnPassant())

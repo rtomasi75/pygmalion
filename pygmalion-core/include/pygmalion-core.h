@@ -28,6 +28,21 @@
 #define PYGMALION_CPU_BMI2
 #endif
 #endif
+#if defined(__AVX__)
+#if !defined(PYGMALION_CPU_AVX)
+#define PYGMALION_CPU_AVX
+#endif
+#endif
+#if defined(__AVX2__)
+#if !defined(PYGMALION_CPU_AVX2)
+#define PYGMALION_CPU_AVX2
+#endif
+#endif
+#if defined(__AVX512__)
+#if !defined(PYGMALION_CPU_AVX512)
+#define PYGMALION_CPU_AVX512
+#endif
+#endif
 #endif
 #endif
 #if defined(_MSC_VER)

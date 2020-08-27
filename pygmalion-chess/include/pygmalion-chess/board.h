@@ -1373,12 +1373,12 @@ namespace pygmalion::chess
 			}
 			constexpr static move promotion(const square from, const square to, const piece promoted) noexcept
 			{
-				assert(promoted);
+				assert(promoted.isValid());
 				return move(from, to, 0b10, promoted);
 			}
 			constexpr static move promotionCapture(const square from, const square to, const piece promoted) noexcept
 			{
-				assert(promoted);
+				assert(promoted.isValid());
 				return move(from, to, 0b11, promoted);
 			}
 			constexpr square from() const noexcept
