@@ -5,7 +5,6 @@ namespace pygmalion
 	{
 	public:
 		using engineType = ENGINE;
-		using movedataType = typename engineType::movedataType;
 	protected:
 		virtual bool onProcess(engineType& eng, const std::string& cmd) const noexcept
 		{

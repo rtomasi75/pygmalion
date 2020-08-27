@@ -1,6 +1,6 @@
 namespace pygmalion::chess
 {
-	class frontend : public pygmalion::frontend<search<movegen, evaluator, 48>, frontend>
+	class frontend : public pygmalion::frontend<search<movegen, evaluator, 63>, frontend>
 	{
 	private:
 	public:

@@ -1,6 +1,6 @@
 namespace pygmalion::chess
 {
-	class movegen : public pygmalion::movegen<pygmalion::chess::board, 255, false, pygmalion::chess::board::movedata, pygmalion::chess::movegen>
+	class movegen : public pygmalion::movegen<pygmalion::chess::board, 255, pygmalion::chess::movegen>
 	{
 	private:
 		static movegenTables m_Tables;
@@ -105,6 +105,22 @@ namespace pygmalion::chess
 		}
 		constexpr static gamestateType earlyResult_Implementation(const stackType& stack) noexcept
 		{
+			if (stack.position().getDistanceToDraw() <= 0)
+				return boardType::draw();
+			if ((stack.position().pieceOccupancy(boardType::pawn) | stack.position().pieceOccupancy(boardType::rook) | stack.position().pieceOccupancy(boardType::queen)) == bitsType::empty())
+			{
+				if ((stack.position().pieceOccupancy(boardType::knight) == bitsType::empty()) && (stack.position().pieceOccupancy(boardType::bishop).populationCount() <= 1))
+					return boardType::draw();
+				if ((stack.position().pieceOccupancy(boardType::bishop) == bitsType::empty()) && (stack.position().pieceOccupancy(boardType::knight).populationCount() <= 1))
+					return boardType::draw();
+				if (stack.position().pieceOccupancy(boardType::bishop) == bitsType::empty())
+				{
+					if (((stack.position().pieceOccupancy(boardType::knight) & stack.position().playerOccupancy(board::blackPlayer)) == bitsType::empty()) && ((stack.position().pieceOccupancy(boardType::knight) & stack.position().playerOccupancy(board::whitePlayer)).populationCount() <= 2))
+						return boardType::draw();
+					if (((stack.position().pieceOccupancy(boardType::knight) & stack.position().playerOccupancy(board::whitePlayer)) == bitsType::empty()) && ((stack.position().pieceOccupancy(boardType::knight) & stack.position().playerOccupancy(board::blackPlayer)).populationCount() <= 2))
+						return boardType::draw();
+				}
+			}
 			return boardType::open();
 		}
 		static gamestateType lateResult_Implementation(const stackType& stack) noexcept

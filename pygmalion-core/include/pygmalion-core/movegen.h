@@ -1,13 +1,13 @@
 namespace pygmalion
 {
-	template<typename BOARD, size_t MAXMOVES, bool LEGALMOVES, typename MOVEDATA, typename INSTANCE>
+	template<typename BOARD, int MAXMOVES, typename INSTANCE>
 	class movegen
 	{
 	public:
 		using boardType = BOARD;
 		using moveType = typename boardType::moveType;
 		using instanceType = INSTANCE;
-		using movedataType = MOVEDATA;
+		using movedataType = typename boardType::movedata;
 		using bitsType = typename boardType::bitsType;
 		using playerType = typename boardType::player;
 		using squareType = typename boardType::square;
@@ -20,7 +20,6 @@ namespace pygmalion
 		constexpr static size_t countPieces{ boardType::countPieces };
 		constexpr static size_t countSquares{ boardType::countSquares };
 		constexpr static size_t countPlayers{ boardType::countPlayers };
-		constexpr static bool legalMovesOnly{ LEGALMOVES };
 		using stackType = typename  boardType::stackType;
 		static auto name() noexcept
 		{

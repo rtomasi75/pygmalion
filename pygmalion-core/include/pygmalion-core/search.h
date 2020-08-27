@@ -16,7 +16,7 @@ namespace pygmalion
 		using objectiveType = typename evaluatorType::objectiveType;
 		using multiscoreType = multiscore<evaluatorType>;
 		constexpr static int maxDepth{ MAXDEPTH };
-		using variationType = movelist<moveType, maxDepth>;
+		using variationType = list<moveType, maxDepth>;
 		using depthType = typename variationType::counterType;
 		using nodeType = node<search>;
 		static auto pvs(const boardType& board, variationType& principalVariation, const depthType depth, uint64_t& nodeCount) noexcept

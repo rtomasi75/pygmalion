@@ -278,7 +278,7 @@ namespace pygmalion
 			using stackType = STACK;
 			using movedataType = MOVEDATA;
 			using moveType = typename instanceType::moveType;
-			using movelistType = movelist<moveType, maxMoveCount>;
+			using movelistType = list<moveType, maxMoveCount>;
 			using indexType = typename movelistType::counterType;
 		private:
 			mutable movelistType m_Moves;

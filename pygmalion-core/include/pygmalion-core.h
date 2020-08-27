@@ -128,6 +128,7 @@
 #include "pygmalion-core/score.h"
 #include "pygmalion-core/multiscore.h"
 #include "pygmalion-core/bitfield.h"
+#include "pygmalion-core/bloomfilter.h"
 #include "pygmalion-core/movelist.h"
 #include "pygmalion-core/moveBase.h"
 #include "pygmalion-core/board.h"

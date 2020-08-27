@@ -1,71 +1,64 @@
 namespace pygmalion
 {
-	template<typename MOVE, int MOVECOUNT>
-	class movelist
+	template<typename ITEM, int MAXLENGTH>
+	class list
 	{
 	public:
-		constexpr static int maxMoveCount{ MOVECOUNT };
-		using moveType = MOVE;
-		using counterType = typename int_traits< requiredSignedBytes(maxMoveCount)>::STYPE;
+		constexpr static int maxLength{ MAXLENGTH };
+		using itemType = ITEM;
+		using counterType = typename int_traits< requiredSignedBytes(maxLength + 1)>::STYPE;
 	private:
-		counterType m_MoveCount;
-		std::array<moveType, maxMoveCount> m_Moves;
+		std::array<itemType, maxLength> m_Items;
+		counterType m_Length;
 	public:
-		void replace(const counterType idx, const moveType& move) noexcept
+		void replace(const counterType idx, const itemType& item) noexcept
 		{
-			assert(idx <= (m_MoveCount + 1));
-			assert(m_MoveCount < (maxMoveCount - 1));
-			m_Moves[idx] = move;
-			m_MoveCount = std::max(m_MoveCount, static_cast<counterType>(idx + 1));
+			assert(idx <= (m_Length + 1));
+			assert(m_Length < (maxLength - 1));
+			m_Items[idx] = item;
+			m_Length = std::max(m_Length, static_cast<counterType>(idx + 1));
 		}
-		void replace(const counterType idx, moveType&& move) noexcept
+		void combine(const itemType& item, const list& tail) noexcept
 		{
-			assert(idx <= (m_MoveCount + 1));
-			assert(m_MoveCount < (maxMoveCount - 1));
-			m_Moves[idx] = std::move(move);
-			m_MoveCount = std::max(m_MoveCount, static_cast<counterType>(idx + 1));
-		}
-		void combine(const MOVE& move, const movelist& tail) noexcept
-		{
-			assert(tail.m_MoveCount < maxMoveCount);
-			m_Moves[0] = move;
-			for (counterType i = 0; i < tail.m_MoveCount; i++)
+			assert(tail.m_Length < maxLength);
+			m_Items[0] = item;
+			for (counterType i = 0; i < tail.m_Length; i++)
 			{
-				m_Moves[i + 1] = tail.m_Moves[i];
+				m_Items[i + 1] = tail.m_Items[i];
 			}
-			m_MoveCount = tail.m_MoveCount + 1;
+			m_Length = tail.m_Length + 1;
 		}
-		movelist& operator=(const movelist&) = default;
-		movelist(movelist<moveType, maxMoveCount>&&) noexcept = delete;
-		movelist(const movelist<moveType, maxMoveCount>& other) noexcept :
-			m_MoveCount(other.m_MoveCount)
+		list& operator=(const list&) = default;
+		list(list&&) noexcept = delete;
+		list(const list& other) noexcept :
+			m_Length(other.m_Length)
 		{
-			for (counterType i = 0; i < m_MoveCount; i++)
-				m_Moves[i] = other.m_Moves[i];
+			for (counterType i = 0; i < m_Length; i++)
+				m_Items[i] = other.m_Items[i];
 		}
-		movelist() noexcept :
-			m_MoveCount(0)
+		list() noexcept :
+			m_Length(0)
 		{
 
 		}
-		~movelist() noexcept = default;
+		~list() noexcept = default;
 		counterType length() const noexcept
 		{
-			return m_MoveCount;
+			return m_Length;
 		}
-		moveType operator[](const counterType idx) const noexcept
+		const itemType& operator[](const counterType idx) const noexcept
 		{
-			assert(idx < m_MoveCount);
-			return m_Moves[idx];
+			assert(idx < m_Length);
+			return m_Items[idx];
 		}
 		void clear() noexcept
 		{
-			m_MoveCount = 0;
+			m_Length = 0;
 		}
-		void add(const moveType& move) noexcept
+		void add(const itemType& item) noexcept
 		{
-			assert(m_MoveCount < maxMoveCount);
-			m_Moves[m_MoveCount++] = move;
+			assert(m_Length < maxLength);
+			m_Items[m_Length++] = item;
 		}
 	};
 }

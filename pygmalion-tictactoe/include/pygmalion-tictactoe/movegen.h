@@ -1,7 +1,7 @@
 namespace pygmalion::tictactoe
 {
 	class movemagic;
-	class movegen : public pygmalion::movegen<pygmalion::tictactoe::board, 9, true, pygmalion::tictactoe::board::movedata, pygmalion::tictactoe::movegen>
+	class movegen : public pygmalion::movegen<pygmalion::tictactoe::board, 9, pygmalion::tictactoe::movegen>
 	{
 	private:
 		static movemagic m_Magic;
