@@ -32,7 +32,7 @@ namespace pygmalion::chess
 	public:
 		evaluationTables() noexcept;
 		~evaluationTables() noexcept = default;
-		constexpr auto material(const board::player p, const board::piece pc, const board::square sq) const noexcept
+		constexpr auto material(const board::playerType p, const board::pieceType pc, const board::squareType sq) const noexcept
 		{
 			assert(p.isValid());
 			assert(pc.isValid());

@@ -1,9 +1,14 @@
 namespace pygmalion::tictactoe
 {
-	class frontend : public pygmalion::frontend<search<movegen, evaluator, 9>, frontend>
+	class frontend :
+		public pygmalion::frontend<descriptor_frontend, frontend>
 	{
 	private:
 	public:
+		static std::string name_Implementation() noexcept
+		{
+			return "Tic Tac Toe - a demo implmenentation ;)";
+		}
 		static std::string subjectiveToString_Implementation(const subjectiveType& score) noexcept
 		{
 			return static_cast<std::string>(score);
@@ -45,12 +50,11 @@ namespace pygmalion::tictactoe
 			}
 			str << "+-+-+-+" << std::endl;
 			str << " A B C" << std::endl;
-			str << "hash: " << parser::toString(board.getHash()) << std::endl;
 		}
 		static std::string moveToString_Implementation(const boardType& position, const moveType mv) noexcept
 		{
-			int file = mv.to() % 3;
-			int rank = (mv.to() - file) / 3;
+			auto file = mv.square(0).file();
+			auto rank = mv.square(0).rank();
 			std::string text{ "" };
 			switch (file)
 			{
@@ -130,7 +134,7 @@ namespace pygmalion::tictactoe
 					rank = 2;
 					break;
 				}
-				move = static_cast<moveType>(rank * 3 + file);
+				move = moveType({ squareType::fromRankFile(rank, file) }, {}, 0);
 				return true;
 			}
 		}
@@ -141,8 +145,8 @@ namespace pygmalion::tictactoe
 			for (int i = 0; i < variation.length(); i++)
 			{
 				sstr << moveToString(currentPosition, variation[i]) << " ";
-				boardType::movedata md(currentPosition, variation[i]);
-				currentPosition.makeMove(md);
+				movedataType md(currentPosition, variation[i]);
+				mechanicsType::makeMove(currentPosition, md);
 			}
 			return sstr.str();
 		}

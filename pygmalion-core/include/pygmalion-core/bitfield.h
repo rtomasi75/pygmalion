@@ -6,18 +6,35 @@ namespace pygmalion
 	public:
 		constexpr static int bitCount{ BITCOUNT };
 		using traitsType = int_traits<requiredBitBytes(bitCount)>;
-		using baseType = typename traitsType::UTYPE;
+		using bitsType = typename traitsType::UTYPE;
+		using bitType = bit<bitCount>;
 		using invertorType = invertBits<requiredBitBytes(bitCount), bitCount>;
 		using multiplierType = multiplyBits<requiredBitBytes(bitCount), bitCount>;
 	private:
-		baseType m_Bits;
+		bitsType m_Bits;
 	public:
-		constexpr baseType bits() const noexcept
+		constexpr void setBit(const bitType bit) noexcept
+		{
+			traitsType::setBit(m_Bits, bit);
+		}
+		constexpr void clearBit(const bitType bit) noexcept
+		{
+			traitsType::clearBit(m_Bits, bit);
+		}
+		constexpr bool getBit(const bitType bit) const noexcept
+		{
+			return traitsType::checkBit(m_Bits, bit);
+		}
+		constexpr bool operator[](const bitType bit) const noexcept
+		{
+			return traitsType::checkBit(m_Bits, bit);
+		}
+		constexpr bitsType bits() const noexcept
 		{
 			return m_Bits;
 		}
-		constexpr bitfield(const baseType value) noexcept :
-			m_Bits(value)
+		constexpr bitfield(const bitsType bits) noexcept :
+			m_Bits(bits)
 		{
 
 		}
@@ -31,25 +48,13 @@ namespace pygmalion
 		constexpr bitfield& operator=(const bitfield&) noexcept = default;
 		constexpr bitfield& operator=(bitfield&&) noexcept = default;
 		~bitfield() noexcept = default;
-		constexpr static auto setMask(const int bit) noexcept
+		constexpr static auto setMask(const bitType bit) noexcept
 		{
 			return bitfield(traitsType::setMask(bit));
 		}
-		constexpr static auto clearMask(const int bit) noexcept
+		constexpr static auto clearMask(const bitType bit) noexcept
 		{
 			return bitfield(traitsType::setMask(bit));
-		}
-		constexpr void setBit(const int bit) noexcept
-		{
-			traitsType::setBit(m_Bits, bit);
-		}
-		constexpr void clearBit(const int bit) noexcept
-		{
-			traitsType::clearBit(m_Bits, bit);
-		}
-		constexpr bool checkBit(const int bit) const noexcept
-		{
-			return traitsType::checkBit(m_Bits, bit);
 		}
 		constexpr bitfield operator|(const bitfield other) const noexcept
 		{
@@ -111,17 +116,31 @@ namespace pygmalion
 		{
 			return m_Bits;
 		}
-		auto populationCount() const noexcept
+		bool firstSetBit(bitType& bit) const noexcept
+		{
+			int ret;
+			if (int_traits<requiredBitBytes(bitCount)>::bitScanForward(m_Bits, ret))
+			{
+				bit = ret;
+				return true;
+			}
+			else
+				return false;
+		}
+		bool lastSetBit(bitType& bit) const noexcept
+		{
+			int ret;
+			if (int_traits<requiredBitBytes(bitCount)>::bitScanReverse(m_Bits, ret))
+			{
+				bit = ret;
+				return true;
+			}
+			else
+				return false;
+		}
+		int populationCount() const noexcept
 		{
 			return int_traits<requiredBitBytes(bitCount)>::populationCount(m_Bits);
-		}
-		bool bitScanForward(int& bit) const noexcept
-		{
-			return int_traits<requiredBitBytes(bitCount)>::bitScanForward(m_Bits, bit);
-		}
-		bool bitScanReverse(int& bit) const noexcept
-		{
-			return int_traits<requiredBitBytes(bitCount)>::bitScanReverse(m_Bits, bit);
 		}
 		bitfield pext(const bitfield pattern) const noexcept
 		{
@@ -151,7 +170,7 @@ namespace pygmalion
 		{
 			friend class bitfield;
 		public:
-			typedef int value_type;
+			using value_type = bitType;
 		private:
 			bitfield m_State;
 			value_type m_Current;
@@ -159,36 +178,36 @@ namespace pygmalion
 				m_State{ 0 },
 				m_Current{ -1 }
 			{
-
 			}
 		public:
-			typedef std::ptrdiff_t difference_type;
-			typedef value_type* pointer;
-			typedef value_type& reference;
-			typedef std::input_iterator_tag iterator_category;
+			using difference_type = std::ptrdiff_t;
+			using pointer = value_type*;
+			using reference = value_type&;
+			using iterator_category = std::input_iterator_tag;
 			constexpr explicit iterator(const bitfield state) noexcept :
 				m_State{ state },
-				m_Current{ -1 }
+				m_Current{ bitType::invalid }
 			{
-				m_State.bitScanForward(m_Current);
+				m_State.firstSetBit(m_Current);
 			}
 			constexpr iterator(const iterator&) noexcept = default;
 			~iterator() noexcept = default;
-			constexpr auto operator++(int) noexcept
+			constexpr iterator operator++(int) noexcept
 			{
+				assert(m_Current.isValid());
 				iterator ret(m_State);
 				++(*this);
 				return std::move(ret);
 			}
 			constexpr iterator& operator++() noexcept
 			{
-				assert(m_Current >= 0);
+				assert(m_Current.isValid());
 				m_State.clearBit(m_Current);
-				if (!m_State.bitScanForward(m_Current))
+				if (!m_State.firstSetBit(m_Current))
 					m_Current = -1;
 				return *this;
 			}
-			constexpr auto operator*() const noexcept
+			constexpr value_type operator*() const noexcept
 			{
 				return m_Current;
 			}

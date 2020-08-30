@@ -1,37 +1,60 @@
 namespace pygmalion
 {
-	template<typename MOVEGEN, typename EVALUATOR, size_t MAXDEPTH>
-	class search
+	template<typename DESCRIPTION_SEARCH, typename INSTANCE>
+	class search :
+		public base_search<DESCRIPTION_SEARCH>
 	{
 	public:
-		using movegenType = MOVEGEN;
-		using playerType = typename movegenType::playerType;
-		using squareType = typename movegenType::squareType;
-		using pieceType = typename movegenType::pieceType;
-		using boardType = typename movegenType::boardType;
-		using moveType = typename movegenType::moveType;
-		using gamestateType = typename movegenType::gamestateType;
-		using evaluatorType = EVALUATOR;
-		using subjectiveType = typename evaluatorType::subjectiveType;
-		using objectiveType = typename evaluatorType::objectiveType;
-		using multiscoreType = multiscore<evaluatorType>;
-		constexpr static int maxDepth{ MAXDEPTH };
-		using variationType = list<moveType, maxDepth>;
-		using depthType = typename variationType::counterType;
-		using nodeType = node<search>;
-		static auto pvs(const boardType& board, variationType& principalVariation, const depthType depth, uint64_t& nodeCount) noexcept
+		using searchType = INSTANCE;
+
+		using descriptorSearch = DESCRIPTION_SEARCH;
+#include "include_search.h"
+
+		using nodeType = node<searchType, descriptorSearch>;
+
+		class stack :
+			public base_search<DESCRIPTION_SEARCH>,
+			public evaluationType::stackType
 		{
-			boardType b{ board };
+		public:
+			using searchType = INSTANCE;
+
+			using descriptorSearch = DESCRIPTION_SEARCH;
+#include "include_search.h"
+
+			stack(const stack& parent, const moveType move) noexcept :
+				evaluationType::stackType(parent, move)
+			{
+			}
+			stack(boardType& position, const playerType oldPlayer) noexcept :
+				evaluationType::stackType(position, oldPlayer)
+			{
+			}
+			~stack() noexcept = default;
+		};
+
+		using stackType = typename pygmalion::search<DESCRIPTION_SEARCH, searchType>::stack;
+
+	public:
+		static objectiveType pvs(const boardType& position, variationType& principalVariation, const depthType depthRemaining, heuristicsType& heuristics) noexcept
+		{
+			boardType b{ position };
 			nodeType node(b);
 			principalVariation.clear();
 			multiscoreType alphabeta;
-			return node.search(alphabeta, depth, 0, principalVariation, nodeCount);
+			heuristics.beginSearch();
+			const objectiveType score{ node.search(alphabeta, depthRemaining, 0, principalVariation, heuristics) };
+			heuristics.endSearch();
+			return score;
 		}
-		static auto perft(const boardType& board, const depthType depth, uint64_t& nodeCount) noexcept
+
+		static void perft(const boardType& position, const depthType depthRemaining, heuristicsType& heuristics) noexcept
 		{
-			boardType b{ board };
+			boardType b{ position };
 			nodeType node(b);
-			return node.perft(depth, 0, nodeCount);
+			heuristics.beginSearch();
+			node.perft(depthRemaining, 0, heuristics);
+			heuristics.endSearch();
 		}
 	};
 }

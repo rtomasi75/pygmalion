@@ -1,6 +1,6 @@
 namespace pygmalion::tictactoe
 {
-	struct movemagicinfo
+	class movemagicinfo
 	{
 	public:
 		constexpr movemagicinfo() noexcept = default;
@@ -11,42 +11,44 @@ namespace pygmalion::tictactoe
 		constexpr movemagicinfo& operator=(movemagicinfo&&) noexcept = default;
 	};
 
+	template<typename DESCRIPTOR_GENERATOR>
 	class movemagic :
+		public base_generator<DESCRIPTOR_GENERATOR>,
 #if defined(PYGMALION_CPU_BMI2)
-		public pygmalion::magictable<typename movegen::movelistType, movemagicinfo, typename board::bitsType, movemagic, true>
+		public pygmalion::magictable<typename DESCRIPTOR_GENERATOR::movelistType, movemagicinfo, typename DESCRIPTOR_GENERATOR::squaresType, movemagic<DESCRIPTOR_GENERATOR>, true>
 #else
-		public pygmalion::magictable<typename movegen::movelistType, movemagicinfo, typename board::bitsType, movemagic, false>
+		public pygmalion::magictable<typename DESCRIPTOR_GENERATOR::movelistType, movemagicinfo, typename DESCRIPTOR_GENERATOR::squaresType, movemagic<DESCRIPTOR_GENERATOR>, false>
 #endif
 	{
 	public:
-		using bitsType = typename board::bitsType;
-		using movelistType = typename movegen::movelistType;
-		using moveType = typename movegen::moveType;
+		using descriptorGenerator = DESCRIPTOR_GENERATOR;
+#include "pygmalion-core/include_generator.h"
+
 	private:
 	public:
-		static void initializeValue_Implementation(movelistType& moves, const movemagicinfo& info, const bitsType bitboard, const bitsType premask) noexcept
+		static void initializeValue_Implementation(movelistType& moves, const movemagicinfo& info, const squaresType bitboard, const squaresType premask) noexcept
 		{
-			const bitsType masked{ bitboard & premask };
+			const squaresType masked{ bitboard & premask };
 			moves.clear();
-			for (const auto square : ~masked)
-				moves.add(moveType(square));
+			for (const squareType square : ~masked)
+				moves.add(moveType({ square }, {}, 0));
 		}
-		constexpr static bitsType calculatePremask(const movemagicinfo& info) noexcept
+		constexpr static squaresType calculatePremask(const movemagicinfo& info) noexcept
 		{
-			return bitsType(bitsType::universe().bits() & ((1 << bitsType::bitCount) - 1));
+			return squaresType(squaresType::universe().bits() & ((1 << squaresType::bitCount) - 1));
 		}
 		movemagic(const movemagicinfo& info) noexcept :
 #if defined(PYGMALION_CPU_BMI2)
-			pygmalion::magictable<typename movegen::movelistType, movemagicinfo, typename board::bitsType, movemagic, true>(info)
+			pygmalion::magictable<typename DESCRIPTOR_GENERATOR::movelistType, movemagicinfo, typename DESCRIPTOR_GENERATOR::squaresType, movemagic<DESCRIPTOR_GENERATOR>, true>(info)
 #else
-			pygmalion::magictable<typename movegen::movelistType, movemagicinfo, typename board::bitsType, movemagic, false>(info)
+			pygmalion::magictable<typename DESCRIPTOR_GENERATOR::movelistType, movemagicinfo, typename DESCRIPTOR_GENERATOR::squaresType, movemagic<DESCRIPTOR_GENERATOR>, false>(info)
 #endif
 		{
 
 		}
 #if !defined(PYGMALION_CPU_BMI2)
-		movemagic(const movemagicinfo& info, const bitsType factor) noexcept :
-			pygmalion::magictable<typename movegen::movelistType, movemagicinfo, typename board::bitsType, movemagic, false>(info, factor)
+		movemagic(const movemagicinfo& info, const squaresType factor) noexcept :
+			pygmalion::magictable<typename DESCRIPTOR_GENERATOR::movelistType, movemagicinfo, typename DESCRIPTOR_GENERATOR::squaresType, movemagic<DESCRIPTOR_GENERATOR>, false>(info, factor)
 		{
 
 		}
@@ -54,9 +56,9 @@ namespace pygmalion::tictactoe
 		movemagic(const movemagic&) noexcept = default;
 		constexpr movemagic(movemagic&&) noexcept = default;
 		~movemagic() noexcept = default;
-		const movelistType& operator[](const bitsType& occupancy) const
+		const movelistType& operator[](const squaresType& occupancy) const
 		{
-			return value(occupancy);
+			return this->value(occupancy);
 		}
 		movemagic& operator=(const movemagic&) noexcept = default;
 		movemagic& operator=(movemagic&&) noexcept = default;

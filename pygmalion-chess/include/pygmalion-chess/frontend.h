@@ -11,8 +11,8 @@ namespace pygmalion::chess
 			{
 				for (int j = 0; j < 8; j++)
 				{
-					const squareType sq{ boardType::fromRankFile(7 - i, j) };
-					if (pattern.checkBit(sq))
+					const squareType sq{ squareType::fromRankFile(7 - i, j) };
+					if (pattern[sq])
 						stream << "#";
 					else
 						stream << ".";
@@ -38,29 +38,29 @@ namespace pygmalion::chess
 			{
 				for (int j = 0; j < 8; j++)
 				{
-					const squareType sq{ boardType::fromRankFile(7 - i, j) };
-					if (board.totalOccupancy().checkBit(sq))
+					const squareType sq{ squareType::fromRankFile(7 - i, j) };
+					if (board.totalOccupancy()[sq])
 					{
-						if (board.playerOccupancy(boardType::blackPlayer).checkBit(sq))
+						if (board.playerOccupancy(movegenType::blackPlayer)[sq])
 						{
 							switch (board.getPiece(sq))
 							{
-							case boardType::pawn:
+							case movegenType::pawn:
 								str << "p";
 								break;
-							case boardType::bishop:
+							case movegenType::bishop:
 								str << "b";
 								break;
-							case boardType::knight:
+							case movegenType::knight:
 								str << "n";
 								break;
-							case boardType::rook:
+							case movegenType::rook:
 								str << "r";
 								break;
-							case boardType::queen:
+							case movegenType::queen:
 								str << "q";
 								break;
-							case boardType::king:
+							case movegenType::king:
 								str << "k";
 								break;
 							}
@@ -69,22 +69,22 @@ namespace pygmalion::chess
 						{
 							switch (board.getPiece(sq))
 							{
-							case boardType::pawn:
+							case movegenType::pawn:
 								str << "P";
 								break;
-							case boardType::bishop:
+							case movegenType::bishop:
 								str << "B";
 								break;
-							case boardType::knight:
+							case movegenType::knight:
 								str << "N";
 								break;
-							case boardType::rook:
+							case movegenType::rook:
 								str << "R";
 								break;
-							case boardType::queen:
+							case movegenType::queen:
 								str << "Q";
 								break;
-							case boardType::king:
+							case movegenType::king:
 								str << "K";
 								break;
 							}
@@ -95,45 +95,43 @@ namespace pygmalion::chess
 				}
 				str << std::endl;
 			}
-			for (const auto i : boardType::file::range)
+			for (const auto i : boardType::fileType::range)
 			{
-				if (board.getFlags() & boardType::enPassantFlags(i))
+				if (movegen::position_checkEnPassantFlag(board, i))
 					str << "^";
 				else
 					str << "_";
 			}
 			str << std::endl;
-			if (board.movingPlayer() == boardType::whitePlayer)
+			if (board.movingPlayer() == movegenType::whitePlayer)
 				str << "+";
 			else
 				str << "-";
-			if (board.getFlags() & boardType::castlerightKingsideBlack)
+			if (movegen::position_checkCastlerightKingsideBlack(board))
 				str << "k";
 			else
 				str << "_";
-			if (board.getFlags() & boardType::castlerightQueensideBlack)
+			if (movegen::position_checkCastlerightQueensideBlack(board))
 				str << "q";
 			else
 				str << "_";
-			if (board.getFlags() & boardType::castlerightKingsideWhite)
+			if (movegen::position_checkCastlerightKingsideWhite(board))
 				str << "K";
 			else
 				str << "_";
-			if (board.getFlags() & boardType::castlerightQueensideWhite)
+			if (movegen::position_checkCastlerightQueensideWhite(board))
 				str << "Q";
 			else
 				str << "_";
 			str << std::endl;
-			str << "positionHash: " << parser::toString(board.getHash()) << std::endl;
-			str << "pawnHash:     " << parser::toString(board.getPawnstructureHash()) << std::endl;
 		}
 		static std::string playerToString(const playerType p)
 		{
 			switch (p)
 			{
-			case boardType::whitePlayer:
+			case movegenType::whitePlayer:
 				return "white";
-			case boardType::blackPlayer:
+			case movegenType::blackPlayer:
 				return "black";
 			default:
 				return "invalid";
@@ -145,8 +143,8 @@ namespace pygmalion::chess
 				return "??";
 			else
 			{
-				int rank = board::rankOfSquare(sq);
-				int file = board::fileOfSquare(sq);
+				auto rank = sq.rank();
+				auto file = sq.file();
 				std::string text{ "" };
 				switch (file)
 				{
@@ -215,41 +213,34 @@ namespace pygmalion::chess
 		{
 			switch (p)
 			{
-			case board::bishop:
+			case movegenType::bishop:
 				return "b";
-			case board::knight:
+			case movegenType::knight:
 				return "n";
-			case board::rook:
+			case movegenType::rook:
 				return "r";
-			case board::queen:
+			case movegenType::queen:
 				return "q";
-			case board::pawn:
+			case movegenType::pawn:
 				return "p";
-			case board::king:
+			case movegenType::king:
 				return "k";
 			}
 			return "?";
 		}
-		/*		static std::string moveToString_Implementation(const moveType mv) noexcept
-				{
-					std::string str{ squareToString(mv.getFrom()) + squareToString(mv.getTo()) };
-					if (mv.isPromotion())
-						str += pieceToString(mv.get_PromotionPiece());
-					return str;
-				}*/
 		static std::string moveToString_Implementation(const boardType& position, const moveType mv) noexcept
 		{
 			//if (mv.isNull())
 				//return "null";
 			//		if (move.isDraw())
 			//			return "draw";
-			const squareType from{ mv.from() };
-			const squareType to{ mv.to() };
+			const squareType from{ movegenType::move_from(mv) };
+			const squareType to{ movegenType::move_to(mv) };
 			const pieceType piece{ position.getPiece(from) };
 			const playerType side{ position.movingPlayer() };
-			if (mv.isCastleKingside())
+			if (movegenType::move_isCastleKingside(mv))
 				return "O-O";
-			if (mv.isCastleQueenside())
+			if (movegenType::move_isCastleQueenside(mv))
 				return "O-O-O";
 			std::string ret = "";
 			switch (piece)
@@ -257,33 +248,33 @@ namespace pygmalion::chess
 			default:
 				assert(0);
 				break;
-			case boardType::pawn:
+			case movegenType::pawn:
 				break;
-			case boardType::knight:
+			case movegenType::knight:
 				ret += "N";
 				break;
-			case boardType::bishop:
+			case movegenType::bishop:
 				ret += "B";
 				break;
-			case boardType::rook:
+			case movegenType::rook:
 				ret += "R";
 				break;
-			case boardType::queen:
+			case movegenType::queen:
 				ret += "Q";
 				break;
-			case boardType::king:
+			case movegenType::king:
 				ret += "K";
 				break;
 			}
 			int countamb{ 0 };
-			for (const auto i : squareType::range)
+			for (const auto sq : squareType::range)
 			{
-				if ((position.pieceOccupancy(piece) & position.playerOccupancy(side)).checkBit(i))
+				if ((position.pieceOccupancy(piece) & position.playerOccupancy(side))[sq])
 				{
 					bitsType captures{ bitsType::empty() };
 					bitsType moves{ bitsType::empty() };
-					movegen::moveMaps(position, i, moves, captures);
-					if ((captures | moves).checkBit(to))
+					movegen::moveMaps(position, sq, moves, captures);
+					if ((captures | moves)[to])
 					{
 						countamb++;
 					}
@@ -291,36 +282,36 @@ namespace pygmalion::chess
 			}
 			if (countamb > 1)
 			{
-				const auto file{ boardType::fileOfSquare(from) };
+				const auto file{ from.file() };
 				countamb = 0;
-				for (const auto i : squareType::range)
+				for (const auto sq : squareType::range)
 				{
-					if ((position.pieceOccupancy(piece) & position.playerOccupancy(side)).checkBit(i))
+					if ((position.pieceOccupancy(piece) & position.playerOccupancy(side))[sq])
 					{
 						bitsType captures{ bitsType::empty() };
 						bitsType moves{ bitsType::empty() };
-						movegen::moveMaps(position, i, moves, captures);
-						if ((captures | moves).checkBit(to))
+						movegen::moveMaps(position, sq, moves, captures);
+						if ((captures | moves)[to])
 						{
-							if (boardType::fileOfSquare(i) == file)
+							if (sq.file() == file)
 								countamb++;
 						}
 					}
 				}
 				if (countamb > 1)
 				{
-					const auto rank{ boardType::rankOfSquare(from) };
+					const auto rank{ from.rank() };
 					countamb = 0;
-					for (const auto i : squareType::range)
+					for (const auto sq : squareType::range)
 					{
-						if ((position.pieceOccupancy(piece) & position.playerOccupancy(side)).checkBit(i))
+						if ((position.pieceOccupancy(piece) & position.playerOccupancy(side))[sq])
 						{
 							bitsType captures{ bitsType::empty() };
 							bitsType moves{ bitsType::empty() };
-							movegen::moveMaps(position, i, moves, captures);
-							if ((captures | moves).checkBit(to))
+							movegen::moveMaps(position, sq, moves, captures);
+							if ((captures | moves)[to])
 							{
-								if (boardType::rankOfSquare(i) == rank)
+								if (sq.rank() == rank)
 									countamb++;
 							}
 						}
@@ -391,23 +382,25 @@ namespace pygmalion::chess
 					}
 				}
 			}
-			if (mv.isCapture())
+			if (movegenType::move_isCapture(mv))
 				ret += "x";
 			ret = ret + squareToString(to);
-			if (mv.isPromotion())
+			if (movegenType::move_isCaptureEnPassant(mv))
+				ret += "ep";
+			if (movegenType::move_isPromotion(mv))
 			{
-				switch (mv.get_PromotionPiece())
+				switch (movegenType::move_promotionPiece(mv))
 				{
-				case board::knight:
+				case movegenType::knight:
 					ret += "=N";
 					break;
-				case board::bishop:
+				case movegenType::bishop:
 					ret += "=B";
 					break;
-				case board::rook:
+				case movegenType::rook:
 					ret += "=R";
 					break;
-				case board::queen:
+				case movegenType::queen:
 					ret += "=Q";
 					break;
 				}
@@ -421,17 +414,17 @@ namespace pygmalion::chess
 			switch (std::tolower(text[0]))
 			{
 			case 'p':
-				return boardType::pawn;
+				return movegenType::pawn;
 			case 'n':
-				return boardType::knight;
+				return movegenType::knight;
 			case 'r':
-				return boardType::rook;
+				return movegenType::rook;
 			case 'b':
-				return boardType::bishop;
+				return movegenType::bishop;
 			case 'q':
-				return boardType::queen;
+				return movegenType::queen;
 			case 'k':
-				return boardType::king;
+				return movegenType::king;
 			}
 			return pieceType::invalid;
 		}
@@ -509,7 +502,7 @@ namespace pygmalion::chess
 					rank = 7;
 					break;
 				}
-				return boardType::fromRankFile(rank, file);
+				return squareType::fromRankFile(rank, file);
 			}
 		}
 		static bool parseMove_Implementation(const std::string str, const boardType& position, moveType& move, std::string& error) noexcept
@@ -554,20 +547,20 @@ namespace pygmalion::chess
 			bool bPromotion{ false };
 			switch (promote)
 			{
-			case board::pawn:
+			case movegenType::pawn:
 				error = "cannot promote to pawn";
 				return false;
-			case board::king:
+			case movegenType::king:
 				error = "cannot promote to king";
 				return false;
-			case board::knight:
-			case board::bishop:
-			case board::rook:
-			case board::queen:
+			case movegenType::knight:
+			case movegenType::bishop:
+			case movegenType::rook:
+			case movegenType::queen:
 				bPromotion = true;
 				break;
 			}
-			if (!position.totalOccupancy().checkBit(from))
+			if (!position.totalOccupancy()[from])
 			{
 				error = "no piece on " + str.substr(0, 2);
 				return false;
@@ -575,9 +568,9 @@ namespace pygmalion::chess
 			const pieceType piece{ position.getPiece(from) };
 			const playerType side{ position.movingPlayer() };
 			const playerType sideOther{ side.next() };
-			if (!position.playerOccupancy(side).checkBit(from))
+			if (!position.playerOccupancy(side)[from])
 			{
-				if (side == board::whitePlayer)
+				if (side == movegenType::whitePlayer)
 					error = "it's whites turn";
 				else
 					error = "it's blacks turn";
@@ -585,19 +578,19 @@ namespace pygmalion::chess
 			}
 			if (promote != pieceType::invalid)
 			{
-				if (piece != board::pawn)
+				if (piece != movegenType::pawn)
 				{
 					error = "only pawns can promote";
 					return false;
 				}
-				if (side == board::whitePlayer)
+				if (side == movegenType::whitePlayer)
 				{
-					if (board::rankOfSquare(from) != board::rank7)
+					if (from.rank() != movegen::rank7)
 					{
 						error = "white can only promote from rank 7";
 						return false;
 					}
-					if (board::rankOfSquare(to) != board::rank8)
+					if (to.rank() != movegen::rank8)
 					{
 						error = "white can only promote to rank 8";
 						return false;
@@ -605,12 +598,12 @@ namespace pygmalion::chess
 				}
 				else
 				{
-					if (board::rankOfSquare(from) != board::rank2)
+					if (from.rank() != movegen::rank2)
 					{
 						error = "black can only promote from rank 2";
 						return false;
 					}
-					if (board::rankOfSquare(to) != board::rank1)
+					if (to.rank() != movegen::rank1)
 					{
 						error = "black can only promote to rank 1";
 						return false;
@@ -626,17 +619,17 @@ namespace pygmalion::chess
 			bool bCastleKingSide{ false };
 			bool bCastleQueenSide{ false };
 			bool bDoublePush{ false };
-			if (combimap.checkBit(to))
+			if (combimap[to])
 			{
-				if (captures.checkBit(to))
+				if (captures[to])
 				{
 					bCapture = true;
-					if (!position.totalOccupancy().checkBit(to))
+					if (!position.totalOccupancy()[to])
 					{
-						if (position.pieceOccupancy(boardType::pawn).checkBit(to))
+						if (position.pieceOccupancy(movegenType::pawn)[to])
 						{
-							const auto file{ boardType::fileOfSquare(to) };
-							if (position.getFlags() & boardType::enPassantFlags(file))
+							const auto file{ to.file() };
+							if (movegenType::position_checkEnPassantFlag(position, file))
 							{
 								bEnPassant = true;
 							}
@@ -653,11 +646,11 @@ namespace pygmalion::chess
 						}
 					}
 				}
-				if (piece == boardType::king)
+				if (piece == movegenType::king)
 				{
-					if ((from == boardType::squareE1) && (to == boardType::squareG1) && (side == boardType::whitePlayer))
+					if ((from == movegen::squareE1) && (to == movegen::squareG1) && (side == movegenType::whitePlayer))
 					{
-						if (position.getFlags() & boardType::castlerightKingsideWhite)
+						if (movegenType::position_checkCastlerightKingsideWhite(position))
 							bCastleKingSide = true;
 						else
 						{
@@ -665,9 +658,9 @@ namespace pygmalion::chess
 							return false;
 						}
 					}
-					else if ((from == boardType::squareE8) && (to == boardType::squareG8) && (side == boardType::blackPlayer))
+					else if ((from == movegen::squareE8) && (to == movegen::squareG8) && (side == movegenType::blackPlayer))
 					{
-						if (position.getFlags() & boardType::castlerightKingsideBlack)
+						if (movegenType::position_checkCastlerightKingsideBlack(position))
 							bCastleKingSide = true;
 						else
 						{
@@ -675,9 +668,9 @@ namespace pygmalion::chess
 							return false;
 						}
 					}
-					else if ((from == boardType::squareE1) && (to == boardType::squareC1) && (side == boardType::whitePlayer))
+					else if ((from == movegen::squareE1) && (to == movegen::squareC1) && (side == movegenType::whitePlayer))
 					{
-						if (position.getFlags() & boardType::castlerightQueensideWhite)
+						if (movegenType::position_checkCastlerightQueensideWhite(position))
 							bCastleQueenSide = true;
 						else
 						{
@@ -685,9 +678,9 @@ namespace pygmalion::chess
 							return false;
 						}
 					}
-					else if ((from == boardType::squareE8) && (to == boardType::squareC8) && (side == boardType::blackPlayer))
+					else if ((from == movegen::squareE8) && (to == movegen::squareC8) && (side == movegenType::blackPlayer))
 					{
-						if (position.getFlags() & boardType::castlerightQueensideBlack)
+						if (movegenType::position_checkCastlerightQueensideBlack(position))
 							bCastleQueenSide = true;
 						else
 						{
@@ -696,13 +689,13 @@ namespace pygmalion::chess
 						}
 					}
 				}
-				else if (piece == board::pawn)
+				else if (piece == movegenType::pawn)
 				{
-					if ((side == boardType::whitePlayer) && (boardType::rankOfSquare(from) == boardType::rank2) && (boardType::rankOfSquare(to) == boardType::rank4))
+					if ((side == movegenType::whitePlayer) && (from.rank() == movegen::rank2) && (to.rank() == movegen::rank4))
 					{
 						bDoublePush = true;
 					}
-					else if ((side == boardType::blackPlayer) && (boardType::rankOfSquare(from) == boardType::rank2) && (boardType::rankOfSquare(to) == boardType::rank4))
+					else if ((side == movegenType::blackPlayer) && (from.rank() == movegen::rank2) && (to.rank() == movegen::rank4))
 					{
 						bDoublePush = true;
 					}
@@ -710,29 +703,29 @@ namespace pygmalion::chess
 				if (bPromotion)
 				{
 					if (bCapture)
-						move = moveType::promotionCapture(from, to, promote);
+						move = movegenType::move_capturePromotion(from, to, promote);
 					else
-						move = moveType::promotion(from, to, promote);
+						move = movegenType::move_promotion(from, to, promote);
 				}
 				else
 				{
 					if (bCapture)
 					{
 						if (bEnPassant)
-							move = moveType::captureEnPassant(from, to);
+							move = movegenType::move_captureEnPassant(from, to);
 						else
-							move = moveType::capture(from, to);
+							move = movegenType::move_capture(from, to);
 					}
 					else
 					{
 						if (bDoublePush)
-							move = moveType::doublePush(from, to);
+							move = movegenType::move_doublePush(from, to);
 						else if (bCastleKingSide)
-							move = moveType::castleKingside(side);
+							move = (side == movegenType::whitePlayer) ? movegenType::move_castleKingsideWhite() : movegenType::move_castleKingsideBlack();
 						else if (bCastleQueenSide)
-							move = moveType::castleKingside(side);
+							move = (side == movegenType::whitePlayer) ? movegenType::move_castleQueensideWhite() : movegenType::move_castleQueensideBlack();
 						else
-							move = moveType::quiet(from, to);
+							move = movegenType::move_quiet(from, to);
 					}
 				}
 				return true;
@@ -750,8 +743,8 @@ namespace pygmalion::chess
 			for (int i = 0; i < variation.length(); i++)
 			{
 				sstr << moveToString(currentPosition, variation[i]) << " ";
-				boardType::movedata md(currentPosition, variation[i]);
-				currentPosition.makeMove(md);
+				movegenType::movedata md(currentPosition, variation[i]);
+				movegenType::makeMove(currentPosition, md);
 			}
 			return sstr.str();
 		}

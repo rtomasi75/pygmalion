@@ -1,10 +1,13 @@
 namespace pygmalion
 {
-	template<int COUNT>
+	template<int COUNT, typename INSTANCE>
 	class enumeration
 	{
 	public:
+		using instanceType = INSTANCE;
 		constexpr static int countValues{ COUNT };
+		constexpr static int countUnsignedBits{ requiredUnsignedBits(countValues) };
+		constexpr static int countSignedBits{ countUnsignedBits + 1 };
 		using baseType = typename int_traits<requiredSignedBytes(countValues)>::STYPE;
 		enum valueType : baseType
 		{
@@ -12,32 +15,34 @@ namespace pygmalion
 		};
 	private:
 		valueType m_Value;
-	public:
+	protected:
 		constexpr enumeration(const enumeration&) noexcept = default;
 		constexpr enumeration(enumeration&&) noexcept = default;
-		constexpr enumeration& operator=(enumeration&&) noexcept = default;
-		constexpr enumeration& operator=(const enumeration&) noexcept = default;
-		constexpr enumeration(const baseType value) noexcept :
-			m_Value(static_cast<valueType>(value))
-		{
-		}
 		constexpr enumeration() noexcept :
 			m_Value(valueType::invalid)
 		{
 
 		}
+		constexpr enumeration(const baseType value) noexcept :
+			m_Value(static_cast<valueType>(value))
+		{
+		}
 		constexpr enumeration(const valueType value) noexcept :
 			m_Value(value)
 		{
 		}
+		constexpr enumeration& operator=(enumeration&&) noexcept = default;
+		constexpr enumeration& operator=(const enumeration&) noexcept = default;
+	public:
+		~enumeration() noexcept = default;
 		constexpr operator baseType() const noexcept
 		{
 			return static_cast<baseType>(m_Value);
 		}
-		constexpr auto next() const noexcept
+		constexpr instanceType next() const noexcept
 		{
 			assert(this->isValid());
-			return enumeration(static_cast<valueType>(((static_cast<baseType>(m_Value) + 1) % static_cast<baseType>(countValues))));
+			return instanceType(static_cast<valueType>(((static_cast<baseType>(m_Value) + 1) % static_cast<baseType>(countValues))));
 		}
 		constexpr bool isValid() const noexcept
 		{
@@ -53,7 +58,7 @@ namespace pygmalion
 			m_Value = static_cast<valueType>(static_cast<baseType>(m_Value) + 1);
 			return std::move(temp);
 		}
-		constexpr enumeration& operator++() noexcept
+		constexpr instanceType& operator++() noexcept
 		{
 			m_Value = static_cast<valueType>(static_cast<baseType>(m_Value) + 1);
 			return *this;
@@ -64,22 +69,22 @@ namespace pygmalion
 			m_Value = static_cast<valueType>(static_cast<baseType>(m_Value) - 1);
 			return std::move(temp);
 		}
-		constexpr enumeration& operator--() noexcept
+		constexpr instanceType& operator--() noexcept
 		{
 			m_Value = static_cast<valueType>(static_cast<baseType>(m_Value) - 1);
 			return *this;
 		}
-		constexpr enumeration& operator|=(const enumeration other) noexcept
+		constexpr instanceType& operator|=(const instanceType other) noexcept
 		{
 			m_Value = static_cast<valueType>(static_cast<baseType>(m_Value) | other);
-			return *this;
+			return *static_cast<instanceType*>(this);
 		}
 		struct iterator
 		{
 		private:
 			baseType m_Current;
 		public:
-			typedef enumeration value_type;
+			typedef instanceType value_type;
 			typedef std::ptrdiff_t difference_type;
 			typedef value_type* pointer;
 			typedef value_type& reference;

@@ -1,62 +1,51 @@
 namespace pygmalion
 {
-	template<typename SEARCH>
+	template<typename SEARCH, typename DESCRIPTOR_SEARCH>
 	class node
 	{
 	public:
 		using searchType = SEARCH;
-		using movegenType = typename searchType::movegenType;
-		using movedataType = typename movegenType::movedataType;
-		using evaluatorType = typename searchType::evaluatorType;
-		using boardType = typename movegenType::boardType;
-		using playerType = typename movegenType::playerType;
-		using subjectiveType = typename searchType::subjectiveType;
-		using objectiveType = typename searchType::objectiveType;
-		using indexType = typename movegenType::indexType;
-		using movelistType = typename movegenType::movelistType;
-		using depthType = typename searchType::depthType;
-		using variationType = typename searchType::variationType;
-		using moveType = typename movegenType::moveType;
-		using stackType = typename movegenType::stackType;
-		using multiscoreType = typename searchType::multiscoreType;
-		constexpr static size_t countPlayers{ boardType::countPlayers };
-		constexpr static auto maxDepth{ searchType::maxDepth };
+		using stackType = typename searchType::stackType;
+
+		using descriptorSearch = DESCRIPTOR_SEARCH;
+#include "include_search.h"
+
 	private:
 		stackType m_Stack;
 		objectiveType lateScore() const noexcept
 		{
-			const auto lateState{ movegenType::lateResult(m_Stack) };
-			assert(!boardType::isOpen(lateState));
-			if (!boardType::isDraw(lateState))
-				return evaluatorType::neutralScore();
+			const auto lateState{ evaluationType::lateResult(m_Stack) };
+			assert(!gamestateType::isOpen(lateState));
+			if (!gamestateType::isDraw(lateState))
+				return evaluationType::neutralScore();
 			else
-				return evaluatorType::lossScore(m_Stack.movingPlayer());
+				return evaluationType::lossScore(m_Stack.movingPlayer());
 		}
 		bool earlyScore(objectiveType& score) const noexcept
 		{
-			const auto earlyState{ movegenType::earlyResult(m_Stack) };
-			if (!boardType::isOpen(earlyState))
+			const auto earlyState{ evaluationType::earlyResult(m_Stack) };
+			if (!gamestateType::isOpen(earlyState))
 			{
-				if (boardType::isDraw(earlyState))
+				if (gamestateType::isDraw(earlyState))
 				{
-					score = evaluatorType::neutralScore();
+					score = evaluationType::neutralScore();
 					return true;
 				}
 				else
 				{
 					for (const playerType i : playerType::range)
 					{
-						if (boardType::isWin(earlyState, i))
+						if (gamestateType::isWin(earlyState, i))
 						{
-							score = evaluatorType::winScore(i);
+							score = evaluationType::winScore(i);
 							return true;
 						}
 					}
 					for (const playerType i : playerType::range)
 					{
-						if (boardType::isLoss(earlyState, i))
+						if (gamestateType::isLoss(earlyState, i))
 						{
-							score = evaluatorType::lossScore(i);
+							score = evaluationType::lossScore(i);
 							return true;
 						}
 					}
@@ -66,36 +55,56 @@ namespace pygmalion
 			return false;
 		}
 	public:
-		objectiveType eval(multiscoreType currentScore, const depthType depth, variationType& principalVariation, uint64_t& nodeCount) const noexcept
+		objectiveType eval(multiscoreType currentScore, const depthType depth, variationType& principalVariation, heuristicsType& heuristics) const noexcept
 		{
-			score early{ evaluatorType::neutralScore() };
+			heuristics.beginNode(m_Stack.position());
+			score early{ evaluationType::neutralScore() };
 			if (earlyScore(early))
+			{
+				heuristics.endNodeEarly(m_Stack.position());
 				return early;
-			const objectiveType stand_pat{ evaluatorType::evaluate(m_Stack) };
+			}
+			const objectiveType stand_pat{ evaluationType::evaluate(m_Stack) };
 			const playerType movingPlayer{ m_Stack.movingPlayer() };
 			if (currentScore.refuted(movingPlayer, stand_pat))
+			{
+				heuristics.endNodeLeaf(m_Stack.position());
 				return stand_pat;
+			}
 			currentScore.accepted(movingPlayer, stand_pat);
 			bool hasLegalMove{ false };
 			moveType move;
-			if (depth < maxDepth)
+			if (depth < countSearchPlies)
 			{
 				while (m_Stack.nextTacticalMove(move))
 				{
+					heuristics.beginMove(m_Stack.position(), move);
 					hasLegalMove = true;
 					variationType subVariation;
 					currentScore.plyDown();
-					nodeCount++;
-					node subnode(*this, move);
-					objectiveType sc{ subnode.search(currentScore, -1, depth + 1, subVariation, nodeCount) };
-					evaluatorType::plyUp(sc);
+					objectiveType sc{ objectiveType::zero() };
+					{
+						node subnode(*this, move);
+						sc = subnode.search(currentScore, -1, depth + 1, subVariation, heuristics);
+					}
+					evaluationType::plyUp(sc);
 					currentScore.plyUp();
 					if (currentScore.refuted(movingPlayer, sc))
+					{
+						heuristics.endMoveRefuted(m_Stack.position(), move);
+						heuristics.endNodeCut(m_Stack.position());
 						return sc;
+					}
 					if (currentScore.accepted(movingPlayer, sc))
+					{
+						heuristics.endMoveAccepted(m_Stack.position(), move);
 						principalVariation.combine(move, subVariation);
+					}
+					else
+						heuristics.endMoveSilent(m_Stack.position(), move);
 				}
 			}
+			heuristics.endNodeLate(m_Stack.position());
 			if (!hasLegalMove)
 				hasLegalMove = m_Stack.hasLegalMove();
 			if (hasLegalMove)
@@ -103,60 +112,79 @@ namespace pygmalion
 			else
 				return lateScore();
 		}
-		objectiveType search(multiscoreType currentScore, const depthType depthRemaining, const depthType depth, variationType& principalVariation, uint64_t& nodeCount) const noexcept
+		objectiveType search(multiscoreType currentScore, const depthType depthRemaining, const depthType depth, variationType& principalVariation, heuristicsType& heuristics) const noexcept
 		{
-			if ((depthRemaining >= 0) && (depth < maxDepth))
+			if ((depthRemaining >= 0) && (depth < countSearchPlies))
 			{
-				score early{ evaluatorType::neutralScore() };
+				heuristics.beginNode(m_Stack.position());
+				score early{ evaluationType::neutralScore() };
 				if (earlyScore(early))
+				{
+					heuristics.endNodeEarly(m_Stack.position());
 					return early;
+				}
 				const playerType movingPlayer{ m_Stack.movingPlayer() };
 				bool hasLegalMove{ false };
 				moveType move;
 				while (m_Stack.nextMove(move))
 				{
+					heuristics.beginMove(m_Stack.position(), move);
 					hasLegalMove = true;
 					variationType subVariation;
 					currentScore.plyDown();
-					nodeCount++;
-					node subnode(*this, move);
-					objectiveType sc{ subnode.search(currentScore, depthRemaining - 1, depth + 1, subVariation, nodeCount) };
-					evaluatorType::plyUp(sc);
+					objectiveType sc{ objectiveType::zero() };
+					{
+						node subnode(*this, move);
+						sc = subnode.search(currentScore, depthRemaining - 1, depth + 1, subVariation, heuristics);
+					}
+					evaluationType::plyUp(sc);
 					currentScore.plyUp();
 					if (currentScore.refuted(movingPlayer, sc))
+					{
+						heuristics.endMoveRefuted(m_Stack.position(), move);
+						heuristics.endNodeCut(m_Stack.position());
 						return sc;
+					}
 					if (currentScore.accepted(movingPlayer, sc))
+					{
+						heuristics.endMoveAccepted(m_Stack.position(), move);
 						principalVariation.combine(move, subVariation);
+					}
+					else
+						heuristics.endMoveSilent(m_Stack.position(), move);
 				}
+				heuristics.endNodeLate(m_Stack.position());
 				if (hasLegalMove)
 					return currentScore.score(movingPlayer);
 				else
 					return lateScore();
-				return evaluatorType::neutralScore();
+				return evaluationType::neutralScore();
 			}
 			else
-			{
-				return eval(currentScore, depth, principalVariation, nodeCount);
-			}
+				return eval(currentScore, depth, principalVariation, heuristics);
 		}
-		void perft(const depthType depthRemaining, const depthType depth, uint64_t& nodeCount) noexcept
+		void perft(const depthType depthRemaining, const depthType depth, heuristicsType& heuristics) noexcept
 		{
-			if (!boardType::isOpen(movegenType::earlyResult(m_Stack)))
+			heuristics.beginNode(m_Stack.position());
+			if (!gamestateType::isOpen(evaluationType::earlyResult(m_Stack)))
 			{
+				heuristics.endNodeEarly(m_Stack.position());
 				return;
 			}
-			if ((depthRemaining >= 0) && (depth < maxDepth))
+			if ((depthRemaining >= 0) && (depth < countSearchPlies))
 			{
 				movelistType moves;
 				const playerType movingPlayer{ m_Stack.position().movingPlayer() };
 				moveType move;
 				while (m_Stack.nextMove(move))
 				{
-					nodeCount++;
 					node subnode{ node(*this,move) };
-					subnode.perft(depthRemaining - 1, depth + 1, nodeCount);
+					subnode.perft(depthRemaining - 1, depth + 1, heuristics);
 				}
+				heuristics.endNodeLate(m_Stack.position());
 			}
+			else
+				heuristics.endNodeLeaf(m_Stack.position());
 		}
 		node() = delete;
 		constexpr node(const node&) = default;

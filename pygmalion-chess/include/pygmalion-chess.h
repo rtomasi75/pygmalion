@@ -9,13 +9,16 @@
 #include <sstream>
 #include <mutex>
 
-//#define PYGMALION_CHESS_DEBUG_PAWNMOVEMAP
-
 #include "pygmalion-chess/score.h"
+#include <pygmalion-chess/descriptor_board.h>
 #include "pygmalion-chess/board.h"
+#include <pygmalion-chess/descriptor_mechanics.h>
+#include "pygmalion-chess/mechanics.h"
 #include "pygmalion-chess/slidermagic.h"
-#include "pygmalion-chess/movegenTables.h"
-#include "pygmalion-chess/movegen.h"
+#include "pygmalion-chess/generatorTables.h"
+#include <pygmalion-chess/descriptor_generator.h>
+#include "pygmalion-chess/stack.h"
+#include "pygmalion-chess/generator.h"
 #include "pygmalion-chess/evaluationTables.h"
 #include "pygmalion-chess/evaluator.h"
 #include "pygmalion-chess/frontend.h"

@@ -1,9 +1,11 @@
 namespace pygmalion::chess
 {
-	class movegen : public pygmalion::movegen<pygmalion::chess::board, 255, pygmalion::chess::movegen>
+
+	class movegen : public pygmalion::movegen<board, descriptor_board, descriptor_movegen, pygmalion::chess::movedata, pygmalion::chess::stack, movegen>
 	{
 	private:
 		static movegenTables m_Tables;
+		using bitsType = typename boardType::bitsType;
 		static bitsType fillAttackRay_Up(const bitsType attackers, const bitsType notBlockers) noexcept
 		{
 			bitsType attacks{ boardType::up(attackers) };
@@ -93,75 +95,45 @@ namespace pygmalion::chess
 			return attacks;
 		}
 	public:
-		using rankType = typename boardType::rank;
-		using fileType = typename boardType::file;
 		static movegenTables& tables() noexcept
 		{
 			return m_Tables;
-		}
-		static std::string name_Implementation() noexcept
-		{
-			return "Chess ver. 1.0";
-		}
-		constexpr static gamestateType earlyResult_Implementation(const stackType& stack) noexcept
-		{
-			if (stack.position().getDistanceToDraw() <= 0)
-				return boardType::draw();
-			if ((stack.position().pieceOccupancy(boardType::pawn) | stack.position().pieceOccupancy(boardType::rook) | stack.position().pieceOccupancy(boardType::queen)) == bitsType::empty())
-			{
-				if ((stack.position().pieceOccupancy(boardType::knight) == bitsType::empty()) && (stack.position().pieceOccupancy(boardType::bishop).populationCount() <= 1))
-					return boardType::draw();
-				if ((stack.position().pieceOccupancy(boardType::bishop) == bitsType::empty()) && (stack.position().pieceOccupancy(boardType::knight).populationCount() <= 1))
-					return boardType::draw();
-				if (stack.position().pieceOccupancy(boardType::bishop) == bitsType::empty())
-				{
-					if (((stack.position().pieceOccupancy(boardType::knight) & stack.position().playerOccupancy(board::blackPlayer)) == bitsType::empty()) && ((stack.position().pieceOccupancy(boardType::knight) & stack.position().playerOccupancy(board::whitePlayer)).populationCount() <= 2))
-						return boardType::draw();
-					if (((stack.position().pieceOccupancy(boardType::knight) & stack.position().playerOccupancy(board::whitePlayer)) == bitsType::empty()) && ((stack.position().pieceOccupancy(boardType::knight) & stack.position().playerOccupancy(board::blackPlayer)).populationCount() <= 2))
-						return boardType::draw();
-				}
-			}
-			return boardType::open();
-		}
-		static gamestateType lateResult_Implementation(const stackType& stack) noexcept
-		{
-			return stack.isCheck() ? boardType::draw() : boardType::loss(stack.movingPlayer());
 		}
 		static bitsType attackedSquares(const boardType& position, const playerType attackingPlayer) noexcept
 		{
 			assert(attackingPlayer.isValid());
 			const bitsType attackerOccupancy{ position.playerOccupancy(attackingPlayer) };
-			const bitsType knights{ position.pieceOccupancy(boardType::knight) & attackerOccupancy };
+			const bitsType knights{ position.pieceOccupancy(knight) & attackerOccupancy };
 			bitsType attacked{ boardType::upUpLeft(knights) | boardType::upUpRight(knights) | boardType::downDownLeft(knights) | boardType::downDownRight(knights) | boardType::upLeftLeft(knights) | boardType::upRightRight(knights) | boardType::downLeftLeft(knights) | boardType::downRightRight(knights) };
-			attacked |= m_Tables.kingMoveMap(position.kingSquare(attackingPlayer));
-			const bitsType queens{ position.pieceOccupancy(boardType::queen) };
-			const bitsType slidersHV{ (position.pieceOccupancy(boardType::rook) | queens) & attackerOccupancy };
-			const bitsType slidersDiag{ (position.pieceOccupancy(boardType::bishop) | queens) & attackerOccupancy };
+			attacked |= m_Tables.kingMoveMap(position_kingSquare(position, attackingPlayer));
+			const bitsType queens{ position.pieceOccupancy(queen) };
+			const bitsType slidersHV{ (position.pieceOccupancy(rook) | queens) & attackerOccupancy };
+			const bitsType slidersDiag{ (position.pieceOccupancy(bishop) | queens) & attackerOccupancy };
 			const bitsType notBlockers = ~position.totalOccupancy();
 			attacked |= fillAttackRay_Up(slidersHV, notBlockers) | fillAttackRay_Down(slidersHV, notBlockers) | fillAttackRay_Right(slidersHV, notBlockers) | fillAttackRay_Left(slidersHV, notBlockers);
 			attacked |= fillAttackRay_UpLeft(slidersDiag, notBlockers) | fillAttackRay_UpRight(slidersDiag, notBlockers) | fillAttackRay_DownLeft(slidersDiag, notBlockers) | fillAttackRay_DownRight(slidersDiag, notBlockers);
-			const bitsType pawns{ position.pieceOccupancy(boardType::pawn) & attackerOccupancy };
-			attacked |= (attackingPlayer == boardType::whitePlayer) ? (boardType::upLeft(pawns) | boardType::upRight(pawns)) : (boardType::downLeft(pawns) | boardType::downRight(pawns));
+			const bitsType pawns{ position.pieceOccupancy(pawn) & attackerOccupancy };
+			attacked |= (attackingPlayer == whitePlayer) ? (boardType::upLeft(pawns) | boardType::upRight(pawns)) : (boardType::downLeft(pawns) | boardType::downRight(pawns));
 			return attacked;
 		}
 		static bool isSquareAttackedByPlayer(const boardType& position, const squareType square, const playerType attackingPlayer) noexcept
 		{
 			const bitsType playerPieces{ position.playerOccupancy(attackingPlayer) };
-			const bitsType attackingKnights{ m_Tables.knightMoveMap(square) & position.pieceOccupancy(boardType::knight) & playerPieces };
+			const bitsType attackingKnights{ m_Tables.knightMoveMap(square) & position.pieceOccupancy(knight) & playerPieces };
 			if (attackingKnights)
 				return true;
-			const bitsType attackingKings{ m_Tables.kingMoveMap(square) & position.pieceOccupancy(boardType::king) & playerPieces };
+			const bitsType attackingKings{ m_Tables.kingMoveMap(square) & position.pieceOccupancy(king) & playerPieces };
 			if (attackingKings)
 				return true;
-			const bitsType pawns{ position.pieceOccupancy(boardType::pawn) & playerPieces };
-			const bitsType attackedByPawn{ attackingPlayer == boardType::whitePlayer ? boardType::upLeft(pawns) | boardType::upRight(pawns) : boardType::downLeft(pawns) | boardType::downRight(pawns) };
-			if (attackedByPawn.checkBit(square))
+			const bitsType pawns{ position.pieceOccupancy(pawn) & playerPieces };
+			const bitsType attackedByPawn{ attackingPlayer == whitePlayer ? boardType::upLeft(pawns) | boardType::upRight(pawns) : boardType::downLeft(pawns) | boardType::downRight(pawns) };
+			if (attackedByPawn[square])
 				return true;
 			const bitsType totalOccupancy{ position.totalOccupancy() };
-			const bitsType slidersHV{ position.pieceOccupancy(boardType::queen) | position.pieceOccupancy(boardType::rook) };
+			const bitsType slidersHV{ position.pieceOccupancy(queen) | position.pieceOccupancy(rook) };
 			if (m_Tables.sliderAttacks(false, square, totalOccupancy, slidersHV) & playerPieces)
 				return true;
-			const bitsType slidersDiag{ position.pieceOccupancy(boardType::queen) | position.pieceOccupancy(boardType::bishop) };
+			const bitsType slidersDiag{ position.pieceOccupancy(queen) | position.pieceOccupancy(bishop) };
 			if (m_Tables.sliderAttacks(true, square, totalOccupancy, slidersDiag) & playerPieces)
 				return true;
 			return false;
@@ -170,15 +142,15 @@ namespace pygmalion::chess
 		{
 			assert(square.isValid());
 			bitsType attackers{ bitsType::empty() };
-			attackers |= m_Tables.knightMoveMap(square) & position.pieceOccupancy(boardType::knight);
-			attackers |= m_Tables.kingMoveMap(square) & position.pieceOccupancy(boardType::king);
-			const bitsType whitepawns{ position.pieceOccupancy(boardType::pawn) & position.playerOccupancy(boardType::whitePlayer) };
-			const bitsType blackpawns{ position.pieceOccupancy(boardType::pawn) & position.playerOccupancy(boardType::blackPlayer) };
+			attackers |= m_Tables.knightMoveMap(square) & position.pieceOccupancy(knight);
+			attackers |= m_Tables.kingMoveMap(square) & position.pieceOccupancy(king);
+			const bitsType whitepawns{ position.pieceOccupancy(pawn) & position.playerOccupancy(whitePlayer) };
+			const bitsType blackpawns{ position.pieceOccupancy(pawn) & position.playerOccupancy(blackPlayer) };
 			const bitsType piecemap{ bitsType::setMask(square) };
 			attackers |= (board::downLeft(piecemap) | board::downRight(piecemap)) & whitepawns;
 			attackers |= (board::upLeft(piecemap) | board::upRight(piecemap)) & blackpawns;
-			const bitsType xraysHV{ position.pieceOccupancy(boardType::queen) | position.pieceOccupancy(boardType::rook) };
-			const bitsType xraysDiag{ position.pieceOccupancy(boardType::queen) | position.pieceOccupancy(boardType::bishop) };
+			const bitsType xraysHV{ position.pieceOccupancy(queen) | position.pieceOccupancy(rook) };
+			const bitsType xraysDiag{ position.pieceOccupancy(queen) | position.pieceOccupancy(bishop) };
 			const bitsType totalOCC{ position.totalOccupancy() };
 			attackers |= m_Tables.sliderAttacks(false, square, totalOCC, xraysHV);
 			attackers |= m_Tables.sliderAttacks(true, square, totalOCC, xraysDiag);
@@ -188,78 +160,21 @@ namespace pygmalion::chess
 		{
 			assert(square.isValid());
 			bitsType attackers{ bitsType::empty() };
-			attackers |= m_Tables.knightMoveMap(square) & position.pieceOccupancy(boardType::knight);
-			attackers |= m_Tables.kingMoveMap(square) & position.pieceOccupancy(boardType::king);
-			const bitsType pawns{ position.pieceOccupancy(boardType::pawn) & position.playerOccupancy(attacker) };
+			attackers |= m_Tables.knightMoveMap(square) & position.pieceOccupancy(knight);
+			attackers |= m_Tables.kingMoveMap(square) & position.pieceOccupancy(king);
+			const bitsType pawns{ position.pieceOccupancy(pawn) & position.playerOccupancy(attacker) };
 			const bitsType piecemap{ bitsType::setMask(square) };
-			attackers |= (attacker == boardType::whitePlayer ? (board::downLeft(piecemap) | board::downRight(piecemap)) : (board::upLeft(piecemap) | board::upRight(piecemap))) & pawns;
-			const bitsType xraysHV{ position.pieceOccupancy(boardType::queen) | position.pieceOccupancy(boardType::rook) };
-			const bitsType xraysDiag{ position.pieceOccupancy(boardType::queen) | position.pieceOccupancy(boardType::bishop) };
+			attackers |= (attacker == whitePlayer ? (board::downLeft(piecemap) | board::downRight(piecemap)) : (board::upLeft(piecemap) | board::upRight(piecemap))) & pawns;
+			const bitsType xraysHV{ position.pieceOccupancy(queen) | position.pieceOccupancy(rook) };
+			const bitsType xraysDiag{ position.pieceOccupancy(queen) | position.pieceOccupancy(bishop) };
 			const bitsType totalOCC{ position.totalOccupancy() };
 			attackers |= m_Tables.sliderAttacks(false, square, totalOCC, xraysHV);
 			attackers |= m_Tables.sliderAttacks(true, square, totalOCC, xraysDiag);
 			return attackers & position.playerOccupancy(attacker);
 		}
-		static bool isMoveLegal_Implementation(const stackType& stack, const moveType& move) noexcept
+		static bool position_isCheck(const boardType& position) noexcept
 		{
-			const boardType& position{ stack.position() };
-			const playerType movingPlayer{ position.movingPlayer() };
-			const playerType otherPlayer{ movingPlayer.next() };
-			const squareType to{ move.to() };
-
-			// are we illegally capturing the other king?
-			const bool isCapture{ move.isCapture() };
-			const squareType otherking{ position.kingSquare(otherPlayer) };
-			if (isCapture && (otherking == to))
-				return false;
-
-			// No. Let's see where our king lives after the move as been made then...
-			const squareType from{ move.from() };
-			const squareType kingsquareOld{ position.kingSquare(movingPlayer) };
-			const squareType kingsquare{ (from == kingsquareOld) ? to : kingsquareOld };
-
-			// Does he live on a square that is guarded by the other king?
-			const bitsType attacks_otherKing{ m_Tables.kingMoveMap(otherking) };
-			if (attacks_otherKing.checkBit(kingsquare))
-				return false;
-
-			// We need the enemy occupancy bitboard as it would be after the move...
-			const bitsType otherOccupancy{ position.playerOccupancy(otherPlayer) };
-			const bitsType otherDelta{ isCapture ? (move.isEnPassant() ? bitsType::setMask(boardType::fromRankFile(boardType::rankOfSquare(from), boardType::fileOfSquare(to))) : bitsType::setMask(to)) : bitsType::empty() };
-			const bitsType occOther{ otherOccupancy ^ otherDelta };
-
-			// Does he live on a square that is guarded by an enemy knight?
-			const bitsType otherKnights{ ((position.pieceOccupancy(boardType::knight) & otherOccupancy) ^ otherDelta) & occOther };
-			const bitsType attacks_otherKnights{ boardType::upUpLeft(otherKnights) | boardType::upUpRight(otherKnights) | boardType::downDownLeft(otherKnights) | boardType::downDownRight(otherKnights) | boardType::upLeftLeft(otherKnights) | boardType::downLeftLeft(otherKnights) | boardType::upRightRight(otherKnights) | boardType::downRightRight(otherKnights) };
-			if (attacks_otherKnights.checkBit(kingsquare))
-				return false;
-
-			// Does he live on a square that is guarded by an enemy pawn?
-			const bitsType otherPawns{ ((position.pieceOccupancy(boardType::pawn) & otherOccupancy) ^ otherDelta) & occOther };
-			const bitsType attacks_otherPawns{ (otherPlayer == boardType::whitePlayer) ? (boardType::upLeft(otherPawns) | boardType::upRight(otherPawns)) : (boardType::downLeft(otherPawns) | boardType::downRight(otherPawns)) };
-			if (attacks_otherPawns.checkBit(kingsquare))
-				return false;
-
-			// We need the total occupancy bitboard as it would be after the move...
-			const bitsType movingOccupancy{ position.playerOccupancy(movingPlayer) };
-			const bitsType moveMask{ bitsType::setMask(from) ^ bitsType::setMask(to) };
-			const bitsType movingDelta{ move.isCastle() ? (move.isCastleKingside() ? (moveMask ^ bitsType::setMask(boardType::fromRankFile(boardType::rankOfSquare(from), boardType::fileOfSquare(to) - 1)) ^ bitsType::setMask(boardType::fromRankFile(boardType::rankOfSquare(from),boardType::fileH))) : (moveMask ^ bitsType::setMask(boardType::fromRankFile(boardType::rankOfSquare(from), boardType::fileOfSquare(to) + 1)) ^ bitsType::setMask(boardType::fromRankFile(boardType::rankOfSquare(from),boardType::fileA)))) : moveMask };
-			const bitsType occMoving{ movingOccupancy ^ movingDelta };
-			const bitsType occTotal{ occOther | occMoving };
-
-			// Is he attacked horizontally by sliding pieces?
-			const bitsType queens{ position.pieceOccupancy(boardType::queen) };
-			const bitsType otherSlidersHV = occOther & (position.pieceOccupancy(boardType::rook) | queens);
-			if (m_Tables.sliderAttacks(false, kingsquare, occTotal, otherSlidersHV))
-				return false;
-
-			// Is he attacked diagonally by sliding pieces?
-			const bitsType otherSlidersDiag = occOther & (position.pieceOccupancy(boardType::bishop) | queens);
-			if (m_Tables.sliderAttacks(true, kingsquare, occTotal, otherSlidersDiag))
-				return false;
-
-			// The move seems legal
-			return true;
+			return isSquareAttackedByPlayer(position, position_kingSquare(position, position.movingPlayer()), position.movingPlayer().next());
 		}
 		static bitsType pawnMoveMap_untabled(const playerType side, const squareType square, const bool bCapture) noexcept;
 		static bitsType knightMoveMap_untabled(const squareType square) noexcept;
@@ -273,10 +188,10 @@ namespace pygmalion::chess
 			const bitsType knightMap{ m_Tables.knightMoveMap(from) };
 			const bitsType moveMap{ knightMap & ~position.totalOccupancy() };
 			for (const auto to : moveMap)
-				moves.add(moveType::quiet(from, to));
+				moves.add(move_quiet(from, to));
 			const bitsType captureMap{ knightMap & position.playerOccupancy(otherPlayer) };
 			for (const auto to : captureMap)
-				moves.add(moveType::capture(from, to));
+				moves.add(move_capture(from, to));
 		}
 		static void knightCaptures(const boardType& position, const squareType from, const playerType otherPlayer, movelistType& moves) noexcept
 		{
@@ -285,7 +200,28 @@ namespace pygmalion::chess
 			const bitsType knightMap{ m_Tables.knightMoveMap(from) };
 			const bitsType captureMap{ knightMap & position.playerOccupancy(otherPlayer) };
 			for (const auto to : captureMap)
-				moves.add(moveType::capture(from, to));
+				moves.add(move_capture(from, to));
+		}
+		static void castles(const boardType& position, const squareType from, const playerType movingPlayer, const playerType otherPlayer, const bitsType forbidden, movelistType& moves) noexcept
+		{
+			assert(movingPlayer.isValid());
+			assert(otherPlayer.isValid());
+			assert(from.isValid());
+			const bitsType totalOccupancy{ position.totalOccupancy() };
+			if ((movingPlayer == whitePlayer) && (from == squareE1))
+			{
+				if (position_checkCastlerightKingsideWhite(position) && (!(kingsideCastleInterestWhite & totalOccupancy)) && (!(forbidden & kingsideCastleWalkWhite)))
+					moves.add(move_castleKingsideWhite());
+				if (position_checkCastlerightQueensideWhite(position) && (!(queensideCastleInterestWhite & totalOccupancy)) && (!(forbidden & queensideCastleWalkWhite)))
+					moves.add(move_castleQueensideWhite());
+			}
+			else if ((movingPlayer == blackPlayer) && (from == squareE8))
+			{
+				if (position_checkCastlerightKingsideBlack(position) && (!(kingsideCastleInterestBlack & totalOccupancy)) && (!(forbidden & kingsideCastleWalkBlack)))
+					moves.add(move_castleKingsideBlack());
+				if (position_checkCastlerightQueensideBlack(position) && (!(queensideCastleInterestBlack & totalOccupancy)) && (!(forbidden & queensideCastleWalkBlack)))
+					moves.add(move_castleQueensideBlack());
+			}
 		}
 		static void kingMoves(const boardType& position, const squareType from, const playerType movingPlayer, const playerType otherPlayer, const bitsType forbidden, movelistType& moves) noexcept
 		{
@@ -297,26 +233,10 @@ namespace pygmalion::chess
 			const bitsType allowed{ ~forbidden };
 			const bitsType moveMap{ (kingMap & ~totalOccupancy) & allowed };
 			for (const auto to : moveMap)
-				moves.add(moveType::quiet(from, to));
+				moves.add(move_quiet(from, to));
 			const bitsType captureMap{ (kingMap & position.playerOccupancy(otherPlayer)) & allowed };
 			for (const auto to : captureMap)
-				moves.add(moveType::capture(from, to));
-			if ((movingPlayer == boardType::whitePlayer) && (from == boardType::squareE1))
-			{
-				const typename boardType::flags flags{ position.getFlags() };
-				if ((flags & boardType::castlerightKingsideWhite) && (!(boardType::kingsideCastleInterestWhite & totalOccupancy)) && (!(forbidden & boardType::kingsideCastleWalkWhite)))
-					moves.add(moveType::castleKingside(boardType::whitePlayer));
-				if ((flags & boardType::castlerightQueensideWhite) && (!(boardType::queensideCastleInterestWhite & totalOccupancy)) && (!(forbidden & boardType::queensideCastleWalkWhite)))
-					moves.add(moveType::castleQueenside(boardType::whitePlayer));
-			}
-			else if ((movingPlayer == boardType::blackPlayer) && (from == boardType::squareE8))
-			{
-				const typename boardType::flags flags{ position.getFlags() };
-				if ((flags & boardType::castlerightKingsideBlack) && (!(boardType::kingsideCastleInterestBlack & totalOccupancy)) && (!(forbidden & boardType::kingsideCastleWalkBlack)))
-					moves.add(moveType::castleKingside(boardType::blackPlayer));
-				if ((flags & boardType::castlerightQueensideBlack) && (!(boardType::queensideCastleInterestBlack & totalOccupancy)) && (!(forbidden & boardType::queensideCastleWalkBlack)))
-					moves.add(moveType::castleQueenside(boardType::blackPlayer));
-			}
+				moves.add(move_capture(from, to));
 		}
 		static void kingCaptures(const boardType& position, const squareType from, const playerType movingPlayer, const playerType otherPlayer, const bitsType forbidden, movelistType& moves) noexcept
 		{
@@ -328,103 +248,179 @@ namespace pygmalion::chess
 			const bitsType allowed{ ~forbidden };
 			const bitsType captureMap{ (kingMap & position.playerOccupancy(otherPlayer)) & allowed };
 			for (const auto to : captureMap)
-				moves.add(moveType::capture(from, to));
+				moves.add(move_capture(from, to));
+		}
+		static void doublePushes(const boardType& position, const squareType from, const playerType movingPlayer, const playerType otherPlayer, movelistType& moves) noexcept
+		{
+			assert(movingPlayer.isValid());
+			assert(from.isValid());
+			const rankType fromRank{ from.rank() };
+			if (movingPlayer == whitePlayer)
+			{
+				if (fromRank == rank2)
+				{
+					const bitsType freeSquares{ ~position.totalOccupancy() };
+					const bitsType moveMap{ m_Tables.pawnMoveMap(from,movingPlayer) & freeSquares };
+					const bitsType doublePushMap{ boardType::up(moveMap) & freeSquares };
+					for (const auto to : doublePushMap)
+						moves.add(move_doublePush(from, to));
+				}
+			}
+			else
+			{
+				if (fromRank == rank7)
+				{
+					const bitsType freeSquares{ ~position.totalOccupancy() };
+					const bitsType moveMap{ m_Tables.pawnMoveMap(from,movingPlayer) & freeSquares };
+					const bitsType doublePushMap{ boardType::down(moveMap) & freeSquares };
+					for (const auto to : doublePushMap)
+						moves.add(move_doublePush(from, to));
+				}
+			}
+		}
+		static void promotions(const boardType& position, const squareType from, const playerType movingPlayer, const playerType otherPlayer, movelistType& moves) noexcept
+		{
+			assert(movingPlayer.isValid());
+			assert(from.isValid());
+			const rankType fromRank{ from.rank() };
+			if (movingPlayer == whitePlayer)
+			{
+				if (fromRank == rank7)
+				{
+					const bitsType freeSquares{ ~position.totalOccupancy() };
+					const bitsType moveMap{ m_Tables.pawnMoveMap(from,movingPlayer) & freeSquares };
+					for (const auto to : moveMap)
+					{
+						moves.add(move_promotion(from, to, queen));
+						moves.add(move_promotion(from, to, knight));
+						moves.add(move_promotion(from, to, rook));
+						moves.add(move_promotion(from, to, bishop));
+					}
+					const bitsType captureMap{ m_Tables.pawnCaptureMap(from,movingPlayer) & position.playerOccupancy(otherPlayer) };
+					for (const auto to : captureMap)
+					{
+						moves.add(move_capturePromotion(from, to, queen));
+						moves.add(move_capturePromotion(from, to, knight));
+						moves.add(move_capturePromotion(from, to, rook));
+						moves.add(move_capturePromotion(from, to, bishop));
+					}
+				}
+			}
+			else
+			{
+				if (fromRank == rank2)
+				{
+					const bitsType freeSquares{ ~position.totalOccupancy() };
+					const bitsType moveMap{ m_Tables.pawnMoveMap(from,movingPlayer) & freeSquares };
+					for (const auto to : moveMap)
+					{
+						moves.add(move_promotion(from, to, queen));
+						moves.add(move_promotion(from, to, knight));
+						moves.add(move_promotion(from, to, rook));
+						moves.add(move_promotion(from, to, bishop));
+					}
+					const bitsType captureMap{ m_Tables.pawnCaptureMap(from,movingPlayer) & position.playerOccupancy(otherPlayer) };
+					for (const auto to : captureMap)
+					{
+						moves.add(move_capturePromotion(from, to, queen));
+						moves.add(move_capturePromotion(from, to, knight));
+						moves.add(move_capturePromotion(from, to, rook));
+						moves.add(move_capturePromotion(from, to, bishop));
+					}
+				}
+			}
+		}
+		static void promotionCaptures(const boardType& position, const squareType from, const playerType movingPlayer, const playerType otherPlayer, movelistType& moves) noexcept
+		{
+			assert(movingPlayer.isValid());
+			assert(from.isValid());
+			const rankType fromRank{ from.rank() };
+			if (movingPlayer == whitePlayer)
+			{
+				if (fromRank == rank7)
+				{
+					const bitsType captureMap{ m_Tables.pawnCaptureMap(from,movingPlayer) & position.playerOccupancy(otherPlayer) };
+					for (const auto to : captureMap)
+					{
+						moves.add(move_capturePromotion(from, to, queen));
+						moves.add(move_capturePromotion(from, to, knight));
+						moves.add(move_capturePromotion(from, to, rook));
+						moves.add(move_capturePromotion(from, to, bishop));
+					}
+				}
+			}
+			else
+			{
+				if (fromRank == rank2)
+				{
+					const bitsType captureMap{ m_Tables.pawnCaptureMap(from,movingPlayer) & position.playerOccupancy(otherPlayer) };
+					for (const auto to : captureMap)
+					{
+						moves.add(move_capturePromotion(from, to, queen));
+						moves.add(move_capturePromotion(from, to, knight));
+						moves.add(move_capturePromotion(from, to, rook));
+						moves.add(move_capturePromotion(from, to, bishop));
+					}
+				}
+			}
 		}
 		static void pawnMoves(const boardType& position, const squareType from, const playerType movingPlayer, const playerType otherPlayer, movelistType& moves) noexcept
 		{
 			assert(movingPlayer.isValid());
 			assert(from.isValid());
-			const bitsType freeSquares{ ~position.totalOccupancy() };
-			const bitsType moveMap{ m_Tables.pawnMoveMap(from,movingPlayer) & freeSquares };
-			const rankType fromRank{ boardType::rankOfSquare(from) };
-			if (movingPlayer == boardType::whitePlayer)
+			const rankType fromRank{ from.rank() };
+			if (movingPlayer == whitePlayer)
 			{
-				if (fromRank == boardType::rank7)
+				if (fromRank != rank7)
 				{
-					for (const auto to : moveMap)
-					{
-						moves.add(moveType::promotion(from, to, board::queen));
-						moves.add(moveType::promotion(from, to, board::knight));
-						moves.add(moveType::promotion(from, to, board::rook));
-						moves.add(moveType::promotion(from, to, board::bishop));
-					}
+					const bitsType freeSquares{ ~position.totalOccupancy() };
+					const bitsType moveMap{ m_Tables.pawnMoveMap(from,movingPlayer) & freeSquares };
 					const bitsType captureMap{ m_Tables.pawnCaptureMap(from,movingPlayer) & position.playerOccupancy(otherPlayer) };
-					for (const auto to : captureMap)
-					{
-						moves.add(moveType::promotionCapture(from, to, board::queen));
-						moves.add(moveType::promotionCapture(from, to, board::knight));
-						moves.add(moveType::promotionCapture(from, to, board::rook));
-						moves.add(moveType::promotionCapture(from, to, board::bishop));
-					}
-				}
-				else
-				{
-					if (fromRank == boardType::rank2)
-					{
-						const squareType doublePushTo{ boardType::fromRankFile(boardType::rank4,boardType::fileOfSquare(from)) };
-						const squareType doublePushOver{ boardType::fromRankFile(boardType::rank3,boardType::fileOfSquare(from)) };
-						if (freeSquares.checkBit(doublePushTo) && freeSquares.checkBit(doublePushOver))
-							moves.add(moveType::doublePush(from, doublePushTo));
-					}
-					else if (fromRank == boardType::rank5)
-					{
-						const fileType fromFile{ boardType::fileOfSquare(from) };
-						const flagsType flags{ position.getFlags() };
-						if ((fromFile != boardType::fileA) && (flags & boardType::enPassantFlags(fromFile - 1)))
-							moves.add(moveType::captureEnPassant(from, boardType::fromRankFile(fromRank + 1, fromFile - 1)));
-						if ((fromFile != boardType::fileH) && (flags & boardType::enPassantFlags(fromFile + 1)))
-							moves.add(moveType::captureEnPassant(from, boardType::fromRankFile(fromRank + 1, fromFile + 1)));
-					}
 					for (const auto to : moveMap)
-						moves.add(moveType::quiet(from, to));
-					const bitsType captureMap{ m_Tables.pawnCaptureMap(from,movingPlayer) & position.playerOccupancy(otherPlayer) };
+						moves.add(move_quiet(from, to));
 					for (const auto to : captureMap)
-						moves.add(moveType::capture(from, to));
+						moves.add(move_capture(from, to));
 				}
 			}
 			else
 			{
-				if (fromRank == boardType::rank2)
+				if (fromRank != rank2)
 				{
-					for (const auto to : moveMap)
-					{
-						moves.add(moveType::promotion(from, to, board::queen));
-						moves.add(moveType::promotion(from, to, board::knight));
-						moves.add(moveType::promotion(from, to, board::rook));
-						moves.add(moveType::promotion(from, to, board::bishop));
-					}
+					const bitsType freeSquares{ ~position.totalOccupancy() };
+					const bitsType moveMap{ m_Tables.pawnMoveMap(from,movingPlayer) & freeSquares };
 					const bitsType captureMap{ m_Tables.pawnCaptureMap(from,movingPlayer) & position.playerOccupancy(otherPlayer) };
+					for (const auto to : moveMap)
+						moves.add(move_quiet(from, to));
 					for (const auto to : captureMap)
-					{
-						moves.add(moveType::promotionCapture(from, to, board::queen));
-						moves.add(moveType::promotionCapture(from, to, board::knight));
-						moves.add(moveType::promotionCapture(from, to, board::rook));
-						moves.add(moveType::promotionCapture(from, to, board::bishop));
-					}
+						moves.add(move_capture(from, to));
 				}
-				else
+			}
+		}
+		static void enPassantCaptures(const boardType& position, const squareType from, const playerType movingPlayer, const playerType otherPlayer, movelistType& moves) noexcept
+		{
+			assert(movingPlayer.isValid());
+			assert(from.isValid());
+			const rankType fromRank{ from.rank() };
+			if (movingPlayer == whitePlayer)
+			{
+				if (fromRank == rank5)
 				{
-					if (fromRank == boardType::rank7)
-					{
-						const squareType doublePushTo{ boardType::fromRankFile(boardType::rank5,boardType::fileOfSquare(from)) };
-						const squareType doublePushOver{ boardType::fromRankFile(boardType::rank6,boardType::fileOfSquare(from)) };
-						if (freeSquares.checkBit(doublePushTo) && freeSquares.checkBit(doublePushOver))
-							moves.add(moveType::doublePush(from, doublePushTo));
-					}
-					else if (fromRank == boardType::rank4)
-					{
-						const fileType fromFile{ boardType::fileOfSquare(from) };
-						const flagsType flags{ position.getFlags() };
-						if ((fromFile != boardType::fileA) && (flags & boardType::enPassantFlags(fromFile - 1)))
-							moves.add(moveType::captureEnPassant(from, boardType::fromRankFile(fromRank - 1, fromFile - 1)));
-						if ((fromFile != boardType::fileH) && (flags & boardType::enPassantFlags(fromFile + 1)))
-							moves.add(moveType::captureEnPassant(from, boardType::fromRankFile(fromRank - 1, fromFile + 1)));
-					}
-					for (const auto to : moveMap)
-						moves.add(moveType::quiet(from, to));
-					const bitsType captureMap{ m_Tables.pawnCaptureMap(from,movingPlayer) & position.playerOccupancy(otherPlayer) };
-					for (const auto to : captureMap)
-						moves.add(moveType::capture(from, to));
+					const fileType fromFile{ from.file() };
+					if ((fromFile != fileA) && position_checkEnPassantFlag(position, fromFile - 1))
+						moves.add(move_captureEnPassant(from, squareType::fromRankFile(fromRank + 1, fromFile - 1)));
+					if ((fromFile != fileH) && position_checkEnPassantFlag(position, fromFile + 1))
+						moves.add(move_captureEnPassant(from, squareType::fromRankFile(fromRank + 1, fromFile + 1)));
+				}
+			}
+			else
+			{
+				if (fromRank == rank4)
+				{
+					const fileType fromFile{ from.file() };
+					if ((fromFile != fileA) && position_checkEnPassantFlag(position, fromFile - 1))
+						moves.add(move_captureEnPassant(from, squareType::fromRankFile(fromRank - 1, fromFile - 1)));
+					if ((fromFile != fileH) && position_checkEnPassantFlag(position, fromFile + 1))
+						moves.add(move_captureEnPassant(from, squareType::fromRankFile(fromRank - 1, fromFile + 1)));
 				}
 			}
 		}
@@ -432,64 +428,23 @@ namespace pygmalion::chess
 		{
 			assert(movingPlayer.isValid());
 			assert(from.isValid());
-			const bitsType freeSquares{ ~position.totalOccupancy() };
-			const rankType fromRank{ boardType::rankOfSquare(from) };
-			if (movingPlayer == boardType::whitePlayer)
+			const rankType fromRank{ from.rank() };
+			if (movingPlayer == whitePlayer)
 			{
-				if (fromRank == boardType::rank7)
+				if (fromRank != rank7)
 				{
 					const bitsType captureMap{ m_Tables.pawnCaptureMap(from,movingPlayer) & position.playerOccupancy(otherPlayer) };
 					for (const auto to : captureMap)
-					{
-						moves.add(moveType::promotionCapture(from, to, board::queen));
-						moves.add(moveType::promotionCapture(from, to, board::knight));
-						moves.add(moveType::promotionCapture(from, to, board::rook));
-						moves.add(moveType::promotionCapture(from, to, board::bishop));
-					}
-				}
-				else
-				{
-					if (fromRank == boardType::rank5)
-					{
-						const fileType fromFile{ boardType::fileOfSquare(from) };
-						const flagsType flags{ position.getFlags() };
-						if ((fromFile != boardType::fileA) && (flags & boardType::enPassantFlags(fromFile - 1)))
-							moves.add(moveType::captureEnPassant(from, boardType::fromRankFile(fromRank + 1, fromFile - 1)));
-						if ((fromFile != boardType::fileH) && (flags & boardType::enPassantFlags(fromFile + 1)))
-							moves.add(moveType::captureEnPassant(from, boardType::fromRankFile(fromRank + 1, fromFile + 1)));
-					}
-					const bitsType captureMap{ m_Tables.pawnCaptureMap(from,movingPlayer) & position.playerOccupancy(otherPlayer) };
-					for (const auto to : captureMap)
-						moves.add(moveType::capture(from, to));
+						moves.add(move_capture(from, to));
 				}
 			}
 			else
 			{
-				if (fromRank == boardType::rank2)
+				if (fromRank != rank2)
 				{
 					const bitsType captureMap{ m_Tables.pawnCaptureMap(from,movingPlayer) & position.playerOccupancy(otherPlayer) };
 					for (const auto to : captureMap)
-					{
-						moves.add(moveType::promotionCapture(from, to, board::queen));
-						moves.add(moveType::promotionCapture(from, to, board::knight));
-						moves.add(moveType::promotionCapture(from, to, board::rook));
-						moves.add(moveType::promotionCapture(from, to, board::bishop));
-					}
-				}
-				else
-				{
-					if (fromRank == boardType::rank4)
-					{
-						const fileType fromFile{ boardType::fileOfSquare(from) };
-						const flagsType flags{ position.getFlags() };
-						if ((fromFile != boardType::fileA) && (flags & boardType::enPassantFlags(fromFile - 1)))
-							moves.add(moveType::captureEnPassant(from, boardType::fromRankFile(fromRank - 1, fromFile - 1)));
-						if ((fromFile != boardType::fileH) && (flags & boardType::enPassantFlags(fromFile + 1)))
-							moves.add(moveType::captureEnPassant(from, boardType::fromRankFile(fromRank - 1, fromFile + 1)));
-					}
-					const bitsType captureMap{ m_Tables.pawnCaptureMap(from,movingPlayer) & position.playerOccupancy(otherPlayer) };
-					for (const auto to : captureMap)
-						moves.add(moveType::capture(from, to));
+						moves.add(move_capture(from, to));
 				}
 			}
 		}
@@ -501,10 +456,10 @@ namespace pygmalion::chess
 			const bitsType attackMask{ m_Tables.sliderAttackMask(diagonal,from,totalOccupancy) };
 			const bitsType moveMap{ attackMask & ~totalOccupancy };
 			for (const auto to : moveMap)
-				moves.add(moveType::quiet(from, to));
+				moves.add(move_quiet(from, to));
 			const bitsType captureMap{ attackMask & position.playerOccupancy(otherPlayer) };
 			for (const auto to : captureMap)
-				moves.add(moveType::capture(from, to));
+				moves.add(move_capture(from, to));
 		}
 		static void sliderCaptures(const boardType& position, const squareType from, const playerType otherPlayer, const bool diagonal, movelistType& moves) noexcept
 		{
@@ -514,88 +469,14 @@ namespace pygmalion::chess
 			const bitsType attackMask{ m_Tables.sliderAttackMask(diagonal,from,totalOccupancy) };
 			const bitsType captureMap{ attackMask & position.playerOccupancy(otherPlayer) };
 			for (const auto to : captureMap)
-				moves.add(moveType::capture(from, to));
-		}
-		static bool generateMoves_Implementation(const stackType& stack, movelistType& moves, int& currentPass) noexcept
-		{
-			const boardType& position{ stack.position() };
-			const playerType movingPlayer{ stack.movingPlayer() };
-			const playerType otherPlayer{ stack.otherPlayer() };
-			const bitsType movingOccupancy{ position.playerOccupancy(movingPlayer) };
-			switch (currentPass)
-			{
-			default:
-				return false;
-			case 0:
-				for (const auto from : (position.pieceOccupancy(boardType::knight)& movingOccupancy))
-					knightMoves(position, from, otherPlayer, moves);
-				currentPass++;
-				return true;
-			case 1:
-				for (const auto from : (position.pieceOccupancy(boardType::pawn)& movingOccupancy))
-					pawnMoves(position, from, movingPlayer, otherPlayer, moves);
-				currentPass++;
-				return true;
-			case 2:
-				for (const auto from : ((position.pieceOccupancy(boardType::bishop) | position.pieceOccupancy(boardType::queen))& movingOccupancy))
-					sliderMoves(position, from, otherPlayer, true, moves);
-				currentPass++;
-				return true;
-			case 3:
-				for (const auto from : ((position.pieceOccupancy(boardType::rook) | position.pieceOccupancy(boardType::queen))& movingOccupancy))
-					sliderMoves(position, from, otherPlayer, false, moves);
-				currentPass++;
-				return true;
-			case 4:
-				for (const auto from : (position.pieceOccupancy(boardType::king)& movingOccupancy))
-					kingMoves(position, from, movingPlayer, otherPlayer, stack.attackedSquares(otherPlayer), moves);
-				currentPass++;
-				return true;
-			}
-		}
-		static bool generateTacticalMoves_Implementation(const stackType& stack, movelistType& moves, int& currentPass) noexcept
-		{
-			const boardType& position{ stack.position() };
-			const playerType movingPlayer{ stack.movingPlayer() };
-			const playerType otherPlayer{ stack.otherPlayer() };
-			const bitsType movingOccupancy{ position.playerOccupancy(movingPlayer) };
-			switch (currentPass)
-			{
-			default:
-				return false;
-			case 0:
-				for (const auto from : (position.pieceOccupancy(boardType::knight)& movingOccupancy))
-					knightCaptures(position, from, otherPlayer, moves);
-				currentPass++;
-				return true;
-			case 1:
-				for (const auto from : (position.pieceOccupancy(boardType::pawn)& movingOccupancy))
-					pawnCaptures(position, from, movingPlayer, otherPlayer, moves);
-				currentPass++;
-				return true;
-			case 2:
-				for (const auto from : ((position.pieceOccupancy(boardType::bishop) | position.pieceOccupancy(boardType::queen))& movingOccupancy))
-					sliderCaptures(position, from, otherPlayer, true, moves);
-				currentPass++;
-				return true;
-			case 3:
-				for (const auto from : ((position.pieceOccupancy(boardType::rook) | position.pieceOccupancy(boardType::queen))& movingOccupancy))
-					sliderCaptures(position, from, otherPlayer, false, moves);
-				currentPass++;
-				return true;
-			case 4:
-				for (const auto from : (position.pieceOccupancy(boardType::king)& movingOccupancy))
-					kingCaptures(position, from, movingPlayer, otherPlayer, stack.attackedSquares(otherPlayer), moves);
-				currentPass++;
-				return true;
-			}
+				moves.add(move_capture(from, to));
 		}
 		static void moveMaps(const boardType& position, const squareType square, bitsType& moves, bitsType& captures) noexcept
 		{
 			moves = bitsType::empty();
 			captures = bitsType::empty();
 			const bitsType totalOccupancy{ position.totalOccupancy() };
-			if (!totalOccupancy.checkBit(square))
+			if (!totalOccupancy[square])
 				return;
 			const pieceType piece{ position.getPiece(square) };
 			const playerType movingPlayer{ position.movingPlayer() };
@@ -606,86 +487,269 @@ namespace pygmalion::chess
 			default:
 				assert(0);
 				break;
-			case boardType::rook:
+			case rook:
 				m_Tables.sliderMoveMaps(false, square, totalOccupancy, captureTargets, moves, captures);
 				break;
-			case boardType::bishop:
+			case bishop:
 				m_Tables.sliderMoveMaps(true, square, totalOccupancy, captureTargets, moves, captures);
 				break;
-			case boardType::queen:
+			case queen:
 				m_Tables.sliderMoveMaps(false, square, totalOccupancy, captureTargets, moves, captures);
 				m_Tables.sliderMoveMaps(true, square, totalOccupancy, captureTargets, moves, captures);
 				break;
-			case boardType::knight:
+			case knight:
 			{
 				const bitsType atts{ m_Tables.knightMoveMap(square) };
 				moves = atts & ~totalOccupancy;
 				captures = atts & captureTargets;
 				break;
 			}
-			case boardType::pawn:
+			case pawn:
 				moves = m_Tables.pawnMoveMap(square, movingPlayer) & ~totalOccupancy;
 				captures = m_Tables.pawnCaptureMap(square, movingPlayer) & captureTargets;
-				if (movingPlayer == boardType::whitePlayer)
+				if (movingPlayer == whitePlayer)
 				{
-					const rankType rank{ boardType::rankOfSquare(square) };
-					if (rank == boardType::rank2)
+					const rankType rank{ square.rank() };
+					if (rank == rank2)
 					{
 						moves |= boardType::up(moves) & ~totalOccupancy;
 					}
-					else if (rank == boardType::rank5)
+					else if (rank == rank5)
 					{
-						const fileType file{ boardType::fileOfSquare(square) };
-						const flagsType flags{ position.getFlags() };
-						if ((file != boardType::fileA) && (flags & boardType::enPassantFlags(file - 1)))
-							captures.setBit(boardType::fromRankFile(rank + 1, file - 1));
-						else if ((file != boardType::fileH) && (flags & boardType::enPassantFlags(file + 1)))
-							captures.setBit(boardType::fromRankFile(rank + 1, file + 1));
+						const fileType file{ square.file() };
+						if ((file != fileA) && position_checkEnPassantFlag(position, file - 1))
+							captures.setBit(squareType::fromRankFile(rank + 1, file - 1));
+						else if ((file != fileH) && position_checkEnPassantFlag(position, file + 1))
+							captures.setBit(squareType::fromRankFile(rank + 1, file + 1));
 					}
 				}
 				else
 				{
-					const rankType rank{ boardType::rankOfSquare(square) };
-					if (rank == boardType::rank2)
+					const rankType rank{ square.rank() };
+					if (rank == rank7)
 					{
-						moves |= boardType::up(moves) & ~totalOccupancy;
+						moves |= boardType::down(moves) & ~totalOccupancy;
 					}
-					else if (rank == boardType::rank4)
+					else if (rank == rank4)
 					{
-						const fileType file{ boardType::fileOfSquare(square) };
-						const flagsType flags{ position.getFlags() };
-						if ((file != boardType::fileA) && (flags & boardType::enPassantFlags(file - 1)))
-							captures.setBit(boardType::fromRankFile(rank - 1, file - 1));
-						else if ((file != boardType::fileH) && (flags & boardType::enPassantFlags(file + 1)))
-							captures.setBit(boardType::fromRankFile(rank - 1, file + 1));
+						const fileType file{ square.file() };
+						if ((file != fileA) && position_checkEnPassantFlag(position, file - 1))
+							captures.setBit(squareType::fromRankFile(rank - 1, file - 1));
+						else if ((file != fileH) && position_checkEnPassantFlag(position, file + 1))
+							captures.setBit(squareType::fromRankFile(rank - 1, file + 1));
 					}
 				}
 				break;
-			case boardType::king:
+			case king:
 			{
 				const bitsType forbidden{ attackedSquares(position,otherPlayer) };
 				const bitsType atts2{ m_Tables.kingMoveMap(square) };
 				moves = atts2 & ~totalOccupancy;
 				captures = atts2 & captureTargets;
-				if ((movingPlayer == boardType::whitePlayer) && (square == boardType::squareE1))
+				if ((movingPlayer == whitePlayer) && (square == squareE1))
 				{
-					const typename boardType::flags flags{ position.getFlags() };
-					if ((flags & boardType::castlerightKingsideWhite) && (!(boardType::kingsideCastleInterestWhite & totalOccupancy)) && (!(forbidden & boardType::kingsideCastleWalkWhite)))
-						moves.setBit(boardType::squareG1);
-					if ((flags & boardType::castlerightQueensideWhite) && (!(boardType::queensideCastleInterestWhite & totalOccupancy)) && (!(forbidden & boardType::queensideCastleWalkWhite)))
-						moves.setBit(boardType::squareC1);
+					if (position_checkCastlerightKingsideWhite(position) && (!(kingsideCastleInterestWhite & totalOccupancy)) && (!(forbidden & kingsideCastleWalkWhite)))
+						moves.setBit(squareG1);
+					if (position_checkCastlerightQueensideWhite(position) && (!(queensideCastleInterestWhite & totalOccupancy)) && (!(forbidden & queensideCastleWalkWhite)))
+						moves.setBit(squareC1);
 				}
-				else if ((movingPlayer == boardType::blackPlayer) && (square == boardType::squareE8))
+				else if ((movingPlayer == blackPlayer) && (square == squareE8))
 				{
-					const typename boardType::flags flags{ position.getFlags() };
-					if ((flags & boardType::castlerightKingsideBlack) && (!(boardType::kingsideCastleInterestBlack & totalOccupancy)) && (!(forbidden & boardType::kingsideCastleWalkBlack)))
-						moves.setBit(boardType::squareG8);
-					if ((flags & boardType::castlerightQueensideBlack) && (!(boardType::queensideCastleInterestBlack & totalOccupancy)) && (!(forbidden & boardType::queensideCastleWalkBlack)))
-						moves.setBit(boardType::squareC8);
+					if (position_checkCastlerightKingsideBlack(position) && (!(kingsideCastleInterestBlack & totalOccupancy)) && (!(forbidden & kingsideCastleWalkBlack)))
+						moves.setBit(squareG8);
+					if (position_checkCastlerightQueensideBlack(position) && (!(queensideCastleInterestBlack & totalOccupancy)) && (!(forbidden & queensideCastleWalkBlack)))
+						moves.setBit(squareC8);
 				}
 			}
 			break;
 			}
 		}
+
+		static std::string name_Implementation() noexcept
+		{
+			return "Chess ver. 1.0";
+		}
+		static gamestateType earlyResult_Implementation(const stackType& stack) noexcept
+		{
+			if (stack.position().getDistanceToDraw() <= 0)
+				return boardType::draw();
+			if ((stack.position().pieceOccupancy(pawn) | stack.position().pieceOccupancy(rook) | stack.position().pieceOccupancy(queen)) == bitsType::empty())
+			{
+				if ((stack.position().pieceOccupancy(knight) == bitsType::empty()) && (stack.position().pieceOccupancy(bishop).populationCount() <= 1))
+					return boardType::draw();
+				if ((stack.position().pieceOccupancy(bishop) == bitsType::empty()) && (stack.position().pieceOccupancy(knight).populationCount() <= 1))
+					return boardType::draw();
+				if (stack.position().pieceOccupancy(bishop) == bitsType::empty())
+				{
+					if (((stack.position().pieceOccupancy(knight) & stack.position().playerOccupancy(blackPlayer)) == bitsType::empty()) && ((stack.position().pieceOccupancy(knight) & stack.position().playerOccupancy(whitePlayer)).populationCount() <= 2))
+						return boardType::draw();
+					if (((stack.position().pieceOccupancy(knight) & stack.position().playerOccupancy(whitePlayer)) == bitsType::empty()) && ((stack.position().pieceOccupancy(knight) & stack.position().playerOccupancy(blackPlayer)).populationCount() <= 2))
+						return boardType::draw();
+				}
+			}
+			return boardType::open();
+		}
+		static gamestateType lateResult_Implementation(const stackType& stack) noexcept
+		{
+			return stack.isCheck() ? boardType::draw() : boardType::loss(stack.movingPlayer());
+		}
+		static bool isMoveLegal_Implementation(const stackType& stack, const moveType& move) noexcept
+		{
+			const boardType& position{ stack.position() };
+			const playerType movingPlayer{ position.movingPlayer() };
+			const playerType otherPlayer{ movingPlayer.next() };
+			const squareType to{ move_to(move) };
+
+			// are we illegally capturing the other king?
+			const bool isCapture{ move_isCapture(move) };
+			const squareType otherking{ position_kingSquare(position,otherPlayer) };
+			if (isCapture && (otherking == to))
+				return false;
+
+			// No. Let's see where our king lives after the move as been made then...
+			const squareType from{ move_from(move) };
+			const squareType kingsquareOld{ position_kingSquare(position,movingPlayer) };
+			const squareType kingsquare{ (from == kingsquareOld) ? to : kingsquareOld };
+
+			// Does he live on a square that is guarded by the other king?
+			const bitsType attackedByOtherKing{ m_Tables.kingMoveMap(otherking) };
+			if (attackedByOtherKing[kingsquare])
+				return false;
+
+			// We need the enemy occupancy bitboard as it would be after the move...
+			const bitsType otherOccupancy{ position.playerOccupancy(otherPlayer) };
+			const bitsType otherDelta{ isCapture ? (move_isCaptureEnPassant(move) ? bitsType::setMask(squareType::fromRankFile(from.rank(), to.file())) : bitsType::setMask(to)) : bitsType::empty() };
+			const bitsType occOther{ otherOccupancy ^ otherDelta };
+
+			// Does he live on a square that is guarded by an enemy knight?
+			const bitsType otherKnights{ ((position.pieceOccupancy(knight) & otherOccupancy) ^ otherDelta) & occOther };
+			const bitsType attackedByOtherKnights{ boardType::upUpLeft(otherKnights) | boardType::upUpRight(otherKnights) | boardType::downDownLeft(otherKnights) | boardType::downDownRight(otherKnights) | boardType::upLeftLeft(otherKnights) | boardType::downLeftLeft(otherKnights) | boardType::upRightRight(otherKnights) | boardType::downRightRight(otherKnights) };
+			if (attackedByOtherKnights[kingsquare])
+				return false;
+
+			// Does he live on a square that is guarded by an enemy pawn?
+			const bitsType otherPawns{ ((position.pieceOccupancy(pawn) & otherOccupancy) ^ otherDelta) & occOther };
+			const bitsType attackedByOtherPawns{ (otherPlayer == whitePlayer) ? (boardType::upLeft(otherPawns) | boardType::upRight(otherPawns)) : (boardType::downLeft(otherPawns) | boardType::downRight(otherPawns)) };
+			if (attackedByOtherPawns[kingsquare])
+				return false;
+
+			// We need the total occupancy bitboard as it would be after the move...
+			const bitsType movingOccupancy{ position.playerOccupancy(movingPlayer) };
+			const bitsType moveMask{ bitsType::setMask(from) ^ bitsType::setMask(to) };
+			const bitsType movingDelta{ move_isCastleQueenside(move) ? (move_isCastleKingside(move) ? (moveMask ^ bitsType::setMask(squareType::fromRankFile(from.rank(), to.file() - 1)) ^ bitsType::setMask(squareType::fromRankFile(from.rank(),fileH))) : (moveMask ^ bitsType::setMask(squareType::fromRankFile(from.rank(),to.file() + 1)) ^ bitsType::setMask(squareType::fromRankFile(from.rank(),fileA)))) : moveMask };
+			const bitsType occMoving{ movingOccupancy ^ movingDelta };
+			const bitsType occTotal{ occOther | occMoving };
+
+			// Is he attacked horizontally by sliding pieces?
+			const bitsType queens{ position.pieceOccupancy(queen) };
+			const bitsType otherSlidersHV = occOther & (position.pieceOccupancy(rook) | queens);
+			if (m_Tables.sliderAttacks(false, kingsquare, occTotal, otherSlidersHV))
+				return false;
+
+			// Is he attacked diagonally by sliding pieces?
+			const bitsType otherSlidersDiag = occOther & (position.pieceOccupancy(bishop) | queens);
+			if (m_Tables.sliderAttacks(true, kingsquare, occTotal, otherSlidersDiag))
+				return false;
+
+			// The move seems legal
+			return true;
+		}
+		static bool generateMoves_Implementation(const stackType& stack, movelistType& moves, int& currentPass) noexcept
+		{
+			const boardType& position{ stack.position() };
+			const playerType movingPlayer{ stack.movingPlayer() };
+			const playerType otherPlayer{ stack.nextPlayer() };
+			const bitsType movingOccupancy{ position.playerOccupancy(movingPlayer) };
+			switch (currentPass)
+			{
+			default:
+				return false;
+			case 0:
+				for (const auto from : (position.pieceOccupancy(pawn)& movingOccupancy))
+					doublePushes(position, from, movingPlayer, otherPlayer, moves);
+				currentPass++;
+				return true;
+			case 1:
+				for (const auto from : (position.pieceOccupancy(pawn)& movingOccupancy))
+					pawnMoves(position, from, movingPlayer, otherPlayer, moves);
+				currentPass++;
+				return true;
+			case 2:
+				for (const auto from : (position.pieceOccupancy(pawn)& movingOccupancy))
+					enPassantCaptures(position, from, movingPlayer, otherPlayer, moves);
+				currentPass++;
+				return true;
+			case 3:
+				for (const auto from : (position.pieceOccupancy(knight)& movingOccupancy))
+					knightMoves(position, from, otherPlayer, moves);
+				currentPass++;
+				return true;
+			case 4:
+				for (const auto from : ((position.pieceOccupancy(bishop) | position.pieceOccupancy(queen))& movingOccupancy))
+					sliderMoves(position, from, otherPlayer, true, moves);
+				currentPass++;
+				return true;
+			case 5:
+				for (const auto from : ((position.pieceOccupancy(rook) | position.pieceOccupancy(queen))& movingOccupancy))
+					sliderMoves(position, from, otherPlayer, false, moves);
+				currentPass++;
+				return true;
+			case 6:
+				for (const auto from : (position.pieceOccupancy(king)& movingOccupancy))
+					kingMoves(position, from, movingPlayer, otherPlayer, stack.attackedSquares(otherPlayer), moves);
+				currentPass++;
+			case 7:
+				for (const auto from : (position.pieceOccupancy(king)& movingOccupancy))
+					castles(position, from, movingPlayer, otherPlayer, stack.attackedSquares(otherPlayer), moves);
+				currentPass++;
+				return true;
+			}
+		}
+		static bool generateTacticalMoves_Implementation(const stackType& stack, movelistType& moves, int& currentPass) noexcept
+		{
+			const boardType& position{ stack.position() };
+			const playerType movingPlayer{ stack.movingPlayer() };
+			const playerType otherPlayer{ stack.nextPlayer() };
+			const bitsType movingOccupancy{ position.playerOccupancy(movingPlayer) };
+			switch (currentPass)
+			{
+			default:
+				return false;
+			case 0:
+				for (const auto from : (position.pieceOccupancy(pawn)& movingOccupancy))
+					pawnCaptures(position, from, movingPlayer, otherPlayer, moves);
+				currentPass++;
+				return true;
+			case 1:
+				for (const auto from : (position.pieceOccupancy(pawn)& movingOccupancy))
+					enPassantCaptures(position, from, movingPlayer, otherPlayer, moves);
+				currentPass++;
+				return true;
+			case 2:
+				for (const auto from : (position.pieceOccupancy(knight)& movingOccupancy))
+					knightCaptures(position, from, otherPlayer, moves);
+				currentPass++;
+				return true;
+			case 3:
+				for (const auto from : ((position.pieceOccupancy(bishop) | position.pieceOccupancy(queen))& movingOccupancy))
+					sliderCaptures(position, from, otherPlayer, true, moves);
+				currentPass++;
+				return true;
+			case 4:
+				for (const auto from : ((position.pieceOccupancy(rook) | position.pieceOccupancy(queen))& movingOccupancy))
+					sliderCaptures(position, from, otherPlayer, false, moves);
+				currentPass++;
+				return true;
+			case 5:
+				for (const auto from : (position.pieceOccupancy(king)& movingOccupancy))
+					kingCaptures(position, from, movingPlayer, otherPlayer, stack.attackedSquares(otherPlayer), moves);
+				currentPass++;
+				return true;
+			}
+		}
+		static void initializePosition_Implementation(boardType& position) noexcept;
+		static void makeMove_Implementation(boardType& position, const movedata& md) noexcept;
+		static void unmakeMove_Implementation(boardType& position, const movedata& md) noexcept;
+
 	};
 }

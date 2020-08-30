@@ -5,7 +5,7 @@ namespace pygmalion::chess
 	private:
 		static const evaluationTables m_Tables;
 	public:
-		constexpr static auto material(const board::player p, const board::piece pc, const board::square sq) noexcept
+		constexpr static auto material(const board::playerType p, const board::pieceType pc, const board::squareType sq) noexcept
 		{
 			assert(p.isValid());
 			assert(pc.isValid());

@@ -12,7 +12,5 @@ int main(int argc, char* argv[])
 	std::cout << "score::winning()=" << static_cast<std::string>(pygmalion::score<16, 7, 4>::winning()) << std::endl;
 	std::cout << "score::losing()=" << static_cast<std::string>(pygmalion::score<16, 7, 4>::losing()) << std::endl;
 	std::cout << "score::atom()=" << static_cast<std::string>(pygmalion::score<16, 7, 4>::atom()) << std::endl;
-	std::cout << "score::atom()*3=" << static_cast<std::string>(pygmalion::score<16, 7, 4>::atom() * 3) << std::endl;
-	std::cout << "3*score::atom()=" << static_cast<std::string>(3 * pygmalion::score<16, 7, 4>::atom()) << std::endl;
 	return 0;
 }

@@ -1,0 +1,112 @@
+namespace pygmalion::chess
+{
+	class descriptor_board :
+		public pygmalion::descriptor_board<2, 6, 8, 8, 12, 64>
+	{
+	public:
+		constexpr static const playerType whitePlayer{ 0 };
+		constexpr static const playerType blackPlayer{ 1 };
+		constexpr static const pieceType knight{ 0x0 };
+		constexpr static const pieceType bishop{ 0x1 };
+		constexpr static const pieceType rook{ 0x2 };
+		constexpr static const pieceType queen{ 0x3 };
+		constexpr static const pieceType pawn{ 0x4 };
+		constexpr static const pieceType king{ 0x5 };
+		constexpr static const rankType rank1{ 0 };
+		constexpr static const rankType rank2{ 1 };
+		constexpr static const rankType rank3{ 2 };
+		constexpr static const rankType rank4{ 3 };
+		constexpr static const rankType rank5{ 4 };
+		constexpr static const rankType rank6{ 5 };
+		constexpr static const rankType rank7{ 6 };
+		constexpr static const rankType rank8{ 7 };
+		constexpr static const fileType fileA{ 0 };
+		constexpr static const fileType fileB{ 1 };
+		constexpr static const fileType fileC{ 2 };
+		constexpr static const fileType fileD{ 3 };
+		constexpr static const fileType fileE{ 4 };
+		constexpr static const fileType fileF{ 5 };
+		constexpr static const fileType fileG{ 6 };
+		constexpr static const fileType fileH{ 7 };
+		constexpr static const squareType squareA1{ squareType::fromRankFile(rank1,fileA) };
+		constexpr static const squareType squareA2{ squareType::fromRankFile(rank2,fileA) };
+		constexpr static const squareType squareA3{ squareType::fromRankFile(rank3,fileA) };
+		constexpr static const squareType squareA4{ squareType::fromRankFile(rank4,fileA) };
+		constexpr static const squareType squareA5{ squareType::fromRankFile(rank5,fileA) };
+		constexpr static const squareType squareA6{ squareType::fromRankFile(rank6,fileA) };
+		constexpr static const squareType squareA7{ squareType::fromRankFile(rank7,fileA) };
+		constexpr static const squareType squareA8{ squareType::fromRankFile(rank8,fileA) };
+		constexpr static const squareType squareB1{ squareType::fromRankFile(rank1,fileB) };
+		constexpr static const squareType squareB2{ squareType::fromRankFile(rank2,fileB) };
+		constexpr static const squareType squareB3{ squareType::fromRankFile(rank3,fileB) };
+		constexpr static const squareType squareB4{ squareType::fromRankFile(rank4,fileB) };
+		constexpr static const squareType squareB5{ squareType::fromRankFile(rank5,fileB) };
+		constexpr static const squareType squareB6{ squareType::fromRankFile(rank6,fileB) };
+		constexpr static const squareType squareB7{ squareType::fromRankFile(rank7,fileB) };
+		constexpr static const squareType squareB8{ squareType::fromRankFile(rank8,fileB) };
+		constexpr static const squareType squareC1{ squareType::fromRankFile(rank1,fileC) };
+		constexpr static const squareType squareC2{ squareType::fromRankFile(rank2,fileC) };
+		constexpr static const squareType squareC3{ squareType::fromRankFile(rank3,fileC) };
+		constexpr static const squareType squareC4{ squareType::fromRankFile(rank4,fileC) };
+		constexpr static const squareType squareC5{ squareType::fromRankFile(rank5,fileC) };
+		constexpr static const squareType squareC6{ squareType::fromRankFile(rank6,fileC) };
+		constexpr static const squareType squareC7{ squareType::fromRankFile(rank7,fileC) };
+		constexpr static const squareType squareC8{ squareType::fromRankFile(rank8,fileC) };
+		constexpr static const squareType squareD1{ squareType::fromRankFile(rank1,fileD) };
+		constexpr static const squareType squareD2{ squareType::fromRankFile(rank2,fileD) };
+		constexpr static const squareType squareD3{ squareType::fromRankFile(rank3,fileD) };
+		constexpr static const squareType squareD4{ squareType::fromRankFile(rank4,fileD) };
+		constexpr static const squareType squareD5{ squareType::fromRankFile(rank5,fileD) };
+		constexpr static const squareType squareD6{ squareType::fromRankFile(rank6,fileD) };
+		constexpr static const squareType squareD7{ squareType::fromRankFile(rank7,fileD) };
+		constexpr static const squareType squareD8{ squareType::fromRankFile(rank8,fileD) };
+		constexpr static const squareType squareE1{ squareType::fromRankFile(rank1,fileE) };
+		constexpr static const squareType squareE2{ squareType::fromRankFile(rank2,fileE) };
+		constexpr static const squareType squareE3{ squareType::fromRankFile(rank3,fileE) };
+		constexpr static const squareType squareE4{ squareType::fromRankFile(rank4,fileE) };
+		constexpr static const squareType squareE5{ squareType::fromRankFile(rank5,fileE) };
+		constexpr static const squareType squareE6{ squareType::fromRankFile(rank6,fileE) };
+		constexpr static const squareType squareE7{ squareType::fromRankFile(rank7,fileE) };
+		constexpr static const squareType squareE8{ squareType::fromRankFile(rank8,fileE) };
+		constexpr static const squareType squareF1{ squareType::fromRankFile(rank1,fileF) };
+		constexpr static const squareType squareF2{ squareType::fromRankFile(rank2,fileF) };
+		constexpr static const squareType squareF3{ squareType::fromRankFile(rank3,fileF) };
+		constexpr static const squareType squareF4{ squareType::fromRankFile(rank4,fileF) };
+		constexpr static const squareType squareF5{ squareType::fromRankFile(rank5,fileF) };
+		constexpr static const squareType squareF6{ squareType::fromRankFile(rank6,fileF) };
+		constexpr static const squareType squareF7{ squareType::fromRankFile(rank7,fileF) };
+		constexpr static const squareType squareF8{ squareType::fromRankFile(rank8,fileF) };
+		constexpr static const squareType squareG1{ squareType::fromRankFile(rank1,fileG) };
+		constexpr static const squareType squareG2{ squareType::fromRankFile(rank2,fileG) };
+		constexpr static const squareType squareG3{ squareType::fromRankFile(rank3,fileG) };
+		constexpr static const squareType squareG4{ squareType::fromRankFile(rank4,fileG) };
+		constexpr static const squareType squareG5{ squareType::fromRankFile(rank5,fileG) };
+		constexpr static const squareType squareG6{ squareType::fromRankFile(rank6,fileG) };
+		constexpr static const squareType squareG7{ squareType::fromRankFile(rank7,fileG) };
+		constexpr static const squareType squareG8{ squareType::fromRankFile(rank8,fileG) };
+		constexpr static const squareType squareH1{ squareType::fromRankFile(rank1,fileH) };
+		constexpr static const squareType squareH2{ squareType::fromRankFile(rank2,fileH) };
+		constexpr static const squareType squareH3{ squareType::fromRankFile(rank3,fileH) };
+		constexpr static const squareType squareH4{ squareType::fromRankFile(rank4,fileH) };
+		constexpr static const squareType squareH5{ squareType::fromRankFile(rank5,fileH) };
+		constexpr static const squareType squareH6{ squareType::fromRankFile(rank6,fileH) };
+		constexpr static const squareType squareH7{ squareType::fromRankFile(rank7,fileH) };
+		constexpr static const squareType squareH8{ squareType::fromRankFile(rank8,fileH) };
+		constexpr static const squaresType queensideCastleInterestWhite{ squaresType::setMask(squareD1) | squaresType::setMask(squareC1) | squaresType::setMask(squareB1) };
+		constexpr static const squaresType queensideCastleInterestBlack{ squaresType::setMask(squareD8) | squaresType::setMask(squareC8) | squaresType::setMask(squareB8) };
+		constexpr static const squaresType kingsideCastleInterestWhite{ squaresType::setMask(squareF1) | squaresType::setMask(squareG1) };
+		constexpr static const squaresType kingsideCastleInterestBlack{ squaresType::setMask(squareF8) | squaresType::setMask(squareG8) };
+		constexpr static const squaresType queensideCastleWalkWhite{ squaresType::setMask(squareE1) | squaresType::setMask(squareD1) | squaresType::setMask(squareC1) };
+		constexpr static const squaresType queensideCastleWalkBlack{ squaresType::setMask(squareE8) | squaresType::setMask(squareD8) | squaresType::setMask(squareC8) };
+		constexpr static const squaresType kingsideCastleWalkWhite{ squaresType::setMask(squareE1) | squaresType::setMask(squareF1) | squaresType::setMask(squareG1) };
+		constexpr static const squaresType kingsideCastleWalkBlack{ squaresType::setMask(squareE8) | squaresType::setMask(squareF8) | squaresType::setMask(squareG8) };
+		constexpr static flagType castlerightQueensideWhite{ 0 };
+		constexpr static flagType castlerightQueensideBlack{ 1 };
+		constexpr static flagType castlerightKingsideWhite{ 2 };
+		constexpr static flagType castlerightKingsideBlack{ 3 };
+		constexpr static flagType enPassantFlag(const fileType f)
+		{
+			return 4 + f;
+		}
+	};
+}

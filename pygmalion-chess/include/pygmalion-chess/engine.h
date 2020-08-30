@@ -67,9 +67,9 @@ namespace pygmalion::chess
 						parser::parseToken(remainder2, player, remainder3);
 						playerType p{ playerType::invalid };
 						if (player == "white" || player == "w" || player == "+" || player == "0")
-							p = boardType::whitePlayer;
+							p = movegenType::whitePlayer;
 						else if (player == "black" || player == "b" || player == "-" || player == "1")
-							p = boardType::blackPlayer;
+							p = movegenType::blackPlayer;
 						if (p.isValid())
 						{
 							std::string square;
@@ -99,9 +99,9 @@ namespace pygmalion::chess
 						parser::parseToken(remainder2, player, remainder3);
 						playerType p{ playerType::invalid };
 						if (player == "white" || player == "w" || player == "+" || player == "0")
-							p = boardType::whitePlayer;
+							p = movegenType::whitePlayer;
 						else if (player == "black" || player == "b" || player == "-" || player == "1")
-							p = boardType::blackPlayer;
+							p = movegenType::blackPlayer;
 						if (p.isValid())
 						{
 							std::string square;
@@ -110,12 +110,12 @@ namespace pygmalion::chess
 							squareType sq{ frontendType::squareFromString(square) };
 							if (sq.isValid())
 							{
-								eng.outputStream() << frontend::playerToString(p) << " " << frontend::pieceToString(board::pawn) << ": " << frontend::objectiveToString(evaluator::material(p, board::pawn, sq)) << std::endl;
-								eng.outputStream() << frontend::playerToString(p) << " " << frontend::pieceToString(board::knight) << ": " << frontend::objectiveToString(evaluator::material(p, board::knight, sq)) << std::endl;
-								eng.outputStream() << frontend::playerToString(p) << " " << frontend::pieceToString(board::bishop) << ": " << frontend::objectiveToString(evaluator::material(p, board::bishop, sq)) << std::endl;
-								eng.outputStream() << frontend::playerToString(p) << " " << frontend::pieceToString(board::rook) << ": " << frontend::objectiveToString(evaluator::material(p, board::rook, sq)) << std::endl;
-								eng.outputStream() << frontend::playerToString(p) << " " << frontend::pieceToString(board::queen) << ": " << frontend::objectiveToString(evaluator::material(p, board::queen, sq)) << std::endl;
-								eng.outputStream() << frontend::playerToString(p) << " " << frontend::pieceToString(board::king) << ": " << frontend::objectiveToString(evaluator::material(p, board::king, sq)) << std::endl;
+								eng.outputStream() << frontend::playerToString(p) << " " << frontend::pieceToString(movegenType::pawn) << ": " << frontend::objectiveToString(evaluator::material(p, movegenType::pawn, sq)) << std::endl;
+								eng.outputStream() << frontend::playerToString(p) << " " << frontend::pieceToString(movegenType::knight) << ": " << frontend::objectiveToString(evaluator::material(p, movegenType::knight, sq)) << std::endl;
+								eng.outputStream() << frontend::playerToString(p) << " " << frontend::pieceToString(movegenType::bishop) << ": " << frontend::objectiveToString(evaluator::material(p, movegenType::bishop, sq)) << std::endl;
+								eng.outputStream() << frontend::playerToString(p) << " " << frontend::pieceToString(movegenType::rook) << ": " << frontend::objectiveToString(evaluator::material(p, movegenType::rook, sq)) << std::endl;
+								eng.outputStream() << frontend::playerToString(p) << " " << frontend::pieceToString(movegenType::queen) << ": " << frontend::objectiveToString(evaluator::material(p, movegenType::queen, sq)) << std::endl;
+								eng.outputStream() << frontend::playerToString(p) << " " << frontend::pieceToString(movegenType::king) << ": " << frontend::objectiveToString(evaluator::material(p, movegenType::king, sq)) << std::endl;
 							}
 							else
 								eng.outputStream() << "invalid square: " << square << std::endl;
@@ -155,9 +155,9 @@ namespace pygmalion::chess
 						parser::parseToken(remainder2, player, remainder3);
 						playerType p{ playerType::invalid };
 						if (player == "white" || player == "w" || player == "+" || player == "0")
-							p = boardType::whitePlayer;
+							p = movegenType::whitePlayer;
 						else if (player == "black" || player == "b" || player == "-" || player == "1")
-							p = boardType::blackPlayer;
+							p = movegenType::blackPlayer;
 						if (p.isValid())
 						{
 							std::string piece;
@@ -167,11 +167,11 @@ namespace pygmalion::chess
 							if (pc.isValid())
 							{
 								eng.outputStream() << frontend::playerToString(p) << " " << frontend::pieceToString(pc) << ": " << std::endl;
-								for (typename boardType::rank rank = 7; rank >= 0; rank--)
+								for (typename boardType::rankType rank = 7; rank >= 0; rank--)
 								{
-									for (const auto file : boardType::file::range)
+									for (const auto file : boardType::fileType::range)
 									{
-										const squareType sq{ boardType::fromRankFile(rank,file) };
+										const squareType sq{ squareType::fromRankFile(rank,file) };
 										eng.outputStream() << std::setw(10) << frontend::objectiveToString(evaluator::material(p, pc, sq)) << " ";
 									}
 									eng.outputStream() << std::endl;

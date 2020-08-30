@@ -35,21 +35,21 @@ namespace pygmalion
 		using STYPE = std::int32_t;
 	};
 
-	template<size_t MANTISSA, size_t SHIFT, size_t MAXDIST>
-	struct score
+	template<int MANTISSA, int SHIFT, int MAXDIST>
+	class score
 	{
 	public:
 		using valueType = typename score_base < requiredSignedBytes((size_t(1) << MANTISSA) - 1) > ::STYPE;
 	private:
 		using longType = typename score_base < requiredSignedBytes((size_t(1) << MANTISSA) - 1) > ::HTYPE;
-		static constexpr valueType MAXVALUE{ valueType((size_t(1) << MANTISSA) - 1) };
+		static constexpr valueType MAXVALUE{ valueType((longType(1) << MANTISSA) - 1) };
 		static constexpr valueType MINVALUE{ valueType(-MAXVALUE) };
 		static constexpr valueType WINVALUE{ valueType(MAXVALUE - 1) };
 		static constexpr valueType LOSSVALUE{ valueType(MINVALUE + 1) };
 		static constexpr valueType WINNINGVALUE{ valueType(MAXVALUE - 1 - MAXDIST) };
 		static constexpr valueType LOSINGVALUE{ valueType(MINVALUE + 1 + MAXDIST) };
 		valueType m_Value;
-		constexpr score(const valueType value, const int unused) noexcept :
+		constexpr score(const valueType value, const int) noexcept :
 			m_Value(value)
 		{
 

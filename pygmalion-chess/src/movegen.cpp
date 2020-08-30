@@ -10,7 +10,7 @@ namespace pygmalion::chess
 		assert(square.isValid());
 		const bitsType piecemask{ bitsType::setMask(square) };
 		bitsType movemap{ bitsType::empty() };
-		if (side == boardType::whitePlayer)
+		if (side == whitePlayer)
 		{
 			if (bCapture)
 			{
@@ -69,38 +69,38 @@ namespace pygmalion::chess
 	{
 		assert(square.isValid());
 		bitsType result;
-		const typename board::rank rank = board::rankOfSquare(square);
-		const typename board::file file = board::fileOfSquare(square);
-		board::rank r;
-		board::file f;
+		const typename board::rankType rank{ square.rank() };
+		const typename board::fileType file{ square.file() };
+		board::rankType r;
+		board::fileType f;
 		if (bDiag)
 		{
 			for (r = rank + 1, f = file + 1; (r < 8) && (f < 8); r++, f++)
 			{
-				const squareType sq{ board::fromRankFile(r, f) };
+				const squareType sq{ squareType::fromRankFile(r, f) };
 				result.setBit(sq);
-				if (blockers.checkBit(sq))
+				if (blockers[sq])
 					break;
 			}
 			for (r = rank + 1, f = file - 1; (r < 8) && (f >= 0); r++, f--)
 			{
-				const squareType sq{ board::fromRankFile(r, f) };
+				const squareType sq{ squareType::fromRankFile(r, f) };
 				result.setBit(sq);
-				if (blockers.checkBit(sq))
+				if (blockers[sq])
 					break;
 			}
 			for (r = rank - 1, f = file + 1; (r >= 0) && (f < 8); r--, f++)
 			{
-				const squareType sq{ board::fromRankFile(r, f) };
+				const squareType sq{ squareType::fromRankFile(r, f) };
 				result.setBit(sq);
-				if (blockers.checkBit(sq))
+				if (blockers[sq])
 					break;
 			}
 			for (r = rank - 1, f = file - 1; (r >= 0) && (f >= 0); r--, f--)
 			{
-				const squareType sq{ board::fromRankFile(r, f) };
+				const squareType sq{ squareType::fromRankFile(r, f) };
 				result.setBit(sq);
-				if (blockers.checkBit(sq))
+				if (blockers[sq])
 					break;
 			}
 		}
@@ -108,30 +108,30 @@ namespace pygmalion::chess
 		{
 			for (r = rank + 1; r < 8; r++)
 			{
-				const squareType sq{ board::fromRankFile(r, file) };
+				const squareType sq{ squareType::fromRankFile(r, file) };
 				result.setBit(sq);
-				if (blockers.checkBit(sq))
+				if (blockers[sq])
 					break;
 			}
 			for (r = rank - 1; r >= 0; r--)
 			{
-				const squareType sq{ board::fromRankFile(r, file) };
+				const squareType sq{ squareType::fromRankFile(r, file) };
 				result.setBit(sq);
-				if (blockers.checkBit(sq))
+				if (blockers[sq])
 					break;
 			}
 			for (f = file + 1; f < 8; f++)
 			{
-				const squareType sq{ board::fromRankFile(rank, f) };
+				const squareType sq{ squareType::fromRankFile(rank, f) };
 				result.setBit(sq);
-				if (blockers.checkBit(sq))
+				if (blockers[sq])
 					break;
 			}
 			for (f = file - 1; f >= 0; f--)
 			{
-				const squareType sq{ board::fromRankFile(rank, f) };
+				const squareType sq{ squareType::fromRankFile(rank, f) };
 				result.setBit(sq);
-				if (blockers.checkBit(sq))
+				if (blockers[sq])
 					break;
 			}
 		}
@@ -145,4 +145,156 @@ namespace pygmalion::chess
 		moves |= attmask & ~occupy;
 		caps |= attmask & capturetargets;
 	}
+
+	void movegen::initializePosition_Implementation(boardType& position) noexcept
+	{
+		position.clear();
+		position.setMovingPlayer(whitePlayer);
+		// pawns
+		for (const auto f : fileType::range)
+		{
+			position.addPiece(pawn, squareType::fromRankFile(rank2, f), whitePlayer);
+			position.material() += evaluator::material(whitePlayer, pawn, squareType::fromRankFile(rank2, f));
+			position.addPiece(pawn, squareType::fromRankFile(rank7, f), blackPlayer);
+			position.material() += evaluator::material(blackPlayer, pawn, squareType::fromRankFile(rank7, f));
+		}
+		position_clearEnPassantFlags(position);
+		// kings
+		position.addPiece(king, squareE1, whitePlayer);
+		position.material() += evaluator::material(whitePlayer, king, squareE1);
+		position.addPiece(king, squareE8, blackPlayer);
+		position.material() += evaluator::material(blackPlayer, king, squareE8);
+		// rooks
+		position.addPiece(rook, squareA1, whitePlayer);
+		position.material() += evaluator::material(whitePlayer, rook, squareA1);
+		position.addPiece(rook, squareH1, whitePlayer);
+		position.material() += evaluator::material(whitePlayer, rook, squareH1);
+		position.addPiece(rook, squareA8, blackPlayer);
+		position.material() += evaluator::material(blackPlayer, rook, squareA8);
+		position.addPiece(rook, squareH8, blackPlayer);
+		position.material() += evaluator::material(blackPlayer, rook, squareH8);
+		position_setCastlerightQueensideBlack(position);
+		position_setCastlerightQueensideWhite(position);
+		position_setCastlerightKingsideBlack(position);
+		position_setCastlerightKingsideWhite(position);
+		// knights
+/*		position.addPiece(knight, squareB1, whitePlayer);
+		position.material() += evaluator::material(whitePlayer, knight, squareB1);
+		position.addPiece(knight, squareG1, whitePlayer);
+		position.material() += evaluator::material(whitePlayer, knight, squareG1);
+		position.addPiece(knight, squareB8, blackPlayer);
+		position.material() += evaluator::material(blackPlayer, knight, squareB8);
+		position.addPiece(knight, squareG8, blackPlayer);
+		position.material() += evaluator::material(blackPlayer, knight, squareG8);
+		// bishops
+		position.addPiece(bishop, squareC1, whitePlayer);
+		position.material() += evaluator::material(whitePlayer, bishop, squareC1);
+		position.addPiece(bishop, squareF1, whitePlayer);
+		position.material() += evaluator::material(whitePlayer, bishop, squareF1);
+		position.addPiece(bishop, squareC8, blackPlayer);
+		position.material() += evaluator::material(blackPlayer, bishop, squareC8);
+		position.addPiece(bishop, squareF8, blackPlayer);
+		position.material() += evaluator::material(blackPlayer, bishop, squareF8);
+		// queens
+		position.addPiece(queen, squareD1, whitePlayer);
+		position.material() += evaluator::material(whitePlayer, queen, squareD1);
+		position.addPiece(queen, squareD8, blackPlayer);
+		position.material() += evaluator::material(blackPlayer, queen, squareD8);*/
+	}
+	
+	void movegen::makeMove_Implementation(boardType& position, const movedataType& md) noexcept
+	{
+		score newMaterial{ md.oldMaterial() };
+		if (md.isCapture())
+		{
+			position.removePiece(md.capturedPiece(), md.captureSquare(), md.otherPlayer());
+			position.setDistanceToDraw(DrawingDistance);
+			newMaterial -= evaluator::material(md.otherPlayer(), md.capturedPiece(), md.captureSquare());
+			switch (md.capturedPiece())
+			{
+			case movegen::rook:
+				if (md.otherPlayer() == movegen::blackPlayer)
+				{
+					if (md.captureSquare() == movegen::squareA8)
+						movegen::position_clearCastlerightQueensideBlack(position);
+					else if (md.captureSquare() == movegen::squareH8)
+						movegen::position_clearCastlerightKingsideBlack(position);
+				}
+				else
+				{
+					if (md.captureSquare() == movegen::squareA1)
+						movegen::position_clearCastlerightQueensideWhite(position);
+					else if (md.captureSquare() == movegen::squareH1)
+						movegen::position_clearCastlerightKingsideWhite(position);
+				}
+				break;
+			}
+		}
+		else
+			position.setDistanceToDraw(position.getDistanceToDraw() - 1);
+		switch (md.movingPiece())
+		{
+		case movegen::king:
+			if (md.movingPlayer() == movegen::blackPlayer)
+			{
+				movegen::position_clearCastlerightKingsideBlack(position);
+				movegen::position_clearCastlerightQueensideBlack(position);
+			}
+			else
+			{
+				movegen::position_clearCastlerightKingsideWhite(position);
+				movegen::position_clearCastlerightQueensideWhite(position);
+			}
+		case movegen::rook:
+			if (md.movingPlayer() == movegen::blackPlayer)
+			{
+				if (md.fromSquare() == movegen::squareA8)
+					movegen::position_clearCastlerightQueensideBlack(position);
+				else if (md.fromSquare() == movegen::squareH8)
+					movegen::position_clearCastlerightKingsideBlack(position);
+			}
+			else
+			{
+				if (md.fromSquare() == movegen::squareA1)
+					movegen::position_clearCastlerightQueensideWhite(position);
+				else if (md.fromSquare() == movegen::squareH1)
+					movegen::position_clearCastlerightKingsideWhite(position);
+			}
+			break;
+		}
+		position.removePiece(md.movingPiece(), md.fromSquare(), md.movingPlayer());
+		newMaterial -= evaluator::material(md.movingPlayer(), md.movingPiece(), md.fromSquare());
+		position.addPiece(md.targetPiece(), md.toSquare(), md.movingPlayer());
+		newMaterial += evaluator::material(md.movingPlayer(), md.targetPiece(), md.toSquare());
+		movegen::position_clearEnPassantFlags(position);
+		if (md.isDoublePush())
+			movegen::position_setEnPassantFlag(position, md.toSquare().file());
+		else if (md.isCastling())
+		{
+			position.removePiece(movegen::rook, md.rookFrom(), md.movingPlayer());
+			newMaterial -= evaluator::material(md.movingPlayer(), movegen::rook, md.rookFrom());
+			position.addPiece(movegen::rook, md.rookTo(), md.movingPlayer());
+			newMaterial += evaluator::material(md.movingPlayer(), movegen::rook, md.rookTo());
+		}
+		position.setMovingPlayer(md.otherPlayer());
+		position.setMaterial(newMaterial);
+	}
+	
+	void movegen::unmakeMove_Implementation(boardType& position, const movedataType& md) noexcept
+	{
+		if (md.isCastling())
+		{
+			position.removePiece(movegen::rook, md.rookTo(), md.movingPlayer());
+			position.addPiece(movegen::rook, md.rookFrom(), md.movingPlayer());
+		}
+		position.removePiece(md.targetPiece(), md.toSquare(), md.movingPlayer());
+		position.addPiece(md.movingPiece(), md.fromSquare(), md.movingPlayer());
+		if (md.isCapture())
+			position.addPiece(md.capturedPiece(), md.captureSquare(), md.otherPlayer());
+		position.setMaterial(md.oldMaterial());
+		position.setDistanceToDraw(md.oldDistanceToDraw());
+		position.setMovingPlayer(md.movingPlayer());
+		position.flags() = md.oldFlags();
+	}
+
 }

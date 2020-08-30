@@ -1,9 +1,14 @@
 namespace pygmalion::chess
 {
-	struct slidermagicinfo
+	template<typename DESCRIPTOR_GENERATOR>
+	class slidermagicinfo :
+		public base_generator<DESCRIPTOR_GENERATOR>
 	{
 	public:
-		using squareType = typename board::square;
+
+		using descriptorGenerator = DESCRIPTOR_GENERATOR;
+#include "pygmalion-core/include_generator.h"
+
 	private:
 		squareType m_Square;
 		bool m_IsDiagonal;
@@ -34,48 +39,83 @@ namespace pygmalion::chess
 		}
 	};
 
+	template<typename DESCRIPTOR_GENERATOR>
 	class slidermagic :
+		public base_generator<DESCRIPTOR_GENERATOR>,
 #if defined(PYGMALION_CPU_BMI2)&& defined(PYGMALION_CPU_X64)
-		public pygmalion::magictable<std::uint16_t, slidermagicinfo, typename board::bitsType, slidermagic, true>
+		public pygmalion::magictable<std::uint16_t, slidermagicinfo<DESCRIPTOR_GENERATOR>, typename DESCRIPTOR_GENERATOR::squaresType, slidermagic<DESCRIPTOR_GENERATOR>, true>
 #else
-		public pygmalion::magictable<typename board::bitsType, slidermagicinfo, typename board::bitsType, slidermagic, false>
+		public pygmalion::magictable<typename DESCRIPTOR_GENERATOR::squaresType, slidermagicinfo<DESCRIPTOR_GENERATOR>, typename DESCRIPTOR_GENERATOR::squaresType, slidermagic<DESCRIPTOR_GENERATOR>, false>
 #endif
 	{
 	public:
-		using bitsType = typename board::bitsType;
-		using squareType = typename board::square;
+
+		using descriptorGenerator = DESCRIPTOR_GENERATOR;
+#include "pygmalion-core/include_generator.h"
+
 	private:
 #if defined(PYGMALION_CPU_BMI2)&& defined(PYGMALION_CPU_X64)
-		bitsType m_IndexMask;
-		static std::uint16_t encode(const bitsType mask, const bitsType bitboard) noexcept
+		squaresType m_IndexMask;
+		static std::uint16_t encode(const squaresType mask, const squaresType bitboard) noexcept
 		{
 			return static_cast<std::uint16_t>(bitboard.pext(mask).bits());
 		}
-		static bitsType decode(const std::uint16_t code, const bitsType mask) noexcept
+		static squaresType decode(const std::uint16_t code, const squaresType mask) noexcept
 		{
 			return bitsType(code).pdep(mask);
 		}
-		static bitsType indexMask(const squareType square, const bool isDiagonal) noexcept;
+		static squaresType indexMask(const squareType square, const bool isDiagonal) noexcept;
 #endif
 	public:
 #if defined(PYGMALION_CPU_BMI2)&& defined(PYGMALION_CPU_X64)
-		static void initializeValue_Implementation(std::uint16_t& index, const slidermagicinfo& info, const bitsType bitboard, const bitsType premask) noexcept;
+		static void initializeValue_Implementation(std::uint16_t& index, const slidermagicinfo<descriptorGenerator>& info, const squaresType bitboard, const squaresType premask) noexcept;
 #else
-		static void initializeValue_Implementation(bitsType& value, const slidermagicinfo& info, const bitsType bitboard, const bitsType premask) noexcept;
+		static void initializeValue_Implementation(squaresType& value, const slidermagicinfo<descriptorGenerator>& info, const squaresType bitboard, const squaresType premask) noexcept;
 #endif
-		static bitsType calculatePremask(const slidermagicinfo& info) noexcept;
-		slidermagic(const slidermagicinfo& info) noexcept :
+		static squaresType calculatePremask(const slidermagicinfo<descriptorGenerator>& info) noexcept 
+		{
+			assert(info.square().isValid());
+			squaresType result{ squaresType::empty() };
+			const auto rank{ info.square().rank() };
+			const auto file{ info.square().file() };
+			int r;
+			int f;
+			if (info.isDiagonal())
+			{
+				for (r = rank + 1, f = file + 1; r <= 6 && f <= 6; r++, f++)
+					result.setBit(squareType::fromRankFile(r, f));
+				for (r = rank + 1, f = file - 1; r <= 6 && f >= 1; r++, f--)
+					result.setBit(squareType::fromRankFile(r, f));
+				for (r = rank - 1, f = file + 1; r >= 1 && f <= 6; r--, f++)
+					result.setBit(squareType::fromRankFile(r, f));
+				for (r = rank - 1, f = file - 1; r >= 1 && f >= 1; r--, f--)
+					result.setBit(squareType::fromRankFile(r, f));
+			}
+			else
+			{
+				for (r = rank + 1; r <= 6; r++)
+					result.setBit(squareType::fromRankFile(r, file));
+				for (r = rank - 1; r >= 1; r--)
+					result.setBit(squareType::fromRankFile(r, file));
+				for (f = file + 1; f <= 6; f++)
+					result.setBit(squareType::fromRankFile(rank, f));
+				for (f = file - 1; f >= 1; f--)
+					result.setBit(squareType::fromRankFile(rank, f));
+			}
+			return result;
+		}
+		slidermagic(const slidermagicinfo<descriptorGenerator>& info) noexcept :
 #if defined(PYGMALION_CPU_BMI2)&& defined(PYGMALION_CPU_X64)
-			pygmalion::magictable<std::uint16_t, slidermagicinfo, typename board::bitsType, slidermagic, true>(info),
+			pygmalion::magictable<std::uint16_t, slidermagicinfo<descriptorGenerator>, squaresType, slidermagic<descriptorGenerator>, true>(info),
 			m_IndexMask{ indexMask(info.square(),info.isDiagonal()) }
 #else
-			pygmalion::magictable<typename board::bitsType, slidermagicinfo, typename board::bitsType, slidermagic, false>(info)
+			pygmalion::magictable<squaresType, slidermagicinfo<descriptorGenerator>, squaresType, slidermagic<descriptorGenerator>, false>(info)
 #endif
 		{
 		}
 #if !(defined(PYGMALION_CPU_BMI2)&& defined(PYGMALION_CPU_X64))
-		slidermagic(const slidermagicinfo& info, const bitsType factor) noexcept :
-			pygmalion::magictable<typename board::bitsType, slidermagicinfo, typename board::bitsType, slidermagic, false>(info, factor)
+		slidermagic(const slidermagicinfo<descriptorGenerator>& info, const squaresType factor) noexcept :
+			pygmalion::magictable<squaresType, slidermagicinfo<descriptorGenerator>, squaresType, slidermagic<descriptorGenerator>, false>(info, factor)
 		{
 		}
 #endif
@@ -84,12 +124,12 @@ namespace pygmalion::chess
 		constexpr slidermagic(slidermagic&&) noexcept = default;
 		~slidermagic() noexcept = default;
 #if defined(PYGMALION_CPU_BMI2)&& defined(PYGMALION_CPU_X64)
-		bitsType operator[](const bitsType& blockers) const
+		squaresType operator[](const squaresType& blockers) const
 		{
 			return decode(value(blockers), m_IndexMask);
 		}
 #else
-		const bitsType& operator[](const bitsType blockers) const
+		const squaresType& operator[](const squaresType blockers) const
 		{
 			return value(blockers);
 		}

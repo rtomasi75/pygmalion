@@ -5,6 +5,10 @@ namespace pygmalion
 	public:
 		parser() = delete;
 		~parser() = delete;
+		static double computeNodesPerSec(const uint64_t nodeCount, const std::chrono::nanoseconds duration) noexcept
+		{
+			return (10000.0 * static_cast<double>(nodeCount)) / (0.00001 * static_cast<double>(duration.count()));
+		}
 		static std::string toString(const std::uint64_t val) noexcept
 		{
 			std::stringstream sstr;

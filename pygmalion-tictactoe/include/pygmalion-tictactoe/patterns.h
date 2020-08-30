@@ -1,28 +1,31 @@
 namespace pygmalion::tictactoe
 {
-	class patterns
+	template<typename DESCRIPTION_BOARD>
+	class patterns :
+		public base_board<DESCRIPTION_BOARD>
 	{
 	public:
-		using boardType = pygmalion::tictactoe::board;
-		using bitsType = typename boardType::bitsType;
-		constexpr static int lineCount = 8;
+		using descriptorBoard = DESCRIPTION_BOARD;
+#include "pygmalion-core/include_board.h"
+		constexpr static int countLines{ countRanks * countFiles + 2 };
 	private:
-		bitsType m_Lines[lineCount];
+		std::array<squaresType, countLines> m_Lines;
+	public:
 		constexpr patterns() noexcept :
-			m_Lines{ bitsType(0), bitsType(0), bitsType(0), bitsType(0), bitsType(0), bitsType(0), bitsType(0), bitsType(0) }
+			m_Lines{ make_array_n<countLines,squaresType>(squaresType::empty()) }
 		{
 			auto current = 0;
-			for (int rank = 0; rank < 3; rank++)
+			for (const auto rank : rankType::range)
 			{
-				for (int file = 0; file < 3; file++)
+				for (const auto file : fileType::range)
 				{
 					m_Lines[current].setBit(rank * 3 + file);
 				}
 				current++;
 			}
-			for (int file = 0; file < 3; file++)
+			for (const auto file : fileType::range)
 			{
-				for (int rank = 0; rank < 3; rank++)
+				for (const auto rank : rankType::range)
 				{
 					m_Lines[current].setBit(rank * 3 + file);
 				}
@@ -35,13 +38,11 @@ namespace pygmalion::tictactoe
 			}
 		}
 		~patterns() noexcept = default;
-		static patterns m_Singleton;
-	public:
-		static auto line(const int idx)  noexcept
+		constexpr const squaresType& line(const int idx) const noexcept
 		{
 			assert(idx >= 0);
-			assert(idx < lineCount);
-			return m_Singleton.m_Lines[idx];
+			assert(idx < countLines);
+			return m_Lines[idx];
 		}
 	};
 }

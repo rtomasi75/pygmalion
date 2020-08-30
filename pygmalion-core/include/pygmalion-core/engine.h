@@ -5,26 +5,12 @@ namespace pygmalion
 	{
 	public:
 		using frontendType = FRONTEND;
-		using movegenType = typename frontendType::movegenType;
-		using movedataType = typename movegenType::movedataType;
-		using variationType = typename frontendType::variationType;
-		using evaluatorType = typename frontendType::evaluatorType;
-		using searchType = typename frontendType::searchType;
-		using subjectiveType = typename frontendType::subjectiveType;
-		using objectiveType = typename frontendType::objectiveType;
-		using commandType = command<engine>;
-		using moveType = typename frontendType::moveType;
+		using stackType = typename frontendType::stackType;
 
-		using boardType = typename movegenType::boardType;
-		using playerType = typename movegenType::playerType;
-		using squareType = typename movegenType::squareType;
-		using pieceType = typename movegenType::pieceType;
-		using flagsType = typename movegenType::flagsType;
-		using indexType = typename movegenType::indexType;
-		using movelistType = typename movegenType::movelistType;
-		using gamestateType = typename movegenType::gamestateType;
-		using stackType = typename boardType::stackType;
+		using descriptorFrontend = typename frontendType::descriptorFrontend;
+#include "include_frontend.h"
 
+		using commandType = command<engine<frontendType>>;
 	private:
 		class command_quit : public commandType
 		{
@@ -48,7 +34,7 @@ namespace pygmalion
 				if (cmd == "ver")
 				{
 					eng.outputStream() << "Pygmalion ver. 3.0" << std::endl;
-					eng.outputStream() << "playing " << movegenType::name() << std::endl;
+					eng.outputStream() << "playing " << frontendType::name() << std::endl;
 					return true;
 				}
 				else
@@ -80,7 +66,7 @@ namespace pygmalion
 					eng.outputStream() << std::endl;
 					movelistType moves;
 					stackType stack(eng.board(), eng.board().movingPlayer());
-					auto score_old{ evaluatorType::evaluate(stack) };
+					auto score_old{ evaluationType::evaluate(stack) };
 					moveType move;
 					bool hasMoves{ false };
 					while (stack.nextMove(move))
@@ -88,7 +74,7 @@ namespace pygmalion
 						hasMoves = true;
 						eng.outputStream() << frontendType::moveToString(eng.board(), move) << "\t";
 						stackType subStack(stack, move);
-						auto score_new{ evaluatorType::evaluate(subStack) };
+						auto score_new{ evaluationType::evaluate(subStack) };
 						eng.outputStream() << FRONTEND::objectiveToString(score_new) << "\t";
 						eng.outputStream() << std::endl;
 					}
@@ -155,13 +141,13 @@ namespace pygmalion
 					depthType depth = parser::parseInt(remainder);
 					for (depthType i = 0; i < depth; i++)
 					{
-						auto start = std::chrono::high_resolution_clock::now();
-						typename searchType::variationType principalVariation;
-						uint64_t nodeCount{ 0 };
-						typename evaluatorType::objectiveType score{ searchType::pvs(eng.board(), principalVariation, i, nodeCount) };
-						auto end = std::chrono::high_resolution_clock::now();
-						auto elapsed = end - start;
-						eng.outputStream() << std::setw(2) << static_cast<int>(i) << " " << std::setw(9) << parser::nodesCountToString(nodeCount) << " " << std::setw(12) << parser::durationToString(elapsed) << " " << std::setw(8) << parser::nodesPerSecondToString(engine::computeNodesPerSec(nodeCount, elapsed)) << std::setw(12) << FRONTEND::objectiveToString(score) << "  " << FRONTEND::variationToString(eng.board(), principalVariation) << std::endl;
+						variationType principalVariation;
+						heuristicsType heuristics;
+						objectiveType score{ searchType::pvs(eng.board(), principalVariation, i, heuristics) };
+						uint64_t nodeCount{ heuristics.nodeCount() };
+						eng.outputStream() << static_cast<int>(i) << ": " << std::setw(12) << FRONTEND::objectiveToString(score) << " - " << FRONTEND::variationToString(eng.board(), principalVariation) << std::endl;
+						eng.outputStream() << heuristics.toString();
+						eng.outputStream() << std::endl;
 					}
 					eng.outputStream() << std::endl;
 					return true;
@@ -185,13 +171,12 @@ namespace pygmalion
 					depthType depth = parser::parseInt(remainder);
 					for (depthType i = 0; i < depth; i++)
 					{
-						auto start = std::chrono::high_resolution_clock::now();
 						typename searchType::variationType principalVariation;
-						uint64_t nodeCount{ 0 };
-						searchType::perft(eng.board(), i, nodeCount);
-						auto end = std::chrono::high_resolution_clock::now();
-						auto elapsed = end - start;
-						eng.outputStream() << std::setw(2) << static_cast<int>(i) << " " << std::setw(9) << parser::nodesCountToString(nodeCount) << " " << std::setw(12) << parser::durationToString(elapsed) << " " << std::setw(8) << parser::nodesPerSecondToString(engine::computeNodesPerSec(nodeCount, elapsed)) << std::endl;
+						typename searchType::heuristicsType heuristics;
+						searchType::perft(eng.board(), i, heuristics);
+						uint64_t nodeCount{ heuristics.nodeCount() };
+						eng.outputStream() << static_cast<int>(i) << ":" << std::endl;
+						eng.outputStream() << heuristics.toString();
 					}
 					eng.outputStream() << std::endl;
 					return true;
@@ -211,10 +196,10 @@ namespace pygmalion
 				if (token == "debug-eval")
 				{
 					eng.outputStream() << std::endl;
-					typename movegenType::stackType stack(eng.board(), eng.board().movingPlayer());
-					typename evaluatorType::objectiveType score{ evaluatorType::evaluate(stack) };
+					stackType stack(eng.board(), eng.board().movingPlayer());
+					objectiveType score{ evaluationType::evaluate(stack) };
 					eng.outputStream() << "eval obj.  = " << frontendType::objectiveToString(score) << std::endl;
-					eng.outputStream() << "eval subj. = " << frontendType::subjectiveToString(evaluatorType::makeSubjective(score, stack.position().movingPlayer())) << std::endl;
+					eng.outputStream() << "eval subj. = " << frontendType::subjectiveToString(evaluationType::makeSubjective(score, stack.position().movingPlayer())) << std::endl;
 					eng.outputStream() << std::endl;
 					return true;
 				}
@@ -233,32 +218,37 @@ namespace pygmalion
 				if (token == "debug-memory")
 				{
 					eng.outputStream() << std::endl;
-					eng.outputStream() << "sizeof(size_t) = " << sizeof(size_t) << std::endl;
-					eng.outputStream() << "sizeof(int)    = " << sizeof(int) << std::endl;
-					eng.outputStream() << "sizeof(bool)   = " << sizeof(bool) << std::endl;
+					eng.outputStream() << "BOARD: " << std::endl;
+					eng.outputStream() << "  playerType  = " << sizeof(playerType) << std::endl;
+					eng.outputStream() << "  pieceType   = " << sizeof(pieceType) << std::endl;
+					eng.outputStream() << "  rankType    = " << sizeof(rankType) << std::endl;
+					eng.outputStream() << "  fileType    = " << sizeof(fileType) << std::endl;
+					eng.outputStream() << "  squareType  = " << sizeof(squareType) << std::endl;
+					eng.outputStream() << "  flagType    = " << sizeof(flagType) << std::endl;
+					eng.outputStream() << "  flagsType   = " << sizeof(flagsType) << std::endl;
+					eng.outputStream() << "  squaresType = " << sizeof(squaresType) << std::endl;
+					eng.outputStream() << "  boardType   = " << sizeof(boardType) << std::endl;
 					eng.outputStream() << std::endl;
-					eng.outputStream() << "sizeof(boardType)    = " << sizeof(boardType) << std::endl;
-					eng.outputStream() << "sizeof(moveType)     = " << sizeof(moveType) << std::endl;
-					eng.outputStream() << "sizeof(movedataType) = " << sizeof(movedataType) << std::endl;
-					eng.outputStream() << "sizeof(stackType)    = " << sizeof(typename movegenType::stackType) << std::endl;
-					eng.outputStream() << "sizeof(hashValue)    = " << sizeof(typename boardType::hashValue) << std::endl;
-					eng.outputStream() << "sizeof(bitsType)     = " << sizeof(typename boardType::bitsType) << std::endl;
-					eng.outputStream() << "sizeof(gamestate)    = " << sizeof(typename boardType::gamestate) << std::endl;
-					eng.outputStream() << "sizeof(playerType)   = " << sizeof(playerType) << std::endl;
-					eng.outputStream() << "sizeof(squareType)   = " << sizeof(squareType) << std::endl;
-					eng.outputStream() << "sizeof(pieceType)    = " << sizeof(pieceType) << std::endl;
-					eng.outputStream() << "sizeof(flagsType)    = " << sizeof(flagsType) << std::endl;
+					eng.outputStream() << "MECHANICS: " << std::endl;
+					eng.outputStream() << "  moveflagsType   = " << sizeof(moveflagsType) << std::endl;
+					eng.outputStream() << "  moveflagbitType = " << sizeof(moveflagbitType) << std::endl;
+					eng.outputStream() << "  moveType        = " << sizeof(moveType) << std::endl;
 					eng.outputStream() << std::endl;
-					eng.outputStream() << "sizeof(indexType)    = " << sizeof(indexType) << std::endl;
-					eng.outputStream() << "sizeof(movelistType) = " << sizeof(movelistType) << std::endl;
+					eng.outputStream() << "GENERATOR: " << std::endl;
+					eng.outputStream() << "  movelistType = " << sizeof(movelistType) << std::endl;
+					eng.outputStream() << "  indexType    = " << sizeof(indexType) << std::endl;
+					eng.outputStream() << "  movedataType = " << sizeof(movedataType) << std::endl;
 					eng.outputStream() << std::endl;
-					eng.outputStream() << "sizeof(subjectiveType) = " << sizeof(subjectiveType) << std::endl;
-					eng.outputStream() << "sizeof(objectiveType)  = " << sizeof(objectiveType) << std::endl;
+					eng.outputStream() << "EVALUATION: " << std::endl;
+					eng.outputStream() << "  gamestateType  = " << sizeof(gamestateType) << std::endl;
+					eng.outputStream() << "  objectiveType  = " << sizeof(objectiveType) << std::endl;
+					eng.outputStream() << "  subjectiveType = " << sizeof(subjectiveType) << std::endl;
 					eng.outputStream() << std::endl;
-					eng.outputStream() << "sizeof(depthType)      = " << sizeof(typename searchType::depthType) << std::endl;
-					eng.outputStream() << "sizeof(variationType)  = " << sizeof(variationType) << std::endl;
-					eng.outputStream() << "sizeof(multiscoreType) = " << sizeof(typename searchType::multiscoreType) << std::endl;
-					eng.outputStream() << "sizeof(nodeType)       = " << sizeof(typename searchType::nodeType) << std::endl;
+					eng.outputStream() << "SEARCH: " << std::endl;
+					eng.outputStream() << "  variationType  = " << sizeof(variationType) << std::endl;
+					eng.outputStream() << "  depthType      = " << sizeof(depthType) << std::endl;
+					eng.outputStream() << "  heuristicsType = " << sizeof(heuristicsType) << std::endl;
+					eng.outputStream() << "  multiscoreType = " << sizeof(multiscoreType) << std::endl;
 					eng.outputStream() << std::endl;
 					return true;
 				}
@@ -364,10 +354,6 @@ namespace pygmalion
 	private:
 		std::deque<std::shared_ptr<commandType>> m_Commands;
 	public:
-		static double computeNodesPerSec(const uint64_t nodeCount, const std::chrono::nanoseconds duration) noexcept
-		{
-			return (10000.0 * static_cast<double>(nodeCount)) / (0.00001 * static_cast<double>(duration.count()));
-		}
 		bool makeMove(const moveType move) noexcept
 		{
 			boardType newBoard{ m_Board };
@@ -430,6 +416,7 @@ namespace pygmalion
 			addCommand<command_debugPerft>();
 			addCommand<command_debugMemory>();
 			addCommand<command_debugHardware>();
+			mechanicsType::initializePosition(m_Board);
 		}
 		~engine() noexcept = default;
 		bool isRunning() const noexcept
