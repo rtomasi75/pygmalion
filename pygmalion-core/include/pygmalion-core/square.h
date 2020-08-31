@@ -41,7 +41,7 @@ namespace pygmalion
 		{
 			return bit<COUNT_RANKS* COUNT_FILES>(static_cast<typename enumeration<COUNT_RANKS* COUNT_FILES, square<COUNT_RANKS, COUNT_FILES>>::baseType>(*this));
 		}
-		constexpr square(const bit<COUNT_RANKS* COUNT_FILES>& bit) noexcept :
+		constexpr explicit square(const bit<COUNT_RANKS* COUNT_FILES> bit) noexcept :
 			square<COUNT_RANKS, COUNT_FILES>(static_cast<typename enumeration<COUNT_RANKS* COUNT_FILES, square<COUNT_RANKS, COUNT_FILES>>::baseType>(bit))
 		{
 

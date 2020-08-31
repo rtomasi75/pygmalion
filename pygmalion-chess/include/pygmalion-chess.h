@@ -16,8 +16,7 @@
 #include "pygmalion-chess/mechanics.h"
 #include "pygmalion-chess/slidermagic.h"
 #include "pygmalion-chess/generatorTables.h"
-#include <pygmalion-chess/descriptor_generator.h>
-#include "pygmalion-chess/stack.h"
+#include "pygmalion-chess/descriptor_generator.h"
 #include "pygmalion-chess/generator.h"
 #include "pygmalion-chess/evaluationTables.h"
 #include "pygmalion-chess/evaluator.h"

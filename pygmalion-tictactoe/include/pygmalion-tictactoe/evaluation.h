@@ -22,19 +22,19 @@ namespace pygmalion::tictactoe
 			constexpr int winLength{ (countRanks + countFiles) / 2 };
 			for (int line = 0; line < m_Patterns.countLines; line++)
 			{
-				const auto ctr1{ (position.playerOccupancy(static_cast<playerType>(0)) & m_Patterns.line(line)).populationCount() };
+				const auto ctr1{ (position.playerOccupancy(static_cast<playerType>(0)) & m_Patterns.line(line)).count() };
 				if (ctr1 >= winLength)
 				{
 					return gamestateType::win(0);
 				}
-				const auto ctr2{ (position.playerOccupancy(static_cast<playerType>(1)) & m_Patterns.line(line)).populationCount() };
+				const auto ctr2{ (position.playerOccupancy(static_cast<playerType>(1)) & m_Patterns.line(line)).count() };
 				if (ctr2 >= winLength)
 				{
 					return gamestateType::win(1);
 				}
 				canDecide |= (ctr1 == 0) | (ctr2 == 0);
 			}
-			return (canDecide && (position.totalOccupancy().populationCount() < 9)) ? gamestateType::open() : gamestateType::draw();
+			return (canDecide && (position.totalOccupancy().count() < 9)) ? gamestateType::open() : gamestateType::draw();
 		}
 		static objectiveType evaluate_Implementation(const stack& stack) noexcept
 		{
@@ -42,8 +42,8 @@ namespace pygmalion::tictactoe
 			auto sc = objectiveType::zero();
 			for (int line = 0; line < m_Patterns.countLines; line++)
 			{
-				const auto ctr1 = (position.playerOccupancy(0) & m_Patterns.line(line)).populationCount();
-				const auto ctr2 = (position.playerOccupancy(1) & m_Patterns.line(line)).populationCount();
+				const auto ctr1 = (position.playerOccupancy(0) & m_Patterns.line(line)).count();
+				const auto ctr2 = (position.playerOccupancy(1) & m_Patterns.line(line)).count();
 
 				if ((ctr1 > 0) && (ctr2 == 0))
 					sc += objectiveType::one() * (ctr1 * ctr1);

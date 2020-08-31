@@ -1,7 +1,7 @@
 namespace pygmalion
 {
 	template<typename DESCRIPTOR_BOARD>
-	class board : 
+	class board :
 		public base_board<DESCRIPTOR_BOARD>
 	{
 	public:
@@ -120,8 +120,8 @@ namespace pygmalion
 			assert(!m_PlayerOccupancy[p][sq]);
 			assert(!m_PieceOccupancy[pc][sq]);
 #endif
-			m_PlayerOccupancy[p].setBit(sq);
-			m_PieceOccupancy[pc].setBit(sq);
+			m_PlayerOccupancy[p] += sq;
+			m_PieceOccupancy[pc] += sq;
 		}
 		constexpr void removePiece(const pieceType pc, const squareType sq, const playerType p) noexcept
 		{
@@ -132,8 +132,8 @@ namespace pygmalion
 			assert(m_PlayerOccupancy[p][sq]);
 			assert(m_PieceOccupancy[pc][sq]);
 #endif
-			m_PlayerOccupancy[p].clearBit(sq);
-			m_PieceOccupancy[pc].clearBit(sq);
+			m_PlayerOccupancy[p] -= sq;
+			m_PieceOccupancy[pc] -= sq;
 		}
 		constexpr pieceType getPiece(const squareType sq) const noexcept
 		{
@@ -147,9 +147,9 @@ namespace pygmalion
 		constexpr void clear() noexcept
 		{
 			for (const auto p : playerType::range)
-				m_PlayerOccupancy[p] = squaresType::empty();
+				m_PlayerOccupancy[p] = squaresType::none();
 			for (const auto pc : pieceType::range)
-				m_PieceOccupancy[pc] = squaresType::empty();
+				m_PieceOccupancy[pc] = squaresType::none();
 			m_Flags = 0;
 			m_MovingPlayer = 0;
 		}

@@ -5,7 +5,7 @@ namespace pygmalion
 		public base_evaluation<typename EVALUATION::descriptorEvaluation>
 	{
 	public:
-		constexpr static int countSearchPlies{ COUNT_SEARCH_PLIES };
+		constexpr static const int countSearchPlies{ COUNT_SEARCH_PLIES };
 		using evaluationType = EVALUATION;
 		using variationType = list<typename evaluationType::moveType, countSearchPlies>;
 		using depthType = typename variationType::counterType;

@@ -17,7 +17,7 @@ namespace pygmalion::tictactoe
 					}
 					stream << std::endl;
 				}
-				stream << "population = " << static_cast<size_t>(pattern.populationCount());
+				stream << "population = " << static_cast<size_t>(pattern.count());
 				stream << std::endl;
 			}
 		protected:

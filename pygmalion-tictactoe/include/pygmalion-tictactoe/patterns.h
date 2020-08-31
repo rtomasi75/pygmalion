@@ -12,14 +12,14 @@ namespace pygmalion::tictactoe
 		std::array<squaresType, countLines> m_Lines;
 	public:
 		constexpr patterns() noexcept :
-			m_Lines{ make_array_n<countLines,squaresType>(squaresType::empty()) }
+			m_Lines{ make_array_n<countLines,squaresType>(squaresType::none()) }
 		{
 			auto current = 0;
 			for (const auto rank : rankType::range)
 			{
 				for (const auto file : fileType::range)
 				{
-					m_Lines[current].setBit(rank * 3 + file);
+					m_Lines[current] += squareType::fromRankFile(rank, file);
 				}
 				current++;
 			}
@@ -27,14 +27,14 @@ namespace pygmalion::tictactoe
 			{
 				for (const auto rank : rankType::range)
 				{
-					m_Lines[current].setBit(rank * 3 + file);
+					m_Lines[current] += squareType::fromRankFile(rank, file);
 				}
 				current++;
 			}
-			for (int idx = 0; idx < 3; idx++)
+			for (int idx = 0; idx < std::min(countRanks, countFiles); idx++)
 			{
-				m_Lines[current].setBit(idx * 3 + idx);
-				m_Lines[current + 1].setBit(idx * 3 + 2 - idx);
+				m_Lines[current] += squareType::fromRankFile(idx, idx);
+				m_Lines[current + 1] += squareType::fromRankFile(std::min(countRanks, countFiles) - 1 - idx, idx);
 			}
 		}
 		~patterns() noexcept = default;

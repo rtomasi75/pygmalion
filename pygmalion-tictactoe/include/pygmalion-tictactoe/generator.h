@@ -1,6 +1,6 @@
 namespace pygmalion::tictactoe
 {
-	class generator : 
+	class generator :
 		public pygmalion::generator<descriptor_generator, generator>
 	{
 	private:
@@ -28,7 +28,7 @@ namespace pygmalion::tictactoe
 		{
 			if (currentPass == 0)
 			{
-				moves = m_Magic[stack.position().totalOccupancy()];
+				moves = m_Magic[static_cast<typename squaresType::bitsType>(stack.position().totalOccupancy())];
 				currentPass++;
 				return true;
 			}
@@ -42,4 +42,4 @@ namespace pygmalion::tictactoe
 
 		using stackType = stack;
 	};
-} 
+}

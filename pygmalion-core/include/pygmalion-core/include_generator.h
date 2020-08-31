@@ -1,5 +1,5 @@
 
-constexpr static int countMaxGeneratedMoves{ descriptorGenerator::countMaxGeneratedMoves };
+constexpr static const int countMaxGeneratedMoves{ descriptorGenerator::countMaxGeneratedMoves };
 using movelistType = typename descriptorGenerator::movelistType;
 using indexType = typename descriptorGenerator::indexType;
 using mechanicsType = typename descriptorGenerator::mechanicsType;

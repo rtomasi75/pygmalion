@@ -1,5 +1,5 @@
 
-constexpr static int countSearchPlies{ descriptorSearch::countSearchPlies };
+constexpr static const int countSearchPlies{ descriptorSearch::countSearchPlies };
 using evaluationType = typename descriptorSearch::evaluationType;
 using variationType = typename descriptorSearch::variationType;
 using depthType = typename descriptorSearch::depthType;

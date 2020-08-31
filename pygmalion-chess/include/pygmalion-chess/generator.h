@@ -6,6 +6,36 @@ namespace pygmalion::chess
 	private:
 		static const inline generatorTables<descriptor_generator> m_Tables;
 	public:
+		class stack :
+			public pygmalion::generator<descriptor_generator, generator>::stack
+		{
+		private:
+			mutable std::array<bool,countPlayers> m_IsKingSquareValid{ make_array_n<countPlayers,bool>(false) };
+			mutable std::array<squareType, countPlayers> m_KingSquare{ make_array_n<countPlayers,squareType>(squareType::invalid) };
+		public:
+			constexpr squareType kingSquare(const playerType player) const noexcept
+			{
+				if (!m_IsKingSquareValid[player])
+				{
+					const bool ok{ (position().playerOccupancy(player) & position().pieceOccupancy(king)).firstSetBit(m_KingSquare[player]) };
+					assert(ok);
+					m_IsKingSquareValid[player] = true;
+				}
+				return m_KingSquare[player];
+			}
+			stack(const stack& parent, const moveType mv) noexcept :
+				pygmalion::generator<descriptor_generator, generator>::stack(parent,mv)
+			{
+			}
+			stack(boardType& position, const playerType oldPlayer) noexcept :
+				pygmalion::generator<descriptor_generator, generator>::stack(position, oldPlayer)
+			{
+			}
+			~stack() noexcept
+			{
+			}
+		};
+
 		using stackType = stack;
 		static const generatorTables<descriptor_generator>& tables() noexcept
 		{

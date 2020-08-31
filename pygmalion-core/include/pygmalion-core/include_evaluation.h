@@ -1,7 +1,7 @@
 
-constexpr static int countScoreBitsMantissa{ descriptorEvaluation::countScoreBitsMantissa };
-constexpr static int countScoreBitsShift{ descriptorEvaluation::countScoreBitsShift };
-constexpr static int countScorePlies{ descriptorEvaluation::countScorePlies };
+constexpr static const int countScoreBitsMantissa{ descriptorEvaluation::countScoreBitsMantissa };
+constexpr static const int countScoreBitsShift{ descriptorEvaluation::countScoreBitsShift };
+constexpr static const int countScorePlies{ descriptorEvaluation::countScorePlies };
 using gamestateType = typename descriptorEvaluation::gamestateType;
 using objectiveType = typename descriptorEvaluation::objectiveType;
 using subjectiveType = typename descriptorEvaluation::subjectiveType;

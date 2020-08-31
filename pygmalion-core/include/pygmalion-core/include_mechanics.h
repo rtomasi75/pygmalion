@@ -1,7 +1,7 @@
 
-constexpr static int countMoveSquares{ descriptorMechanics::countMoveSquares };
-constexpr static int countMovePieces{ descriptorMechanics::countMovePieces };
-constexpr static int countMoveFlags{ descriptorMechanics::countMoveFlags };
+constexpr static const int countMoveSquares{ descriptorMechanics::countMoveSquares };
+constexpr static const int countMovePieces{ descriptorMechanics::countMovePieces };
+constexpr static const int countMoveFlags{ descriptorMechanics::countMoveFlags };
 using boardType = typename descriptorMechanics::boardType;
 using moveflagsType = typename descriptorMechanics::moveflagsType;
 using moveflagbitType = typename descriptorMechanics::moveflagbitType;
