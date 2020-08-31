@@ -56,6 +56,14 @@ namespace pygmalion
 		{
 			return bitfield(traitsType::clearMask(bit));
 		}
+		constexpr bitfield operator+(const bitfield& other) const noexcept
+		{
+			return bitfield(m_Bits | other.m_Bits);
+		}
+		constexpr bitfield operator-(const bitfield& other) const noexcept
+		{
+			return bitfield(m_Bits & ~other.m_Bits);
+		}
 		constexpr bitfield operator|(const bitfield other) const noexcept
 		{
 			return bitfield(m_Bits | other.m_Bits);
@@ -72,35 +80,45 @@ namespace pygmalion
 		{
 			return bitfield(invertorType::perform(m_Bits));
 		}
-		constexpr auto operator*(const bitfield other) const noexcept
+		constexpr bitfield operator*(const bitfield other) const noexcept
 		{
 			return bitfield(multiplierType::perform(m_Bits, other.m_Bits));
 		}
-		constexpr auto operator*=(const bitfield other) noexcept
+		constexpr bitfield& operator*=(const bitfield other) noexcept
 		{
 			m_Bits = bitfield(multiplierType::perform(m_Bits, other.m_Bits));
 			return *this;
 		}
-		constexpr auto operator |=(const bitfield other) noexcept
+		constexpr bitfield& operator |=(const bitfield other) noexcept
 		{
 			m_Bits |= other.m_Bits;
 			return *this;
 		}
-		constexpr auto operator &=(const bitfield other) noexcept
+		constexpr bitfield& operator &=(const bitfield other) noexcept
 		{
 			m_Bits &= other.m_Bits;
 			return *this;
 		}
-		constexpr auto operator ^=(const bitfield other) noexcept
+		constexpr bitfield& operator ^=(const bitfield other) noexcept
 		{
 			m_Bits ^= other.m_Bits;
 			return *this;
 		}
-		constexpr auto operator<<(const int shift) const noexcept
+		constexpr bitfield& operator+=(const bitfield& other) noexcept
+		{
+			m_Bits |= other.m_Bits;
+			return *this;
+		}
+		constexpr bitfield& operator-=(const bitfield& other) noexcept
+		{
+			m_Bits &= ~other.m_Bits;
+			return *this;
+		}
+		constexpr bitfield operator<<(const int shift) const noexcept
 		{
 			return bitfield(m_Bits << shift);
 		}
-		constexpr auto operator>>(const int shift) const noexcept
+		constexpr bitfield operator>>(const int shift) const noexcept
 		{
 			return bitfield(m_Bits >> shift);
 		}
@@ -111,6 +129,26 @@ namespace pygmalion
 		constexpr bool operator!=(const bitfield other) const noexcept
 		{
 			return m_Bits != other.m_Bits;
+		}
+		constexpr bitfield& operator+=(const bitType bit) noexcept
+		{
+			setBit(static_cast<typename bitType::baseType>(bit));
+			return *this;
+		}
+		constexpr bitfield& operator|=(const bitType bit) noexcept
+		{
+			setBit(static_cast<typename bitType::baseType>(bit));
+			return *this;
+		}
+		constexpr bitfield& operator&=(const bitType bit) noexcept
+		{
+			(*this) &= clearMask(static_cast<typename bitType::baseType>(bit));
+			return *this;
+		}
+		constexpr bitfield& operator-=(const bitType bit) noexcept
+		{
+			clearBit(static_cast<typename bitType::baseType>(bit));
+			return *this;
 		}
 		constexpr operator bool() const noexcept
 		{

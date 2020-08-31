@@ -17,7 +17,7 @@ namespace pygmalion::chess
 			{
 				if (!m_IsKingSquareValid[player])
 				{
-					m_KingSquare[player] = (position().playerOccupancy(player) & position().pieceOccupancy(king)).first();
+					m_KingSquare[player] = position().kingSquare(player);
 					m_IsKingSquareValid[player] = true;
 				}
 				return m_KingSquare[player];

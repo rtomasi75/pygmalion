@@ -100,13 +100,14 @@ namespace pygmalion::chess
 		constexpr static const squaresType queensideCastleWalkBlack{ squareE8 | squareD8 | squareC8 };
 		constexpr static const squaresType kingsideCastleWalkWhite{ squareE1 | squareF1 | squareG1 };
 		constexpr static const squaresType kingsideCastleWalkBlack{ squareE8 | squareF8 | squareG8 };
-		constexpr static flagType castlerightQueensideWhite{ 0 };
-		constexpr static flagType castlerightQueensideBlack{ 1 };
-		constexpr static flagType castlerightKingsideWhite{ 2 };
-		constexpr static flagType castlerightKingsideBlack{ 3 };
-		constexpr static flagType enPassantFlag(const fileType f)
+		constexpr static const flagType castleRightQueensideWhite{ 0 };
+		constexpr static const flagType castleRightQueensideBlack{ 1 };
+		constexpr static const flagType castleRightKingsideWhite{ 2 };
+		constexpr static const flagType castleRightKingsideBlack{ 3 };
+		constexpr static flagType enPassantFlag(const fileType file)
 		{
-			return 4 + f;
+			return 4 + file;
 		}
+		constexpr static const flagsType enPassantFlags{ fileA | fileB | fileC | fileD | fileE | fileF | fileG | fileH };
 	};
 }

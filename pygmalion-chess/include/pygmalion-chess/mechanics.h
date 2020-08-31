@@ -4,54 +4,6 @@ namespace pygmalion::chess
 		public pygmalion::mechanics<descriptor_mechanics, mechanics>
 	{
 	public:
-		static void setCastlerightQueensideBlack(boardType& position) noexcept
-		{
-			position.flags().setBit(castlerightQueensideBlack);
-		}
-		static void setCastlerightQueensideWhite(boardType& position) noexcept
-		{
-			position.flags().setBit(castlerightQueensideWhite);
-		}
-		static void setCastlerightKingsideBlack(boardType& position) noexcept
-		{
-			position.flags().setBit(castlerightKingsideBlack);
-		}
-		static void setCastlerightKingsideWhite(boardType& position) noexcept
-		{
-			position.flags().setBit(castlerightKingsideWhite);
-		}
-		static void clearCastlerightQueensideBlack(boardType& position) noexcept
-		{
-			position.flags().clearBit(castlerightQueensideBlack);
-		}
-		static void clearCastlerightQueensideWhite(boardType& position) noexcept
-		{
-			position.flags().clearBit(castlerightQueensideWhite);
-		}
-		static void clearCastlerightKingsideBlack(boardType& position) noexcept
-		{
-			position.flags().clearBit(castlerightKingsideBlack);
-		}
-		static void clearCastlerightKingsideWhite(boardType& position) noexcept
-		{
-			position.flags().clearBit(castlerightKingsideWhite);
-		}
-		constexpr static bool checkCastlerightQueensideBlack(const boardType& position) noexcept
-		{
-			return position.flags().getBit(castlerightQueensideBlack);
-		}
-		constexpr static bool checkCastlerightQueensideWhite(const boardType& position) noexcept
-		{
-			return position.flags().getBit(castlerightQueensideWhite);
-		}
-		constexpr static bool checkCastlerightKingsideBlack(const boardType& position) noexcept
-		{
-			return position.flags().getBit(castlerightKingsideBlack);
-		}
-		constexpr static bool checkCastlerightKingsideWhite(const boardType& position) noexcept
-		{
-			return position.flags().getBit(castlerightKingsideWhite);
-		}
 		constexpr static bool checkEnPassantFlag(const boardType& position, const fileType f) noexcept
 		{
 			assert(f.isValid());
@@ -311,58 +263,7 @@ namespace pygmalion::chess
 		using movedataType = movedata;
 		static void initializePosition_Implementation(boardType& position) noexcept
 		{
-			position.clear();
-			position.setMovingPlayer(whitePlayer);
-			// pawns
-			for (const auto f : fileType::range)
-			{
-				position.addPiece(pawn, squareType::fromRankFile(rank2, f), whitePlayer);
-//				position.material() += evaluator::material(whitePlayer, pawn, squareType::fromRankFile(rank2, f));
-				position.addPiece(pawn, squareType::fromRankFile(rank7, f), blackPlayer);
-//				position.material() += evaluator::material(blackPlayer, pawn, squareType::fromRankFile(rank7, f));
-			}
-			clearEnPassantFlags(position);
-			// kings
-			position.addPiece(king, squareE1, whitePlayer);
-	//		position.material() += evaluator::material(whitePlayer, king, squareE1);
-			position.addPiece(king, squareE8, blackPlayer);
-	//		position.material() += evaluator::material(blackPlayer, king, squareE8);
-			// rooks
-			position.addPiece(rook, squareA1, whitePlayer);
-	//		position.material() += evaluator::material(whitePlayer, rook, squareA1);
-			position.addPiece(rook, squareH1, whitePlayer);
-	//		position.material() += evaluator::material(whitePlayer, rook, squareH1);
-			position.addPiece(rook, squareA8, blackPlayer);
-	//		position.material() += evaluator::material(blackPlayer, rook, squareA8);
-			position.addPiece(rook, squareH8, blackPlayer);
-	//		position.material() += evaluator::material(blackPlayer, rook, squareH8);
-			setCastlerightQueensideBlack(position);
-			setCastlerightQueensideWhite(position);
-			setCastlerightKingsideBlack(position);
-			setCastlerightKingsideWhite(position);
-			// knights
-	/*		position.addPiece(knight, squareB1, whitePlayer);
-			position.material() += evaluator::material(whitePlayer, knight, squareB1);
-			position.addPiece(knight, squareG1, whitePlayer);
-			position.material() += evaluator::material(whitePlayer, knight, squareG1);
-			position.addPiece(knight, squareB8, blackPlayer);
-			position.material() += evaluator::material(blackPlayer, knight, squareB8);
-			position.addPiece(knight, squareG8, blackPlayer);
-			position.material() += evaluator::material(blackPlayer, knight, squareG8);
-			// bishops
-			position.addPiece(bishop, squareC1, whitePlayer);
-			position.material() += evaluator::material(whitePlayer, bishop, squareC1);
-			position.addPiece(bishop, squareF1, whitePlayer);
-			position.material() += evaluator::material(whitePlayer, bishop, squareF1);
-			position.addPiece(bishop, squareC8, blackPlayer);
-			position.material() += evaluator::material(blackPlayer, bishop, squareC8);
-			position.addPiece(bishop, squareF8, blackPlayer);
-			position.material() += evaluator::material(blackPlayer, bishop, squareF8);
-			// queens
-			position.addPiece(queen, squareD1, whitePlayer);
-			position.material() += evaluator::material(whitePlayer, queen, squareD1);
-			position.addPiece(queen, squareD8, blackPlayer);
-			position.material() += evaluator::material(blackPlayer, queen, squareD8);*/
+			position.initialize();
 		}
 		static void makeMove_Implementation(boardType& position, const movedata& md) noexcept
 		{
@@ -378,16 +279,16 @@ namespace pygmalion::chess
 					if (md.otherPlayer() == blackPlayer)
 					{
 						if (md.captureSquare() == squareA8)
-							clearCastlerightQueensideBlack(position);
+							position.clearCastleRightQueensideBlack();
 						else if (md.captureSquare() == squareH8)
-							clearCastlerightKingsideBlack(position);
+							position.clearCastleRightKingsideBlack();
 					}
 					else
 					{
 						if (md.captureSquare() == squareA1)
-							clearCastlerightQueensideWhite(position);
+							position.clearCastleRightQueensideWhite();
 						else if (md.captureSquare() == squareH1)
-							clearCastlerightKingsideWhite(position);
+							position.clearCastleRightKingsideWhite();
 					}
 					break;
 				}
@@ -398,29 +299,23 @@ namespace pygmalion::chess
 			{
 			case king:
 				if (md.movingPlayer() == blackPlayer)
-				{
-					clearCastlerightKingsideBlack(position);
-					clearCastlerightQueensideBlack(position);
-				}
+					position.clearCastleRightsBlack();
 				else
-				{
-					clearCastlerightKingsideWhite(position);
-					clearCastlerightQueensideWhite(position);
-				}
+					position.clearCastleRightsWhite();
 			case rook:
 				if (md.movingPlayer() == blackPlayer)
 				{
 					if (md.fromSquare() == squareA8)
-						clearCastlerightQueensideBlack(position);
+						position.clearCastleRightQueensideBlack();
 					else if (md.fromSquare() == squareH8)
-						clearCastlerightKingsideBlack(position);
+						position.clearCastleRightKingsideBlack();
 				}
 				else
 				{
 					if (md.fromSquare() == squareA1)
-						clearCastlerightQueensideWhite(position);
+						position.clearCastleRightQueensideWhite();
 					else if (md.fromSquare() == squareH1)
-						clearCastlerightKingsideWhite(position);
+						position.clearCastleRightKingsideWhite();
 				}
 				break;
 			}
