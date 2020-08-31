@@ -48,13 +48,13 @@ namespace pygmalion
 		constexpr bitfield& operator=(const bitfield&) noexcept = default;
 		constexpr bitfield& operator=(bitfield&&) noexcept = default;
 		~bitfield() noexcept = default;
-		constexpr static auto setMask(const bitType bit) noexcept
+		constexpr static bitfield setMask(const bitType bit) noexcept
 		{
 			return bitfield(traitsType::setMask(bit));
 		}
-		constexpr static auto clearMask(const bitType bit) noexcept
+		constexpr static bitfield clearMask(const bitType bit) noexcept
 		{
-			return bitfield(traitsType::setMask(bit));
+			return bitfield(traitsType::clearMask(bit));
 		}
 		constexpr bitfield operator|(const bitfield other) const noexcept
 		{

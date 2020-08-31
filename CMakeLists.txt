@@ -144,4 +144,4 @@ endif()
 
 add_subdirectory(pygmalion-core)
 add_subdirectory(pygmalion-tictactoe)
-#add_subdirectory(pygmalion-chess)
+add_subdirectory(pygmalion-chess)

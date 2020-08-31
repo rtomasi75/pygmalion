@@ -35,9 +35,9 @@ namespace pygmalion
 		{
 			return pygmalion::bitmanip::setMask8(idx);
 		}
-		constexpr static auto resetMask(const int idx) noexcept
+		constexpr static auto clearMask(const int idx) noexcept
 		{
-			return pygmalion::bitmanip::resetMask8(idx);
+			return pygmalion::bitmanip::clearMask8(idx);
 		}
 		constexpr static auto checkBit(const UTYPE bb, const int idx) noexcept
 		{
@@ -101,9 +101,9 @@ namespace pygmalion
 		{
 			return pygmalion::bitmanip::setMask16(idx);
 		}
-		constexpr static auto resetMask(const int idx) noexcept
+		constexpr static auto clearMask(const int idx) noexcept
 		{
-			return pygmalion::bitmanip::resetMask16(idx);
+			return pygmalion::bitmanip::clearMask16(idx);
 		}
 		constexpr static auto checkBit(const UTYPE bb, const int idx) noexcept
 		{
@@ -170,9 +170,9 @@ namespace pygmalion
 		{
 			return pygmalion::bitmanip::setMask32(idx);
 		}
-		constexpr static auto resetMask(const int idx) noexcept
+		constexpr static auto clearMask(const int idx) noexcept
 		{
-			return pygmalion::bitmanip::resetMask32(idx);
+			return pygmalion::bitmanip::clearMask32(idx);
 		}
 		constexpr static auto checkBit(const UTYPE bb, const int idx) noexcept
 		{
@@ -251,9 +251,9 @@ namespace pygmalion
 		{
 			return pygmalion::bitmanip::setMask64(idx);
 		}
-		constexpr static auto resetMask(const int idx) noexcept
+		constexpr static auto clearMask(const int idx) noexcept
 		{
-			return pygmalion::bitmanip::resetMask64(idx);
+			return pygmalion::bitmanip::clearMask64(idx);
 		}
 		constexpr static auto checkBit(const UTYPE bb, const int idx) noexcept
 		{

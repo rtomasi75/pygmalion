@@ -41,5 +41,21 @@ namespace pygmalion
 		}
 		constexpr square& operator=(square&&) noexcept = default;
 		constexpr square& operator=(const square&) noexcept = default;
+		constexpr squaresType operator|(const square& other) const noexcept
+		{
+			return static_cast<squaresType>(*this) | static_cast<squaresType>(other);
+		}
+		constexpr squaresType operator&(const square& other) const noexcept
+		{
+			return static_cast<squaresType>(*this) & static_cast<squaresType>(other);
+		}
+		constexpr squaresType operator^(const square& other) const noexcept
+		{
+			return static_cast<squaresType>(*this) ^ static_cast<squaresType>(other);
+		}
+		constexpr squaresType operator~() const noexcept
+		{
+			return ~static_cast<squaresType>(*this);
+		}
 	};
 }

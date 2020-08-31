@@ -71,9 +71,7 @@ namespace pygmalion::chess
 		{
 			const squaresType kingOccupancy{ position.pieceOccupancy(king) & position.playerOccupancy(p) };
 			assert(kingOccupancy);
-			bit<64> sq{ squareType::invalid };
-			kingOccupancy.firstSetBit(sq);
-			return sq;
+			return kingOccupancy.first();
 		}
 		static bool isCapture(const moveType move) noexcept
 		{

@@ -176,7 +176,7 @@ namespace pygmalion
 			static_cast<std::uint8_t>(std::uint8_t(1) << 6),
 			static_cast<std::uint8_t>(std::uint8_t(1) << 7)
 		};
-		constexpr static std::uint8_t m_ResetMask8[16]
+		constexpr static std::uint8_t m_ClearMask8[16]
 		{
 			static_cast<std::uint8_t>(~(std::uint8_t(1) << 0)),
 			static_cast<std::uint8_t>(~(std::uint8_t(1) << 1)),
@@ -206,7 +206,7 @@ namespace pygmalion
 			static_cast<std::uint16_t>(std::uint16_t(1) << 14),
 			static_cast<std::uint16_t>(std::uint16_t(1) << 15)
 		};
-		constexpr static std::uint16_t m_ResetMask16[16]
+		constexpr static std::uint16_t m_ClearMask16[16]
 		{
 			static_cast<std::uint16_t>(~(std::uint16_t(1) << 0)),
 			static_cast<std::uint16_t>(~(std::uint16_t(1) << 1)),
@@ -260,7 +260,7 @@ namespace pygmalion
 			static_cast<std::uint32_t>(std::uint32_t(1) << 30),
 			static_cast<std::uint32_t>(std::uint32_t(1) << 31)
 		};
-		constexpr static std::uint32_t m_ResetMask32[32]
+		constexpr static std::uint32_t m_ClearMask32[32]
 		{
 			static_cast<std::uint32_t>(~(std::uint32_t(1) << 0)),
 			static_cast<std::uint32_t>(~(std::uint32_t(1) << 1)),
@@ -362,7 +362,7 @@ namespace pygmalion
 			static_cast<std::uint64_t>(std::uint64_t(1) << 62),
 			static_cast<std::uint64_t>(std::uint64_t(1) << 63)
 		};
-		constexpr static std::uint64_t m_ResetMask64[64]
+		constexpr static std::uint64_t m_ClearMask64[64]
 		{
 			static_cast<std::uint64_t>(~(std::uint64_t(1) << 0)),
 			static_cast<std::uint64_t>(~(std::uint64_t(1) << 1)),
@@ -442,12 +442,12 @@ namespace pygmalion
 #endif
 		}
 
-		constexpr static std::uint8_t resetMask8(const int idx) noexcept
+		constexpr static std::uint8_t clearMask8(const int idx) noexcept
 		{
 			assert(idx >= 0);
 			assert(idx < 8);
 #if defined(PYGMALION_NOSHIFTS)
-			return m_ResetMask8[idx];
+			return m_ClearMask8[idx];
 #else
 			return ~(std::uint8_t(1) << idx);
 #endif
@@ -464,7 +464,7 @@ namespace pygmalion
 		{
 			assert(idx >= 0);
 			assert(idx < 8);
-			bits &= resetMask8(idx);
+			bits &= clearMask8(idx);
 		}
 
 		constexpr static bool checkBit8(const std::uint8_t bits, const int idx) noexcept
@@ -485,12 +485,12 @@ namespace pygmalion
 #endif
 		}
 
-		constexpr static std::uint16_t resetMask16(const int idx) noexcept
+		constexpr static std::uint16_t clearMask16(const int idx) noexcept
 		{
 			assert(idx >= 0);
 			assert(idx < 16);
 #if defined(PYGMALION_NOSHIFTS)
-			return m_ResetMask16[idx];
+			return m_ClearMask16[idx];
 #else
 			return ~(std::uint16_t(1) << idx);
 #endif
@@ -507,7 +507,7 @@ namespace pygmalion
 		{
 			assert(idx >= 0);
 			assert(idx < 16);
-			bits &= resetMask16(idx);
+			bits &= clearMask16(idx);
 		}
 
 		constexpr static bool checkBit16(const std::uint16_t bits, const int idx) noexcept
@@ -528,12 +528,12 @@ namespace pygmalion
 #endif
 		}
 
-		constexpr static std::uint32_t resetMask32(const int idx) noexcept
+		constexpr static std::uint32_t clearMask32(const int idx) noexcept
 		{
 			assert(idx >= 0);
 			assert(idx < 32);
 #if defined(PYGMALION_NOSHIFTS)
-			return m_ResetMask32[idx];
+			return m_ClearMask32[idx];
 #else
 			return ~(std::uint32_t(1) << idx);
 #endif
@@ -550,7 +550,7 @@ namespace pygmalion
 		{
 			assert(idx >= 0);
 			assert(idx < 32);
-			bits &= resetMask32(idx);
+			bits &= clearMask32(idx);
 		}
 
 		constexpr static bool checkBit32(const std::uint32_t bits, const int idx) noexcept
@@ -571,12 +571,12 @@ namespace pygmalion
 #endif
 		}
 
-		constexpr static std::uint64_t resetMask64(const int idx) noexcept
+		constexpr static std::uint64_t clearMask64(const int idx) noexcept
 		{
 			assert(idx >= 0);
 			assert(idx < 64);
 #if defined(PYGMALION_NOSHIFTS)
-			return m_ResetMask64[idx];
+			return m_ClearMask64[idx];
 #else
 			return ~(std::uint64_t(1) << idx);
 #endif
@@ -593,7 +593,7 @@ namespace pygmalion
 		{
 			assert(idx >= 0);
 			assert(idx < 64);
-			bits &= resetMask64(idx);
+			bits &= clearMask64(idx);
 		}
 
 		constexpr static bool checkBit64(const std::uint64_t bits, const int idx) noexcept

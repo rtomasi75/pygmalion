@@ -195,7 +195,7 @@ namespace pygmalion
 			return generatorType::generateTacticalMoves_Implementation(stack, moves, currentPass);
 		}
 		template<typename stackType>
-		static bool isMoveLegal(const stackType& stack, const moveType& mv) noexcept
+		static bool isMoveLegal(const stackType& stack, const moveType mv) noexcept
 		{
 			return generatorType::isMoveLegal_Implementation(stack, mv);
 		}
