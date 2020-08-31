@@ -18,7 +18,7 @@ namespace pygmalion::tictactoe
 		{
 			if (currentPass == 0)
 			{
-				moves = magic[static_cast<typename squaresType::bitsType>(stack.position().totalOccupancy())];
+				moves = moveTable[static_cast<typename squaresType::bitsType>(stack.position().totalOccupancy())];
 				currentPass++;
 				return true;
 			}

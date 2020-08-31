@@ -141,17 +141,17 @@ namespace pygmalion
 			}
 			else
 			{
-				constexpr static bool useOtherMantissa{ otherMantissa > countMantissaBits };
+				constexpr const bool useOtherMantissa{ otherMantissa > countMantissaBits };
 				using combinedType = typename  int_traits<requiredSignedBytes((std::uint64_t(1) << countMantissaBits) - 1)>::STYPE;
-				constexpr static bool shiftRight{ otherShift > countShiftBits };
+				constexpr const bool shiftRight{ otherShift > countShiftBits };
 				if (shiftRight)
 				{
-					constexpr static const int shift{ otherShift - countShiftBits };
+					constexpr const int shift{ otherShift - countShiftBits };
 					m_Value = static_cast<combinedType>(other.m_Value) / static_cast<combinedType>(granularity);
 				}
 				else
 				{
-					constexpr static const int shift{ countShiftBits - otherShift };
+					constexpr const int shift{ countShiftBits - otherShift };
 					m_Value = static_cast<combinedType>(other.m_Value) * static_cast<combinedType>(granularity);
 				}
 			}

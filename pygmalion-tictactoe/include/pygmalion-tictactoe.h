@@ -15,7 +15,7 @@
 #include <pygmalion-tictactoe/board.h>
 #include <pygmalion-tictactoe/descriptor_mechanics.h>
 #include <pygmalion-tictactoe/mechanics.h>
-#include <pygmalion-tictactoe/movemagic.h>
+#include <pygmalion-tictactoe/movetable.h>
 #include <pygmalion-tictactoe/descriptor_generator.h>
 #include <pygmalion-tictactoe/generator.h>
 #include <pygmalion-tictactoe/descriptor_evaluation.h>

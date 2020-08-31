@@ -33,6 +33,7 @@
 #endif
 #endif
 
+
 #if defined(__BMI2__)
 #if !defined(PYGMALION_CPU_BMI2)
 #define PYGMALION_CPU_BMI2
@@ -121,6 +122,7 @@
 #include <bitset>
 #include <climits>
 
+#include "pygmalion-core/cpu.h"
 #include "pygmalion-core/bitmanip.h"
 #include "pygmalion-core/int_traits.h"
 #include "pygmalion-core/hash.h"

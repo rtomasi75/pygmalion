@@ -4,12 +4,7 @@ namespace pygmalion::tictactoe
 		public pygmalion::descriptor_generator<mechanics, 9>
 	{
 	public:
-#if !defined(PYGMALION_CPU_BMI2)
-	static inline movemagic<descriptor_generator> magic{ movemagic<descriptor_generator>(movemagicinfo(), 0x000b) };
-#else
-	static inline movemagic<descriptor_generator> magic{ movemagic<descriptor_generator>(movemagicinfo()) };
-#endif
+		static inline movetable<descriptor_generator> moveTable{ movetable<descriptor_generator>(0x01ff, 0x0095, 9) };
 	};
 }
 
- 

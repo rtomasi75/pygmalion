@@ -4,12 +4,12 @@ namespace pygmalion
 	class bitfield
 	{
 	public:
-		constexpr static int bitCount{ BITCOUNT };
-		using traitsType = int_traits<requiredBitBytes(bitCount)>;
+		constexpr static int countBits{ BITCOUNT };
+		using traitsType = int_traits<requiredBitBytes(countBits)>;
 		using bitsType = typename traitsType::UTYPE;
-		using bitType = bit<bitCount>;
-		using invertorType = invertBits<requiredBitBytes(bitCount), bitCount>;
-		using multiplierType = multiplyBits<requiredBitBytes(bitCount), bitCount>;
+		using bitType = bit<countBits>;
+		using invertorType = invertBits<requiredBitBytes(countBits), countBits>;
+		using multiplierType = multiplyBits<requiredBitBytes(countBits), countBits>;
 	private:
 		bitsType m_Bits;
 	public:
@@ -157,7 +157,7 @@ namespace pygmalion
 		bool firstSetBit(bitType& bit) const noexcept
 		{
 			int ret;
-			if (int_traits<requiredBitBytes(bitCount)>::bitScanForward(m_Bits, ret))
+			if (int_traits<requiredBitBytes(countBits)>::bitScanForward(m_Bits, ret))
 			{
 				bit = ret;
 				return true;
@@ -178,15 +178,15 @@ namespace pygmalion
 		}
 		int populationCount() const noexcept
 		{
-			return int_traits<requiredBitBytes(bitCount)>::populationCount(m_Bits);
+			return int_traits<requiredBitBytes(countBits)>::populationCount(m_Bits);
 		}
 		bitfield pext(const bitfield pattern) const noexcept
 		{
-			return  bitfield(int_traits<requiredBitBytes(bitCount)>::pext(m_Bits, pattern.bits()));
+			return  bitfield(int_traits<requiredBitBytes(countBits)>::pext(m_Bits, pattern.bits()));
 		}
 		bitfield pdep(const bitfield pattern) const noexcept
 		{
-			return bitfield(int_traits<requiredBitBytes(bitCount)>::pdep(m_Bits, pattern.bits()));
+			return bitfield(int_traits<requiredBitBytes(countBits)>::pdep(m_Bits, pattern.bits()));
 		}
 		static bitfield random() noexcept
 		{
@@ -194,7 +194,7 @@ namespace pygmalion
 		}
 		static bitfield random_sparse() noexcept
 		{
-			return int_traits<requiredBitBytes(bitCount)>::rand_sparse();
+			return int_traits<requiredBitBytes(countBits)>::rand_sparse();
 		}
 		constexpr static bitfield empty() noexcept
 		{
@@ -266,6 +266,45 @@ namespace pygmalion
 		{
 			constexpr iterator endValue;
 			return endValue;
+		}
+		constexpr static size_t castMagic(const bitfield bits, const bitfield premask, const bitfield factor, const int countIndexBits) noexcept
+		{
+			return static_cast<size_t>((((bits & premask) * factor) >> (countBits - countIndexBits)).bits());
+		}
+		static void findMagic(const bitfield premask, bitfield& factor, int& countIndexBits) noexcept
+		{
+			assert(premask != bitfield::empty());
+			countIndexBits = premask.populationCount();
+			const size_t N{ size_t(1) << countIndexBits };
+			size_t* pIndices = new size_t[N];
+			bool* pUsed = new bool[N];
+			while (true)
+			{
+				bool bFound{ true };
+				factor = bitfield::random_sparse();
+				for (size_t i = 0; i < N; i++)
+				{
+					pIndices[i] = 0;
+					pUsed[i] = false;
+				}
+				for (size_t k = 0; k < N; k++)
+				{
+					const bitfield pattern{ bitfield(k).pdep(premask) };
+					const size_t idx{ castMagic(pattern,premask,factor,countIndexBits) };
+					assert(idx < N);
+					if (pUsed[idx])
+					{
+						bFound = false;
+						break;
+					}
+					pUsed[idx] = true;
+					pIndices[idx] = k;
+				}
+				if (bFound)
+					break;
+			}
+			delete[] pIndices;
+			delete[] pUsed;
 		}
 	};
 

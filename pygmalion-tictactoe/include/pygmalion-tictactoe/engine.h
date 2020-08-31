@@ -87,15 +87,15 @@ namespace pygmalion::tictactoe
 					parser::parseToken(remainder, table, remainder2);
 					if (table == "moves" || table == "move" || table == "m")
 					{
-#if !defined(PYGMALION_CPU_BMI2)
-						eng.outputStream() << "refreshing move magics..." << std::endl;
-						generator::magic = movemagic<descriptorGenerator>(movemagicinfo());
+						eng.outputStream() << "computing move table..." << std::endl;
+						movetable<descriptorGenerator> table;
+						auto premask{ table.magic().premask() };
+						auto factor{ premask };
+						int bits;
+						table.magic().find(premask, factor, bits);
 						eng.outputStream() << "...done." << std::endl;
 						eng.outputStream() << std::endl;
-						eng.outputStream() << "static inline movemagic<descriptor_generator> m_Magic{ movemagic<descriptor_generator>(movemagicinfo(), " << parser::toString(generator::magic.factor()) << ") }; " << std::endl;
-#else
-						eng.outputStream() << "(no magics used)" << std::endl;
-#endif
+						eng.outputStream() << "static inline movetable<descriptor_generator> moveTable{ movetable<descriptor_generator>(" << parser::toString(premask) << ", " << parser::toString(factor) << ", " << static_cast<int>(bits) << ") }; " << std::endl;
 					}
 					else
 						eng.outputStream() << "invalid table: " << table << std::endl;
