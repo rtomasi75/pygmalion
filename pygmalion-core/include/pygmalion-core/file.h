@@ -1,26 +1,30 @@
 namespace pygmalion
 {
-	template<int COUNT_FILES>
-	class file : public enumeration<COUNT_FILES, file<COUNT_FILES>>
+	template<typename DESCRIPTION_BOARD>
+	class file :
+		public enumeration<DESCRIPTION_BOARD::countFiles, file<DESCRIPTION_BOARD>>,
+		public base_board<DESCRIPTION_BOARD>
 	{
 	public:
+		using descriptorBoard = DESCRIPTION_BOARD;
+#include "include_board.h"	
 		constexpr file(const file&) noexcept = default;
 		constexpr file(file&&) noexcept = default;
 		constexpr file() noexcept :
-			enumeration<COUNT_FILES, file<COUNT_FILES>>()
+			enumeration<countFiles, file>()
 		{
 
 		}
-		constexpr file(const typename enumeration<COUNT_FILES, file<COUNT_FILES>>::baseType value) noexcept :
-			enumeration<COUNT_FILES, file<COUNT_FILES>>(value)
+		constexpr file(const typename enumeration<countFiles, file>::baseType value) noexcept :
+			enumeration<countFiles, file>(value)
 		{
 		}
-		constexpr file(const typename enumeration<COUNT_FILES, file<COUNT_FILES>>::valueType value) noexcept :
-			enumeration<COUNT_FILES, file<COUNT_FILES>>(value)
+		constexpr file(const typename enumeration<countFiles, file>::valueType value) noexcept :
+			enumeration<countFiles, file>(value)
 		{
 		}
-		constexpr file<COUNT_FILES>& operator=(file<COUNT_FILES>&&) noexcept = default;
-		constexpr file<COUNT_FILES>& operator=(const file<COUNT_FILES>&) noexcept = default;
+		constexpr file& operator=(file&&) noexcept = default;
+		constexpr file& operator=(const file&) noexcept = default;
 	};
 
 }

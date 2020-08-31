@@ -13,13 +13,14 @@ namespace pygmalion
 		constexpr static const int countSquares{ countRanks * countFiles };
 		constexpr static const int countFlags{ COUNT_FLAGS };
 		constexpr static const int countHashBits{ COUNT_HASHBITS };
-		using playerType = player<countPlayers>;
-		using pieceType = piece <countPieces>;
-		using rankType = rank<countRanks>;
-		using fileType = file<countFiles>;
-		using squareType = square<countRanks, countFiles>;
+		using playerType = player<descriptor_board>;
+		using pieceType = piece<descriptor_board>;
+		using rankType = rank<descriptor_board>;
+		using fileType = file<descriptor_board>;
+		using squareType = square<descriptor_board>;
 		using flagType = flag<countFlags>;
 		using flagsType = bitfield<countFlags>;
+		using gamestateType =gamestate<descriptor_board>;
 		using squaresType = squares<descriptor_board>;
 	};
 }

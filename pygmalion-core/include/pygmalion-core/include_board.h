@@ -14,3 +14,4 @@ using squareType = typename descriptorBoard::squareType;
 using flagType = typename descriptorBoard::flagType;
 using flagsType = typename descriptorBoard::flagsType;
 using squaresType = typename descriptorBoard::squaresType;
+using gamestateType = typename descriptorBoard::gamestateType;

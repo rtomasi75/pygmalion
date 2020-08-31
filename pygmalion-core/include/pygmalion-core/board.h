@@ -83,7 +83,7 @@ namespace pygmalion
 		constexpr squaresType totalOccupancy() const noexcept
 		{
 			constexpr const bool preferPlayers{ countPlayers < countPieces };
-			squaresType value(0);
+			squaresType value{squaresType::none()};
 			if (preferPlayers)
 			{
 				for (const auto p : playerType::range)

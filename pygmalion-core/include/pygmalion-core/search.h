@@ -32,7 +32,6 @@ namespace pygmalion
 			}
 			~stack() noexcept = default;
 		};
-
 		using stackType = typename pygmalion::search<DESCRIPTION_SEARCH, searchType>::stack;
 
 	public:

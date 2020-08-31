@@ -1,25 +1,29 @@
 namespace pygmalion
 {
-	template<int COUNT_PIECES>
-	class piece : public enumeration<COUNT_PIECES, piece<COUNT_PIECES>>
+	template<typename DESCRIPTION_BOARD>
+	class piece :
+		public enumeration<DESCRIPTION_BOARD::countPieces, piece<DESCRIPTION_BOARD>>,
+		public base_board<DESCRIPTION_BOARD>
 	{
 	public:
+		using descriptorBoard = DESCRIPTION_BOARD;
+#include "include_board.h"	
 		constexpr piece(const piece&) noexcept = default;
 		constexpr piece(piece&&) noexcept = default;
 		constexpr piece() noexcept :
-			enumeration<COUNT_PIECES, piece<COUNT_PIECES>>()
+			enumeration<countPieces, piece>()
 		{
 
 		}
-		constexpr piece(const typename enumeration<COUNT_PIECES, piece<COUNT_PIECES>>::baseType value) noexcept :
-			enumeration<COUNT_PIECES, piece<COUNT_PIECES>>(value)
+		constexpr piece(const typename enumeration<countPieces, piece>::baseType value) noexcept :
+			enumeration<countPieces, piece>(value)
 		{
 		}
-		constexpr piece(const typename enumeration<COUNT_PIECES, piece<COUNT_PIECES>>::valueType value) noexcept :
-			enumeration<COUNT_PIECES, piece<COUNT_PIECES>>(value)
+		constexpr piece(const typename enumeration<countPieces, piece>::valueType value) noexcept :
+			enumeration<countPieces, piece>(value)
 		{
 		}
-		constexpr piece<COUNT_PIECES>& operator=(piece<COUNT_PIECES>&&) noexcept = default;
-		constexpr piece<COUNT_PIECES>& operator=(const piece<COUNT_PIECES>&) noexcept = default;
+		constexpr piece& operator=(piece&&) noexcept = default;
+		constexpr piece& operator=(const piece&) noexcept = default;
 	};
 }

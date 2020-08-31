@@ -31,7 +31,6 @@ namespace pygmalion
 			}
 			~stack() noexcept = default;
 		};
-
 		using stackType = typename pygmalion::frontend<DESCRIPTION_FRONTEND, frontendType>::stack;
 
 		static std::string name() noexcept

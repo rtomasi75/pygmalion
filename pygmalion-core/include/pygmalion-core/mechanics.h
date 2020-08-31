@@ -7,11 +7,26 @@ namespace pygmalion
 	public:
 
 		using mechanicsType = INSTANCE;
-
 		using descriptorMechanics = DESCRIPTOR_MECHANICS;
 #include "include_mechanics.h"
 
 
+		static void initializePosition(boardType& position) noexcept
+		{
+			mechanicsType::initializePosition_Implementation(position);
+		}
+
+		template<typename MOVEDATA>
+		static void makeMove(boardType& position, const MOVEDATA& md) noexcept
+		{
+			mechanicsType::makeMove_Implementation(position, md);
+		}
+
+		template<typename MOVEDATA>
+		static void unmakeMove(boardType& position, const MOVEDATA& md) noexcept
+		{
+			mechanicsType::unmakeMove_Implementation(position, md);
+		}
 		class movedata :
 			public base_mechanics<DESCRIPTOR_MECHANICS>
 		{
@@ -20,7 +35,6 @@ namespace pygmalion
 
 			using descriptorMechanics = DESCRIPTOR_MECHANICS;
 #include "include_mechanics.h"
-
 		private:
 			playerType m_MovingPlayer;
 			moveType m_Move;
@@ -52,23 +66,5 @@ namespace pygmalion
 				return m_Move;
 			}
 		};
-
-
-		static void initializePosition(boardType& position) noexcept
-		{
-			mechanicsType::initializePosition_Implementation(position);
-		}
-
-		template<typename MOVEDATA>
-		static void makeMove(boardType& position, const MOVEDATA& md) noexcept
-		{
-			mechanicsType::makeMove_Implementation(position, md);
-		}
-
-		template<typename MOVEDATA>
-		static void unmakeMove(boardType& position, const MOVEDATA& md) noexcept
-		{
-			mechanicsType::unmakeMove_Implementation(position, md);
-		}
 	};
 }

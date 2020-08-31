@@ -156,24 +156,29 @@ namespace pygmalion
 		}
 		constexpr squares& operator+=(const squareType square) noexcept
 		{
-			m_Bits.setBit(square);
+			m_Bits.setBit(static_cast<typename squareType::baseType>(square));
 			return *this;
 		}
 		constexpr squares& operator-=(const squareType square) noexcept
 		{
-			m_Bits.clearBit(square);
+			m_Bits.clearBit(static_cast<typename squareType::baseType>(square));
 			return *this;
 		}
 		constexpr bool operator[](const squareType square) const noexcept
 		{
-			return m_Bits[square];
+			return m_Bits[static_cast<typename squareType::baseType>(square)];
 		}
 		constexpr operator bool() const noexcept
 		{
 			return m_Bits;
 		}
 		constexpr squares() noexcept :
-			m_Bits{ bitsType::empty() }
+			m_Bits{bitsType::empty() }
+		{
+
+		}
+		constexpr squares(const squareType square) noexcept :
+			m_Bits{bitsType::setMask(square)}
 		{
 
 		}

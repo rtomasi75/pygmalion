@@ -1,25 +1,29 @@
 namespace pygmalion
 {
-	template<int COUNT_RANKS>
-	class rank : public enumeration<COUNT_RANKS, rank<COUNT_RANKS>>
+	template<typename DESCRIPTION_BOARD>
+	class rank :
+		public enumeration<DESCRIPTION_BOARD::countRanks, rank<DESCRIPTION_BOARD>>,
+		public base_board<DESCRIPTION_BOARD>
 	{
 	public:
+		using descriptorBoard = DESCRIPTION_BOARD;
+#include "include_board.h"	
 		constexpr rank(const rank&) noexcept = default;
 		constexpr rank(rank&&) noexcept = default;
 		constexpr rank() noexcept :
-			enumeration<COUNT_RANKS, rank<COUNT_RANKS>>()
+			enumeration<countRanks, rank>()
 		{
 
 		}
-		constexpr rank(const typename enumeration<COUNT_RANKS, rank<COUNT_RANKS>>::baseType value) noexcept :
-			enumeration<COUNT_RANKS, rank<COUNT_RANKS>>(value)
+		constexpr rank(const typename enumeration<countRanks, rank>::baseType value) noexcept :
+			enumeration<countRanks, rank>(value)
 		{
 		}
-		constexpr rank(const typename enumeration<COUNT_RANKS, rank<COUNT_RANKS>>::valueType value) noexcept :
-			enumeration<COUNT_RANKS, rank<COUNT_RANKS>>(value)
+		constexpr rank(const typename enumeration<countRanks, rank>::valueType value) noexcept :
+			enumeration<countRanks, rank>(value)
 		{
 		}
-		constexpr rank<COUNT_RANKS>& operator=(rank<COUNT_RANKS>&&) noexcept = default;
-		constexpr rank<COUNT_RANKS>& operator=(const rank<COUNT_RANKS>&) noexcept = default;
+		constexpr rank& operator=(rank&&) noexcept = default;
+		constexpr rank& operator=(const rank&) noexcept = default;
 	};
 }

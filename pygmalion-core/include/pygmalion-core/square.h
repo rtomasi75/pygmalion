@@ -1,50 +1,45 @@
 namespace pygmalion
 {
-	template<int COUNT_RANKS, int COUNT_FILES>
-	class square : public enumeration<COUNT_RANKS* COUNT_FILES, square<COUNT_RANKS, COUNT_FILES>>
+	template<typename DESCRIPTION_BOARD>
+	class square :
+		public enumeration<DESCRIPTION_BOARD::countSquares, square<DESCRIPTION_BOARD>>,
+		public base_board<DESCRIPTION_BOARD>
 	{
 	public:
-		constexpr static square fromRankFile(const rank<COUNT_RANKS> r, const file<COUNT_FILES> f) noexcept
+		using descriptorBoard = DESCRIPTION_BOARD;
+#include "include_board.h"
+		constexpr static square fromRankFile(const rankType r, const fileType f) noexcept
 		{
 			assert(r.isValid());
 			assert(f.isValid());
-			return r * COUNT_FILES + f;
+			return r * countFiles + f;
 		}
-		constexpr rank<COUNT_RANKS> rank() const noexcept
+		constexpr rankType rank() const noexcept
 		{
 			assert(this->isValid());
-			return (*this) / COUNT_FILES;
+			return (*this) / countFiles;
 		}
-		constexpr file<COUNT_FILES> file() const noexcept
+		constexpr fileType file() const noexcept
 		{
 			assert(this->isValid());
-			return (*this) % COUNT_FILES;
+			return (*this) % countFiles;
 		}
 		constexpr square(const square&) noexcept = default;
 		constexpr square(square&&) noexcept = default;
 		constexpr square() noexcept :
-			enumeration<COUNT_RANKS* COUNT_FILES, square<COUNT_RANKS, COUNT_FILES>>()
+			enumeration<countSquares, square>()
 		{
 
 		}
-		constexpr square(const typename enumeration<COUNT_RANKS* COUNT_FILES, square<COUNT_RANKS, COUNT_FILES>>::baseType value) noexcept :
-			enumeration<COUNT_RANKS* COUNT_FILES, square<COUNT_RANKS, COUNT_FILES>>(value)
+		constexpr square(const typename enumeration<countSquares, square>::baseType value) noexcept :
+			enumeration<countSquares, square>(value)
 		{
 		}
-		constexpr square(const typename enumeration<COUNT_RANKS* COUNT_FILES, square<COUNT_RANKS, COUNT_FILES>>::valueType value) noexcept :
-			enumeration<COUNT_RANKS* COUNT_FILES, square<COUNT_RANKS, COUNT_FILES>>(value)
+		constexpr square(const typename enumeration<countSquares, square>::valueType value) noexcept :
+			enumeration<countSquares, square>(value)
 		{
 		}
-		constexpr square<COUNT_RANKS, COUNT_FILES>& operator=(square<COUNT_RANKS, COUNT_FILES>&&) noexcept = default;
-		constexpr square<COUNT_RANKS, COUNT_FILES>& operator=(const square<COUNT_RANKS, COUNT_FILES>&) noexcept = default;
-		constexpr operator bit<COUNT_RANKS* COUNT_FILES>() const noexcept
-		{
-			return bit<COUNT_RANKS* COUNT_FILES>(static_cast<typename enumeration<COUNT_RANKS* COUNT_FILES, square<COUNT_RANKS, COUNT_FILES>>::baseType>(*this));
-		}
-		constexpr explicit square(const bit<COUNT_RANKS* COUNT_FILES> bit) noexcept :
-			square<COUNT_RANKS, COUNT_FILES>(static_cast<typename enumeration<COUNT_RANKS* COUNT_FILES, square<COUNT_RANKS, COUNT_FILES>>::baseType>(bit))
-		{
-
-		}
+		constexpr square& operator=(square&&) noexcept = default;
+		constexpr square& operator=(const square&) noexcept = default;
 	};
 }
