@@ -39,9 +39,13 @@ namespace pygmalion
 	class score
 	{
 	public:
-		using valueType = typename score_base < requiredSignedBytes((size_t(1) << MANTISSA) - 1) > ::STYPE;
+		using valueType = typename int_traits < requiredSignedBytes((std::uint64_t(1) << MANTISSA) - 1) > ::STYPE;
+		constexpr static int countMantissaBits{ MANTISSA };
+		constexpr static int countShiftBits{ SHIFT };
+		constexpr static valueType granularity{ size_t(1) << countShiftBits };
+		constexpr static int maxDistance{ MAXDIST };
 	private:
-		using longType = typename score_base < requiredSignedBytes((size_t(1) << MANTISSA) - 1) > ::HTYPE;
+		using longType = typename int_traits < requiredSignedBytes((std::uint64_t(1) << MANTISSA)) > ::STYPE;
 		static constexpr valueType MAXVALUE{ valueType((longType(1) << MANTISSA) - 1) };
 		static constexpr valueType MINVALUE{ valueType(-MAXVALUE) };
 		static constexpr valueType WINVALUE{ valueType(MAXVALUE - 1) };
@@ -64,7 +68,7 @@ namespace pygmalion
 			}
 			else if (isOpen())
 			{
-				const double flt = static_cast<double>(m_Value) / static_cast<double>(1 << SHIFT);
+				const double flt = static_cast<double>(m_Value) / static_cast<double>(valueType(1) << SHIFT);
 				if (flt >= 0)
 					sstr << "+";
 				sstr << flt;
@@ -87,65 +91,150 @@ namespace pygmalion
 			}
 			else
 			{
-				size_t range = m_Value > 0 ? WINVALUE - m_Value : m_Value - LOSSVALUE;
+				size_t range = isPositive() ? winDistance(m_Value) : lossDistance(m_Value);
 				sstr << (m_Value >= 0 ? "+" : "-");
 				sstr << "M";
 				sstr << range;
 			}
 			return sstr.str();
 		}
+		constexpr bool isPositive() const noexcept
+		{
+			return m_Value > 0;
+		}
+		constexpr bool isNegative() const noexcept
+		{
+			return m_Value < 0;
+		}
+		static constexpr score win(const valueType distance) noexcept
+		{
+			return score(WINVALUE - distance, 0);
+		}
+		static constexpr score loss(const valueType distance) noexcept
+		{
+			return score(LOSSVALUE + distance, 0);
+		}
+		constexpr valueType winDistance(const valueType value) const noexcept
+		{
+			assert(isWinning());
+			return WINVALUE - m_Value;
+		}
+		constexpr valueType lossDistance(const valueType value) const noexcept
+		{
+			assert(isLosing());
+			return m_Value - LOSSVALUE;
+		}
 		~score() = default;
+		template<int otherMantissa, int otherShift, int otherMaxDistance>
+		explicit constexpr score(const score<otherMantissa, otherShift, otherMaxDistance> other) noexcept :
+			m_Value{ 0 }
+		{
+			if (other.isWinning())
+			{
+				const auto otherDistance{ other.winDistance() };
+				m_Value = WINVALUE - ((otherDistance > maxDistance) ? maxDistance : otherDistance);
+			}
+			else if (other.isLosing())
+			{
+				const auto otherDistance{ other.lossDistance() };
+				m_Value = LOSSVALUE + ((otherDistance > maxDistance) ? maxDistance : otherDistance);
+			}
+			else
+			{
+				constexpr static bool useOtherMantissa{ otherMantissa > countMantissaBits };
+				using combinedType = typename  int_traits<requiredSignedBytes((std::uint64_t(1) << countMantissaBits) - 1)>::STYPE;
+				constexpr static bool shiftRight{ otherShift > countShiftBits };
+				if (shiftRight)
+				{
+					constexpr static const int shift{ otherShift - countShiftBits };
+					m_Value = static_cast<combinedType>(other.m_Value) / static_cast<combinedType>(granularity);
+				}
+				else
+				{
+					constexpr static const int shift{ countShiftBits - otherShift };
+					m_Value = static_cast<combinedType>(other.m_Value) * static_cast<combinedType>(granularity);
+				}
+			}
+		}
 		explicit constexpr score(const double value) noexcept :
-			m_Value(static_cast<valueType>(value* static_cast<double>(1 << SHIFT)))
+			m_Value(static_cast<valueType>(value* static_cast<double>(granularity)))
 		{
 
+		}
+		explicit constexpr score(const valueType value) noexcept :
+			m_Value(static_cast<valueType>(value* granularity))
+		{
+
+		}
+		explicit constexpr operator valueType() const noexcept
+		{
+			assert(isOpen());
+			return static_cast<valueType>(m_Value / granularity);
+		}
+		explicit constexpr operator double() const noexcept
+		{
+			assert(isOpen());
+			return static_cast<double>(m_Value) / static_cast<double>(granularity);
 		}
 		explicit constexpr score(const float value) noexcept :
 			score(static_cast<double>(value))
 		{
 
 		}
+		explicit constexpr operator float() const noexcept
+		{
+			assert(isOpen());
+			return static_cast<float>(m_Value) / static_cast<float>(granularity);
+		}
 		constexpr score(score&&) noexcept = default;
 		constexpr score(const score&) noexcept = default;
 		constexpr score& operator=(score&&) noexcept = default;
 		constexpr score& operator=(const score&)  noexcept = default;
-		static constexpr auto atom() noexcept
+		static constexpr score atom() noexcept
 		{
 			return score(1, 0);
 		};
-		static constexpr auto one() noexcept
+		static constexpr score one() noexcept
 		{
-			return score(1 << SHIFT, 0);
+			return score(granularity, 0);
 		};
-		static constexpr auto zero() noexcept
+		static constexpr score zero() noexcept
 		{
 			return score(0, 0);
 		}
-		static constexpr auto win() noexcept
+		static constexpr score win() noexcept
 		{
-			return score(WINVALUE, 0);
+			return win(0);
 		}
-		static constexpr auto winning() noexcept
+		static constexpr score winning() noexcept
 		{
 			return score(WINNINGVALUE, 0);
 		}
-		static constexpr auto losing() noexcept
+		static constexpr score losing() noexcept
 		{
 			return score(LOSINGVALUE, 0);
 		}
-		static constexpr auto loss() noexcept
+		static constexpr score loss() noexcept
 		{
-			return score(LOSSVALUE, 0);
+			return loss(0);
 		}
-		static constexpr auto maximum() noexcept
+		static constexpr score maximum() noexcept
 		{
 			return score(MAXVALUE, 0);
 		}
-		static constexpr auto minimum() noexcept
+		static constexpr score minimum() noexcept
 		{
 			return score(MINVALUE, 0);
 		}
 		constexpr score() noexcept = delete;
+		constexpr bool isLosing() const noexcept
+		{
+			return m_Value <= LOSINGVALUE;
+		}
+		constexpr bool isWinning() const noexcept
+		{
+			return m_Value >= WINNINGVALUE;
+		}
 		constexpr bool isForced() const noexcept
 		{
 			return std::abs(m_Value) >= WINNINGVALUE;
@@ -218,7 +307,7 @@ namespace pygmalion
 		constexpr auto operator*(const score& sc) const noexcept
 		{
 			assert(isOpen());
-			return score(static_cast<valueType>((static_cast<longType>(m_Value) * static_cast<longType>(sc.m_Value)) >> SHIFT), 0);
+			return score(static_cast<valueType>((static_cast<longType>(m_Value) * static_cast<longType>(sc.m_Value)) / granularity), 0);
 		}
 		constexpr auto operator+=(const score& sc) noexcept
 		{
@@ -236,7 +325,7 @@ namespace pygmalion
 		{
 			assert(isOpen());
 			assert(sc.isOpen());
-			m_Value = static_cast<valueType>((static_cast<longType>(m_Value) * static_cast<longType>(sc.m_Value)) >> SHIFT);
+			m_Value = static_cast<valueType>((static_cast<longType>(m_Value) * static_cast<longType>(sc.m_Value)) / granularity);
 		}
 		constexpr auto operator*=(const valueType i) noexcept
 		{
@@ -253,7 +342,7 @@ namespace pygmalion
 		}
 	};
 
-	template<size_t MANTISSA, size_t SHIFT, size_t MAXDIST>
+	template<int MANTISSA, int SHIFT, int MAXDIST>
 	constexpr auto operator*(const typename score<MANTISSA, SHIFT, MAXDIST>::valueType i, const score<MANTISSA, SHIFT, MAXDIST>& sc)
 	{
 		return sc * i;

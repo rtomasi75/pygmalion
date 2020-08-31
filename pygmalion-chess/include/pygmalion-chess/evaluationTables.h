@@ -1,6 +1,8 @@
 namespace pygmalion::chess
 {
-	class evaluationTables
+	template<typename DESCRIPTION_EVALUATION>
+	class evaluationTables :
+		public base_evaluation<DESCRIPTION_EVALUATION>
 	{
 	public:
 		constexpr static score m_PromotionStep{ 0.25 };

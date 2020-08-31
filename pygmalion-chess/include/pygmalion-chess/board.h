@@ -1,7 +1,7 @@
 namespace pygmalion::chess
 {
 
-	class board : public pygmalion::board<descriptor_board>
+	class board : public pygmalion::board<descriptor_board, board>
 	{
 	public:
 	private:
@@ -178,6 +178,21 @@ namespace pygmalion::chess
 			position.material() += evaluator::material(whitePlayer, queen, squareD1);
 			position.addPiece(queen, squareD8, blackPlayer);
 			position.material() += evaluator::material(blackPlayer, queen, squareD8);*/
+		}
+		void onClear_Implementation() noexcept
+		{
+		}
+		void onAddedPiece_Implementation(const pieceType piece, const squareType square, const playerType player) noexcept
+		{
+		}
+		void onRemovedPiece_Implementation(const pieceType piece, const squareType square, const playerType player) noexcept
+		{
+		}
+		void onSetFlag_Implementation(const flagType flag) noexcept
+		{
+		}
+		void onClearedFlag_Implementation(const flagType flag) noexcept
+		{
 		}
 	};
 }

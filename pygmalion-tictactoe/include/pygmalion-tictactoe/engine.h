@@ -89,10 +89,10 @@ namespace pygmalion::tictactoe
 					{
 #if !defined(PYGMALION_CPU_BMI2)
 						eng.outputStream() << "refreshing move magics..." << std::endl;
-						generator::magic() = movemagic<descriptorGenerator>(movemagicinfo());
+						generator::magic = movemagic<descriptorGenerator>(movemagicinfo());
 						eng.outputStream() << "...done." << std::endl;
 						eng.outputStream() << std::endl;
-						eng.outputStream() << "static inline movemagic<descriptor_generator> m_Magic{ movemagic<descriptor_generator>(movemagicinfo(), " << parser::toString(generator::magic().factor()) << ") }; " << std::endl;
+						eng.outputStream() << "static inline movemagic<descriptor_generator> m_Magic{ movemagic<descriptor_generator>(movemagicinfo(), " << parser::toString(generator::magic.factor()) << ") }; " << std::endl;
 #else
 						eng.outputStream() << "(no magics used)" << std::endl;
 #endif

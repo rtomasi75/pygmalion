@@ -13,7 +13,6 @@ namespace pygmalion::tictactoe
 
 	template<typename DESCRIPTOR_GENERATOR>
 	class movemagic :
-		public base_generator<DESCRIPTOR_GENERATOR>,
 #if defined(PYGMALION_CPU_BMI2)
 		public pygmalion::magictable<typename DESCRIPTOR_GENERATOR::movelistType, movemagicinfo, typename DESCRIPTOR_GENERATOR::squaresType::bitsType, movemagic<DESCRIPTOR_GENERATOR>, true>
 #else
