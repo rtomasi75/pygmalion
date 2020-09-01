@@ -55,9 +55,9 @@ namespace pygmalion::chess
 						parser::parseToken(remainder2, player, remainder3);
 						playerType p{ playerType::invalid };
 						if (player == "white" || player == "w" || player == "+" || player == "0")
-							p = frontend::whitePlayer;
+							p = frontendType::whitePlayer;
 						else if (player == "black" || player == "b" || player == "-" || player == "1")
-							p = frontend::blackPlayer;
+							p = frontendType::blackPlayer;
 						if (p.isValid())
 						{
 							std::string square;
@@ -81,9 +81,9 @@ namespace pygmalion::chess
 						parser::parseToken(remainder2, player, remainder3);
 						playerType p{ playerType::invalid };
 						if (player == "white" || player == "w" || player == "+" || player == "0")
-							p = frontend::whitePlayer;
+							p = frontendType::whitePlayer;
 						else if (player == "black" || player == "b" || player == "-" || player == "1")
-							p = frontend::blackPlayer;
+							p = frontendType::blackPlayer;
 						if (p.isValid())
 						{
 							std::string square;
@@ -92,12 +92,12 @@ namespace pygmalion::chess
 							squareType sq{ frontendType::squareFromString(square) };
 							if (sq.isValid())
 							{
-								eng.outputStream() << frontend::playerToString(p) << " " << frontend::pieceToString(movegenType::pawn) << ": " << frontend::objectiveToString(evaluator::material(p, movegenType::pawn, sq)) << std::endl;
-								eng.outputStream() << frontend::playerToString(p) << " " << frontend::pieceToString(movegenType::knight) << ": " << frontend::objectiveToString(evaluator::material(p, movegenType::knight, sq)) << std::endl;
-								eng.outputStream() << frontend::playerToString(p) << " " << frontend::pieceToString(movegenType::bishop) << ": " << frontend::objectiveToString(evaluator::material(p, movegenType::bishop, sq)) << std::endl;
-								eng.outputStream() << frontend::playerToString(p) << " " << frontend::pieceToString(movegenType::rook) << ": " << frontend::objectiveToString(evaluator::material(p, movegenType::rook, sq)) << std::endl;
-								eng.outputStream() << frontend::playerToString(p) << " " << frontend::pieceToString(movegenType::queen) << ": " << frontend::objectiveToString(evaluator::material(p, movegenType::queen, sq)) << std::endl;
-								eng.outputStream() << frontend::playerToString(p) << " " << frontend::pieceToString(movegenType::king) << ": " << frontend::objectiveToString(evaluator::material(p, movegenType::king, sq)) << std::endl;
+								eng.outputStream() << frontendType::playerToString(p) << " " << frontendType::pieceToString(frontendType::pawn) << ": " << frontendType::objectiveToString(evaluationType::material(p, frontendType::pawn, sq)) << std::endl;
+								eng.outputStream() << frontendType::playerToString(p) << " " << frontendType::pieceToString(frontendType::knight) << ": " << frontendType::objectiveToString(evaluationType::material(p, frontendType::knight, sq)) << std::endl;
+								eng.outputStream() << frontendType::playerToString(p) << " " << frontendType::pieceToString(frontendType::bishop) << ": " << frontendType::objectiveToString(evaluationType::material(p, frontendType::bishop, sq)) << std::endl;
+								eng.outputStream() << frontendType::playerToString(p) << " " << frontendType::pieceToString(frontendType::rook) << ": " << frontendType::objectiveToString(evaluationType::material(p, frontendType::rook, sq)) << std::endl;
+								eng.outputStream() << frontendType::playerToString(p) << " " << frontendType::pieceToString(frontendType::queen) << ": " << frontendType::objectiveToString(evaluationType::material(p, frontendType::queen, sq)) << std::endl;
+								eng.outputStream() << frontendType::playerToString(p) << " " << frontendType::pieceToString(frontendType::king) << ": " << frontendType::objectiveToString(evaluationType::material(p, frontendType::king, sq)) << std::endl;
 							}
 							else
 								eng.outputStream() << "invalid square: " << square << std::endl;
@@ -137,9 +137,9 @@ namespace pygmalion::chess
 						parser::parseToken(remainder2, player, remainder3);
 						playerType p{ playerType::invalid };
 						if (player == "white" || player == "w" || player == "+" || player == "0")
-							p = movegenType::whitePlayer;
+							p = frontendType::whitePlayer;
 						else if (player == "black" || player == "b" || player == "-" || player == "1")
-							p = movegenType::blackPlayer;
+							p = frontendType::blackPlayer;
 						if (p.isValid())
 						{
 							std::string piece;
@@ -148,13 +148,13 @@ namespace pygmalion::chess
 							pieceType pc{ frontendType::pieceFromString(piece) };
 							if (pc.isValid())
 							{
-								eng.outputStream() << frontend::playerToString(p) << " " << frontend::pieceToString(pc) << ": " << std::endl;
+								eng.outputStream() << frontendType::playerToString(p) << " " << frontendType::pieceToString(pc) << ": " << std::endl;
 								for (typename boardType::rankType rank = 7; rank >= 0; rank--)
 								{
 									for (const auto file : boardType::fileType::range)
 									{
 										const squareType sq{ squareType::fromRankFile(rank,file) };
-										eng.outputStream() << std::setw(10) << frontend::objectiveToString(evaluator::material(p, pc, sq)) << " ";
+										eng.outputStream() << std::setw(10) << frontendType::objectiveToString(evaluationType::material(p, pc, sq)) << " ";
 									}
 									eng.outputStream() << std::endl;
 								}
@@ -193,29 +193,46 @@ namespace pygmalion::chess
 					parser::parseToken(remainder, table, remainder2);
 					if (table == "slider" || table == "s")
 					{
-#if !(defined(PYGMALION_CPU_BMI2)&&defined(PYGMALION_CPU_X64))
-						eng.outputStream() << "refreshing slider magics..." << std::endl;
-						for (const auto sq : squareType::range)
-						{
-							movegen::tables().magic(false, sq) = slidermagic(slidermagicinfo(sq, false));
-							movegen::tables().magic(true, sq) = slidermagic(slidermagicinfo(sq, true));
-						}
-						eng.outputStream() << "...done." << std::endl;
+						eng.outputStream() << "computing slider magics..." << std::endl;
 						eng.outputStream() << std::endl;
 						eng.outputStream() << "slidermagic m_SliderMagics[2][64] " << std::endl;
 						eng.outputStream() << "{" << std::endl;
 						eng.outputStream() << "    {" << std::endl;
 						for (const auto sq : squareType::range)
-							eng.outputStream() << "        slidermagic(slidermagicinfo(" << static_cast<int>(sq) << ", false), " << parser::toString(movegen::tables().magic(false, sq).factor()) << ")" << (sq == 63 ? " " : ",") << std::endl;
+						{
+							slidermagic<descriptorGenerator> sm(slidermagicinfo<descriptorGenerator>(sq, false));
+							auto premask{ sm.magic().premask() };
+							auto factor{ premask };
+							int bits;
+							sm.magic().find(premask, factor, bits);
+							eng.outputStream() << "static slidermagic<descriptorGenerator>(slidermagicinfo<descriptorGenerator>(slidermagicinfo<descriptorGenerator>(0, false), " << parser::toString(premask) << ", " << parser::toString(factor) << ", " << bits << ")" << ((sq == (squareType::countValues - 1)) ? " " : ",") << std::endl;
+						}
 						eng.outputStream() << "    }," << std::endl;
 						eng.outputStream() << "    {" << std::endl;
 						for (const auto sq : squareType::range)
-							eng.outputStream() << "        slidermagic(slidermagicinfo(" << static_cast<int>(sq) << ", true), " << parser::toString(movegen::tables().magic(true, sq).factor()) << ")" << (sq == 63 ? " " : ",") << std::endl;
+						{
+							slidermagic<descriptorGenerator> sm(slidermagicinfo<descriptorGenerator>(sq, true));
+							auto premask{ sm.magic().premask() };
+							auto factor{ premask };
+							int bits;
+							sm.magic().find(premask, factor, bits);
+							eng.outputStream() << "static slidermagic<descriptorGenerator>(slidermagicinfo<descriptorGenerator>(slidermagicinfo<descriptorGenerator>(0, true), " << parser::toString(premask) << ", " << parser::toString(factor) << ", " << bits << ")" << ((sq == (squareType::countValues - 1)) ? " " : ",") << std::endl;
+						}
 						eng.outputStream() << "    }" << std::endl;
 						eng.outputStream() << "};" << std::endl;
-#else
-						eng.outputStream() << "(no magics used)" << std::endl;
-#endif
+
+
+
+						eng.outputStream() << "computing move table..." << std::endl;
+						movetable<descriptorGenerator> table;
+						auto premask{ table.magic().premask() };
+						auto factor{ premask };
+						int bits;
+						table.magic().find(premask, factor, bits);
+						eng.outputStream() << "...done." << std::endl;
+						eng.outputStream() << std::endl;
+						eng.outputStream() << "static inline movetable<descriptor_generator> moveTable{ movetable<descriptor_generator>(" << parser::toString(premask) << ", " << parser::toString(factor) << ", " << static_cast<int>(bits) << ") }; " << std::endl;
+
 					}
 					else
 						eng.outputStream() << "invalid table: " << table << std::endl;

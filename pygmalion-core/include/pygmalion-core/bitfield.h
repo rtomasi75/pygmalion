@@ -150,7 +150,7 @@ namespace pygmalion
 			clearBit(static_cast<typename bitType::baseType>(bit));
 			return *this;
 		}
-		constexpr operator bool() const noexcept
+		constexpr explicit operator bool() const noexcept
 		{
 			return m_Bits;
 		}
@@ -308,4 +308,10 @@ namespace pygmalion
 		}
 	};
 
+	template<int BITCOUNT>
+	std::ostream& operator<<(std::ostream& str, const bitfield<BITCOUNT> bits) noexcept
+	{
+		str << parser::toString(bits);
+		return str;
+	}
 }

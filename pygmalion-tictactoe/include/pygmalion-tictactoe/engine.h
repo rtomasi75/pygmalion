@@ -81,7 +81,7 @@ namespace pygmalion::tictactoe
 						table.magic().find(premask, factor, bits);
 						eng.outputStream() << "...done." << std::endl;
 						eng.outputStream() << std::endl;
-						eng.outputStream() << "static inline movetable<descriptor_generator> moveTable{ movetable<descriptor_generator>(" << parser::toString(premask) << ", " << parser::toString(factor) << ", " << static_cast<int>(bits) << ") }; " << std::endl;
+						eng.outputStream() << "static inline movetable<descriptor_generator> moveTable{ movetable<descriptor_generator>(" << premask << ", " << factor << ", " << bits << ") }; " << std::endl;
 					}
 					else
 						eng.outputStream() << "invalid table: " << table << std::endl;
