@@ -72,9 +72,9 @@ namespace pygmalion
 		{
 			return frontendType::dumpBoard_Implementation(board, str);
 		}
-		static bool parseMove(const std::string str, const boardType& position, moveType& move, std::string& error) noexcept
+		static bool parseMove(const std::string str, const stackType& stack, moveType& move, std::string& error) noexcept
 		{
-			return frontendType::parseMove_Implementation(str, position, move, error);
+			return frontendType::parseMove_Implementation(str, stack, move, error);
 		}
 		static std::string variationToStringFromDepth(const stackType& stack, const variationType& variation, depthType depth)
 		{

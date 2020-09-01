@@ -267,9 +267,9 @@ namespace pygmalion::chess
 				{
 					if ((position.pieceOccupancy(piece) & position.playerOccupancy(side))[sq])
 					{
-						bitsType captures{ bitsType::empty() };
-						bitsType moves{ bitsType::empty() };
-						movegen::moveMaps(position, sq, moves, captures);
+						squaresType captures{ squaresType::none() };
+						squaresType moves{ squaresType::none() };
+						generatorType::movesFromSquare(stack, sq, moves, captures);
 						if ((captures | moves)[to])
 						{
 							if (sq.file() == file)
@@ -285,9 +285,9 @@ namespace pygmalion::chess
 					{
 						if ((position.pieceOccupancy(piece) & position.playerOccupancy(side))[sq])
 						{
-							bitsType captures{ bitsType::empty() };
-							bitsType moves{ bitsType::empty() };
-							movegen::moveMaps(position, sq, moves, captures);
+							squaresType captures{ squaresType::none() };
+							squaresType moves{ squaresType::none() };
+							generatorType::movesFromSquare(stack, sq, moves, captures);
 							if ((captures | moves)[to])
 							{
 								if (sq.rank() == rank)
@@ -361,25 +361,25 @@ namespace pygmalion::chess
 					}
 				}
 			}
-			if (movegenType::move_isCapture(mv))
+			if (mechanicsType::isCapture(mv))
 				ret += "x";
 			ret = ret + squareToString(to);
-			if (movegenType::move_isCaptureEnPassant(mv))
+			if (mechanicsType::isCaptureEnPassant(mv))
 				ret += "ep";
-			if (movegenType::move_isPromotion(mv))
+			if (mechanicsType::isPromotion(mv))
 			{
-				switch (movegenType::move_promotionPiece(mv))
+				switch (mv.piece(piece_promotion))
 				{
-				case movegenType::knight:
+				case knight:
 					ret += "=N";
 					break;
-				case movegenType::bishop:
+				case bishop:
 					ret += "=B";
 					break;
-				case movegenType::rook:
+				case rook:
 					ret += "=R";
 					break;
-				case movegenType::queen:
+				case queen:
 					ret += "=Q";
 					break;
 				}
@@ -393,17 +393,17 @@ namespace pygmalion::chess
 			switch (std::tolower(text[0]))
 			{
 			case 'p':
-				return movegenType::pawn;
+				return pawn;
 			case 'n':
-				return movegenType::knight;
+				return knight;
 			case 'r':
-				return movegenType::rook;
+				return rook;
 			case 'b':
-				return movegenType::bishop;
+				return bishop;
 			case 'q':
-				return movegenType::queen;
+				return queen;
 			case 'k':
-				return movegenType::king;
+				return king;
 			}
 			return pieceType::invalid;
 		}
@@ -484,8 +484,9 @@ namespace pygmalion::chess
 				return squareType::fromRankFile(rank, file);
 			}
 		}
-		static bool parseMove_Implementation(const std::string str, const boardType& position, moveType& move, std::string& error) noexcept
+		static bool parseMove_Implementation(const std::string str, const stackType& stack, moveType& move, std::string& error) noexcept
 		{
+			const boardType& position{ stack.position() };
 			if (str.length() < 4)
 			{
 				error = "less than 4 chars";
@@ -526,16 +527,16 @@ namespace pygmalion::chess
 			bool bPromotion{ false };
 			switch (promote)
 			{
-			case movegenType::pawn:
+			case pawn:
 				error = "cannot promote to pawn";
 				return false;
-			case movegenType::king:
+			case king:
 				error = "cannot promote to king";
 				return false;
-			case movegenType::knight:
-			case movegenType::bishop:
-			case movegenType::rook:
-			case movegenType::queen:
+			case knight:
+			case bishop:
+			case rook:
+			case queen:
 				bPromotion = true;
 				break;
 			}
@@ -549,7 +550,7 @@ namespace pygmalion::chess
 			const playerType sideOther{ side.next() };
 			if (!position.playerOccupancy(side)[from])
 			{
-				if (side == movegenType::whitePlayer)
+				if (side == whitePlayer)
 					error = "it's whites turn";
 				else
 					error = "it's blacks turn";
@@ -557,19 +558,19 @@ namespace pygmalion::chess
 			}
 			if (promote != pieceType::invalid)
 			{
-				if (piece != movegenType::pawn)
+				if (piece != pawn)
 				{
 					error = "only pawns can promote";
 					return false;
 				}
-				if (side == movegenType::whitePlayer)
+				if (side == whitePlayer)
 				{
-					if (from.rank() != movegen::rank7)
+					if (from.rank() != rank7)
 					{
 						error = "white can only promote from rank 7";
 						return false;
 					}
-					if (to.rank() != movegen::rank8)
+					if (to.rank() != rank8)
 					{
 						error = "white can only promote to rank 8";
 						return false;
@@ -577,22 +578,22 @@ namespace pygmalion::chess
 				}
 				else
 				{
-					if (from.rank() != movegen::rank2)
+					if (from.rank() != rank2)
 					{
 						error = "black can only promote from rank 2";
 						return false;
 					}
-					if (to.rank() != movegen::rank1)
+					if (to.rank() != rank1)
 					{
 						error = "black can only promote to rank 1";
 						return false;
 					}
 				}
 			}
-			bitsType captures{ bitsType::empty() };
-			bitsType moves{ bitsType::empty() };
-			movegenType::moveMaps(position, from, moves, captures);
-			const bitsType combimap{ moves | captures };
+			squaresType captures{ squaresType::none() };
+			squaresType moves{ squaresType::none() };
+			generatorType::movesFromSquare(stack, from, moves, captures);
+			const squaresType combimap{ moves | captures };
 			bool bCapture{ false };
 			bool bEnPassant{ false };
 			bool bCastleKingSide{ false };

@@ -89,8 +89,9 @@ namespace pygmalion::tictactoe
 			}
 			return text;
 		}
-		static bool parseMove_Implementation(const std::string str, const boardType& position, moveType& move, std::string& error) noexcept
+		static bool parseMove_Implementation(const std::string str, const stackType& stack, moveType& move, std::string& error) noexcept
 		{
+			const boardType& position{ stack.position() };
 			if (str.length() != 2)
 			{
 				error = "String representation of a move needs to be 2 chars long.";

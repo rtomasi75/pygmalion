@@ -106,9 +106,10 @@ namespace pygmalion
 					{
 						moveType mv;
 						std::string error;
-						if (frontendType::parseMove(move, eng.board(), mv, error))
+						stackType stack(eng.board(), eng.board().movingPlayer());
+						if (frontendType::parseMove(move, stack, mv, error))
 						{
-							std::string mvstr{ frontendType::moveToString(eng.board(),mv) };
+							std::string mvstr{ frontendType::moveToString(stack,mv) };
 							if (eng.makeMove(mv))
 								eng.outputStream() << "perforing move " << mvstr << "." << std::endl;
 							else
