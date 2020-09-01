@@ -76,9 +76,21 @@ namespace pygmalion
 		{
 			return frontendType::parseMove_Implementation(str, position, move, error);
 		}
-		static std::string variationToString(const boardType& position, const variationType& variation)
+		static std::string variationToStringFromDepth(const stackType& stack, const variationType& variation, depthType depth)
 		{
-			return frontendType::variationToString_Implementation(position, variation);
+			if (variation.length() > depth)
+			{
+				std::stringstream sstr;
+				sstr << moveToString(stack, variation[depth]) << " ";
+				stackType subStack(stack, variation[depth]);
+				sstr << variationToStringFromDepth(subStack, variation, depth + 1);
+				return sstr.str();
+			}
+			return "";
+		}
+		static std::string variationToString(const stackType& stack, const variationType& variation)
+		{
+			return variationToStringFromDepth(stack, variation, 0);
 		}
 	};
 }

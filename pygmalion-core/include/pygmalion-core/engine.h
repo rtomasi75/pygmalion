@@ -145,7 +145,8 @@ namespace pygmalion
 						heuristicsType heuristics;
 						objectiveType score{ searchType::pvs(eng.board(), principalVariation, i, heuristics) };
 						uint64_t nodeCount{ heuristics.nodeCount() };
-						eng.outputStream() << static_cast<int>(i) << ": " << std::setw(12) << FRONTEND::objectiveToString(score) << " - " << FRONTEND::variationToString(eng.board(), principalVariation) << std::endl;
+						stackType stack(eng.board(), eng.board().movingPlayer());
+						eng.outputStream() << static_cast<int>(i) << ": " << std::setw(12) << FRONTEND::objectiveToString(score) << " - " << FRONTEND::variationToString(stack, principalVariation) << std::endl;
 						eng.outputStream() << heuristics.toString();
 						eng.outputStream() << std::endl;
 					}

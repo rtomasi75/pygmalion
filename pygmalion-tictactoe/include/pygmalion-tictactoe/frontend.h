@@ -139,17 +139,5 @@ namespace pygmalion::tictactoe
 				return true;
 			}
 		}
-		static std::string variationToString_Implementation(const boardType& position, const variationType& variation)
-		{
-			boardType currentPosition{ position };
-			std::stringstream sstr;
-			for (int i = 0; i < variation.length(); i++)
-			{
-				sstr << moveToString(currentPosition, variation[i]) << " ";
-				movedataType md(currentPosition, variation[i]);
-				mechanicsType::makeMove(currentPosition, md);
-			}
-			return sstr.str();
-		}
 	};
 }

@@ -210,12 +210,9 @@ namespace pygmalion::chess
 			}
 			return "?";
 		}
-		static std::string moveToString_Implementation(const boardType& position, const moveType mv) noexcept
+		static std::string moveToString_Implementation(const stackType& stack, const moveType mv) noexcept
 		{
-			//if (mv.isNull())
-				//return "null";
-			//		if (move.isDraw())
-			//			return "draw";
+			const boardType& position{ stack.position() };
 			const squareType from{mv.square(square_from)};
 			const squareType to{ mv.square(square_to) };
 			const pieceType piece{ position.getPiece(from) };
@@ -255,7 +252,7 @@ namespace pygmalion::chess
 				{
 					squaresType captures{ squaresType::none() };
 					squaresType moves{ squaresType::none() };
-					generatorType::movesFromSquare(position, sq, moves, captures);
+					generatorType::movesFromSquare(stack, sq, moves, captures);
 					if ((captures | moves)[to])
 					{
 						countamb++;
@@ -717,18 +714,6 @@ namespace pygmalion::chess
 				error = "cannot move to " + str.substr(2, 2);
 				return false;
 			}
-		}
-		static std::string variationToString_Implementation(const boardType& position, const variationType& variation)
-		{
-			boardType currentPosition{ position };
-			std::stringstream sstr;
-			for (int i = 0; i < variation.length(); i++)
-			{
-				sstr << moveToString(currentPosition, variation[i]) << " ";
-				movegenType::movedata md(currentPosition, variation[i]);
-				movegenType::makeMove(currentPosition, md);
-			}
-			return sstr.str();
 		}
 	};
 }
