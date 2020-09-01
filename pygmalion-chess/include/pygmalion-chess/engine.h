@@ -26,13 +26,7 @@ namespace pygmalion::chess
 						squareType sq{ frontendType::squareFromString(square) };
 						if (sq.isValid())
 						{
-							if (remainder3 == "")
-								frontend::dumpBitboard(movegen::tables().kingMoveMap(sq), eng.outputStream());
-							else
-							{
-								eng.outputStream() << "(untabled)" << std::endl;
-								frontend::dumpBitboard(movegen::kingMoveMap_untabled(sq), eng.outputStream());
-							}
+							frontend::dumpSquares(generatorType::movegenTable().kingMoveMap(sq), eng.outputStream());
 						}
 						else
 						{
@@ -47,13 +41,7 @@ namespace pygmalion::chess
 						squareType sq{ frontendType::squareFromString(square) };
 						if (sq.isValid())
 						{
-							if (remainder3 == "")
-								frontend::dumpBitboard(movegen::tables().knightMoveMap(sq), eng.outputStream());
-							else
-							{
-								eng.outputStream() << "(untabled)" << std::endl;
-								frontend::dumpBitboard(movegen::knightMoveMap_untabled(sq), eng.outputStream());
-							}
+							frontend::dumpSquares(generatorType::movegenTable().knightMoveMap(sq), eng.outputStream());
 						}
 						else
 						{
@@ -67,9 +55,9 @@ namespace pygmalion::chess
 						parser::parseToken(remainder2, player, remainder3);
 						playerType p{ playerType::invalid };
 						if (player == "white" || player == "w" || player == "+" || player == "0")
-							p = movegenType::whitePlayer;
+							p = frontend::whitePlayer;
 						else if (player == "black" || player == "b" || player == "-" || player == "1")
-							p = movegenType::blackPlayer;
+							p = frontend::blackPlayer;
 						if (p.isValid())
 						{
 							std::string square;
@@ -78,13 +66,7 @@ namespace pygmalion::chess
 							squareType sq{ frontendType::squareFromString(square) };
 							if (sq.isValid())
 							{
-								if (remainder4 == "")
-									frontend::dumpBitboard(movegen::tables().pawnMoveMap(sq, p), eng.outputStream());
-								else
-								{
-									eng.outputStream() << "(untabled)" << std::endl;
-									frontend::dumpBitboard(movegen::pawnMoveMap_untabled(p, sq, false), eng.outputStream());
-								}
+								frontend::dumpSquares(generatorType::movegenTable().pawnMoveMap(sq, p), eng.outputStream());
 							}
 							else
 								eng.outputStream() << "invalid square: " << square << std::endl;
@@ -99,9 +81,9 @@ namespace pygmalion::chess
 						parser::parseToken(remainder2, player, remainder3);
 						playerType p{ playerType::invalid };
 						if (player == "white" || player == "w" || player == "+" || player == "0")
-							p = movegenType::whitePlayer;
+							p = frontend::whitePlayer;
 						else if (player == "black" || player == "b" || player == "-" || player == "1")
-							p = movegenType::blackPlayer;
+							p = frontend::blackPlayer;
 						if (p.isValid())
 						{
 							std::string square;

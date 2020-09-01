@@ -65,19 +65,19 @@ namespace pygmalion::chess
 		{
 			return moveType({ from,to }, { 0 }, moveflagsType::setMask(capture));
 		}
-		constexpr static moveType castleKingsideWhite() noexcept
+		constexpr static moveType castleKingsideWhiteMove() noexcept
 		{
 			return moveType({ squareE1,squareH1 }, { 0 }, moveflagsType::setMask(castle));
 		}
-		constexpr static moveType castleKingsideBlack() noexcept
+		constexpr static moveType castleKingsideBlackMove() noexcept
 		{
 			return moveType({ squareE8,squareH8 }, { 0 }, moveflagsType::setMask(castle));
 		}
-		constexpr static moveType castleQueensideWhite() noexcept
+		constexpr static moveType castleQueensideWhiteMove() noexcept
 		{
 			return moveType({ squareE1,squareA1 }, { 0 }, moveflagsType::setMask(castle));
 		}
-		constexpr static moveType castleQueensideBlack() noexcept
+		constexpr static moveType castleQueensideBlackMove() noexcept
 		{
 			return moveType({ squareE8,squareA8 }, { 0 }, moveflagsType::setMask(castle));
 		}

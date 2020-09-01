@@ -606,10 +606,10 @@ namespace pygmalion::chess
 					bCapture = true;
 					if (!position.totalOccupancy()[to])
 					{
-						if (position.pieceOccupancy(movegenType::pawn)[to])
+						if (position.pieceOccupancy(pawn)[to])
 						{
 							const auto file{ to.file() };
-							if (movegenType::position_checkEnPassantFlag(position, file))
+							if (position.checkEnPassantFile(file))
 							{
 								bEnPassant = true;
 							}
@@ -626,11 +626,11 @@ namespace pygmalion::chess
 						}
 					}
 				}
-				if (piece == movegenType::king)
+				if (piece == king)
 				{
-					if ((from == movegen::squareE1) && (to == movegen::squareG1) && (side == movegenType::whitePlayer))
+					if ((from == squareE1) && (to == squareG1) && (side ==whitePlayer))
 					{
-						if (movegenType::position_checkCastlerightKingsideWhite(position))
+						if (position.checkCastleRightKingsideWhite())
 							bCastleKingSide = true;
 						else
 						{
@@ -638,9 +638,9 @@ namespace pygmalion::chess
 							return false;
 						}
 					}
-					else if ((from == movegen::squareE8) && (to == movegen::squareG8) && (side == movegenType::blackPlayer))
+					else if ((from == squareE8) && (to == squareG8) && (side == blackPlayer))
 					{
-						if (movegenType::position_checkCastlerightKingsideBlack(position))
+						if (position.checkCastleRightKingsideBlack())
 							bCastleKingSide = true;
 						else
 						{
@@ -648,9 +648,9 @@ namespace pygmalion::chess
 							return false;
 						}
 					}
-					else if ((from == movegen::squareE1) && (to == movegen::squareC1) && (side == movegenType::whitePlayer))
+					else if ((from == squareE1) && (to == squareC1) && (side == whitePlayer))
 					{
-						if (movegenType::position_checkCastlerightQueensideWhite(position))
+						if (position.checkCastleRightQueensideWhite())
 							bCastleQueenSide = true;
 						else
 						{
@@ -658,9 +658,9 @@ namespace pygmalion::chess
 							return false;
 						}
 					}
-					else if ((from == movegen::squareE8) && (to == movegen::squareC8) && (side == movegenType::blackPlayer))
+					else if ((from == squareE8) && (to == squareC8) && (side == blackPlayer))
 					{
-						if (movegenType::position_checkCastlerightQueensideBlack(position))
+						if (position.checkCastleRightQueensideBlack())
 							bCastleQueenSide = true;
 						else
 						{
@@ -669,13 +669,13 @@ namespace pygmalion::chess
 						}
 					}
 				}
-				else if (piece == movegenType::pawn)
+				else if (piece == pawn)
 				{
-					if ((side == movegenType::whitePlayer) && (from.rank() == movegen::rank2) && (to.rank() == movegen::rank4))
+					if ((side == whitePlayer) && (from.rank() == rank2) && (to.rank() == rank4))
 					{
 						bDoublePush = true;
 					}
-					else if ((side == movegenType::blackPlayer) && (from.rank() == movegen::rank2) && (to.rank() == movegen::rank4))
+					else if ((side == blackPlayer) && (from.rank() == rank2) && (to.rank() == rank4))
 					{
 						bDoublePush = true;
 					}
@@ -683,29 +683,29 @@ namespace pygmalion::chess
 				if (bPromotion)
 				{
 					if (bCapture)
-						move = movegenType::move_capturePromotion(from, to, promote);
+						move = mechanicsType::capturePromotionMove(from, to, promote);
 					else
-						move = movegenType::move_promotion(from, to, promote);
+						move = mechanicsType::promotionMove(from, to, promote);
 				}
 				else
 				{
 					if (bCapture)
 					{
 						if (bEnPassant)
-							move = movegenType::move_captureEnPassant(from, to);
+							move = mechanicsType::captureEnPassantMove(from, to);
 						else
-							move = movegenType::move_capture(from, to);
+							move = mechanicsType::captureMove(from, to);
 					}
 					else
 					{
 						if (bDoublePush)
-							move = movegenType::move_doublePush(from, to);
+							move = mechanicsType::doublePushMove(from, to);
 						else if (bCastleKingSide)
-							move = (side == movegenType::whitePlayer) ? movegenType::move_castleKingsideWhite() : movegenType::move_castleKingsideBlack();
+							move = (side == whitePlayer) ? mechanicsType::castleKingsideWhiteMove() : mechanicsType::castleKingsideBlackMove();
 						else if (bCastleQueenSide)
-							move = (side == movegenType::whitePlayer) ? movegenType::move_castleQueensideWhite() : movegenType::move_castleQueensideBlack();
+							move = (side == whitePlayer) ? mechanicsType::castleQueensideWhiteMove() : mechanicsType::castleQueensideBlackMove();
 						else
-							move = movegenType::move_quiet(from, to);
+							move = mechanicsType::quietMove(from, to);
 					}
 				}
 				return true;
