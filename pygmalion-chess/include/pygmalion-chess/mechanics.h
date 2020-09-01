@@ -109,7 +109,6 @@ namespace pygmalion::chess
 			public pygmalion::mechanics<descriptor_mechanics, mechanics>::movedata
 		{
 		private:
-			score m_OldMaterial;
 			uint8_t m_OldDistanceToDraw;
 			bool m_IsCapture;
 			bool m_IsEnPassant;
@@ -129,7 +128,6 @@ namespace pygmalion::chess
 		public:
 			movedata(const board& position, const playerType oldPlayer) noexcept :
 				pygmalion::mechanics<descriptor_mechanics, mechanics>::movedata(position, oldPlayer),
-				m_OldMaterial{ position.getMaterial() },
 				m_OldDistanceToDraw{ position.getDistanceToDraw() },
 				m_IsPromotion{ false },
 				m_IsCapture{ false },
@@ -151,7 +149,6 @@ namespace pygmalion::chess
 			}
 			movedata(const board& position, const moveType& move) noexcept :
 				pygmalion::mechanics<descriptor_mechanics, mechanics>::movedata(position, move),
-				m_OldMaterial{ position.getMaterial() },
 				m_OldDistanceToDraw{ position.getDistanceToDraw() },
 				m_IsPromotion{ mechanics::isPromotion(move) },
 				m_IsCapture{ mechanics::isCapture(move) },
@@ -193,10 +190,6 @@ namespace pygmalion::chess
 			constexpr auto oldFlags() const noexcept
 			{
 				return m_OldFlags;
-			}
-			constexpr auto oldMaterial() const noexcept
-			{
-				return m_OldMaterial;
 			}
 			constexpr auto oldDistanceToDraw() const noexcept
 			{
@@ -267,7 +260,6 @@ namespace pygmalion::chess
 		}
 		static void makeMove_Implementation(boardType& position, const movedata& md) noexcept
 		{
-			score newMaterial{ md.oldMaterial() };
 			if (md.isCapture())
 			{
 				position.removePiece(md.capturedPiece(), md.captureSquare(), md.otherPlayer());
@@ -334,7 +326,6 @@ namespace pygmalion::chess
 			//	newMaterial += evaluator::material(md.movingPlayer(), rook, md.rookTo());
 			}
 			position.setMovingPlayer(md.otherPlayer());
-			position.setMaterial(newMaterial);
 		}
 		static void unmakeMove_Implementation(boardType& position, const movedata& md) noexcept
 		{
@@ -347,7 +338,6 @@ namespace pygmalion::chess
 			position.addPiece(md.movingPiece(), md.fromSquare(), md.movingPlayer());
 			if (md.isCapture())
 				position.addPiece(md.capturedPiece(), md.captureSquare(), md.otherPlayer());
-			position.setMaterial(md.oldMaterial());
 			position.setDistanceToDraw(md.oldDistanceToDraw());
 			position.setMovingPlayer(md.movingPlayer());
 			position.flags() = md.oldFlags();

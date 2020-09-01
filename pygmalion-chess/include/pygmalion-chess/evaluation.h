@@ -1,20 +1,21 @@
 namespace pygmalion::chess
 {
-	class evaluator : public pygmalion::evaluator<pygmalion::chess::movegen, pygmalion::chess::score, pygmalion::chess::score, pygmalion::chess::evaluator >
+	class evaluation : 
+		public pygmalion::evaluation<descriptor_evaluation,evaluation>
 	{
 	private:
-		static const evaluationTables m_Tables;
+		static inline const evaluationTables<descriptor_evaluation> materialTable;
 	public:
-		constexpr static auto material(const board::playerType p, const board::pieceType pc, const board::squareType sq) noexcept
+		constexpr static objectiveType material(const board::playerType p, const board::pieceType pc, const board::squareType sq) noexcept
 		{
 			assert(p.isValid());
 			assert(pc.isValid());
 			assert(sq.isValid());
-			return m_Tables.material(p, pc, sq);
+			return materialTable.material(p, pc, sq);
 		}
 		static objectiveType evaluate_Implementation(const stackType& stack) noexcept
 		{
-			return stack.position().getMaterial();
+			return neutralScore();
 		}
 		constexpr static auto makeSubjective_Implementation(const objectiveType& sc, const playerType player) noexcept
 		{

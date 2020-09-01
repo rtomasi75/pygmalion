@@ -31,8 +31,26 @@ namespace pygmalion
 			}
 			~stack() noexcept = default;
 		};
-		using stackType = typename pygmalion::frontend<DESCRIPTION_FRONTEND, frontendType>::stack;
-
+		static void dumpSquares(const squaresType squares, std::ostream& stream) noexcept
+		{
+			stream << std::endl;
+			for (const auto i : rankType::range)
+			{
+				for (const auto j : fileType::range)
+				{
+					const squareType sq{ squareType::fromRankFile(-i, j) };
+					if (squares[sq])
+						stream << "#";
+					else
+						stream << ".";
+				}
+				stream << std::endl;
+			}
+			stream << std::endl;
+			stream << "population: " << static_cast<size_t>(squares.count());
+			stream << std::endl;
+		}
+		using stackType = stack;
 		static std::string name() noexcept
 		{
 			return frontendType::name_Implementation();
@@ -45,9 +63,10 @@ namespace pygmalion
 		{
 			return frontendType::objectiveToString_Implementation(score);
 		}
-		static std::string moveToString(const boardType& position, const moveType mv) noexcept
+		template<typename stackType>
+		static std::string moveToString(const stackType& stack, const moveType mv) noexcept
 		{
-			return frontendType::moveToString_Implementation(position, mv);
+			return frontendType::moveToString_Implementation(stack, mv);
 		}
 		static void dumpBoard(const boardType& board, std::ostream& str) noexcept
 		{

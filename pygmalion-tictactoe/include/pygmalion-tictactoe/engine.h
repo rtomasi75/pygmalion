@@ -6,20 +6,6 @@ namespace pygmalion::tictactoe
 		class command_debugPattern : public commandType
 		{
 		private:
-			static void dumpSquares(const typename boardType::squaresType& pattern, std::ostream& stream) noexcept
-			{
-				for (const auto i : rankType::range)
-				{
-					for (const auto j : fileType::range)
-					{
-						int idx = (countRanks - i - 1) * countFiles + j;
-						stream << (pattern[idx] ? "#" : ".");
-					}
-					stream << std::endl;
-				}
-				stream << "population = " << static_cast<size_t>(pattern.count());
-				stream << std::endl;
-			}
 		protected:
 			virtual bool onProcess(engineType& eng, const std::string& cmd) const noexcept override
 			{
@@ -42,7 +28,7 @@ namespace pygmalion::tictactoe
 						else
 						{
 							eng.outputStream() << "line " << line << ":" << std::endl;
-							dumpSquares(evaluationType::patterns().line(line), eng.outputStream());
+							frontendType::dumpSquares(evaluationType::patterns().line(line), eng.outputStream());
 						}
 					}
 					else if (token2 == "occupancy")
@@ -50,13 +36,13 @@ namespace pygmalion::tictactoe
 						if (remainder2 == "white")
 						{
 							eng.outputStream() << "white occupancy:" << std::endl;
-							dumpSquares(eng.board().playerOccupancy(static_cast<playerType>(0)), eng.outputStream());
+							frontendType::dumpSquares(eng.board().playerOccupancy(static_cast<playerType>(0)), eng.outputStream());
 						}
 						else	if (remainder2 == "black")
 
 						{
 							eng.outputStream() << "black occupancy:" << std::endl;
-							dumpSquares(eng.board().playerOccupancy(static_cast<playerType>(1)), eng.outputStream());
+							frontendType::dumpSquares(eng.board().playerOccupancy(static_cast<playerType>(1)), eng.outputStream());
 						}
 						else
 						{

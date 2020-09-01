@@ -5,7 +5,6 @@ namespace pygmalion::chess
 		public base_generator<DESCRIPTION_GENERATOR>
 	{
 	public:
-
 		using descriptorGenerator = DESCRIPTION_GENERATOR;
 #include "pygmalion-core/include_generator.h"
 

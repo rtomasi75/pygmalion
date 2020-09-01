@@ -25,6 +25,10 @@ namespace pygmalion
 		}
 		constexpr file& operator=(file&&) noexcept = default;
 		constexpr file& operator=(const file&) noexcept = default;
+		constexpr file operator-() const noexcept
+		{
+			return countFiles - (*this);
+		}
 	};
 
 }

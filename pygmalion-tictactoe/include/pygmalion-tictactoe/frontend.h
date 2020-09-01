@@ -51,7 +51,8 @@ namespace pygmalion::tictactoe
 			str << "+-+-+-+" << std::endl;
 			str << " A B C" << std::endl;
 		}
-		static std::string moveToString_Implementation(const boardType& position, const moveType mv) noexcept
+		template<typename stackType>
+		static std::string moveToString_Implementation(const stackType& stack, const moveType mv) noexcept
 		{
 			auto file = mv.square(0).file();
 			auto rank = mv.square(0).rank();

@@ -43,9 +43,9 @@ namespace pygmalion::chess
 	class slidermagic :
 		public base_generator<DESCRIPTOR_GENERATOR>,
 #if defined(PYGMALION_CPU_BMI2)&& defined(PYGMALION_CPU_X64)
-		public pygmalion::magictable<std::uint16_t, slidermagicinfo<DESCRIPTOR_GENERATOR>, typename DESCRIPTOR_GENERATOR::squaresType, slidermagic<DESCRIPTOR_GENERATOR>, true>
+		public pygmalion::magictable<std::uint16_t, slidermagicinfo<DESCRIPTOR_GENERATOR>, typename DESCRIPTOR_GENERATOR::squaresType, slidermagic<DESCRIPTOR_GENERATOR>>
 #else
-		public pygmalion::magictable<typename DESCRIPTOR_GENERATOR::squaresType, slidermagicinfo<DESCRIPTOR_GENERATOR>, typename DESCRIPTOR_GENERATOR::squaresType, slidermagic<DESCRIPTOR_GENERATOR>, false>
+		public pygmalion::magictable<typename DESCRIPTOR_GENERATOR::squaresType, slidermagicinfo<DESCRIPTOR_GENERATOR>, typename DESCRIPTOR_GENERATOR::squaresType, slidermagic<DESCRIPTOR_GENERATOR>>
 #endif
 	{
 	public:

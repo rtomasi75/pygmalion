@@ -25,5 +25,13 @@ namespace pygmalion
 		}
 		constexpr rank& operator=(rank&&) noexcept = default;
 		constexpr rank& operator=(const rank&) noexcept = default;
+		constexpr rank operator-() const noexcept
+		{
+			return countRanks - (*this);
+		}
+		constexpr squareType operator&(const fileType file) const noexcept
+		{
+			return squareType::fromRankFile(*this, file);
+		}
 	};
 }

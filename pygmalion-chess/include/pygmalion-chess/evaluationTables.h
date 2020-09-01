@@ -5,8 +5,10 @@ namespace pygmalion::chess
 		public base_evaluation<DESCRIPTION_EVALUATION>
 	{
 	public:
-		constexpr static score m_PromotionStep{ 0.25 };
-		using bitsType = typename board::bitsType;
+		using descriptorEvaluation = DESCRIPTION_EVALUATION;
+#include <pygmalion-core/include_evaluation.h>
+
+		constexpr static objectiveType m_PromotionStep{ 0.25 };
 	private:
 		constexpr static int8_t m_LazyMaterial[7]
 		{
@@ -29,12 +31,12 @@ namespace pygmalion::chess
 			1,1,1,1,1,1,1,1,
 		};
 		constexpr static int8_t maxSquareValue{ 4 };
-		bitsType m_SquareImportance[maxSquareValue+1];
-		score m_Material[2][6][64];
+		squaresType m_SquareImportance[maxSquareValue+1];
+		objectiveType m_Material[2][6][64];
 	public:
 		evaluationTables() noexcept;
 		~evaluationTables() noexcept = default;
-		constexpr auto material(const board::playerType p, const board::pieceType pc, const board::squareType sq) const noexcept
+		constexpr objectiveType material(const playerType p, const pieceType pc, const squareType sq) const noexcept
 		{
 			assert(p.isValid());
 			assert(pc.isValid());
