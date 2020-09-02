@@ -19,20 +19,20 @@ namespace pygmalion
 		constexpr static int countTotalBits{ countMoveSquares * countSquareBits + countMovePieces * countPieceBits + countMoveFlags };
 		using baseType = typename int_traits<requiredBitBytes(countTotalBits)>::UTYPE;
 	private:
-		constexpr static int shiftSquare(const int indexSquare)
+		constexpr static int shiftSquare(const int indexSquare) noexcept
 		{
 			return indexSquare * countSquareBits;
 		}
-		constexpr static int shiftPiece(const int indexPiece)
+		constexpr static int shiftPiece(const int indexPiece) noexcept
 		{
 			return indexPiece * countPieceBits + countPieceBits * countMovePieces;
 		}
 		constexpr static int shiftFlags{ countSquareBits * countMoveSquares + countPieceBits * countMovePieces };
-		constexpr static baseType maskSquare(const int indexSquare)
+		constexpr static baseType maskSquare(const int indexSquare) noexcept
 		{
 			return static_cast<baseType>(((baseType(1) << countSquareBits) - 1) << shiftSquare(indexSquare));
 		}
-		constexpr static baseType maskPiece(const int indexPiece)
+		constexpr static baseType maskPiece(const int indexPiece) noexcept
 		{
 			return static_cast<baseType>(((baseType(1) << countPieceBits) - 1) << shiftPiece(indexPiece));
 		}

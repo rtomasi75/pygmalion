@@ -45,7 +45,7 @@ namespace pygmalion
 		{
 			return evaluationType::evaluate_Implementation(stack);
 		}
-		constexpr static objectiveType makeSubjective(const objectiveType& sc, const playerType player) noexcept
+		constexpr static objectiveType makeSubjective(const objectiveType sc, const playerType player) noexcept
 		{
 			return evaluationType::makeSubjective_Implementation(sc, player);
 		}

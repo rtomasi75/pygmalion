@@ -41,7 +41,7 @@ namespace pygmalion
 			assert(self.isValid());
 			return m_Scores[self];
 		}
-		constexpr auto refuted(playerType self, const objectiveType& sc) noexcept
+		constexpr auto refuted(playerType self, const objectiveType sc) noexcept
 		{
 			assert(self.isValid());
 			playerType other{ self };
@@ -55,7 +55,7 @@ namespace pygmalion
 			}
 			return false;
 		}
-		constexpr auto accepted(const playerType self, const objectiveType& sc) noexcept
+		constexpr auto accepted(const playerType self, const objectiveType sc) noexcept
 		{
 			assert(self.isValid());
 			const subjectiveType sc_self{ evaluatorType::makeSubjective(sc, self) };

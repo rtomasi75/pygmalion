@@ -23,15 +23,15 @@ namespace pygmalion
 		}
 		constexpr bit& operator=(bit&&) noexcept = default;
 		constexpr bit& operator=(const bit&) noexcept = default;
-		constexpr bitfield<COUNT_BITS> operator|(const bit& other) const noexcept
+		constexpr bitfield<COUNT_BITS> operator|(const bit other) const noexcept
 		{
 			return static_cast<bitfield<COUNT_BITS>>(*this) | static_cast<bitfield<COUNT_BITS>>(other);
 		}
-		constexpr bitfield<COUNT_BITS> operator&(const bit& other) const noexcept
+		constexpr bitfield<COUNT_BITS> operator&(const bit other) const noexcept
 		{
 			return static_cast<bitfield<COUNT_BITS>>(*this) & static_cast<bitfield<COUNT_BITS>>(other);
 		}
-		constexpr bitfield<COUNT_BITS> operator^(const bit& other) const noexcept
+		constexpr bitfield<COUNT_BITS> operator^(const bit other) const noexcept
 		{
 			return static_cast<bitfield<COUNT_BITS>>(*this) ^ static_cast<bitfield<COUNT_BITS>>(other);
 		}

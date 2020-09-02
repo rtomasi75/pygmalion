@@ -22,7 +22,7 @@ namespace pygmalion
 			m_Premask = premask;
 			m_CountBits = m_Premask.populationCount();
 		}
-		constexpr magic(const bitsType& premask, const std::uint8_t countBits) noexcept :
+		constexpr magic(const bitsType premask, const std::uint8_t countBits) noexcept :
 			m_Premask{ premask },
 			m_CountBits{ countBits }
 		{
@@ -37,7 +37,7 @@ namespace pygmalion
 		}
 		constexpr magic(const magic&) = default;
 		constexpr magic(magic&&) = default;
-		constexpr magic(const bitsType& premask, const bitsType&, const std::uint8_t bits) noexcept :
+		constexpr magic(const bitsType premask, const bitsType, const std::uint8_t bits) noexcept :
 			magic<BITS, true>(premask, bits)
 		{
 		}
@@ -94,7 +94,7 @@ namespace pygmalion
 		}
 		constexpr magic(const magic&) = default;
 		constexpr magic(magic&&) = default;
-		constexpr magic(const bitsType& premask, const bitsType& factor, const std::uint8_t bits) noexcept :
+		constexpr magic(const bitsType premask, const bitsType factor, const std::uint8_t bits) noexcept :
 			magic<BITS, true>(premask, bits),
 			m_Factor{ factor }
 		{
@@ -102,7 +102,7 @@ namespace pygmalion
 		constexpr magic& operator=(const magic&) noexcept = default;
 		constexpr magic& operator=(magic&&) noexcept = default;
 		~magic() noexcept = default;
-		size_t cast(const bitsType& bitboard) const noexcept
+		size_t cast(const bitsType bitboard) const noexcept
 		{
 			return bitsType::castMagic(bitboard, this->premask(), m_Factor, this->countBits());
 		}

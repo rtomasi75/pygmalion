@@ -263,37 +263,37 @@ namespace pygmalion
 		{
 			return std::max(m_Value) <= MINVALUE;
 		}
-		constexpr bool operator==(const score& sc) const noexcept
+		constexpr bool operator==(const score sc) const noexcept
 		{
 			return m_Value == sc.m_Value;
 		}
-		constexpr bool operator!=(const score& sc) const noexcept
+		constexpr bool operator!=(const score sc) const noexcept
 		{
 			return m_Value != sc.m_Value;
 		}
-		constexpr bool operator>(const score& sc) const noexcept
+		constexpr bool operator>(const score sc) const noexcept
 		{
 			return m_Value > sc.m_Value;
 		}
-		constexpr bool operator<(const score& sc) const noexcept
+		constexpr bool operator<(const score sc) const noexcept
 		{
 			return m_Value < sc.m_Value;
 		}
-		constexpr bool operator>=(const score& sc) const noexcept
+		constexpr bool operator>=(const score sc) const noexcept
 		{
 			return m_Value >= sc.m_Value;
 		}
-		constexpr bool operator<=(const score& sc) const noexcept
+		constexpr bool operator<=(const score sc) const noexcept
 		{
 			return m_Value <= sc.m_Value;
 		}
-		constexpr auto operator+(const score& sc) const noexcept
+		constexpr auto operator+(const score sc) const noexcept
 		{
 			assert(isOpen());
 			assert(sc.isOpen());
 			return score(m_Value + sc.m_Value, 0);
 		}
-		constexpr auto operator-(const score& sc) const noexcept
+		constexpr auto operator-(const score sc) const noexcept
 		{
 			assert(isOpen());
 			assert(sc.isOpen());
@@ -308,24 +308,24 @@ namespace pygmalion
 			assert(isOpen());
 			return score(static_cast<valueType>(m_Value * i), 0);
 		}
-		constexpr auto operator*(const score& sc) const noexcept
+		constexpr auto operator*(const score sc) const noexcept
 		{
 			assert(isOpen());
 			return score(static_cast<valueType>((static_cast<longType>(m_Value) * static_cast<longType>(sc.m_Value)) / granularity), 0);
 		}
-		constexpr auto operator+=(const score& sc) noexcept
+		constexpr auto operator+=(const score sc) noexcept
 		{
 			assert(isOpen());
 			assert(sc.isOpen());
 			m_Value += sc.m_Value;
 		}
-		constexpr auto operator-=(const score& sc) noexcept
+		constexpr auto operator-=(const score sc) noexcept
 		{
 			assert(isOpen());
 			assert(sc.isOpen());
 			m_Value -= sc.m_Value;
 		}
-		constexpr auto operator*=(const score& sc) noexcept
+		constexpr auto operator*=(const score sc) noexcept
 		{
 			assert(isOpen());
 			assert(sc.isOpen());

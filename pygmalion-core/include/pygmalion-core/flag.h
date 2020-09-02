@@ -25,7 +25,7 @@ namespace pygmalion
 		{
 			return bit<COUNT_FLAGS>(static_cast<typename enumeration<COUNT_FLAGS, flag<COUNT_FLAGS>>::baseType>(*this));
 		}
-		constexpr flag(const bit<COUNT_FLAGS>& bit) noexcept :
+		constexpr flag(const bit<COUNT_FLAGS> bit) noexcept :
 			flag<COUNT_FLAGS>(static_cast<typename enumeration<COUNT_FLAGS, flag<COUNT_FLAGS>>::baseType>(bit))
 		{
 

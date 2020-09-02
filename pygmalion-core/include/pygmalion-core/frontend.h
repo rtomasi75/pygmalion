@@ -55,11 +55,11 @@ namespace pygmalion
 		{
 			return frontendType::name_Implementation();
 		}
-		static std::string subjectiveToString(const subjectiveType& score) noexcept
+		static std::string subjectiveToString(const subjectiveType score) noexcept
 		{
 			return frontendType::subjectiveToString_Implementation(score);
 		}
-		static std::string objectiveToString(const objectiveType& score) noexcept
+		static std::string objectiveToString(const objectiveType score) noexcept
 		{
 			return frontendType::objectiveToString_Implementation(score);
 		}
@@ -76,7 +76,7 @@ namespace pygmalion
 		{
 			return frontendType::parseMove_Implementation(str, stack, move, error);
 		}
-		static std::string variationToStringFromDepth(const stackType& stack, const variationType& variation, depthType depth)
+		static std::string variationToStringFromDepth(const stackType& stack, const variationType& variation, const depthType depth) noexcept
 		{
 			if (variation.length() > depth)
 			{
@@ -88,7 +88,7 @@ namespace pygmalion
 			}
 			return "";
 		}
-		static std::string variationToString(const stackType& stack, const variationType& variation)
+		static std::string variationToString(const stackType& stack, const variationType& variation) noexcept
 		{
 			return variationToStringFromDepth(stack, variation, 0);
 		}

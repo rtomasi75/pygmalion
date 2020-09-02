@@ -42,35 +42,35 @@ namespace pygmalion
 		{
 			return ~none();
 		}
-		constexpr static squares right(const squares& sqs) noexcept
+		constexpr static squares right(const squares sqs) noexcept
 		{
 			return static_cast<squares>((sqs.m_Bits & squares::notLastFileBits) << 1);
 		}
-		constexpr static squares left(const squares& sqs) noexcept
+		constexpr static squares left(const squares sqs) noexcept
 		{
 			return static_cast<squares>((sqs.m_Bits & squares::notFirstFileBits) >> 1);
 		}
-		constexpr static squares down(const squares& sqs) noexcept
+		constexpr static squares down(const squares sqs) noexcept
 		{
 			return static_cast<squares>(sqs.m_Bits >> 8);
 		}
-		constexpr static squares up(const squares& sqs) noexcept
+		constexpr static squares up(const squares sqs) noexcept
 		{
 			return static_cast<squares>(sqs.m_Bits << 8);
 		}
-		constexpr static squares downRight(const squares& sqs) noexcept
+		constexpr static squares downRight(const squares sqs) noexcept
 		{
 			return static_cast<squares>((sqs.m_Bits & squares::notLastFileBits) >> 7);
 		}
-		constexpr static squares upRight(const squares& sqs) noexcept
+		constexpr static squares upRight(const squares sqs) noexcept
 		{
 			return static_cast<squares>((sqs.m_Bits & squares::notLastFileBits) << 9);
 		}
-		constexpr static squares downLeft(const squares& sqs) noexcept
+		constexpr static squares downLeft(const squares sqs) noexcept
 		{
 			return static_cast<squares>((sqs.m_Bits & squares::notFirstFileBits) >> 9);
 		}
-		constexpr static squares upLeft(const squares& sqs) noexcept
+		constexpr static squares upLeft(const squares sqs) noexcept
 		{
 			return static_cast<squares>((sqs.m_Bits & squares::notFirstFileBits) << 7);
 		}
@@ -78,35 +78,35 @@ namespace pygmalion
 		{
 			return up(upLeft(sqs));
 		}
-		constexpr static squares upUpRight(const squares& sqs) noexcept
+		constexpr static squares upUpRight(const squares sqs) noexcept
 		{
 			return up(upRight(sqs));
 		}
-		constexpr static squares downDownLeft(const squares& sqs) noexcept
+		constexpr static squares downDownLeft(const squares sqs) noexcept
 		{
 			return down(downLeft(sqs));
 		}
-		constexpr static squares downDownRight(const squares& sqs) noexcept
+		constexpr static squares downDownRight(const squares sqs) noexcept
 		{
 			return down(downRight(sqs));
 		}
-		constexpr static squares upLeftLeft(const squares& sqs) noexcept
+		constexpr static squares upLeftLeft(const squares sqs) noexcept
 		{
 			return upLeft(left(sqs));
 		}
-		constexpr static squares downLeftLeft(const squares& sqs) noexcept
+		constexpr static squares downLeftLeft(const squares sqs) noexcept
 		{
 			return downLeft(left(sqs));
 		}
-		constexpr static squares upRightRight(const squares& sqs) noexcept
+		constexpr static squares upRightRight(const squares sqs) noexcept
 		{
 			return upRight(right(sqs));
 		}
-		constexpr static squares downRightRight(const squares& sqs) noexcept
+		constexpr static squares downRightRight(const squares sqs) noexcept
 		{
 			return downRight(right(sqs));
 		}
-		constexpr explicit squares(const bitsType& bits) noexcept :
+		constexpr explicit squares(const bitsType bits) noexcept :
 			m_Bits{ bits }
 		{
 
@@ -115,23 +115,23 @@ namespace pygmalion
 		{
 			return m_Bits;
 		}
-		constexpr squares operator|(const squares& other) const noexcept
+		constexpr squares operator|(const squares other) const noexcept
 		{
 			return squares(m_Bits | other.m_Bits);
 		}
-		constexpr squares operator+(const squares& other) const noexcept
+		constexpr squares operator+(const squares other) const noexcept
 		{
 			return squares(m_Bits | other.m_Bits);
 		}
-		constexpr squares operator-(const squares& other) const noexcept
+		constexpr squares operator-(const squares other) const noexcept
 		{
 			return squares(m_Bits & ~other.m_Bits);
 		}
-		constexpr squares operator&(const squares& other) const noexcept
+		constexpr squares operator&(const squares other) const noexcept
 		{
 			return squares(m_Bits & other.m_Bits);
 		}
-		constexpr squares operator^(const squares& other) const noexcept
+		constexpr squares operator^(const squares other) const noexcept
 		{
 			return squares(m_Bits ^ other.m_Bits);
 		}
@@ -139,36 +139,36 @@ namespace pygmalion
 		{
 			return squares(~m_Bits);
 		}
-		constexpr squares& operator|=(const squares& other) noexcept
+		constexpr squares& operator|=(const squares other) noexcept
 		{
 			m_Bits |= other.m_Bits;
 			return *this;
 		}
-		constexpr squares& operator+=(const squares& other) noexcept
+		constexpr squares& operator+=(const squares other) noexcept
 		{
 			m_Bits |= other.m_Bits;
 			return *this;
 		}
-		constexpr squares& operator-=(const squares& other) noexcept
+		constexpr squares& operator-=(const squares other) noexcept
 		{
 			m_Bits &= ~other.m_Bits;
 			return *this;
 		}
-		constexpr squares& operator&=(const squares& other) noexcept
+		constexpr squares& operator&=(const squares other) noexcept
 		{
 			m_Bits &= other.m_Bits;
 			return *this;
 		}
-		constexpr squares& operator^=(const squares& other) noexcept
+		constexpr squares& operator^=(const squares other) noexcept
 		{
 			m_Bits ^= other.m_Bits;
 			return *this;
 		}
-		constexpr bool operator==(const squares& other) const noexcept
+		constexpr bool operator==(const squares other) const noexcept
 		{
 			return m_Bits == other.m_Bits;
 		}
-		constexpr bool operator!=(const squares& other) const noexcept
+		constexpr bool operator!=(const squares other) const noexcept
 		{
 			return m_Bits != other.m_Bits;
 		}

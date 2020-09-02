@@ -68,11 +68,11 @@ namespace pygmalion
 		{
 			return bitfield(traitsType::clearMask(bit));
 		}
-		constexpr bitfield operator+(const bitfield& other) const noexcept
+		constexpr bitfield operator+(const bitfield other) const noexcept
 		{
 			return bitfield(m_Bits | other.m_Bits);
 		}
-		constexpr bitfield operator-(const bitfield& other) const noexcept
+		constexpr bitfield operator-(const bitfield other) const noexcept
 		{
 			return bitfield(m_Bits & ~other.m_Bits);
 		}
@@ -116,12 +116,12 @@ namespace pygmalion
 			m_Bits ^= other.m_Bits;
 			return *this;
 		}
-		constexpr bitfield& operator+=(const bitfield& other) noexcept
+		constexpr bitfield& operator+=(const bitfield other) noexcept
 		{
 			m_Bits |= other.m_Bits;
 			return *this;
 		}
-		constexpr bitfield& operator-=(const bitfield& other) noexcept
+		constexpr bitfield& operator-=(const bitfield other) noexcept
 		{
 			m_Bits &= ~other.m_Bits;
 			return *this;
