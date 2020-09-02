@@ -27,7 +27,31 @@ namespace pygmalion
 		constexpr file& operator=(const file&) noexcept = default;
 		constexpr file operator-() const noexcept
 		{
-			return countFiles - (*this);
+			return countFiles - 1 - (*this);
+		}
+		constexpr squaresType operator|(const fileType other) const noexcept
+		{
+			return static_cast<squaresType>(*this) | static_cast<squaresType>(other);
+		}
+		constexpr squaresType operator+(const fileType other) const noexcept
+		{
+			return static_cast<squaresType>(*this) + static_cast<squaresType>(other);
+		}
+		constexpr squaresType operator-(const fileType other) const noexcept
+		{
+			return static_cast<squaresType>(*this) - static_cast<squaresType>(other);
+		}
+		constexpr squaresType operator&(const fileType other) const noexcept
+		{
+			return static_cast<squaresType>(*this) & static_cast<squaresType>(other);
+		}
+		constexpr squaresType operator^(const fileType other) const noexcept
+		{
+			return static_cast<squaresType>(*this) ^ static_cast<squaresType>(other);
+		}
+		constexpr squaresType operator~() const noexcept
+		{
+			return ~static_cast<squaresType>(*this);
 		}
 	};
 

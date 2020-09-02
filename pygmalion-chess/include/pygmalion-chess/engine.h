@@ -205,7 +205,7 @@ namespace pygmalion::chess
 							auto factor{ premask };
 							int bits;
 							sm.magic().find(premask, factor, bits);
-							eng.outputStream() << "static slidermagic<descriptorGenerator>(slidermagicinfo<descriptorGenerator>(slidermagicinfo<descriptorGenerator>(0, false), " << parser::toString(premask) << ", " << parser::toString(factor) << ", " << bits << ")" << ((sq == (squareType::countValues - 1)) ? " " : ",") << std::endl;
+							eng.outputStream() << "static slidermagic<descriptorGenerator>(slidermagicinfo<descriptorGenerator>(slidermagicinfo<descriptorGenerator>(" << static_cast<int>(static_cast<squareType::baseType>(sq)) << ", false), " << premask << ", " << factor << ", " << bits << ")" << ((sq == (squareType::countValues - 1)) ? " " : ",") << std::endl;
 						}
 						eng.outputStream() << "    }," << std::endl;
 						eng.outputStream() << "    {" << std::endl;
@@ -216,23 +216,10 @@ namespace pygmalion::chess
 							auto factor{ premask };
 							int bits;
 							sm.magic().find(premask, factor, bits);
-							eng.outputStream() << "static slidermagic<descriptorGenerator>(slidermagicinfo<descriptorGenerator>(slidermagicinfo<descriptorGenerator>(0, true), " << parser::toString(premask) << ", " << parser::toString(factor) << ", " << bits << ")" << ((sq == (squareType::countValues - 1)) ? " " : ",") << std::endl;
+							eng.outputStream() << "static slidermagic<descriptorGenerator>(slidermagicinfo<descriptorGenerator>(slidermagicinfo<descriptorGenerator>(" << static_cast<int>(static_cast<squareType::baseType>(sq)) << ", true), " << premask << ", " << factor << ", " << bits << ")" << ((sq == (squareType::countValues - 1)) ? " " : ",") << std::endl;
 						}
 						eng.outputStream() << "    }" << std::endl;
 						eng.outputStream() << "};" << std::endl;
-
-
-
-						eng.outputStream() << "computing move table..." << std::endl;
-						movetable<descriptorGenerator> table;
-						auto premask{ table.magic().premask() };
-						auto factor{ premask };
-						int bits;
-						table.magic().find(premask, factor, bits);
-						eng.outputStream() << "...done." << std::endl;
-						eng.outputStream() << std::endl;
-						eng.outputStream() << "static inline movetable<descriptor_generator> moveTable{ movetable<descriptor_generator>(" << parser::toString(premask) << ", " << parser::toString(factor) << ", " << static_cast<int>(bits) << ") }; " << std::endl;
-
 					}
 					else
 						eng.outputStream() << "invalid table: " << table << std::endl;

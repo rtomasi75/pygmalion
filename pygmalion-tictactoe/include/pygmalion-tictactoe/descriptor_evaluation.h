@@ -1,4 +1,4 @@
 namespace pygmalion::tictactoe
 {
-	using descriptor_evaluation = pygmalion::descriptor_evaluation<generator, 8, 0, 8>; 
+	using descriptor_evaluation = pygmalion::descriptor_evaluation<generator, 7, 0, 8>; 
 }

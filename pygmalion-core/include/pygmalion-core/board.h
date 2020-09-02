@@ -51,7 +51,7 @@ namespace pygmalion
 		constexpr void setFlags(const flagsType flags) noexcept
 		{
 			for (const auto flag : m_Flags)
-				onClearFlag(flag);
+				onClearedFlag(flag);
 			m_Flags = flags;
 			for (const auto flag : flags)
 				onSetFlag(flag);

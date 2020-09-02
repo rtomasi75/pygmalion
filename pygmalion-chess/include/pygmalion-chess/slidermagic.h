@@ -43,39 +43,124 @@ namespace pygmalion::chess
 	class slidermagic :
 		public base_generator<DESCRIPTOR_GENERATOR>,
 #if defined(PYGMALION_CPU_BMI2)&& defined(PYGMALION_CPU_X64)
-		public pygmalion::magictable<std::uint16_t, slidermagicinfo<DESCRIPTOR_GENERATOR>, typename DESCRIPTOR_GENERATOR::squaresType, slidermagic<DESCRIPTOR_GENERATOR>>
+		public pygmalion::magictable<std::uint16_t, slidermagicinfo<DESCRIPTOR_GENERATOR>, typename DESCRIPTOR_GENERATOR::squaresType::bitsType, slidermagic<DESCRIPTOR_GENERATOR>>
 #else
-		public pygmalion::magictable<typename DESCRIPTOR_GENERATOR::squaresType, slidermagicinfo<DESCRIPTOR_GENERATOR>, typename DESCRIPTOR_GENERATOR::squaresType, slidermagic<DESCRIPTOR_GENERATOR>>
+		public pygmalion::magictable<typename DESCRIPTOR_GENERATOR::squaresType::bitsType, slidermagicinfo<DESCRIPTOR_GENERATOR>, typename DESCRIPTOR_GENERATOR::squaresType::bitsType, slidermagic<DESCRIPTOR_GENERATOR>>
 #endif
 	{
 	public:
-
 		using descriptorGenerator = DESCRIPTOR_GENERATOR;
 #include "pygmalion-core/include_generator.h"
 
+		using bitsType = typename descriptorGenerator::squaresType::bitsType;
+
 	private:
 #if defined(PYGMALION_CPU_BMI2)&& defined(PYGMALION_CPU_X64)
-		squaresType m_IndexMask;
-		static std::uint16_t encode(const squaresType mask, const squaresType bitboard) noexcept
+		bitsType m_IndexMask;
+		static std::uint16_t encode(const bitsType mask, const bitsType bitboard) noexcept
 		{
 			return static_cast<std::uint16_t>(bitboard.pext(mask).bits());
 		}
-		static squaresType decode(const std::uint16_t code, const squaresType mask) noexcept
+		static bitsType decode(const std::uint16_t code, const bitsType mask) noexcept
 		{
 			return bitsType(code).pdep(mask);
 		}
-		static squaresType indexMask(const squareType square, const bool isDiagonal) noexcept;
+		bitsType indexMask(const squareType square, const bool isDiagonal) noexcept
+		{
+			return sliderAttacks_untabled(square, bitsType::empty(), isDiagonal);
+		}
 #endif
+		static bitsType sliderAttacks_untabled(const squareType square, const bitsType blockers, const bool bDiag) noexcept
+		{
+			assert(square.isValid());
+			bitsType result{ bitsType::empty() };
+			const rankType rank{ square.rank() };
+			const fileType file{ square.file() };
+			rankType r;
+			fileType f;
+			if (bDiag)
+			{
+				for (r = rank + 1, f = file + 1; (r < countRanks) && (f < countFiles); r++, f++)
+				{
+					const squareType sq{ r & f };
+					result.setBit(sq);
+					if (blockers[sq])
+						break;
+				}
+				for (r = rank + 1, f = file - 1; (r < countRanks) && (f >= 0); r++, f--)
+				{
+					const squareType sq{ r & f };
+					result.setBit(sq);
+					if (blockers[sq])
+						break;
+				}
+				for (r = rank - 1, f = file + 1; (r >= 0) && (f < countFiles); r--, f++)
+				{
+					const squareType sq{ r & f };
+					result.setBit(sq);
+					if (blockers[sq])
+						break;
+				}
+				for (r = rank - 1, f = file - 1; (r >= 0) && (f >= 0); r--, f--)
+				{
+					const squareType sq{ r & f };
+					result.setBit(sq);
+					if (blockers[sq])
+						break;
+				}
+			}
+			else
+			{
+				for (r = rank + 1; r < countRanks; r++)
+				{
+					const squareType sq{ r & file };
+					result.setBit(sq);
+					if (blockers[sq])
+						break;
+				}
+				for (r = rank - 1; r >= 0; r--)
+				{
+					const squareType sq{ r & file };
+					result.setBit(sq);
+					if (blockers[sq])
+						break;
+				}
+				for (f = file + 1; f < countFiles; f++)
+				{
+					const squareType sq{ rank & f };
+					result.setBit(sq);
+					if (blockers[sq])
+						break;
+				}
+				for (f = file - 1; f >= 0; f--)
+				{
+					const squareType sq{ rank & f };
+					result.setBit(sq);
+					if (blockers[sq])
+						break;
+				}
+			}
+			return result;
+	}
 	public:
 #if defined(PYGMALION_CPU_BMI2)&& defined(PYGMALION_CPU_X64)
-		static void initializeValue_Implementation(std::uint16_t& index, const slidermagicinfo<descriptorGenerator>& info, const squaresType bitboard, const squaresType premask) noexcept;
-#else
-		static void initializeValue_Implementation(squaresType& value, const slidermagicinfo<descriptorGenerator>& info, const squaresType bitboard, const squaresType premask) noexcept;
-#endif
-		static squaresType calculatePremask(const slidermagicinfo<descriptorGenerator>& info) noexcept 
+
+		void initializeValue_Implementation(std::uint16_t& index, const slidermagicinfo& info, const bitsType bitboard, const bitsType premask) noexcept
 		{
 			assert(info.square().isValid());
-			squaresType result{ squaresType::empty() };
+			index = encode(indexMask(info.square(), info.isDiagonal()), sliderAttacks_untabled(info.square(), bitboard, info.isDiagonal()));
+		}
+#else
+		void initializeValue_Implementation(bitsType& value, const slidermagicinfo<descriptorGenerator>& info, const bitsType bitboard, const bitsType premask) noexcept
+		{
+			assert(info.square().isValid());
+			value = generatorType::sliderAttacks_untabled(info.square(), bitboard, info.isDiagonal());
+		}
+#endif
+		static bitsType calculatePremask(const slidermagicinfo<descriptorGenerator>& info) noexcept
+		{
+			assert(info.square().isValid());
+			bitsType result{ bitsType::empty() };
 			const auto rank{ info.square().rank() };
 			const auto file{ info.square().file() };
 			int r;
@@ -83,39 +168,39 @@ namespace pygmalion::chess
 			if (info.isDiagonal())
 			{
 				for (r = rank + 1, f = file + 1; r <= 6 && f <= 6; r++, f++)
-					result.setBit(squareType::fromRankFile(r, f));
+					result.setBit(r & f);
 				for (r = rank + 1, f = file - 1; r <= 6 && f >= 1; r++, f--)
-					result.setBit(squareType::fromRankFile(r, f));
+					result.setBit(r & f);
 				for (r = rank - 1, f = file + 1; r >= 1 && f <= 6; r--, f++)
-					result.setBit(squareType::fromRankFile(r, f));
+					result.setBit(r & f);
 				for (r = rank - 1, f = file - 1; r >= 1 && f >= 1; r--, f--)
-					result.setBit(squareType::fromRankFile(r, f));
+					result.setBit(r & f);
 			}
 			else
 			{
 				for (r = rank + 1; r <= 6; r++)
-					result.setBit(squareType::fromRankFile(r, file));
+					result.setBit(r& file);
 				for (r = rank - 1; r >= 1; r--)
-					result.setBit(squareType::fromRankFile(r, file));
+					result.setBit(r & file);
 				for (f = file + 1; f <= 6; f++)
-					result.setBit(squareType::fromRankFile(rank, f));
+					result.setBit(rank & f);
 				for (f = file - 1; f >= 1; f--)
-					result.setBit(squareType::fromRankFile(rank, f));
+					result.setBit(rank & f);
 			}
 			return result;
 		}
 		slidermagic(const slidermagicinfo<descriptorGenerator>& info) noexcept :
 #if defined(PYGMALION_CPU_BMI2)&& defined(PYGMALION_CPU_X64)
-			pygmalion::magictable<std::uint16_t, slidermagicinfo<descriptorGenerator>, squaresType, slidermagic<descriptorGenerator>, true>(info),
+			pygmalion::magictable<std::uint16_t, slidermagicinfo<DESCRIPTOR_GENERATOR>, typename DESCRIPTOR_GENERATOR::squaresType::bitsType, slidermagic<DESCRIPTOR_GENERATOR>>(info),
 			m_IndexMask{ indexMask(info.square(),info.isDiagonal()) }
 #else
-			pygmalion::magictable<squaresType, slidermagicinfo<descriptorGenerator>, squaresType, slidermagic<descriptorGenerator>, false>(info)
+			pygmalion::magictable<typename DESCRIPTOR_GENERATOR::squaresType::bitsType, slidermagicinfo<DESCRIPTOR_GENERATOR>, typename DESCRIPTOR_GENERATOR::squaresType::bitsType, slidermagic<DESCRIPTOR_GENERATOR>>(info)
 #endif
 		{
 		}
 #if !(defined(PYGMALION_CPU_BMI2)&& defined(PYGMALION_CPU_X64))
 		slidermagic(const slidermagicinfo<descriptorGenerator>& info, const squaresType factor) noexcept :
-			pygmalion::magictable<squaresType, slidermagicinfo<descriptorGenerator>, squaresType, slidermagic<descriptorGenerator>, false>(info, factor)
+			pygmalion::magictable<typename DESCRIPTOR_GENERATOR::squaresType::bitsType, slidermagicinfo<DESCRIPTOR_GENERATOR>, typename DESCRIPTOR_GENERATOR::squaresType::bitsType, slidermagic<DESCRIPTOR_GENERATOR>>(info, factor)
 		{
 		}
 #endif

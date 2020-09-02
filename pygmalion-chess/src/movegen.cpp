@@ -2,7 +2,7 @@
 
 namespace pygmalion::chess
 {
-	movegenTables movegen::m_Tables;
+/*	movegenTables movegen::m_Tables;
 
 	typename movegen::bitsType movegen::pawnMoveMap_untabled(const playerType side, const squareType square, const bool bCapture) noexcept
 	{
@@ -146,63 +146,8 @@ namespace pygmalion::chess
 		caps |= attmask & capturetargets;
 	}
 
-	void movegen::initializePosition_Implementation(boardType& position) noexcept
-	{
-		position.clear();
-		position.setMovingPlayer(whitePlayer);
-		// pawns
-		for (const auto f : fileType::range)
-		{
-			position.addPiece(pawn, squareType::fromRankFile(rank2, f), whitePlayer);
-			position.material() += evaluator::material(whitePlayer, pawn, squareType::fromRankFile(rank2, f));
-			position.addPiece(pawn, squareType::fromRankFile(rank7, f), blackPlayer);
-			position.material() += evaluator::material(blackPlayer, pawn, squareType::fromRankFile(rank7, f));
-		}
-		position_clearEnPassantFlags(position);
-		// kings
-		position.addPiece(king, squareE1, whitePlayer);
-		position.material() += evaluator::material(whitePlayer, king, squareE1);
-		position.addPiece(king, squareE8, blackPlayer);
-		position.material() += evaluator::material(blackPlayer, king, squareE8);
-		// rooks
-		position.addPiece(rook, squareA1, whitePlayer);
-		position.material() += evaluator::material(whitePlayer, rook, squareA1);
-		position.addPiece(rook, squareH1, whitePlayer);
-		position.material() += evaluator::material(whitePlayer, rook, squareH1);
-		position.addPiece(rook, squareA8, blackPlayer);
-		position.material() += evaluator::material(blackPlayer, rook, squareA8);
-		position.addPiece(rook, squareH8, blackPlayer);
-		position.material() += evaluator::material(blackPlayer, rook, squareH8);
-		position_setCastlerightQueensideBlack(position);
-		position_setCastlerightQueensideWhite(position);
-		position_setCastlerightKingsideBlack(position);
-		position_setCastlerightKingsideWhite(position);
-		// knights
-/*		position.addPiece(knight, squareB1, whitePlayer);
-		position.material() += evaluator::material(whitePlayer, knight, squareB1);
-		position.addPiece(knight, squareG1, whitePlayer);
-		position.material() += evaluator::material(whitePlayer, knight, squareG1);
-		position.addPiece(knight, squareB8, blackPlayer);
-		position.material() += evaluator::material(blackPlayer, knight, squareB8);
-		position.addPiece(knight, squareG8, blackPlayer);
-		position.material() += evaluator::material(blackPlayer, knight, squareG8);
-		// bishops
-		position.addPiece(bishop, squareC1, whitePlayer);
-		position.material() += evaluator::material(whitePlayer, bishop, squareC1);
-		position.addPiece(bishop, squareF1, whitePlayer);
-		position.material() += evaluator::material(whitePlayer, bishop, squareF1);
-		position.addPiece(bishop, squareC8, blackPlayer);
-		position.material() += evaluator::material(blackPlayer, bishop, squareC8);
-		position.addPiece(bishop, squareF8, blackPlayer);
-		position.material() += evaluator::material(blackPlayer, bishop, squareF8);
-		// queens
-		position.addPiece(queen, squareD1, whitePlayer);
-		position.material() += evaluator::material(whitePlayer, queen, squareD1);
-		position.addPiece(queen, squareD8, blackPlayer);
-		position.material() += evaluator::material(blackPlayer, queen, squareD8);*/
-	}
 	
-	void movegen::makeMove_Implementation(boardType& position, const movedataType& md) noexcept
+/*	void movegen::makeMove_Implementation(boardType& position, const movedataType& md) noexcept
 	{
 		score newMaterial{ md.oldMaterial() };
 		if (md.isCapture())
@@ -295,6 +240,6 @@ namespace pygmalion::chess
 		position.setDistanceToDraw(md.oldDistanceToDraw());
 		position.setMovingPlayer(md.movingPlayer());
 		position.flags() = md.oldFlags();
-	}
+	}*/
 
 }

@@ -5,6 +5,7 @@ namespace pygmalion::chess
 	{
 	private:
 		static const inline generatorTables<descriptor_generator> m_MovegenTable;
+
 	public:
 		static const auto& movegenTable() noexcept
 		{

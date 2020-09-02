@@ -13,6 +13,18 @@ namespace pygmalion
 	private:
 		bitsType m_Bits;
 	public:
+		constexpr bitfield bitsBelow(const bitType bit) const noexcept
+		{
+			return bitfield((static_cast<bitsType>(m_Bits) << bit) - static_cast<bitsType>(1));
+		}
+		constexpr bitfield bitsAbove(const bitType bit) const noexcept
+		{
+			return bitfield((~static_cast<bitsType>(1)) << bit);
+		}
+		constexpr bitfield bitsFromTo(const bitType low, const bitType high) const noexcept
+		{
+			return bitsBelow(high) & bitsAbove(low);
+		}
 		constexpr void setBit(const bitType bit) noexcept
 		{
 			traitsType::setBit(m_Bits, bit);
@@ -190,11 +202,11 @@ namespace pygmalion
 		}
 		static bitfield random() noexcept
 		{
-			return int_traits<requiredBitBytes(bitCount)>::rand();
+			return int_traits<requiredBitBytes(countBits)>::rand() & universe().m_Bits;
 		}
 		static bitfield random_sparse() noexcept
 		{
-			return int_traits<requiredBitBytes(countBits)>::rand_sparse();
+			return int_traits<requiredBitBytes(countBits)>::rand_sparse() & universe().m_Bits;
 		}
 		constexpr static bitfield empty() noexcept
 		{

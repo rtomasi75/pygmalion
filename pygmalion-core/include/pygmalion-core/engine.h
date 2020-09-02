@@ -127,6 +127,33 @@ namespace pygmalion
 					return false;
 			}
 		};
+		class command_debugBits : public commandType
+		{
+		protected:
+			virtual bool onProcess(engine& eng, const std::string& cmd) const noexcept override
+			{
+				std::string token;
+				std::string remainder;
+				parser::parseToken(cmd, token, remainder);
+				if (token == "debug-bits")
+				{
+					eng.outputStream() << std::endl;
+					std::string operation;
+					parser::parseToken(remainder, operation, remainder);
+					if (operation == "fh")
+					{
+						squaresType rnd = squaresType(squaresType::bitsType::random_sparse());
+						frontendType::dumpSquares(rnd, eng.outputStream());
+					}
+					else
+						eng.outputStream() << "ERROR: invalid operation " << operation << std::endl;
+					eng.outputStream() << std::endl;
+					return true;
+				}
+				else
+					return false;
+			}
+		};
 		class command_debugPVS : public commandType
 		{
 		protected:
@@ -418,6 +445,7 @@ namespace pygmalion
 			addCommand<command_debugPerft>();
 			addCommand<command_debugMemory>();
 			addCommand<command_debugHardware>();
+			addCommand<command_debugBits>();
 			mechanicsType::initializePosition(m_Board);
 		}
 		~engine() noexcept = default;

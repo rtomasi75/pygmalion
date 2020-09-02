@@ -31,48 +31,48 @@ namespace pygmalion
 		}
 		constexpr static const bitsType firstFileBits{ fromFile(0) };
 		constexpr static const bitsType lastFileBits{ fromFile(countFiles - 1) };
-		constexpr static const bitsType firstRankBits{ fromRank(0) };
-		constexpr static const bitsType lastRankBits{ fromRank(countFiles - 1) };
-		constexpr static const bitsType notFirstFileBits{ ~firstFileBits };
-		constexpr static const bitsType notLastFileBits{ ~lastFileBits };
-		constexpr static const bitsType notFirstRankBits{ ~firstRankBits };
-		constexpr static const bitsType notLastRankBits{ ~lastRankBits };
+		constexpr static const bitsType firstRankBits{ fromFile(0) };
+		constexpr static const bitsType lastRankBits{ fromFile(countRanks - 1) };
 	public:
 		constexpr static squares none()
 		{
 			return squares(bitsType::empty());
 		}
+		constexpr static squares all()
+		{
+			return ~none();
+		}
 		constexpr static squares right(const squares& sqs) noexcept
 		{
-			return static_cast<squares>((sqs.m_Bits & notLastFileBits) << 1);
+			return static_cast<squares>((sqs.m_Bits & squares::notLastFileBits) << 1);
 		}
 		constexpr static squares left(const squares& sqs) noexcept
 		{
-			return static_cast<squares>((sqs.m_Bits & notFirstFileBits) >> 1);
+			return static_cast<squares>((sqs.m_Bits & squares::notFirstFileBits) >> 1);
 		}
 		constexpr static squares down(const squares& sqs) noexcept
 		{
-			return static_cast<squares>((sqs.m_Bits & notFirstRankBits) >> 8);
+			return static_cast<squares>(sqs.m_Bits >> 8);
 		}
 		constexpr static squares up(const squares& sqs) noexcept
 		{
-			return static_cast<squares>((sqs.m_Bits & notLastRankBits) << 8);
+			return static_cast<squares>(sqs.m_Bits << 8);
 		}
 		constexpr static squares downRight(const squares& sqs) noexcept
 		{
-			return static_cast<squares>((sqs.m_Bits & notLastFileBits) >> 7);
+			return static_cast<squares>((sqs.m_Bits & squares::notLastFileBits) >> 7);
 		}
 		constexpr static squares upRight(const squares& sqs) noexcept
 		{
-			return static_cast<squares>((sqs.m_Bits & notLastFileBits) << 9);
+			return static_cast<squares>((sqs.m_Bits & squares::notLastFileBits) << 9);
 		}
 		constexpr static squares downLeft(const squares& sqs) noexcept
 		{
-			return static_cast<squares>((sqs.m_Bits & notFirstFileBits) >> 9);
+			return static_cast<squares>((sqs.m_Bits & squares::notFirstFileBits) >> 9);
 		}
 		constexpr static squares upLeft(const squares& sqs) noexcept
 		{
-			return static_cast<squares>((sqs.m_Bits & notFirstFileBits) << 7);
+			return static_cast<squares>((sqs.m_Bits & squares::notFirstFileBits) << 7);
 		}
 		constexpr static squares upUpLeft(const squares sqs) noexcept
 		{
@@ -192,6 +192,11 @@ namespace pygmalion
 			m_Bits.clearBit(static_cast<typename squareType::baseType>(square));
 			return *this;
 		}
+		constexpr squares& operator^=(const squareType square) noexcept
+		{
+			m_Bits ^= bitsType::setMask(static_cast<typename squareType::baseType>(square));
+			return *this;
+		}
 		squareType first() const noexcept
 		{
 			bitType bit;
@@ -205,14 +210,22 @@ namespace pygmalion
 		}
 		constexpr operator bool() const noexcept
 		{
-			return m_Bits;
+			return static_cast<bool>(m_Bits);
 		}
 		constexpr squares() noexcept :
 			m_Bits{ bitsType::empty() }
 		{
 
 		}
-		constexpr squares(const squareType& square) noexcept :
+		constexpr squares(const rankType rank) noexcept :
+			m_Bits{ firstRankBits << (rank * countFiles) }
+		{
+		}
+		constexpr squares(const fileType file) noexcept :
+			m_Bits{ firstRankBits << file }
+		{
+		}
+		constexpr squares(const squareType square) noexcept :
 			m_Bits{ bitsType::setMask(static_cast<typename squareType::baseType>(square)) }
 		{
 

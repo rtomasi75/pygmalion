@@ -13,7 +13,7 @@ namespace pygmalion::chess
 		squaresType m_KingMoveMap[64];
 		squaresType m_PawnMoveMap[2][64];
 		squaresType m_PawnCaptureMap[2][64];
-#if defined(PYGMALION_CPU_BMI2)&&defined(PYGMALION_CPU_X64)
+//#if defined(PYGMALION_CPU_BMI2)&&defined(PYGMALION_CPU_X64)
 		slidermagic<descriptorGenerator> m_SliderMagics[2][64]
 		{
 			{
@@ -149,7 +149,7 @@ namespace pygmalion::chess
 				slidermagic<descriptorGenerator>(slidermagicinfo<descriptorGenerator>(63, true))
 			}
 		};
-#else
+/*#else
 		slidermagic<descriptorGenerator> m_SliderMagics[2][64]
 		{
 			{
@@ -285,32 +285,32 @@ namespace pygmalion::chess
 				slidermagic<descriptorGenerator>(slidermagicinfo<descriptorGenerator>(63, true), 0x0808208d86004100)
 			}
 		};
-#endif
+#endif*/
 		static squaresType pawnMoveMap_untabled(const playerType side, const squareType square, const bool bCapture) noexcept
 		{
 			assert(side.isValid());
 			assert(square.isValid());
-			const squaresType piecemask{ squaresType::setMask(square) };
+			const squaresType piecemask{ square };
 			squaresType movemap{ squaresType::empty() };
 			if (side == whitePlayer)
 			{
 				if (bCapture)
 				{
-					movemap |= boardType::upLeft(piecemask & boardType::notRank1);
-					movemap |= boardType::upRight(piecemask & boardType::notRank1);
+					movemap |= squaresType::upLeft(piecemask & boardType::notRank1);
+					movemap |= squaresType::upRight(piecemask & boardType::notRank1);
 				}
 				else
-					movemap |= boardType::up(piecemask & boardType::notRank1);
+					movemap |= squaresType::up(piecemask & boardType::notRank1);
 			}
 			else
 			{
 				if (bCapture)
 				{
-					movemap |= boardType::downLeft(piecemask & boardType::notRank8);
-					movemap |= boardType::downRight(piecemask & boardType::notRank8);
+					movemap |= squaresType::downLeft(piecemask & boardType::notRank8);
+					movemap |= squaresType::downRight(piecemask & boardType::notRank8);
 				}
 				else
-					movemap |= boardType::down(piecemask & boardType::notRank8);
+					movemap |= squaresType::down(piecemask & boardType::notRank8);
 			}
 			return movemap;
 		}
@@ -318,106 +318,33 @@ namespace pygmalion::chess
 		static squaresType knightMoveMap_untabled(const squareType square) noexcept
 		{
 			assert(square.isValid());
-			const squaresType piecemask{ squaresType::setMask(square) };
-			squaresType map{ squaresType::empty() };
-			map |= boardType::upLeftLeft(piecemask);
-			map |= boardType::upRightRight(piecemask);
-			map |= boardType::downLeftLeft(piecemask);
-			map |= boardType::downRightRight(piecemask);
-			map |= boardType::upUpLeft(piecemask);
-			map |= boardType::upUpRight(piecemask);
-			map |= boardType::downDownLeft(piecemask);
-			map |= boardType::downDownRight(piecemask);
+			const squaresType piecemask{ square };
+			squaresType map{ squaresType::none() };
+			map |= squaresType::upLeftLeft(piecemask);
+			map |= squaresType::upRightRight(piecemask);
+			map |= squaresType::downLeftLeft(piecemask);
+			map |= squaresType::downRightRight(piecemask);
+			map |= squaresType::upUpLeft(piecemask);
+			map |= squaresType::upUpRight(piecemask);
+			map |= squaresType::downDownLeft(piecemask);
+			map |= squaresType::downDownRight(piecemask);
 			return map;
 		}
 
 		static squaresType kingMoveMap_untabled(const squareType square) noexcept
 		{
 			assert(square.isValid());
-			const squaresType piecemask{ squaresType::setMask(square) };
-			squaresType map{ squaresType::empty() };
-			map |= boardType::up(piecemask);
-			map |= boardType::down(piecemask);
-			map |= boardType::left(piecemask);
-			map |= boardType::right(piecemask);
-			map |= boardType::upLeft(piecemask);
-			map |= boardType::upRight(piecemask);
-			map |= boardType::downLeft(piecemask);
-			map |= boardType::downRight(piecemask);
+			const squaresType piecemask{ square };
+			squaresType map{ squaresType::none() };
+			map |= squaresType::up(piecemask);
+			map |= squaresType::down(piecemask);
+			map |= squaresType::left(piecemask);
+			map |= squaresType::right(piecemask);
+			map |= squaresType::upLeft(piecemask);
+			map |= squaresType::upRight(piecemask);
+			map |= squaresType::downLeft(piecemask);
+			map |= squaresType::downRight(piecemask);
 			return map;
-		}
-
-		static squaresType sliderAttacks_untabled(const squareType square, const squaresType blockers, const bool bDiag) noexcept
-		{
-			assert(square.isValid());
-			squaresType result;
-			const rankType{ square.rank() };
-			const fileType{ square.file() };
-			rankType r;
-			fileType f;
-			if (bDiag)
-			{
-				for (r = rank + 1, f = file + 1; (r < 8) && (f < 8); r++, f++)
-				{
-					const squareType sq{ squareType::fromRankFile(r, f) };
-					result.setBit(sq);
-					if (blockers[sq])
-						break;
-				}
-				for (r = rank + 1, f = file - 1; (r < 8) && (f >= 0); r++, f--)
-				{
-					const squareType sq{ squareType::fromRankFile(r, f) };
-					result.setBit(sq);
-					if (blockers[sq])
-						break;
-				}
-				for (r = rank - 1, f = file + 1; (r >= 0) && (f < 8); r--, f++)
-				{
-					const squareType sq{ squareType::fromRankFile(r, f) };
-					result.setBit(sq);
-					if (blockers[sq])
-						break;
-				}
-				for (r = rank - 1, f = file - 1; (r >= 0) && (f >= 0); r--, f--)
-				{
-					const squareType sq{ squareType::fromRankFile(r, f) };
-					result.setBit(sq);
-					if (blockers[sq])
-						break;
-				}
-			}
-			else
-			{
-				for (r = rank + 1; r < 8; r++)
-				{
-					const squareType sq{ squareType::fromRankFile(r, file) };
-					result.setBit(sq);
-					if (blockers[sq])
-						break;
-				}
-				for (r = rank - 1; r >= 0; r--)
-				{
-					const squareType sq{ squareType::fromRankFile(r, file) };
-					result.setBit(sq);
-					if (blockers[sq])
-						break;
-				}
-				for (f = file + 1; f < 8; f++)
-				{
-					const squareType sq{ squareType::fromRankFile(rank, f) };
-					result.setBit(sq);
-					if (blockers[sq])
-						break;
-				}
-				for (f = file - 1; f >= 0; f--)
-				{
-					const squareType sq{ squareType::fromRankFile(rank, f) };
-					result.setBit(sq);
-					if (blockers[sq])
-						break;
-				}
-			}
-			return result;
 		}
 
 		static void sliderMoveMaps_untabled(const bool bDiag, const squareType square, const squaresType occupy, const squaresType capturetargets, squaresType& moves, squaresType& caps) noexcept
@@ -482,14 +409,14 @@ namespace pygmalion::chess
 		void sliderMoveMaps(const bool diagonal, const squareType square, const squaresType blockers, const squaresType captureTargets, squaresType& moves, squaresType& captures) const noexcept
 		{
 			assert(square.isValid());
-			const bitsType attackMask{ sliderAttackMask(diagonal,square,blockers) };
+			const squaresType attackMask{ sliderAttackMask(diagonal,square,blockers) };
 			moves |= attackMask & ~blockers;
 			captures |= attackMask & captureTargets;
 		}
 		squaresType sliderAttacks(const bool diagonal, const squareType square, const squaresType blockers, const squaresType xrays) const noexcept
 		{
 			assert(square.isValid());
-			const bitsType attackMask{ sliderAttackMask(diagonal,square,blockers) };
+			const squaresType attackMask{ sliderAttackMask(diagonal,square,blockers) };
 			return attackMask & xrays;
 		}
 		~generatorTables() noexcept = default;

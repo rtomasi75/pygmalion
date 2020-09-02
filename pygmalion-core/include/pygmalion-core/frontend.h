@@ -38,7 +38,7 @@ namespace pygmalion
 			{
 				for (const auto j : fileType::range)
 				{
-					const squareType sq{ squareType::fromRankFile(-i, j) };
+					const squareType sq{ (-i)& j };
 					if (squares[sq])
 						stream << "#";
 					else

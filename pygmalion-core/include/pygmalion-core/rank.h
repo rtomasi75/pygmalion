@@ -27,11 +27,35 @@ namespace pygmalion
 		constexpr rank& operator=(const rank&) noexcept = default;
 		constexpr rank operator-() const noexcept
 		{
-			return countRanks - (*this);
+			return countRanks - 1 - (*this);
 		}
 		constexpr squareType operator&(const fileType file) const noexcept
 		{
 			return squareType::fromRankFile(*this, file);
+		}
+		constexpr squaresType operator|(const rankType other) const noexcept
+		{
+			return static_cast<squaresType>(*this) | static_cast<squaresType>(other);
+		}
+		constexpr squaresType operator+(const rankType other) const noexcept
+		{
+			return static_cast<squaresType>(*this) + static_cast<squaresType>(other);
+		}
+		constexpr squaresType operator-(const rankType other) const noexcept
+		{
+			return static_cast<squaresType>(*this) - static_cast<squaresType>(other);
+		}
+		constexpr squaresType operator&(const rankType other) const noexcept
+		{
+			return static_cast<squaresType>(*this) & static_cast<squaresType>(other);
+		}
+		constexpr squaresType operator^(const rankType other) const noexcept
+		{
+			return static_cast<squaresType>(*this) ^ static_cast<squaresType>(other);
+		}
+		constexpr squaresType operator~() const noexcept
+		{
+			return ~static_cast<squaresType>(*this);
 		}
 	};
 }

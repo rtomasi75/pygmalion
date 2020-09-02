@@ -2,5 +2,5 @@
 
 namespace pygmalion::chess
 {
-	const evaluationTables evaluator::m_Tables;
+//	const evaluationTables evaluator::m_Tables;
 }
