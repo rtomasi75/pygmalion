@@ -2,7 +2,7 @@ namespace pygmalion
 {
 	template<typename DESCRIPTOR_BOARD, typename INSTANCE>
 	class board :
-		public base_board<DESCRIPTOR_BOARD>
+		public DESCRIPTOR_BOARD
 	{
 	public:
 		using boardType = INSTANCE;

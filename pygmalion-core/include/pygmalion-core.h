@@ -110,10 +110,10 @@
 #include <algorithm>
 #include <string>
 #include <iostream>
+#include <sstream>
 #include <atomic>
 #include <deque>
 #include <mutex>
-#include <sstream>
 #include <memory>
 #include <chrono>
 #include <array>
@@ -133,7 +133,6 @@
 #include "pygmalion-core/flags.h"
 #include "pygmalion-core/score.h"
 #include "pygmalion-core/bitfield.h"
-#include "pygmalion-core/base_board.h"
 #include "pygmalion-core/piece.h"
 #include "pygmalion-core/file.h"
 #include "pygmalion-core/rank.h"

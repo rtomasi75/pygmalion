@@ -3,7 +3,7 @@ namespace pygmalion
 	template<typename DESCRIPTION_BOARD>
 	class gamestate : 
 		public enumeration<1 + requiredUnsignedBits(DESCRIPTION_BOARD::countPlayers), gamestate<DESCRIPTION_BOARD>>,
-		public base_board<DESCRIPTION_BOARD>
+		public DESCRIPTION_BOARD
 	{
 	public:
 		using descriptorBoard = DESCRIPTION_BOARD;

@@ -3,7 +3,7 @@ namespace pygmalion
 	template<typename DESCRIPTION_BOARD>
 	class piece :
 		public enumeration<DESCRIPTION_BOARD::countPieces, piece<DESCRIPTION_BOARD>>,
-		public base_board<DESCRIPTION_BOARD>
+		public DESCRIPTION_BOARD
 	{
 	public:
 		using descriptorBoard = DESCRIPTION_BOARD;

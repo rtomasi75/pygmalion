@@ -2,7 +2,7 @@ namespace pygmalion
 {
 	template<typename DESCRIPTION_BOARD>
 	class squares :
-		public base_board<DESCRIPTION_BOARD>
+		public DESCRIPTION_BOARD
 	{
 	public:
 		using descriptorBoard = DESCRIPTION_BOARD;

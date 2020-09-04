@@ -2,7 +2,7 @@ namespace pygmalion
 {
 	template<typename DESCRIPTOR_BOARD, int COUNT_MOVE_SQUARES, int COUNT_MOVE_PIECES, int COUNT_MOVE_FLAGS>
 	class move : 
-		public base_board<DESCRIPTOR_BOARD>
+		public DESCRIPTOR_BOARD
 	{
 	public:
 		using descriptorBoard = DESCRIPTOR_BOARD;
