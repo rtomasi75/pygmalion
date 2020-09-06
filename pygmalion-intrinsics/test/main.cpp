@@ -12,7 +12,7 @@ int main(int argc, char* argv[])
 	constexpr const intrinsics::compiler::flags comp{ intrinsics::compiler::computeFlags() };
 	constexpr const intrinsics::cpu::flags cpu{ intrinsics::cpu::computeFlags() };
 	std::srand(std::time(nullptr));
-	constexpr const size_t len{ 64 };
+	constexpr const size_t len{ 56 };
 	constexpr const bool compact{ true };
 	using T = unsigned_integer<len, compact>;
 	T v1{ unsigned_integer<len,compact>::random() };
@@ -26,6 +26,7 @@ int main(int argc, char* argv[])
 	std::cout << "popc: " << T::populationCount_Intrinsic << std::endl;
 	std::cout << "popc: " << T::populationCount_Intrinsic << std::endl;
 	std::cout << "bits: " << v1 << std::endl;
+	std::cout << "popc: " << v1.populationCount() << std::endl;
 	std::cout << "bits: " << v5 << std::endl;
 	std::cout << "sum2: " << v6 << std::endl;
 	std::cout << "notb: " << v2 << std::endl;
@@ -37,6 +38,5 @@ int main(int argc, char* argv[])
 	std::cout << "size: " << sizeof(v1) << std::endl;
 	std::cout << "bitc: " << v1.countBits << std::endl;
 	std::cout << "word: " << v1.countBitsPerWord << std::endl;
-	std::cout << "popc: " << v1.populationCount() << std::endl;
 	return 0;
 	}

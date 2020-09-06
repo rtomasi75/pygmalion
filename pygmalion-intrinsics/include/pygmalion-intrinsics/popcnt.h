@@ -62,10 +62,10 @@ private:
 		if constexpr (countOddChannels > 0)
 		{
 			const size_t countOdd{ impl<countOddChannels, UINT>(tag_best{},oddChannels,std::make_index_sequence<countOddChannels>{}) };
-			return sum_array_n<countSlices, 0, countSlices, size_t>(countsSlices) + countOdd;
+			return base::sumChannels<countSlices, 0, countSlices, size_t>(countsSlices) + countOdd;
 		}
 		else
-			return sum_array_n<countSlices, 0, countSlices, size_t>(countsSlices);
+			return base::sumChannels<countSlices, 0, countSlices, size_t>(countsSlices);
 	}
 
 	template <size_t COUNT_CHANNELS, typename UINT, size_t... CHANNEL, typename = typename std::enable_if<enable_bool<COUNT_CHANNELS, UINT>()>::type>
@@ -94,14 +94,15 @@ private:
 	template <size_t COUNT_CHANNELS, typename UINT, size_t... CHANNEL, typename = typename std::enable_if<enable_char<COUNT_CHANNELS, UINT>()>::type>
 	constexpr static size_t impl(tag_char, const std::array<UINT, COUNT_CHANNELS>& bits, std::index_sequence<CHANNEL...>) noexcept
 	{
-		constexpr const size_t countSlices{ COUNT_CHANNELS * sizeof(UINT) / sizeof(unsigned char) };
-		constexpr const size_t countTransformedChannels{ countSlices * sizeof(unsigned char) / sizeof(UINT) };
-		constexpr const size_t countOddChannels{ COUNT_CHANNELS - countTransformedChannels };
-		const std::array<unsigned char, countSlices>& transformedSlices{ *reinterpret_cast<const std::array<unsigned char, countSlices>*>(&bits) };
-		const std::array<UINT, countOddChannels>& oddChannels{ *(reinterpret_cast<const std::array<UINT, countOddChannels>*>(&bits) + countTransformedChannels) };
-		constexpr const auto lambdaSlice = [](const UINT bits, const size_t index)->size_t
+		using SLICE = unsigned char;
+		constexpr const size_t countSlices{ COUNT_CHANNELS * sizeof(UINT) / sizeof(SLICE) };
+		constexpr const size_t countSliceChannels{ countSlices * sizeof(SLICE) / sizeof(UINT) };
+		constexpr const size_t countOddChannels{ COUNT_CHANNELS - countSliceChannels };
+		const std::array<UINT, countSliceChannels>& sliceChannels{ extractChannels<UINT,COUNT_CHANNELS,0,countSliceChannels>(bits) };
+		const std::array<SLICE, countSlices>& transformedSlices{ mergeChannels<UINT,SLICE,countSliceChannels>(sliceChannels) };
+		constexpr const auto lambdaSlice = [](const SLICE bits, const size_t index)->size_t
 		{
-#if defined(PYGMALION_INTRINSICS_MSC) && defined(PYGMALION_CPU_X86)
+#if defined(PYGMALION_INTRINSICS_MSC) && (defined(PYGMALION_CPU_X86)||defined(PYGMALION_CPU_X64))
 			if constexpr (compiler::supports(compiler::flags::MSC) && cpu::supports(cpu::flags::X86))
 				return __popcnt16(bits);
 #endif
@@ -109,36 +110,41 @@ private:
 			if constexpr (compiler::supports(compiler::flags::GNU))
 				return __builtin_popcount(bits);
 #endif
-			return popcount_ref<unsigned char, 0>(bits);
+			return popcount_ref<SLICE, 0>(bits);
 		};
-		const std::array<size_t, countSlices> countsSlices{ transform_array_n<countSlices,size_t>(transformedSlices, lambdaSlice) };
+		const std::array<size_t, countSlices> countsSlices{ base::transformChannels<countSlices,SLICE,size_t>(transformedSlices, lambdaSlice) };
 		if constexpr (countOddChannels > 0)
 		{
+			const std::array<UINT, countOddChannels>& oddChannels{ extractChannels<UINT,COUNT_CHANNELS,countSliceChannels,countOddChannels>(bits) };
 			const size_t countOdd{ impl<countOddChannels, UINT>(tag_best{},oddChannels,std::make_index_sequence<countOddChannels>{}) };
-			return sum_array_n<countSlices, 0, countSlices, size_t>(countsSlices) + countOdd;
+			return base::sumChannels<countSlices, 0, countSlices, size_t>(countsSlices) + countOdd;
 		}
 		else
-			return sum_array_n<countSlices, 0, countSlices, size_t>(countsSlices);
+			return base::sumChannels<countSlices, 0, countSlices, size_t>(countsSlices);
 	}
 
 	template <size_t COUNT_CHANNELS, typename UINT, size_t... CHANNEL, typename = typename std::enable_if<enable_char<COUNT_CHANNELS, UINT>()>::type>
 	static std::string name(tag_char, std::index_sequence<CHANNEL...>) noexcept
 	{
-		constexpr const size_t countSlices{ COUNT_CHANNELS * sizeof(UINT) / sizeof(unsigned char) };
-		constexpr const size_t countTransformedChannels{ countSlices * sizeof(unsigned char) / sizeof(UINT) };
+		using SLICE = unsigned char;
+		constexpr const size_t countSlices{ COUNT_CHANNELS * sizeof(UINT) / sizeof(SLICE) };
+		constexpr const size_t countTransformedChannels{ countSlices * sizeof(SLICE) / sizeof(UINT) };
 		constexpr const size_t countOddChannels{ COUNT_CHANNELS - countTransformedChannels };
 		std::stringstream sstr;
 		for (size_t slice = 0; slice < countSlices; slice++)
 		{
-#if defined(PYGMALION_INTRINSICS_MSC) && defined(PYGMALION_CPU_X86)
+#if defined(PYGMALION_INTRINSICS_MSC) && (defined(PYGMALION_CPU_X86)||defined(PYGMALION_CPU_X64))
 			if constexpr (compiler::supports(compiler::flags::MSC) && cpu::supports(cpu::flags::X86))
 				sstr << "MSC16 ";
+			else
 #endif
 #if defined(PYGMALION_INTRINSICS_GNU)
-			if constexpr (compiler::supports(compiler::flags::GNU))
-				sstr << "GNU" << (sizeof(unsigned int) * CHAR_BIT) << " ";
+				if constexpr (compiler::supports(compiler::flags::GNU))
+					sstr << "GNU" << (sizeof(unsigned int) * CHAR_BIT) << " ";
+				else
 #endif
-			sstr << (sizeof(unsigned char) * CHAR_BIT) << "bit";
+					sstr << "generic ";
+			sstr << (sizeof(SLICE) * CHAR_BIT) << "bit";
 			sstr << ((slice == countSlices - 1) ? "" : " | ");
 		}
 		if constexpr (countOddChannels > 0)
@@ -155,14 +161,15 @@ private:
 	template <size_t COUNT_CHANNELS, typename UINT, size_t... CHANNEL, typename = typename std::enable_if<enable_short<COUNT_CHANNELS, UINT>()>::type>
 	constexpr static size_t impl(tag_short, const std::array<UINT, COUNT_CHANNELS>& bits, std::index_sequence<CHANNEL...>) noexcept
 	{
-		constexpr const size_t countSlices{ COUNT_CHANNELS * sizeof(UINT) / sizeof(unsigned short) };
-		constexpr const size_t countTransformedChannels{ countSlices * sizeof(unsigned short) / sizeof(UINT) };
-		constexpr const size_t countOddChannels{ COUNT_CHANNELS - countTransformedChannels };
-		const std::array<unsigned short, countSlices>& transformedSlices{ *reinterpret_cast<const std::array<unsigned short, countSlices>*>(&bits) };
-		const std::array<UINT, countOddChannels>& oddChannels{ *(reinterpret_cast<const std::array<UINT, countOddChannels>*>(&bits) + countTransformedChannels) };
-		constexpr const auto lambdaSlice = [](const UINT bits, const size_t index)->size_t
+		using SLICE = unsigned short;
+		constexpr const size_t countSlices{ COUNT_CHANNELS * sizeof(UINT) / sizeof(SLICE) };
+		constexpr const size_t countSliceChannels{ countSlices * sizeof(SLICE) / sizeof(UINT) };
+		constexpr const size_t countOddChannels{ COUNT_CHANNELS - countSliceChannels };
+		const std::array<UINT, countSliceChannels>& sliceChannels{ extractChannels<UINT,COUNT_CHANNELS,0,countSliceChannels>(bits) };
+		const std::array<SLICE, countSlices>& transformedSlices{ mergeChannels<UINT,SLICE,countSliceChannels>(sliceChannels) };
+		constexpr const auto lambdaSlice = [](const SLICE bits, const size_t index)->size_t
 		{
-#if defined(PYGMALION_INTRINSICS_MSC) 
+#if defined(PYGMALION_INTRINSICS_MSC) && (defined(PYGMALION_CPU_X86)||defined(PYGMALION_CPU_X64))
 			if constexpr (compiler::supports(compiler::flags::MSC) && cpu::supports(cpu::flags::X86))
 				return __popcnt16(bits);
 #endif
@@ -170,36 +177,41 @@ private:
 			if constexpr (compiler::supports(compiler::flags::GNU))
 				return __builtin_popcount(bits);
 #endif
-			return popcount_ref<unsigned short, 0>(bits);
+			return popcount_ref<SLICE, 0>(bits);
 		};
-		const std::array<size_t, countSlices> countsSlices{ transform_array_n<countSlices,size_t>(transformedSlices, lambdaSlice) };
+		const std::array<size_t, countSlices> countsSlices{ base::transformChannels<countSlices,SLICE,size_t>(transformedSlices, lambdaSlice) };
 		if constexpr (countOddChannels > 0)
 		{
+			const std::array<UINT, countOddChannels>& oddChannels{ extractChannels<UINT,COUNT_CHANNELS,countSliceChannels,countOddChannels>(bits) };
 			const size_t countOdd{ impl<countOddChannels, UINT>(tag_best{},oddChannels,std::make_index_sequence<countOddChannels>{}) };
-			return sum_array_n<countSlices, 0, countSlices, size_t>(countsSlices) + countOdd;
+			return base::sumChannels<countSlices, 0, countSlices, size_t>(countsSlices) + countOdd;
 		}
 		else
-			return sum_array_n<countSlices, 0, countSlices, size_t>(countsSlices);
-		}
+			return base::sumChannels<countSlices, 0, countSlices, size_t>(countsSlices);
+	}
 
 	template <size_t COUNT_CHANNELS, typename UINT, size_t... CHANNEL, typename = typename std::enable_if<enable_short<COUNT_CHANNELS, UINT>()>::type>
 	static std::string name(tag_short, std::index_sequence<CHANNEL...>) noexcept
 	{
-		constexpr const size_t countSlices{ COUNT_CHANNELS * sizeof(UINT) / sizeof(unsigned short) };
-		constexpr const size_t countTransformedChannels{ countSlices * sizeof(unsigned short) / sizeof(UINT) };
+		using SLICE = unsigned short;
+		constexpr const size_t countSlices{ COUNT_CHANNELS * sizeof(UINT) / sizeof(SLICE) };
+		constexpr const size_t countTransformedChannels{ countSlices * sizeof(SLICE) / sizeof(UINT) };
 		constexpr const size_t countOddChannels{ COUNT_CHANNELS - countTransformedChannels };
 		std::stringstream sstr;
 		for (size_t slice = 0; slice < countSlices; slice++)
 		{
-#if defined(PYGMALION_INTRINSICS_MSC) 
+#if defined(PYGMALION_INTRINSICS_MSC) && (defined(PYGMALION_CPU_X86)||defined(PYGMALION_CPU_X64))
 			if constexpr (compiler::supports(compiler::flags::MSC) && cpu::supports(cpu::flags::X86))
 				sstr << "MSC16 ";
+			else
 #endif
 #if defined(PYGMALION_INTRINSICS_GNU)
-			if constexpr (compiler::supports(compiler::flags::GNU))
-				sstr << "GNU" << (sizeof(unsigned int) * CHAR_BIT) << " ";
+				if constexpr (compiler::supports(compiler::flags::GNU))
+					sstr << "GNU" << (sizeof(unsigned int) * CHAR_BIT) << " ";
+				else
 #endif
-			sstr << (sizeof(unsigned short) * CHAR_BIT) << "bit";
+					sstr << "generic ";
+			sstr << (sizeof(SLICE) * CHAR_BIT) << "bit";
 			sstr << ((slice == countSlices - 1) ? "" : " | ");
 		}
 		if constexpr (countOddChannels > 0)
@@ -216,14 +228,15 @@ private:
 	template <size_t COUNT_CHANNELS, typename UINT, size_t... CHANNEL, typename = typename std::enable_if<enable_int<COUNT_CHANNELS, UINT>()>::type>
 	constexpr static size_t impl(tag_int, const std::array<UINT, COUNT_CHANNELS>& bits, std::index_sequence<CHANNEL...>) noexcept
 	{
-		constexpr const size_t countSlices{ COUNT_CHANNELS * sizeof(UINT) / sizeof(unsigned int) };
-		constexpr const size_t countTransformedChannels{ countSlices * sizeof(unsigned int) / sizeof(UINT) };
-		constexpr const size_t countOddChannels{ COUNT_CHANNELS - countTransformedChannels };
-		const std::array<unsigned int, countSlices>& transformedSlices{ *reinterpret_cast<const std::array<unsigned int, countSlices>*>(&bits) };
-		const std::array<UINT, countOddChannels>& oddChannels{ *(reinterpret_cast<const std::array<UINT, countOddChannels>*>(&bits) + countTransformedChannels) };
-		constexpr const auto lambdaSlice = [](const UINT bits, const size_t index)->size_t
+		using SLICE = unsigned int;
+		constexpr const size_t countSlices{ COUNT_CHANNELS * sizeof(UINT) / sizeof(SLICE) };
+		constexpr const size_t countSliceChannels{ countSlices * sizeof(SLICE) / sizeof(UINT) };
+		constexpr const size_t countOddChannels{ COUNT_CHANNELS - countSliceChannels };
+		const std::array<UINT, countSliceChannels>& sliceChannels{ extractChannels<UINT,COUNT_CHANNELS,0,countSliceChannels>(bits) };
+		const std::array<SLICE, countSlices>& transformedSlices{ mergeChannels<UINT,SLICE,countSliceChannels>(sliceChannels) };
+		constexpr const auto lambdaSlice = [](const SLICE bits, const size_t index)->size_t
 		{
-#if defined(PYGMALION_INTRINSICS_MSC) 
+#if defined(PYGMALION_INTRINSICS_MSC) && (defined(PYGMALION_CPU_X86)||defined(PYGMALION_CPU_X64))
 			if constexpr (compiler::supports(compiler::flags::MSC) && cpu::supports(cpu::flags::X86))
 				return __popcnt(bits);
 #endif
@@ -231,36 +244,41 @@ private:
 			if constexpr (compiler::supports(compiler::flags::GNU))
 				return __builtin_popcount(bits);
 #endif
-			return popcount_ref<unsigned int, 0>(bits);
+			return popcount_ref<SLICE, 0>(bits);
 		};
-		const std::array<size_t, countSlices> countsSlices{ transform_array_n<countSlices,size_t>(transformedSlices, lambdaSlice) };
+		const std::array<size_t, countSlices> countsSlices{ base::transformChannels<countSlices,SLICE,size_t>(transformedSlices, lambdaSlice) };
 		if constexpr (countOddChannels > 0)
 		{
+			const std::array<UINT, countOddChannels>& oddChannels{ extractChannels<UINT,COUNT_CHANNELS,countSliceChannels,countOddChannels>(bits) };
 			const size_t countOdd{ impl<countOddChannels, UINT>(tag_best{},oddChannels,std::make_index_sequence<countOddChannels>{}) };
-			return sum_array_n<countSlices, 0, countSlices, size_t>(countsSlices) + countOdd;
+			return base::sumChannels<countSlices, 0, countSlices, size_t>(countsSlices) + countOdd;
 		}
 		else
-			return sum_array_n<countSlices, 0, countSlices, size_t>(countsSlices);
-		}
+			return base::sumChannels<countSlices, 0, countSlices, size_t>(countsSlices);
+	}
 
 	template <size_t COUNT_CHANNELS, typename UINT, size_t... CHANNEL, typename = typename std::enable_if<enable_int<COUNT_CHANNELS, UINT>()>::type>
 	static std::string name(tag_int, std::index_sequence<CHANNEL...>) noexcept
 	{
-		constexpr const size_t countSlices{ COUNT_CHANNELS * sizeof(UINT) / sizeof(unsigned int) };
-		constexpr const size_t countTransformedChannels{ countSlices * sizeof(unsigned int) / sizeof(UINT) };
+		using SLICE = unsigned int;
+		constexpr const size_t countSlices{ COUNT_CHANNELS * sizeof(UINT) / sizeof(SLICE) };
+		constexpr const size_t countTransformedChannels{ countSlices * sizeof(SLICE) / sizeof(UINT) };
 		constexpr const size_t countOddChannels{ COUNT_CHANNELS - countTransformedChannels };
 		std::stringstream sstr;
 		for (size_t slice = 0; slice < countSlices; slice++)
 		{
-#if defined(PYGMALION_INTRINSICS_MSC)
+#if defined(PYGMALION_INTRINSICS_MSC) && (defined(PYGMALION_CPU_X86)||defined(PYGMALION_CPU_X64))
 			if constexpr (compiler::supports(compiler::flags::MSC) && cpu::supports(cpu::flags::X86))
 				sstr << "MSC32 ";
+			else
 #endif
 #if defined(PYGMALION_INTRINSICS_GNU)
-			if constexpr (compiler::supports(compiler::flags::GNU))
-				sstr << "GNU" << (sizeof(unsigned int) * CHAR_BIT) << " ";
+				if constexpr (compiler::supports(compiler::flags::GNU))
+					sstr << "GNU" << (sizeof(unsigned int) * CHAR_BIT) << " ";
+				else
 #endif
-			sstr << (sizeof(unsigned int) * CHAR_BIT) << "bit";
+					sstr << "generic ";
+			sstr << (sizeof(SLICE) * CHAR_BIT) << "bit";
 			sstr << ((slice == countSlices - 1) ? "" : " | ");
 		}
 		if constexpr (countOddChannels > 0)
@@ -277,14 +295,15 @@ private:
 	template <size_t COUNT_CHANNELS, typename UINT, size_t... CHANNEL, typename = typename std::enable_if<enable_long<COUNT_CHANNELS, UINT>()>::type>
 	constexpr static size_t impl(tag_long, const std::array<UINT, COUNT_CHANNELS>& bits, std::index_sequence<CHANNEL...>) noexcept
 	{
-		constexpr const size_t countSlices{ COUNT_CHANNELS * sizeof(UINT) / sizeof(unsigned long) };
-		constexpr const size_t countTransformedChannels{ countSlices * sizeof(unsigned long) / sizeof(UINT) };
-		constexpr const size_t countOddChannels{ COUNT_CHANNELS - countTransformedChannels };
-		const std::array<unsigned long, countSlices>& transformedSlices{ *reinterpret_cast<const std::array<unsigned long, countSlices>*>(&bits) };
-		const std::array<UINT, countOddChannels>& oddChannels{ *(reinterpret_cast<const std::array<UINT, countOddChannels>*>(&bits) + countTransformedChannels) };
-		constexpr const auto lambdaSlice = [](const UINT bits, const size_t index)->size_t
+		using SLICE = unsigned long;
+		constexpr const size_t countSlices{ COUNT_CHANNELS * sizeof(UINT) / sizeof(SLICE) };
+		constexpr const size_t countSliceChannels{ countSlices * sizeof(SLICE) / sizeof(UINT) };
+		constexpr const size_t countOddChannels{ COUNT_CHANNELS - countSliceChannels };
+		const std::array<UINT, countSliceChannels>& sliceChannels{ extractChannels<UINT,COUNT_CHANNELS,0,countSliceChannels>(bits) };
+		const std::array<SLICE, countSlices>& transformedSlices{ mergeChannels<UINT,SLICE,countSliceChannels>(sliceChannels) };
+		constexpr const auto lambdaSlice = [](const SLICE bits, const size_t index)->size_t
 		{
-#if defined(PYGMALION_INTRINSICS_MSC)
+#if defined(PYGMALION_INTRINSICS_MSC) && (defined(PYGMALION_CPU_X86)||defined(PYGMALION_CPU_X64))
 			if constexpr (compiler::supports(compiler::flags::MSC) && cpu::supports(cpu::flags::X86))
 				return __popcnt(bits);
 #endif
@@ -292,36 +311,41 @@ private:
 			if constexpr (compiler::supports(compiler::flags::GNU))
 				return __builtin_popcountl(bits);
 #endif
-			return popcount_ref<unsigned long, 0>(bits);
+			return popcount_ref<SLICE, 0>(bits);
 		};
-		const std::array<size_t, countSlices> countsSlices{ transform_array_n<countSlices,size_t>(transformedSlices, lambdaSlice) };
+		const std::array<size_t, countSlices> countsSlices{ base::transformChannels<countSlices,SLICE,size_t>(transformedSlices, lambdaSlice) };
 		if constexpr (countOddChannels > 0)
 		{
+			const std::array<UINT, countOddChannels>& oddChannels{ extractChannels<UINT,COUNT_CHANNELS,countSliceChannels,countOddChannels>(bits) };
 			const size_t countOdd{ impl<countOddChannels, UINT>(tag_best{},oddChannels,std::make_index_sequence<countOddChannels>{}) };
-			return sum_array_n<countSlices, 0, countSlices, size_t>(countsSlices) + countOdd;
+			return base::sumChannels<countSlices, 0, countSlices, size_t>(countsSlices) + countOdd;
 		}
 		else
-			return sum_array_n<countSlices, 0, countSlices, size_t>(countsSlices);
-		}
+			return base::sumChannels<countSlices, 0, countSlices, size_t>(countsSlices);
+	}
 
 	template <size_t COUNT_CHANNELS, typename UINT, size_t... CHANNEL, typename = typename std::enable_if<enable_long<COUNT_CHANNELS, UINT>()>::type>
 	static std::string name(tag_long, compiler::tag_generic, cpu::tag_generic, std::index_sequence<CHANNEL...>) noexcept
 	{
-		constexpr const size_t countSlices{ COUNT_CHANNELS * sizeof(UINT) / sizeof(unsigned long) };
-		constexpr const size_t countTransformedChannels{ countSlices * sizeof(unsigned long) / sizeof(UINT) };
+		using SLICE = unsigned long;
+		constexpr const size_t countSlices{ COUNT_CHANNELS * sizeof(UINT) / sizeof(SLICE) };
+		constexpr const size_t countTransformedChannels{ countSlices * sizeof(SLICE) / sizeof(UINT) };
 		constexpr const size_t countOddChannels{ COUNT_CHANNELS - countTransformedChannels };
 		std::stringstream sstr;
 		for (size_t slice = 0; slice < countSlices; slice++)
 		{
-#if defined(PYGMALION_INTRINSICS_MSC)
+#if defined(PYGMALION_INTRINSICS_MSC) && (defined(PYGMALION_CPU_X86)||defined(PYGMALION_CPU_X64))
 			if constexpr (compiler::supports(compiler::flags::MSC) && cpu::supports(cpu::flags::X86))
 				sstr << "MSC32 ";
+			else
 #endif
 #if defined(PYGMALION_INTRINSICS_GNU)
-			if constexpr (compiler::supports(compiler::flags::GNU))
-				sstr << "GNU" << (sizeof(unsigned long) * CHAR_BIT) << " ";
+				if constexpr (compiler::supports(compiler::flags::GNU))
+					sstr << "GNU" << (sizeof(unsigned long) * CHAR_BIT) << " ";
+				else
 #endif
-			sstr << (sizeof(unsigned long) * CHAR_BIT) << "bit";
+					sstr << "generic ";
+			sstr << (sizeof(SLICE) * CHAR_BIT) << "bit";
 			sstr << ((slice == countSlices - 1) ? "" : " | ");
 		}
 		if constexpr (countOddChannels > 0)
@@ -338,14 +362,15 @@ private:
 	template <size_t COUNT_CHANNELS, typename UINT, size_t... CHANNEL, typename = typename std::enable_if<enable_long_long<COUNT_CHANNELS, UINT>()>::type>
 	constexpr static size_t impl(tag_long_long, const std::array<UINT, COUNT_CHANNELS>& bits, std::index_sequence<CHANNEL...>) noexcept
 	{
-		constexpr const size_t countSlices{ COUNT_CHANNELS * sizeof(UINT) / sizeof(unsigned long long) };
-		constexpr const size_t countTransformedChannels{ countSlices * sizeof(unsigned long long) / sizeof(UINT) };
-		constexpr const size_t countOddChannels{ COUNT_CHANNELS - countTransformedChannels };
-		const std::array<unsigned long long, countSlices>& transformedSlices{ *reinterpret_cast<const std::array<unsigned long long, countSlices>*>(&bits) };
-		const std::array<UINT, countOddChannels>& oddChannels{ *(reinterpret_cast<const std::array<UINT, countOddChannels>*>(&bits) + countTransformedChannels) };
-		constexpr const auto lambdaSlice = [](const UINT bits, const size_t index)->size_t
+		using SLICE = unsigned long long;
+		constexpr const size_t countSlices{ COUNT_CHANNELS * sizeof(UINT) / sizeof(SLICE) };
+		constexpr const size_t countSliceChannels{ countSlices * sizeof(SLICE) / sizeof(UINT) };
+		constexpr const size_t countOddChannels{ COUNT_CHANNELS - countSliceChannels };
+		const std::array<UINT, countSliceChannels>& sliceChannels{ extractChannels<UINT,COUNT_CHANNELS,0,countSliceChannels>(bits) };
+		const std::array<SLICE, countSlices>& transformedSlices{ mergeChannels<UINT,SLICE,countSliceChannels>(sliceChannels) };
+		constexpr const auto lambdaSlice = [](const SLICE bits, const size_t index)->size_t
 		{
-#if defined(PYGMALION_INTRINSICS_MSC)
+#if defined(PYGMALION_INTRINSICS_MSC) && defined(PYGMALION_CPU_X64)
 			if constexpr (compiler::supports(compiler::flags::MSC) && cpu::supports(cpu::flags::X64))
 				return __popcnt64(bits);
 #endif
@@ -353,45 +378,50 @@ private:
 			if constexpr (compiler::supports(compiler::flags::GNU))
 				return __builtin_popcountll(bits);
 #endif
-#if defined(PYGMALION_INTRINSICS_MSC)
+#if defined(PYGMALION_INTRINSICS_MSC) && defined(PYGMALION_CPU_X86)
 			if constexpr (compiler::supports(compiler::flags::MSC) && cpu::supports(cpu::flags::X86))
 				return __popcnt(*(reinterpret_cast<const unsigned int*>(&bits) + 1)) + __popcnt(*reinterpret_cast<const unsigned int*>(&bits));
 #endif
-			return popcount_ref<unsigned long long, 0>(bits);
+			return popcount_ref<SLICE, 0>(bits);
 		};
-		const std::array<size_t, countSlices> countsSlices{ transform_array_n<countSlices,size_t>(transformedSlices, lambdaSlice) };
+		const std::array<size_t, countSlices> countsSlices{ base::transformChannels<countSlices,SLICE,size_t>(transformedSlices, lambdaSlice) };
 		if constexpr (countOddChannels > 0)
 		{
+			const std::array<UINT, countOddChannels>& oddChannels{ extractChannels<UINT,COUNT_CHANNELS,countSliceChannels,countOddChannels>(bits) };
 			const size_t countOdd{ impl<countOddChannels, UINT>(tag_best{},oddChannels,std::make_index_sequence<countOddChannels>{}) };
-			return sum_array_n<countSlices, 0, countSlices, size_t>(countsSlices) + countOdd;
-	}
+			return base::sumChannels<countSlices, 0, countSlices, size_t>(countsSlices) + countOdd;
+		}
 		else
-			return sum_array_n<countSlices, 0, countSlices, size_t>(countsSlices);
+			return base::sumChannels<countSlices, 0, countSlices, size_t>(countsSlices);
 	}
 
 	template <size_t COUNT_CHANNELS, typename UINT, size_t... CHANNEL, typename = typename std::enable_if<enable_long_long<COUNT_CHANNELS, UINT>()>::type>
 	static std::string name(tag_long_long, std::index_sequence<CHANNEL...>) noexcept
 	{
-		constexpr const size_t countSlices{ COUNT_CHANNELS * sizeof(UINT) / sizeof(unsigned long long) };
-		constexpr const size_t countTransformedChannels{ countSlices * sizeof(unsigned long long) / sizeof(UINT) };
+		using SLICE = unsigned long long;
+		constexpr const size_t countSlices{ COUNT_CHANNELS * sizeof(UINT) / sizeof(SLICE) };
+		constexpr const size_t countTransformedChannels{ countSlices * sizeof(SLICE) / sizeof(UINT) };
 		constexpr const size_t countOddChannels{ COUNT_CHANNELS - countTransformedChannels };
 		std::stringstream sstr;
 		for (size_t slice = 0; slice < countSlices; slice++)
 		{
-#if defined(PYGMALION_INTRINSICS_MSC)  
+#if defined(PYGMALION_INTRINSICS_MSC) && defined(PYGMALION_CPU_X64)
 			if constexpr (compiler::supports(compiler::flags::MSC) && cpu::supports(cpu::flags::X64))
 				sstr << "MSC64 ";
 			else
 #endif
 #if defined(PYGMALION_INTRINSICS_GNU)
-			if constexpr (compiler::supports(compiler::flags::GNU))
-				sstr << "GNU" << (sizeof(unsigned long) * CHAR_BIT) << " ";
+				if constexpr (compiler::supports(compiler::flags::GNU))
+					sstr << "GNU" << (sizeof(unsigned long long) * CHAR_BIT) << " ";
+				else
 #endif
-#if defined(PYGMALION_INTRINSICS_MSC)&& !defined(PYGMALION_CPU_X64)
-			if constexpr (compiler::supports(compiler::flags::MSC) && cpu::supports(cpu::flags::X86))
-				sstr << "2xMSC32 ";
+#if defined(PYGMALION_INTRINSICS_MSC) && defined(PYGMALION_CPU_X86)
+					if constexpr (compiler::supports(compiler::flags::MSC) && cpu::supports(cpu::flags::X86))
+						sstr << "2xMSC32 ";
+					else
 #endif
-			sstr << (sizeof(unsigned long long) * CHAR_BIT) << "bit";
+						sstr << "generic ";
+			sstr << (sizeof(SLICE) * CHAR_BIT) << "bit";
 			sstr << ((slice == countSlices - 1) ? "" : " | ");
 		}
 		if constexpr (countOddChannels > 0)
@@ -427,5 +457,5 @@ public:
 		}
 	}
 
-	};
+};
 
