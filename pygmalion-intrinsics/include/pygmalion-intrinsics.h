@@ -26,7 +26,7 @@ namespace intrinsics
 #include "pygmalion-intrinsics/base.h"
 #include "pygmalion-intrinsics/popcnt.h"
 #include "pygmalion-intrinsics/integer_traits.h"
-#include "pygmalion-intrinsics/unsigned_integer.h"
+#include "pygmalion-intrinsics/uint_t.h"
 #include "pygmalion-intrinsics/bitmanip.h"
 #include "pygmalion-intrinsics/int_traits.h"
 }

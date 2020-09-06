@@ -14,8 +14,8 @@ int main(int argc, char* argv[])
 	std::srand(std::time(nullptr));
 	constexpr const size_t len{ 56 };
 	constexpr const bool compact{ true };
-	using T = unsigned_integer<len, compact>;
-	T v1{ unsigned_integer<len,compact>::random() };
+	using T = uint_least_t<len>;
+	T v1{ uint_t<len,compact>::random() };
 	T v2 = ~v1;
 	T v3 = v1 & v2;
 	T v4 = v1 | v2;

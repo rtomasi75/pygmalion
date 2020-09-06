@@ -1,46 +1,47 @@
 namespace detail
 {
 	template<size_t COUNT_BITS, bool COMPACT>
-	struct unsigned_integer
+	constexpr size_t countWords() noexcept
 	{
-		constexpr static size_t countWords() noexcept
-		{
-			constexpr const bool isCompact{ COMPACT };
-			constexpr const size_t countBits{ COUNT_BITS };
-			constexpr const size_t countBytes{ (countBits + 7) / 8 };
-			constexpr const size_t countBitsPerWord{ sizeof(typename integer_traits<countBytes, isCompact>::uword) * CHAR_BIT };
-			return (countBits + countBitsPerWord - 1) / countBitsPerWord;
-		}
-		constexpr static size_t countBitsPerWord() noexcept
-		{
-			constexpr const bool isCompact{ COMPACT };
-			constexpr const size_t countBits{ COUNT_BITS };
-			constexpr const size_t countBytes{ (countBits + 7) / 8 };
-			return sizeof(typename integer_traits<countBytes, isCompact>::uword) * CHAR_BIT;
-		}
-		constexpr static bool isMultiWord() noexcept
-		{
-			return unsigned_integer::countWords() > 1;
-		}
-		constexpr static bool isSingleBit() noexcept
-		{
-			constexpr const size_t countBits{ COUNT_BITS };
-			return countBits == 1;
-		}
-		constexpr static bool isSingleWord() noexcept
-		{
-			return (unsigned_integer::countWords() == 1) && !isSingleBit();
-		}
-		constexpr static bool isEmpty() noexcept
-		{
-			return unsigned_integer::countWords() == 0;
-		}
-	};
+		constexpr const bool isCompact{ COMPACT };
+		constexpr const size_t countBits{ COUNT_BITS };
+		constexpr const size_t countBytes{ (countBits + 7) / 8 };
+		constexpr const size_t countBitsPerWord{ sizeof(typename integer_traits<countBytes, isCompact>::uword) * CHAR_BIT };
+		return (countBits + countBitsPerWord - 1) / countBitsPerWord;
+	}
+	template<size_t COUNT_BITS, bool COMPACT>
+	constexpr size_t countBitsPerWord() noexcept
+	{
+		constexpr const bool isCompact{ COMPACT };
+		constexpr const size_t countBits{ COUNT_BITS };
+		constexpr const size_t countBytes{ (countBits + 7) / 8 };
+		return sizeof(typename integer_traits<countBytes, isCompact>::uword) * CHAR_BIT;
+	}
+	template<size_t COUNT_BITS, bool COMPACT>
+	constexpr bool isMultiWord() noexcept
+	{
+		return countWords<COUNT_BITS,COMPACT>() > 1;
+	}
+	template<size_t COUNT_BITS, bool COMPACT>
+	constexpr bool isSingleBit() noexcept
+	{
+		constexpr const size_t countBits{ COUNT_BITS };
+		return countBits == 1;
+	}
+	template<size_t COUNT_BITS, bool COMPACT>
+	constexpr bool isSingleWord() noexcept
+	{
+		return (countWords<COUNT_BITS, COMPACT>() == 1) && !isSingleBit<COUNT_BITS, COMPACT>();
+	}
+	template<size_t COUNT_BITS, bool COMPACT>
+	constexpr bool isEmpty() noexcept
+	{
+		return countWords<COUNT_BITS, COMPACT>() == 0;
+	}
 }
 
-
-template<size_t COUNT_BITS, bool COMPACT, typename ENABLED = typename std::enable_if <true>::type>
-class unsigned_integer
+template<size_t COUNT_BITS, bool COMPACT, typename = typename std::enable_if<detail::isMultiWord<COUNT_BITS, COMPACT>()>::type>
+class uint_t
 {
 public:
 	constexpr static const bool isCompact{ COMPACT };
@@ -83,7 +84,7 @@ private:
 	constexpr static std::array<wordType, SIZE> nullaryTransformWords(std::index_sequence<INDICES...>, const LAMBDA_TRANSFORM& transform) noexcept
 	{
 		if constexpr (NORMALIZE)
-			return std::array<wordType, SIZE>{ (unsigned_integer::normalizeWords<INDICES>(transform(INDICES)))... };
+			return std::array<wordType, SIZE>{ (uint_t::normalizeWords<INDICES>(transform(INDICES)))... };
 		else
 			return std::array<wordType, SIZE>{ (transform(INDICES))... };
 	}
@@ -91,7 +92,7 @@ private:
 	constexpr static std::array<wordType, SIZE> unaryTransformWords(const std::array<wordType, SIZE>& words, std::index_sequence<INDICES...>, const LAMBDA_TRANSFORM& transform) noexcept
 	{
 		if constexpr (NORMALIZE)
-			return std::array<wordType, SIZE>{ (unsigned_integer::normalizeWords<INDICES>(transform(words[INDICES], INDICES)))... };
+			return std::array<wordType, SIZE>{ (uint_t::normalizeWords<INDICES>(transform(words[INDICES], INDICES)))... };
 		else
 			return std::array<wordType, SIZE>{ (transform(words[INDICES], INDICES))... };
 	}
@@ -99,7 +100,7 @@ private:
 	constexpr static std::array<wordType, SIZE> binaryTransformWords(const std::array<wordType, SIZE>& words1, const std::array<wordType, SIZE>& words2, std::index_sequence<INDICES...>, const LAMBDA_TRANSFORM& transform) noexcept
 	{
 		if constexpr (NORMALIZE)
-			return std::array<wordType, SIZE>{ (unsigned_integer::normalizeWords<INDICES>(transform(words1[INDICES], words2[INDICES], INDICES)))... };
+			return std::array<wordType, SIZE>{ (uint_t::normalizeWords<INDICES>(transform(words1[INDICES], words2[INDICES], INDICES)))... };
 		else
 			return std::array<wordType, SIZE>{ (transform(words1[INDICES], words2[INDICES], INDICES))... };
 	}
@@ -118,17 +119,17 @@ private:
 	template<size_t SIZE, bool NORMALIZE, typename LAMBDA_TRANSFORM>
 	constexpr static std::array<wordType, SIZE> nullaryTransformWords(const LAMBDA_TRANSFORM& create) noexcept
 	{
-		return unsigned_integer::nullaryTransformWords<SIZE, NORMALIZE>(std::make_index_sequence<countWords>{}, create);
+		return uint_t::nullaryTransformWords<SIZE, NORMALIZE>(std::make_index_sequence<countWords>{}, create);
 	}
 	template<size_t SIZE, bool NORMALIZE, typename LAMBDA_TRANSFORM>
 	constexpr static std::array<wordType, SIZE> unaryTransformWords(const std::array<wordType, SIZE>& words, LAMBDA_TRANSFORM transform) noexcept
 	{
-		return unsigned_integer::unaryTransformWords<SIZE, NORMALIZE>(words, std::make_index_sequence<countWords>{}, transform);
+		return uint_t::unaryTransformWords<SIZE, NORMALIZE>(words, std::make_index_sequence<countWords>{}, transform);
 	}
 	template<size_t SIZE, bool NORMALIZE, typename LAMBDA_TRANSFORM>
 	constexpr static std::array<wordType, SIZE> binaryTransformWords(const std::array<wordType, SIZE>& words1, const std::array<wordType, SIZE>& words2, LAMBDA_TRANSFORM transform) noexcept
 	{
-		return unsigned_integer::binaryTransformWords<SIZE, NORMALIZE>(words1, words2, std::make_index_sequence<countWords>{}, transform);
+		return uint_t::binaryTransformWords<SIZE, NORMALIZE>(words1, words2, std::make_index_sequence<countWords>{}, transform);
 	}
 	template<size_t SIZE, typename T, typename = typename std::enable_if<std::is_unsigned<T>::value>::type >
 	constexpr static std::array<wordType, SIZE> encodeValue(const T value) noexcept
@@ -150,7 +151,7 @@ private:
 				else
 					return wordType(0);
 			};
-			return unsigned_integer::nullaryTransformWords<countWords, true>(lambda);
+			return uint_t::nullaryTransformWords<countWords, true>(lambda);
 		}
 		else
 		{
@@ -159,26 +160,26 @@ private:
 				const size_t shift{ countBitsPerWord * index };
 				return (value) >> shift;
 			};
-			return unsigned_integer::nullaryTransformWords<countWords, true>(lambda);
+			return uint_t::nullaryTransformWords<countWords, true>(lambda);
 		}
 	}
-	constexpr unsigned_integer(const std::array<wordType, countWords>& words, bool) noexcept :
+	constexpr uint_t(const std::array<wordType, countWords>& words, bool) noexcept :
 		m_Words{ words }
 	{	}
 	std::array<wordType, countWords> m_Words;
 public:
-	constexpr unsigned_integer() noexcept :
+	constexpr uint_t() noexcept :
 		m_Words{ make_array_n<countWords,wordType>(0) }
 	{	}
 	template<typename T, typename = typename std::enable_if<std::is_integral<T>::value>::type>
-	constexpr unsigned_integer(const T value) noexcept :
-		m_Words{ unsigned_integer::encodeValue<countWords>(static_cast<typename std::make_unsigned<T>::type>(value)) }
+	constexpr uint_t(const T value) noexcept :
+		m_Words{ uint_t::encodeValue<countWords>(static_cast<typename std::make_unsigned<T>::type>(value)) }
 	{
 	}
-	constexpr unsigned_integer(const unsigned_integer&) noexcept = default;
-	constexpr unsigned_integer(unsigned_integer&&) noexcept = default;
-	constexpr unsigned_integer& operator=(const unsigned_integer&) noexcept = default;
-	constexpr unsigned_integer& operator=(unsigned_integer&&) noexcept = default;
+	constexpr uint_t(const uint_t&) noexcept = default;
+	constexpr uint_t(uint_t&&) noexcept = default;
+	constexpr uint_t& operator=(const uint_t&) noexcept = default;
+	constexpr uint_t& operator=(uint_t&&) noexcept = default;
 	template<typename T, typename = typename std::enable_if<std::is_unsigned<T>::value>::type>
 	constexpr operator T() const noexcept
 	{
@@ -219,42 +220,42 @@ public:
 	constexpr auto operator~() const noexcept
 	{
 		constexpr const auto lambda = [](const wordType a, const size_t)->wordType { return ~a; };
-		return unsigned_integer(unsigned_integer::unaryTransformWords<countWords, true>(m_Words, lambda), false);
+		return uint_t(uint_t::unaryTransformWords<countWords, true>(m_Words, lambda), false);
 	}
-	constexpr unsigned_integer& operator&=(const unsigned_integer& other) noexcept
+	constexpr uint_t& operator&=(const uint_t& other) noexcept
 	{
 		constexpr const auto lambda = [&other](wordType& a, const wordType b, const size_t)->wordType { a &= b; };
-		unsigned_integer::binaryTransformWordsInplace<countWords, false>(m_Words, other.m_Words, lambda);
+		uint_t::binaryTransformWordsInplace<countWords, false>(m_Words, other.m_Words, lambda);
 		return *this;
 	}
-	constexpr unsigned_integer& operator|=(const unsigned_integer& other) noexcept
+	constexpr uint_t& operator|=(const uint_t& other) noexcept
 	{
 		constexpr const auto lambda = [&other](wordType& a, const wordType b, const size_t)->wordType { a |= b; };
-		unsigned_integer::binaryTransformWordsInplace<countWords, false>(m_Words, other.m_Words, lambda);
+		uint_t::binaryTransformWordsInplace<countWords, false>(m_Words, other.m_Words, lambda);
 		return *this;
 	}
-	constexpr unsigned_integer& operator^=(const unsigned_integer& other) noexcept
+	constexpr uint_t& operator^=(const uint_t& other) noexcept
 	{
 		constexpr const auto lambda = [](wordType& a, const wordType b, const size_t)->void { a ^= b; };
-		unsigned_integer::binaryTransformWordsInplace<countWords, false>(m_Words, other.m_Words, lambda);
+		uint_t::binaryTransformWordsInplace<countWords, false>(m_Words, other.m_Words, lambda);
 		return *this;
 	}
-	constexpr auto operator&(const unsigned_integer& other) const noexcept
+	constexpr auto operator&(const uint_t& other) const noexcept
 	{
 		constexpr const auto lambda = [](const wordType a, const wordType b, const size_t)->wordType { return a & b; };
-		return unsigned_integer(unsigned_integer::binaryTransformWords<countWords, false>(m_Words, other.m_Words, lambda), false);
+		return uint_t(uint_t::binaryTransformWords<countWords, false>(m_Words, other.m_Words, lambda), false);
 	}
-	constexpr auto operator|(const unsigned_integer& other) const noexcept
+	constexpr auto operator|(const uint_t& other) const noexcept
 	{
 		constexpr const auto lambda = [](const wordType a, const wordType b, const size_t)->wordType { return a | b; };
-		return unsigned_integer(unsigned_integer::binaryTransformWords<countWords, false>(m_Words, other.m_Words, lambda), false);
+		return uint_t(uint_t::binaryTransformWords<countWords, false>(m_Words, other.m_Words, lambda), false);
 	}
-	constexpr auto operator^(const unsigned_integer& other) const noexcept
+	constexpr auto operator^(const uint_t& other) const noexcept
 	{
 		constexpr const auto lambda = [](const wordType a, const wordType b, const size_t)->wordType { return a ^ b; };
-		return unsigned_integer(unsigned_integer::binaryTransformWords<countWords, false>(m_Words, other.m_Words, lambda), false);
+		return uint_t(uint_t::binaryTransformWords<countWords, false>(m_Words, other.m_Words, lambda), false);
 	}
-	constexpr auto operator+(const unsigned_integer& other) const noexcept
+	constexpr auto operator+(const uint_t& other) const noexcept
 	{
 		std::array<wordType, countWords> results{ make_array_n<countWords,wordType>(wordType(0)) };
 		bool carryFlag{ false };
@@ -266,10 +267,10 @@ public:
 			results[i] = temp + other.m_Words[i];
 			carryFlag = results[i] < temp;
 		}
-		results[countWords - 1] = unsigned_integer::normalizeHighestWord(carryFlag + m_Words[countWords - 1] + other.m_Words[countWords - 1]);
-		return unsigned_integer(results, false);
+		results[countWords - 1] = uint_t::normalizeHighestWord(carryFlag + m_Words[countWords - 1] + other.m_Words[countWords - 1]);
+		return uint_t(results, false);
 	}
-	constexpr unsigned_integer& operator+=(const unsigned_integer& other)  noexcept
+	constexpr uint_t& operator+=(const uint_t& other)  noexcept
 	{
 		bool carryFlag{ false };
 		for (size_t i = 0; i < countWords - 1; i++)
@@ -280,7 +281,7 @@ public:
 			m_Words[i] = temp + other.m_Words[i];
 			carryFlag = m_Words[i] < temp;
 		}
-		m_Words[countWords - 1] = unsigned_integer::normalizeHighestWord(carryFlag + m_Words[countWords - 1] + other.m_Words[countWords - 1]);
+		m_Words[countWords - 1] = uint_t::normalizeHighestWord(carryFlag + m_Words[countWords - 1] + other.m_Words[countWords - 1]);
 		return *this;
 	}
 	static auto random() noexcept
@@ -295,9 +296,9 @@ public:
 			}
 			return w;
 		};
-		return unsigned_integer(unsigned_integer::nullaryTransformWords<countWords, true>(lambda), false);
+		return uint_t(uint_t::nullaryTransformWords<countWords, true>(lambda), false);
 	}
-	static unsigned_integer&& sparse() noexcept
+	static uint_t&& sparse() noexcept
 	{
 		const auto lambda = [](const size_t index)->wordType
 		{
@@ -309,9 +310,9 @@ public:
 			}
 			return w;
 		};
-		return std::move(unsigned_integer(unsigned_integer::nullaryTransformWords<countWords, true>(lambda), false));
+		return std::move(uint_t(uint_t::nullaryTransformWords<countWords, true>(lambda), false));
 	}
-	constexpr bool operator==(const unsigned_integer& other) const noexcept
+	constexpr bool operator==(const uint_t& other) const noexcept
 	{
 		for (size_t index = 0; index < countWords; index++)
 		{
@@ -320,7 +321,7 @@ public:
 		}
 		return true;
 	}
-	constexpr bool operator!=(const unsigned_integer& other) const noexcept
+	constexpr bool operator!=(const uint_t& other) const noexcept
 	{
 		return !((*this) == other);
 	}
@@ -328,7 +329,7 @@ public:
 };
 
 template<size_t COUNT_BITS, bool COMPACT>
-class unsigned_integer<COUNT_BITS, COMPACT, typename std::enable_if <detail::unsigned_integer<COUNT_BITS, COMPACT>::isSingleWord()>::type>
+class uint_t<COUNT_BITS, COMPACT, typename std::enable_if <detail::isSingleWord<COUNT_BITS, COMPACT>()>::type>
 {
 public:
 	constexpr static const bool isCompact{ COMPACT };
@@ -351,21 +352,21 @@ private:
 		else
 			return word;
 	}
-	constexpr unsigned_integer(const wordType word, bool) noexcept :
+	constexpr uint_t(const wordType word, bool) noexcept :
 		m_Word{ word }
 	{	}
 public:
-	constexpr unsigned_integer() noexcept :
+	constexpr uint_t() noexcept :
 		m_Word{ wordType(0) }
 	{	}
 	template<typename T, typename = typename std::enable_if<std::is_integral<T>::value>::type>
-	constexpr unsigned_integer(const T value) noexcept :
+	constexpr uint_t(const T value) noexcept :
 		m_Word{ normalizeWord(static_cast<wordType>(static_cast<typename std::make_unsigned<T>::type>(value))) }
 	{	}
-	constexpr unsigned_integer(const unsigned_integer&) noexcept = default;
-	constexpr unsigned_integer(unsigned_integer&&) noexcept = default;
-	constexpr unsigned_integer& operator=(const unsigned_integer&) noexcept = default;
-	constexpr unsigned_integer& operator=(unsigned_integer&&) noexcept = default;
+	constexpr uint_t(const uint_t&) noexcept = default;
+	constexpr uint_t(uint_t&&) noexcept = default;
+	constexpr uint_t& operator=(const uint_t&) noexcept = default;
+	constexpr uint_t& operator=(uint_t&&) noexcept = default;
 	template<typename T, typename = typename std::enable_if<std::is_unsigned<T>::value>::type>
 	constexpr operator T() const noexcept
 	{
@@ -390,56 +391,56 @@ public:
 		sstr << "]";
 		return sstr.str();
 	}
-	constexpr unsigned_integer&& operator~() const noexcept
+	constexpr uint_t&& operator~() const noexcept
 	{
-		return std::move(unsigned_integer(normalizeWord(~m_Word), false));
+		return std::move(uint_t(normalizeWord(~m_Word), false));
 	}
-	constexpr unsigned_integer& operator&=(const unsigned_integer& other) noexcept
+	constexpr uint_t& operator&=(const uint_t& other) noexcept
 	{
 		m_Word = m_Word & other.m_Word;
 		return *this;
 	}
-	constexpr unsigned_integer& operator+=(const unsigned_integer& other) noexcept
+	constexpr uint_t& operator+=(const uint_t& other) noexcept
 	{
 		m_Word = normalizeWord(m_Word + other.m_Word);
 		return *this;
 	}
-	constexpr unsigned_integer& operator*=(const unsigned_integer& other) noexcept
+	constexpr uint_t& operator*=(const uint_t& other) noexcept
 	{
 		m_Word = normalizeWord(m_Word * other.m_Word);
 		return *this;
 	}
-	constexpr unsigned_integer& operator|=(const unsigned_integer& other) noexcept
+	constexpr uint_t& operator|=(const uint_t& other) noexcept
 	{
 		m_Word = m_Word | other.m_Word;
 		return *this;
 	}
-	constexpr unsigned_integer& operator^=(const unsigned_integer& other) noexcept
+	constexpr uint_t& operator^=(const uint_t& other) noexcept
 	{
 		m_Word = m_Word & other.m_Word;
 		return *this;
 	}
-	constexpr unsigned_integer&& operator&(const unsigned_integer& other) const noexcept
+	constexpr uint_t&& operator&(const uint_t& other) const noexcept
 	{
-		return std::move(unsigned_integer(m_Word & other.m_Word, false));
+		return std::move(uint_t(m_Word & other.m_Word, false));
 	}
-	constexpr unsigned_integer&& operator|(const unsigned_integer& other) const noexcept
+	constexpr uint_t&& operator|(const uint_t& other) const noexcept
 	{
-		return std::move(unsigned_integer(m_Word | other.m_Word, false));
+		return std::move(uint_t(m_Word | other.m_Word, false));
 	}
-	constexpr unsigned_integer&& operator^(const unsigned_integer& other) const noexcept
+	constexpr uint_t&& operator^(const uint_t& other) const noexcept
 	{
-		return std::move(unsigned_integer(m_Word ^ other.m_Word, false));
+		return std::move(uint_t(m_Word ^ other.m_Word, false));
 	}
-	constexpr unsigned_integer&& operator+(const unsigned_integer& other) const noexcept
+	constexpr uint_t&& operator+(const uint_t& other) const noexcept
 	{
-		return std::move(unsigned_integer(normalizeWord(m_Word + other.m_Word), false));
+		return std::move(uint_t(normalizeWord(m_Word + other.m_Word), false));
 	}
-	constexpr unsigned_integer&& operator*(const unsigned_integer& other) const noexcept
+	constexpr uint_t&& operator*(const uint_t& other) const noexcept
 	{
-		return std::move(unsigned_integer(normalizeWord(m_Word * other.m_Word), false));
+		return std::move(uint_t(normalizeWord(m_Word * other.m_Word), false));
 	}
-	static unsigned_integer random() noexcept
+	static uint_t random() noexcept
 	{
 		wordType w{ wordType(0) };
 		for (size_t c = 0; c < sizeof(wordType); c++)
@@ -447,9 +448,9 @@ public:
 			const wordType randomChar{ static_cast<wordType>(std::rand() % UCHAR_MAX) };
 			w |= randomChar << (CHAR_BIT * c);
 		}
-		return unsigned_integer(normalizeWord(std::move(w)), false);
+		return uint_t(normalizeWord(std::move(w)), false);
 	}
-	static unsigned_integer sparse() noexcept
+	static uint_t sparse() noexcept
 	{
 		wordType w{ wordType(0) };
 		for (size_t c = 0; c < sizeof(wordType); c++)
@@ -457,13 +458,13 @@ public:
 			const wordType randomChar{ static_cast<wordType>((std::rand() % UCHAR_MAX) & (std::rand() % UCHAR_MAX) & (std::rand() % UCHAR_MAX)) };
 			w |= randomChar << (CHAR_BIT * c);
 		}
-		return unsigned_integer(normalizeWord(std::move(w)), false);
+		return uint_t(normalizeWord(std::move(w)), false);
 	}
-	constexpr bool operator==(const unsigned_integer& other) const noexcept
+	constexpr bool operator==(const uint_t& other) const noexcept
 	{
 		return m_Word == other.m_Word;
 	}
-	constexpr bool operator!=(const unsigned_integer& other) const noexcept
+	constexpr bool operator!=(const uint_t& other) const noexcept
 	{
 		return m_Word != other.m_Word;
 	}
@@ -471,7 +472,7 @@ public:
 };
 
 template<size_t COUNT_BITS, bool COMPACT>
-class unsigned_integer<COUNT_BITS, COMPACT, typename std::enable_if <detail::unsigned_integer<COUNT_BITS, COMPACT>::isSingleBit()>::type>
+class uint_t<COUNT_BITS, COMPACT, typename std::enable_if <detail::isSingleBit<COUNT_BITS, COMPACT>()>::type>
 {
 public:
 	constexpr static const bool isCompact{ COMPACT };
@@ -483,21 +484,21 @@ public:
 	constexpr static const size_t countStorageBits{ countBitsPerWord };
 private:
 	wordType m_Word;
-	constexpr unsigned_integer(const wordType word, bool) noexcept :
+	constexpr uint_t(const wordType word, bool) noexcept :
 		m_Word{ word }
 	{	}
 public:
-	constexpr unsigned_integer() noexcept :
+	constexpr uint_t() noexcept :
 		m_Word{ wordType(0) }
 	{	}
 	template<typename T, typename = typename std::enable_if<std::is_integral<T>::value>::type>
-	constexpr unsigned_integer(const T value) noexcept :
+	constexpr uint_t(const T value) noexcept :
 		m_Word{ static_cast<wordType>(static_cast<typename std::make_unsigned<T>::type>(value)) }
 	{	}
-	constexpr unsigned_integer(const unsigned_integer&) noexcept = default;
-	constexpr unsigned_integer(unsigned_integer&&) noexcept = default;
-	constexpr unsigned_integer& operator=(const unsigned_integer&) noexcept = default;
-	constexpr unsigned_integer& operator=(unsigned_integer&&) noexcept = default;
+	constexpr uint_t(const uint_t&) noexcept = default;
+	constexpr uint_t(uint_t&&) noexcept = default;
+	constexpr uint_t& operator=(const uint_t&) noexcept = default;
+	constexpr uint_t& operator=(uint_t&&) noexcept = default;
 	template<typename T, typename = typename std::enable_if<std::is_unsigned<T>::value>::type>
 	constexpr operator T() const noexcept
 	{
@@ -515,72 +516,72 @@ public:
 		sstr << "]";
 		return sstr.str();
 	}
-	constexpr unsigned_integer operator~() const noexcept
+	constexpr uint_t operator~() const noexcept
 	{
-		return std::move(unsigned_integer(!m_Word, false));
+		return std::move(uint_t(!m_Word, false));
 	}
-	constexpr unsigned_integer& operator*=(const unsigned_integer other) noexcept
+	constexpr uint_t& operator*=(const uint_t other) noexcept
 	{
 		m_Word &= other.m_Word;
 		return *this;
 	}
-	constexpr unsigned_integer& operator+=(const unsigned_integer other) noexcept
+	constexpr uint_t& operator+=(const uint_t other) noexcept
 	{
 		m_Word ^= other.m_Word;
 		return *this;
 	}
-	constexpr unsigned_integer& operator&=(const unsigned_integer other) noexcept
+	constexpr uint_t& operator&=(const uint_t other) noexcept
 	{
 		m_Word &= other.m_Word;
 		return *this;
 	}
-	constexpr unsigned_integer& operator|=(const unsigned_integer other) noexcept
+	constexpr uint_t& operator|=(const uint_t other) noexcept
 	{
 		m_Word |= other.m_Word;
 		return *this;
 	}
-	constexpr unsigned_integer& operator^=(const unsigned_integer other) noexcept
+	constexpr uint_t& operator^=(const uint_t other) noexcept
 	{
 		m_Word ^= other.m_Word;
 		return *this;
 	}
-	constexpr unsigned_integer operator+(const unsigned_integer other) const noexcept
+	constexpr uint_t operator+(const uint_t other) const noexcept
 	{
-		return unsigned_integer(m_Word ^ other.m_Word, false);
+		return uint_t(m_Word ^ other.m_Word, false);
 	}
-	constexpr unsigned_integer&& operator*(const unsigned_integer& other) const noexcept
+	constexpr uint_t&& operator*(const uint_t& other) const noexcept
 	{
-		return unsigned_integer(m_Word & other.m_Word, false);
+		return uint_t(m_Word & other.m_Word, false);
 	}
-	constexpr unsigned_integer operator&(const unsigned_integer other) const noexcept
+	constexpr uint_t operator&(const uint_t other) const noexcept
 	{
-		return unsigned_integer(m_Word & other.m_Word, false);
+		return uint_t(m_Word & other.m_Word, false);
 	}
-	constexpr unsigned_integer operator|(const unsigned_integer other) const noexcept
+	constexpr uint_t operator|(const uint_t other) const noexcept
 	{
-		return unsigned_integer(m_Word | other.m_Word, false);
+		return uint_t(m_Word | other.m_Word, false);
 	}
-	constexpr unsigned_integer operator^(const unsigned_integer other) const noexcept
+	constexpr uint_t operator^(const uint_t other) const noexcept
 	{
-		return unsigned_integer(m_Word ^ other.m_Word, false);
+		return uint_t(m_Word ^ other.m_Word, false);
 	}
-	static unsigned_integer random() noexcept
+	static uint_t random() noexcept
 	{
 		const wordType w{ static_cast<wordType>(std::rand() % 2) };
-		return unsigned_integer(std::move(w), false);
+		return uint_t(std::move(w), false);
 	}
-	static unsigned_integer sparse() noexcept
+	static uint_t sparse() noexcept
 	{
 		const wordType a{ static_cast<wordType>(std::rand() % 2) };
 		const wordType b{ static_cast<wordType>(std::rand() % 2) };
 		const wordType c{ static_cast<wordType>(std::rand() % 2) };
-		return unsigned_integer(a && b && c, false);
+		return uint_t(a && b && c, false);
 	}
-	constexpr bool operator==(const unsigned_integer other) const noexcept
+	constexpr bool operator==(const uint_t other) const noexcept
 	{
 		return m_Word == other.m_Word;
 	}
-	constexpr bool operator!=(const unsigned_integer other) const noexcept
+	constexpr bool operator!=(const uint_t other) const noexcept
 	{
 		return m_Word != other.m_Word;
 	}
@@ -588,7 +589,7 @@ public:
 };
 
 template<size_t COUNT_BITS, bool COMPACT>
-class unsigned_integer<COUNT_BITS, COMPACT, typename std::enable_if <detail::unsigned_integer<COUNT_BITS, COMPACT>::isEmpty()>::type>
+class uint_t<COUNT_BITS, COMPACT, typename std::enable_if<detail::isEmpty<COUNT_BITS, COMPACT>()>::type>
 {
 public:
 	constexpr static const bool isCompact{ COMPACT };
@@ -600,14 +601,14 @@ public:
 	constexpr static const size_t countStorageBits{ 0 };
 private:
 public:
-	constexpr unsigned_integer() noexcept = default;
+	constexpr uint_t() noexcept = default;
 	template<typename T, typename = typename std::enable_if<std::is_integral<T>::value>::type>
-	constexpr unsigned_integer(const T value) noexcept
+	constexpr uint_t(const T value) noexcept
 	{	}
-	constexpr unsigned_integer(const unsigned_integer&) noexcept = default;
-	constexpr unsigned_integer(unsigned_integer&&) noexcept = default;
-	constexpr unsigned_integer& operator=(const unsigned_integer&) noexcept = default;
-	constexpr unsigned_integer& operator=(unsigned_integer&&) noexcept = default;
+	constexpr uint_t(const uint_t&) noexcept = default;
+	constexpr uint_t(uint_t&&) noexcept = default;
+	constexpr uint_t& operator=(const uint_t&) noexcept = default;
+	constexpr uint_t& operator=(uint_t&&) noexcept = default;
 	template<typename T, typename = typename std::enable_if<std::is_unsigned<T>::value>::type>
 	constexpr operator T() const noexcept
 	{
@@ -623,63 +624,63 @@ public:
 		sstr << "[]";
 		return sstr.str();
 	}
-	constexpr unsigned_integer operator~() const noexcept
+	constexpr uint_t operator~() const noexcept
 	{
 		return *this;
 	}
-	constexpr unsigned_integer& operator*=(const unsigned_integer other) noexcept
+	constexpr uint_t& operator*=(const uint_t other) noexcept
 	{
 		return *this;
 	}
-	constexpr unsigned_integer& operator+=(const unsigned_integer other) noexcept
+	constexpr uint_t& operator+=(const uint_t other) noexcept
 	{
 		return *this;
 	}
-	constexpr unsigned_integer& operator&=(const unsigned_integer other) noexcept
+	constexpr uint_t& operator&=(const uint_t other) noexcept
 	{
 		return *this;
 	}
-	constexpr unsigned_integer& operator|=(const unsigned_integer other) noexcept
+	constexpr uint_t& operator|=(const uint_t other) noexcept
 	{
 		return *this;
 	}
-	constexpr unsigned_integer& operator^=(const unsigned_integer other) noexcept
+	constexpr uint_t& operator^=(const uint_t other) noexcept
 	{
 		return *this;
 	}
-	constexpr unsigned_integer operator+(const unsigned_integer other) const noexcept
+	constexpr uint_t operator+(const uint_t other) const noexcept
 	{
 		return *this;
 	}
-	constexpr unsigned_integer&& operator*(const unsigned_integer& other) const noexcept
+	constexpr uint_t&& operator*(const uint_t& other) const noexcept
 	{
 		return *this;
 	}
-	constexpr unsigned_integer operator&(const unsigned_integer other) const noexcept
+	constexpr uint_t operator&(const uint_t other) const noexcept
 	{
 		return *this;
 	}
-	constexpr unsigned_integer operator|(const unsigned_integer other) const noexcept
+	constexpr uint_t operator|(const uint_t other) const noexcept
 	{
 		return *this;
 	}
-	constexpr unsigned_integer operator^(const unsigned_integer other) const noexcept
+	constexpr uint_t operator^(const uint_t other) const noexcept
 	{
 		return *this;
 	}
-	static unsigned_integer random() noexcept
+	static uint_t random() noexcept
 	{
-		return unsigned_integer();
+		return uint_t();
 	}
-	static unsigned_integer sparse() noexcept
+	static uint_t sparse() noexcept
 	{
-		return unsigned_integer();
+		return uint_t();
 	}
-	constexpr bool operator==(const unsigned_integer other) const noexcept
+	constexpr bool operator==(const uint_t other) const noexcept
 	{
 		return true;
 	}
-	constexpr bool operator!=(const unsigned_integer other) const noexcept
+	constexpr bool operator!=(const uint_t other) const noexcept
 	{
 		return false;
 	}
@@ -687,8 +688,14 @@ public:
 };
 
 template<size_t COUNT_BITS, bool COMPACT>
-std::ostream& operator<<(std::ostream& str, const unsigned_integer<COUNT_BITS, COMPACT>& value) noexcept
+std::ostream& operator<<(std::ostream& str, const uint_t<COUNT_BITS, COMPACT>& value) noexcept
 {
 	str << static_cast<std::string>(value);
 	return str;
 }
+
+template<size_t COUNT_BITS>
+using uint_least_t = uint_t<COUNT_BITS, true>;
+
+template<size_t COUNT_BITS>
+using uint_fast_t = uint_t<COUNT_BITS, false>;
