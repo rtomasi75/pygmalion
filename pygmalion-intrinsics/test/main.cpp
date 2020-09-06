@@ -12,7 +12,7 @@ int main(int argc, char* argv[])
 	constexpr const intrinsics::compiler::flags comp{ intrinsics::compiler::computeFlags() };
 	constexpr const intrinsics::cpu::flags cpu{ intrinsics::cpu::computeFlags() };
 	std::srand(std::time(nullptr));
-	constexpr const size_t len{ 0 };
+	constexpr const size_t len{ 64 };
 	constexpr const bool compact{ true };
 	using T = unsigned_integer<len, compact>;
 	T v1{ unsigned_integer<len,compact>::random() };

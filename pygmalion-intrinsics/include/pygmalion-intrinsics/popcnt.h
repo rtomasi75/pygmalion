@@ -381,6 +381,7 @@ private:
 #if defined(PYGMALION_INTRINSICS_MSC)  
 			if constexpr (compiler::supports(compiler::flags::MSC) && cpu::supports(cpu::flags::X64))
 				sstr << "MSC64 ";
+			else
 #endif
 #if defined(PYGMALION_INTRINSICS_GNU)
 			if constexpr (compiler::supports(compiler::flags::GNU))
