@@ -41,7 +41,8 @@ public:
 		return static_cast<flags>(f);
 	}
 
-	struct tag_generic {};
+	struct tag_emulation {};
+	struct tag_generic : tag_emulation {};
 	struct tag_GNU : tag_generic {};
 	struct tag_MSC : tag_GNU {};
 	struct tag_best : tag_MSC {};

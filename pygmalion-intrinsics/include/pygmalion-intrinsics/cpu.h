@@ -92,7 +92,7 @@ public:
 		f |= flags::X86;
 #endif
 #if defined(PYGMALION_CPU_X64)
-	//	f |= flags::X86;
+		f |= flags::X86;
 		f |= flags::X64;
 #endif
 		return static_cast<flags>(f);

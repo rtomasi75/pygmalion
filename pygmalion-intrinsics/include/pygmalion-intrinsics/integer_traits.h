@@ -5,7 +5,7 @@ class integer_traits
 public:
 	using uword = std::uint_least8_t;
 };
-
+/*
 template<size_t COUNT_BYTES>
 class integer_traits<COUNT_BYTES, true, typename std::enable_if<(COUNT_BYTES >= 1) && ((COUNT_BYTES % 2) != 0)>::type>
 {
@@ -40,7 +40,7 @@ class integer_traits<COUNT_BYTES, false, typename std::enable_if < (COUNT_BYTES 
 public:
 	using uword = std::uintmax_t;
 };
-
+*/
 template<size_t COUNT_BYTES>
 class integer_traits<COUNT_BYTES, false, typename std::enable_if<(COUNT_BYTES <= 1)>::type>
 {
