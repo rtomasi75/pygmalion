@@ -26,6 +26,8 @@ namespace intrinsics::test
 		}
 		profiler profileCount;
 		profiler profileBase;
+		profiler profileRef;
+		profiler profileGeneric;
 		std::cout << "    counting bits (uint_t)..." << std::endl;
 		profileCount.start();
 		for (size_t i = 0; i < countIterations; i++)
@@ -41,15 +43,27 @@ namespace intrinsics::test
 		const auto durationBase{ profileBase.duration() };
 		const auto speedBase{ profileBase.computeSpeed(countIterations, "op") };
 		std::cout << "    counting bits (reference)..." << std::endl;
+		profileRef.start();
 		for (size_t i = 0; i < countIterations; i++)
 			m_RefCounts[i] = detail::popcnt_traits<COUNT_BITS>::reference(m_RefInput[i]);
+		profileRef.stop();
+		const auto durationRef{ profileRef.duration() };
+		const auto speedRef{ profileRef.computeSpeed(countIterations, "op") };
+		profileGeneric.start();
+		for (size_t i = 0; i < countIterations; i++)
+			m_BaseCounts[i] |= detail::popcnt_traits<COUNT_BITS>::generic(m_BaseInput[i]);
+		profileGeneric.stop();
+		const auto durationGeneric{ profileGeneric.duration() };
+		const auto speedGeneric{ profileGeneric.computeSpeed(countIterations, "op") };
 		std::cout << "      implementation: " << parser::durationToString(durationCount) << " -> " << speedCount << std::endl;
 		std::cout << "      baseline:       " << parser::durationToString(durationBase) << " -> " << speedBase << std::endl;
+		std::cout << "      generic:        " << parser::durationToString(durationGeneric) << " -> " << speedGeneric << std::endl;
+		std::cout << "      reference:      " << parser::durationToString(durationRef) << " -> " << speedRef << std::endl;
 		std::cout << "    verifying..." << std::endl;
 		std::cout << std::endl;
 		for (size_t i = 0; i < countIterations; i++)
 		{
-			if ((m_Counts[i] != m_RefCounts[i])|| (m_Counts[i] != m_BaseCounts[i]))
+			if ((m_Counts[i] != m_RefCounts[i]) || (m_Counts[i] != m_BaseCounts[i]))
 			{
 				std::cout << "    FAILED:" << std::endl;
 				std::cout << "      failing uint_t<" << COUNT_BITS << "," << COMPACT << ">: " << static_cast<std::uintmax_t>(m_Input[i]) << std::endl;

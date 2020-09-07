@@ -49,6 +49,10 @@ namespace detail
 #endif
 			return popcnt_reference<COUNT_BITS, refType>(bits);
 		}
+		static size_t generic(const refType bits)
+		{
+			return popcnt_reference<COUNT_BITS, refType>(bits);
+		}
 	};
 
 	template<size_t COUNT_BITS>
@@ -86,6 +90,10 @@ namespace detail
 					return __builtin_popcountll(bits);
 			}
 #endif
+			return popcnt_reference<COUNT_BITS, refType>(bits);
+		}
+		static size_t generic(const refType bits)
+		{
 			return popcnt_reference<COUNT_BITS, refType>(bits);
 		}
 	};
@@ -127,6 +135,10 @@ namespace detail
 #endif
 			return popcnt_reference<COUNT_BITS, refType>(bits);
 		}
+		static size_t generic(const refType bits)
+		{
+			return popcnt_reference<COUNT_BITS, refType>(bits);
+		}
 	};
 
 	template<size_t COUNT_BITS>
@@ -166,6 +178,10 @@ namespace detail
 #endif
 			return popcnt_reference<COUNT_BITS, refType>(bits);
 		}
+		static size_t generic(const refType bits)
+		{
+			return popcnt_reference<COUNT_BITS, refType>(bits);
+		}
 	};
 
 	template<size_t COUNT_BITS>
@@ -180,6 +196,10 @@ namespace detail
 		{
 			return bits;
 		}
+		static size_t generic(const refType bits)
+		{
+			return popcnt_reference<COUNT_BITS, refType>(bits);
+		}
 	};
 
 	template<size_t COUNT_BITS>
@@ -193,6 +213,10 @@ namespace detail
 		static size_t baseline(const refType bits) noexcept
 		{
 			return 0;
+		}
+		static size_t generic(const refType bits)
+		{
+			return popcnt_reference<COUNT_BITS, refType>(bits);
 		}
 	};
 
@@ -225,6 +249,10 @@ namespace detail
 #endif
 			return popcnt_reference<COUNT_BITS, refType>(bits);
 		}
+		static size_t generic(const refType bits)
+		{
+			return popcnt_reference<COUNT_BITS, refType>(bits);
+		}
 	};
 
 }
@@ -237,20 +265,25 @@ private:
 	template <typename T, int iteration>
 	constexpr static T popcount_ref(const T bits) noexcept
 	{
-		constexpr const int shift{ 1 << iteration };
-		if constexpr (shift >= (sizeof(T) * CHAR_BIT))
+		if constexpr (std::is_same<T, bool>::value)
 			return bits;
 		else
 		{
-			constexpr const std::array<T, 2> masks
+			constexpr const int shift{ 1 << iteration };
+			if constexpr (shift >= (sizeof(T) * CHAR_BIT))
+				return bits;
+			else
 			{
-				static_cast<T>(static_cast<T>(-T(1)) / ((T(1) << (1 << iteration)) + 1)),
-				static_cast<T>(~(static_cast<T>(-T(1)) / ((T(1) << (1 << iteration)) + 1)))
-			};
-			const T low{ static_cast<T>(bits & masks[0]) };
-			const T high{ static_cast<T>(bits & masks[1]) };
-			const T value{ static_cast<T>((high >> shift) + low) };
-			return popcount_ref<T, iteration + 1>(value);
+				constexpr const std::array<T, 2> masks
+				{
+					static_cast<T>(static_cast<T>(-T(1)) / ((T(1) << (1 << iteration)) + 1)),
+					static_cast<T>(~(static_cast<T>(-T(1)) / ((T(1) << (1 << iteration)) + 1)))
+				};
+				const T low{ static_cast<T>(bits & masks[0]) };
+				const T high{ static_cast<T>(bits & masks[1]) };
+				const T value{ static_cast<T>((high >> shift) + low) };
+				return popcount_ref<T, iteration + 1>(value);
+			}
 		}
 	}
 

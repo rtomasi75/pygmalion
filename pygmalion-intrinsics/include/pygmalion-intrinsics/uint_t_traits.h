@@ -43,14 +43,14 @@ namespace detail
 	};
 
 	template<size_t COUNT_BYTES>
-	class uint_t_traits<COUNT_BYTES, false, typename std::enable_if<(COUNT_BYTES > 1) && (COUNT_BYTES < 2)>::type>
+	class uint_t_traits<COUNT_BYTES, false, typename std::enable_if<(COUNT_BYTES > 1) && (COUNT_BYTES <= 2)>::type>
 	{
 	public:
 		using wordType = std::uint_fast16_t;
 	};
 
 	template<size_t COUNT_BYTES>
-	class uint_t_traits<COUNT_BYTES, false, typename std::enable_if<(COUNT_BYTES > 2) && (COUNT_BYTES < 4)>::type>
+	class uint_t_traits<COUNT_BYTES, false, typename std::enable_if<(COUNT_BYTES > 2) && (COUNT_BYTES <= 4)>::type>
 	{
 	public:
 		using wordType = std::uint_fast32_t;

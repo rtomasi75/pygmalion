@@ -238,14 +238,14 @@ public:
 	{
 		std::array<wordType, countWords> results{ make_array_n<countWords,wordType>(wordType(0)) };
 		bool carryFlag{ false };
-		for (size_t i = 0; i < countWords - 1; i++)
+		for (size_t i = 0; i < countWords; i++)
 		{
 			const wordType temp{ static_cast<wordType>(carryFlag + m_Words[i]) };
-			carryFlag = !temp;
+			carryFlag = temp < m_Words[i];
 			results[i] = temp + other.m_Words[i];
 			carryFlag |= results[i] < temp;
 		}
-		results[countWords - 1] = uint_t::normalizeHighestWord(carryFlag + m_Words[countWords - 1] + other.m_Words[countWords - 1]);
+		results[countWords - 1] = uint_t::normalizeHighestWord(results[countWords - 1]);
 		return uint_t(results, false);
 	}
 	constexpr uint_t& operator+=(const uint_t& other)  noexcept
@@ -254,7 +254,7 @@ public:
 		for (size_t i = 0; i < countWords - 1; i++)
 		{
 			const wordType temp{ static_cast<wordType>(carryFlag + other.m_Words[i]) };
-			carryFlag = !temp;
+			carryFlag = temp < other.m_Words[i];
 			m_Words[i] += temp;
 			carryFlag |= m_Words[i] < temp;
 		}
@@ -443,25 +443,25 @@ public:
 		m_Word = m_Word & other.m_Word;
 		return *this;
 	}
-	constexpr uint_t&& operator&(const uint_t& other) const noexcept
+	constexpr uint_t operator&(const uint_t& other) const noexcept
 	{
-		return std::move(uint_t(m_Word & other.m_Word, false));
+		return uint_t(m_Word & other.m_Word, false);
 	}
-	constexpr uint_t&& operator|(const uint_t& other) const noexcept
+	constexpr uint_t operator|(const uint_t& other) const noexcept
 	{
-		return std::move(uint_t(m_Word | other.m_Word, false));
+		return uint_t(m_Word | other.m_Word, false);
 	}
-	constexpr uint_t&& operator^(const uint_t& other) const noexcept
+	constexpr uint_t operator^(const uint_t& other) const noexcept
 	{
-		return std::move(uint_t(m_Word ^ other.m_Word, false));
+		return uint_t(m_Word ^ other.m_Word, false);
 	}
-	constexpr uint_t&& operator+(const uint_t& other) const noexcept
+	constexpr uint_t operator+(const uint_t& other) const noexcept
 	{
-		return std::move(uint_t(normalizeWord(m_Word + other.m_Word), false));
+		return uint_t(normalizeWord(m_Word + other.m_Word), false);
 	}
-	constexpr uint_t&& operator*(const uint_t& other) const noexcept
+	constexpr uint_t operator*(const uint_t& other) const noexcept
 	{
-		return std::move(uint_t(normalizeWord(m_Word * other.m_Word), false));
+		return uint_t(normalizeWord(m_Word * other.m_Word), false);
 	}
 	static uint_t random() noexcept
 	{

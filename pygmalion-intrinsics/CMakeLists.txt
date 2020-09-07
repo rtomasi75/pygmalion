@@ -18,6 +18,7 @@ target_include_directories(pygmalion-intrinsics PUBLIC $<BUILD_INTERFACE:${CMAKE
 
 add_executable(pygmalion-intrinsics-main "executables/main.cpp")
 target_link_libraries(pygmalion-intrinsics-main pygmalion-intrinsics)
+#target_compile_options(pygmalion-intrinsics-main PRIVATE /FAs)
 
 add_executable(pygmalion-intrinsics-test "executables/unit.cpp")
 target_link_libraries(pygmalion-intrinsics-test pygmalion-intrinsics)
