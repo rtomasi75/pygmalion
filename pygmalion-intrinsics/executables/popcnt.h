@@ -4,6 +4,7 @@ namespace intrinsics::test
 	bool popcnt(typename profiler::durationType& duration, size_t& operations) noexcept
 	{
 		using U = uint_t<COUNT_BITS, COMPACT>;
+		using R = typename detail::popcnt_traits<COUNT_BITS>::refType;
 		std::cout << "  TEST: uint_t<" << COUNT_BITS << "," << COMPACT << "> population counts" << std::endl;
 		std::cout << std::endl;
 		std::cout << "    " << U() << std::endl;
@@ -11,38 +12,55 @@ namespace intrinsics::test
 		std::cout << std::endl;
 		const size_t countIterations{ size_t(1) << 24 };
 		U* m_Input = new U[countIterations];
+		R* m_RefInput = new R[countIterations];
+		R* m_BaseInput = new R[countIterations];
 		size_t* m_Counts = new size_t[countIterations];
+		size_t* m_RefCounts = new size_t[countIterations];
+		size_t* m_BaseCounts = new size_t[countIterations];
 		std::cout << "    generating " << countIterations << "x uint_t<" << COUNT_BITS << "," << COMPACT << ">..." << std::endl;
 		for (size_t i = 0; i < countIterations; i++)
+		{
 			m_Input[i] = U::random();
-		profiler profile;
-		std::cout << "    counting bits..." << std::endl;
-		profile.start();
+			m_RefInput[i] = m_Input[i];
+			m_BaseInput[i] = m_Input[i];
+		}
+		profiler profileCount;
+		profiler profileBase;
+		std::cout << "    counting bits (uint_t)..." << std::endl;
+		profileCount.start();
 		for (size_t i = 0; i < countIterations; i++)
 			m_Counts[i] = m_Input[i].populationCount();
-		profile.stop();
-		const auto durationCount{ profile.duration() };
-		std::cout << "      " << parser::durationToString(durationCount) << " -> " << profile.computeSpeed(countIterations, "op") << std::endl;
+		profileCount.stop();
+		const auto durationCount{ profileCount.duration() };
+		const auto speedCount{ profileCount.computeSpeed(countIterations, "op") };
+		std::cout << "    counting bits (baseline)..." << std::endl;
+		profileBase.start();
+		for (size_t i = 0; i < countIterations; i++)
+			m_BaseCounts[i] = detail::popcnt_traits<COUNT_BITS>::baseline(m_BaseInput[i]);
+		profileBase.stop();
+		const auto durationBase{ profileBase.duration() };
+		const auto speedBase{ profileBase.computeSpeed(countIterations, "op") };
+		std::cout << "    counting bits (reference)..." << std::endl;
+		for (size_t i = 0; i < countIterations; i++)
+			m_RefCounts[i] = detail::popcnt_traits<COUNT_BITS>::reference(m_RefInput[i]);
+		std::cout << "      implementation: " << parser::durationToString(durationCount) << " -> " << speedCount << std::endl;
+		std::cout << "      baseline:       " << parser::durationToString(durationBase) << " -> " << speedBase << std::endl;
 		std::cout << "    verifying..." << std::endl;
 		std::cout << std::endl;
 		for (size_t i = 0; i < countIterations; i++)
 		{
-			std::uintmax_t test{ m_Input[i] };
-			size_t count{ 0 };
-			for (size_t i = 0; i < (sizeof(test) * CHAR_BIT); i++)
-			{
-				std::uintmax_t mask{ std::uintmax_t(1) << i };
-				if (test & mask)
-					count++;
-			}
-			if (m_Counts[i] != count)
+			if ((m_Counts[i] != m_RefCounts[i])|| (m_Counts[i] != m_BaseCounts[i]))
 			{
 				std::cout << "    FAILED:" << std::endl;
 				std::cout << "      failing uint_t<" << COUNT_BITS << "," << COMPACT << ">: " << static_cast<std::uintmax_t>(m_Input[i]) << std::endl;
 				std::cout << std::endl;
-				count = m_Input[i].populationCount();
+				const size_t count{ m_Input[i].populationCount() };
+				delete[] m_RefInput;
+				delete[] m_BaseInput;
 				delete[] m_Input;
 				delete[] m_Counts;
+				delete[] m_RefCounts;
+				delete[] m_BaseCounts;
 				return false;
 			}
 		}
@@ -50,8 +68,12 @@ namespace intrinsics::test
 		operations += countIterations;
 		std::cout << "  PASSED" << std::endl;
 		std::cout << std::endl;
+		delete[] m_RefInput;
+		delete[] m_BaseInput;
 		delete[] m_Input;
 		delete[] m_Counts;
+		delete[] m_RefCounts;
+		delete[] m_BaseCounts;
 		return true;
 	}
 	bool popcnt() noexcept
@@ -64,6 +86,7 @@ namespace intrinsics::test
 		std::cout << "___________________________________" << std::endl;
 		std::cout << "TESTSUITE: uint_t population counts" << std::endl;
 		std::cout << std::endl;
+		result &= intrinsics::test::popcnt<0, false>(durationFast, operationsFast);
 		result &= intrinsics::test::popcnt<1, false>(durationFast, operationsFast);
 		result &= intrinsics::test::popcnt<2, false>(durationFast, operationsFast);
 		result &= intrinsics::test::popcnt<4, false>(durationFast, operationsFast);
@@ -88,6 +111,7 @@ namespace intrinsics::test
 		result &= intrinsics::test::popcnt<53, false>(durationFast, operationsFast);
 		result &= intrinsics::test::popcnt<59, false>(durationFast, operationsFast);
 		result &= intrinsics::test::popcnt<61, false>(durationFast, operationsFast);
+		result &= intrinsics::test::popcnt<0, true>(durationCompact, operationsCompact);
 		result &= intrinsics::test::popcnt<1, true>(durationCompact, operationsCompact);
 		result &= intrinsics::test::popcnt<2, true>(durationCompact, operationsCompact);
 		result &= intrinsics::test::popcnt<4, true>(durationCompact, operationsCompact);

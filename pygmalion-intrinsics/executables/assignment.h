@@ -16,7 +16,11 @@ namespace intrinsics::test
 		T mask{ 0 };
 		for (size_t i = 0; i < countIterations; i++)
 		{
-			if constexpr (COUNT_BITS >= (sizeof(T) * CHAR_BIT))
+			if constexpr (COUNT_BITS == 0)
+			{
+				m_Input[i] = false;
+			}
+			else if constexpr (COUNT_BITS >= (sizeof(T) * CHAR_BIT))
 			{
 				mask = ~T(0);
 				m_Input[i] = static_cast<T>(std::rand() % mask);
@@ -34,14 +38,16 @@ namespace intrinsics::test
 			m_Values[i] = m_Input[i];
 		profile.stop();
 		const auto durationCastTo{ profile.duration() };
-		std::cout << "      " << parser::durationToString(durationCastTo) << " -> " << profile.computeSpeed(countIterations, "op") << std::endl;
+		const auto speedTo{ profile.computeSpeed(countIterations, "op") };
+		std::cout << "      " << parser::durationToString(durationCastTo) << " -> " << speedTo << std::endl;
 		std::cout << "    casting from uint_t <" << COUNT_BITS << "," << COMPACT << ">..." << std::endl;
 		profile.start();
 		for (size_t i = 0; i < countIterations; i++)
 			m_Output[i] = m_Values[i];
 		profile.stop();
 		const auto durationCastFrom{ profile.duration() };
-		std::cout << "      " << parser::durationToString(durationCastTo) << " -> " << profile.computeSpeed(countIterations, "op") << std::endl;
+		const auto speedFrom{ profile.computeSpeed(countIterations, "op") };
+		std::cout << "      " << parser::durationToString(durationCastTo) << " -> " << speedFrom << std::endl;
 		std::cout << "    verifying..." << std::endl;
 		std::cout << std::endl;
 		for (size_t i = 0; i < countIterations; i++)
@@ -86,6 +92,7 @@ namespace intrinsics::test
 		std::cout << "_____________________________" << std::endl;
 		std::cout << "TESTSUITE: uint_t assignments" << std::endl;
 		std::cout << std::endl;
+		result &= intrinsics::test::assignment<0, false, std::uint_fast8_t>(durationToFast, operationsToFast, durationFromFast, operationsFromFast);
 		result &= intrinsics::test::assignment<1, false, std::uint_fast8_t>(durationToFast, operationsToFast, durationFromFast, operationsFromFast);
 		result &= intrinsics::test::assignment<2, false, std::uint_fast8_t>(durationToFast, operationsToFast, durationFromFast, operationsFromFast);
 		result &= intrinsics::test::assignment<4, false, std::uint_fast8_t>(durationToFast, operationsToFast, durationFromFast, operationsFromFast);
@@ -110,6 +117,7 @@ namespace intrinsics::test
 		result &= intrinsics::test::assignment<53, false, std::uint_fast64_t>(durationToFast, operationsToFast, durationFromFast, operationsFromFast);
 		result &= intrinsics::test::assignment<59, false, std::uint_fast64_t>(durationToFast, operationsToFast, durationFromFast, operationsFromFast);
 		result &= intrinsics::test::assignment<61, false, std::uint_fast64_t>(durationToFast, operationsToFast, durationFromFast, operationsFromFast);
+		result &= intrinsics::test::assignment<0, true, std::uint_fast8_t>(durationToCompact, operationsToCompact, durationFromCompact, operationsFromCompact);
 		result &= intrinsics::test::assignment<1, true, std::uint_fast8_t>(durationToCompact, operationsToCompact, durationFromCompact, operationsFromCompact);
 		result &= intrinsics::test::assignment<2, true, std::uint_fast8_t>(durationToCompact, operationsToCompact, durationFromCompact, operationsFromCompact);
 		result &= intrinsics::test::assignment<4, true, std::uint_fast8_t>(durationToCompact, operationsToCompact, durationFromCompact, operationsFromCompact);

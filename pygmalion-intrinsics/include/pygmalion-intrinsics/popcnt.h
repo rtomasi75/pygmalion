@@ -1,3 +1,235 @@
+
+
+namespace detail
+{
+	template<size_t COUNT_BITS, typename T>
+	size_t popcnt_reference(const T R) noexcept;
+
+	template<size_t COUNT_BITS, typename = typename std::enable_if<true>::type>
+	struct popcnt_traits {};
+
+	template<size_t COUNT_BITS>
+	struct popcnt_traits<COUNT_BITS, typename std::enable_if<(COUNT_BITS <= 64) && (COUNT_BITS > 32)>::type>
+	{
+#if defined(PYGMALION_CPU_X64)||defined(PYGMALION_CPU_X86)
+		using refType = std::uint64_t;
+#else
+		using refType = std::uint_fast64_t;
+#endif
+		static size_t reference(const refType bits) noexcept
+		{
+			size_t count{ 0 };
+			for (size_t i = 0; i < COUNT_BITS; i++)
+			{
+				if (bits & static_cast<refType>(refType(1) << i))
+					count++;
+			}
+			return count;
+		}
+		static size_t baseline(const refType bits) noexcept
+		{
+#if defined(PYGMALION_INTRINSICS_MSC) && defined(PYGMALION_CPU_X64)
+			if constexpr (compiler::supports(compiler::flags::MSC) && cpu::supports(cpu::flags::X86))
+				return __popcnt64(bits);
+#endif
+#if defined(PYGMALION_INTRINSICS_GNU)
+			if constexpr (compiler::supports(compiler::flags::GNU))
+			{
+				if constexpr (sizeof(bits) <= sizeof(unsigned int))
+					return __builtin_popcount(bits);
+				else if constexpr (sizeof(bits) <= sizeof(unsigned long))
+					return __builtin_popcountl(bits);
+				else if constexpr (sizeof(bits) <= sizeof(unsigned long long))
+					return __builtin_popcountll(bits);
+			}
+#endif
+#if defined(PYGMALION_INTRINSICS_MSC) && defined(PYGMALION_CPU_X86)
+			if constexpr (compiler::supports(compiler::flags::MSC) && cpu::supports(cpu::flags::X86))
+				return __popcnt(*(reinterpret_cast<const unsigned int*>(&bits) + 1)) + __popcnt(*reinterpret_cast<const unsigned int*>(&bits));
+#endif
+			return popcnt_reference<COUNT_BITS, refType>(bits);
+		}
+	};
+
+	template<size_t COUNT_BITS>
+	struct popcnt_traits<COUNT_BITS, typename std::enable_if<(COUNT_BITS <= 32) && (COUNT_BITS > 16)>::type>
+	{
+#if defined(PYGMALION_CPU_X64)||defined(PYGMALION_CPU_X86)
+		using refType = std::uint32_t;
+#else
+		using refType = std::uint_fast32_t;
+#endif
+		static size_t reference(const refType bits) noexcept
+		{
+			size_t count{ 0 };
+			for (size_t i = 0; i < COUNT_BITS; i++)
+			{
+				if (bits & static_cast<refType>(refType(1) << i))
+					count++;
+			}
+			return count;
+		}
+		static size_t baseline(const refType bits) noexcept
+		{
+#if defined(PYGMALION_INTRINSICS_MSC) && (defined(PYGMALION_CPU_X86)||defined(PYGMALION_CPU_X64))
+			if constexpr (compiler::supports(compiler::flags::MSC) && cpu::supports(cpu::flags::X86))
+				return __popcnt(bits);
+#endif
+#if defined(PYGMALION_INTRINSICS_GNU)
+			if constexpr (compiler::supports(compiler::flags::GNU))
+			{
+				if constexpr (sizeof(bits) <= sizeof(unsigned int))
+					return __builtin_popcount(bits);
+				else if constexpr (sizeof(bits) <= sizeof(unsigned long))
+					return __builtin_popcountl(bits);
+				else if constexpr (sizeof(bits) <= sizeof(unsigned long long))
+					return __builtin_popcountll(bits);
+			}
+#endif
+			return popcnt_reference<COUNT_BITS, refType>(bits);
+		}
+	};
+
+	template<size_t COUNT_BITS>
+	struct popcnt_traits<COUNT_BITS, typename std::enable_if<(COUNT_BITS <= 16) && (COUNT_BITS > 8)>::type>
+	{
+#if defined(PYGMALION_CPU_X64)||defined(PYGMALION_CPU_X86)
+		using refType = std::uint16_t;
+#else
+		using refType = std::uint_fast16_t;
+#endif
+		static size_t reference(const refType bits) noexcept
+		{
+			size_t count{ 0 };
+			for (size_t i = 0; i < COUNT_BITS; i++)
+			{
+				if (bits & static_cast<refType>(refType(1) << i))
+					count++;
+			}
+			return count;
+		}
+		static size_t baseline(const refType bits) noexcept
+		{
+#if defined(PYGMALION_INTRINSICS_MSC) && (defined(PYGMALION_CPU_X86)||defined(PYGMALION_CPU_X64))
+			if constexpr (compiler::supports(compiler::flags::MSC) && cpu::supports(cpu::flags::X86))
+				return __popcnt16(bits);
+#endif
+#if defined(PYGMALION_INTRINSICS_GNU)
+			if constexpr (compiler::supports(compiler::flags::GNU))
+			{
+				if constexpr (sizeof(bits) <= sizeof(unsigned int))
+					return __builtin_popcount(bits);
+				else if constexpr (sizeof(bits) <= sizeof(unsigned long))
+					return __builtin_popcountl(bits);
+				else if constexpr (sizeof(bits) <= sizeof(unsigned long long))
+					return __builtin_popcountll(bits);
+			}
+#endif
+			return popcnt_reference<COUNT_BITS, refType>(bits);
+		}
+	};
+
+	template<size_t COUNT_BITS>
+	struct popcnt_traits<COUNT_BITS, typename std::enable_if<(COUNT_BITS <= 8) && (COUNT_BITS > 1)>::type>
+	{
+#if defined(PYGMALION_CPU_X64)||defined(PYGMALION_CPU_X86)
+		using refType = std::uint8_t;
+#else
+		using refType = std::uint_fast8_t;
+#endif
+		static size_t reference(const refType bits) noexcept
+		{
+			size_t count{ 0 };
+			for (size_t i = 0; i < COUNT_BITS; i++)
+			{
+				if (bits & static_cast<refType>(refType(1) << i))
+					count++;
+			}
+			return count;
+		}
+		static size_t baseline(const refType bits) noexcept
+		{
+#if defined(PYGMALION_INTRINSICS_MSC) && (defined(PYGMALION_CPU_X86)||defined(PYGMALION_CPU_X64))
+			if constexpr (compiler::supports(compiler::flags::MSC) && cpu::supports(cpu::flags::X86))
+				return __popcnt16(bits);
+#endif
+#if defined(PYGMALION_INTRINSICS_GNU)
+			if constexpr (compiler::supports(compiler::flags::GNU))
+			{
+				if constexpr (sizeof(bits) <= sizeof(unsigned int))
+					return __builtin_popcount(bits);
+				else if constexpr (sizeof(bits) <= sizeof(unsigned long))
+					return __builtin_popcountl(bits);
+				else if constexpr (sizeof(bits) <= sizeof(unsigned long long))
+					return __builtin_popcountll(bits);
+			}
+#endif
+			return popcnt_reference<COUNT_BITS, refType>(bits);
+		}
+	};
+
+	template<size_t COUNT_BITS>
+	struct popcnt_traits<COUNT_BITS, typename std::enable_if<(COUNT_BITS == 1)>::type>
+	{
+		using refType = bool;
+		static size_t reference(const refType bits) noexcept
+		{
+			return bits ? 1 : 0;
+		}
+		static size_t baseline(const refType bits) noexcept
+		{
+			return bits;
+		}
+	};
+
+	template<size_t COUNT_BITS>
+	struct popcnt_traits<COUNT_BITS, typename std::enable_if<(COUNT_BITS == 0)>::type>
+	{
+		using refType = int;
+		static size_t reference(const refType bits) noexcept
+		{
+			return 0;
+		}
+		static size_t baseline(const refType bits) noexcept
+		{
+			return 0;
+		}
+	};
+
+	template<size_t COUNT_BITS>
+	struct popcnt_traits<COUNT_BITS, typename std::enable_if<(COUNT_BITS > 64)>::type>
+	{
+		using refType = std::uintmax_t;
+		static size_t reference(const refType bits) noexcept
+		{
+			size_t count{ 0 };
+			for (size_t i = 0; i < COUNT_BITS; i++)
+			{
+				if (bits & static_cast<refType>(refType(1) << i))
+					count++;
+			}
+			return count;
+		}
+		static size_t baseline(const refType bits) noexcept
+		{
+#if defined(PYGMALION_INTRINSICS_GNU)
+			if constexpr (compiler::supports(compiler::flags::GNU))
+			{
+				if constexpr (sizeof(bits) <= sizeof(unsigned int))
+					return __builtin_popcount(bits);
+				else if constexpr (sizeof(bits) <= sizeof(unsigned long))
+					return __builtin_popcountl(bits);
+				else if constexpr (sizeof(bits) <= sizeof(unsigned long long))
+					return __builtin_popcountll(bits);
+			}
+#endif
+			return popcnt_reference<COUNT_BITS, refType>(bits);
+		}
+	};
+
+}
+
+
 class popcnt :
 	protected detail::base
 {
@@ -428,9 +660,18 @@ private:
 			sstr << " | " << name<countOddChannels, UINT>(tag_best{}, std::make_index_sequence<countOddChannels>{});
 		return sstr.str();
 	}
+
 public:
+	template<size_t COUNT_BITS>
+	using refType = typename detail::popcnt_traits<COUNT_BITS>::refType;
+	template<size_t COUNT_BITS>
+	static size_t reference(const refType<COUNT_BITS> R) noexcept
+	{
+		return popcnt::popcount_ref<refType<COUNT_BITS>, 0>(R);
+	}
+
 	template <size_t COUNT_CHANNELS, typename UINT>
-	constexpr static size_t implementation(const std::array<UINT, COUNT_CHANNELS>& bits) noexcept
+	static size_t implementation(const std::array<UINT, COUNT_CHANNELS>& bits) noexcept
 	{
 		constexpr const intrinsics::compiler::flags comp{ intrinsics::compiler::computeFlags() };
 		constexpr const intrinsics::cpu::flags cpu{ intrinsics::cpu::computeFlags() };
@@ -459,3 +700,11 @@ public:
 
 };
 
+namespace detail
+{
+	template<size_t COUNT_BITS, typename T>
+	size_t popcnt_reference(const T R) noexcept
+	{
+		return popcnt::reference<COUNT_BITS>(R);
+	}
+}

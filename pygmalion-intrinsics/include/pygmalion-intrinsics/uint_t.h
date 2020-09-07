@@ -160,7 +160,7 @@ public:
 	constexpr uint_t(uint_t&&) noexcept = default;
 	constexpr uint_t& operator=(const uint_t&) noexcept = default;
 	constexpr uint_t& operator=(uint_t&&) noexcept = default;
-	constexpr explicit operator bool() const noexcept
+	constexpr operator bool() const noexcept
 	{
 		for (size_t w = 0; w < countWords; w++)
 		{
@@ -383,7 +383,7 @@ public:
 	constexpr uint_t() noexcept :
 		m_Word{ wordType(0) }
 	{	}
-	constexpr explicit operator bool() const noexcept
+	constexpr operator bool() const noexcept
 	{
 		return m_Word != wordType(0);
 	}
@@ -559,7 +559,7 @@ public:
 	constexpr uint_t() noexcept :
 		m_Word{ wordType(0) }
 	{	}
-	constexpr explicit operator bool() const noexcept
+	constexpr operator bool() const noexcept
 	{
 		return m_Word;
 	}
@@ -702,7 +702,10 @@ public:
 private:
 public:
 	template<typename T, typename = typename std::enable_if<std::is_integral<T>::value && !std::is_same<bool, T>::value>::type>
-	constexpr uint_t(const T value) noexcept {}
+	constexpr uint_t(const T value) noexcept :uint_t()
+	{
+
+	}
 	template<typename T, typename = typename std::enable_if<std::is_unsigned<T>::value && !std::is_same<bool, T>::value>::type>
 	constexpr operator T() const noexcept
 	{
@@ -718,7 +721,7 @@ public:
 	constexpr uint_t(uint_t&&) noexcept = default;
 	constexpr uint_t& operator=(const uint_t&) noexcept = default;
 	constexpr uint_t& operator=(uint_t&&) noexcept = default;
-	constexpr explicit operator bool() const noexcept
+	constexpr operator bool() const noexcept
 	{
 		return false;
 	}
