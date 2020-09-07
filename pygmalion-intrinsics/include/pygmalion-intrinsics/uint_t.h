@@ -134,6 +134,11 @@ private:
 	{	}
 	std::array<wordType, countWords> m_Words;
 public:
+	constexpr wordType word(const size_t index) const noexcept
+	{
+		assert(index < countWords);
+		return m_Words[index];
+	}
 	constexpr uint_t() noexcept :
 		m_Words{ make_array_n<countWords,wordType>(0) }
 	{	}
@@ -296,6 +301,38 @@ public:
 		return !((*this) == other);
 	}
 	static const inline std::string populationCount_Intrinsic{ popcnt::implementationName<countWords,wordType>() };
+	template<size_t COUNT_BITS2, bool COMPACT2>
+	constexpr uint_t(const uint_t<COUNT_BITS2, COMPACT2>& other) noexcept :
+		m_Words{ uint_t::nullaryTransformWords<countWords,false>([this,&other](const size_t currentWord)->wordType {
+					using wordType2 = typename uint_t<COUNT_BITS2,COMPACT2>::wordType;
+					size_t currentWordBit{ 0 };
+					size_t currentBit{ currentWord * this->countBitsPerWord };
+					size_t currentRemaining{ this->countBitsPerWord };
+					size_t otherWord{ currentBit / other.countBitsPerWord };
+					size_t otherWordBit{ currentBit % other.countBitsPerWord };
+					size_t otherBit{ otherWord * other.countBitsPerWord + otherWordBit };
+					size_t otherRemaining{ other.countBitsPerWord - otherWordBit };
+					constexpr const size_t slice{std::min(this->countBitsPerWord,other.countBitsPerWord)};
+					constexpr const wordType2 mask{ (wordType2(1) << slice) - wordType(1) };
+					wordType result{ wordType(0) };
+					while (otherBit < other.countBits)
+					{
+						result |= ((other.word(otherWord) & (mask << otherWordBit)) >> otherWordBit) << currentWordBit;
+						const size_t increment{std::min(slice,std::min(otherRemaining,currentRemaining))};
+						currentWordBit += increment;
+						if (currentWordBit == this->countBitsPerWord)
+							return result;
+						otherWordBit += increment;
+						otherBit += increment;
+						if (otherWordBit >= other.countBitsPerWord)
+						{
+							otherWordBit = 0;
+							otherWord++;
+						}
+					}
+					return result;
+				}) }
+	{}
 };
 
 template<size_t COUNT_BITS, bool COMPACT>
@@ -327,6 +364,11 @@ private:
 		m_Word{ word }
 	{	}
 public:
+	constexpr wordType word(const size_t index) const noexcept
+	{
+		assert(index == 0);
+		return m_Word;
+	}
 	constexpr uint_t() noexcept :
 		m_Word{ wordType(0) }
 	{	}
@@ -444,6 +486,38 @@ public:
 		return m_Word != other.m_Word;
 	}
 	static const inline std::string populationCount_Intrinsic{ popcnt::implementationName<countWords,wordType>() };
+	template<size_t COUNT_BITS2, bool COMPACT2>
+	constexpr uint_t(const uint_t<COUNT_BITS2, COMPACT2>& other) noexcept :
+		m_Word{ ([this,&other]()->wordType {
+					using wordType2 = typename uint_t<COUNT_BITS2,COMPACT2>::wordType;
+					size_t currentWordBit{ 0 };
+					size_t currentBit{ 0 };
+					size_t currentRemaining{ this->countBitsPerWord };
+					size_t otherWord{ currentBit / other.countBitsPerWord };
+					size_t otherWordBit{ currentBit % other.countBitsPerWord };
+					size_t otherBit{ otherWord * other.countBitsPerWord + otherWordBit };
+					size_t otherRemaining{ other.countBitsPerWord - otherWordBit };
+					constexpr const size_t slice{std::min(this->countBitsPerWord,other.countBitsPerWord)};
+					constexpr const wordType2 mask{ (wordType2(1) << slice) - wordType(1) };
+					wordType result{ wordType(0) };
+					while (otherBit < other.countBits)
+					{
+						result |= ((other.word(otherWord) & (mask << otherWordBit)) >> otherWordBit) << currentWordBit;
+						const size_t increment{std::min(slice,std::min(otherRemaining,currentRemaining))};
+						currentWordBit += increment;
+						if (currentWordBit == this->countBitsPerWord)
+							return result;
+						otherWordBit += increment;
+						otherBit += increment;
+						if (otherWordBit >= other.countBitsPerWord)
+						{
+							otherWordBit = 0;
+							otherWord++;
+						}
+					}
+					return result;
+				})() }
+	{}
 };
 
 template<size_t COUNT_BITS, bool COMPACT>
@@ -464,6 +538,11 @@ private:
 		m_Word{ word }
 	{	}
 public:
+	constexpr wordType word(const size_t index) const noexcept
+	{
+		assert(index == 0);
+		return m_Word;
+	}
 	constexpr uint_t() noexcept :
 		m_Word{ wordType(0) }
 	{	}
@@ -529,7 +608,7 @@ public:
 	{
 		return uint_t(m_Word ^ other.m_Word, false);
 	}
-	constexpr uint_t&& operator*(const uint_t& other) const noexcept
+	constexpr uint_t operator*(const uint_t& other) const noexcept
 	{
 		return uint_t(m_Word & other.m_Word, false);
 	}
@@ -566,6 +645,38 @@ public:
 		return m_Word != other.m_Word;
 	}
 	static const inline std::string populationCount_Intrinsic{ popcnt::implementationName<countWords,wordType>() };
+	template<size_t COUNT_BITS2, bool COMPACT2>
+	constexpr uint_t(const uint_t<COUNT_BITS2, COMPACT2>& other) noexcept :
+		m_Word{ ([this,&other]()->wordType {
+					using wordType2 = typename uint_t<COUNT_BITS2,COMPACT2>::wordType;
+					size_t currentWordBit{ 0 };
+					size_t currentBit{ 0 };
+					size_t currentRemaining{ this->countBitsPerWord };
+					size_t otherWord{ currentBit / other.countBitsPerWord };
+					size_t otherWordBit{ currentBit % other.countBitsPerWord };
+					size_t otherBit{ otherWord * other.countBitsPerWord + otherWordBit };
+					size_t otherRemaining{ other.countBitsPerWord - otherWordBit };
+					constexpr const size_t slice{std::min(this->countBitsPerWord,other.countBitsPerWord)};
+					constexpr const wordType2 mask{ (wordType2(1) << slice) - wordType(1) };
+					wordType result{ wordType(0) };
+					while (otherBit < other.countBits)
+					{
+						result |= ((other.word(otherWord) & (mask << otherWordBit)) >> otherWordBit) << currentWordBit;
+						const size_t increment{std::min(slice,std::min(otherRemaining,currentRemaining))};
+						currentWordBit += increment;
+						if (currentWordBit == this->countBitsPerWord)
+							return result;
+						otherWordBit += increment;
+						otherBit += increment;
+						if (otherWordBit >= other.countBitsPerWord)
+						{
+							otherWordBit = 0;
+							otherWord++;
+						}
+					}
+					return result;
+				})() }
+	{}
 };
 
 template<size_t COUNT_BITS, bool COMPACT>
@@ -582,14 +693,19 @@ public:
 	constexpr static const size_t countStorageBits{ 0 };
 private:
 public:
+	constexpr wordType word(const size_t index) const noexcept
+	{
+		assert(0);
+		return 0;
+	}
 	constexpr uint_t() noexcept = default;
 	template<typename T, typename = typename std::enable_if<std::is_integral<T>::value>::type>
 	constexpr uint_t(const T value) noexcept
 	{	}
 	constexpr uint_t(const uint_t&) noexcept = default;
 	constexpr uint_t(uint_t&&) noexcept = default;
-	constexpr uint_t& operator=(const uint_t&) noexcept = default;
-	constexpr uint_t& operator=(uint_t&&) noexcept = default;
+	constexpr uint_t operator=(const uint_t&) noexcept = default;
+	constexpr uint_t operator=(uint_t&&) noexcept = default;
 	template<typename T, typename = typename std::enable_if<std::is_unsigned<T>::value>::type>
 	constexpr explicit operator T() const noexcept
 	{
@@ -613,23 +729,23 @@ public:
 	{
 		return *this;
 	}
-	constexpr uint_t& operator*=(const uint_t other) noexcept
+	constexpr uint_t operator*=(const uint_t other) noexcept
 	{
 		return *this;
 	}
-	constexpr uint_t& operator+=(const uint_t other) noexcept
+	constexpr uint_t operator+=(const uint_t other) noexcept
 	{
 		return *this;
 	}
-	constexpr uint_t& operator&=(const uint_t other) noexcept
+	constexpr uint_t operator&=(const uint_t other) noexcept
 	{
 		return *this;
 	}
-	constexpr uint_t& operator|=(const uint_t other) noexcept
+	constexpr uint_t operator|=(const uint_t other) noexcept
 	{
 		return *this;
 	}
-	constexpr uint_t& operator^=(const uint_t other) noexcept
+	constexpr uint_t operator^=(const uint_t other) noexcept
 	{
 		return *this;
 	}
@@ -637,7 +753,7 @@ public:
 	{
 		return *this;
 	}
-	constexpr uint_t&& operator*(const uint_t& other) const noexcept
+	constexpr uint_t operator*(const uint_t& other) const noexcept
 	{
 		return *this;
 	}
@@ -670,6 +786,9 @@ public:
 		return false;
 	}
 	static const inline std::string populationCount_Intrinsic{ popcnt::implementationName<0,wordType>() };
+	template<size_t COUNT_BITS2, bool COMPACT2>
+	constexpr uint_t(const uint_t<COUNT_BITS2, COMPACT2>& other) noexcept
+	{}
 };
 
 template<size_t COUNT_BITS>

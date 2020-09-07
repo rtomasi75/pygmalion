@@ -3,7 +3,14 @@ template<size_t COUNT_BYTES, bool COMPACT = false, typename ENABLED = typename s
 class integer_traits
 {
 public:
-	using uword = std::uint_least8_t;
+	using uword = std::uint16_t;
+};
+
+template<size_t COUNT_BYTES>
+class integer_traits<COUNT_BYTES, true, typename std::enable_if<true>::type>
+{
+public:
+	using uword = std::uint8_t;
 };
 /*
 template<size_t COUNT_BYTES>
@@ -41,7 +48,7 @@ public:
 	using uword = std::uintmax_t;
 };
 */
-template<size_t COUNT_BYTES>
+/*template<size_t COUNT_BYTES>
 class integer_traits<COUNT_BYTES, false, typename std::enable_if<(COUNT_BYTES <= 1)>::type>
 {
 public:
@@ -68,3 +75,4 @@ class integer_traits < COUNT_BYTES, false, typename std::enable_if < (COUNT_BYTE
 public:
 	using uword = std::uint_fast64_t;
 };
+*/
