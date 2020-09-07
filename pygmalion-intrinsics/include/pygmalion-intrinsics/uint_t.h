@@ -134,25 +134,12 @@ private:
 	{	}
 	std::array<wordType, countWords> m_Words;
 public:
-	constexpr wordType word(const size_t index) const noexcept
-	{
-		assert(index < countWords);
-		return m_Words[index];
-	}
-	constexpr uint_t() noexcept :
-		m_Words{ make_array_n<countWords,wordType>(0) }
-	{	}
-	template<typename T, typename = typename std::enable_if<std::is_integral<T>::value>::type>
+	template<typename T, typename = typename std::enable_if<std::is_integral<T>::value && !std::is_same<bool, T>::value>::type>
 	constexpr uint_t(const T value) noexcept :
 		m_Words{ uint_t::encodeValue<countWords>(static_cast<typename std::make_unsigned<T>::type>(value)) }
-	{
-	}
-	constexpr uint_t(const uint_t&) noexcept = default;
-	constexpr uint_t(uint_t&&) noexcept = default;
-	constexpr uint_t& operator=(const uint_t&) noexcept = default;
-	constexpr uint_t& operator=(uint_t&&) noexcept = default;
-	template<typename T, typename = typename std::enable_if<std::is_unsigned<T>::value>::type>
-	constexpr explicit operator T() const noexcept
+	{}
+	template<typename T, typename = typename std::enable_if<std::is_unsigned<T>::value && ((sizeof(T)* CHAR_BIT) >= countBits) && !std::is_same<bool, T>::value>::type>
+	constexpr operator T() const noexcept
 	{
 		T result{ 0 };
 		size_t shift{ 0 };
@@ -164,6 +151,27 @@ public:
 				break;
 		}
 		return result;
+	}
+	constexpr wordType word(const size_t index) const noexcept
+	{
+		assert(index < countWords);
+		return m_Words[index];
+	}
+	constexpr uint_t() noexcept :
+		m_Words{ make_array_n<countWords,wordType>(0) }
+	{	}
+	constexpr uint_t(const uint_t&) noexcept = default;
+	constexpr uint_t(uint_t&&) noexcept = default;
+	constexpr uint_t& operator=(const uint_t&) noexcept = default;
+	constexpr uint_t& operator=(uint_t&&) noexcept = default;
+	constexpr explicit operator bool() const noexcept
+	{
+		for (size_t w = 0; w < countWords; w++)
+		{
+			if (m_Words[w])
+				return true;
+		}
+		return false;
 	}
 	size_t populationCount() const noexcept
 	{
@@ -236,11 +244,10 @@ public:
 		bool carryFlag{ false };
 		for (size_t i = 0; i < countWords - 1; i++)
 		{
-			wordType temp{ carryFlag };
-			temp += m_Words[i];
+			const wordType temp{ static_cast<wordType>(carryFlag + m_Words[i]) };
 			carryFlag = !temp;
 			results[i] = temp + other.m_Words[i];
-			carryFlag = results[i] < temp;
+			carryFlag |= results[i] < temp;
 		}
 		results[countWords - 1] = uint_t::normalizeHighestWord(carryFlag + m_Words[countWords - 1] + other.m_Words[countWords - 1]);
 		return uint_t(results, false);
@@ -250,11 +257,10 @@ public:
 		bool carryFlag{ false };
 		for (size_t i = 0; i < countWords - 1; i++)
 		{
-			wordType temp{ carryFlag };
-			temp += m_Words[i];
+			const wordType temp{ static_cast<wordType>(carryFlag + other.m_Words[i]) };
 			carryFlag = !temp;
-			m_Words[i] = temp + other.m_Words[i];
-			carryFlag = m_Words[i] < temp;
+			m_Words[i] += temp;
+			carryFlag |= m_Words[i] < temp;
 		}
 		m_Words[countWords - 1] = uint_t::normalizeHighestWord(carryFlag + m_Words[countWords - 1] + other.m_Words[countWords - 1]);
 		return *this;
@@ -364,6 +370,15 @@ private:
 		m_Word{ word }
 	{	}
 public:
+	template<typename T, typename = typename std::enable_if<std::is_integral<T>::value && !std::is_same<bool, T>::value>::type>
+	constexpr uint_t(const T value) noexcept :
+		m_Word{ static_cast<wordType>(static_cast<typename std::make_unsigned<T>::type>(value)) }
+	{}
+	template<typename T, typename = typename std::enable_if<std::is_unsigned<T>::value && ((sizeof(T)* CHAR_BIT) >= countBits) && !std::is_same<bool, T>::value>::type>
+	constexpr operator T() const noexcept
+	{
+		return static_cast<T>(m_Word);
+	}
 	constexpr wordType word(const size_t index) const noexcept
 	{
 		assert(index == 0);
@@ -372,19 +387,14 @@ public:
 	constexpr uint_t() noexcept :
 		m_Word{ wordType(0) }
 	{	}
-	template<typename T, typename = typename std::enable_if<std::is_integral<T>::value>::type>
-	constexpr uint_t(const T value) noexcept :
-		m_Word{ normalizeWord(static_cast<wordType>(static_cast<typename std::make_unsigned<T>::type>(value))) }
-	{	}
+	constexpr explicit operator bool() const noexcept
+	{
+		return m_Word != wordType(0);
+	}
 	constexpr uint_t(const uint_t&) noexcept = default;
 	constexpr uint_t(uint_t&&) noexcept = default;
 	constexpr uint_t& operator=(const uint_t&) noexcept = default;
 	constexpr uint_t& operator=(uint_t&&) noexcept = default;
-	template<typename T, typename = typename std::enable_if<std::is_unsigned<T>::value>::type>
-	constexpr explicit operator T() const noexcept
-	{
-		return static_cast<T>(m_Word);
-	}
 	size_t&& populationCount() const noexcept
 	{
 		return std::move(popcnt::implementation<1, wordType>({ m_Word }));
@@ -538,6 +548,13 @@ private:
 		m_Word{ word }
 	{	}
 public:
+	template<typename T, typename = typename std::enable_if<std::is_integral<T>::value && !std::is_same<bool, T>::value>::type>
+	constexpr uint_t(const T value) noexcept : m_Word{ static_cast<wordType>(value) } {}
+	template<typename T, typename = typename std::enable_if<std::is_unsigned<T>::value && ((sizeof(T)* CHAR_BIT) >= countBits) && !std::is_same<bool, T>::value>::type>
+	constexpr operator T() const noexcept
+	{
+		return static_cast<T>(m_Word);
+	}
 	constexpr wordType word(const size_t index) const noexcept
 	{
 		assert(index == 0);
@@ -546,19 +563,14 @@ public:
 	constexpr uint_t() noexcept :
 		m_Word{ wordType(0) }
 	{	}
-	template<typename T, typename = typename std::enable_if<std::is_integral<T>::value>::type>
-	constexpr uint_t(const T value) noexcept :
-		m_Word{ static_cast<wordType>(static_cast<typename std::make_unsigned<T>::type>(value)) }
-	{	}
+	constexpr explicit operator bool() const noexcept
+	{
+		return m_Word;
+	}
 	constexpr uint_t(const uint_t&) noexcept = default;
 	constexpr uint_t(uint_t&&) noexcept = default;
 	constexpr uint_t& operator=(const uint_t&) noexcept = default;
 	constexpr uint_t& operator=(uint_t&&) noexcept = default;
-	template<typename T, typename = typename std::enable_if<std::is_unsigned<T>::value>::type>
-	constexpr explicit operator T() const noexcept
-	{
-		return static_cast<T>(m_Word);
-	}
 	size_t populationCount() const noexcept
 	{
 		return popcnt::implementation<1, wordType>({ m_Word });
@@ -693,23 +705,26 @@ public:
 	constexpr static const size_t countStorageBits{ 0 };
 private:
 public:
+	template<typename T, typename = typename std::enable_if<std::is_integral<T>::value && !std::is_same<bool, T>::value>::type>
+	constexpr uint_t(const T value) noexcept {}
+	template<typename T, typename = typename std::enable_if<std::is_unsigned<T>::value && !std::is_same<bool, T>::value>::type>
+	constexpr operator T() const noexcept
+	{
+		return static_cast<T>(0);
+	}
 	constexpr wordType word(const size_t index) const noexcept
 	{
 		assert(0);
 		return 0;
 	}
 	constexpr uint_t() noexcept = default;
-	template<typename T, typename = typename std::enable_if<std::is_integral<T>::value>::type>
-	constexpr uint_t(const T value) noexcept
-	{	}
 	constexpr uint_t(const uint_t&) noexcept = default;
 	constexpr uint_t(uint_t&&) noexcept = default;
-	constexpr uint_t operator=(const uint_t&) noexcept = default;
-	constexpr uint_t operator=(uint_t&&) noexcept = default;
-	template<typename T, typename = typename std::enable_if<std::is_unsigned<T>::value>::type>
-	constexpr explicit operator T() const noexcept
+	constexpr uint_t& operator=(const uint_t&) noexcept = default;
+	constexpr uint_t& operator=(uint_t&&) noexcept = default;
+	constexpr explicit operator bool() const noexcept
 	{
-		return static_cast<T>(0);
+		return false;
 	}
 	size_t populationCount() const noexcept
 	{

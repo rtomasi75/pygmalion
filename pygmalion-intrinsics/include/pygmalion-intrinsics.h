@@ -17,6 +17,8 @@
 #include <iomanip>
 #include <array>
 #include <climits>
+#include <limits>
+#include <algorithm>
 
 namespace intrinsics
 {
