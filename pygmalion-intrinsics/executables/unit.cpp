@@ -14,7 +14,9 @@ int main(int argc, char* argv[])
 	std::cout << "===============================" << std::endl;
 	result &= intrinsics::test::assignments();
 	result &= intrinsics::test::popcnt();
-	result &= intrinsics::test::addition();
+	result &= intrinsics::test::disjunction();
+	result &= intrinsics::test::conjunction();
+	result &= intrinsics::test::exclusion();
 	std::cout << "================" << std::endl;
 	if (result)
 		std::cout << "PASSED UNIT TEST" << std::endl;

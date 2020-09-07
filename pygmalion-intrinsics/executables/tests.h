@@ -1,3 +1,6 @@
 #include "assignment.h"
 #include "popcnt.h"
 #include "addition.h"
+#include "disjunction.h"
+#include "conjunction.h"
+#include "exclusion.h"
