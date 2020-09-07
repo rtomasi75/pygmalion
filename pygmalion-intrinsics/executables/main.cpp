@@ -13,6 +13,6 @@ int main(int argc, char* argv[])
 	typename profiler::durationType durationFast{ 0 };
 	size_t operationsFast(0);
 	bool result{ true };
-	result &= intrinsics::test::conjunction<53,true>(durationFast, operationsFast);
+	result &= intrinsics::test::addition();
 	return !result;
 }

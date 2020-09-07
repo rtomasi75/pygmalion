@@ -33,6 +33,7 @@ namespace detail
 		static std::uint_fast32_t nextRandom32() noexcept
 		{
 			return m_Random.next();
+		//	return std::rand() % std::numeric_limits<std::uint_fast32_t>::max();
 		}
 		template<size_t COUNT_CHANNELS, typename T, typename C, typename LAMBDA>
 		constexpr static std::array<C, COUNT_CHANNELS> transformChannels(const std::array<T, COUNT_CHANNELS>& old, const LAMBDA& lambda) noexcept

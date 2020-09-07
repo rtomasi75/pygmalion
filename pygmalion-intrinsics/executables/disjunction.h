@@ -4,7 +4,7 @@ namespace intrinsics::test
 	bool disjunction(typename profiler::durationType& duration, size_t& operations) noexcept
 	{
 		using U = uint_t<COUNT_BITS, COMPACT>;
-		using R = typename detail::popcnt_traits<COUNT_BITS>::refType;
+		using R = typename detail::popcnt_traits<COUNT_BITS>::intType;
 		std::cout << "  TEST: uint_t<" << COUNT_BITS << "," << COMPACT << "> bitwise disjunction operator" << std::endl;
 		std::cout << std::endl;
 		std::cout << "    " << U() << std::endl;
@@ -36,15 +36,10 @@ namespace intrinsics::test
 		const auto durationImplementation{ profileImplementation.duration() };
 		const auto speedImplementation{ profileImplementation.computeSpeed(countIterations, "op") };
 		std::cout << "    (baseline)..." << std::endl;
-		R mask{ 0 };
-		if constexpr (COUNT_BITS >= (sizeof(R) * CHAR_BIT))
-			mask = static_cast<R>(~R(0));
-		else
-			mask = static_cast<R>((R(1) << COUNT_BITS) - R(1));
 		profiler profileBase;
 		profileBase.start();
 		for (size_t i = 0; i < countIterations; i++)
-			m_RefOutput[i] = static_cast<R>(static_cast<R>(m_RefInput1[i] | m_RefInput2[i]) & mask);
+			m_RefOutput[i] = static_cast<R>(m_RefInput1[i] | m_RefInput2[i]);
 		profileBase.stop();
 		const auto speedBase{ profileBase.computeSpeed(countIterations, "op") };
 		const auto durationBase{ profileBase.duration() };
@@ -63,7 +58,7 @@ namespace intrinsics::test
 				const R I1{ m_Input1[i] };
 				const R I2{ m_Input2[i] };
 				const R O{ m_Output[i] };
-				const U sum{ m_Input1[i] + m_Input2[i] };
+				const U sum{ m_Input1[i] | m_Input2[i] };
 				delete[] m_Input1;
 				delete[] m_Input2;
 				delete[] m_Output;

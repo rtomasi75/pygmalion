@@ -4,7 +4,7 @@ namespace intrinsics::test
 	bool addition(typename profiler::durationType& duration, size_t& operations) noexcept
 	{
 		using U = uint_t<COUNT_BITS, COMPACT>;
-		using R = typename detail::popcnt_traits<COUNT_BITS>::refType;
+		using R = typename detail::popcnt_traits<COUNT_BITS>::intType;
 		std::cout << "  TEST: uint_t<" << COUNT_BITS << "," << COMPACT << "> binary addition operator" << std::endl;
 		std::cout << std::endl;
 		std::cout << "    " << U() << std::endl;
@@ -44,7 +44,7 @@ namespace intrinsics::test
 		profiler profileBase;
 		profileBase.start();
 		for (size_t i = 0; i < countIterations; i++)
-			m_RefOutput[i] = static_cast<R>(static_cast<R>(m_RefInput1[i] + m_RefInput2[i]) & mask);
+			m_RefOutput[i] = static_cast<R>((m_RefInput1[i] + m_RefInput2[i]) & mask);
 		profileBase.stop();
 		const auto speedBase{ profileBase.computeSpeed(countIterations, "op") };
 		const auto durationBase{ profileBase.duration() };

@@ -160,7 +160,7 @@ public:
 	constexpr uint_t(uint_t&&) noexcept = default;
 	constexpr uint_t& operator=(const uint_t&) noexcept = default;
 	constexpr uint_t& operator=(uint_t&&) noexcept = default;
-	constexpr operator bool() const noexcept
+	constexpr explicit operator bool() const noexcept
 	{
 		for (size_t w = 0; w < countWords; w++)
 		{
@@ -236,13 +236,13 @@ public:
 	}
 	constexpr auto operator+(const uint_t& other) const noexcept
 	{
-		std::array<wordType, countWords> results{ make_array_n<countWords,wordType>(wordType(0)) };
+		std::array<wordType, countWords> results{ m_Words };
 		bool carryFlag{ false };
 		for (size_t i = 0; i < countWords; i++)
 		{
-			const wordType temp{ static_cast<wordType>(carryFlag + m_Words[i]) };
-			carryFlag = temp < m_Words[i];
-			results[i] = temp + other.m_Words[i];
+			const wordType temp{ static_cast<wordType>(carryFlag + other.m_Words[i]) };
+			carryFlag = temp < other.m_Words[i];
+			results[i] += temp;
 			carryFlag |= results[i] < temp;
 		}
 		results[countWords - 1] = uint_t::normalizeHighestWord(results[countWords - 1]);
@@ -251,14 +251,14 @@ public:
 	constexpr uint_t& operator+=(const uint_t& other)  noexcept
 	{
 		bool carryFlag{ false };
-		for (size_t i = 0; i < countWords - 1; i++)
+		for (size_t i = 0; i < countWords; i++)
 		{
 			const wordType temp{ static_cast<wordType>(carryFlag + other.m_Words[i]) };
 			carryFlag = temp < other.m_Words[i];
 			m_Words[i] += temp;
 			carryFlag |= m_Words[i] < temp;
 		}
-		m_Words[countWords - 1] = uint_t::normalizeHighestWord(carryFlag + m_Words[countWords - 1] + other.m_Words[countWords - 1]);
+		m_Words[countWords - 1] = uint_t::normalizeHighestWord(m_Words[countWords - 1]);
 		return *this;
 	}
 	static auto random() noexcept
@@ -383,7 +383,7 @@ public:
 	constexpr uint_t() noexcept :
 		m_Word{ wordType(0) }
 	{	}
-	constexpr operator bool() const noexcept
+	constexpr explicit operator bool() const noexcept
 	{
 		return m_Word != wordType(0);
 	}
@@ -559,7 +559,7 @@ public:
 	constexpr uint_t() noexcept :
 		m_Word{ wordType(0) }
 	{	}
-	constexpr operator bool() const noexcept
+	constexpr explicit operator bool() const noexcept
 	{
 		return m_Word;
 	}
@@ -721,7 +721,7 @@ public:
 	constexpr uint_t(uint_t&&) noexcept = default;
 	constexpr uint_t& operator=(const uint_t&) noexcept = default;
 	constexpr uint_t& operator=(uint_t&&) noexcept = default;
-	constexpr operator bool() const noexcept
+	constexpr explicit operator bool() const noexcept
 	{
 		return false;
 	}

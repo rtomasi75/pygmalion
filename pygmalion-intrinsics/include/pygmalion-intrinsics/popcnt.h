@@ -16,6 +16,7 @@ namespace detail
 #else
 		using refType = std::uint_fast64_t;
 #endif
+		using intType = refType;
 		static size_t reference(const refType bits) noexcept
 		{
 			size_t count{ 0 };
@@ -63,6 +64,7 @@ namespace detail
 #else
 		using refType = std::uint_fast32_t;
 #endif
+		using intType = refType;
 		static size_t reference(const refType bits) noexcept
 		{
 			size_t count{ 0 };
@@ -106,6 +108,7 @@ namespace detail
 #else
 		using refType = std::uint_fast16_t;
 #endif
+		using intType = refType;
 		static size_t reference(const refType bits) noexcept
 		{
 			size_t count{ 0 };
@@ -149,6 +152,7 @@ namespace detail
 #else
 		using refType = std::uint_fast8_t;
 #endif
+		using intType = refType;
 		static size_t reference(const refType bits) noexcept
 		{
 			size_t count{ 0 };
@@ -188,6 +192,7 @@ namespace detail
 	struct popcnt_traits<COUNT_BITS, typename std::enable_if<(COUNT_BITS == 1)>::type>
 	{
 		using refType = bool;
+		using intType = std::uint_fast8_t;
 		static size_t reference(const refType bits) noexcept
 		{
 			return bits ? 1 : 0;
@@ -205,7 +210,8 @@ namespace detail
 	template<size_t COUNT_BITS>
 	struct popcnt_traits<COUNT_BITS, typename std::enable_if<(COUNT_BITS == 0)>::type>
 	{
-		using refType = int;
+		using refType = std::uint_fast8_t;
+		using intType = std::uint_fast8_t;
 		static size_t reference(const refType bits) noexcept
 		{
 			return 0;
@@ -224,6 +230,7 @@ namespace detail
 	struct popcnt_traits<COUNT_BITS, typename std::enable_if<(COUNT_BITS > 64)>::type>
 	{
 		using refType = std::uintmax_t;
+		using intType = refType;
 		static size_t reference(const refType bits) noexcept
 		{
 			size_t count{ 0 };
