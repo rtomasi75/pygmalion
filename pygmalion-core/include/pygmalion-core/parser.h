@@ -93,40 +93,6 @@ namespace pygmalion
 				sstr << std::setprecision(0) << 0.000000001 * nps << " Gnps";
 			return sstr.str();
 		}
-		static auto durationToString(const std::chrono::nanoseconds duration) noexcept
-		{
-			std::stringstream sstr;
-			auto ctr = duration.count();
-			sstr << std::fixed;
-			sstr << std::setw(6);
-			if (std::abs(ctr) < 1)
-				sstr << std::setprecision(3) << 1.0 * static_cast<double>(ctr) << " ns";
-			else if (std::abs(ctr) < 10)
-				sstr << std::setprecision(2) << 1.0 * static_cast<double>(ctr) << " ns";
-			else if (std::abs(ctr) < 100)
-				sstr << std::setprecision(1) << 1.0 * static_cast<double>(ctr) << " ns";
-			else if (std::abs(ctr) < 1000)
-				sstr << std::setprecision(0) << 1.0 * static_cast<double>(ctr) << " ns";
-			else if (std::abs(ctr) < 10000)
-				sstr << std::setprecision(2) << 0.001 * static_cast<double>(ctr) << " mcs";
-			else if (std::abs(ctr) < 100000)
-				sstr << std::setprecision(1) << 0.001 * static_cast<double>(ctr) << " mcs";
-			else if (std::abs(ctr) < 1000000)
-				sstr << std::setprecision(0) << 0.001 * static_cast<double>(ctr) << " mcs";
-			else if (std::abs(ctr) < 10000000)
-				sstr << std::setprecision(2) << 0.000001 * static_cast<double>(ctr) << " ms";
-			else if (std::abs(ctr) < 100000000)
-				sstr << std::setprecision(1) << 0.000001 * static_cast<double>(ctr) << " ms";
-			else if (std::abs(ctr) < 10000000000)
-				sstr << std::setprecision(0) << 0.000001 * static_cast<double>(ctr) << " ms";
-			else if (std::abs(ctr) < 100000000000)
-				sstr << std::setprecision(2) << 0.000000001 * static_cast<double>(ctr) << " s";
-			else if (std::abs(ctr) < 1000000000000)
-				sstr << std::setprecision(1) << 0.000000001 * static_cast<double>(ctr) << " s";
-			else
-				sstr << std::setprecision(0) << 0.000000001 * static_cast<double>(ctr) << " s";
-			return sstr.str();
-		}
 		static std::int64_t parseInt(const std::string& str) noexcept
 		{
 			try

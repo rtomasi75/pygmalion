@@ -143,13 +143,8 @@ public:
 	{
 		T result{ 0 };
 		size_t shift{ 0 };
-		for (size_t w = 0; w < countWords; w++)
-		{
+		for (size_t w = 0; (w < countWords) && (shift < (sizeof(T) * CHAR_BIT)); w++, shift += countBitsPerWord)
 			result |= static_cast<T>(static_cast<T>(m_Words[w]) << shift);
-			shift += countBitsPerWord;
-			if (shift >= (sizeof(T) * CHAR_BIT))
-				break;
-		}
 		return result;
 	}
 	constexpr wordType word(const size_t index) const noexcept

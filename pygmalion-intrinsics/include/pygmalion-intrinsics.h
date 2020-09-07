@@ -19,9 +19,11 @@
 #include <climits>
 #include <limits>
 #include <algorithm>
+#include <chrono>
 
 namespace intrinsics
 {
+#include "pygmalion-intrinsics/profiler.h"
 #include "pygmalion-intrinsics/make_array.h"
 #include "pygmalion-intrinsics/cpu.h"
 #include "pygmalion-intrinsics/compiler.h"
@@ -32,6 +34,7 @@ namespace intrinsics
 #include "pygmalion-intrinsics/uint_t.h"
 #include "pygmalion-intrinsics/bitmanip.h"
 #include "pygmalion-intrinsics/int_traits.h"
+#include "pygmalion-intrinsics/parser.h"
 }
 
 #endif

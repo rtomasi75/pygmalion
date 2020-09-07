@@ -5,6 +5,8 @@ project (pygmalion-core)
 set (pygmalion_VERSION_MAJOR 1)
 set (pygmalion_VERSION_MINOR 0)
 
+ENABLE_TESTING()
+
 include(CheckCXXCompilerFlag)
 
     option(OPTIMIZE_FOR_BMI2 "Build for BMI2" ON)

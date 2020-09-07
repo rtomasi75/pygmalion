@@ -18,6 +18,7 @@ target_include_directories(pygmalion-intrinsics PUBLIC $<BUILD_INTERFACE:${CMAKE
 
 add_executable(pygmalion-intrinsics-test "test/main.cpp")
 target_link_libraries(pygmalion-intrinsics-test pygmalion-intrinsics)
+add_test(pygmalion-intrinsics-test pygmalion-intrinsics-test)
 
 install(TARGETS pygmalion-intrinsics EXPORT pygmalion-intrinsicsConfig
 	ARCHIVE  DESTINATION ${CMAKE_INSTALL_LIBDIR}
