@@ -2,8 +2,8 @@
 class profiler
 {
 public:
-	using timepointType = std::chrono::time_point<std::chrono::steady_clock>;
 	using clockType = std::chrono::high_resolution_clock;
+	using timepointType = std::chrono::time_point<clockType>;
 	using durationType = std::chrono::nanoseconds;
 	timepointType m_Begin;
 	timepointType m_End;

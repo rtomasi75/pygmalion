@@ -6,7 +6,7 @@ namespace detail
 		constexpr const bool isCompact{ COMPACT };
 		constexpr const size_t countBits{ COUNT_BITS };
 		constexpr const size_t countBytes{ (countBits + 7) / 8 };
-		constexpr const size_t countBitsPerWord{ sizeof(typename integer_traits<countBytes, isCompact>::uword) * CHAR_BIT };
+		constexpr const size_t countBitsPerWord{ sizeof(typename uint_t_traits<countBytes, isCompact>::wordType) * CHAR_BIT };
 		return (countBits + countBitsPerWord - 1) / countBitsPerWord;
 	}
 	template<size_t COUNT_BITS, bool COMPACT>
@@ -15,7 +15,7 @@ namespace detail
 		constexpr const bool isCompact{ COMPACT };
 		constexpr const size_t countBits{ COUNT_BITS };
 		constexpr const size_t countBytes{ (countBits + 7) / 8 };
-		return sizeof(typename integer_traits<countBytes, isCompact>::uword) * CHAR_BIT;
+		return sizeof(typename uint_t_traits<countBytes, isCompact>::wordType) * CHAR_BIT;
 	}
 	template<size_t COUNT_BITS, bool COMPACT>
 	constexpr bool isMultiWord() noexcept

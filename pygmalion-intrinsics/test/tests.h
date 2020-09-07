@@ -1,7 +1,7 @@
 namespace intrinsics::test
 {
 	template<size_t COUNT_BITS, bool COMPACT, typename T, typename = typename std::enable_if<std::is_unsigned<T>::value && !std::is_same<bool, T>::value>::type>
-	bool assignment(typename profiler::durationType& durationTotal, size_t& operationsTotal) noexcept
+	bool assignment(typename profiler::durationType& durationTo, size_t& operationsTo, typename profiler::durationType& durationFrom, size_t& operationsFrom) noexcept
 	{
 		using U = uint_t<COUNT_BITS, COMPACT>;
 		std::cout << "  TEST: uint_t <" << COUNT_BITS << "," << COMPACT << "> -> " << (sizeof(T) * CHAR_BIT) << "bit assignments" << std::endl;
@@ -61,9 +61,10 @@ namespace intrinsics::test
 				return false;
 			}
 		}
-		durationTotal += durationCastFrom;
-		durationTotal += durationCastTo;
-		operationsTotal += 2 * countIterations;
+		durationFrom += durationCastFrom;
+		durationTo += durationCastTo;
+		operationsFrom += countIterations;
+		operationsTo += countIterations;
 		std::cout << "  PASSED" << std::endl;
 		std::cout << std::endl;
 		delete[] m_Input;
@@ -73,65 +74,71 @@ namespace intrinsics::test
 	}
 	bool assignments() noexcept
 	{
-		typename profiler::durationType durationCompact{ 0 };
-		size_t operationsCompact(0);
-		typename profiler::durationType durationFast{ 0 };
-		size_t operationsFast(0);
+		typename profiler::durationType durationToCompact{ 0 };
+		size_t operationsToCompact(0);
+		typename profiler::durationType durationFromCompact{ 0 };
+		size_t operationsFromCompact(0);
+		typename profiler::durationType durationToFast{ 0 };
+		size_t operationsToFast(0);
+		typename profiler::durationType durationFromFast{ 0 };
+		size_t operationsFromFast(0);
 		bool result{ true };
 		std::cout << "_____________________________" << std::endl;
 		std::cout << "TESTSUITE: uint_t assignments" << std::endl;
 		std::cout << std::endl;
-		result &= intrinsics::test::assignment<1, false, std::uint_fast8_t>(durationFast, operationsFast);
-		result &= intrinsics::test::assignment<2, false, std::uint_fast8_t>(durationFast, operationsFast);
-		result &= intrinsics::test::assignment<4, false, std::uint_fast8_t>(durationFast, operationsFast);
-		result &= intrinsics::test::assignment<8, false, std::uint_fast8_t>(durationFast, operationsFast);
-		result &= intrinsics::test::assignment<16, false, std::uint_fast16_t>(durationFast, operationsFast);
-		result &= intrinsics::test::assignment<32, false, std::uint_fast32_t>(durationFast, operationsFast);
-		result &= intrinsics::test::assignment<64, false, std::uint_fast64_t>(durationFast, operationsFast);
-		result &= intrinsics::test::assignment<3, false, std::uint_fast8_t>(durationFast, operationsFast);
-		result &= intrinsics::test::assignment<5, false, std::uint_fast8_t>(durationFast, operationsFast);
-		result &= intrinsics::test::assignment<7, false, std::uint_fast8_t>(durationFast, operationsFast);
-		result &= intrinsics::test::assignment<11, false, std::uint_fast16_t>(durationFast, operationsFast);
-		result &= intrinsics::test::assignment<13, false, std::uint_fast16_t>(durationFast, operationsFast);
-		result &= intrinsics::test::assignment<17, false, std::uint_fast32_t>(durationFast, operationsFast);
-		result &= intrinsics::test::assignment<19, false, std::uint_fast32_t>(durationFast, operationsFast);
-		result &= intrinsics::test::assignment<23, false, std::uint_fast32_t>(durationFast, operationsFast);
-		result &= intrinsics::test::assignment<29, false, std::uint_fast32_t>(durationFast, operationsFast);
-		result &= intrinsics::test::assignment<31, false, std::uint_fast32_t>(durationFast, operationsFast);
-		result &= intrinsics::test::assignment<37, false, std::uint_fast64_t>(durationFast, operationsFast);
-		result &= intrinsics::test::assignment<41, false, std::uint_fast64_t>(durationFast, operationsFast);
-		result &= intrinsics::test::assignment<43, false, std::uint_fast64_t>(durationFast, operationsFast);
-		result &= intrinsics::test::assignment<47, false, std::uint_fast64_t>(durationFast, operationsFast);
-		result &= intrinsics::test::assignment<53, false, std::uint_fast64_t>(durationFast, operationsFast);
-		result &= intrinsics::test::assignment<59, false, std::uint_fast64_t>(durationFast, operationsFast);
-		result &= intrinsics::test::assignment<61, false, std::uint_fast64_t>(durationFast, operationsFast);
-		result &= intrinsics::test::assignment<1, true, std::uint_fast8_t>(durationCompact, operationsCompact);
-		result &= intrinsics::test::assignment<2, true, std::uint_fast8_t>(durationCompact, operationsCompact);
-		result &= intrinsics::test::assignment<4, true, std::uint_fast8_t>(durationCompact, operationsCompact);
-		result &= intrinsics::test::assignment<8, true, std::uint_fast8_t>(durationCompact, operationsCompact);
-		result &= intrinsics::test::assignment<16, true, std::uint_fast16_t>(durationCompact, operationsCompact);
-		result &= intrinsics::test::assignment<32, true, std::uint_fast32_t>(durationCompact, operationsCompact);
-		result &= intrinsics::test::assignment<64, true, std::uint_fast64_t>(durationCompact, operationsCompact);
-		result &= intrinsics::test::assignment<3, true, std::uint_fast8_t>(durationCompact, operationsCompact);
-		result &= intrinsics::test::assignment<5, true, std::uint_fast8_t>(durationCompact, operationsCompact);
-		result &= intrinsics::test::assignment<7, true, std::uint_fast8_t>(durationCompact, operationsCompact);
-		result &= intrinsics::test::assignment<11, true, std::uint_fast16_t>(durationCompact, operationsCompact);
-		result &= intrinsics::test::assignment<13, true, std::uint_fast16_t>(durationCompact, operationsCompact);
-		result &= intrinsics::test::assignment<17, true, std::uint_fast32_t>(durationCompact, operationsCompact);
-		result &= intrinsics::test::assignment<19, true, std::uint_fast32_t>(durationCompact, operationsCompact);
-		result &= intrinsics::test::assignment<23, true, std::uint_fast32_t>(durationCompact, operationsCompact);
-		result &= intrinsics::test::assignment<29, true, std::uint_fast32_t>(durationCompact, operationsCompact);
-		result &= intrinsics::test::assignment<31, true, std::uint_fast32_t>(durationCompact, operationsCompact);
-		result &= intrinsics::test::assignment<37, true, std::uint_fast64_t>(durationCompact, operationsCompact);
-		result &= intrinsics::test::assignment<41, true, std::uint_fast64_t>(durationCompact, operationsCompact);
-		result &= intrinsics::test::assignment<43, true, std::uint_fast64_t>(durationCompact, operationsCompact);
-		result &= intrinsics::test::assignment<47, true, std::uint_fast64_t>(durationCompact, operationsCompact);
-		result &= intrinsics::test::assignment<53, true, std::uint_fast64_t>(durationCompact, operationsCompact);
-		result &= intrinsics::test::assignment<59, true, std::uint_fast64_t>(durationCompact, operationsCompact);
-		result &= intrinsics::test::assignment<61, true, std::uint_fast64_t>(durationCompact, operationsCompact);
+		result &= intrinsics::test::assignment<1, false, std::uint_fast8_t>(durationToFast, operationsToFast, durationFromFast, operationsFromFast);
+		result &= intrinsics::test::assignment<2, false, std::uint_fast8_t>(durationToFast, operationsToFast, durationFromFast, operationsFromFast);
+		result &= intrinsics::test::assignment<4, false, std::uint_fast8_t>(durationToFast, operationsToFast, durationFromFast, operationsFromFast);
+		result &= intrinsics::test::assignment<8, false, std::uint_fast8_t>(durationToFast, operationsToFast, durationFromFast, operationsFromFast);
+		result &= intrinsics::test::assignment<16, false, std::uint_fast16_t>(durationToFast, operationsToFast, durationFromFast, operationsFromFast);
+		result &= intrinsics::test::assignment<32, false, std::uint_fast32_t>(durationToFast, operationsToFast, durationFromFast, operationsFromFast);
+		result &= intrinsics::test::assignment<64, false, std::uint_fast64_t>(durationToFast, operationsToFast, durationFromFast, operationsFromFast);
+		result &= intrinsics::test::assignment<3, false, std::uint_fast8_t>(durationToFast, operationsToFast, durationFromFast, operationsFromFast);
+		result &= intrinsics::test::assignment<5, false, std::uint_fast8_t>(durationToFast, operationsToFast, durationFromFast, operationsFromFast);
+		result &= intrinsics::test::assignment<7, false, std::uint_fast8_t>(durationToFast, operationsToFast, durationFromFast, operationsFromFast);
+		result &= intrinsics::test::assignment<11, false, std::uint_fast16_t>(durationToFast, operationsToFast, durationFromFast, operationsFromFast);
+		result &= intrinsics::test::assignment<13, false, std::uint_fast16_t>(durationToFast, operationsToFast, durationFromFast, operationsFromFast);
+		result &= intrinsics::test::assignment<17, false, std::uint_fast32_t>(durationToFast, operationsToFast, durationFromFast, operationsFromFast);
+		result &= intrinsics::test::assignment<19, false, std::uint_fast32_t>(durationToFast, operationsToFast, durationFromFast, operationsFromFast);
+		result &= intrinsics::test::assignment<23, false, std::uint_fast32_t>(durationToFast, operationsToFast, durationFromFast, operationsFromFast);
+		result &= intrinsics::test::assignment<29, false, std::uint_fast32_t>(durationToFast, operationsToFast, durationFromFast, operationsFromFast);
+		result &= intrinsics::test::assignment<31, false, std::uint_fast32_t>(durationToFast, operationsToFast, durationFromFast, operationsFromFast);
+		result &= intrinsics::test::assignment<37, false, std::uint_fast64_t>(durationToFast, operationsToFast, durationFromFast, operationsFromFast);
+		result &= intrinsics::test::assignment<41, false, std::uint_fast64_t>(durationToFast, operationsToFast, durationFromFast, operationsFromFast);
+		result &= intrinsics::test::assignment<43, false, std::uint_fast64_t>(durationToFast, operationsToFast, durationFromFast, operationsFromFast);
+		result &= intrinsics::test::assignment<47, false, std::uint_fast64_t>(durationToFast, operationsToFast, durationFromFast, operationsFromFast);
+		result &= intrinsics::test::assignment<53, false, std::uint_fast64_t>(durationToFast, operationsToFast, durationFromFast, operationsFromFast);
+		result &= intrinsics::test::assignment<59, false, std::uint_fast64_t>(durationToFast, operationsToFast, durationFromFast, operationsFromFast);
+		result &= intrinsics::test::assignment<61, false, std::uint_fast64_t>(durationToFast, operationsToFast, durationFromFast, operationsFromFast);
+		result &= intrinsics::test::assignment<1, true, std::uint_fast8_t>(durationToCompact, operationsToCompact, durationFromCompact, operationsFromCompact);
+		result &= intrinsics::test::assignment<2, true, std::uint_fast8_t>(durationToCompact, operationsToCompact, durationFromCompact, operationsFromCompact);
+		result &= intrinsics::test::assignment<4, true, std::uint_fast8_t>(durationToCompact, operationsToCompact, durationFromCompact, operationsFromCompact);
+		result &= intrinsics::test::assignment<8, true, std::uint_fast8_t>(durationToCompact, operationsToCompact, durationFromCompact, operationsFromCompact);
+		result &= intrinsics::test::assignment<16, true, std::uint_fast16_t>(durationToCompact, operationsToCompact, durationFromCompact, operationsFromCompact);
+		result &= intrinsics::test::assignment<32, true, std::uint_fast32_t>(durationToCompact, operationsToCompact, durationFromCompact, operationsFromCompact);
+		result &= intrinsics::test::assignment<64, true, std::uint_fast64_t>(durationToCompact, operationsToCompact, durationFromCompact, operationsFromCompact);
+		result &= intrinsics::test::assignment<3, true, std::uint_fast8_t>(durationToCompact, operationsToCompact, durationFromCompact, operationsFromCompact);
+		result &= intrinsics::test::assignment<5, true, std::uint_fast8_t>(durationToCompact, operationsToCompact, durationFromCompact, operationsFromCompact);
+		result &= intrinsics::test::assignment<7, true, std::uint_fast8_t>(durationToCompact, operationsToCompact, durationFromCompact, operationsFromCompact);
+		result &= intrinsics::test::assignment<11, true, std::uint_fast16_t>(durationToCompact, operationsToCompact, durationFromCompact, operationsFromCompact);
+		result &= intrinsics::test::assignment<13, true, std::uint_fast16_t>(durationToCompact, operationsToCompact, durationFromCompact, operationsFromCompact);
+		result &= intrinsics::test::assignment<17, true, std::uint_fast32_t>(durationToCompact, operationsToCompact, durationFromCompact, operationsFromCompact);
+		result &= intrinsics::test::assignment<19, true, std::uint_fast32_t>(durationToCompact, operationsToCompact, durationFromCompact, operationsFromCompact);
+		result &= intrinsics::test::assignment<23, true, std::uint_fast32_t>(durationToCompact, operationsToCompact, durationFromCompact, operationsFromCompact);
+		result &= intrinsics::test::assignment<29, true, std::uint_fast32_t>(durationToCompact, operationsToCompact, durationFromCompact, operationsFromCompact);
+		result &= intrinsics::test::assignment<31, true, std::uint_fast32_t>(durationToCompact, operationsToCompact, durationFromCompact, operationsFromCompact);
+		result &= intrinsics::test::assignment<37, true, std::uint_fast64_t>(durationToCompact, operationsToCompact, durationFromCompact, operationsFromCompact);
+		result &= intrinsics::test::assignment<41, true, std::uint_fast64_t>(durationToCompact, operationsToCompact, durationFromCompact, operationsFromCompact);
+		result &= intrinsics::test::assignment<43, true, std::uint_fast64_t>(durationToCompact, operationsToCompact, durationFromCompact, operationsFromCompact);
+		result &= intrinsics::test::assignment<47, true, std::uint_fast64_t>(durationToCompact, operationsToCompact, durationFromCompact, operationsFromCompact);
+		result &= intrinsics::test::assignment<53, true, std::uint_fast64_t>(durationToCompact, operationsToCompact, durationFromCompact, operationsFromCompact);
+		result &= intrinsics::test::assignment<59, true, std::uint_fast64_t>(durationToCompact, operationsToCompact, durationFromCompact, operationsFromCompact);
+		result &= intrinsics::test::assignment<61, true, std::uint_fast64_t>(durationToCompact, operationsToCompact, durationFromCompact, operationsFromCompact);
 		std::cout << "  Performace: " << std::endl;
-		std::cout << "    Compact: " << profiler::speed(operationsCompact, durationCompact, "op") << std::endl;
-		std::cout << "    Fast:    " << profiler::speed(operationsFast, durationFast, "op") << std::endl;
+		std::cout << "    Compact:  -> " << profiler::speed(operationsToCompact, durationToCompact, "op") << std::endl;
+		std::cout << "              <- " << profiler::speed(operationsFromCompact, durationFromCompact, "op") << std::endl;
+		std::cout << "    Fast:     -> " << profiler::speed(operationsToFast, durationToFast, "op") << std::endl;
+		std::cout << "              <- " << profiler::speed(operationsFromFast, durationFromFast, "op") << std::endl;
 		std::cout << std::endl;
 		if (result)
 			std::cout << "ALL PASSED" << std::endl;

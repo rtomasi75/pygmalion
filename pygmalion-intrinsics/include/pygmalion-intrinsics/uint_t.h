@@ -1,19 +1,20 @@
+#include "uint_t_traits.h"
 #include "uint_t_detail.h"
 
-template<size_t COUNT_BITS, bool COMPACT, typename = typename std::enable_if<detail::isMultiWord<COUNT_BITS, COMPACT>() || detail::isSingleWord<COUNT_BITS, COMPACT>() || detail::isSingleBit<COUNT_BITS, COMPACT>() || detail::isEmpty<COUNT_BITS, COMPACT>()>::type>
+template<size_t COUNT_BITS, bool IS_COMPACT, typename = typename std::enable_if<detail::isMultiWord<COUNT_BITS, IS_COMPACT>() || detail::isSingleWord<COUNT_BITS, IS_COMPACT>() || detail::isSingleBit<COUNT_BITS, IS_COMPACT>() || detail::isEmpty<COUNT_BITS, IS_COMPACT>()>::type>
 class uint_t
 {
 };
 
-template<size_t COUNT_BITS, bool COMPACT>
-class uint_t<COUNT_BITS, COMPACT, typename std::enable_if<detail::isMultiWord<COUNT_BITS, COMPACT>()>::type> :
+template<size_t COUNT_BITS, bool IS_COMPACT>
+class uint_t<COUNT_BITS, IS_COMPACT, typename std::enable_if<detail::isMultiWord<COUNT_BITS, IS_COMPACT>()>::type> :
 	detail::base
 {
 public:
-	constexpr static const bool isCompact{ COMPACT };
+	constexpr static const bool isCompact{ IS_COMPACT };
 	constexpr static const size_t countBits{ COUNT_BITS };
 	constexpr static const size_t countBytes{ (countBits + 7) / 8 };
-	using wordType = typename integer_traits<countBytes, isCompact>::uword;
+	using wordType = typename detail::uint_t_traits<countBytes, isCompact>::wordType;
 	constexpr static const size_t countBitsPerWord{ sizeof(wordType) * CHAR_BIT };
 	constexpr static const size_t countWords{ (countBits + countBitsPerWord - 1) / countBitsPerWord };
 	constexpr static const size_t countStorageBits{ countWords * countBitsPerWord };
@@ -302,10 +303,10 @@ public:
 		return !((*this) == other);
 	}
 	static const inline std::string populationCount_Intrinsic{ popcnt::implementationName<countWords,wordType>() };
-	template<size_t COUNT_BITS2, bool COMPACT2>
-	constexpr uint_t(const uint_t<COUNT_BITS2, COMPACT2>& other) noexcept :
+	template<size_t COUNT_BITS2, bool IS_COMPACT2>
+	constexpr uint_t(const uint_t<COUNT_BITS2, IS_COMPACT2>& other) noexcept :
 		m_Words{ uint_t::nullaryTransformWords<countWords,false>([this,&other](const size_t currentWord)->wordType {
-					using wordType2 = typename uint_t<COUNT_BITS2,COMPACT2>::wordType;
+					using wordType2 = typename uint_t<COUNT_BITS2,IS_COMPACT2>::wordType;
 					size_t currentWordBit{ 0 };
 					size_t currentBit{ currentWord * this->countBitsPerWord };
 					size_t currentRemaining{ this->countBitsPerWord };
@@ -336,15 +337,15 @@ public:
 	{}
 };
 
-template<size_t COUNT_BITS, bool COMPACT>
-class uint_t<COUNT_BITS, COMPACT, typename std::enable_if <detail::isSingleWord<COUNT_BITS, COMPACT>()>::type> :
+template<size_t COUNT_BITS, bool IS_COMPACT>
+class uint_t<COUNT_BITS, IS_COMPACT, typename std::enable_if <detail::isSingleWord<COUNT_BITS, IS_COMPACT>()>::type> :
 	detail::base
 {
 public:
-	constexpr static const bool isCompact{ COMPACT };
+	constexpr static const bool isCompact{ IS_COMPACT };
 	constexpr static const size_t countBits{ COUNT_BITS };
 	constexpr static const size_t countBytes{ (countBits + 7) / 8 };
-	using wordType = typename integer_traits<countBytes, isCompact>::uword;
+	using wordType = typename detail::uint_t_traits<countBytes, isCompact>::wordType;
 	constexpr static const size_t countBitsPerWord{ sizeof(wordType) * CHAR_BIT };
 	constexpr static const size_t countWords{ 1 };
 	constexpr static const size_t countStorageBits{ countBitsPerWord };
@@ -491,10 +492,10 @@ public:
 		return m_Word != other.m_Word;
 	}
 	static const inline std::string populationCount_Intrinsic{ popcnt::implementationName<countWords,wordType>() };
-	template<size_t COUNT_BITS2, bool COMPACT2>
-	constexpr uint_t(const uint_t<COUNT_BITS2, COMPACT2>& other) noexcept :
+	template<size_t COUNT_BITS2, bool IS_COMPACT2>
+	constexpr uint_t(const uint_t<COUNT_BITS2, IS_COMPACT2>& other) noexcept :
 		m_Word{ ([this,&other]()->wordType {
-					using wordType2 = typename uint_t<COUNT_BITS2,COMPACT2>::wordType;
+					using wordType2 = typename uint_t<COUNT_BITS2,IS_COMPACT2>::wordType;
 					size_t currentWordBit{ 0 };
 					size_t currentBit{ 0 };
 					size_t currentRemaining{ this->countBitsPerWord };
@@ -525,12 +526,12 @@ public:
 	{}
 };
 
-template<size_t COUNT_BITS, bool COMPACT>
-class uint_t<COUNT_BITS, COMPACT, typename std::enable_if <detail::isSingleBit<COUNT_BITS, COMPACT>()>::type> :
+template<size_t COUNT_BITS, bool IS_COMPACT>
+class uint_t<COUNT_BITS, IS_COMPACT, typename std::enable_if <detail::isSingleBit<COUNT_BITS, IS_COMPACT>()>::type> :
 	detail::base
 {
 public:
-	constexpr static const bool isCompact{ COMPACT };
+	constexpr static const bool isCompact{ IS_COMPACT };
 	constexpr static const size_t countBits{ 1 };
 	constexpr static const size_t countBytes{ (countBits + 7) / 8 };
 	using wordType = bool;
@@ -652,10 +653,10 @@ public:
 		return m_Word != other.m_Word;
 	}
 	static const inline std::string populationCount_Intrinsic{ popcnt::implementationName<countWords,wordType>() };
-	template<size_t COUNT_BITS2, bool COMPACT2>
-	constexpr uint_t(const uint_t<COUNT_BITS2, COMPACT2>& other) noexcept :
+	template<size_t COUNT_BITS2, bool IS_COMPACT2>
+	constexpr uint_t(const uint_t<COUNT_BITS2, IS_COMPACT2>& other) noexcept :
 		m_Word{ ([this,&other]()->wordType {
-					using wordType2 = typename uint_t<COUNT_BITS2,COMPACT2>::wordType;
+					using wordType2 = typename uint_t<COUNT_BITS2,IS_COMPACT2>::wordType;
 					size_t currentWordBit{ 0 };
 					size_t currentBit{ 0 };
 					size_t currentRemaining{ this->countBitsPerWord };
@@ -686,12 +687,12 @@ public:
 	{}
 };
 
-template<size_t COUNT_BITS, bool COMPACT>
-class uint_t<COUNT_BITS, COMPACT, typename std::enable_if<detail::isEmpty<COUNT_BITS, COMPACT>()>::type> :
+template<size_t COUNT_BITS, bool IS_COMPACT>
+class uint_t<COUNT_BITS, IS_COMPACT, typename std::enable_if<detail::isEmpty<COUNT_BITS, IS_COMPACT>()>::type> :
 	detail::base
 {
 public:
-	constexpr static const bool isCompact{ COMPACT };
+	constexpr static const bool isCompact{ IS_COMPACT };
 	constexpr static const size_t countBits{ 0 };
 	constexpr static const size_t countBytes{ 0 };
 	using wordType = bool;
@@ -796,8 +797,8 @@ public:
 		return false;
 	}
 	static const inline std::string populationCount_Intrinsic{ popcnt::implementationName<0,wordType>() };
-	template<size_t COUNT_BITS2, bool COMPACT2>
-	constexpr uint_t(const uint_t<COUNT_BITS2, COMPACT2>& other) noexcept
+	template<size_t COUNT_BITS2, bool IS_COMPACT2>
+	constexpr uint_t(const uint_t<COUNT_BITS2, IS_COMPACT2>& other) noexcept
 	{}
 };
 
@@ -807,9 +808,9 @@ using uint_least_t = uint_t<COUNT_BITS, true>;
 template<size_t COUNT_BITS>
 using uint_fast_t = uint_t<COUNT_BITS, false>;
 
-template<size_t COUNT_BITS, bool COMPACT>
+template<size_t COUNT_BITS, bool IS_COMPACT>
 
-std::ostream& operator<<(std::ostream& str, const uint_t<COUNT_BITS, COMPACT>& value) noexcept
+std::ostream& operator<<(std::ostream& str, const uint_t<COUNT_BITS, IS_COMPACT>& value) noexcept
 {
 	str << static_cast<std::string>(value);
 	return str;
