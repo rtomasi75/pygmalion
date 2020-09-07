@@ -1,7 +1,7 @@
 #include "uint_t_traits.h"
 #include "uint_t_detail.h"
 
-template<size_t COUNT_BITS, bool IS_COMPACT, typename = typename std::enable_if<detail::isMultiWord<COUNT_BITS, IS_COMPACT>() || detail::isSingleWord<COUNT_BITS, IS_COMPACT>() || detail::isSingleBit<COUNT_BITS, IS_COMPACT>() || detail::isEmpty<COUNT_BITS, IS_COMPACT>()>::type>
+template<size_t COUNT_BITS, bool IS_COMPACT, typename = typename std::enable_if<true>::type>
 class uint_t
 {
 };
