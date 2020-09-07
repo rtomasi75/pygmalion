@@ -23,6 +23,7 @@ namespace intrinsics
 #include "pygmalion-intrinsics/make_array.h"
 #include "pygmalion-intrinsics/cpu.h"
 #include "pygmalion-intrinsics/compiler.h"
+#include "pygmalion-intrinsics/random.h"
 #include "pygmalion-intrinsics/base.h"
 #include "pygmalion-intrinsics/popcnt.h"
 #include "pygmalion-intrinsics/integer_traits.h"

@@ -20,7 +20,7 @@ namespace detail
 	template<size_t COUNT_BITS, bool COMPACT>
 	constexpr bool isMultiWord() noexcept
 	{
-		return countWords<COUNT_BITS,COMPACT>() > 1;
+		return countWords<COUNT_BITS, COMPACT>() > 1;
 	}
 	template<size_t COUNT_BITS, bool COMPACT>
 	constexpr bool isSingleBit() noexcept
@@ -40,8 +40,14 @@ namespace detail
 	}
 }
 
-template<size_t COUNT_BITS, bool COMPACT, typename = typename std::enable_if<detail::isMultiWord<COUNT_BITS, COMPACT>()>::type>
+template<size_t COUNT_BITS, bool COMPACT, typename = typename std::enable_if<detail::isMultiWord<COUNT_BITS, COMPACT>() || detail::isSingleWord<COUNT_BITS, COMPACT>() || detail::isSingleBit<COUNT_BITS, COMPACT>() || detail::isEmpty<COUNT_BITS, COMPACT>()>::type>
 class uint_t
+{
+};
+
+template<size_t COUNT_BITS, bool COMPACT>
+class uint_t<COUNT_BITS, COMPACT, typename std::enable_if<detail::isMultiWord<COUNT_BITS, COMPACT>()>::type> :
+	detail::base
 {
 public:
 	constexpr static const bool isCompact{ COMPACT };
@@ -63,10 +69,10 @@ private:
 		else
 			return word;
 	}
-	template<size_t index>
+	template<size_t INDEX>
 	constexpr static wordType normalizeWords(const wordType word) noexcept
 	{
-		if constexpr (index == (countWords - 1))
+		if constexpr (INDEX == (countWords - 1))
 		{
 			constexpr const size_t shift{ countBitsPerWord - (countStorageBits - countBits) };
 			if constexpr (shift < countBitsPerWord)
@@ -181,7 +187,7 @@ public:
 	constexpr uint_t& operator=(const uint_t&) noexcept = default;
 	constexpr uint_t& operator=(uint_t&&) noexcept = default;
 	template<typename T, typename = typename std::enable_if<std::is_unsigned<T>::value>::type>
-	constexpr operator T() const noexcept
+	constexpr explicit operator T() const noexcept
 	{
 		T result{ 0 };
 		size_t shift{ 0 };
@@ -201,6 +207,10 @@ public:
 	operator std::string() const noexcept
 	{
 		std::stringstream sstr;
+		if constexpr (isCompact)
+			sstr << "(" << countBits << ")";
+		else
+			sstr << "{" << countBits << "}";
 		sstr << "[";
 		for (size_t index = 0; index < countWords; index++)
 		{
@@ -291,7 +301,7 @@ public:
 			wordType w{ wordType(0) };
 			for (size_t c = 0; c < sizeof(wordType); c++)
 			{
-				const wordType randomChar{ static_cast<wordType>(std::rand() % UCHAR_MAX) };
+				const wordType randomChar{ static_cast<wordType>(uint_t::nextRandom32() % UCHAR_MAX) };
 				w |= randomChar << (CHAR_BIT * c);
 			}
 			return w;
@@ -305,7 +315,7 @@ public:
 			wordType w{ wordType(0) };
 			for (size_t c = 0; c < sizeof(wordType); c++)
 			{
-				const wordType randomChar{ static_cast<wordType>((std::rand() % UCHAR_MAX) & (std::rand() % UCHAR_MAX) & (std::rand() % UCHAR_MAX)) };
+				const wordType randomChar{ static_cast<wordType>((uint_t::nextRandom32() % UCHAR_MAX) & (uint_t::nextRandom32() % UCHAR_MAX) & (uint_t::nextRandom32() % UCHAR_MAX)) };
 				w |= randomChar << (CHAR_BIT * c);
 			}
 			return w;
@@ -329,7 +339,8 @@ public:
 };
 
 template<size_t COUNT_BITS, bool COMPACT>
-class uint_t<COUNT_BITS, COMPACT, typename std::enable_if <detail::isSingleWord<COUNT_BITS, COMPACT>()>::type>
+class uint_t<COUNT_BITS, COMPACT, typename std::enable_if <detail::isSingleWord<COUNT_BITS, COMPACT>()>::type> :
+	detail::base
 {
 public:
 	constexpr static const bool isCompact{ COMPACT };
@@ -368,7 +379,7 @@ public:
 	constexpr uint_t& operator=(const uint_t&) noexcept = default;
 	constexpr uint_t& operator=(uint_t&&) noexcept = default;
 	template<typename T, typename = typename std::enable_if<std::is_unsigned<T>::value>::type>
-	constexpr operator T() const noexcept
+	constexpr explicit operator T() const noexcept
 	{
 		return static_cast<T>(m_Word);
 	}
@@ -379,6 +390,10 @@ public:
 	operator std::string() const noexcept
 	{
 		std::stringstream sstr;
+		if constexpr (isCompact)
+			sstr << "(" << countBits << ")";
+		else
+			sstr << "{" << countBits << "}";
 		sstr << "[";
 		for (size_t i = 0; i < countBitsPerWord; i++)
 		{
@@ -445,7 +460,7 @@ public:
 		wordType w{ wordType(0) };
 		for (size_t c = 0; c < sizeof(wordType); c++)
 		{
-			const wordType randomChar{ static_cast<wordType>(std::rand() % UCHAR_MAX) };
+			const wordType randomChar{ static_cast<wordType>(uint_t::nextRandom32() % UCHAR_MAX) };
 			w |= randomChar << (CHAR_BIT * c);
 		}
 		return uint_t(normalizeWord(std::move(w)), false);
@@ -455,7 +470,7 @@ public:
 		wordType w{ wordType(0) };
 		for (size_t c = 0; c < sizeof(wordType); c++)
 		{
-			const wordType randomChar{ static_cast<wordType>((std::rand() % UCHAR_MAX) & (std::rand() % UCHAR_MAX) & (std::rand() % UCHAR_MAX)) };
+			const wordType randomChar{ static_cast<wordType>((uint_t::nextRandom32() % UCHAR_MAX) & (uint_t::nextRandom32() % UCHAR_MAX) & (uint_t::nextRandom32() % UCHAR_MAX)) };
 			w |= randomChar << (CHAR_BIT * c);
 		}
 		return uint_t(normalizeWord(std::move(w)), false);
@@ -472,7 +487,8 @@ public:
 };
 
 template<size_t COUNT_BITS, bool COMPACT>
-class uint_t<COUNT_BITS, COMPACT, typename std::enable_if <detail::isSingleBit<COUNT_BITS, COMPACT>()>::type>
+class uint_t<COUNT_BITS, COMPACT, typename std::enable_if <detail::isSingleBit<COUNT_BITS, COMPACT>()>::type> :
+	detail::base
 {
 public:
 	constexpr static const bool isCompact{ COMPACT };
@@ -500,7 +516,7 @@ public:
 	constexpr uint_t& operator=(const uint_t&) noexcept = default;
 	constexpr uint_t& operator=(uint_t&&) noexcept = default;
 	template<typename T, typename = typename std::enable_if<std::is_unsigned<T>::value>::type>
-	constexpr operator T() const noexcept
+	constexpr explicit operator T() const noexcept
 	{
 		return static_cast<T>(m_Word);
 	}
@@ -511,6 +527,10 @@ public:
 	operator std::string() const noexcept
 	{
 		std::stringstream sstr;
+		if constexpr (isCompact)
+			sstr << "(1)";
+		else
+			sstr << "{1}";
 		sstr << "[";
 		sstr << (m_Word ? '1' : '0');
 		sstr << "]";
@@ -567,14 +587,14 @@ public:
 	}
 	static uint_t random() noexcept
 	{
-		const wordType w{ static_cast<wordType>(std::rand() % 2) };
+		const wordType w{ static_cast<wordType>(uint_t::nextRandom32() % 2) };
 		return uint_t(std::move(w), false);
 	}
 	static uint_t sparse() noexcept
 	{
-		const wordType a{ static_cast<wordType>(std::rand() % 2) };
-		const wordType b{ static_cast<wordType>(std::rand() % 2) };
-		const wordType c{ static_cast<wordType>(std::rand() % 2) };
+		const wordType a{ static_cast<wordType>(uint_t::nextRandom32() % 2) };
+		const wordType b{ static_cast<wordType>(uint_t::nextRandom32() % 2) };
+		const wordType c{ static_cast<wordType>(uint_t::nextRandom32() % 2) };
 		return uint_t(a && b && c, false);
 	}
 	constexpr bool operator==(const uint_t other) const noexcept
@@ -589,7 +609,8 @@ public:
 };
 
 template<size_t COUNT_BITS, bool COMPACT>
-class uint_t<COUNT_BITS, COMPACT, typename std::enable_if<detail::isEmpty<COUNT_BITS, COMPACT>()>::type>
+class uint_t<COUNT_BITS, COMPACT, typename std::enable_if<detail::isEmpty<COUNT_BITS, COMPACT>()>::type> :
+	detail::base
 {
 public:
 	constexpr static const bool isCompact{ COMPACT };
@@ -610,7 +631,7 @@ public:
 	constexpr uint_t& operator=(const uint_t&) noexcept = default;
 	constexpr uint_t& operator=(uint_t&&) noexcept = default;
 	template<typename T, typename = typename std::enable_if<std::is_unsigned<T>::value>::type>
-	constexpr operator T() const noexcept
+	constexpr explicit operator T() const noexcept
 	{
 		return static_cast<T>(0);
 	}
@@ -621,6 +642,10 @@ public:
 	operator std::string() const noexcept
 	{
 		std::stringstream sstr;
+		if constexpr (isCompact)
+			sstr << "(0)";
+		else
+			sstr << "{0}";
 		sstr << "[]";
 		return sstr.str();
 	}
@@ -687,15 +712,16 @@ public:
 	static const inline std::string populationCount_Intrinsic{ popcnt::implementationName<0,wordType>() };
 };
 
-template<size_t COUNT_BITS, bool COMPACT>
-std::ostream& operator<<(std::ostream& str, const uint_t<COUNT_BITS, COMPACT>& value) noexcept
-{
-	str << static_cast<std::string>(value);
-	return str;
-}
-
 template<size_t COUNT_BITS>
 using uint_least_t = uint_t<COUNT_BITS, true>;
 
 template<size_t COUNT_BITS>
 using uint_fast_t = uint_t<COUNT_BITS, false>;
+
+template<size_t COUNT_BITS, bool COMPACT>
+
+std::ostream& operator<<(std::ostream& str, const uint_t<COUNT_BITS, COMPACT>& value) noexcept
+{
+	str << static_cast<std::string>(value);
+	return str;
+}
