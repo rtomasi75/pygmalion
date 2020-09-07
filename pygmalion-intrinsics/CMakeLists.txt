@@ -16,7 +16,10 @@ file(GLOB HEADERS include/pygmalion-intrinsics/*.h)
 add_library(pygmalion-intrinsics ${SOURCES} ${HEADERS} include/pygmalion-intrinsics.h)
 target_include_directories(pygmalion-intrinsics PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include> PRIVATE src)
 
-add_executable(pygmalion-intrinsics-test "test/main.cpp")
+add_executable(pygmalion-intrinsics-main "executables/main.cpp")
+target_link_libraries(pygmalion-intrinsics-main pygmalion-intrinsics)
+
+add_executable(pygmalion-intrinsics-test "executables/unit.cpp")
 target_link_libraries(pygmalion-intrinsics-test pygmalion-intrinsics)
 add_test(pygmalion-intrinsics-test pygmalion-intrinsics-test)
 

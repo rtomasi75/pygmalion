@@ -9,6 +9,6 @@ using namespace intrinsics;
 int main(int argc, char* argv[])
 {
 	bool result{ true };
-	result &= intrinsics::test::assignments();
+	result &= intrinsics::test::popcnt();
 	return !result;
 }

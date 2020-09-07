@@ -4,7 +4,7 @@ namespace intrinsics::test
 	bool assignment(typename profiler::durationType& durationTo, size_t& operationsTo, typename profiler::durationType& durationFrom, size_t& operationsFrom) noexcept
 	{
 		using U = uint_t<COUNT_BITS, COMPACT>;
-		std::cout << "  TEST: uint_t <" << COUNT_BITS << "," << COMPACT << "> -> " << (sizeof(T) * CHAR_BIT) << "bit assignments" << std::endl;
+		std::cout << "  TEST: uint_t<" << COUNT_BITS << "," << COMPACT << "> -> " << (sizeof(T) * CHAR_BIT) << "bit assignments" << std::endl;
 		std::cout << std::endl;
 		std::cout << "    " << U() << std::endl;
 		std::cout << std::endl;
@@ -49,7 +49,7 @@ namespace intrinsics::test
 			if (m_Input[i] != m_Output[i])
 			{
 				std::cout << "    FAILED:" << std::endl;
-				std::cout << "      failing " << countIterations << " unsigned " << (sizeof(T) * CHAR_BIT) << "bit integer: " << static_cast<std::uintmax_t>(m_Input[i]) << std::endl;
+				std::cout << "      failing unsigned " << (sizeof(T) * CHAR_BIT) << "bit integer: " << static_cast<std::uintmax_t>(m_Input[i]) << std::endl;
 				std::cout << std::endl;
 				const T input{ m_Input[i] };
 				U value;

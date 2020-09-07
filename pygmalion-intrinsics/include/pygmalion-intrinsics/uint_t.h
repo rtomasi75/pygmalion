@@ -391,9 +391,9 @@ public:
 	constexpr uint_t(uint_t&&) noexcept = default;
 	constexpr uint_t& operator=(const uint_t&) noexcept = default;
 	constexpr uint_t& operator=(uint_t&&) noexcept = default;
-	size_t&& populationCount() const noexcept
+	size_t populationCount() const noexcept
 	{
-		return std::move(popcnt::implementation<1, wordType>({ m_Word }));
+		return popcnt::implementation<1, wordType>({ m_Word });
 	}
 	operator std::string() const noexcept
 	{
