@@ -17,6 +17,8 @@ int main(int argc, char* argv[])
 	result &= intrinsics::test::disjunction();
 	result &= intrinsics::test::conjunction();
 	result &= intrinsics::test::exclusion();
+	result &= intrinsics::test::addition();
+	result &= intrinsics::test::multiplication();
 	std::cout << "================" << std::endl;
 	if (result)
 		std::cout << "PASSED UNIT TEST" << std::endl;

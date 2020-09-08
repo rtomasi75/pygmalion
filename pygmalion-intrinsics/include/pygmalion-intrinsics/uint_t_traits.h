@@ -4,69 +4,80 @@ namespace detail
 	class uint_t_traits
 	{
 	public:
-		using wordType = std::uint_fast8_t;
+		using wordType = std::uint8_t;
+		using halfType = std::uint8_t;
+		using doubleType = std::uint_fast16_t;
 	};
 
 	template<size_t COUNT_BYTES>
 	class uint_t_traits<COUNT_BYTES, true, typename std::enable_if<(COUNT_BYTES >= 1) && ((COUNT_BYTES % 2) != 0)>::type>
 	{
 	public:
-		using wordType = std::uint_least8_t;
+		using wordType = std::uint8_t;
+		using halfType = std::uint8_t;
+		using doubleType = std::uint16_t;
 	};
 
 	template<size_t COUNT_BYTES>
 	class uint_t_traits<COUNT_BYTES, true, typename std::enable_if<(COUNT_BYTES >= 2) && ((COUNT_BYTES % 2) == 0) && ((COUNT_BYTES % 4) != 0) >::type>
 	{
 	public:
-		using wordType = std::uint_least16_t;
+		using wordType = std::uint16_t;
+		using halfType = std::uint8_t;
+		using doubleType = std::uint32_t;
 	};
 
 	template<size_t COUNT_BYTES>
 	class uint_t_traits<COUNT_BYTES, true, typename std::enable_if<(COUNT_BYTES >= 4) && ((COUNT_BYTES % 4) == 0) && ((COUNT_BYTES % 8) != 0)>::type>
 	{
 	public:
-		using wordType = std::uint_least32_t;
+		using wordType = std::uint32_t;
+		using halfType = std::uint16_t;
+		using doubleType = std::uint64_t;
 	};
 
 	template<size_t COUNT_BYTES>
 	class uint_t_traits<COUNT_BYTES, true, typename std::enable_if<(COUNT_BYTES >= 8) && ((COUNT_BYTES % 8) == 0)>::type>
 	{
 	public:
-		using wordType = std::uint_least64_t;
+		using wordType = std::uint64_t;
+		using halfType = std::uint32_t;
+		using doubleType = std::uintmax_t;
 	};
 
 	template<size_t COUNT_BYTES>
 	class uint_t_traits<COUNT_BYTES, false, typename std::enable_if<(COUNT_BYTES <= 1)>::type>
 	{
 	public:
-		using wordType = std::uint_fast8_t;
+		using wordType = std::uint8_t;
+		using halfType = std::uint8_t;
+		using doubleType = std::uint16_t;
 	};
 
 	template<size_t COUNT_BYTES>
 	class uint_t_traits<COUNT_BYTES, false, typename std::enable_if<(COUNT_BYTES > 1) && (COUNT_BYTES <= 2)>::type>
 	{
 	public:
-		using wordType = std::uint_fast16_t;
+		using wordType = std::uint16_t;
+		using halfType = std::uint8_t;
+		using doubleType = std::uint32_t;
 	};
 
 	template<size_t COUNT_BYTES>
 	class uint_t_traits<COUNT_BYTES, false, typename std::enable_if<(COUNT_BYTES > 2) && (COUNT_BYTES <= 4)>::type>
 	{
 	public:
-		using wordType = std::uint_fast32_t;
+		using wordType = std::uint32_t;
+		using halfType = std::uint16_t;
+		using doubleType = std::uint64_t;
 	};
 
 	template<size_t COUNT_BYTES>
-	class uint_t_traits < COUNT_BYTES, false, typename std::enable_if < (COUNT_BYTES > 4) && (COUNT_BYTES < sizeof(std::uintmax_t))>::type >
+	class uint_t_traits < COUNT_BYTES, false, typename std::enable_if < (COUNT_BYTES > 4)>::type >
 	{
 	public:
-		using wordType = std::uint_fast64_t;
-	};
-
-	template<size_t COUNT_BYTES>
-	class uint_t_traits < COUNT_BYTES, false, typename std::enable_if < (COUNT_BYTES >= sizeof(std::uintmax_t))>::type >
-	{
-	public:
-		using wordType = std::uintmax_t;
+		using wordType = std::uint64_t;
+		using halfType = std::uint32_t;
+		using doubleType = std::uintmax_t;
 	};
 }

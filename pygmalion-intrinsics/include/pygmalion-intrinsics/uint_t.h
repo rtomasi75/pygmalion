@@ -19,6 +19,8 @@ public:
 	constexpr static const size_t countWords{ (countBits + countBitsPerWord - 1) / countBitsPerWord };
 	constexpr static const size_t countStorageBits{ countWords * countBitsPerWord };
 private:
+	using doubleType = typename detail::uint_t_traits<countBytes, isCompact>::doubleType;
+	using halfType = typename detail::uint_t_traits<countBytes, isCompact>::halfType;
 	constexpr static wordType normalizeHighestWord(const wordType word) noexcept
 	{
 		constexpr const size_t shift{ countBitsPerWord - (countStorageBits - countBits) };
@@ -133,6 +135,63 @@ private:
 	constexpr uint_t(const std::array<wordType, countWords>& words, bool) noexcept :
 		m_Words{ words }
 	{	}
+	constexpr static wordType sumWords(wordType& accumulator, const wordType operand, const wordType carry) noexcept
+	{
+		if constexpr (std::is_same<wordType, doubleType>::value)
+		{
+			const wordType temp{ static_cast<wordType>(carry + operand) };
+			wordType newCarry{ temp < operand };
+			accumulator += temp;
+			newCarry += (accumulator < temp);
+			return newCarry;
+		}
+		else
+		{
+			constexpr const doubleType mask{ static_cast<doubleType>(static_cast<doubleType>(doubleType(1) << countBitsPerWord) - doubleType(1)) };
+			const doubleType sum{ static_cast<doubleType>(static_cast<doubleType>(carry) + static_cast<doubleType>(operand) + static_cast<doubleType>(accumulator)) };
+			accumulator = static_cast<wordType>(sum & mask);
+			return (sum & static_cast<doubleType>(mask << countBitsPerWord)) >> countBitsPerWord;
+		}
+	}
+	constexpr static const void multiplyWords(const wordType A, const wordType B, wordType& R_low, wordType& R_high) noexcept
+	{
+		if constexpr (std::is_same<wordType, doubleType>::value)
+		{
+			constexpr const size_t shift{ countBitsPerWord >> 1 };
+			constexpr const wordType mask_low{ static_cast<wordType>(static_cast<wordType>(wordType(1) << shift) - wordType(1)) };
+			constexpr const wordType mask_high{ static_cast<wordType>(mask_low << shift) };
+			const halfType low_A{ static_cast<halfType>(A & mask_low) };
+			const halfType low_B{ static_cast<halfType>(B & mask_low) };
+			const halfType high_A{ static_cast<halfType>(static_cast<wordType>(A & mask_high) >> shift) };
+			const halfType high_B{ static_cast<halfType>(static_cast<wordType>(B & mask_high) >> shift) };
+			const wordType ll{ static_cast<wordType>(static_cast<wordType>(low_A) * static_cast<wordType>(low_B)) };
+			const wordType lh{ static_cast<wordType>(static_cast<wordType>(low_A) * static_cast<wordType>(high_B)) };
+			const wordType hl{ static_cast<wordType>(static_cast<wordType>(high_A) * static_cast<wordType>(low_B)) };
+			const wordType hh{ static_cast<wordType>(static_cast<wordType>(high_A) * static_cast<wordType>(high_B)) };
+			bool carryFlag{ false };
+			R_high = wordType(0);
+			R_low = ll;
+			const wordType low_lh{ static_cast<wordType>((lh & mask_low) << shift) };
+			R_low += low_lh;
+			R_high += static_cast<wordType>(R_low < low_lh);
+			const wordType low_hl{ static_cast<wordType>((hl & mask_low) << shift) };
+			R_low += low_hl;
+			R_high += static_cast<wordType>(R_low < low_hl);
+			R_high += hh;
+			const wordType high_lh{ static_cast<wordType>((lh & mask_high) >> shift) };
+			R_high += high_lh;
+			const wordType high_hl{ static_cast<wordType>((hl & mask_high) >> shift) };
+			R_high += high_hl;
+		}
+		else
+		{
+			const doubleType result{ static_cast<doubleType>(static_cast<doubleType>(A) * static_cast<doubleType>(B)) };
+			constexpr const doubleType mask_low{ static_cast<doubleType>(static_cast<doubleType>(doubleType(1) << countBitsPerWord) - doubleType(1)) };
+			constexpr const doubleType mask_high{ static_cast<doubleType>(mask_low << countBitsPerWord) };
+			R_low = static_cast<wordType>(result & mask_low);
+			R_high = static_cast<wordType>((result & mask_high) >> countBitsPerWord);
+		}
+	}
 	std::array<wordType, countWords> m_Words;
 public:
 	template<typename T, typename = typename std::enable_if<std::is_integral<T>::value && !std::is_same<bool, T>::value>::type>
@@ -219,46 +278,128 @@ public:
 		uint_t::binaryTransformWordsInplace<countWords, false>(m_Words, other.m_Words, lambda);
 		return *this;
 	}
-	constexpr auto operator&(const uint_t& other) const noexcept
+	constexpr uint_t operator&(const uint_t& other) const noexcept
 	{
 		constexpr const auto lambda = [](const wordType a, const wordType b, const size_t)->wordType { return a & b; };
 		return uint_t(uint_t::binaryTransformWords<countWords, false>(m_Words, other.m_Words, lambda), false);
 	}
-	constexpr auto operator|(const uint_t& other) const noexcept
+	constexpr uint_t operator|(const uint_t& other) const noexcept
 	{
 		constexpr const auto lambda = [](const wordType a, const wordType b, const size_t)->wordType { return a | b; };
 		return uint_t(uint_t::binaryTransformWords<countWords, false>(m_Words, other.m_Words, lambda), false);
 	}
-	constexpr auto operator^(const uint_t& other) const noexcept
+	constexpr uint_t operator^(const uint_t& other) const noexcept
 	{
 		constexpr const auto lambda = [](const wordType a, const wordType b, const size_t)->wordType { return a ^ b; };
 		return uint_t(uint_t::binaryTransformWords<countWords, false>(m_Words, other.m_Words, lambda), false);
 	}
-	constexpr auto operator+(const uint_t& other) const noexcept
+	constexpr uint_t operator+(const uint_t& other) const noexcept
 	{
 		std::array<wordType, countWords> results{ m_Words };
-		bool carryFlag{ false };
-		for (size_t i = 0; i < countWords; i++)
-		{
-			const wordType temp{ static_cast<wordType>(carryFlag + other.m_Words[i]) };
-			carryFlag = temp < other.m_Words[i];
-			results[i] += temp;
-			carryFlag |= results[i] < temp;
-		}
-		results[countWords - 1] = uint_t::normalizeHighestWord(results[countWords - 1]);
+		wordType carry{ 0 };
+		for (size_t i = 0; i < countWords - 1; i++)
+			carry = sumWords(results[i], other.m_Words[i], carry);
+		results[countWords - 1] = uint_t::normalizeHighestWord(carry + results[countWords - 1] + other.m_Words[countWords - 1]);
 		return uint_t(results, false);
+	}
+	constexpr uint_t operator*(const uint_t& other) const noexcept
+	{
+	/*	if constexpr (isCompact)
+		{
+			const uint_t<countBits, false> A{ static_cast<const uint_t<countBits, false>>(*this) };
+			const uint_t<countBits, false> B{ static_cast<const uint_t<countBits, false>>(other) };
+			return static_cast<uint_t>(A * B);
+		}
+		else*/
+		{
+			using halfType = wordType;
+			std::array<wordType, countWords> results{ make_array_n<countWords,wordType>(wordType(0)) };
+			constexpr const size_t shift{ countBitsPerWord >> 1 };
+			constexpr const wordType mask_low{ static_cast<wordType>(static_cast<wordType>(wordType(1) << shift) - wordType(1)) };
+			constexpr const wordType mask_high{ static_cast<wordType>(mask_low << shift) };
+			wordType low{ wordType(0) };
+			wordType high{ wordType(0) };
+			for (size_t i = 0; i < countWords; i++)
+			{
+				for (size_t j = 0; j < countWords; j++)
+				{
+					multiplyWords(m_Words[i], other.m_Words[j], low, high);
+					size_t k{ i + j };
+					if (k < countWords)
+					{
+						results[k] += low;
+						bool carryFlag{ results[k] < low };
+						while (carryFlag && ((++k) < countWords))
+						{
+							results[k]++;
+							carryFlag = !results[k];
+						}
+						k = i + j + 1;
+						if (k < countWords)
+						{
+							results[k] += high;
+							carryFlag = (results[k] < high);
+							while (carryFlag && ((++k) < countWords))
+							{
+								results[k]++;
+								carryFlag = !results[k];
+							}
+						}
+					}
+				}
+			}
+			results[countWords - 1] = uint_t::normalizeHighestWord(results[countWords - 1]);
+			return uint_t(results, false);
+		}
 	}
 	constexpr uint_t& operator+=(const uint_t& other)  noexcept
 	{
-		bool carryFlag{ false };
+		wordType carry{ 0 };
+		for (size_t i = 0; i < countWords - 1; i++)
+			carry = sumWords(m_Words[i], other.m_Words[i], carry);
+		m_Words[countWords - 1] = uint_t::normalizeHighestWord(carry + m_Words[countWords - 1] + other.m_Words[countWords - 1]);
+		return *this;
+	}
+	constexpr uint_t& operator*=(const uint_t& other) noexcept
+	{
+		using halfType = wordType;
+		std::array<wordType, countWords> results{ make_array_n<countWords,wordType>(wordType(0)) };
+		constexpr const size_t shift{ countBitsPerWord >> 1 };
+		constexpr const wordType mask_low{ static_cast<wordType>(static_cast<wordType>(wordType(1) << shift) - wordType(1)) };
+		constexpr const wordType mask_high{ static_cast<wordType>(mask_low << shift) };
+		wordType low{ wordType(0) };
+		wordType high{ wordType(0) };
 		for (size_t i = 0; i < countWords; i++)
 		{
-			const wordType temp{ static_cast<wordType>(carryFlag + other.m_Words[i]) };
-			carryFlag = temp < other.m_Words[i];
-			m_Words[i] += temp;
-			carryFlag |= m_Words[i] < temp;
+			for (size_t j = 0; j < countWords; j++)
+			{
+				multiplyWords(m_Words[i], other.m_Words[j], low, high);
+				size_t k{ i + j };
+				if (k < countWords)
+				{
+					results[k] += low;
+					bool carryFlag{ results[k] < low };
+					while (carryFlag && ((++k) < countWords))
+					{
+						results[k]++;
+						carryFlag = !results[k];
+					}
+					k = i + j + 1;
+					if (k < countWords)
+					{
+						results[k] += high;
+						carryFlag = (results[k] < high);
+						while (carryFlag && ((++k) < countWords))
+						{
+							results[k]++;
+							carryFlag = !results[k];
+						}
+					}
+				}
+			}
 		}
-		m_Words[countWords - 1] = uint_t::normalizeHighestWord(m_Words[countWords - 1]);
+		results[countWords - 1] = uint_t::normalizeHighestWord(results[countWords - 1]);
+		m_Words = results;
 		return *this;
 	}
 	static auto random() noexcept
@@ -418,48 +559,48 @@ public:
 	{
 		return std::move(uint_t(normalizeWord(~m_Word), false));
 	}
-	constexpr uint_t& operator&=(const uint_t& other) noexcept
+	constexpr uint_t& operator&=(const uint_t other) noexcept
 	{
 		m_Word = m_Word & other.m_Word;
 		return *this;
 	}
-	constexpr uint_t& operator+=(const uint_t& other) noexcept
+	constexpr uint_t& operator+=(const uint_t other) noexcept
 	{
 		m_Word = normalizeWord(m_Word + other.m_Word);
 		return *this;
 	}
-	constexpr uint_t& operator*=(const uint_t& other) noexcept
+	constexpr uint_t& operator*=(const uint_t other) noexcept
 	{
 		m_Word = normalizeWord(m_Word * other.m_Word);
 		return *this;
 	}
-	constexpr uint_t& operator|=(const uint_t& other) noexcept
+	constexpr uint_t& operator|=(const uint_t other) noexcept
 	{
 		m_Word = m_Word | other.m_Word;
 		return *this;
 	}
-	constexpr uint_t& operator^=(const uint_t& other) noexcept
+	constexpr uint_t& operator^=(const uint_t other) noexcept
 	{
 		m_Word = m_Word & other.m_Word;
 		return *this;
 	}
-	constexpr uint_t operator&(const uint_t& other) const noexcept
+	constexpr uint_t operator&(const uint_t other) const noexcept
 	{
 		return uint_t(m_Word & other.m_Word, false);
 	}
-	constexpr uint_t operator|(const uint_t& other) const noexcept
+	constexpr uint_t operator|(const uint_t other) const noexcept
 	{
 		return uint_t(m_Word | other.m_Word, false);
 	}
-	constexpr uint_t operator^(const uint_t& other) const noexcept
+	constexpr uint_t operator^(const uint_t other) const noexcept
 	{
 		return uint_t(m_Word ^ other.m_Word, false);
 	}
-	constexpr uint_t operator+(const uint_t& other) const noexcept
+	constexpr uint_t operator+(const uint_t other) const noexcept
 	{
 		return uint_t(normalizeWord(m_Word + other.m_Word), false);
 	}
-	constexpr uint_t operator*(const uint_t& other) const noexcept
+	constexpr uint_t operator*(const uint_t other) const noexcept
 	{
 		return uint_t(normalizeWord(m_Word * other.m_Word), false);
 	}
@@ -483,11 +624,11 @@ public:
 		}
 		return uint_t(normalizeWord(std::move(w)), false);
 	}
-	constexpr bool operator==(const uint_t& other) const noexcept
+	constexpr bool operator==(const uint_t other) const noexcept
 	{
 		return m_Word == other.m_Word;
 	}
-	constexpr bool operator!=(const uint_t& other) const noexcept
+	constexpr bool operator!=(const uint_t other) const noexcept
 	{
 		return m_Word != other.m_Word;
 	}
@@ -616,7 +757,7 @@ public:
 	{
 		return uint_t(m_Word ^ other.m_Word, false);
 	}
-	constexpr uint_t operator*(const uint_t& other) const noexcept
+	constexpr uint_t operator*(const uint_t other) const noexcept
 	{
 		return uint_t(m_Word & other.m_Word, false);
 	}
@@ -767,7 +908,7 @@ public:
 	{
 		return *this;
 	}
-	constexpr uint_t operator*(const uint_t& other) const noexcept
+	constexpr uint_t operator*(const uint_t other) const noexcept
 	{
 		return *this;
 	}
