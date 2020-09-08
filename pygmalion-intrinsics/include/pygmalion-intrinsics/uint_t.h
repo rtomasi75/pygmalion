@@ -304,13 +304,13 @@ public:
 	}
 	constexpr uint_t operator*(const uint_t& other) const noexcept
 	{
-	/*	if constexpr (isCompact)
-		{
-			const uint_t<countBits, false> A{ static_cast<const uint_t<countBits, false>>(*this) };
-			const uint_t<countBits, false> B{ static_cast<const uint_t<countBits, false>>(other) };
-			return static_cast<uint_t>(A * B);
-		}
-		else*/
+		/*	if constexpr (isCompact)
+			{
+				const uint_t<countBits, false> A{ static_cast<const uint_t<countBits, false>>(*this) };
+				const uint_t<countBits, false> B{ static_cast<const uint_t<countBits, false>>(other) };
+				return static_cast<uint_t>(A * B);
+			}
+			else*/
 		{
 			using halfType = wordType;
 			std::array<wordType, countWords> results{ make_array_n<countWords,wordType>(wordType(0)) };
@@ -446,34 +446,48 @@ public:
 	static const inline std::string populationCount_Intrinsic{ popcnt::implementationName<countWords,wordType>() };
 	template<size_t COUNT_BITS2, bool IS_COMPACT2>
 	constexpr uint_t(const uint_t<COUNT_BITS2, IS_COMPACT2>& other) noexcept :
-		m_Words{ uint_t::nullaryTransformWords<countWords,false>([this,&other](const size_t currentWord)->wordType {
-					using wordType2 = typename uint_t<COUNT_BITS2,IS_COMPACT2>::wordType;
-					size_t currentWordBit{ 0 };
-					size_t currentBit{ currentWord * this->countBitsPerWord };
-					size_t currentRemaining{ this->countBitsPerWord };
-					size_t otherWord{ currentBit / other.countBitsPerWord };
-					size_t otherWordBit{ currentBit % other.countBitsPerWord };
-					size_t otherBit{ otherWord * other.countBitsPerWord + otherWordBit };
-					size_t otherRemaining{ other.countBitsPerWord - otherWordBit };
-					constexpr const size_t slice{std::min(this->countBitsPerWord,other.countBitsPerWord)};
-					constexpr const wordType2 mask{ (wordType2(1) << slice) - wordType(1) };
-					wordType result{ wordType(0) };
-					while (otherBit < other.countBits)
+		m_Words{ uint_t::nullaryTransformWords<countWords,false>([this,&other](const size_t currentWord)->wordType
+				{
+					if constexpr (COUNT_BITS2 == 0)
+						return wordType(0);
+					else if constexpr (COUNT_BITS2 == 1)
+						return (currentWord == 0) ? static_cast<wordType>(other.word(0)) : wordType(0);
+					else
 					{
-						result |= ((other.word(otherWord) & (mask << otherWordBit)) >> otherWordBit) << currentWordBit;
-						const size_t increment{std::min(slice,std::min(otherRemaining,currentRemaining))};
-						currentWordBit += increment;
-						if (currentWordBit == this->countBitsPerWord)
-							return result;
-						otherWordBit += increment;
-						otherBit += increment;
-						if (otherWordBit >= other.countBitsPerWord)
+						using wordType2 = typename uint_t<COUNT_BITS2,IS_COMPACT2>::wordType;
+						size_t currentWordBit{ 0 };
+						size_t currentBit{ currentWord * this->countBitsPerWord };
+						size_t otherWord{ currentBit / other.countBitsPerWord };
+						size_t otherWordBit{ currentBit % other.countBitsPerWord };
+						size_t otherBit{ otherWord * other.countBitsPerWord + otherWordBit };
+						wordType result{ wordType(0) };
+						while (true)
 						{
-							otherWordBit = 0;
-							otherWord++;
+							if ((otherBit >= other.countBits) || (currentWordBit >= countBitsPerWord) || (currentBit >= countBits))
+								return result;
+							const size_t otherRemaining{ std::min(other.countBitsPerWord - otherWordBit,other.countBits - otherBit) };
+							const size_t currentRemaining{ std::min(countBitsPerWord - currentWordBit,countBits - currentBit) };
+							const size_t slice{ std::min(otherRemaining,currentRemaining) };
+							if (slice >= other.countBitsPerWord)
+							{
+								result |= static_cast<wordType>(static_cast<wordType>(other.word(otherWord) >> otherWordBit) << currentWordBit);
+							}
+							else
+							{
+								const wordType2 mask{ static_cast<wordType2>(static_cast<wordType2>(static_cast<wordType2>(wordType2(1) << slice) - wordType2(1)) << otherWordBit) };
+								result |= static_cast<wordType>(static_cast<wordType>(static_cast<wordType2>(other.word(otherWord) & mask) >> otherWordBit) << currentWordBit);
+							}
+							otherBit += slice;
+							otherWordBit += slice;
+							if (otherWordBit >= other.countBitsPerWord)
+							{
+								otherWordBit = 0;
+								otherWord++;
+							}
+							currentBit += slice;
+							currentWordBit += slice;
 						}
 					}
-					return result;
 				}) }
 	{}
 };
@@ -636,33 +650,46 @@ public:
 	template<size_t COUNT_BITS2, bool IS_COMPACT2>
 	constexpr uint_t(const uint_t<COUNT_BITS2, IS_COMPACT2>& other) noexcept :
 		m_Word{ ([this,&other]()->wordType {
-					using wordType2 = typename uint_t<COUNT_BITS2,IS_COMPACT2>::wordType;
-					size_t currentWordBit{ 0 };
-					size_t currentBit{ 0 };
-					size_t currentRemaining{ this->countBitsPerWord };
-					size_t otherWord{ currentBit / other.countBitsPerWord };
-					size_t otherWordBit{ currentBit % other.countBitsPerWord };
-					size_t otherBit{ otherWord * other.countBitsPerWord + otherWordBit };
-					size_t otherRemaining{ other.countBitsPerWord - otherWordBit };
-					constexpr const size_t slice{std::min(this->countBitsPerWord,other.countBitsPerWord)};
-					constexpr const wordType2 mask{ (wordType2(1) << slice) - wordType(1) };
-					wordType result{ wordType(0) };
-					while (otherBit < other.countBits)
+					if constexpr (COUNT_BITS2 == 0)
+						return wordType(0);
+					else if constexpr (COUNT_BITS2 == 1)
+						return static_cast<wordType>(other.word(0));
+					else
 					{
-						result |= ((other.word(otherWord) & (mask << otherWordBit)) >> otherWordBit) << currentWordBit;
-						const size_t increment{std::min(slice,std::min(otherRemaining,currentRemaining))};
-						currentWordBit += increment;
-						if (currentWordBit == this->countBitsPerWord)
-							return result;
-						otherWordBit += increment;
-						otherBit += increment;
-						if (otherWordBit >= other.countBitsPerWord)
+						using wordType2 = typename uint_t<COUNT_BITS2,IS_COMPACT2>::wordType;
+						size_t currentWordBit{ 0 };
+						size_t currentBit{ 0 };
+						size_t otherWord{ currentBit / other.countBitsPerWord };
+						size_t otherWordBit{ currentBit % other.countBitsPerWord };
+						size_t otherBit{ otherWord * other.countBitsPerWord + otherWordBit };
+						wordType result{ wordType(0) };
+						while (true)
 						{
-							otherWordBit = 0;
-							otherWord++;
+							if ((otherBit >= other.countBits) || (currentWordBit >= countBitsPerWord) || (currentBit >= countBits))
+								return result;
+							const size_t otherRemaining{ std::min(other.countBitsPerWord - otherWordBit,other.countBits - otherBit) };
+							const size_t currentRemaining{ std::min(countBitsPerWord - currentWordBit,countBits - currentBit) };
+							const size_t slice{ std::min(otherRemaining,currentRemaining) };
+							if (slice >= other.countBitsPerWord)
+							{
+								result |= static_cast<wordType>(static_cast<wordType>(other.word(otherWord) >> otherWordBit) << currentWordBit);
+							}
+							else
+							{
+								const wordType2 mask{ static_cast<wordType2>(static_cast<wordType2>(static_cast<wordType2>(wordType2(1) << slice) - wordType2(1)) << otherWordBit) };
+								result |= static_cast<wordType>(static_cast<wordType>(static_cast<wordType2>(other.word(otherWord) & mask) >> otherWordBit) << currentWordBit);
+							}
+							otherBit += slice;
+							otherWordBit += slice;
+							if (otherWordBit >= other.countBitsPerWord)
+							{
+								otherWordBit = 0;
+								otherWord++;
+							}
+							currentBit += slice;
+							currentWordBit += slice;
 						}
 					}
-					return result;
 				})() }
 	{}
 };
@@ -796,35 +823,7 @@ public:
 	static const inline std::string populationCount_Intrinsic{ popcnt::implementationName<countWords,wordType>() };
 	template<size_t COUNT_BITS2, bool IS_COMPACT2>
 	constexpr uint_t(const uint_t<COUNT_BITS2, IS_COMPACT2>& other) noexcept :
-		m_Word{ ([this,&other]()->wordType {
-					using wordType2 = typename uint_t<COUNT_BITS2,IS_COMPACT2>::wordType;
-					size_t currentWordBit{ 0 };
-					size_t currentBit{ 0 };
-					size_t currentRemaining{ this->countBitsPerWord };
-					size_t otherWord{ currentBit / other.countBitsPerWord };
-					size_t otherWordBit{ currentBit % other.countBitsPerWord };
-					size_t otherBit{ otherWord * other.countBitsPerWord + otherWordBit };
-					size_t otherRemaining{ other.countBitsPerWord - otherWordBit };
-					constexpr const size_t slice{std::min(this->countBitsPerWord,other.countBitsPerWord)};
-					constexpr const wordType2 mask{ (wordType2(1) << slice) - wordType(1) };
-					wordType result{ wordType(0) };
-					while (otherBit < other.countBits)
-					{
-						result |= ((other.word(otherWord) & (mask << otherWordBit)) >> otherWordBit) << currentWordBit;
-						const size_t increment{std::min(slice,std::min(otherRemaining,currentRemaining))};
-						currentWordBit += increment;
-						if (currentWordBit == this->countBitsPerWord)
-							return result;
-						otherWordBit += increment;
-						otherBit += increment;
-						if (otherWordBit >= other.countBitsPerWord)
-						{
-							otherWordBit = 0;
-							otherWord++;
-						}
-					}
-					return result;
-				})() }
+		m_Word{ static_cast<wordType>((COUNT_BITS2 > 0) ? other.word(0) & 1 : 0) }
 	{}
 };
 

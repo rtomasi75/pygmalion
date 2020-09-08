@@ -1,4 +1,5 @@
 #include "assignment.h"
+#include "conversion.h"
 #include "disjunction.h"
 #include "conjunction.h"
 #include "exclusion.h"

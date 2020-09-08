@@ -79,7 +79,7 @@ namespace intrinsics::test
 		delete[] m_Values;
 		return true;
 	}
-	bool assignments() noexcept
+	bool assignment() noexcept
 	{
 		typename profiler::durationType durationToCompact{ 0 };
 		size_t operationsToCompact(0);

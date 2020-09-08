@@ -12,7 +12,8 @@ int main(int argc, char* argv[])
 	std::cout << "===============================" << std::endl;
 	std::cout << "UNIT TEST: pygmalion-intrinsics" << std::endl;
 	std::cout << "===============================" << std::endl;
-	result &= intrinsics::test::assignments();
+	result &= intrinsics::test::assignment();
+	result &= intrinsics::test::conversion();
 	result &= intrinsics::test::popcnt();
 	result &= intrinsics::test::disjunction();
 	result &= intrinsics::test::conjunction();
