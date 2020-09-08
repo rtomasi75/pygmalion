@@ -6,7 +6,7 @@ namespace detail
 	public:
 		using wordType = std::uint8_t;
 		using halfType = std::uint8_t;
-		using doubleType = std::uint_fast16_t;
+		using doubleType = std::uint16_t;
 	};
 
 	template<size_t COUNT_BYTES>
