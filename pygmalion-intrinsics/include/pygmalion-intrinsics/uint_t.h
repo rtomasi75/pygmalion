@@ -304,53 +304,44 @@ public:
 	}
 	constexpr uint_t operator*(const uint_t& other) const noexcept
 	{
-		/*	if constexpr (isCompact)
-			{
-				const uint_t<countBits, false> A{ static_cast<const uint_t<countBits, false>>(*this) };
-				const uint_t<countBits, false> B{ static_cast<const uint_t<countBits, false>>(other) };
-				return static_cast<uint_t>(A * B);
-			}
-			else*/
+		using halfType = wordType;
+		std::array<wordType, countWords> results{ make_array_n<countWords,wordType>(wordType(0)) };
+		constexpr const size_t shift{ countBitsPerWord >> 1 };
+		constexpr const wordType mask_low{ static_cast<wordType>(static_cast<wordType>(wordType(1) << shift) - wordType(1)) };
+		constexpr const wordType mask_high{ static_cast<wordType>(mask_low << shift) };
+		wordType low{ wordType(0) };
+		wordType high{ wordType(0) };
+		for (size_t i = 0; i < countWords; i++)
 		{
-			using halfType = wordType;
-			std::array<wordType, countWords> results{ make_array_n<countWords,wordType>(wordType(0)) };
-			constexpr const size_t shift{ countBitsPerWord >> 1 };
-			constexpr const wordType mask_low{ static_cast<wordType>(static_cast<wordType>(wordType(1) << shift) - wordType(1)) };
-			constexpr const wordType mask_high{ static_cast<wordType>(mask_low << shift) };
-			wordType low{ wordType(0) };
-			wordType high{ wordType(0) };
-			for (size_t i = 0; i < countWords; i++)
+			for (size_t j = 0; j < countWords; j++)
 			{
-				for (size_t j = 0; j < countWords; j++)
+				multiplyWords(m_Words[i], other.m_Words[j], low, high);
+				size_t k{ i + j };
+				if (k < countWords)
 				{
-					multiplyWords(m_Words[i], other.m_Words[j], low, high);
-					size_t k{ i + j };
+					results[k] += low;
+					bool carryFlag{ results[k] < low };
+					while (carryFlag && ((++k) < countWords))
+					{
+						results[k]++;
+						carryFlag = !results[k];
+					}
+					k = i + j + 1;
 					if (k < countWords)
 					{
-						results[k] += low;
-						bool carryFlag{ results[k] < low };
+						results[k] += high;
+						carryFlag = (results[k] < high);
 						while (carryFlag && ((++k) < countWords))
 						{
 							results[k]++;
 							carryFlag = !results[k];
 						}
-						k = i + j + 1;
-						if (k < countWords)
-						{
-							results[k] += high;
-							carryFlag = (results[k] < high);
-							while (carryFlag && ((++k) < countWords))
-							{
-								results[k]++;
-								carryFlag = !results[k];
-							}
-						}
 					}
 				}
 			}
-			results[countWords - 1] = uint_t::normalizeHighestWord(results[countWords - 1]);
-			return uint_t(results, false);
 		}
+		results[countWords - 1] = uint_t::normalizeHighestWord(results[countWords - 1]);
+		return uint_t(results, false);
 	}
 	constexpr uint_t& operator+=(const uint_t& other)  noexcept
 	{

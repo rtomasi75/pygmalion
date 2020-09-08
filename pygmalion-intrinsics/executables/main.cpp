@@ -13,6 +13,6 @@ int main(int argc, char* argv[])
 	typename profiler::durationType durationFast{ 0 };
 	size_t operationsFast(0);
 	bool result{ true };
-	result &= intrinsics::test::conversion();
+	result &= intrinsics::test::multiplication();
 	return !result;
 }
