@@ -306,39 +306,28 @@ public:
 	{
 		using halfType = wordType;
 		std::array<wordType, countWords> results{ make_array_n<countWords,wordType>(wordType(0)) };
-		constexpr const size_t shift{ countBitsPerWord >> 1 };
-		constexpr const wordType mask_low{ static_cast<wordType>(static_cast<wordType>(wordType(1) << shift) - wordType(1)) };
-		constexpr const wordType mask_high{ static_cast<wordType>(mask_low << shift) };
-		wordType low{ wordType(0) };
-		wordType high{ wordType(0) };
 		for (size_t i = 0; i < countWords; i++)
 		{
-			for (size_t j = 0; j < countWords; j++)
+			std::array<wordType, countWords> temp{ make_array_n<countWords,wordType>(wordType(0)) };
+			wordType carry{ wordType(0) };
+			wordType carry2{ 0 };
+			for (size_t j = 0; j < (countWords - i); j++)
 			{
+				wordType low{ wordType(0) };
+				wordType high{ wordType(0) };
 				multiplyWords(m_Words[i], other.m_Words[j], low, high);
-				size_t k{ i + j };
-				if (k < countWords)
-				{
-					results[k] += low;
-					bool carryFlag{ results[k] < low };
-					while (carryFlag && ((++k) < countWords))
-					{
-						results[k]++;
-						carryFlag = !results[k];
-					}
-					k = i + j + 1;
-					if (k < countWords)
-					{
-						results[k] += high;
-						carryFlag = (results[k] < high);
-						while (carryFlag && ((++k) < countWords))
-						{
-							results[k]++;
-							carryFlag = !results[k];
-						}
-					}
-				}
+				temp[j] += carry;
+				carry = (temp[j] < carry);
+				temp[j] += low;
+				carry += (temp[j] < low);
+				carry += carry2;
+				carry2 = (carry < carry2);
+				carry += high;
+				carry2 |= (carry < high);
 			}
+			carry = 0;
+			for (size_t j = 0; j < (countWords - i); j++)
+				carry = sumWords(results[i + j], temp[j], carry);
 		}
 		results[countWords - 1] = uint_t::normalizeHighestWord(results[countWords - 1]);
 		return uint_t(results, false);
@@ -693,7 +682,7 @@ public:
 	constexpr static const bool isCompact{ IS_COMPACT };
 	constexpr static const size_t countBits{ 1 };
 	constexpr static const size_t countBytes{ (countBits + 7) / 8 };
-	using wordType = bool;
+	using wordType = std::uint8_t;
 	constexpr static const size_t countBitsPerWord{ 1 };
 	constexpr static const size_t countWords{ 1 };
 	constexpr static const size_t countStorageBits{ countBitsPerWord };
