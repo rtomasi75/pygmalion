@@ -19,6 +19,7 @@ int main(int argc, char* argv[])
 	result &= intrinsics::test::conjunction();
 	result &= intrinsics::test::exclusion();
 	result &= intrinsics::test::addition();
+	result &= intrinsics::test::subtraction();
 	result &= intrinsics::test::multiplication();
 	std::cout << "================" << std::endl;
 	if (result)
