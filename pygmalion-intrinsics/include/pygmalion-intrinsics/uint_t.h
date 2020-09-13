@@ -306,9 +306,9 @@ public:
 	{
 		using halfType = wordType;
 		std::array<wordType, countWords> results{ make_array_n<countWords,wordType>(wordType(0)) };
+		std::array<wordType, countWords> temp{ make_array_n<countWords,wordType>(wordType(0)) };
 		for (size_t i = 0; i < countWords; i++)
 		{
-			std::array<wordType, countWords> temp{ make_array_n<countWords,wordType>(wordType(0)) };
 			wordType carry{ wordType(0) };
 			wordType carry2{ 0 };
 			for (size_t j = 0; j < (countWords - i); j++)
@@ -316,10 +316,9 @@ public:
 				wordType low{ wordType(0) };
 				wordType high{ wordType(0) };
 				multiplyWords(m_Words[i], other.m_Words[j], low, high);
-				temp[j] += carry;
-				carry = (temp[j] < carry);
+				temp[j] = carry;
 				temp[j] += low;
-				carry += (temp[j] < low);
+				carry = (temp[j] < low);
 				carry += carry2;
 				carry2 = (carry < carry2);
 				carry += high;
