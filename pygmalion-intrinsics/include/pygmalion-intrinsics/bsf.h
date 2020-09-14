@@ -25,7 +25,60 @@ namespace detail
 		}
 		static bool baseline(const refType bits, size_t& bit) noexcept
 		{
-			return bsf_reference<COUNT_BITS, refType>(bits, bit);
+#if defined(PYGMALION_INTRINSICS_MSC)  &&defined(PYGMALION_CPU_X64)
+			if constexpr (compiler::supports(compiler::flags::MSC) && cpu::supports(cpu::flags::X64))
+			{
+				unsigned long idx{ 0 };
+				if (_BitScanForward64(&idx, bits))
+				{
+					bit = static_cast<size_t>(idx);
+					return true;
+				}
+				else
+					return false;
+			}
+			else
+#endif
+#if defined(PYGMALION_INTRINSICS_GNU)
+				if constexpr (compiler::supports(compiler::flags::GNU))
+				{
+					if (bits)
+					{
+						if constexpr (sizeof(bits) <= sizeof(unsigned int))
+							bit = static_cast<size_t>(__builtin_ctz(bits));
+						else if constexpr (sizeof(bits) <= sizeof(unsigned long))
+							bit = static_cast<size_t>(__builtin_ctzl(bits));
+						else if constexpr (sizeof(bits) <= sizeof(unsigned long long))
+							bit = static_cast<size_t>(__builtin_ctzll(bits));
+						return true;
+					}
+					else
+						return false;
+				}
+				else
+#endif
+#if defined(PYGMALION_INTRINSICS_MSC) &&defined(PYGMALION_CPU_X86)
+					if constexpr (compiler::supports(compiler::flags::MSC) && cpu::supports(cpu::flags::X86))
+					{
+						unsigned long idx{ 0 };
+						unsigned char ret = _BitScanForward(&idx, static_cast<unsigned long>(bits & std::uint64_t(0x00000000FFFFFFFF)));
+						if (ret)
+						{
+							bit = static_cast<size_t>(idx);
+							return true;
+						}
+						ret = _BitScanForward(&idx, static_cast<unsigned long>((bits & std::uint64_t(0xFFFFFFFF00000000)) >> 32));
+						if (ret)
+						{
+							bit = static_cast<size_t>(idx + 32);
+							return true;
+						}
+						else
+							return false;
+					}
+					else
+#endif
+						return bsf_reference<COUNT_BITS, refType>(bits, bit);
 		}
 		static bool generic(const refType bits, size_t& bit)
 		{
@@ -52,7 +105,39 @@ namespace detail
 		}
 		static bool baseline(const refType bits, size_t& bit) noexcept
 		{
-			return bsf_reference<COUNT_BITS, refType>(bits, bit);
+#if defined(PYGMALION_INTRINSICS_MSC)  && (defined(PYGMALION_CPU_X86)||defined(PYGMALION_CPU_X64))
+			if constexpr (compiler::supports(compiler::flags::MSC) && cpu::supports(cpu::flags::X86))
+			{
+				unsigned long idx{ 0 };
+				if (_BitScanForward(&idx, bits))
+				{
+					bit = static_cast<size_t>(idx);
+					return true;
+				}
+				else
+					return false;
+			}
+			else
+#endif
+#if defined(PYGMALION_INTRINSICS_GNU)
+				if constexpr (compiler::supports(compiler::flags::GNU))
+				{
+					if (bits)
+					{
+						if constexpr (sizeof(bits) <= sizeof(unsigned int))
+							bit = static_cast<size_t>(__builtin_ctz(bits));
+						else if constexpr (sizeof(bits) <= sizeof(unsigned long))
+							bit = static_cast<size_t>(__builtin_ctzl(bits));
+						else if constexpr (sizeof(bits) <= sizeof(unsigned long long))
+							bit = static_cast<size_t>(__builtin_ctzll(bits));
+						return true;
+					}
+					else
+						return false;
+				}
+				else
+#endif
+					return bsf_reference<COUNT_BITS, refType>(bits, bit);
 		}
 		static bool generic(const refType bits, size_t& bit)
 		{
@@ -79,7 +164,39 @@ namespace detail
 		}
 		static bool baseline(const refType bits, size_t& bit) noexcept
 		{
-			return bsf_reference<COUNT_BITS, refType>(bits, bit);
+#if defined(PYGMALION_INTRINSICS_MSC)  && (defined(PYGMALION_CPU_X86)||defined(PYGMALION_CPU_X64))
+			if constexpr (compiler::supports(compiler::flags::MSC) && cpu::supports(cpu::flags::X86))
+			{
+				unsigned long idx{ 0 };
+				if (_BitScanForward(&idx, bits))
+				{
+					bit = static_cast<size_t>(idx);
+					return true;
+				}
+				else
+					return false;
+			}
+			else
+#endif
+#if defined(PYGMALION_INTRINSICS_GNU)
+				if constexpr (compiler::supports(compiler::flags::GNU))
+				{
+					if (bits)
+					{
+						if constexpr (sizeof(bits) <= sizeof(unsigned int))
+							bit = static_cast<size_t>(__builtin_ctz(bits));
+						else if constexpr (sizeof(bits) <= sizeof(unsigned long))
+							bit = static_cast<size_t>(__builtin_ctzl(bits));
+						else if constexpr (sizeof(bits) <= sizeof(unsigned long long))
+							bit = static_cast<size_t>(__builtin_ctzll(bits));
+						return true;
+					}
+					else
+						return false;
+				}
+				else
+#endif
+					return bsf_reference<COUNT_BITS, refType>(bits, bit);
 		}
 		static bool generic(const refType bits, size_t& bit)
 		{
@@ -106,7 +223,34 @@ namespace detail
 		}
 		static bool baseline(const refType bits, size_t& bit) noexcept
 		{
-			return bsf_reference<COUNT_BITS, refType>(bits, bit);
+#if defined(PYGMALION_INTRINSICS_MSC)  && (defined(PYGMALION_CPU_X86)||defined(PYGMALION_CPU_X64))
+			if constexpr (compiler::supports(compiler::flags::MSC) && cpu::supports(cpu::flags::X86))
+			{
+				unsigned long idx{ 0 };
+				if (_BitScanForward(&idx, bits))
+				{
+					bit = static_cast<size_t>(idx);
+					return true;
+				}
+				else
+					return false;
+			}
+			else
+#endif
+#if defined(PYGMALION_INTRINSICS_GNU)
+				if constexpr (compiler::supports(compiler::flags::GNU))
+				{
+					if (bits)
+					{
+						bit = static_cast<size_t>(__builtin_ctz(bits));
+						return true;
+					}
+					else
+						return false;
+				}
+				else
+#endif
+					return bsf_reference<COUNT_BITS, refType>(bits, bit);
 		}
 		static bool generic(const refType bits, size_t& bit)
 		{
@@ -178,7 +322,37 @@ namespace detail
 		}
 		static bool baseline(const refType bits, size_t& bit) noexcept
 		{
-			return bsf_reference<COUNT_BITS, refType>(bits, bit);
+#if defined(PYGMALION_INTRINSICS_GNU)
+			if constexpr (compiler::supports(compiler::flags::GNU))
+			{
+				if (bits)
+				{
+					if constexpr (sizeof(bits) <= sizeof(unsigned int))
+					{
+						bit = static_cast<size_t>(__builtin_ctz(bits));
+						return true;
+					}
+					else if constexpr (sizeof(bits) <= sizeof(unsigned long))
+					{
+						bit = static_cast<size_t>(__builtin_ctzl(bits));
+						return true;
+					}
+					else if constexpr (sizeof(bits) <= sizeof(unsigned long long))
+					{
+						bit = static_cast<size_t>(__builtin_ctzll(bits));
+						return true;
+					}
+					else
+					{
+						bit = popcnt::implementation<1, refType>({ static_cast<refType>((bits & -bits) - refType(1)) });
+					}
+				}
+				else
+					return false;
+			}
+			else
+#endif
+				return bsf_reference<COUNT_BITS, refType>(bits, bit);
 		}
 		static bool generic(const refType bits, size_t& bit)
 		{
@@ -199,8 +373,16 @@ private:
 			return false;
 		else
 		{
-			idx = popcnt::implementation<1, T>({ static_cast<T>((bits & -static_cast<T>(bits)) - T(1)) });
-			return true;
+			if constexpr (std::is_same<bool, T>::value)
+			{
+				idx = 0;
+				return true;
+			}
+			else
+			{
+				idx = popcnt::implementation<1, T>({ static_cast<T>((bits & -static_cast<T>(bits)) - T(1)) });
+				return true;
+			}
 		}
 	}
 
@@ -292,11 +474,36 @@ private:
 		const std::array<SLICE, countSlices> transformedSlices{ mergeChannelsOrderly<UINT,SLICE,countSliceChannels>(sliceChannels) };
 		for (size_t i = 0; i < countSlices; i++)
 		{
-			if (bsf::bsf_ref(transformedSlices[i], bit))
+#if defined(PYGMALION_INTRINSICS_MSC)  && (defined(PYGMALION_CPU_X86)||defined(PYGMALION_CPU_X64))
+			if constexpr (compiler::supports(compiler::flags::MSC) && cpu::supports(cpu::flags::X86))
 			{
-				bit += i * sizeof(SLICE) * CHAR_BIT;
-				return true;
+				unsigned long idx{ 0 };
+				if (_BitScanForward(&idx, transformedSlices[i]))
+				{
+					bit = static_cast<size_t>(idx);
+					bit += i * sizeof(SLICE) * CHAR_BIT;
+					return true;
+				}
 			}
+			else
+#endif
+#if defined(PYGMALION_INTRINSICS_GNU)
+				if constexpr (compiler::supports(compiler::flags::GNU))
+				{
+					if (transformedSlices[i])
+					{
+						bit = static_cast<size_t>(__builtin_ctz(transformedSlices[i]));
+						bit += i * sizeof(SLICE) * CHAR_BIT;
+						return true;
+					}
+			}
+				else
+#endif
+					if (bsf::bsf_ref(transformedSlices[i], bit))
+					{
+						bit += i * sizeof(SLICE) * CHAR_BIT;
+						return true;
+					}
 		}
 		if constexpr (countOddChannels > 0)
 		{
@@ -323,14 +530,24 @@ private:
 		std::stringstream sstr;
 		for (size_t slice = 0; slice < countSlices; slice++)
 		{
-			sstr << "generic ";
+#if defined(PYGMALION_INTRINSICS_MSC) && (defined(PYGMALION_CPU_X86)||defined(PYGMALION_CPU_X64))
+			if constexpr (compiler::supports(compiler::flags::MSC) && cpu::supports(cpu::flags::X86))
+				sstr << "MSC32 ";
+			else
+#endif
+#if defined(PYGMALION_INTRINSICS_GNU)
+				if constexpr (compiler::supports(compiler::flags::GNU))
+					sstr << "GNU" << (sizeof(unsigned int) * CHAR_BIT) << " ";
+				else
+#endif
+					sstr << "generic ";
 			sstr << (sizeof(SLICE) * CHAR_BIT) << "bit";
 			sstr << ((slice == countSlices - 1) ? "" : " | ");
-		}
+	}
 		if constexpr (countOddChannels > 0)
 			sstr << " | " << name<countOddChannels, UINT>(tag_best{}, std::make_index_sequence<countOddChannels>{});
 		return sstr.str();
-	}
+}
 	template <size_t COUNT_CHANNELS, typename UINT>
 	constexpr static bool enable_short() noexcept
 	{
@@ -348,11 +565,36 @@ private:
 		const std::array<SLICE, countSlices> transformedSlices{ mergeChannelsOrderly<UINT,SLICE,countSliceChannels>(sliceChannels) };
 		for (size_t i = 0; i < countSlices; i++)
 		{
-			if (bsf::bsf_ref(transformedSlices[i], bit))
+#if defined(PYGMALION_INTRINSICS_MSC)  && (defined(PYGMALION_CPU_X86)||defined(PYGMALION_CPU_X64))
+			if constexpr (compiler::supports(compiler::flags::MSC) && cpu::supports(cpu::flags::X86))
 			{
-				bit += i * sizeof(SLICE) * CHAR_BIT;
-				return true;
+				unsigned long idx{ 0 };
+				if (_BitScanForward(&idx, transformedSlices[i]))
+				{
+					bit = static_cast<size_t>(idx);
+					bit += i * sizeof(SLICE) * CHAR_BIT;
+					return true;
+				}
 			}
+			else
+#endif
+#if defined(PYGMALION_INTRINSICS_GNU)
+				if constexpr (compiler::supports(compiler::flags::GNU))
+				{
+					if (transformedSlices[i])
+					{
+						bit = static_cast<size_t>(__builtin_ctz(transformedSlices[i]));
+						bit += i * sizeof(SLICE) * CHAR_BIT;
+						return true;
+					}
+			}
+				else
+#endif
+					if (bsf::bsf_ref(transformedSlices[i], bit))
+					{
+						bit += i * sizeof(SLICE) * CHAR_BIT;
+						return true;
+					}
 		}
 		if constexpr (countOddChannels > 0)
 		{
@@ -379,10 +621,20 @@ private:
 		std::stringstream sstr;
 		for (size_t slice = 0; slice < countSlices; slice++)
 		{
-			sstr << "generic ";
+#if defined(PYGMALION_INTRINSICS_MSC) && (defined(PYGMALION_CPU_X86)||defined(PYGMALION_CPU_X64))
+			if constexpr (compiler::supports(compiler::flags::MSC) && cpu::supports(cpu::flags::X86))
+				sstr << "MSC32 ";
+			else
+#endif
+#if defined(PYGMALION_INTRINSICS_GNU)
+				if constexpr (compiler::supports(compiler::flags::GNU))
+					sstr << "GNU" << (sizeof(unsigned int) * CHAR_BIT) << " ";
+				else
+#endif
+					sstr << "generic ";
 			sstr << (sizeof(SLICE) * CHAR_BIT) << "bit";
 			sstr << ((slice == countSlices - 1) ? "" : " | ");
-		}
+	}
 		if constexpr (countOddChannels > 0)
 			sstr << " | " << name<countOddChannels, UINT>(tag_best{}, std::make_index_sequence<countOddChannels>{});
 		return sstr.str();
@@ -404,11 +656,36 @@ private:
 		const std::array<SLICE, countSlices> transformedSlices{ mergeChannelsOrderly<UINT,SLICE,countSliceChannels>(sliceChannels) };
 		for (size_t i = 0; i < countSlices; i++)
 		{
-			if (bsf::bsf_ref(transformedSlices[i], bit))
+#if defined(PYGMALION_INTRINSICS_MSC)  && (defined(PYGMALION_CPU_X86)||defined(PYGMALION_CPU_X64))
+			if constexpr (compiler::supports(compiler::flags::MSC) && cpu::supports(cpu::flags::X86))
 			{
-				bit += i * sizeof(SLICE) * CHAR_BIT;
-				return true;
+				unsigned long idx{ 0 };
+				if (_BitScanForward(&idx, transformedSlices[i]))
+				{
+					bit = static_cast<size_t>(idx);
+					bit += i * sizeof(SLICE) * CHAR_BIT;
+					return true;
+				}
 			}
+			else
+#endif
+#if defined(PYGMALION_INTRINSICS_GNU)
+				if constexpr (compiler::supports(compiler::flags::GNU))
+				{
+					if (transformedSlices[i])
+					{
+						bit = static_cast<size_t>(__builtin_ctz(transformedSlices[i]));
+						bit += i * sizeof(SLICE) * CHAR_BIT;
+						return true;
+					}
+			}
+				else
+#endif
+					if (bsf::bsf_ref(transformedSlices[i], bit))
+					{
+						bit += i * sizeof(SLICE) * CHAR_BIT;
+						return true;
+					}
 		}
 		if constexpr (countOddChannels > 0)
 		{
@@ -435,10 +712,20 @@ private:
 		std::stringstream sstr;
 		for (size_t slice = 0; slice < countSlices; slice++)
 		{
-			sstr << "generic ";
+#if defined(PYGMALION_INTRINSICS_MSC) && (defined(PYGMALION_CPU_X86)||defined(PYGMALION_CPU_X64))
+			if constexpr (compiler::supports(compiler::flags::MSC) && cpu::supports(cpu::flags::X86))
+				sstr << "MSC32 ";
+			else
+#endif
+#if defined(PYGMALION_INTRINSICS_GNU)
+				if constexpr (compiler::supports(compiler::flags::GNU))
+					sstr << "GNU" << (sizeof(unsigned int) * CHAR_BIT) << " ";
+				else
+#endif
+					sstr << "generic ";
 			sstr << (sizeof(SLICE) * CHAR_BIT) << "bit";
 			sstr << ((slice == countSlices - 1) ? "" : " | ");
-		}
+	}
 		if constexpr (countOddChannels > 0)
 			sstr << " | " << name<countOddChannels, UINT>(tag_best{}, std::make_index_sequence<countOddChannels>{});
 		return sstr.str();
@@ -460,11 +747,36 @@ private:
 		const std::array<SLICE, countSlices> transformedSlices{ mergeChannelsOrderly<UINT,SLICE,countSliceChannels>(sliceChannels) };
 		for (size_t i = 0; i < countSlices; i++)
 		{
-			if (bsf::bsf_ref(transformedSlices[i], bit))
+#if defined(PYGMALION_INTRINSICS_MSC)  && (defined(PYGMALION_CPU_X86)||defined(PYGMALION_CPU_X64))
+			if constexpr (compiler::supports(compiler::flags::MSC) && cpu::supports(cpu::flags::X86))
 			{
-				bit += i * sizeof(SLICE) * CHAR_BIT;
-				return true;
+				unsigned long idx{ 0 };
+				if (_BitScanForward(&idx, transformedSlices[i]))
+				{
+					bit = static_cast<size_t>(idx);
+					bit += i * sizeof(SLICE) * CHAR_BIT;
+					return true;
+				}
 			}
+			else
+#endif
+#if defined(PYGMALION_INTRINSICS_GNU)
+				if constexpr (compiler::supports(compiler::flags::GNU))
+				{
+					if (transformedSlices[i])
+					{
+						bit = static_cast<size_t>(__builtin_ctzl(transformedSlices[i]));
+						bit += i * sizeof(SLICE) * CHAR_BIT;
+						return true;
+					}
+			}
+				else
+#endif
+					if (bsf::bsf_ref(transformedSlices[i], bit))
+					{
+						bit += i * sizeof(SLICE) * CHAR_BIT;
+						return true;
+					}
 		}
 		if constexpr (countOddChannels > 0)
 		{
@@ -491,10 +803,20 @@ private:
 		std::stringstream sstr;
 		for (size_t slice = 0; slice < countSlices; slice++)
 		{
-			sstr << "generic ";
+#if defined(PYGMALION_INTRINSICS_MSC) && (defined(PYGMALION_CPU_X86)||defined(PYGMALION_CPU_X64))
+			if constexpr (compiler::supports(compiler::flags::MSC) && cpu::supports(cpu::flags::X86))
+				sstr << "MSC32 ";
+			else
+#endif
+#if defined(PYGMALION_INTRINSICS_GNU)
+				if constexpr (compiler::supports(compiler::flags::GNU))
+					sstr << "GNU" << (sizeof(unsigned long) * CHAR_BIT) << " ";
+				else
+#endif
+					sstr << "generic ";
 			sstr << (sizeof(SLICE) * CHAR_BIT) << "bit";
 			sstr << ((slice == countSlices - 1) ? "" : " | ");
-		}
+	}
 		if constexpr (countOddChannels > 0)
 			sstr << " | " << name<countOddChannels, UINT>(tag_best{}, std::make_index_sequence<countOddChannels>{});
 		return sstr.str();
@@ -516,11 +838,57 @@ private:
 		const std::array<SLICE, countSlices> transformedSlices{ mergeChannelsOrderly<UINT,SLICE,countSliceChannels>(sliceChannels) };
 		for (size_t i = 0; i < countSlices; i++)
 		{
-			if (bsf::bsf_ref(transformedSlices[i], bit))
+#if defined(PYGMALION_INTRINSICS_MSC) &&defined(PYGMALION_CPU_X64)
+			if constexpr (compiler::supports(compiler::flags::MSC) && cpu::supports(cpu::flags::X64))
 			{
-				bit += i * sizeof(SLICE) * CHAR_BIT;
-				return true;
+				unsigned long idx{ 0 };
+				if (_BitScanForward64(&idx, transformedSlices[i]))
+				{
+					bit = static_cast<size_t>(idx);
+					bit += i * sizeof(SLICE) * CHAR_BIT;
+					return true;
+				}
 			}
+			else
+#endif
+#if defined(PYGMALION_INTRINSICS_GNU)
+				if constexpr (compiler::supports(compiler::flags::GNU))
+				{
+					if (transformedSlices[i])
+					{
+						bit = static_cast<size_t>(__builtin_ctzll(transformedSlices[i]));
+						bit += i * sizeof(SLICE) * CHAR_BIT;
+						return true;
+					}
+				}
+				else
+#endif
+#if defined(PYGMALION_INTRINSICS_MSC) &&defined(PYGMALION_CPU_X86)
+					if constexpr (compiler::supports(compiler::flags::MSC) && cpu::supports(cpu::flags::X86))
+					{
+						unsigned long idx{ 0 };
+						unsigned char ret = _BitScanForward(&idx, static_cast<unsigned long>(transformedSlices[i] & std::uint64_t(0x00000000FFFFFFFF)));
+						if (ret)
+						{
+							bit = static_cast<size_t>(idx);
+							bit += i * sizeof(SLICE) * CHAR_BIT;
+							return true;
+						}
+						ret = _BitScanForward(&idx, static_cast<unsigned long>((transformedSlices[i] & std::uint64_t(0xFFFFFFFF00000000)) >> 32));
+						if (ret)
+						{
+							bit = static_cast<size_t>(idx + 32);
+							bit += i * sizeof(SLICE) * CHAR_BIT;
+							return true;
+						}
+			}
+					else
+#endif
+						if (bsf::bsf_ref(transformedSlices[i], bit))
+						{
+							bit += i * sizeof(SLICE) * CHAR_BIT;
+							return true;
+						}
 		}
 		if constexpr (countOddChannels > 0)
 		{
@@ -547,10 +915,25 @@ private:
 		std::stringstream sstr;
 		for (size_t slice = 0; slice < countSlices; slice++)
 		{
-			sstr << "generic ";
+#if defined(PYGMALION_INTRINSICS_MSC) &&defined(PYGMALION_CPU_X64)
+			if constexpr (compiler::supports(compiler::flags::MSC) && cpu::supports(cpu::flags::X64))
+				sstr << "MSC64 ";
+			else
+#endif
+#if defined(PYGMALION_INTRINSICS_GNU)
+				if constexpr (compiler::supports(compiler::flags::GNU))
+					sstr << "GNU" << (sizeof(unsigned long long) * CHAR_BIT) << " ";
+				else
+#endif
+#if defined(PYGMALION_INTRINSICS_MSC) && defined(PYGMALION_CPU_X86)
+					if constexpr (compiler::supports(compiler::flags::MSC) && cpu::supports(cpu::flags::X86))
+						sstr << "2xMSC32 ";
+					else
+#endif
+						sstr << "generic ";
 			sstr << (sizeof(SLICE) * CHAR_BIT) << "bit";
 			sstr << ((slice == countSlices - 1) ? "" : " | ");
-		}
+	}
 		if constexpr (countOddChannels > 0)
 			sstr << " | " << name<countOddChannels, UINT>(tag_best{}, std::make_index_sequence<countOddChannels>{});
 		return sstr.str();
@@ -569,13 +952,7 @@ public:
 	{
 		constexpr const intrinsics::compiler::flags comp{ intrinsics::compiler::computeFlags() };
 		constexpr const intrinsics::cpu::flags cpu{ intrinsics::cpu::computeFlags() };
-		if constexpr (std::is_same<bool, UINT>())
-			return impl<COUNT_CHANNELS, bool>(tag_best{}, bits, bit, std::make_index_sequence<COUNT_CHANNELS>{});
-		else
-		{
-			constexpr const size_t countChunks{ countSplitChannels<UINT, unsigned char, COUNT_CHANNELS>() };
-			return impl<countChunks, unsigned char>(tag_best{}, splitChannelsOrderly<UINT, unsigned char, COUNT_CHANNELS>({ bits }), bit, std::make_index_sequence<countChunks>{});
-		}
+		return impl<COUNT_CHANNELS, UINT>(tag_best{}, bits, bit, std::make_index_sequence<COUNT_CHANNELS>{});
 	}
 
 	template <size_t COUNT_CHANNELS, typename UINT>
@@ -591,7 +968,7 @@ public:
 			return "[" + name<countChunks, unsigned char>(tag_best{}, std::make_index_sequence<countChunks>{}) + "]";
 		}
 	}
-	};
+};
 
 
 namespace detail

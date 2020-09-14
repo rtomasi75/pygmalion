@@ -394,7 +394,7 @@ public:
 		m_Words = results;
 		return *this;
 	}
-	static auto random() noexcept
+	static uint_t random() noexcept
 	{
 		const auto lambda = [](const size_t index)->wordType
 		{
@@ -408,7 +408,7 @@ public:
 		};
 		return uint_t(uint_t::nullaryTransformWords<countWords, true>(lambda), false);
 	}
-	static uint_t&& sparse() noexcept
+	static uint_t sparse() noexcept
 	{
 		const auto lambda = [](const size_t index)->wordType
 		{
@@ -420,7 +420,7 @@ public:
 			}
 			return w;
 		};
-		return std::move(uint_t(uint_t::nullaryTransformWords<countWords, true>(lambda), false));
+		return uint_t(uint_t::nullaryTransformWords<countWords, true>(lambda), false);
 	}
 	constexpr bool operator==(const uint_t& other) const noexcept
 	{

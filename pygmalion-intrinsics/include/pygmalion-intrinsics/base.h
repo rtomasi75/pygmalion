@@ -91,7 +91,7 @@ namespace detail
 			constexpr const auto lambda = [](const std::array<T, COUNT_CHANNELS>& old, const size_t index)->C
 			{
 				C ret{ C(0) };
-				constexpr const size_t mult{ COUNT_CHANNELS / countMergedChannels };
+				constexpr const size_t mult{ COUNT_CHANNELS / base::countMergedChannels<T,C, COUNT_CHANNELS>() };
 				if constexpr (mult == 1)
 					return old[index];
 				else
