@@ -260,6 +260,19 @@ public:
 	{
 		return bsr::implementation(m_Words, bit);
 	}
+	/*	uint_t extractPattern(const uint_t& mask) const noexcept
+		{
+			uint_t res{ 0 };
+			uint_t bb{ 1 };
+			while (mask)
+			{
+				if ((*this) & mask & (-mask))
+					res |= bb;
+				mask &= mask - 1;
+				bb <<= 1;
+			}
+			return res;
+		}*/
 	operator std::string() const noexcept
 	{
 		std::stringstream sstr;
@@ -283,7 +296,7 @@ public:
 		sstr << "]";
 		return sstr.str();
 	}
-	constexpr auto operator~() const noexcept
+	constexpr uint_t operator~() const noexcept
 	{
 		constexpr const auto lambda = [](const wordType a, const size_t)->wordType { return ~a; };
 		return uint_t(uint_t::unaryTransformWords<countWords, true>(m_Words, lambda), false);
@@ -371,6 +384,29 @@ public:
 			carry = sumWords(m_Words[i], other.m_Words[i], carry);
 		m_Words[countWords - 1] = uint_t::normalizeHighestWord(carry + m_Words[countWords - 1] + other.m_Words[countWords - 1]);
 		return *this;
+	}
+	constexpr uint_t& operator++() noexcept
+	{
+		wordType carry{ 1 };
+		size_t i{ 0 };
+		while (carry && (i < (countWords - 1)))
+		{
+			m_Words[i]++;
+			carry = (m_Words[i] == 0);
+			i++;
+		}
+		m_Words[countWords - 1] = uint_t::normalizeHighestWord(carry + m_Words[countWords - 1]);
+		return *this;
+	}
+	constexpr uint_t operator++(int) noexcept
+	{
+		const uint_t temp{ *this };
+		++(*this);
+		return temp;
+	}
+	constexpr uint_t operator-() const noexcept
+	{
+		return ++~(*this);
 	}
 	constexpr uint_t& operator*=(const uint_t& other) noexcept
 	{
@@ -705,9 +741,24 @@ public:
 		sstr << "]";
 		return sstr.str();
 	}
-	constexpr uint_t&& operator~() const noexcept
+	constexpr uint_t operator~() const noexcept
 	{
-		return std::move(uint_t(normalizeWord(~m_Word), false));
+		return uint_t(normalizeWord(~m_Word), false);
+	}
+	constexpr uint_t& operator++() noexcept
+	{
+		m_Word = normalizeWord(m_Word + wordType(1));
+		return *this;
+	}
+	constexpr uint_t operator++(int) noexcept
+	{
+		const uint_t temp{ *this };
+		++(*this);
+		return temp;
+	}
+	constexpr uint_t operator-() const noexcept
+	{
+		return uint_t(normalizeWord(static_cast<wordType>(-m_Word)), false);
 	}
 	constexpr uint_t& operator&=(const uint_t other) noexcept
 	{
@@ -937,6 +988,21 @@ public:
 	{
 		return std::move(uint_t(!m_Word, false));
 	}
+	constexpr uint_t& operator++() noexcept
+	{
+		m_Word = !m_Word;
+		return *this;
+	}
+	constexpr uint_t operator++(int) noexcept
+	{
+		const uint_t temp{ *this };
+		++(*this);
+		return temp;
+	}
+	constexpr uint_t operator-() const noexcept
+	{
+		return *this;
+	}
 	constexpr uint_t& operator*=(const uint_t other) noexcept
 	{
 		m_Word &= other.m_Word;
@@ -1102,6 +1168,18 @@ public:
 		return sstr.str();
 	}
 	constexpr uint_t operator~() const noexcept
+	{
+		return *this;
+	}
+	constexpr uint_t& operator++() noexcept
+	{
+		return *this;
+	}
+	constexpr uint_t operator++(int) noexcept
+	{
+		return *this;
+	}
+	constexpr uint_t operator-() const noexcept
 	{
 		return *this;
 	}

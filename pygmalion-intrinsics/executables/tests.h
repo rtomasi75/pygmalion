@@ -1,5 +1,6 @@
 #include "assignment.h"
 #include "conversion.h"
+#include "complement.h"
 #include "disjunction.h"
 #include "conjunction.h"
 #include "exclusion.h"
