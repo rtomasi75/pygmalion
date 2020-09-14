@@ -13,8 +13,13 @@ int main(int argc, char* argv[])
 	typename profiler::durationType durationFast{ 0 };
 	size_t operationsFast(0);
 	bool result{ true };
-	//result &= intrinsics::test::bsf<16, true>(durationCompact, operationsCompact);
-	result &= intrinsics::test::bsf();
+	//result &= intrinsics::test::bsr<24, true>(durationCompact, operationsCompact);
+	result &= intrinsics::test::bsr();
 	//result &= intrinsics::test::inequality();
+	uint_t<8, true> x = 12;
+	//std::cout << x << std::endl;
+	size_t bit;
+//	std::cout << (x.bitscanForward(bit) ? bit : -1) << std::endl;
+//	std::cout << (x.bitscanReverse(bit) ? bit : -1) << std::endl;
 	return !result;
 }

@@ -256,6 +256,10 @@ public:
 	{
 		return bsf::implementation(m_Words, bit);
 	}
+	bool bitscanReverse(size_t& bit) const noexcept
+	{
+		return bsr::implementation(m_Words, bit);
+	}
 	operator std::string() const noexcept
 	{
 		std::stringstream sstr;
@@ -567,6 +571,7 @@ public:
 	}
 	static const inline std::string populationCount_Intrinsic{ popcnt::implementationName<countWords,wordType>() };
 	static const inline std::string bitscanForward_Intrinsic{ bsf::implementationName<countWords,wordType>() };
+	static const inline std::string bitscanReverse_Intrinsic{ bsr::implementationName<countWords,wordType>() };
 	template<size_t COUNT_BITS2, bool IS_COMPACT2>
 	constexpr uint_t(const uint_t<COUNT_BITS2, IS_COMPACT2>& other) noexcept :
 		m_Words{ uint_t::nullaryTransformWords<countWords,false>([this,&other](const size_t currentWord)->wordType
@@ -676,6 +681,10 @@ public:
 	bool bitscanForward(size_t& bit) const noexcept
 	{
 		return bsf::implementation<1, wordType>({ m_Word }, bit);
+	}
+	bool bitscanReverse(size_t& bit) const noexcept
+	{
+		return bsr::implementation<1, wordType>({ m_Word }, bit);
 	}
 	operator std::string() const noexcept
 	{
@@ -811,6 +820,7 @@ public:
 	}
 	static const inline std::string populationCount_Intrinsic{ popcnt::implementationName<countWords,wordType>() };
 	static const inline std::string bitscanForward_Intrinsic{ bsf::implementationName<countWords,wordType>() };
+	static const inline std::string bitscanReverse_Intrinsic{ bsr::implementationName<countWords,wordType>() };
 	template<size_t COUNT_BITS2, bool IS_COMPACT2>
 	constexpr uint_t(const uint_t<COUNT_BITS2, IS_COMPACT2>& other) noexcept :
 		m_Word{ ([this,&other]()->wordType {
@@ -906,6 +916,10 @@ public:
 	bool bitscanForward(size_t& bit) const noexcept
 	{
 		return bsf::implementation<1, wordType>({ m_Word }, bit);
+	}
+	bool bitscanReverse(size_t& bit) const noexcept
+	{
+		return bsr::implementation<1, wordType>({ m_Word }, bit);
 	}
 	operator std::string() const noexcept
 	{
@@ -1020,6 +1034,7 @@ public:
 	}
 	static const inline std::string populationCount_Intrinsic{ popcnt::implementationName<countWords,wordType>() };
 	static const inline std::string bitscanForward_Intrinsic{ bsf::implementationName<countWords,wordType>() };
+	static const inline std::string bitscanReverse_Intrinsic{ bsr::implementationName<countWords,wordType>() };
 	template<size_t COUNT_BITS2, bool IS_COMPACT2>
 	constexpr uint_t(const uint_t<COUNT_BITS2, IS_COMPACT2>& other) noexcept :
 		m_Word{ static_cast<wordType>((COUNT_BITS2 > 0) ? other.word(0) & 1 : 0) }
@@ -1071,6 +1086,10 @@ public:
 	bool bitscanForward(size_t& bit) const noexcept
 	{
 		return bsf::implementation<0, wordType>({}, bit);
+	}
+	bool bitscanReverse(size_t& bit) const noexcept
+	{
+		return bsr::implementation<0, wordType>({}, bit);
 	}
 	operator std::string() const noexcept
 	{
@@ -1174,6 +1193,7 @@ public:
 	}
 	static const inline std::string populationCount_Intrinsic{ popcnt::implementationName<0,wordType>() };
 	static const inline std::string bitscanForward_Intrinsic{ bsf::implementationName<0,wordType>() };
+	static const inline std::string bitscanReverse_Intrinsic{ bsr::implementationName<0,wordType>() };
 	template<size_t COUNT_BITS2, bool IS_COMPACT2>
 	constexpr uint_t(const uint_t<COUNT_BITS2, IS_COMPACT2>& other) noexcept
 	{}
