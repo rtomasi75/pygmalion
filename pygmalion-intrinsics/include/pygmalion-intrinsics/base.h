@@ -29,11 +29,16 @@ namespace detail
 		{
 			return std::array<std::decay_t<C>, COUNT_CHANNELS>{(lambda(values[INDEX], INDEX))...};
 		}
+		template<size_t COUNT_CHANNELS_IN, size_t COUNT_CHANNELS_OUT, typename T, typename C, typename LAMBDA, size_t... INDEX>
+		constexpr static auto warpChannels(const std::array<T, COUNT_CHANNELS_IN>& values, const LAMBDA& lambda, std::index_sequence<INDEX...>) noexcept
+		{
+			return std::array<std::decay_t<C>, COUNT_CHANNELS_OUT>{(lambda(values, INDEX))...};
+		}
 	protected:
 		static std::uint_fast32_t nextRandom32() noexcept
 		{
 			return m_Random.next();
-		//	return std::rand() % std::numeric_limits<std::uint_fast32_t>::max();
+			//	return std::rand() % std::numeric_limits<std::uint_fast32_t>::max();
 		}
 		template<size_t COUNT_CHANNELS, typename T, typename C, typename LAMBDA>
 		constexpr static std::array<C, COUNT_CHANNELS> transformChannels(const std::array<T, COUNT_CHANNELS>& old, const LAMBDA& lambda) noexcept
@@ -78,6 +83,47 @@ namespace detail
 		{
 			constexpr const size_t countMergedChannels{ base::countMergedChannels<T,C, COUNT_CHANNELS>() };
 			return *reinterpret_cast<const std::array<C, countMergedChannels>*>(&old);
+		}
+		template<typename T, typename C, size_t COUNT_CHANNELS, typename = typename std::enable_if<enable_mergeChannels<T, C>()>::type>
+		constexpr static const std::array<C, base::countMergedChannels<T, C, COUNT_CHANNELS>()> mergeChannelsOrderly(const std::array<T, COUNT_CHANNELS>& old) noexcept
+		{
+			constexpr const size_t countMergedChannels{ base::countMergedChannels<T,C, COUNT_CHANNELS>() };
+			constexpr const auto lambda = [](const std::array<T, COUNT_CHANNELS>& old, const size_t index)->C
+			{
+				C ret{ C(0) };
+				constexpr const size_t mult{ COUNT_CHANNELS / countMergedChannels };
+				if constexpr (mult == 1)
+					return old[index];
+				else
+				{
+					for (size_t i = 0; i < mult; i++)
+					{
+						ret |= static_cast<C>(static_cast<C>(old[index * mult + i]) << (i * sizeof(T) * CHAR_BIT));
+					}
+					return ret;
+				}
+			};
+			return warpChannels<COUNT_CHANNELS, countMergedChannels, T, C>(old, lambda, std::make_index_sequence<countMergedChannels>{});
+		}
+		template<typename T, typename C, size_t COUNT_CHANNELS, typename = typename std::enable_if<enable_splitChannels<T, C>()>::type>
+		constexpr static const std::array<C, base::countSplitChannels<T, C, COUNT_CHANNELS>()> splitChannelsOrderly(const std::array<T, COUNT_CHANNELS>& old) noexcept
+		{
+			constexpr const size_t countSplitChannels{ base::countSplitChannels<T,C, COUNT_CHANNELS>() };
+			constexpr const auto lambda = [](const std::array<T, COUNT_CHANNELS>& old, const size_t index)->C
+			{
+				C ret{ C(0) };
+				constexpr const size_t mult{ countSplitChannels / COUNT_CHANNELS };
+				if constexpr (mult == 1)
+					return old[index];
+				else
+				{
+					const size_t chT{ index / mult };
+					const size_t iT{ index % mult };
+					constexpr const T mask{ static_cast<T>(static_cast<T>(T(1) << (sizeof(C) * CHAR_BIT)) - T(1)) };
+					return static_cast<C>((old[chT] & static_cast<T>(mask << (iT * sizeof(C) * CHAR_BIT))) >> (iT * sizeof(C) * CHAR_BIT));
+				}
+			};
+			return warpChannels<COUNT_CHANNELS, countSplitChannels, T, C>(old, lambda, std::make_index_sequence<countSplitChannels>{});
 		}
 		template<typename T, typename C, size_t COUNT_CHANNELS, typename = typename std::enable_if<enable_castChannels<T, C>()>::type>
 		constexpr static size_t countCastChannels() noexcept

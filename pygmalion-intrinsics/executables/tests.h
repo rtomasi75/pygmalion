@@ -4,6 +4,7 @@
 #include "conjunction.h"
 #include "exclusion.h"
 #include "popcnt.h"
+#include "bsf.h"
 #include "equality.h"
 #include "inequality.h"
 #include "greater.h"
