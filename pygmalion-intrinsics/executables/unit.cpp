@@ -26,12 +26,15 @@ int main(int argc, char* argv[])
 	result &= intrinsics::test::disjunction();
 	result &= intrinsics::test::conjunction();
 	result &= intrinsics::test::exclusion();
+	result &= intrinsics::test::prefix_increment();
+	result &= intrinsics::test::postfix_increment();
+	result &= intrinsics::test::addition();
+	result &= intrinsics::test::negation();
+	result &= intrinsics::test::subtraction();
+	result &= intrinsics::test::multiplication();
 	result &= intrinsics::test::popcnt();
 	result &= intrinsics::test::bsf();
 	result &= intrinsics::test::bsr();
-	result &= intrinsics::test::addition();
-	result &= intrinsics::test::subtraction();
-	result &= intrinsics::test::multiplication();
 	std::cout << "================" << std::endl;
 	if (result)
 		std::cout << "PASSED UNIT TEST" << std::endl;

@@ -14,7 +14,7 @@ int main(int argc, char* argv[])
 	size_t operationsFast(0);
 	bool result{ true };
 	//result &= intrinsics::test::bsr<24, true>(durationCompact, operationsCompact);
-	result &= intrinsics::test::complement();
+	result &= intrinsics::test::negation();
 	//result &= intrinsics::test::inequality();
 	uint_t<8, true> x = 12;
 	//std::cout << x << std::endl;
