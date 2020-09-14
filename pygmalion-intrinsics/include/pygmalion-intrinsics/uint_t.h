@@ -431,6 +431,54 @@ public:
 	{
 		return !((*this) == other);
 	}
+	constexpr bool operator>(const uint_t& other) const noexcept
+	{
+		for (size_t k = 0; k < countWords; k++)
+		{
+			const size_t i{ countWords - 1 - k };
+			if (m_Words[i] > other.m_Words[i])
+				return true;
+			if (m_Words[i] < other.m_Words[i])
+				return false;
+		}
+		return false;
+	}
+	constexpr bool operator<(const uint_t& other) const noexcept
+	{
+		for (size_t k = 0; k < countWords; k++)
+		{
+			const size_t i{ countWords - 1 - k };
+			if (m_Words[i] < other.m_Words[i])
+				return true;
+			if (m_Words[i] > other.m_Words[i])
+				return false;
+		}
+		return false;
+	}
+	constexpr bool operator>=(const uint_t& other) const noexcept
+	{
+		for (size_t k = 0; k < countWords; k++)
+		{
+			const size_t i{ countWords - 1 - k };
+			if (m_Words[i] > other.m_Words[i])
+				return true;
+			if (m_Words[i] < other.m_Words[i])
+				return false;
+		}
+		return true;
+	}
+	constexpr bool operator<=(const uint_t& other) const noexcept
+	{
+		for (size_t k = 0; k < countWords; k++)
+		{
+			const size_t i{ countWords - 1 - k };
+			if (m_Words[i] < other.m_Words[i])
+				return true;
+			if (m_Words[i] > other.m_Words[i])
+				return false;
+		}
+		return true;
+	}
 	static const inline std::string populationCount_Intrinsic{ popcnt::implementationName<countWords,wordType>() };
 	template<size_t COUNT_BITS2, bool IS_COMPACT2>
 	constexpr uint_t(const uint_t<COUNT_BITS2, IS_COMPACT2>& other) noexcept :
@@ -638,6 +686,22 @@ public:
 	{
 		return m_Word != other.m_Word;
 	}
+	constexpr bool operator>(const uint_t& other) const noexcept
+	{
+		return m_Word > other.m_Word;
+	}
+	constexpr bool operator<(const uint_t& other) const noexcept
+	{
+		return m_Word < other.m_Word;
+	}
+	constexpr bool operator>=(const uint_t& other) const noexcept
+	{
+		return m_Word >= other.m_Word;
+	}
+	constexpr bool operator<=(const uint_t& other) const noexcept
+	{
+		return m_Word <= other.m_Word;
+	}
 	static const inline std::string populationCount_Intrinsic{ popcnt::implementationName<countWords,wordType>() };
 	template<size_t COUNT_BITS2, bool IS_COMPACT2>
 	constexpr uint_t(const uint_t<COUNT_BITS2, IS_COMPACT2>& other) noexcept :
@@ -816,6 +880,22 @@ public:
 	{
 		return m_Word != other.m_Word;
 	}
+	constexpr bool operator>(const uint_t& other) const noexcept
+	{
+		return m_Word > other.m_Word;
+	}
+	constexpr bool operator<(const uint_t& other) const noexcept
+	{
+		return m_Word < other.m_Word;
+	}
+	constexpr bool operator>=(const uint_t& other) const noexcept
+	{
+		return m_Word >= other.m_Word;
+	}
+	constexpr bool operator<=(const uint_t& other) const noexcept
+	{
+		return m_Word <= other.m_Word;
+	}
 	static const inline std::string populationCount_Intrinsic{ popcnt::implementationName<countWords,wordType>() };
 	template<size_t COUNT_BITS2, bool IS_COMPACT2>
 	constexpr uint_t(const uint_t<COUNT_BITS2, IS_COMPACT2>& other) noexcept :
@@ -938,6 +1018,22 @@ public:
 	constexpr bool operator!=(const uint_t other) const noexcept
 	{
 		return false;
+	}
+	constexpr bool operator>(const uint_t& other) const noexcept
+	{
+		return false;
+	}
+	constexpr bool operator<(const uint_t& other) const noexcept
+	{
+		return false;
+	}
+	constexpr bool operator>=(const uint_t& other) const noexcept
+	{
+		return true;
+	}
+	constexpr bool operator<=(const uint_t& other) const noexcept
+	{
+		return true;
 	}
 	static const inline std::string populationCount_Intrinsic{ popcnt::implementationName<0,wordType>() };
 	template<size_t COUNT_BITS2, bool IS_COMPACT2>

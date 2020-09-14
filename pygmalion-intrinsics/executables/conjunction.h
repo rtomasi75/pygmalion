@@ -87,7 +87,7 @@ namespace intrinsics::test
 		typename profiler::durationType durationFast{ 0 };
 		size_t operationsFast(0);
 		bool result{ true };
-		std::cout << "__________________________________________" << std::endl;
+		std::cout << "_____________________________________________" << std::endl;
 		std::cout << "TESTSUITE: uint_t binary conjunction operator" << std::endl;
 		std::cout << std::endl;
 		result &= intrinsics::test::conjunction<0, false>(durationFast, operationsFast);
@@ -148,7 +148,7 @@ namespace intrinsics::test
 			std::cout << "ALL PASSED" << std::endl;
 		else
 			std::cout << "SOME FAILED" << std::endl;
-		std::cout << "__________________________________________" << std::endl;
+		std::cout << "_____________________________________________" << std::endl;
 		std::cout << std::endl;
 		return result;
 	}
