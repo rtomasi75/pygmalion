@@ -479,6 +479,88 @@ public:
 		}
 		return true;
 	}
+	constexpr uint_t operator<<(const size_t shift) const noexcept
+	{
+		assert(shift >= 0);
+		const size_t words{ shift / countBitsPerWord };
+		const size_t bits{ shift % countBitsPerWord };
+		if (bits > 0)
+		{
+			const auto lambda = [this, words, bits](const size_t index)->wordType
+			{
+				wordType inWord1{ wordType(0) };
+				wordType inWord2{ wordType(0) };
+				const size_t word1 = { index - words };
+				const size_t word2 = { index - words - 1 };
+				if ((word1 >= 0) && (word1 < countWords))
+				{
+					inWord1 = this->word(word1);
+					inWord1 <<= bits;
+				}
+				if ((word2 >= 0) && (word2 < countWords))
+				{
+					inWord2 = this->word(word2);
+					inWord2 >>= (countBitsPerWord - bits);
+				}
+				const wordType res{ static_cast<wordType>(inWord1 | inWord2) };
+				return res;
+			};
+			return uint_t(nullaryTransformWords<countWords, true>(lambda), false);
+		}
+		else
+		{
+			const auto lambda = [this, words, bits](const size_t index)->wordType
+			{
+				wordType inWord{ wordType(0) };
+				const size_t word = { index - words };
+				if ((word >= 0) && (word < countWords))
+					inWord = this->word(word);
+				return inWord;
+			};
+			return uint_t(nullaryTransformWords<countWords, true>(lambda), false);
+		}
+	}
+	constexpr uint_t operator>>(const size_t shift) const noexcept
+	{
+		assert(shift >= 0);
+		const size_t words{ shift / countBitsPerWord };
+		const size_t bits{ shift % countBitsPerWord };
+		if (bits > 0)
+		{
+			const auto lambda = [this, words, bits](const size_t index)->wordType
+			{
+				wordType inWord1{ wordType(0) };
+				wordType inWord2{ wordType(0) };
+				const size_t word1 = { index + words };
+				const size_t word2 = { index + words + 1 };
+				if ((word1 >= 0) && (word1 < countWords))
+				{
+					inWord1 = this->word(word1);
+					inWord1 >>= bits;
+				}
+				if ((word2 >= 0) && (word2 < countWords))
+				{
+					inWord2 = this->word(word2);
+					inWord2 <<= (countBitsPerWord - bits);
+				}
+				const wordType res{ static_cast<wordType>(inWord1 | inWord2) };
+				return res;
+			};
+			return uint_t(nullaryTransformWords<countWords, true>(lambda), false);
+		}
+		else
+		{
+			const auto lambda = [this, words, bits](const size_t index)->wordType
+			{
+				wordType inWord{ wordType(0) };
+				const size_t word = { index + words };
+				if ((word >= 0) && (word < countWords))
+					inWord = this->word(word);
+				return inWord;
+			};
+			return uint_t(nullaryTransformWords<countWords, true>(lambda), false);
+		}
+	}
 	static const inline std::string populationCount_Intrinsic{ popcnt::implementationName<countWords,wordType>() };
 	template<size_t COUNT_BITS2, bool IS_COMPACT2>
 	constexpr uint_t(const uint_t<COUNT_BITS2, IS_COMPACT2>& other) noexcept :
@@ -702,6 +784,22 @@ public:
 	{
 		return m_Word <= other.m_Word;
 	}
+	constexpr uint_t operator<<(const size_t shift) const noexcept
+	{
+		assert(shift >= 0);
+		if (shift < countBitsPerWord)
+			return uint_t(normalizeWord(m_Word << shift), false);
+		else
+			return uint_t(0, false);
+	}
+	constexpr uint_t operator>>(const size_t shift) const noexcept
+	{
+		assert(shift >= 0);
+		if (shift < countBitsPerWord)
+			return uint_t(m_Word >> shift, false);
+		else
+			return uint_t(0, false);
+	}
 	static const inline std::string populationCount_Intrinsic{ popcnt::implementationName<countWords,wordType>() };
 	template<size_t COUNT_BITS2, bool IS_COMPACT2>
 	constexpr uint_t(const uint_t<COUNT_BITS2, IS_COMPACT2>& other) noexcept :
@@ -896,6 +994,16 @@ public:
 	{
 		return m_Word <= other.m_Word;
 	}
+	constexpr uint_t operator<<(const size_t shift) const noexcept
+	{
+		assert(shift >= 0);
+		return (shift == 0) ? *this : uint_t(false, false);
+	}
+	constexpr uint_t operator>>(const size_t shift) const noexcept
+	{
+		assert(shift >= 0);
+		return (shift == 0) ? *this : uint_t(false, false);
+	}
 	static const inline std::string populationCount_Intrinsic{ popcnt::implementationName<countWords,wordType>() };
 	template<size_t COUNT_BITS2, bool IS_COMPACT2>
 	constexpr uint_t(const uint_t<COUNT_BITS2, IS_COMPACT2>& other) noexcept :
@@ -1034,6 +1142,16 @@ public:
 	constexpr bool operator<=(const uint_t& other) const noexcept
 	{
 		return true;
+	}
+	constexpr uint_t operator<<(const size_t shift) const noexcept
+	{
+		assert(shift >= 0);
+		return *this;
+	}
+	constexpr uint_t operator>>(const size_t shift) const noexcept
+	{
+		assert(shift >= 0);
+		return *this;
 	}
 	static const inline std::string populationCount_Intrinsic{ popcnt::implementationName<0,wordType>() };
 	template<size_t COUNT_BITS2, bool IS_COMPACT2>

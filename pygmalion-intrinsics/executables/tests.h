@@ -10,6 +10,8 @@
 #include "lesser.h"
 #include "greater_equal.h"
 #include "lesser_equal.h"
+#include "leftshift.h"
+#include "rightshift.h"
 #include "addition.h"
 #include "subtraction.h"
 #include "multiplication.h"

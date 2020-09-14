@@ -20,6 +20,8 @@ int main(int argc, char* argv[])
 	result &= intrinsics::test::lesser();
 	result &= intrinsics::test::greater_equal();
 	result &= intrinsics::test::lesser_equal();
+	result &= intrinsics::test::leftshift();
+	result &= intrinsics::test::rightshift();
 	result &= intrinsics::test::disjunction();
 	result &= intrinsics::test::conjunction();
 	result &= intrinsics::test::exclusion();
