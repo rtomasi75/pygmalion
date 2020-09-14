@@ -11,11 +11,7 @@ namespace detail
 	template<size_t COUNT_BITS>
 	struct popcnt_traits<COUNT_BITS, typename std::enable_if<(COUNT_BITS <= 64) && (COUNT_BITS > 32)>::type>
 	{
-#if defined(PYGMALION_CPU_X64)||defined(PYGMALION_CPU_X86)
 		using refType = std::uint64_t;
-#else
-		using refType = std::uint_fast64_t;
-#endif
 		using intType = refType;
 		static size_t reference(const refType bits) noexcept
 		{
@@ -59,11 +55,7 @@ namespace detail
 	template<size_t COUNT_BITS>
 	struct popcnt_traits<COUNT_BITS, typename std::enable_if<(COUNT_BITS <= 32) && (COUNT_BITS > 16)>::type>
 	{
-#if defined(PYGMALION_CPU_X64)||defined(PYGMALION_CPU_X86)
 		using refType = std::uint32_t;
-#else
-		using refType = std::uint_fast32_t;
-#endif
 		using intType = refType;
 		static size_t reference(const refType bits) noexcept
 		{
@@ -103,11 +95,7 @@ namespace detail
 	template<size_t COUNT_BITS>
 	struct popcnt_traits<COUNT_BITS, typename std::enable_if<(COUNT_BITS <= 16) && (COUNT_BITS > 8)>::type>
 	{
-#if defined(PYGMALION_CPU_X64)||defined(PYGMALION_CPU_X86)
 		using refType = std::uint16_t;
-#else
-		using refType = std::uint_fast16_t;
-#endif
 		using intType = refType;
 		static size_t reference(const refType bits) noexcept
 		{
@@ -147,11 +135,7 @@ namespace detail
 	template<size_t COUNT_BITS>
 	struct popcnt_traits<COUNT_BITS, typename std::enable_if<(COUNT_BITS <= 8) && (COUNT_BITS > 1)>::type>
 	{
-#if defined(PYGMALION_CPU_X64)||defined(PYGMALION_CPU_X86)
 		using refType = std::uint8_t;
-#else
-		using refType = std::uint_fast8_t;
-#endif
 		using intType = refType;
 		static size_t reference(const refType bits) noexcept
 		{
@@ -192,7 +176,7 @@ namespace detail
 	struct popcnt_traits<COUNT_BITS, typename std::enable_if<(COUNT_BITS == 1)>::type>
 	{
 		using refType = bool;
-		using intType = std::uint_fast8_t;
+		using intType = std::uint8_t;
 		static size_t reference(const refType bits) noexcept
 		{
 			return bits ? 1 : 0;
@@ -210,8 +194,8 @@ namespace detail
 	template<size_t COUNT_BITS>
 	struct popcnt_traits<COUNT_BITS, typename std::enable_if<(COUNT_BITS == 0)>::type>
 	{
-		using refType = std::uint_fast8_t;
-		using intType = std::uint_fast8_t;
+		using refType = std::uint8_t;
+		using intType = std::uint8_t;
 		static size_t reference(const refType bits) noexcept
 		{
 			return 0;
