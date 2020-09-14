@@ -27,6 +27,7 @@ int main(int argc, char* argv[])
 	result &= intrinsics::test::exclusion();
 	result &= intrinsics::test::popcnt();
 	result &= intrinsics::test::bsf();
+	result &= intrinsics::test::bsr();
 	result &= intrinsics::test::addition();
 	result &= intrinsics::test::subtraction();
 	result &= intrinsics::test::multiplication();
