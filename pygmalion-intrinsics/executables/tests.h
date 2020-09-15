@@ -15,6 +15,8 @@
 #include "lesser_equal.h"
 #include "leftshift.h"
 #include "rightshift.h"
+#include "leftshift_inplace.h"
+#include "rightshift_inplace.h"
 #include "prefix_increment.h"
 #include "prefix_decrement.h"
 #include "postfix_increment.h"
