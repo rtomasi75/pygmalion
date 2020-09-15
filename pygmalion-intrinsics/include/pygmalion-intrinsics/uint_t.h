@@ -412,6 +412,12 @@ public:
 		}
 		return static_cast<uint_t>(answer);
 	}
+	constexpr uint_t operator%(const uint_t& other) const noexcept
+	{
+		assert(other);
+		const uint_t q{ (*this) / other };
+		return (*this) - (q * other);
+	}
 	constexpr uint_t& operator+=(const uint_t& other)  noexcept
 	{
 		wordType carry{ 0 };
@@ -500,6 +506,13 @@ public:
 	{
 		assert(other);
 		(*this) = (*this) / other;
+		return *this;
+	}
+	constexpr uint_t& operator%=(const uint_t& other) noexcept
+	{
+		assert(other);
+		const uint_t q{ (*this) / other };
+		(*this) -= q * other;
 		return *this;
 	}
 	static uint_t random() noexcept
@@ -953,6 +966,12 @@ public:
 		m_Word = normalizeWord(m_Word / other.m_Word);
 		return *this;
 	}
+	constexpr uint_t& operator%=(const uint_t other) noexcept
+	{
+		assert(other.m_Word);
+		m_Word %= other.m_Word;
+		return *this;
+	}
 	constexpr uint_t& operator|=(const uint_t other) noexcept
 	{
 		m_Word |= other.m_Word;
@@ -991,6 +1010,11 @@ public:
 	{
 		assert(other.m_Word);
 		return uint_t(m_Word / other.m_Word, false);
+	}
+	constexpr uint_t operator%(const uint_t other) const noexcept
+	{
+		assert(other.m_Word);
+		return uint_t(m_Word % other.m_Word, false);
 	}
 	static uint_t random() noexcept
 	{
@@ -1217,6 +1241,12 @@ public:
 		assert(other.m_Word);
 		return *this;
 	}
+	constexpr uint_t& operator%=(const uint_t other) noexcept
+	{
+		assert(other.m_Word);
+		m_Word = wordType(0);
+		return *this;
+	}
 	constexpr uint_t& operator+=(const uint_t other) noexcept
 	{
 		m_Word ^= other.m_Word;
@@ -1258,6 +1288,11 @@ public:
 	{
 		assert(other.m_Word);
 		return *this;
+	}
+	constexpr uint_t operator%(const uint_t other) const noexcept
+	{
+		assert(other.m_Word);
+		return uint_t(0, false);
 	}
 	constexpr uint_t operator&(const uint_t other) const noexcept
 	{
@@ -1439,6 +1474,11 @@ public:
 		assert(0);
 		return *this;
 	}
+	constexpr uint_t operator%=(const uint_t other) noexcept
+	{
+		assert(0);
+		return *this;
+	}
 	constexpr uint_t operator+=(const uint_t other) noexcept
 	{
 		return *this;
@@ -1472,6 +1512,11 @@ public:
 		return *this;
 	}
 	constexpr uint_t operator/(const uint_t other) const noexcept
+	{
+		assert(0);
+		return *this;
+	}
+	constexpr uint_t operator%(const uint_t other) const noexcept
 	{
 		assert(0);
 		return *this;

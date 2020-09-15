@@ -43,10 +43,12 @@ int main(int argc, char* argv[])
 	result &= intrinsics::test::subtraction();
 	result &= intrinsics::test::multiplication();
 	result &= intrinsics::test::division();
+	result &= intrinsics::test::modulus();
 	result &= intrinsics::test::addition_inplace();
 	result &= intrinsics::test::subtraction_inplace();
 	result &= intrinsics::test::multiplication_inplace();
 	result &= intrinsics::test::division_inplace();
+	result &= intrinsics::test::modulus_inplace();
 	std::cout << "================" << std::endl;
 	if (result)
 		std::cout << "PASSED UNIT TEST" << std::endl;

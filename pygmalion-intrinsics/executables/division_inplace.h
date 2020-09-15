@@ -73,7 +73,7 @@ namespace intrinsics::test
 			{
 				std::cout << "    FAILED:" << std::endl;
 				std::cout << "      pair of uint_t<" << COUNT_BITS << "," << COMPACT << ">: " << std::endl;
-				std::cout << "        " << static_cast<std::uintmax_t>(m_Input1[i]) << " + " << static_cast<std::uintmax_t>(m_Input2[i]) << " = " << static_cast<std::uintmax_t>(m_Output[i]) << " (!?)" << std::endl;
+				std::cout << "        " << static_cast<std::uintmax_t>(m_Input1[i]) << " / " << static_cast<std::uintmax_t>(m_Input2[i]) << " = " << static_cast<std::uintmax_t>(m_Output[i]) << " (!?)" << std::endl;
 				std::cout << std::endl;
 				const R I1{ m_Input1[i] };
 				const R I2{ m_Input2[i] };
