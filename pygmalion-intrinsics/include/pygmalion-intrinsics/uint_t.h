@@ -391,7 +391,7 @@ public:
 		if (denom == dividend)
 			return uint_t(1);
 
-		while (denom <= dividend) 
+		while (denom <= dividend)
 		{
 			denom = denom << size_t(1);
 			current = current << size_t(1);
@@ -400,7 +400,7 @@ public:
 		current = current >> size_t(1);
 		denom = denom >> size_t(1);
 
-		while (current) 
+		while (current)
 		{
 			if (dividend >= denom)
 			{
@@ -426,7 +426,7 @@ public:
 		size_t i{ 0 };
 		while (carry && (i < (countWords - 1)))
 		{
-			m_Words[i]++;
+			++(m_Words[i]);
 			carry = (m_Words[i] == 0);
 			i++;
 		}
@@ -437,6 +437,25 @@ public:
 	{
 		const uint_t temp{ *this };
 		++(*this);
+		return temp;
+	}
+	constexpr uint_t& operator--() noexcept
+	{
+		wordType carry{ 1 };
+		size_t i{ 0 };
+		while (carry && (i < (countWords - 1)))
+		{
+			carry = (m_Words[i] == 0);
+			--(m_Words[i]);
+			i++;
+		}
+		m_Words[countWords - 1] = uint_t::normalizeHighestWord(m_Words[countWords - 1] - carry);
+		return *this;
+	}
+	constexpr uint_t operator--(int) noexcept
+	{
+		const uint_t temp{ *this };
+		--(*this);
 		return temp;
 	}
 	constexpr uint_t operator-() const noexcept
@@ -782,13 +801,24 @@ public:
 	}
 	constexpr uint_t& operator++() noexcept
 	{
-		m_Word = normalizeWord(m_Word + wordType(1));
+		m_Word = normalizeWord(++m_Word);
 		return *this;
 	}
 	constexpr uint_t operator++(int) noexcept
 	{
 		const uint_t temp{ *this };
 		++(*this);
+		return temp;
+	}
+	constexpr uint_t& operator--() noexcept
+	{
+		m_Word = normalizeWord(--m_Word);
+		return *this;
+	}
+	constexpr uint_t operator--(int) noexcept
+	{
+		const uint_t temp{ *this };
+		--(*this);
 		return temp;
 	}
 	constexpr uint_t operator-() const noexcept
@@ -1039,6 +1069,17 @@ public:
 		++(*this);
 		return temp;
 	}
+	constexpr uint_t& operator--() noexcept
+	{
+		m_Word = !m_Word;
+		return *this;
+	}
+	constexpr uint_t operator--(int) noexcept
+	{
+		const uint_t temp{ *this };
+		--(*this);
+		return temp;
+	}
 	constexpr uint_t operator-() const noexcept
 	{
 		return *this;
@@ -1221,6 +1262,14 @@ public:
 		return *this;
 	}
 	constexpr uint_t operator++(int) noexcept
+	{
+		return *this;
+	}
+	constexpr uint_t& operator--() noexcept
+	{
+		return *this;
+	}
+	constexpr uint_t operator--(int) noexcept
 	{
 		return *this;
 	}
