@@ -3,7 +3,7 @@ namespace intrinsics::test
 	template<size_t COUNT_BITS, bool COMPACT, typename = typename std::enable_if<(COUNT_BITS <= 64)>::type>
 	bool assignment(typename profiler::durationType& durationTo, size_t& operationsTo, typename profiler::durationType& durationFrom, size_t& operationsFrom) noexcept
 	{
-		using T = typename detail::popcnt_traits<COUNT_BITS>::intType;
+		using T = typename intrinsics::detail::popcnt_traits<COUNT_BITS>::intType;
 		using U = uint_t<COUNT_BITS, COMPACT>;
 		std::cout << "  TEST: uint_t<" << COUNT_BITS << "," << COMPACT << "> -> " << (sizeof(T) * CHAR_BIT) << "bit assignments" << std::endl;
 		std::cout << std::endl;

@@ -4,7 +4,7 @@ namespace intrinsics::test
 	bool conjunction(typename profiler::durationType& duration, size_t& operations) noexcept
 	{
 		using U = uint_t<COUNT_BITS, COMPACT>;
-		using R = typename detail::popcnt_traits<COUNT_BITS>::intType;
+		using R = typename intrinsics::detail::popcnt_traits<COUNT_BITS>::intType;
 		std::cout << "  TEST: uint_t<" << COUNT_BITS << "," << COMPACT << "> bitwise conjunction operator" << std::endl;
 		std::cout << std::endl;
 		std::cout << "    " << U() << std::endl;

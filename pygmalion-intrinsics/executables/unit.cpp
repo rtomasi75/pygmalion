@@ -52,6 +52,7 @@ int main(int argc, char* argv[])
 	result &= intrinsics::test::bittest();
 	result &= intrinsics::test::bitset();
 	result &= intrinsics::test::bitclear();
+	result &= intrinsics::test::pext();
 	std::cout << "================" << std::endl;
 	if (result)
 		std::cout << "PASSED UNIT TEST" << std::endl;

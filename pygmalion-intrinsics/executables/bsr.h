@@ -4,7 +4,7 @@ namespace intrinsics::test
 	bool bsr(typename profiler::durationType& duration, size_t& operations) noexcept
 	{
 		using U = uint_t<COUNT_BITS, COMPACT>;
-		using R = typename detail::bsr_traits<COUNT_BITS>::intType;
+		using R = typename intrinsics::detail::bsr_traits<COUNT_BITS>::intType;
 		std::cout << "  TEST: uint_t<" << COUNT_BITS << "," << COMPACT << "> bitscan reverse" << std::endl;
 		std::cout << std::endl;
 		std::cout << "    " << U() << std::endl;
@@ -44,20 +44,20 @@ namespace intrinsics::test
 		std::cout << "    scanning bits (baseline)..." << std::endl;
 		profileBase.start();
 		for (size_t i = 0; i < countIterations; i++)
-			m_BaseRets[i] = detail::bsr_traits<COUNT_BITS>::baseline(m_BaseInput[i], m_BaseBits[i]);
+			m_BaseRets[i] = intrinsics::detail::bsr_traits<COUNT_BITS>::baseline(m_BaseInput[i], m_BaseBits[i]);
 		profileBase.stop();
 		const auto durationBase{ profileBase.duration() };
 		const auto speedBase{ profileBase.computeSpeed(countIterations, "op") };
 		std::cout << "    scanning bits (reference)..." << std::endl;
 		profileRef.start();
 		for (size_t i = 0; i < countIterations; i++)
-			m_RefRets[i] = detail::bsr_traits<COUNT_BITS>::reference(m_RefInput[i], m_RefBits[i]);
+			m_RefRets[i] = intrinsics::detail::bsr_traits<COUNT_BITS>::reference(m_RefInput[i], m_RefBits[i]);
 		profileRef.stop();
 		const auto durationRef{ profileRef.duration() };
 		const auto speedRef{ profileRef.computeSpeed(countIterations, "op") };
 		profileGeneric.start();
 		for (size_t i = 0; i < countIterations; i++)
-			m_BaseRets[i] |= detail::bsr_traits<COUNT_BITS>::generic(m_BaseInput[i], m_BaseBits[i]);
+			m_BaseRets[i] |= intrinsics::detail::bsr_traits<COUNT_BITS>::generic(m_BaseInput[i], m_BaseBits[i]);
 		profileGeneric.stop();
 		const auto durationGeneric{ profileGeneric.duration() };
 		const auto speedGeneric{ profileGeneric.computeSpeed(countIterations, "op") };

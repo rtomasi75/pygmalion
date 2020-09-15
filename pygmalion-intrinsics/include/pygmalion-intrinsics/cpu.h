@@ -84,10 +84,14 @@ public:
 		none = 0b00000000,
 		X86 = 0b000000001,
 		X64 = 0b00000011,
+		BMI2 = 0b00000100,
 	};
 	constexpr static flags computeFlags() noexcept
 	{
 		int f{ flags::none };
+#if defined(PYGMALION_CPU_BMI2)
+		f |= flags::BMI2;
+#endif
 #if defined(PYGMALION_CPU_X86)
 		f |= flags::X86;
 #endif
@@ -101,6 +105,9 @@ public:
 	struct tag_generic
 	{};
 
+	struct tag_BMI2
+	{};
+
 	struct tag_X86 :
 		tag_generic
 	{};
@@ -110,7 +117,8 @@ public:
 	{};
 
 	struct tag_best :
-		tag_X64
+		tag_X64,
+		tag_BMI2
 	{};
 
 	constexpr static const bool supports(const flags FLAGS) noexcept
@@ -126,5 +134,7 @@ std::ostream& operator<<(std::ostream& str, const intrinsics::cpu::flags f) noex
 		str << "X86" << std::endl;
 	if (f & intrinsics::cpu::X64)
 		str << "X64" << std::endl;
+	if (f & intrinsics::cpu::BMI2)
+		str << "BMI2" << std::endl;
 	return str;
 }

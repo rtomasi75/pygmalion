@@ -38,3 +38,4 @@
 #include "bittest.h"
 #include "bitset.h"
 #include "bitclear.h"
+#include "pext.h"

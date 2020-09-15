@@ -3,8 +3,8 @@ namespace intrinsics::test
 	template<size_t COUNT_BITS1, bool COMPACT1, size_t COUNT_BITS2, bool COMPACT2, typename = typename std::enable_if<(COUNT_BITS1 <= 64) && (COUNT_BITS2 <= 64)>::type>
 	bool conversion(typename profiler::durationType& duration, size_t& operations) noexcept
 	{
-		using T1 = typename detail::popcnt_traits<COUNT_BITS1>::intType;
-		using T2 = typename detail::popcnt_traits<COUNT_BITS2>::intType;
+		using T1 = typename intrinsics::detail::popcnt_traits<COUNT_BITS1>::intType;
+		using T2 = typename intrinsics::detail::popcnt_traits<COUNT_BITS2>::intType;
 		using U1 = uint_t<COUNT_BITS1, COMPACT1>;
 		using U2 = uint_t<COUNT_BITS2, COMPACT2>;
 		std::cout << "  TEST: uint_t<" << COUNT_BITS1 << "," << COMPACT1 << "> -> uint_t<" << COUNT_BITS2 << "," << COMPACT2 << "> conversions" << std::endl;

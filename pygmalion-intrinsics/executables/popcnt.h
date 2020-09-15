@@ -4,7 +4,7 @@ namespace intrinsics::test
 	bool popcnt(typename profiler::durationType& duration, size_t& operations) noexcept
 	{
 		using U = uint_t<COUNT_BITS, COMPACT>;
-		using R = typename detail::popcnt_traits<COUNT_BITS>::intType;
+		using R = typename intrinsics::detail::popcnt_traits<COUNT_BITS>::intType;
 		std::cout << "  TEST: uint_t<" << COUNT_BITS << "," << COMPACT << "> population counts" << std::endl;
 		std::cout << std::endl;
 		std::cout << "    " << U() << std::endl;
@@ -38,20 +38,20 @@ namespace intrinsics::test
 		std::cout << "    counting bits (baseline)..." << std::endl;
 		profileBase.start();
 		for (size_t i = 0; i < countIterations; i++)
-			m_BaseCounts[i] = detail::popcnt_traits<COUNT_BITS>::baseline(m_BaseInput[i]);
+			m_BaseCounts[i] = intrinsics::detail::popcnt_traits<COUNT_BITS>::baseline(m_BaseInput[i]);
 		profileBase.stop();
 		const auto durationBase{ profileBase.duration() };
 		const auto speedBase{ profileBase.computeSpeed(countIterations, "op") };
 		std::cout << "    counting bits (reference)..." << std::endl;
 		profileRef.start();
 		for (size_t i = 0; i < countIterations; i++)
-			m_RefCounts[i] = detail::popcnt_traits<COUNT_BITS>::reference(m_RefInput[i]);
+			m_RefCounts[i] = intrinsics::detail::popcnt_traits<COUNT_BITS>::reference(m_RefInput[i]);
 		profileRef.stop();
 		const auto durationRef{ profileRef.duration() };
 		const auto speedRef{ profileRef.computeSpeed(countIterations, "op") };
 		profileGeneric.start();
 		for (size_t i = 0; i < countIterations; i++)
-			m_BaseCounts[i] |= detail::popcnt_traits<COUNT_BITS>::generic(m_BaseInput[i]);
+			m_BaseCounts[i] |= intrinsics::detail::popcnt_traits<COUNT_BITS>::generic(m_BaseInput[i]);
 		profileGeneric.stop();
 		const auto durationGeneric{ profileGeneric.duration() };
 		const auto speedGeneric{ profileGeneric.computeSpeed(countIterations, "op") };

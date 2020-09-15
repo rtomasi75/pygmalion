@@ -218,6 +218,14 @@ private:
 		return bit < countBits;
 	}
 public:
+	constexpr static uint_t one() noexcept
+	{
+		return uint_t(1);
+	}
+	constexpr static uint_t zero() noexcept
+	{
+		return uint_t(0);
+	}
 	constexpr bool test(const size_t bit) const noexcept
 	{
 		assert(bit < countBits);
@@ -312,19 +320,146 @@ public:
 	{
 		return bsr::implementation(m_Words, bit);
 	}
-	/*	uint_t extractPattern(const uint_t& mask) const noexcept
+	uint_t extractPattern(uint_t mask) const noexcept
+	{
+#if (defined(PYGMALION_INTRINSICS_MSC)||defined(PYGMALION_INTRINSICS_GNU))&&(defined(PYGMALION_CPU_X86)||defined(PYGMALION_CPU_X64))&&defined(PYGMALION_CPU_BMI2)
+		if constexpr ((sizeof(wordType) <= 4) && cpu::supports(cpu::flags::X86) && cpu::supports(cpu::flags::BMI2) && (compiler::supports(compiler::flags::GNU) || compiler::supports(compiler::flags::MSC)))
 		{
-			uint_t res{ 0 };
-			uint_t bb{ 1 };
-			while (mask)
+			const auto lambdaPEXT = [this, &mask](const size_t index)->wordType
 			{
-				if ((*this) & mask & (-mask))
-					res |= bb;
-				mask &= mask - 1;
-				bb <<= 1;
+				return static_cast<wordType>(_pext_u32(this->m_Words[index], mask.m_Words[index]));
+			};
+			std::array<wordType, countWords> extractedWords{ generate_array_n<countWords,wordType>(lambdaPEXT) };
+			const auto lambdaBits = [&mask](const size_t index)->size_t
+			{
+				return popcnt::implementation<1, wordType>({ mask.m_Words[index] });
+			};
+			const std::array<size_t, countWords> bitCounts{ generate_array_n<countWords,size_t>(lambdaBits) };
+			std::array<wordType, countWords> result{ make_array_n<countWords,wordType>(wordType(0)) };
+			size_t w{ 0 };
+			size_t b{ 0 };
+			for (size_t i = 0; i < countWords; i++)
+			{
+				size_t bits{ bitCounts[i] };
+				while (bits)
+				{
+					const size_t space{ countBitsPerWord - b };
+					const size_t len{ std::min(space,bits) };
+					const wordType mask{ (len > 0) ? static_cast<wordType>(static_cast<wordType>(wordType(1) << len) - wordType(1)) : static_cast<wordType>(~wordType(0)) };
+					result[w] |= static_cast<wordType>(static_cast<wordType>(extractedWords[i] & mask) << b);
+					b += len;
+					if (b >= countBitsPerWord)
+					{
+						b -= countBitsPerWord;
+						w++;
+					}
+					bits -= len;
+					extractedWords[i] >>= len;
+				}
 			}
-			return res;
-		}*/
+			return uint_t(result, false);
+		}
+		else
+#endif
+#if (defined(PYGMALION_INTRINSICS_MSC)||defined(PYGMALION_INTRINSICS_GNU))&&defined(PYGMALION_CPU_X64)&&defined(PYGMALION_CPU_BMI2)
+			if constexpr ((sizeof(wordType) <= 8) && cpu::supports(cpu::flags::X64) && cpu::supports(cpu::flags::BMI2) && (compiler::supports(compiler::flags::GNU) || compiler::supports(compiler::flags::MSC)))
+			{
+				const auto lambdaPEXT = [this, &mask](const size_t index)->wordType
+				{
+					return static_cast<wordType>(_pext_u64(this->m_Words[index], mask.m_Words[index]));
+				};
+				std::array<wordType, countWords> extractedWords{ generate_array_n<countWords,wordType>(lambdaPEXT) };
+				const auto lambdaBits = [&mask](const size_t index)->size_t
+				{
+					return popcnt::implementation<1, wordType>({ mask.m_Words[index] });
+				};
+				const std::array<size_t, countWords> bitCounts{ generate_array_n<countWords,size_t>(lambdaBits) };
+				std::array<wordType, countWords> result{ make_array_n<countWords,wordType>(wordType(0)) };
+				size_t w{ 0 };
+				size_t b{ 0 };
+				for (size_t i = 0; i < countWords; i++)
+				{
+					size_t bits{ bitCounts[i] };
+					while (bits)
+					{
+						const size_t space{ countBitsPerWord - b };
+						const size_t len{ std::min(space,bits) };
+						const wordType mask{ (len > 0) ? static_cast<wordType>(static_cast<wordType>(wordType(1) << len) - wordType(1)) : static_cast<wordType>(~wordType(0)) };
+						result[w] |= static_cast<wordType>(static_cast<wordType>(extractedWords[i] & mask) << b);
+						b += len;
+						if (b >= countBitsPerWord)
+						{
+							b -= countBitsPerWord;
+							w++;
+						}
+						bits -= len;
+						extractedWords[i] >>= len;
+					}
+				}
+				return uint_t(result, false);
+			}
+			else
+#endif
+#if (defined(PYGMALION_INTRINSICS_MSC)||defined(PYGMALION_INTRINSICS_GNU))&&defined(PYGMALION_CPU_X86)&&defined(PYGMALION_CPU_BMI2)
+				if constexpr ((sizeof(wordType) <= 8) && cpu::supports(cpu::flags::X86) && cpu::supports(cpu::flags::BMI2) && (compiler::supports(compiler::flags::GNU) || compiler::supports(compiler::flags::MSC)))
+				{
+					const auto lambdaPEXT = [this, &mask](const size_t index)->wordType
+					{
+						const std::uint32_t highMask{ static_cast<std::uint32_t>((mask.m_Words[index] & std::uint64_t(0xffffffff00000000)) >> 32) };
+						const std::uint32_t lowMask{ static_cast<std::uint32_t>((mask.m_Words[index] & std::uint64_t(0x00000000ffffffff)) >> 0) };
+						const std::uint32_t highVal{ static_cast<std::uint32_t>((this->m_Words[index] & std::uint64_t(0xffffffff00000000)) >> 32) };
+						const std::uint32_t lowVal{ static_cast<std::uint32_t>((this->m_Words[index] & std::uint64_t(0x00000000ffffffff)) >> 0) };
+						const size_t lowBits{ popcnt::implementation<1,std::uint32_t>({lowMask}) };
+						const std::uint32_t highIndex{ _pext_u32(highVal, highMask) };
+						const std::uint32_t lowIndex{ _pext_u32(lowVal, lowMask) };
+						const std::uint64_t idx{ (static_cast<std::uint64_t>(highIndex) << lowBits) | static_cast<std::uint64_t>(lowIndex) };
+						return idx;
+					};
+					std::array<wordType, countWords> extractedWords{ generate_array_n<countWords,wordType>(lambdaPEXT) };
+					const auto lambdaBits = [&mask](const size_t index)->size_t
+					{
+						return popcnt::implementation<1, wordType>({ mask.m_Words[index] });
+					};
+					const std::array<size_t, countWords> bitCounts{ generate_array_n<countWords,size_t>(lambdaBits) };
+					std::array<wordType, countWords> result{ make_array_n<countWords,wordType>(wordType(0)) };
+					size_t w{ 0 };
+					size_t b{ 0 };
+					for (size_t i = 0; i < countWords; i++)
+					{
+						size_t bits{ bitCounts[i] };
+						while (bits)
+						{
+							const size_t space{ countBitsPerWord - b };
+							const size_t len{ std::min(space,bits) };
+							const wordType mask{ (len > 0) ? static_cast<wordType>(static_cast<wordType>(wordType(1) << len) - wordType(1)) : static_cast<wordType>(~wordType(0)) };
+							result[w] |= static_cast<wordType>(static_cast<wordType>(extractedWords[i] & mask) << b);
+							b += len;
+							if (b >= countBitsPerWord)
+							{
+								b -= countBitsPerWord;
+								w++;
+							}
+							bits -= len;
+							extractedWords[i] >>= len;
+						}
+					}
+					return uint_t(result, false);
+				}
+				else
+#endif
+				{
+					uint_t res{ zero() };
+					uint_t bb{ one() };
+					while (mask)
+					{
+						if ((*this) & mask & (-mask))
+							res |= bb;
+						mask &= mask - one();
+						bb <<= 1;
+					}
+					return res;
+				}
+	}
 	operator std::string() const noexcept
 	{
 		std::stringstream sstr;
@@ -434,14 +569,14 @@ public:
 		assert(other);
 		uint_t<countBits + 1, isCompact> dividend{ *this };
 		uint_t<countBits + 1, isCompact> denom{ other };
-		uint_t<countBits + 1, isCompact> current{ uint_t<countBits + 1,isCompact>(1) };
-		uint_t<countBits + 1, isCompact> answer{ uint_t<countBits + 1,isCompact>(0) };
+		uint_t<countBits + 1, isCompact> current{ uint_t<countBits + 1,isCompact>::one() };
+		uint_t<countBits + 1, isCompact> answer{ uint_t<countBits + 1,isCompact>::zero() };
 
 		if (denom > dividend)
-			return 0;
+			return zero();
 
 		if (denom == dividend)
-			return 1;
+			return one();
 
 		while (denom <= dividend)
 		{
@@ -910,6 +1045,59 @@ private:
 		return bit < countBits;
 	}
 public:
+	constexpr static uint_t one() noexcept
+	{
+		return uint_t(1, false);
+	}
+	constexpr static uint_t zero() noexcept
+	{
+		return uint_t(0, true);
+	}
+	uint_t extractPattern(const uint_t mask) const noexcept
+	{
+#if (defined(PYGMALION_INTRINSICS_MSC)||defined(PYGMALION_INTRINSICS_GNU))&&(defined(PYGMALION_CPU_X86)||defined(PYGMALION_CPU_X64))&&defined(PYGMALION_CPU_BMI2)
+		if constexpr ((sizeof(wordType) <= 4) && cpu::supports(cpu::flags::X86) && cpu::supports(cpu::flags::BMI2) && (compiler::supports(compiler::flags::GNU) || compiler::supports(compiler::flags::MSC)))
+		{
+			return uint_t(_pext_u32(m_Word, mask.m_Word));
+		}
+		else
+#endif
+#if (defined(PYGMALION_INTRINSICS_MSC)||defined(PYGMALION_INTRINSICS_GNU))&&defined(PYGMALION_CPU_X64)&&defined(PYGMALION_CPU_BMI2)
+			if constexpr ((sizeof(wordType) <= 8) && cpu::supports(cpu::flags::X64) && cpu::supports(cpu::flags::BMI2) && (compiler::supports(compiler::flags::GNU) || compiler::supports(compiler::flags::MSC)))
+			{
+				return uint_t(_pext_u64(m_Word, mask.m_Word));
+			}
+			else
+#endif
+#if (defined(PYGMALION_INTRINSICS_MSC)||defined(PYGMALION_INTRINSICS_GNU))&&defined(PYGMALION_CPU_X86)&&defined(PYGMALION_CPU_BMI2)
+				if constexpr ((sizeof(wordType) <= 8) && cpu::supports(cpu::flags::X86) && cpu::supports(cpu::flags::BMI2) && (compiler::supports(compiler::flags::GNU) || compiler::supports(compiler::flags::MSC)))
+				{
+					const std::uint32_t highMask{ static_cast<std::uint32_t>((mask.m_Word & std::uint64_t(0xffffffff00000000)) >> 32) };
+					const std::uint32_t lowMask{ static_cast<std::uint32_t>((mask.m_Word & std::uint64_t(0x00000000ffffffff)) >> 0) };
+					const std::uint32_t highVal{ static_cast<std::uint32_t>((m_Word & std::uint64_t(0xffffffff00000000)) >> 32) };
+					const std::uint32_t lowVal{ static_cast<std::uint32_t>((m_Word & std::uint64_t(0x00000000ffffffff)) >> 0) };
+					const size_t lowBits{ popcnt::implementation<1,std::uint32_t>({lowMask}) };
+					const std::uint32_t highIndex{ _pext_u32(highVal, highMask) };
+					const std::uint32_t lowIndex{ _pext_u32(lowVal, lowMask) };
+					const std::uint64_t index{ (static_cast<std::uint64_t>(highIndex) << lowBits) | static_cast<std::uint64_t>(lowIndex) };
+					return index;
+				}
+				else
+#endif
+				{
+					wordType res{ wordType(0) };
+					wordType bb{ wordType(1) };
+					wordType M{ mask.m_Word };
+					while (M)
+					{
+						if ((*this) & M & (-M))
+							res |= bb;
+						M &= M - wordType(1);
+						bb <<= 1;
+					}
+					return res;
+				}
+	}
 	constexpr bool test(const size_t bit) const noexcept
 	{
 		assert(bit < countBits);
@@ -1246,6 +1434,18 @@ private:
 		m_Word{ word }
 	{	}
 public:
+	constexpr static uint_t one() noexcept
+	{
+		return uint_t(1, false);
+	}
+	constexpr static uint_t zero() noexcept
+	{
+		return uint_t(0, true);
+	}
+	uint_t extractPattern(const uint_t mask) const noexcept
+	{
+		return uint_t(mask.m_Word & m_Word, false);
+	}
 	constexpr bool test(const size_t bit) const noexcept
 	{
 		assert(bit == 0);
@@ -1513,6 +1713,18 @@ public:
 	constexpr static const size_t countStorageBits{ 0 };
 private:
 public:
+	constexpr static uint_t one() noexcept
+	{
+		return uint_t();
+	}
+	constexpr static uint_t zero() noexcept
+	{
+		return uint_t();
+	}
+	uint_t extractPattern(const uint_t mask) const noexcept
+	{
+		return *this;
+	}
 	constexpr bool test(const size_t bit) const noexcept
 	{
 		assert(false);
