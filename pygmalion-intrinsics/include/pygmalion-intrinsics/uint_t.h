@@ -213,7 +213,59 @@ private:
 		}
 	}
 	std::array<wordType, countWords> m_Words;
+	constexpr static bool enableBit(const size_t bit) noexcept
+	{
+		return bit < countBits;
+	}
 public:
+	constexpr bool test(const size_t bit) const noexcept
+	{
+		assert(bit < countBits);
+		const size_t word{ bit / countBitsPerWord };
+		const size_t wbit{ bit % countBitsPerWord };
+		const wordType mask{ static_cast<wordType>(wordType(1) << wbit) };
+		return m_Words[word] & mask;
+	}
+	constexpr void set(const size_t bit) noexcept
+	{
+		assert(bit < countBits);
+		const size_t word{ bit / countBitsPerWord };
+		const size_t wbit{ bit % countBitsPerWord };
+		const wordType mask{ static_cast<wordType>(wordType(1) << wbit) };
+		m_Words[word] |= mask;
+	}
+	constexpr void clear(const size_t bit) noexcept
+	{
+		assert(bit < countBits);
+		const size_t word{ bit / countBitsPerWord };
+		const size_t wbit{ bit % countBitsPerWord };
+		const wordType mask{ static_cast<wordType>(~static_cast<wordType>(wordType(1) << wbit)) };
+		m_Words[word] &= mask;
+	}
+	template<size_t BIT, typename = typename std::enable_if<uint_t::enableBit(BIT)>::type>
+	constexpr bool test() const noexcept
+	{
+		constexpr const size_t word{ BIT / countBitsPerWord };
+		constexpr const size_t wbit{ BIT % countBitsPerWord };
+		constexpr const wordType mask{ static_cast<wordType>(wordType(1) << wbit) };
+		return m_Words[word] & mask;
+	}
+	template<size_t BIT, typename = typename std::enable_if<uint_t::enableBit(BIT)>::type>
+	constexpr void set() noexcept
+	{
+		constexpr const size_t word{ BIT / countBitsPerWord };
+		constexpr const size_t wbit{ BIT % countBitsPerWord };
+		constexpr const wordType mask{ static_cast<wordType>(wordType(1) << wbit) };
+		m_Words[word] |= mask;
+	}
+	template<size_t BIT, typename = typename std::enable_if<uint_t::enableBit(BIT)>::type>
+	constexpr void clear() noexcept
+	{
+		constexpr const size_t word{ BIT / countBitsPerWord };
+		constexpr const size_t wbit{ BIT % countBitsPerWord };
+		constexpr const wordType mask{ static_cast<wordType>(~static_cast<wordType>(wordType(1) << wbit)) };
+		m_Words[word] &= mask;
+	}
 	template<typename T, typename = typename std::enable_if<std::is_integral<T>::value && !std::is_same<bool, T>::value>::type>
 	constexpr uint_t(const T value) noexcept :
 		m_Words{ uint_t::encodeValue<countWords>(static_cast<typename std::make_unsigned<T>::type>(value)) }
@@ -853,7 +905,47 @@ private:
 	constexpr uint_t(const wordType word, bool) noexcept :
 		m_Word{ word }
 	{	}
+	constexpr static bool enableBit(const size_t bit) noexcept
+	{
+		return bit < countBits;
+	}
 public:
+	constexpr bool test(const size_t bit) const noexcept
+	{
+		assert(bit < countBits);
+		const wordType mask{ static_cast<wordType>(wordType(1) << bit) };
+		return m_Word & mask;
+	}
+	constexpr void set(const size_t bit) noexcept
+	{
+		assert(bit < countBits);
+		const wordType mask{ static_cast<wordType>(wordType(1) << bit) };
+		m_Word |= mask;
+	}
+	constexpr void clear(const size_t bit) noexcept
+	{
+		assert(bit < countBits);
+		const wordType mask{ static_cast<wordType>(~static_cast<wordType>(wordType(1) << bit)) };
+		m_Word &= mask;
+	}
+	template<size_t BIT, typename = typename std::enable_if<uint_t::enableBit(BIT)>::type>
+	constexpr bool test() const noexcept
+	{
+		constexpr const wordType mask{ static_cast<wordType>(wordType(1) << BIT) };
+		return m_Word & mask;
+	}
+	template<size_t BIT, typename = typename std::enable_if<uint_t::enableBit(BIT)>::type>
+	constexpr void set() noexcept
+	{
+		constexpr const wordType mask{ static_cast<wordType>(wordType(1) << BIT) };
+		m_Word |= mask;
+	}
+	template<size_t BIT, typename = typename std::enable_if<uint_t::enableBit(BIT)>::type>
+	constexpr void clear() noexcept
+	{
+		constexpr const wordType mask{ static_cast<wordType>(~static_cast<wordType>(wordType(1) << BIT)) };
+		m_Word &= mask;
+	}
 	template<typename T, typename = typename std::enable_if<std::is_integral<T>::value && !std::is_same<bool, T>::value>::type>
 	constexpr uint_t(const T value) noexcept :
 		m_Word{ static_cast<wordType>(static_cast<typename std::make_unsigned<T>::type>(value)) }
@@ -1154,6 +1246,36 @@ private:
 		m_Word{ word }
 	{	}
 public:
+	constexpr bool test(const size_t bit) const noexcept
+	{
+		assert(bit == 0);
+		return m_Word;
+	}
+	constexpr void set(const size_t bit) noexcept
+	{
+		assert(bit == 0);
+		m_Word = true;
+	}
+	constexpr void clear(const size_t bit) noexcept
+	{
+		assert(bit == 0);
+		m_Word = false;
+	}
+	template<size_t BIT, typename = typename std::enable_if<BIT == 0>::type>
+	constexpr bool test() const noexcept
+	{
+		return m_Word;
+	}
+	template<size_t BIT, typename = typename std::enable_if<BIT == 0>::type>
+	constexpr void set() noexcept
+	{
+		m_Word = true;
+	}
+	template<size_t BIT, typename = typename std::enable_if<BIT == 0>::type>
+	constexpr void clear() noexcept
+	{
+		m_Word = false;
+	}
 	template<typename T, typename = typename std::enable_if<std::is_integral<T>::value && !std::is_same<bool, T>::value>::type>
 	constexpr uint_t(const T value) noexcept : m_Word{ static_cast<wordType>(value) } {}
 	template<typename T, typename = typename std::enable_if<std::is_unsigned<T>::value && ((sizeof(T)* CHAR_BIT) >= countBits) && !std::is_same<bool, T>::value>::type>
@@ -1391,6 +1513,19 @@ public:
 	constexpr static const size_t countStorageBits{ 0 };
 private:
 public:
+	constexpr bool test(const size_t bit) const noexcept
+	{
+		assert(false);
+		return false;
+	}
+	constexpr void set(const size_t bit) noexcept
+	{
+		assert(false);
+	}
+	constexpr void clear(const size_t bit) noexcept
+	{
+		assert(false);
+	}
 	static std::string toString(uint_t& ref) noexcept
 	{
 		return static_cast<std::string>(ref);

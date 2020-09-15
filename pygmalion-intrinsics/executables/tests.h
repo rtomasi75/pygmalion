@@ -35,3 +35,6 @@
 #include "multiplication_inplace.h"
 #include "division_inplace.h"
 #include "modulus_inplace.h"
+#include "bittest.h"
+#include "bitset.h"
+#include "bitclear.h"

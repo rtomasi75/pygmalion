@@ -14,7 +14,7 @@ int main(int argc, char* argv[])
 	size_t operationsFast(0);
 	bool result{ true };
 	//result &= intrinsics::test::leftshift_inplace<1, true>(durationCompact, operationsCompact);
-	result &= intrinsics::test::modulus_inplace();
+	result &= intrinsics::test::bitclear();
 	////result &= intrinsics::test::inequality();
 	uint_t<24, true> x = 1023;
 	uint_t<24, true> y = 256;

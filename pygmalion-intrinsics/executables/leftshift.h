@@ -17,15 +17,12 @@ namespace intrinsics::test
 		R* m_RefInput1 = new R[countIterations];
 		size_t* m_RefInput2 = new size_t[countIterations];
 		R* m_RefOutput = new R[countIterations];
-		size_t* m_Counts = new size_t[countIterations];
-		size_t* m_RefCounts = new size_t[countIterations];
-		size_t* m_BaseCounts = new size_t[countIterations];
 		for (size_t i = 0; i < countIterations; i++)
 		{
 			m_Input1[i] = U::random();
 			m_Input2[i] = std::rand() % (2 * COUNT_BITS + 1);
 			m_RefInput1[i] = static_cast<R>(m_Input1[i]);
-			m_RefInput2[i] = static_cast<R>(m_Input2[i]);
+			m_RefInput2[i] = m_Input2[i];
 		}
 		profiler profileImplementation;
 		std::cout << "    shifting (uint_t)..." << std::endl;

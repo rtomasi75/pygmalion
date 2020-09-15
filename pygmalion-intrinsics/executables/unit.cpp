@@ -49,6 +49,9 @@ int main(int argc, char* argv[])
 	result &= intrinsics::test::multiplication_inplace();
 	result &= intrinsics::test::division_inplace();
 	result &= intrinsics::test::modulus_inplace();
+	result &= intrinsics::test::bittest();
+	result &= intrinsics::test::bitset();
+	result &= intrinsics::test::bitclear();
 	std::cout << "================" << std::endl;
 	if (result)
 		std::cout << "PASSED UNIT TEST" << std::endl;
