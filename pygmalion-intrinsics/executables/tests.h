@@ -39,3 +39,4 @@
 #include "bitset.h"
 #include "bitclear.h"
 #include "pext.h"
+#include "pdep.h"

@@ -320,6 +320,147 @@ public:
 	{
 		return bsr::implementation(m_Words, bit);
 	}
+	uint_t deposePattern(uint_t mask) const noexcept
+	{
+#if (defined(PYGMALION_INTRINSICS_MSC)||defined(PYGMALION_INTRINSICS_GNU))&&(defined(PYGMALION_CPU_X86)||defined(PYGMALION_CPU_X64))&&defined(PYGMALION_CPU_BMI2)
+		if constexpr ((sizeof(wordType) <= 4) && cpu::supports(cpu::flags::X86) && cpu::supports(cpu::flags::BMI2) && (compiler::supports(compiler::flags::GNU) || compiler::supports(compiler::flags::MSC)))
+		{
+			const auto lambdaBits = [&mask](const size_t index)->size_t
+			{
+				return popcnt::implementation<1, wordType>({ mask.m_Words[index] });
+			};
+			const std::array<size_t, countWords> bitCounts{ generate_array_n<countWords,size_t>(lambdaBits) };
+			std::array<wordType, countWords> indices{ make_array_n<countWords,wordType>(wordType(0)) };
+			size_t w{ 0 };
+			size_t b{ 0 };
+			for (size_t i = 0; i < countWords; i++)
+			{
+				size_t bits{ bitCounts[i] };
+				size_t shift{ 0 };
+				while (bits)
+				{
+					size_t remaining{ countBitsPerWord - b };
+					size_t len{ std::min(remaining,bits) };
+					wordType M{ (len < countBitsPerWord) ? static_cast<wordType>(static_cast<wordType>(wordType(1) << len) - wordType(1)) : static_cast<wordType>(~wordType(0)) };
+					indices[i] |= ((m_Words[w] >> b) & M) << shift;
+					shift += len;
+					bits -= len;
+					b += len;
+					if (b >= countBitsPerWord)
+					{
+						b -= countBitsPerWord;
+						w++;
+					}
+				}
+			}
+			const auto lambdaPDEP = [&indices, &mask](const size_t index)->wordType
+			{
+				return static_cast<wordType>(_pdep_u32(indices[index], mask.m_Words[index]));
+			};
+			std::array<wordType, countWords> result{ generate_array_n<countWords,wordType>(lambdaPDEP) };
+			return uint_t(result, false);
+		}
+		else
+#endif
+#if (defined(PYGMALION_INTRINSICS_MSC)||defined(PYGMALION_INTRINSICS_GNU))&&defined(PYGMALION_CPU_X64)&&defined(PYGMALION_CPU_BMI2)
+			if constexpr ((sizeof(wordType) <= 8) && cpu::supports(cpu::flags::X64) && cpu::supports(cpu::flags::BMI2) && (compiler::supports(compiler::flags::GNU) || compiler::supports(compiler::flags::MSC)))
+			{
+				const auto lambdaBits = [&mask](const size_t index)->size_t
+				{
+					return popcnt::implementation<1, wordType>({ mask.m_Words[index] });
+				};
+				const std::array<size_t, countWords> bitCounts{ generate_array_n<countWords,size_t>(lambdaBits) };
+				std::array<wordType, countWords> indices{ make_array_n<countWords,wordType>(wordType(0)) };
+				size_t w{ 0 };
+				size_t b{ 0 };
+				for (size_t i = 0; i < countWords; i++)
+				{
+					size_t bits{ bitCounts[i] };
+					size_t shift{ 0 };
+					while (bits)
+					{
+						size_t remaining{ countBitsPerWord - b };
+						size_t len{ std::min(remaining,bits) };
+						wordType M{ (len < countBitsPerWord) ? static_cast<wordType>(static_cast<wordType>(wordType(1) << len) - wordType(1)) : static_cast<wordType>(~wordType(0)) };
+						indices[i] |= ((m_Words[w] >> b) & M) << shift;
+						shift += len;
+						bits -= len;
+						b += len;
+						if (b >= countBitsPerWord)
+						{
+							b -= countBitsPerWord;
+							w++;
+						}
+					}
+				}
+				const auto lambdaPDEP = [&indices, &mask](const size_t index)->wordType
+				{
+					return static_cast<wordType>(_pdep_u64(indices[index], mask.m_Words[index]));
+				};
+				std::array<wordType, countWords> result{ generate_array_n<countWords,wordType>(lambdaPDEP) };
+				return uint_t(result, false);
+			}
+			else
+#endif
+#if (defined(PYGMALION_INTRINSICS_MSC)||defined(PYGMALION_INTRINSICS_GNU))&&defined(PYGMALION_CPU_X86)&&defined(PYGMALION_CPU_BMI2)
+				if constexpr ((sizeof(wordType) <= 8) && cpu::supports(cpu::flags::X86) && cpu::supports(cpu::flags::BMI2) && (compiler::supports(compiler::flags::GNU) || compiler::supports(compiler::flags::MSC)))
+				{
+					const auto lambdaBits = [&mask](const size_t index)->size_t
+					{
+						return popcnt::implementation<1, wordType>({ mask.m_Words[index] });
+					};
+					const std::array<size_t, countWords> bitCounts{ generate_array_n<countWords,size_t>(lambdaBits) };
+					std::array<wordType, countWords> indices{ make_array_n<countWords,wordType>(wordType(0)) };
+					size_t w{ 0 };
+					size_t b{ 0 };
+					for (size_t i = 0; i < countWords; i++)
+					{
+						size_t bits{ bitCounts[i] };
+						size_t shift{ 0 };
+						while (bits)
+						{
+							size_t remaining{ countBitsPerWord - b };
+							size_t len{ std::min(remaining,bits) };
+							wordType M{ (len < countBitsPerWord) ? static_cast<wordType>(static_cast<wordType>(wordType(1) << len) - wordType(1)) : static_cast<wordType>(~wordType(0)) };
+							indices[i] |= ((m_Words[w] >> b) & M) << shift;
+							shift += len;
+							bits -= len;
+							b += len;
+							if (b >= countBitsPerWord)
+							{
+								b -= countBitsPerWord;
+								w++;
+							}
+						}
+					}
+					const auto lambdaPDEP = [&indices, &mask](const size_t index)->wordType
+					{
+						const std::uint32_t highMask{ static_cast<std::uint32_t>((mask.m_Words[index] & std::uint64_t(0xffffffff00000000)) >> 32) };
+						const std::uint32_t lowMask{ static_cast<std::uint32_t>((mask.m_Words[index] & std::uint64_t(0x00000000ffffffff)) >> 0) };
+						const size_t lowBits{ popcnt::implementation<1,std::uint32_t>({lowMask}) };
+						const std::uint32_t highIndex{ static_cast<std::uint32_t>(indices[index] >> lowBits) };
+						const std::uint32_t lowIndex{ static_cast<std::uint32_t>(indices[index] & ((std::uint64_t(1) << (lowBits + 1)) - 1)) };
+						const std::uint32_t highVal{ _pdep_u32(highIndex, highMask) };
+						const std::uint32_t lowVal{ _pdep_u32(lowIndex, lowMask) };
+						const std::uint64_t value{ (static_cast<std::uint64_t>(highVal) << 32) | static_cast<std::uint64_t>(lowVal) };
+						return static_cast<wordType>(value);
+					};
+					std::array<wordType, countWords> result{ generate_array_n<countWords,wordType>(lambdaPDEP) };
+					return uint_t(result, false);
+				}
+				else
+#endif
+				{
+					uint_t res{ zero() };
+					for (uint_t bb = one(); mask; bb += bb)
+					{
+						if ((*this) & bb)
+							res |= mask & -mask;
+						mask &= mask - one();
+					}
+					return res;
+				}
+	}
 	uint_t extractPattern(uint_t mask) const noexcept
 	{
 #if (defined(PYGMALION_INTRINSICS_MSC)||defined(PYGMALION_INTRINSICS_GNU))&&(defined(PYGMALION_CPU_X86)||defined(PYGMALION_CPU_X64))&&defined(PYGMALION_CPU_BMI2)
@@ -449,13 +590,11 @@ public:
 #endif
 				{
 					uint_t res{ zero() };
-					uint_t bb{ one() };
-					while (mask)
+					for (uint_t bb = one(); mask; bb += bb)
 					{
-						if ((*this) & mask & (-mask))
+						if ((*this) & mask & -mask)
 							res |= bb;
 						mask &= mask - one();
-						bb <<= 1;
 					}
 					return res;
 				}
@@ -1053,19 +1192,61 @@ public:
 	{
 		return uint_t(0, true);
 	}
-	uint_t extractPattern(const uint_t mask) const noexcept
+	uint_t deposePattern(uint_t mask) const noexcept
 	{
 #if (defined(PYGMALION_INTRINSICS_MSC)||defined(PYGMALION_INTRINSICS_GNU))&&(defined(PYGMALION_CPU_X86)||defined(PYGMALION_CPU_X64))&&defined(PYGMALION_CPU_BMI2)
 		if constexpr ((sizeof(wordType) <= 4) && cpu::supports(cpu::flags::X86) && cpu::supports(cpu::flags::BMI2) && (compiler::supports(compiler::flags::GNU) || compiler::supports(compiler::flags::MSC)))
 		{
-			return uint_t(_pext_u32(m_Word, mask.m_Word));
+			return uint_t(static_cast<wordType>(_pdep_u32(m_Word, mask.m_Word)), false);
 		}
 		else
 #endif
 #if (defined(PYGMALION_INTRINSICS_MSC)||defined(PYGMALION_INTRINSICS_GNU))&&defined(PYGMALION_CPU_X64)&&defined(PYGMALION_CPU_BMI2)
 			if constexpr ((sizeof(wordType) <= 8) && cpu::supports(cpu::flags::X64) && cpu::supports(cpu::flags::BMI2) && (compiler::supports(compiler::flags::GNU) || compiler::supports(compiler::flags::MSC)))
 			{
-				return uint_t(_pext_u64(m_Word, mask.m_Word));
+				return uint_t(static_cast<wordType>(_pdep_u64(m_Word, mask.m_Word)), false);
+			}
+			else
+#endif
+#if (defined(PYGMALION_INTRINSICS_MSC)||defined(PYGMALION_INTRINSICS_GNU))&&defined(PYGMALION_CPU_X86)&&defined(PYGMALION_CPU_BMI2)
+				if constexpr ((sizeof(wordType) <= 8) && cpu::supports(cpu::flags::X86) && cpu::supports(cpu::flags::BMI2) && (compiler::supports(compiler::flags::GNU) || compiler::supports(compiler::flags::MSC)))
+				{
+					const std::uint32_t highMask{ static_cast<std::uint32_t>((mask.m_Word & std::uint64_t(0xffffffff00000000)) >> 32) };
+					const std::uint32_t lowMask{ static_cast<std::uint32_t>((mask.m_Word & std::uint64_t(0x00000000ffffffff)) >> 0) };
+					const size_t lowBits{ popcnt::implementation<1,std::uint32_t>({lowMask}) };
+					const std::uint32_t highIndex{ static_cast<std::uint32_t>(m_Word >> lowBits) };
+					const std::uint32_t lowIndex{ static_cast<std::uint32_t>(m_Word & ((std::uint64_t(1) << (lowBits + 1)) - 1)) };
+					const std::uint32_t highVal{ _pdep_u32(highIndex, highMask) };
+					const std::uint32_t lowVal{ _pdep_u32(lowIndex, lowMask) };
+					const std::uint64_t value{ (static_cast<std::uint64_t>(highVal) << 32) | static_cast<std::uint64_t>(lowVal) };
+					return uint_t(value, false);
+				}
+				else
+#endif
+				{
+					wordType res{ 0 };
+					for (wordType bb = wordType(1); mask.m_Word; bb += bb)
+					{
+						if (m_Word & bb)
+							res |= mask.m_Word & -mask.m_Word;
+						mask.m_Word &= mask.m_Word - 1;
+					}
+					return uint_t(res, false);
+				}
+	}
+	uint_t extractPattern(const uint_t mask) const noexcept
+	{
+#if (defined(PYGMALION_INTRINSICS_MSC)||defined(PYGMALION_INTRINSICS_GNU))&&(defined(PYGMALION_CPU_X86)||defined(PYGMALION_CPU_X64))&&defined(PYGMALION_CPU_BMI2)
+		if constexpr ((sizeof(wordType) <= 4) && cpu::supports(cpu::flags::X86) && cpu::supports(cpu::flags::BMI2) && (compiler::supports(compiler::flags::GNU) || compiler::supports(compiler::flags::MSC)))
+		{
+			return uint_t(_pext_u32(m_Word, mask.m_Word), false);
+		}
+		else
+#endif
+#if (defined(PYGMALION_INTRINSICS_MSC)||defined(PYGMALION_INTRINSICS_GNU))&&defined(PYGMALION_CPU_X64)&&defined(PYGMALION_CPU_BMI2)
+			if constexpr ((sizeof(wordType) <= 8) && cpu::supports(cpu::flags::X64) && cpu::supports(cpu::flags::BMI2) && (compiler::supports(compiler::flags::GNU) || compiler::supports(compiler::flags::MSC)))
+			{
+				return uint_t(_pext_u64(m_Word, mask.m_Word), false);
 			}
 			else
 #endif
@@ -1080,22 +1261,19 @@ public:
 					const std::uint32_t highIndex{ _pext_u32(highVal, highMask) };
 					const std::uint32_t lowIndex{ _pext_u32(lowVal, lowMask) };
 					const std::uint64_t index{ (static_cast<std::uint64_t>(highIndex) << lowBits) | static_cast<std::uint64_t>(lowIndex) };
-					return index;
+					return uint_t(index, false);
 				}
 				else
 #endif
 				{
 					wordType res{ wordType(0) };
-					wordType bb{ wordType(1) };
-					wordType M{ mask.m_Word };
-					while (M)
+					for (wordType bb = wordType(1); mask.m_Word; bb += bb)
 					{
-						if ((*this) & M & (-M))
+						if (m_Word & mask.m_Word & -mask.m_Word)
 							res |= bb;
-						M &= M - wordType(1);
-						bb <<= 1;
+						mask.m_Word &= mask.m_Word - wordType(1);
 					}
-					return res;
+					return uint_t(res, false);
 				}
 	}
 	constexpr bool test(const size_t bit) const noexcept
@@ -1446,6 +1624,10 @@ public:
 	{
 		return uint_t(mask.m_Word & m_Word, false);
 	}
+	uint_t deposePattern(const uint_t mask) const noexcept
+	{
+		return uint_t(mask.m_Word & m_Word, false);
+	}
 	constexpr bool test(const size_t bit) const noexcept
 	{
 		assert(bit == 0);
@@ -1722,6 +1904,10 @@ public:
 		return uint_t();
 	}
 	uint_t extractPattern(const uint_t mask) const noexcept
+	{
+		return *this;
+	}
+	uint_t deposePattern(const uint_t mask) const noexcept
 	{
 		return *this;
 	}

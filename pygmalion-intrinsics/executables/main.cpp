@@ -13,7 +13,8 @@ int main(int argc, char* argv[])
 	typename profiler::durationType durationFast{ 0 };
 	size_t operationsFast(0);
 	bool result{ true };
-	//result &= intrinsics::test::leftshift_inplace<1, true>(durationCompact, operationsCompact);
+	//result &= intrinsics::test::pdep<23, true>(durationCompact, operationsCompact);
+	result &= intrinsics::test::pdep();
 	result &= intrinsics::test::pext();
 	////result &= intrinsics::test::inequality();
 	uint_t<24, true> x = 1023;

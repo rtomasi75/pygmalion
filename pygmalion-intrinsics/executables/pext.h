@@ -5,15 +5,14 @@ namespace intrinsics::test
 		template<typename T>
 		T pext_reference(const T val, T mask) noexcept
 		{
-			T res{ T(0) };
-			T bb{ T(1) };
-			while (mask)
+			T res = 0;
+			for (T bb = 1; mask; bb += bb)
 			{
-				if (val & mask & -static_cast<T>(mask))
+				if (val & mask & -mask)
 					res |= bb;
-				mask &= mask - T(1);
-				bb <<= 1;
+				mask &= mask - 1;
 			}
+			return res;
 			return res;
 		}
 	}
