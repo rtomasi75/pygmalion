@@ -377,6 +377,41 @@ public:
 		results[countWords - 1] = uint_t::normalizeHighestWord(results[countWords - 1]);
 		return uint_t(results, false);
 	}
+	constexpr uint_t operator/(const uint_t& other) const noexcept
+	{
+		assert(other);
+		uint_t<countBits + 1, isCompact> dividend{ *this };
+		uint_t<countBits + 1, isCompact> denom{ other };
+		uint_t<countBits + 1, isCompact> current{ uint_t<countBits + 1,isCompact>(1) };
+		uint_t<countBits + 1, isCompact> answer{ uint_t<countBits + 1,isCompact>(0) };
+
+		if (denom > dividend)
+			return uint_t(0);
+
+		if (denom == dividend)
+			return uint_t(1);
+
+		while (denom <= dividend) 
+		{
+			denom = denom << size_t(1);
+			current = current << size_t(1);
+		}
+
+		current = current >> size_t(1);
+		denom = denom >> size_t(1);
+
+		while (current) 
+		{
+			if (dividend >= denom)
+			{
+				dividend = dividend - denom;
+				answer = answer | current;
+			}
+			current = current >> size_t(1);
+			denom = denom >> size_t(1);
+		}
+		return static_cast<uint_t>(answer);
+	}
 	constexpr uint_t& operator+=(const uint_t& other)  noexcept
 	{
 		wordType carry{ 0 };
@@ -809,6 +844,11 @@ public:
 	{
 		return uint_t(normalizeWord(m_Word * other.m_Word), false);
 	}
+	constexpr uint_t operator/(const uint_t other) const noexcept
+	{
+		assert(other.m_Word);
+		return uint_t(m_Word / other.m_Word, false);
+	}
 	static uint_t random() noexcept
 	{
 		wordType w{ wordType(0) };
@@ -1040,6 +1080,11 @@ public:
 	{
 		return uint_t(m_Word & other.m_Word, false);
 	}
+	constexpr uint_t operator/(const uint_t other) const noexcept
+	{
+		assert(other.m_Word);
+		return uint_t(m_Word, false);
+	}
 	constexpr uint_t operator&(const uint_t other) const noexcept
 	{
 		return uint_t(m_Word & other.m_Word, false);
@@ -1213,6 +1258,11 @@ public:
 	}
 	constexpr uint_t operator*(const uint_t other) const noexcept
 	{
+		return *this;
+	}
+	constexpr uint_t operator/(const uint_t other) const noexcept
+	{
+		assert(0);
 		return *this;
 	}
 	constexpr uint_t operator&(const uint_t other) const noexcept

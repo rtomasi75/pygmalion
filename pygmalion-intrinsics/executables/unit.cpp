@@ -32,6 +32,7 @@ int main(int argc, char* argv[])
 	result &= intrinsics::test::negation();
 	result &= intrinsics::test::subtraction();
 	result &= intrinsics::test::multiplication();
+	result &= intrinsics::test::division();
 	result &= intrinsics::test::popcnt();
 	result &= intrinsics::test::bsf();
 	result &= intrinsics::test::bsr();
