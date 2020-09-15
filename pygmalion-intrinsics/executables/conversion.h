@@ -13,15 +13,15 @@ namespace intrinsics::test
 		std::cout << "    " << U2() << std::endl;
 		std::cout << std::endl;
 		const size_t countIterations{ size_t(1) << 24 };
+		std::cout << "    generating " << countIterations << "x uint_t<" << COUNT_BITS1 << "," << COMPACT1 << ">..." << std::endl;
 		U1* m_Input = new U1[countIterations];
 		T1* m_RefInput = new T1[countIterations];
 		U2* m_Output = new U2[countIterations];
 		T2* m_RefOutput = new T2[countIterations];
-		std::cout << "    generating " << countIterations << "x uint_t<" << COUNT_BITS1 << "," << COMPACT1 << ">..." << std::endl;
 		for (size_t i = 0; i < countIterations; i++)
 		{
 			m_Input[i] = U1::random();
-			m_RefInput[i] = m_Input[i];
+			m_RefInput[i] = static_cast<T1>(m_Input[i]);
 		}
 		profiler profile;
 		std::cout << "    casting to uint_t<" << COUNT_BITS2 << "," << COMPACT2 << ">..." << std::endl;

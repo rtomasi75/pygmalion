@@ -219,7 +219,7 @@ public:
 		m_Words{ uint_t::encodeValue<countWords>(static_cast<typename std::make_unsigned<T>::type>(value)) }
 	{}
 	template<typename T, typename = typename std::enable_if<std::is_unsigned<T>::value && ((sizeof(T)* CHAR_BIT) >= countBits) && !std::is_same<bool, T>::value>::type>
-	constexpr operator T() const noexcept
+	constexpr explicit operator T() const noexcept
 	{
 		T result{ 0 };
 		size_t shift{ 0 };
@@ -303,13 +303,13 @@ public:
 	}
 	constexpr uint_t& operator&=(const uint_t& other) noexcept
 	{
-		constexpr const auto lambda = [&other](wordType& a, const wordType b, const size_t)->wordType { a &= b; };
+		constexpr const auto lambda = [](wordType& a, const wordType b, const size_t)->void { a &= b; };
 		uint_t::binaryTransformWordsInplace<countWords, false>(m_Words, other.m_Words, lambda);
 		return *this;
 	}
 	constexpr uint_t& operator|=(const uint_t& other) noexcept
 	{
-		constexpr const auto lambda = [&other](wordType& a, const wordType b, const size_t)->wordType { a |= b; };
+		constexpr const auto lambda = [](wordType& a, const wordType b, const size_t)->void { a |= b; };
 		uint_t::binaryTransformWordsInplace<countWords, false>(m_Words, other.m_Words, lambda);
 		return *this;
 	}
@@ -386,29 +386,29 @@ public:
 		uint_t<countBits + 1, isCompact> answer{ uint_t<countBits + 1,isCompact>(0) };
 
 		if (denom > dividend)
-			return uint_t(0);
+			return 0;
 
 		if (denom == dividend)
-			return uint_t(1);
+			return 1;
 
 		while (denom <= dividend)
 		{
-			denom = denom << size_t(1);
-			current = current << size_t(1);
+			denom <<= 1;
+			current <<= 1;
 		}
 
-		current = current >> size_t(1);
-		denom = denom >> size_t(1);
+		denom >>= 1;
+		current >>= 1;
 
 		while (current)
 		{
 			if (dividend >= denom)
 			{
 				dividend = dividend - denom;
-				answer = answer | current;
+				answer |= current;
 			}
-			current = current >> size_t(1);
-			denom = denom >> size_t(1);
+			denom >>= 1;
+			current >>= 1;
 		}
 		return static_cast<uint_t>(answer);
 	}
@@ -418,6 +418,14 @@ public:
 		for (size_t i = 0; i < countWords - 1; i++)
 			carry = sumWords(m_Words[i], other.m_Words[i], carry);
 		m_Words[countWords - 1] = uint_t::normalizeHighestWord(carry + m_Words[countWords - 1] + other.m_Words[countWords - 1]);
+		return *this;
+	}
+	constexpr uint_t& operator-=(const uint_t& other)  noexcept
+	{
+		wordType carry{ 0 };
+		for (size_t i = 0; i < countWords - 1; i++)
+			carry = subtractWords(m_Words[i], other.m_Words[i], carry);
+		m_Words[countWords - 1] = uint_t::normalizeHighestWord(m_Words[countWords - 1] - (other.m_Words[countWords - 1] + carry));
 		return *this;
 	}
 	constexpr uint_t& operator++() noexcept
@@ -486,6 +494,12 @@ public:
 		}
 		results[countWords - 1] = uint_t::normalizeHighestWord(results[countWords - 1]);
 		m_Words = results;
+		return *this;
+	}
+	constexpr uint_t& operator/=(const uint_t& other) noexcept
+	{
+		assert(other);
+		(*this) = (*this) / other;
 		return *this;
 	}
 	static uint_t random() noexcept
@@ -746,6 +760,10 @@ public:
 	static const inline std::string populationCount_Intrinsic{ popcnt::implementationName<countWords,wordType>() };
 	static const inline std::string bitscanForward_Intrinsic{ bsf::implementationName<countWords,wordType>() };
 	static const inline std::string bitscanReverse_Intrinsic{ bsr::implementationName<countWords,wordType>() };
+	static std::string toString(uint_t& ref) noexcept
+	{
+		return static_cast<std::string>(ref);
+	}
 	template<size_t COUNT_BITS2, bool IS_COMPACT2>
 	constexpr uint_t(const uint_t<COUNT_BITS2, IS_COMPACT2>& other) noexcept :
 		m_Words{ uint_t::nullaryTransformWords<countWords,false>([this,&other](const size_t currentWord)->wordType
@@ -828,7 +846,7 @@ public:
 		m_Word{ static_cast<wordType>(static_cast<typename std::make_unsigned<T>::type>(value)) }
 	{}
 	template<typename T, typename = typename std::enable_if<std::is_unsigned<T>::value && ((sizeof(T)* CHAR_BIT) >= countBits) && !std::is_same<bool, T>::value>::type>
-	constexpr operator T() const noexcept
+	constexpr explicit operator T() const noexcept
 	{
 		return static_cast<T>(m_Word);
 	}
@@ -911,7 +929,7 @@ public:
 	}
 	constexpr uint_t& operator&=(const uint_t other) noexcept
 	{
-		m_Word = m_Word & other.m_Word;
+		m_Word &= other.m_Word;
 		return *this;
 	}
 	constexpr uint_t& operator+=(const uint_t other) noexcept
@@ -919,19 +937,30 @@ public:
 		m_Word = normalizeWord(m_Word + other.m_Word);
 		return *this;
 	}
+	constexpr uint_t& operator-=(const uint_t other) noexcept
+	{
+		m_Word = normalizeWord(m_Word - other.m_Word);
+		return *this;
+	}
 	constexpr uint_t& operator*=(const uint_t other) noexcept
 	{
 		m_Word = normalizeWord(m_Word * other.m_Word);
 		return *this;
 	}
+	constexpr uint_t& operator/=(const uint_t other) noexcept
+	{
+		assert(other.m_Word);
+		m_Word = normalizeWord(m_Word / other.m_Word);
+		return *this;
+	}
 	constexpr uint_t& operator|=(const uint_t other) noexcept
 	{
-		m_Word = m_Word | other.m_Word;
+		m_Word |= other.m_Word;
 		return *this;
 	}
 	constexpr uint_t& operator^=(const uint_t other) noexcept
 	{
-		m_Word = m_Word & other.m_Word;
+		m_Word ^= other.m_Word;
 		return *this;
 	}
 	constexpr uint_t operator&(const uint_t other) const noexcept
@@ -1032,6 +1061,10 @@ public:
 	static const inline std::string populationCount_Intrinsic{ popcnt::implementationName<countWords,wordType>() };
 	static const inline std::string bitscanForward_Intrinsic{ bsf::implementationName<countWords,wordType>() };
 	static const inline std::string bitscanReverse_Intrinsic{ bsr::implementationName<countWords,wordType>() };
+	static std::string toString(uint_t& ref) noexcept
+	{
+		return static_cast<std::string>(ref);
+	}
 	template<size_t COUNT_BITS2, bool IS_COMPACT2>
 	constexpr uint_t(const uint_t<COUNT_BITS2, IS_COMPACT2>& other) noexcept :
 		m_Word{ ([this,&other]()->wordType {
@@ -1100,7 +1133,7 @@ public:
 	template<typename T, typename = typename std::enable_if<std::is_integral<T>::value && !std::is_same<bool, T>::value>::type>
 	constexpr uint_t(const T value) noexcept : m_Word{ static_cast<wordType>(value) } {}
 	template<typename T, typename = typename std::enable_if<std::is_unsigned<T>::value && ((sizeof(T)* CHAR_BIT) >= countBits) && !std::is_same<bool, T>::value>::type>
-	constexpr operator T() const noexcept
+	constexpr explicit operator T() const noexcept
 	{
 		return static_cast<T>(m_Word);
 	}
@@ -1179,7 +1212,17 @@ public:
 		m_Word &= other.m_Word;
 		return *this;
 	}
+	constexpr uint_t& operator/=(const uint_t other) noexcept
+	{
+		assert(other.m_Word);
+		return *this;
+	}
 	constexpr uint_t& operator+=(const uint_t other) noexcept
+	{
+		m_Word ^= other.m_Word;
+		return *this;
+	}
+	constexpr uint_t& operator-=(const uint_t other) noexcept
 	{
 		m_Word ^= other.m_Word;
 		return *this;
@@ -1214,7 +1257,7 @@ public:
 	constexpr uint_t operator/(const uint_t other) const noexcept
 	{
 		assert(other.m_Word);
-		return uint_t(m_Word, false);
+		return *this;
 	}
 	constexpr uint_t operator&(const uint_t other) const noexcept
 	{
@@ -1293,6 +1336,10 @@ public:
 	constexpr uint_t(const uint_t<COUNT_BITS2, IS_COMPACT2>& other) noexcept :
 		m_Word{ static_cast<wordType>((COUNT_BITS2 > 0) ? other.word(0) & 1 : 0) }
 	{}
+	static std::string toString(uint_t& ref) noexcept
+	{
+		return static_cast<std::string>(ref);
+	}
 };
 
 template<size_t COUNT_BITS, bool IS_COMPACT>
@@ -1309,13 +1356,17 @@ public:
 	constexpr static const size_t countStorageBits{ 0 };
 private:
 public:
+	static std::string toString(uint_t& ref) noexcept
+	{
+		return static_cast<std::string>(ref);
+	}
 	template<typename T, typename = typename std::enable_if<std::is_integral<T>::value && !std::is_same<bool, T>::value>::type>
 	constexpr uint_t(const T value) noexcept :uint_t()
 	{
 
 	}
 	template<typename T, typename = typename std::enable_if<std::is_unsigned<T>::value && !std::is_same<bool, T>::value>::type>
-	constexpr operator T() const noexcept
+	constexpr explicit operator T() const noexcept
 	{
 		return static_cast<T>(0);
 	}
@@ -1383,7 +1434,16 @@ public:
 	{
 		return *this;
 	}
+	constexpr uint_t operator/=(const uint_t other) noexcept
+	{
+		assert(0);
+		return *this;
+	}
 	constexpr uint_t operator+=(const uint_t other) noexcept
+	{
+		return *this;
+	}
+	constexpr uint_t operator-=(const uint_t other) noexcept
 	{
 		return *this;
 	}

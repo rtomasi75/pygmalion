@@ -10,6 +10,7 @@ namespace intrinsics::test
 		std::cout << "    " << U() << std::endl;
 		std::cout << std::endl;
 		const size_t countIterations{ size_t(1) << 24 };
+		std::cout << "    generating " << countIterations << " pairs of uint_t<" << COUNT_BITS << "," << COMPACT << ">..." << std::endl;
 		U* m_Input1 = new U[countIterations];
 		size_t* m_Input2 = new size_t[countIterations];
 		U* m_Output = new U[countIterations];
@@ -19,14 +20,13 @@ namespace intrinsics::test
 		size_t* m_Counts = new size_t[countIterations];
 		size_t* m_RefCounts = new size_t[countIterations];
 		size_t* m_BaseCounts = new size_t[countIterations];
-		std::cout << "    generating " << countIterations << " pairs of uint_t<" << COUNT_BITS << "," << COMPACT << ">..." << std::endl;
 		for (size_t i = 0; i < countIterations; i++)
 		{
 			m_Input1[i] = U::random();
 			m_Input2[i] = std::rand() % (2 * COUNT_BITS + 1);
 			m_Output[i] = m_Input1[i];
-			m_RefInput1[i] = m_Input1[i];
-			m_RefInput2[i] = m_Input2[i];
+			m_RefInput1[i] = static_cast<R>(m_Input1[i]);
+			m_RefInput2[i] = static_cast<R>(m_Input2[i]);
 			m_RefOutput[i] = m_RefInput1[i];
 		}
 		profiler profileImplementation;
@@ -105,7 +105,7 @@ namespace intrinsics::test
 		typename profiler::durationType durationFast{ 0 };
 		size_t operationsFast(0);
 		bool result{ true };
-		std::cout << "___________________________________________" << std::endl;
+		std::cout << "__________________________________________" << std::endl;
 		std::cout << "TESTSUITE: uint_t unary leftshift operator" << std::endl;
 		std::cout << std::endl;
 		result &= intrinsics::test::leftshift_inplace<0, false>(durationFast, operationsFast);
@@ -166,7 +166,7 @@ namespace intrinsics::test
 			std::cout << "ALL PASSED" << std::endl;
 		else
 			std::cout << "SOME FAILED" << std::endl;
-		std::cout << "___________________________________________" << std::endl;
+		std::cout << "__________________________________________" << std::endl;
 		std::cout << std::endl;
 		return result;
 	}

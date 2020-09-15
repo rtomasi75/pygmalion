@@ -11,18 +11,18 @@ namespace intrinsics::test
 		std::cout << "    " << U::populationCount_Intrinsic << std::endl;
 		std::cout << std::endl;
 		const size_t countIterations{ size_t(1) << 24 };
+		std::cout << "    generating " << countIterations << "x uint_t<" << COUNT_BITS << "," << COMPACT << ">..." << std::endl;
 		U* m_Input = new U[countIterations];
 		R* m_RefInput = new R[countIterations];
 		R* m_BaseInput = new R[countIterations];
 		size_t* m_Counts = new size_t[countIterations];
 		size_t* m_RefCounts = new size_t[countIterations];
 		size_t* m_BaseCounts = new size_t[countIterations];
-		std::cout << "    generating " << countIterations << "x uint_t<" << COUNT_BITS << "," << COMPACT << ">..." << std::endl;
 		for (size_t i = 0; i < countIterations; i++)
 		{
 			m_Input[i] = U::random();
-			m_RefInput[i] = m_Input[i];
-			m_BaseInput[i] = m_Input[i];
+			m_RefInput[i] = static_cast<R>(m_Input[i]);
+			m_BaseInput[i] = static_cast<R>(m_Input[i]);
 		}
 		profiler profileCount;
 		profiler profileBase;

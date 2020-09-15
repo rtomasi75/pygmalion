@@ -10,6 +10,7 @@ namespace intrinsics::test
 		std::cout << "    " << U() << std::endl;
 		std::cout << std::endl;
 		const size_t countIterations{ size_t(1) << 24 };
+		std::cout << "    generating " << countIterations << " pairs of uint_t<" << COUNT_BITS << "," << COMPACT << ">..." << std::endl;
 		U* m_Input1 = new U[countIterations];
 		U* m_Input2 = new U[countIterations];
 		U* m_Output = new U[countIterations];
@@ -19,13 +20,12 @@ namespace intrinsics::test
 		size_t* m_Counts = new size_t[countIterations];
 		size_t* m_RefCounts = new size_t[countIterations];
 		size_t* m_BaseCounts = new size_t[countIterations];
-		std::cout << "    generating " << countIterations << " pairs of uint_t<" << COUNT_BITS << "," << COMPACT << ">..." << std::endl;
 		for (size_t i = 0; i < countIterations; i++)
 		{
 			m_Input1[i] = U::random();
 			m_Input2[i] = U::random();
-			m_RefInput1[i] = m_Input1[i];
-			m_RefInput2[i] = m_Input2[i];
+			m_RefInput1[i] = static_cast<R>(m_Input1[i]);
+			m_RefInput2[i] = static_cast<R>(m_Input2[i]);
 		}
 		profiler profileImplementation;
 		std::cout << "    subtracting (uint_t)..." << std::endl;

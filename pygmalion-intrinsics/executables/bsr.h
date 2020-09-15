@@ -11,6 +11,7 @@ namespace intrinsics::test
 		std::cout << "    " << U::bitscanReverse_Intrinsic << std::endl;
 		std::cout << std::endl;
 		const size_t countIterations{ size_t(1) << 24 };
+		std::cout << "    generating " << countIterations << "x uint_t<" << COUNT_BITS << "," << COMPACT << ">..." << std::endl;
 		U* m_Input = new U[countIterations];
 		R* m_RefInput = new R[countIterations];
 		R* m_BaseInput = new R[countIterations];
@@ -20,12 +21,11 @@ namespace intrinsics::test
 		bool* m_Rets = new bool[countIterations];
 		bool* m_RefRets = new bool[countIterations];
 		bool* m_BaseRets = new bool[countIterations];
-		std::cout << "    generating " << countIterations << "x uint_t<" << COUNT_BITS << "," << COMPACT << ">..." << std::endl;
 		for (size_t i = 0; i < countIterations; i++)
 		{
 			m_Input[i] = U::sparse();
-			m_RefInput[i] = m_Input[i];
-			m_BaseInput[i] = m_Input[i];
+			m_RefInput[i] = static_cast<R>(m_Input[i]);
+			m_BaseInput[i] = static_cast<R>(m_Input[i]);
 			m_Bits[i] = 0;
 			m_RefBits[i] = 0;
 			m_BaseBits[i] = 0;

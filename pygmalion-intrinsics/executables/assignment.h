@@ -10,10 +10,10 @@ namespace intrinsics::test
 		std::cout << "    " << U() << std::endl;
 		std::cout << std::endl;
 		const size_t countIterations{ size_t(1) << 24 };
+		std::cout << "    generating " << countIterations << " unsigned " << COUNT_BITS << "bit integers..." << std::endl;
 		T* m_Input = new T[countIterations];
 		T* m_Output = new T[countIterations];
 		U* m_Values = new U[countIterations];
-		std::cout << "    generating " << countIterations << " unsigned " << COUNT_BITS << "bit integers..." << std::endl;
 		T mask{ 0 };
 		for (size_t i = 0; i < countIterations; i++)
 		{
@@ -44,7 +44,7 @@ namespace intrinsics::test
 		std::cout << "    casting from uint_t <" << COUNT_BITS << "," << COMPACT << ">..." << std::endl;
 		profile.start();
 		for (size_t i = 0; i < countIterations; i++)
-			m_Output[i] = m_Values[i];
+			m_Output[i] = static_cast<T>(m_Values[i]);
 		profile.stop();
 		const auto durationCastFrom{ profile.duration() };
 		const auto speedFrom{ profile.computeSpeed(countIterations, "op") };
