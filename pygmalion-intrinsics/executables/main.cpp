@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-using namespace intrinsics;
+using namespace pygmalion;
 
 int main(int argc, char* argv[])
 {

@@ -1,4 +1,4 @@
-namespace detail
+namespace pygmalion::detail
 {
 	template<size_t COUNT_BYTES, bool IS_COMPACT = false, typename = typename std::enable_if<true>::type>
 	class uint_t_traits

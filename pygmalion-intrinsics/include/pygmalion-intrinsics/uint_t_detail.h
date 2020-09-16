@@ -1,4 +1,4 @@
-namespace detail
+namespace pygmalion::detail
 {
 	template<size_t COUNT_BITS, bool COMPACT>
 	constexpr size_t countWords() noexcept

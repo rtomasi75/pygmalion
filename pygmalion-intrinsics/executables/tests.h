@@ -1,3 +1,5 @@
+namespace pygmalion
+{
 #include "assignment.h"
 #include "conversion.h"
 #include "complement.h"
@@ -40,3 +42,4 @@
 #include "bitclear.h"
 #include "pext.h"
 #include "pdep.h"
+}

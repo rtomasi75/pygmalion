@@ -18,58 +18,49 @@
 
 
 
-
-class compiler
+namespace pygmalion
 {
-public:
-public:
-	enum flags : int
+	class compiler
 	{
-		any = 0b00000000,
-		MSC = 0b00000001,
-		GNU = 0b00000010,
-	};
-	constexpr static flags computeFlags() noexcept
-	{
-		int f{ any };
+	public:
+	public:
+		enum flags : int
+		{
+			any = 0b00000000,
+			MSC = 0b00000001,
+			GNU = 0b00000010,
+		};
+		constexpr static flags computeFlags() noexcept
+		{
+			int f{ any };
 #if defined(PYGMALION_INTRINSICS_GNU)
-		f |= static_cast<int>(flags::GNU);
+			f |= static_cast<int>(flags::GNU);
 #endif
 #if defined(PYGMALION_INTRINSICS_MSC)
-		f |= static_cast<int>(flags::MSC);
+			f |= static_cast<int>(flags::MSC);
 #endif
-		return static_cast<flags>(f);
-	}
+			return static_cast<flags>(f);
+		}
 
-	struct tag_emulation {};
-	struct tag_generic : tag_emulation {};
-	struct tag_GNU : tag_generic {};
-	struct tag_MSC : tag_GNU {};
-	struct tag_best : tag_MSC {};
+		struct tag_emulation {};
+		struct tag_generic : tag_emulation {};
+		struct tag_GNU : tag_generic {};
+		struct tag_MSC : tag_GNU {};
+		struct tag_best : tag_MSC {};
 
-/*	struct tag_generic {};
-	struct tag_MSC : tag_generic {};
-	struct tag_GNU : tag_MSC {};
-	struct tag_best : tag_GNU {};*/
-
-/*	struct tag_generic {};
-	struct tag_MSC : tag_generic {};
-	struct tag_GNU : tag_generic {};
-	struct tag_best : tag_GNU, tag_MSC {};*/
-
-
-	constexpr static const bool supports(const flags FLAGS) noexcept
-	{
-		const bool R{ static_cast<bool>((computeFlags() & FLAGS) == FLAGS) };
-		return R;
+		constexpr static const bool supports(const flags FLAGS) noexcept
+		{
+			const bool R{ static_cast<bool>((computeFlags() & FLAGS) == FLAGS) };
+			return R;
+		};
 	};
-};
 
-std::ostream& operator<<(std::ostream& str, const intrinsics::compiler::flags f) noexcept
-{
-	if (f & intrinsics::compiler::flags::MSC)
-		str << "MSC" << std::endl;
-	if (f & intrinsics::compiler::flags::GNU)
-		str << "GNU" << std::endl;
-	return str;
+	std::ostream& operator<<(std::ostream& str, const compiler::flags f) noexcept
+	{
+		if (f & compiler::flags::MSC)
+			str << "MSC" << std::endl;
+		if (f & compiler::flags::GNU)
+			str << "GNU" << std::endl;
+		return str;
+	}
 }

@@ -75,66 +75,68 @@
 #endif
 #endif
 
-
-class cpu
+namespace pygmalion
 {
-public:
-	enum flags : int
+	class cpu
 	{
-		none = 0b00000000,
-		X86 = 0b000000001,
-		X64 = 0b00000011,
-		BMI2 = 0b00000100,
-	};
-	constexpr static flags computeFlags() noexcept
-	{
-		int f{ flags::none };
+	public:
+		enum flags : int
+		{
+			none = 0b00000000,
+			X86 = 0b000000001,
+			X64 = 0b00000011,
+			BMI2 = 0b00000100,
+		};
+		constexpr static flags computeFlags() noexcept
+		{
+			int f{ flags::none };
 #if defined(PYGMALION_CPU_BMI2)
-		f |= flags::BMI2;
+			f |= flags::BMI2;
 #endif
 #if defined(PYGMALION_CPU_X86)
-		f |= flags::X86;
+			f |= flags::X86;
 #endif
 #if defined(PYGMALION_CPU_X64)
-		f |= flags::X86;
-		f |= flags::X64;
+			f |= flags::X86;
+			f |= flags::X64;
 #endif
-		return static_cast<flags>(f);
-	}
+			return static_cast<flags>(f);
+		}
 
-	struct tag_generic
-	{};
+		struct tag_generic
+		{};
 
-	struct tag_BMI2
-	{};
+		struct tag_BMI2
+		{};
 
-	struct tag_X86 :
-		tag_generic
-	{};
+		struct tag_X86 :
+			tag_generic
+		{};
 
-	struct tag_X64 :
-		tag_X86
-	{};
+		struct tag_X64 :
+			tag_X86
+		{};
 
-	struct tag_best :
-		tag_X64,
-		tag_BMI2
-	{};
+		struct tag_best :
+			tag_X64,
+			tag_BMI2
+		{};
 
-	constexpr static const bool supports(const flags FLAGS) noexcept
-	{
-		const bool R{ static_cast<bool>((computeFlags() & FLAGS) == FLAGS) };
-		return R;
+		constexpr static const bool supports(const flags FLAGS) noexcept
+		{
+			const bool R{ static_cast<bool>((computeFlags() & FLAGS) == FLAGS) };
+			return R;
+		};
 	};
-};
 
-std::ostream& operator<<(std::ostream& str, const intrinsics::cpu::flags f) noexcept
-{
-	if (f & intrinsics::cpu::X86)
-		str << "X86" << std::endl;
-	if (f & intrinsics::cpu::X64)
-		str << "X64" << std::endl;
-	if (f & intrinsics::cpu::BMI2)
-		str << "BMI2" << std::endl;
-	return str;
+	std::ostream& operator<<(std::ostream& str, const cpu::flags f) noexcept
+	{
+		if (f & cpu::X86)
+			str << "X86" << std::endl;
+		if (f & cpu::X64)
+			str << "X64" << std::endl;
+		if (f & cpu::BMI2)
+			str << "BMI2" << std::endl;
+		return str;
+	}
 }
