@@ -1,3 +1,6 @@
+#if !defined(PYGMALION_STATE)
+#define PYGMALION_STATE
+
 #include <pygmalion-intrinsics.h>
 
 #include "pygmalion-state/player.h"
@@ -14,3 +17,5 @@
 #include "pygmalion-state/command.h"
 #include "pygmalion-state/commands.h"
 #include "pygmalion-state/engine.h"
+
+#endif

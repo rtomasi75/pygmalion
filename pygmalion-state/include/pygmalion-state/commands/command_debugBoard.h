@@ -47,16 +47,19 @@ namespace pygmalion::state
 					this->output() << boardType::fileToString(file);
 				}
 				this->output() << std::endl;
-				this->output() << std::endl;
-				this->output() << "Flags:" << std::endl;
-				for (const auto flag : flagType::range)
+				if constexpr (countFlags > 0)
 				{
-					if (this->position().checkFlag(flag))
-						this->output() << boardType::flagToString(flag);
-					else
-						this->output() << "_";
+					this->output() << std::endl;
+					this->output() << "Flags: ";
+					for (const auto flag : flagType::range)
+					{
+						if (this->position().checkFlag(flag))
+							this->output() << boardType::flagToString(flag);
+						else
+							this->output() << "_";
+					}
+					this->output() << std::endl;
 				}
-				this->output() << std::endl;
 				this->output() << std::endl;
 				this->output() << "Player " << boardType::playerToString(this->position().movingPlayer()) << " is on the move." << std::endl;
 				this->output() << std::endl;
