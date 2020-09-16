@@ -2,12 +2,12 @@
 
 namespace pygmalion::intrinsics
 {
-	bool command_ver::onProcess(engine& eng, const std::string& cmd) const noexcept
+	bool command_ver::onProcess(const std::string& cmd) noexcept
 	{
 		if (cmd == "ver")
 		{
-			eng.outputStream() << "Pygmalion ver. 3.0" << std::endl;
-			eng.outputStream() << "playing " << eng.version() << std::endl;
+			output() << "Pygmalion ver. 3.0" << std::endl;
+			output() << "playing " << intrinsicsEngine().version() << std::endl;
 			return true;
 		}
 		else

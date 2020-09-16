@@ -2,20 +2,20 @@
 
 namespace pygmalion::intrinsics
 {
-	bool command_debugCompiler::onProcess(engine& eng, const std::string& cmd) const noexcept 
+	bool command_debugCompiler::onProcess(const std::string& cmd) noexcept 
 	{
 		std::string token;
 		std::string remainder;
 		parser::parseToken(cmd, token, remainder);
 		if (token == "debug-compiler")
 		{
-			eng.outputStream() << std::endl;
-			eng.outputStream() << "Compiler intrinsics:" << std::endl;
+			output() << std::endl;
+			output() << "Compiler intrinsics:" << std::endl;
 			if constexpr (compiler::supports(compiler::MSC))
-				eng.outputStream() << "  MSC" << std::endl;
+				output() << "  MSC" << std::endl;
 			if constexpr (compiler::supports(compiler::GNU))
-				eng.outputStream() << "  GNU" << std::endl;
-			eng.outputStream() << std::endl;
+				output() << "  GNU" << std::endl;
+			output() << std::endl;
 			return true;
 		}
 		else

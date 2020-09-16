@@ -285,6 +285,14 @@ namespace pygmalion
 			const wordType mask{ static_cast<wordType>(wordType(1) << wbit) };
 			m_Words[word] |= mask;
 		}
+		constexpr void toggle(const size_t bit) noexcept
+		{
+			assert(bit < countBits);
+			const size_t word{ bit / countBitsPerWord };
+			const size_t wbit{ bit % countBitsPerWord };
+			const wordType mask{ static_cast<wordType>(wordType(1) << wbit) };
+			m_Words[word] ^= mask;
+		}
 		constexpr void clear(const size_t bit) noexcept
 		{
 			assert(bit < countBits);
@@ -308,6 +316,14 @@ namespace pygmalion
 			constexpr const size_t wbit{ BIT % countBitsPerWord };
 			constexpr const wordType mask{ static_cast<wordType>(wordType(1) << wbit) };
 			m_Words[word] |= mask;
+		}
+		template<size_t BIT, typename = typename std::enable_if<uint_t::enableBit(BIT)>::type>
+		constexpr void toggle() noexcept
+		{
+			constexpr const size_t word{ BIT / countBitsPerWord };
+			constexpr const size_t wbit{ BIT % countBitsPerWord };
+			constexpr const wordType mask{ static_cast<wordType>(wordType(1) << wbit) };
+			m_Words[word] ^= mask;
 		}
 		template<size_t BIT, typename = typename std::enable_if<uint_t::enableBit(BIT)>::type>
 		constexpr void clear() noexcept
@@ -1137,6 +1153,26 @@ namespace pygmalion
 			}
 			return *this;
 		}
+		constexpr static uint_t clearMask(const size_t bit) noexcept
+		{
+			const size_t w{ bit / countBitsPerWord };
+			const size_t b{ bit % countBitsPerWord };
+			const auto lambda = [w, b](const size_t index)->wordType
+			{
+				return static_cast<wordType>((index == w) ? (wordType(1) << b) : wordType(0));
+			};
+			return ~uint_t(arrayhelper::generate<countWords, wordType>(lambda), false);
+		}
+		constexpr static uint_t setMask(const size_t bit) noexcept
+		{
+			const size_t w{ bit / countBitsPerWord };
+			const size_t b{ bit % countBitsPerWord };
+			const auto lambda = [w, b](const size_t index)->wordType
+			{
+				return static_cast<wordType>((index == w) ? (wordType(1) << b) : wordType(0));
+			};
+			return uint_t(arrayhelper::generate<countWords, wordType>(lambda), false);
+		}
 		static const inline std::string populationCount_Intrinsic{ intrinsics::popcnt::implementationName<countWords,wordType>() };
 		static const inline std::string bitscanForward_Intrinsic{ intrinsics::bsf::implementationName<countWords,wordType>() };
 		static const inline std::string bitscanReverse_Intrinsic{ intrinsics::bsr::implementationName<countWords,wordType>() };
@@ -1157,20 +1193,20 @@ namespace pygmalion
 				m_Current{ 0 }
 			{
 			}
-		public:
-			using difference_type = std::ptrdiff_t;
-			using pointer = value_type*;
-			using reference = value_type&;
-			using iterator_category = std::input_iterator_tag;
 			constexpr explicit iterator(const uint_t state) noexcept :
 				m_State{ state },
 				m_Current{ 0 }
 			{
 				m_State.bitscanForward(m_Current);
 			}
+		public:
+			using difference_type = std::ptrdiff_t;
+			using pointer = value_type*;
+			using reference = value_type&;
+			using iterator_category = std::input_iterator_tag;
 			constexpr iterator(const iterator&) noexcept = default;
 			~iterator() noexcept = default;
-			constexpr iterator operator++(int) noexcept
+			constexpr iterator&& operator++(int) noexcept
 			{
 				iterator ret(m_State);
 				++(*this);
@@ -1379,7 +1415,7 @@ namespace pygmalion
 						return uint_t(res, false);
 					}
 		}
-		uint_t extractPattern(const uint_t mask) const noexcept
+		uint_t extractPattern(uint_t mask) const noexcept
 		{
 #if (defined(PYGMALION_INTRINSICS_MSC)||defined(PYGMALION_INTRINSICS_GNU))&&(defined(PYGMALION_CPU_X86)||defined(PYGMALION_CPU_X64))&&defined(PYGMALION_CPU_BMI2)
 			if constexpr ((sizeof(wordType) <= 4) && cpu::supports(cpu::flags::X86) && cpu::supports(cpu::flags::BMI2) && (compiler::supports(compiler::flags::GNU) || compiler::supports(compiler::flags::MSC)))
@@ -1433,6 +1469,12 @@ namespace pygmalion
 			const wordType mask{ static_cast<wordType>(wordType(1) << bit) };
 			m_Word |= mask;
 		}
+		constexpr void toggle(const size_t bit) noexcept
+		{
+			assert(bit < countBits);
+			const wordType mask{ static_cast<wordType>(wordType(1) << bit) };
+			m_Word ^= mask;
+		}
 		constexpr void clear(const size_t bit) noexcept
 		{
 			assert(bit < countBits);
@@ -1450,6 +1492,12 @@ namespace pygmalion
 		{
 			constexpr const wordType mask{ static_cast<wordType>(wordType(1) << BIT) };
 			m_Word |= mask;
+		}
+		template<size_t BIT, typename = typename std::enable_if<uint_t::enableBit(BIT)>::type>
+		constexpr void toggle() noexcept
+		{
+			constexpr const wordType mask{ static_cast<wordType>(wordType(1) << BIT) };
+			m_Word ^= mask;
 		}
 		template<size_t BIT, typename = typename std::enable_if<uint_t::enableBit(BIT)>::type>
 		constexpr void clear() noexcept
@@ -1854,6 +1902,11 @@ namespace pygmalion
 			assert(bit == 0);
 			m_Word = true;
 		}
+		constexpr void toggle(const size_t bit) noexcept
+		{
+			assert(bit == 0);
+			m_Word = !m_Word;
+		}
 		constexpr void clear(const size_t bit) noexcept
 		{
 			assert(bit == 0);
@@ -1868,6 +1921,11 @@ namespace pygmalion
 		constexpr void set() noexcept
 		{
 			m_Word = true;
+		}
+		template<size_t BIT, typename = typename std::enable_if<BIT == 0>::type>
+		constexpr void toggle() noexcept
+		{
+			m_Word = !m_Word;
 		}
 		template<size_t BIT, typename = typename std::enable_if<BIT == 0>::type>
 		constexpr void clear() noexcept
@@ -2221,6 +2279,10 @@ namespace pygmalion
 			return false;
 		}
 		constexpr void set(const size_t bit) noexcept
+		{
+			assert(false);
+		}
+		constexpr void toggle(const size_t bit) noexcept
 		{
 			assert(false);
 		}

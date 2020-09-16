@@ -1,15 +1,41 @@
 #include <pygmalion-intrinsics.h>
 
-namespace pygmalion
+namespace pygmalion::intrinsics
 {
-	bool command::onProcess(pygmalion::intrinsics::engine& eng, const std::string& cmd) const noexcept
+	bool command::onProcess(const std::string& cmd) noexcept
 	{
 		return false;
 	}
 
-	bool command::process(pygmalion::intrinsics::engine& eng, const std::string& cmd) const noexcept
+	bool command::process(const std::string& cmd) noexcept
 	{
-		return onProcess(eng, cmd);
+		return onProcess(cmd);
+	}
+
+	engine& command::intrinsicsEngine() noexcept
+	{
+		return *m_pEngine;
+	}
+
+	const engine& command::intrinsicsEngine() const noexcept
+	{
+		return *m_pEngine;
+	}
+
+	command::command() noexcept :
+		m_pEngine(nullptr)
+	{
+
+	}
+
+	std::ostream& command::output() noexcept
+	{
+		return m_pEngine->outputStream();
+	}
+
+	std::istream& command::input() noexcept
+	{
+		return m_pEngine->inputStream();
 	}
 
 }

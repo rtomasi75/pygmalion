@@ -3,10 +3,7 @@ namespace pygmalion::intrinsics
 	class engine
 	{
 	public:
-		virtual std::string version() const noexcept
-		{
-			return "no game";
-		}
+		virtual std::string version() const noexcept;
 	private:
 		std::ostream& m_Output;
 		std::istream& m_Input;
@@ -24,6 +21,7 @@ namespace pygmalion::intrinsics
 				delete static_cast<T*>(pCmd);
 			};
 			std::shared_ptr<command> pCommand(static_cast<command*>(new T()), delCmd);
+			pCommand->m_pEngine = this;
 			m_Commands.emplace_back(std::move(pCommand));
 		}
 	public:

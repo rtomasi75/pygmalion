@@ -1,4 +1,4 @@
-namespace pygmalion::intrinsics
+namespace pygmalion
 {
 	class parser
 	{

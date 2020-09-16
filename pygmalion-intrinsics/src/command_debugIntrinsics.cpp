@@ -3,7 +3,7 @@
 
 namespace pygmalion::intrinsics
 {
-	bool command_debugIntrinsics::onProcess(engine& eng, const std::string& cmd) const noexcept
+	bool command_debugIntrinsics::onProcess(const std::string& cmd) noexcept
 	{
 		std::string token;
 		std::string remainder;
@@ -14,7 +14,7 @@ namespace pygmalion::intrinsics
 			parser::parseToken(remainder, token, remainder);
 			if (token == "all")
 			{
-				eng.outputStream() << std::endl;
+				output() << std::endl;
 				result &= intrinsics::test::assignment();
 				result &= intrinsics::test::conversion();
 				result &= intrinsics::test::equality();
@@ -57,7 +57,7 @@ namespace pygmalion::intrinsics
 				result &= intrinsics::test::bitclear();
 				result &= intrinsics::test::pext();
 				result &= intrinsics::test::pdep();
-				eng.outputStream() << std::endl;
+				output() << std::endl;
 			}
 			else if (token == "assignment")
 				result &= intrinsics::test::assignment();
@@ -145,17 +145,17 @@ namespace pygmalion::intrinsics
 				result &= intrinsics::test::pdep();
 			else
 			{
-				eng.outputStream() << std::endl;
-				eng.outputStream() << "illegal test: " << token << std::endl;
-				eng.outputStream() << std::endl;
+				output() << std::endl;
+				output() << "illegal test: " << token << std::endl;
+				output() << std::endl;
 				return true;
 			}
-			std::cout << "================" << std::endl;
+			output() << "================" << std::endl;
 			if (result)
-				std::cout << "PASSED ALL TESTS" << std::endl;
+				output() << "PASSED ALL TESTS" << std::endl;
 			else
-				std::cout << "FAILED ALL TESTS" << std::endl;
-			std::cout << "================" << std::endl;
+				output() << "FAILED ALL TESTS" << std::endl;
+			output() << "================" << std::endl;
 			return true;
 		}
 		else

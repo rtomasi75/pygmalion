@@ -1,15 +1,20 @@
-namespace pygmalion
+namespace pygmalion::intrinsics
 {
-	namespace intrinsics
-	{
-		class engine;
-	}
+	class engine;
 
 	class command
 	{
+		friend class engine;
+	private:
+		engine* m_pEngine;
 	protected:
-		virtual bool onProcess(pygmalion::intrinsics::engine& eng, const std::string& cmd) const noexcept;
+		virtual bool onProcess(const std::string& cmd) noexcept;
+		engine& intrinsicsEngine() noexcept;
+		const engine& intrinsicsEngine() const noexcept;
 	public:
-		bool process(pygmalion::intrinsics::engine& eng, const std::string& cmd) const noexcept;
+		std::ostream& output() noexcept;
+		std::istream& input() noexcept;
+		command() noexcept;
+		bool process(const std::string& cmd) noexcept;
 	};
 }

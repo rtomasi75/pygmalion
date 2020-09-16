@@ -1,8 +1,6 @@
 
 #include <pygmalion-intrinsics.h>
 
-#include <iostream>
-
 using namespace pygmalion;
 using namespace pygmalion::intrinsics;
 

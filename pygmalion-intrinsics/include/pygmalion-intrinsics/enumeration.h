@@ -99,7 +99,8 @@ namespace pygmalion
 		using baseType = typename detail::enumeration_traits<requiredSignedBytes(countValues)>::STYPE;
 		enum valueType : baseType
 		{
-			invalid = -1
+			invalid = -1,
+			end = countValues
 		};
 	private:
 		valueType m_Value;
@@ -136,30 +137,26 @@ namespace pygmalion
 		{
 			return (static_cast<baseType>(m_Value) >= 0) && (static_cast<baseType>(m_Value) < COUNT);
 		}
-		constexpr auto operator%=(const enumeration divisor) noexcept
-		{
-			m_Value = static_cast<valueType>(static_cast<baseType>(m_Value) % static_cast<baseType>(divisor.m_Value));
-		}
 		constexpr auto operator++(int) noexcept
 		{
 			const enumeration temp{ m_Value };
-			m_Value = static_cast<valueType>(static_cast<baseType>(m_Value) + 1);
+			m_Value = static_cast<valueType>((static_cast<baseType>(m_Value) + 1) % countValues);
 			return std::move(temp);
 		}
 		constexpr instanceType& operator++() noexcept
 		{
-			m_Value = static_cast<valueType>(static_cast<baseType>(m_Value) + 1);
+			m_Value = static_cast<valueType>((static_cast<baseType>(m_Value) + 1) % countValues);
 			return *this;
 		}
-		constexpr auto operator--(int) noexcept
+		constexpr enumeration&& operator--(int) noexcept
 		{
 			const enumeration temp{ m_Value };
-			m_Value = static_cast<valueType>(static_cast<baseType>(m_Value) - 1);
+			m_Value = static_cast<valueType>((static_cast<baseType>(m_Value) + countValues - 1) % countValues);
 			return std::move(temp);
 		}
 		constexpr instanceType& operator--() noexcept
 		{
-			m_Value = static_cast<valueType>(static_cast<baseType>(m_Value) - 1);
+			m_Value = static_cast<valueType>((static_cast<baseType>(m_Value) + countValues - 1) % countValues);
 			return *this;
 		}
 		constexpr instanceType& operator|=(const instanceType other) noexcept

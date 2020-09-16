@@ -2,11 +2,11 @@
 
 namespace pygmalion::intrinsics
 {
-	bool command_quit::onProcess(engine& eng, const std::string& cmd) const noexcept
+	bool command_quit::onProcess(const std::string& cmd) noexcept
 	{
 		if (cmd == "quit")
 		{
-			eng.stop();
+			intrinsicsEngine().stop();
 			return true;
 		}
 		else

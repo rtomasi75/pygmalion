@@ -15,6 +15,11 @@ namespace pygmalion::intrinsics
 		addCommand<command_debugCompiler>();
 		addCommand<command_debugIntrinsics>();
 	}
+	
+	std::string engine::version() const noexcept
+	{
+		return "no game (intrinsics only)";
+	}
 
 	void engine::mainloop() noexcept
 	{
@@ -25,7 +30,7 @@ namespace pygmalion::intrinsics
 			bool processed{ false };
 			for (auto& cmd : m_Commands)
 			{
-				processed |= cmd->process(*this, input);
+				processed |= cmd->process(input);
 				if (processed)
 					break;
 			}
