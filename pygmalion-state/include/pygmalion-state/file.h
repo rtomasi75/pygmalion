@@ -46,6 +46,10 @@ namespace pygmalion::state
 		{
 			return ~static_cast<squaresType>(*this);
 		}
+		constexpr squareType operator&(const rankType rank) const noexcept
+		{
+			return squareType::fromRankFile(rank, *this);
+		}
 	};
 
 }

@@ -223,7 +223,7 @@ namespace pygmalion::state
 		public:
 			using value_type = squareType;
 		private:
-			typename bitsType::iterator& m_Iterator;
+			typename bitsType::iterator m_Iterator;
 			constexpr iterator(typename bitsType::iterator& it) noexcept :
 				m_Iterator{ it }
 			{
@@ -268,4 +268,26 @@ namespace pygmalion::state
 			return iterator(m_Bits.end());
 		}
 	};
+
+	template<typename DESCRIPTION_STATE>
+	std::ostream& operator<<(std::ostream& str, const squares<DESCRIPTION_STATE>& squares) noexcept
+	{
+		using descriptorState = DESCRIPTION_STATE;
+#include "include_state.h"
+		using bitsType = uint_t<countSquares, false>;
+		for (const auto r : rankType::range)
+		{
+			const rankType rank{ -r };
+			for (const auto file : fileType::range)
+			{
+				const squareType sq{ rank & file };
+				if (squares[sq])
+					str << "#";
+				else
+					str << ".";
+			}
+			str << std::endl;
+		}
+		return str;
+	}
 }

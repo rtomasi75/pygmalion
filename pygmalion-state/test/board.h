@@ -125,6 +125,10 @@ namespace pygmalion::state::test
 		{
 			return (player == 0) ? "X" : "O";
 		}
+		static std::string pieceToString_Implementation(const pieceType piece) noexcept
+		{
+			return "#";
+		}
 		static bool parsePiece_Implementation(const std::string& text, pieceType& piece, size_t& len) noexcept
 		{
 			if (text.length() > 0)
@@ -136,6 +140,7 @@ namespace pygmalion::state::test
 				case '0':
 				case 'o':
 				case 'O':
+				case '#':
 					len = 1;
 					piece = 0;
 					return true;

@@ -31,5 +31,22 @@ namespace pygmalion::state
 		{
 			return dynamic_cast<const engine<boardType>&>(intrinsicsEngine());
 		}
+	protected:
+		void dumpSquares(const squaresType& squares) noexcept
+		{
+			this->output() << squares;
+			this->output() << std::endl;
+			if (squares)
+			{
+				this->output() << "squares:";
+				for (const auto sq : squares)
+				{
+					this->output() << " " << boardType::squareToString(sq);
+				}
+				this->output() << std::endl;
+			}
+			else
+				this->output() << "(no squares)" << std::endl;
+		}
 	};
 }

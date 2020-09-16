@@ -79,14 +79,46 @@ namespace pygmalion
 		{
 			return boardType::pieceToString_Implementation(piece, player);
 		}
+		static std::string pieceToString(const pieceType piece) noexcept
+		{
+			return boardType::pieceToString_Implementation(piece);
+		}
 		static bool parsePiece(const std::string& text, pieceType& piece, size_t& len) noexcept
 		{
 			return boardType::parsePiece_Implementation(text, piece, len);
+		}
+		static std::string squareToString(const squareType square) noexcept
+		{
+			return fileToString(square.file()) + rankToString(square.rank());
+		}
+		static bool parseSquare(const std::string& text, squareType& square, size_t& len) noexcept
+		{
+			size_t ln{ 0 };
+			fileType f;
+			if (parseFile(text, f, ln))
+			{
+				rankType r;
+				if (parseRank(text.substr(1, text.length() - 1), r, ln))
+				{
+					len += ln;
+					square = f & r;
+					return true;
+				}
+			}
+			return false;
 		}
 		constexpr void setFlag(const flagType flag) noexcept
 		{
 			m_Flags.set(flag);
 			onSetFlag(flag);
+		}
+		constexpr void toggleFlag(const flagType flag) noexcept
+		{
+			m_Flags.toggle(flag);
+			if (m_Flags[flag])
+				onSetFlag(flag);
+			else
+				onClearedFlag(flag);
 		}
 		constexpr void clearFlag(const flagType flag) noexcept
 		{
@@ -182,8 +214,8 @@ namespace pygmalion
 			assert(!m_PlayerOccupancy[player][square]);
 			assert(!m_PieceOccupancy[piece][square]);
 #endif
-			m_PlayerOccupancy[player] += square;
-			m_PieceOccupancy[piece] += square;
+			m_PlayerOccupancy[player] |= square;
+			m_PieceOccupancy[piece] |= square;
 			onAddedPiece(piece, square, player);
 		}
 		constexpr void removePiece(const pieceType piece, const squareType square, const playerType player) noexcept

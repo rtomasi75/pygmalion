@@ -137,27 +137,27 @@ namespace pygmalion
 		{
 			return (static_cast<baseType>(m_Value) >= 0) && (static_cast<baseType>(m_Value) < COUNT);
 		}
-		constexpr auto operator++(int) noexcept
+		constexpr instanceType operator++(int) noexcept
 		{
-			const enumeration temp{ m_Value };
+			const instanceType temp{ m_Value };
 			m_Value = static_cast<valueType>((static_cast<baseType>(m_Value) + 1) % countValues);
-			return std::move(temp);
+			return temp;
 		}
 		constexpr instanceType& operator++() noexcept
 		{
 			m_Value = static_cast<valueType>((static_cast<baseType>(m_Value) + 1) % countValues);
-			return *this;
+			return *reinterpret_cast<instanceType*>(this);
 		}
-		constexpr enumeration&& operator--(int) noexcept
+		constexpr instanceType operator--(int) noexcept
 		{
-			const enumeration temp{ m_Value };
+			const instanceType temp{ m_Value };
 			m_Value = static_cast<valueType>((static_cast<baseType>(m_Value) + countValues - 1) % countValues);
-			return std::move(temp);
+			return temp;
 		}
 		constexpr instanceType& operator--() noexcept
 		{
 			m_Value = static_cast<valueType>((static_cast<baseType>(m_Value) + countValues - 1) % countValues);
-			return *this;
+			return *static_cast<instanceType*>(this);
 		}
 		constexpr instanceType& operator|=(const instanceType other) noexcept
 		{

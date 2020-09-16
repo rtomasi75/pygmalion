@@ -26,14 +26,21 @@ namespace pygmalion::state
 		engine(std::istream& input, std::ostream& output) noexcept :
 			pygmalion::intrinsics::engine(input, output)
 		{
-			addCommand<command_debugPlayers<descriptorState, boardType>>();
-			addCommand<command_debugPieces<descriptorState, boardType>>();
-			addCommand<command_debugFiles<descriptorState, boardType>>();
-			addCommand<command_debugRanks<descriptorState, boardType>>();
-			addCommand<command_debugFlags<descriptorState, boardType>>();
-			addCommand<command_debugBoard<descriptorState, boardType>>();
-			addCommand<command_debugSetFlag<descriptorState, boardType>>();
-			addCommand<command_debugClearFlag<descriptorState, boardType>>();
+			this->addCommand<command_debugPlayers<descriptorState, boardType>>();
+			this->addCommand<command_debugPieces<descriptorState, boardType>>();
+			this->addCommand<command_debugFiles<descriptorState, boardType>>();
+			this->addCommand<command_debugRanks<descriptorState, boardType>>();
+			this->addCommand<command_debugFlags<descriptorState, boardType>>();
+			this->addCommand<command_debugBoard<descriptorState, boardType>>();
+			this->addCommand<command_debugSetFlag<descriptorState, boardType>>();
+			this->addCommand<command_debugClearFlag<descriptorState, boardType>>();
+			this->addCommand<command_debugToggleFlag<descriptorState, boardType>>();
+			this->addCommand<command_debugSetPlayer<descriptorState, boardType>>();
+			this->addCommand<command_debugNextPlayer<descriptorState, boardType>>();
+			this->addCommand<command_debugClearBoard<descriptorState, boardType>>();
+			this->addCommand<command_debugAddPiece<descriptorState, boardType>>();
+			this->addCommand<command_debugRemovePiece<descriptorState, boardType>>();
+			this->addCommand<command_debugOccupancy<descriptorState, boardType>>();
 		}
 		virtual ~engine() noexcept = default;
 		virtual std::string version() const noexcept override

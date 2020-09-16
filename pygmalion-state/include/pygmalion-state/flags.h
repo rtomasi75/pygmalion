@@ -11,6 +11,10 @@ namespace pygmalion::state
 	private:
 		bitsType m_Bits;
 	public:
+		constexpr void toggle(const flagType flag) noexcept
+		{
+			m_Bits.toggle(flag);
+		}
 		constexpr void set(const flagType flag) noexcept
 		{
 			m_Bits.set(flag);

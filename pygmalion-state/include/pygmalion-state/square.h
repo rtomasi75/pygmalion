@@ -5,16 +5,20 @@ namespace pygmalion::state
 		public enumeration<DESCRIPTION_STATE::countSquares, square<DESCRIPTION_STATE>>,
 		public DESCRIPTION_STATE
 	{
+		friend class file<DESCRIPTION_STATE>;
+		friend class rank<DESCRIPTION_STATE>;
 	public:
 		using parentType = enumeration<DESCRIPTION_STATE::countSquares, square<DESCRIPTION_STATE>>;
 		using descriptorState = DESCRIPTION_STATE;
 #include "include_state.h"
+	private:
 		constexpr static square fromRankFile(const rankType r, const fileType f) noexcept
 		{
 			assert(r.isValid());
 			assert(f.isValid());
 			return r * countFiles + f;
 		}
+	public:
 		constexpr rankType rank() const noexcept
 		{
 			assert(this->isValid());
