@@ -15,3 +15,5 @@ using flagType = typename descriptorState::flagType;
 using flagsType = typename descriptorState::flagsType;
 using squaresType = typename descriptorState::squaresType;
 using gamestateType = typename descriptorState::gamestateType;
+//template<size_t INDEX>
+//using pieceInfo = typename descriptorState::pieceInfo<INDEX>;

@@ -7,7 +7,7 @@ namespace pygmalion::state
 	public:
 		using boardType = BOARD;
 		using descriptorState = DESCRIPTION_STATE;
-#include "include_state.h"	
+#include "../include_state.h"	
 	protected:
 		virtual bool onProcess(const std::string& cmd) noexcept override
 		{

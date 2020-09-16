@@ -224,7 +224,7 @@ namespace pygmalion::state
 			using value_type = squareType;
 		private:
 			typename bitsType::iterator m_Iterator;
-			constexpr iterator(typename bitsType::iterator& it) noexcept :
+			constexpr iterator(const typename bitsType::iterator& it) noexcept :
 				m_Iterator{ it }
 			{
 			}

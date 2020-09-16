@@ -26,21 +26,21 @@ namespace pygmalion::state
 		engine(std::istream& input, std::ostream& output) noexcept :
 			pygmalion::intrinsics::engine(input, output)
 		{
-			this->addCommand<command_debugPlayers<descriptorState, boardType>>();
-			this->addCommand<command_debugPieces<descriptorState, boardType>>();
-			this->addCommand<command_debugFiles<descriptorState, boardType>>();
-			this->addCommand<command_debugRanks<descriptorState, boardType>>();
-			this->addCommand<command_debugFlags<descriptorState, boardType>>();
-			this->addCommand<command_debugBoard<descriptorState, boardType>>();
-			this->addCommand<command_debugSetFlag<descriptorState, boardType>>();
-			this->addCommand<command_debugClearFlag<descriptorState, boardType>>();
-			this->addCommand<command_debugToggleFlag<descriptorState, boardType>>();
-			this->addCommand<command_debugSetPlayer<descriptorState, boardType>>();
-			this->addCommand<command_debugNextPlayer<descriptorState, boardType>>();
-			this->addCommand<command_debugClearBoard<descriptorState, boardType>>();
-			this->addCommand<command_debugAddPiece<descriptorState, boardType>>();
-			this->addCommand<command_debugRemovePiece<descriptorState, boardType>>();
-			this->addCommand<command_debugOccupancy<descriptorState, boardType>>();
+			this->template addCommand<command_debugPlayers<descriptorState, boardType>>();
+			this->template addCommand<command_debugPieces<descriptorState, boardType>>();
+			this->template addCommand<command_debugFiles<descriptorState, boardType>>();
+			this->template addCommand<command_debugRanks<descriptorState, boardType>>();
+			this->template addCommand<command_debugFlags<descriptorState, boardType>>();
+			this->template addCommand<command_debugBoard<descriptorState, boardType>>();
+			this->template addCommand<command_debugSetFlag<descriptorState, boardType>>();
+			this->template addCommand<command_debugClearFlag<descriptorState, boardType>>();
+			this->template addCommand<command_debugToggleFlag<descriptorState, boardType>>();
+			this->template addCommand<command_debugSetPlayer<descriptorState, boardType>>();
+			this->template addCommand<command_debugNextPlayer<descriptorState, boardType>>();
+			this->template addCommand<command_debugClearBoard<descriptorState, boardType>>();
+			this->template addCommand<command_debugAddPiece<descriptorState, boardType>>();
+			this->template addCommand<command_debugRemovePiece<descriptorState, boardType>>();
+			this->template addCommand<command_debugOccupancy<descriptorState, boardType>>();
 		}
 		virtual ~engine() noexcept = default;
 		virtual std::string version() const noexcept override
