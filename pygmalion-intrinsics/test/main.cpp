@@ -14,8 +14,8 @@ int main(int argc, char* argv[])
 	size_t operationsFast(0);
 	bool result{ true };
 	//result &= intrinsics::test::pdep<23, true>(durationCompact, operationsCompact);
-	result &= intrinsics::test::bitset();
-	result &= intrinsics::test::bitclear();
+	result &= intrinsics::test::iterator();
+	//result &= intrinsics::test::bitclear();
 	//	result &= intrinsics::test::bsr();
 	////result &= intrinsics::test::inequality();
 	uint_t<24, true> x = 1023;

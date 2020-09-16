@@ -31,6 +31,8 @@
 #include "pygmalion-intrinsics/bsr.h"
 #include "pygmalion-intrinsics/enumeration.h"
 #include "pygmalion-intrinsics/bit.h"
+#include "pygmalion-intrinsics/uint_t_traits.h"
+#include "pygmalion-intrinsics/uint_t_detail.h"
 #include "pygmalion-intrinsics/uint_t.h"
 #include "pygmalion-intrinsics/parser.h"
 

@@ -1,6 +1,3 @@
-#include "uint_t_traits.h"
-#include "uint_t_detail.h"
-
 namespace pygmalion
 {
 	template<size_t COUNT_BITS, bool IS_COMPACT, typename = typename std::enable_if<true>::type>
@@ -9,7 +6,7 @@ namespace pygmalion
 	};
 
 	template<size_t COUNT_BITS, bool IS_COMPACT>
-	class uint_t<COUNT_BITS, IS_COMPACT, typename std::enable_if<detail::isMultiWord<COUNT_BITS, IS_COMPACT>()>::type> 
+	class uint_t<COUNT_BITS, IS_COMPACT, typename std::enable_if<detail::isMultiWord<COUNT_BITS, IS_COMPACT>()>::type>
 	{
 	public:
 		constexpr static const bool isCompact{ IS_COMPACT };
@@ -223,6 +220,47 @@ namespace pygmalion
 			return bit < countBits;
 		}
 	public:
+		class bitref
+		{
+		private:
+			const size_t m_Bit;
+			uint_t& m_This;
+		public:
+			constexpr bitref(uint_t& ui, const size_t bit) noexcept :
+				m_This{ ui },
+				m_Bit{ bit }
+			{
+
+			}
+			constexpr bitref(const bitref&) noexcept = delete;
+			constexpr bitref(bitref&&) noexcept = delete;
+			~bitref() noexcept = default;
+			constexpr operator bool() const noexcept
+			{
+				return m_This.test(m_Bit);
+			}
+			constexpr bitref& operator=(const bool bit) noexcept
+			{
+				if (bit)
+					m_This.set(m_Bit);
+				else
+					m_This.clear(m_Bit);
+				return *this;
+			}
+			constexpr bitref& operator=(const bitref& other) noexcept
+			{
+				(*this) = other.m_This.test(other.m_Bit);
+				return *this;
+			}
+		};
+		constexpr bool operator[](const size_t bit) const noexcept
+		{
+			return test(bit);
+		}
+		constexpr bitref operator[](const size_t bit) noexcept
+		{
+			return bitref(*this, bit);
+		}
 		constexpr static uint_t one() noexcept
 		{
 			return uint_t(1);
@@ -1106,6 +1144,66 @@ namespace pygmalion
 		{
 			return static_cast<std::string>(ref);
 		}
+		class iterator
+		{
+			friend class uint_t;
+		public:
+			using value_type = size_t;
+		private:
+			uint_t m_State;
+			value_type m_Current;
+			constexpr iterator() noexcept :
+				m_State{ 0 },
+				m_Current{ 0 }
+			{
+			}
+		public:
+			using difference_type = std::ptrdiff_t;
+			using pointer = value_type*;
+			using reference = value_type&;
+			using iterator_category = std::input_iterator_tag;
+			constexpr explicit iterator(const uint_t state) noexcept :
+				m_State{ state },
+				m_Current{ 0 }
+			{
+				m_State.bitscanForward(m_Current);
+			}
+			constexpr iterator(const iterator&) noexcept = default;
+			~iterator() noexcept = default;
+			constexpr iterator operator++(int) noexcept
+			{
+				iterator ret(m_State);
+				++(*this);
+				return std::move(ret);
+			}
+			constexpr iterator& operator++() noexcept
+			{
+				m_State.clear(m_Current);
+				m_State.bitscanForward(m_Current);
+				return *this;
+			}
+			constexpr value_type operator*() const noexcept
+			{
+				return m_Current;
+			}
+			constexpr bool operator==(const iterator& other) const noexcept
+			{
+				return m_State == other.m_State;
+			}
+			constexpr bool operator!=(const iterator& other) const noexcept
+			{
+				return m_State != other.m_State;
+			}
+		};
+		constexpr auto begin() const noexcept
+		{
+			return iterator(*this);
+		}
+		constexpr auto end() const noexcept
+		{
+			constexpr iterator endValue;
+			return endValue;
+		}
 		template<size_t COUNT_BITS2, bool IS_COMPACT2>
 		constexpr uint_t(const uint_t<COUNT_BITS2, IS_COMPACT2>& other) noexcept :
 			m_Words{ uint_t::nullaryTransformWords<countWords,false>([this,&other](const size_t currentWord)->wordType
@@ -1155,7 +1253,7 @@ namespace pygmalion
 	};
 
 	template<size_t COUNT_BITS, bool IS_COMPACT>
-	class uint_t<COUNT_BITS, IS_COMPACT, typename std::enable_if <detail::isSingleWord<COUNT_BITS, IS_COMPACT>()>::type> 
+	class uint_t<COUNT_BITS, IS_COMPACT, typename std::enable_if <detail::isSingleWord<COUNT_BITS, IS_COMPACT>()>::type>
 	{
 	public:
 		constexpr static const bool isCompact{ IS_COMPACT };
@@ -1190,6 +1288,47 @@ namespace pygmalion
 			return std::rand() % std::numeric_limits<unsigned char>::max();
 		}
 	public:
+		class bitref
+		{
+		private:
+			const size_t m_Bit;
+			uint_t& m_This;
+		public:
+			constexpr bitref(uint_t& ui, const size_t bit) noexcept :
+				m_This{ ui },
+				m_Bit{ bit }
+			{
+
+			}
+			constexpr bitref(const bitref&) noexcept = delete;
+			constexpr bitref(bitref&&) noexcept = delete;
+			~bitref() noexcept = default;
+			constexpr operator bool() const noexcept
+			{
+				return m_This.test(m_Bit);
+			}
+			constexpr bitref& operator=(const bool bit) noexcept
+			{
+				if (bit)
+					m_This.set(m_Bit);
+				else
+					m_This.clear(m_Bit);
+				return *this;
+			}
+			constexpr bitref& operator=(const bitref& other) noexcept
+			{
+				(*this) = other.m_This.test(other.m_Bit);
+				return *this;
+			}
+		};
+		constexpr bool operator[](const size_t bit) const noexcept
+		{
+			return test(bit);
+		}
+		constexpr bitref operator[](const size_t bit) noexcept
+		{
+			return bitref(*this, bit);
+		}
 		constexpr static uint_t one() noexcept
 		{
 			return uint_t(1, false);
@@ -1553,6 +1692,66 @@ namespace pygmalion
 		{
 			return static_cast<std::string>(ref);
 		}
+		class iterator
+		{
+			friend class uint_t;
+		public:
+			using value_type = size_t;
+		private:
+			uint_t m_State;
+			value_type m_Current;
+			constexpr iterator() noexcept :
+				m_State{ 0 },
+				m_Current{ 0 }
+			{
+			}
+		public:
+			using difference_type = std::ptrdiff_t;
+			using pointer = value_type*;
+			using reference = value_type&;
+			using iterator_category = std::input_iterator_tag;
+			constexpr explicit iterator(const uint_t state) noexcept :
+				m_State{ state },
+				m_Current{ 0 }
+			{
+				m_State.bitscanForward(m_Current);
+			}
+			constexpr iterator(const iterator&) noexcept = default;
+			~iterator() noexcept = default;
+			constexpr iterator operator++(int) noexcept
+			{
+				iterator ret(m_State);
+				++(*this);
+				return std::move(ret);
+			}
+			constexpr iterator& operator++() noexcept
+			{
+				m_State.clear(m_Current);
+				m_State.bitscanForward(m_Current);
+				return *this;
+			}
+			constexpr value_type operator*() const noexcept
+			{
+				return m_Current;
+			}
+			constexpr bool operator==(const iterator& other) const noexcept
+			{
+				return m_State == other.m_State;
+			}
+			constexpr bool operator!=(const iterator& other) const noexcept
+			{
+				return m_State != other.m_State;
+			}
+		};
+		constexpr auto begin() const noexcept
+		{
+			return iterator(*this);
+		}
+		constexpr auto end() const noexcept
+		{
+			constexpr iterator endValue;
+			return endValue;
+		}
 		template<size_t COUNT_BITS2, bool IS_COMPACT2>
 		constexpr uint_t(const uint_t<COUNT_BITS2, IS_COMPACT2>& other) noexcept :
 			m_Word{ ([this,&other]()->wordType {
@@ -1601,13 +1800,13 @@ namespace pygmalion
 	};
 
 	template<size_t COUNT_BITS, bool IS_COMPACT>
-	class uint_t<COUNT_BITS, IS_COMPACT, typename std::enable_if <detail::isSingleBit<COUNT_BITS, IS_COMPACT>()>::type> 
+	class uint_t<COUNT_BITS, IS_COMPACT, typename std::enable_if <detail::isSingleBit<COUNT_BITS, IS_COMPACT>()>::type>
 	{
 	public:
 		constexpr static const bool isCompact{ IS_COMPACT };
 		constexpr static const size_t countBits{ 1 };
 		constexpr static const size_t countBytes{ (countBits + 7) / 8 };
-		using wordType = std::uint8_t;
+		using wordType = bool;
 		constexpr static const size_t countBitsPerWord{ 1 };
 		constexpr static const size_t countWords{ 1 };
 		constexpr static const size_t countStorageBits{ countBitsPerWord };
@@ -1621,6 +1820,14 @@ namespace pygmalion
 			return std::rand() % std::numeric_limits<unsigned char>::max();
 		}
 	public:
+		constexpr bool operator[](const size_t bit) const noexcept
+		{
+			return m_Word;
+		}
+		constexpr bool& operator[](const size_t bit) noexcept
+		{
+			return m_Word;
+		}
 		constexpr static uint_t one() noexcept
 		{
 			return uint_t(1, false);
@@ -1880,6 +2087,66 @@ namespace pygmalion
 		static const inline std::string populationCount_Intrinsic{ intrinsics::popcnt::implementationName<countWords,wordType>() };
 		static const inline std::string bitscanForward_Intrinsic{ intrinsics::bsf::implementationName<countWords,wordType>() };
 		static const inline std::string bitscanReverse_Intrinsic{ intrinsics::bsr::implementationName<countWords,wordType>() };
+		class iterator
+		{
+			friend class uint_t;
+		public:
+			using value_type = size_t;
+		private:
+			uint_t m_State;
+			value_type m_Current;
+			constexpr iterator() noexcept :
+				m_State{ 0 },
+				m_Current{ 0 }
+			{
+			}
+		public:
+			using difference_type = std::ptrdiff_t;
+			using pointer = value_type*;
+			using reference = value_type&;
+			using iterator_category = std::input_iterator_tag;
+			constexpr explicit iterator(const uint_t state) noexcept :
+				m_State{ state },
+				m_Current{ 0 }
+			{
+				m_State.bitscanForward(m_Current);
+			}
+			constexpr iterator(const iterator&) noexcept = default;
+			~iterator() noexcept = default;
+			constexpr iterator operator++(int) noexcept
+			{
+				iterator ret(m_State);
+				++(*this);
+				return std::move(ret);
+			}
+			constexpr iterator& operator++() noexcept
+			{
+				m_State.clear(m_Current);
+				m_State.bitscanForward(m_Current);
+				return *this;
+			}
+			constexpr value_type operator*() const noexcept
+			{
+				return m_Current;
+			}
+			constexpr bool operator==(const iterator& other) const noexcept
+			{
+				return m_State == other.m_State;
+			}
+			constexpr bool operator!=(const iterator& other) const noexcept
+			{
+				return m_State != other.m_State;
+			}
+		};
+		constexpr auto begin() const noexcept
+		{
+			return iterator(*this);
+		}
+		constexpr auto end() const noexcept
+		{
+			constexpr iterator endValue;
+			return endValue;
+		}
 		template<size_t COUNT_BITS2, bool IS_COMPACT2>
 		constexpr uint_t(const uint_t<COUNT_BITS2, IS_COMPACT2>& other) noexcept :
 			m_Word{ static_cast<wordType>((COUNT_BITS2 > 0) ? other.word(0) & 1 : 0) }
@@ -1903,6 +2170,35 @@ namespace pygmalion
 		constexpr static const size_t countStorageBits{ 0 };
 	private:
 	public:
+		class bitref
+		{
+		private:
+		public:
+			constexpr bitref() noexcept = default;
+			constexpr bitref(const bitref&) noexcept = delete;
+			constexpr bitref(bitref&&) noexcept = delete;
+			~bitref() noexcept = default;
+			constexpr operator bool() const noexcept
+			{
+				return false;
+			}
+			constexpr bitref& operator=(const bool bit) noexcept
+			{
+				return *this;
+			}
+			constexpr bitref& operator=(const bitref& other) noexcept
+			{
+				return *this;
+			}
+		};
+		constexpr bool operator[](const size_t bit) const noexcept
+		{
+			return false;
+		}
+		constexpr bitref operator[](const size_t bit) noexcept
+		{
+			return bitref();
+		}
 		constexpr static uint_t one() noexcept
 		{
 			return uint_t();
@@ -2129,6 +2425,66 @@ namespace pygmalion
 		static const inline std::string populationCount_Intrinsic{ intrinsics::popcnt::implementationName<0,wordType>() };
 		static const inline std::string bitscanForward_Intrinsic{ intrinsics::bsf::implementationName<0,wordType>() };
 		static const inline std::string bitscanReverse_Intrinsic{ intrinsics::bsr::implementationName<0,wordType>() };
+		class iterator
+		{
+			friend class uint_t;
+		public:
+			using value_type = size_t;
+		private:
+			uint_t m_State;
+			value_type m_Current;
+			constexpr iterator() noexcept :
+				m_State{ 0 },
+				m_Current{ 0 }
+			{
+			}
+		public:
+			using difference_type = std::ptrdiff_t;
+			using pointer = value_type*;
+			using reference = value_type&;
+			using iterator_category = std::input_iterator_tag;
+			constexpr explicit iterator(const uint_t state) noexcept :
+				m_State{ state },
+				m_Current{ 0 }
+			{
+				m_State.bitscanForward(m_Current);
+			}
+			constexpr iterator(const iterator&) noexcept = default;
+			~iterator() noexcept = default;
+			constexpr iterator operator++(int) noexcept
+			{
+				iterator ret(m_State);
+				++(*this);
+				return std::move(ret);
+			}
+			constexpr iterator& operator++() noexcept
+			{
+				m_State.clear(m_Current);
+				m_State.bitscanForward(m_Current);
+				return *this;
+			}
+			constexpr value_type operator*() const noexcept
+			{
+				return m_Current;
+			}
+			constexpr bool operator==(const iterator& other) const noexcept
+			{
+				return m_State == other.m_State;
+			}
+			constexpr bool operator!=(const iterator& other) const noexcept
+			{
+				return m_State != other.m_State;
+			}
+		};
+		constexpr auto begin() const noexcept
+		{
+			return iterator(*this);
+		}
+		constexpr auto end() const noexcept
+		{
+			constexpr iterator endValue;
+			return endValue;
+		}
 		template<size_t COUNT_BITS2, bool IS_COMPACT2>
 		constexpr uint_t(const uint_t<COUNT_BITS2, IS_COMPACT2>& other) noexcept
 		{}

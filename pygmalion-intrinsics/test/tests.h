@@ -42,4 +42,5 @@ namespace pygmalion
 #include "tests/bitclear.h"
 #include "tests/pext.h"
 #include "tests/pdep.h"
+#include "tests/iterator.h"
 }
