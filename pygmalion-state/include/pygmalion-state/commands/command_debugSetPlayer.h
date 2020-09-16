@@ -17,7 +17,7 @@ namespace pygmalion::state
 			if (token == "debug-setplayer")
 			{
 				std::string remainder2;
-				parser::parseToken(remainder, token, remainder2);
+				parser::parseTokenCaseSensitive(remainder, token, remainder2);
 				playerType player;
 				size_t len;
 				if (boardType::parsePlayer(token, player, len))

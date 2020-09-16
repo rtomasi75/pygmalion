@@ -20,7 +20,7 @@ namespace pygmalion::state
 				size_t len;
 				std::string remainder2;
 				squareType sq;
-				parser::parseToken(remainder, token, remainder2);
+				parser::parseTokenCaseSensitive(remainder, token, remainder2);
 				if (boardType::parseSquare(token, sq, len))
 				{
 					if (!this->position().totalOccupancy()[sq])

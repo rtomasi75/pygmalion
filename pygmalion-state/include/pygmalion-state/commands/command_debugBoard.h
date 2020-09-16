@@ -17,51 +17,7 @@ namespace pygmalion::state
 			if (token == "debug-board")
 			{
 				this->output() << std::endl;
-				for (const auto r : rankType::range)
-				{
-					const rankType rank{ -r };
-					this->output() << boardType::rankToString(rank) << "|";
-					for (const auto file : fileType::range)
-					{
-						const squareType square{ rank & file };
-						if (this->position().totalOccupancy()[square])
-						{
-							const pieceType piece{ this->position().getPiece(square) };
-							const playerType player{ this->position().getPlayer(square) };
-							this->output() << boardType::pieceToString(piece, player);
-						}
-						else
-							this->output() << ".";
-					}
-					this->output() << std::endl;
-				}
-				this->output() << "-+";
-				for (const auto file : fileType::range)
-				{
-					this->output() << "-";
-				}
-				this->output() << std::endl;
-				this->output() << " |";
-				for (const auto file : fileType::range)
-				{
-					this->output() << boardType::fileToString(file);
-				}
-				this->output() << std::endl;
-				if constexpr (countFlags > 0)
-				{
-					this->output() << std::endl;
-					this->output() << "Flags: ";
-					for (const auto flag : flagType::range)
-					{
-						if (this->position().checkFlag(flag))
-							this->output() << boardType::flagToString(flag);
-						else
-							this->output() << "_";
-					}
-					this->output() << std::endl;
-				}
-				this->output() << std::endl;
-				this->output() << "Player " << boardType::playerToString(this->position().movingPlayer()) << " is on the move." << std::endl;
+				this->output() << this->position();
 				this->output() << std::endl;
 				return true;
 			}

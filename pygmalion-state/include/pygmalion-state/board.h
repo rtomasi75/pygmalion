@@ -109,8 +109,11 @@ namespace pygmalion
 		}
 		constexpr void setFlag(const flagType flag) noexcept
 		{
-			m_Flags.set(flag);
-			onSetFlag(flag);
+			if (!m_Flags[flag])
+			{
+				m_Flags.set(flag);
+				onSetFlag(flag);
+			}
 		}
 		constexpr void toggleFlag(const flagType flag) noexcept
 		{
@@ -122,8 +125,11 @@ namespace pygmalion
 		}
 		constexpr void clearFlag(const flagType flag) noexcept
 		{
-			m_Flags.clear(flag);
-			onClearedFlag(flag);
+			if (m_Flags[flag])
+			{
+				m_Flags.clear(flag);
+				onClearedFlag(flag);
+			}
 		}
 		constexpr bool checkFlag(const flagType flag) const noexcept
 		{
@@ -131,11 +137,19 @@ namespace pygmalion
 		}
 		constexpr void setFlags(const flagsType flags) noexcept
 		{
-			for (const auto flag : m_Flags)
-				onClearedFlag(flag);
-			m_Flags = flags;
-			for (const auto flag : flags)
-				onSetFlag(flag);
+			for (const auto f : flags & ~m_Flags)
+			{
+				m_Flags.set(f);
+				onSetFlag(f);
+			}
+		}
+		constexpr void clearFlags(const flagsType flags) noexcept
+		{
+			for (const auto f : flags & m_Flags)
+			{
+				m_Flags.clear(f);
+				onClearedFlag(f);
+			}
 		}
 		constexpr const flagsType flags() const noexcept
 		{
@@ -263,7 +277,7 @@ namespace pygmalion
 			m_PieceOccupancy{ },
 			m_PlayerOccupancy{ },
 			m_MovingPlayer{ 0 },
-			m_Flags{ 0 }
+			m_Flags{ flagsType(0) }
 		{
 			clear();
 		}
@@ -278,4 +292,58 @@ namespace pygmalion
 		constexpr board& operator=(const board&) noexcept = default;
 		~board() noexcept = default;
 	};
+
+	template<typename DESCRIPTOR_STATE, typename INSTANCE>
+	std::ostream& operator<<(std::ostream& str, const board<DESCRIPTOR_STATE, INSTANCE>& position) noexcept
+	{
+		using boardType = INSTANCE;
+		using descriptorState = DESCRIPTOR_STATE;
+#include "include_state.h"
+		for (const auto r : rankType::range)
+		{
+			const rankType rank{ -r };
+			str << boardType::rankToString(rank) << "|";
+			for (const auto file : fileType::range)
+			{
+				const squareType square{ rank & file };
+				if (position.totalOccupancy()[square])
+				{
+					const pieceType piece{ position.getPiece(square) };
+					const playerType player{ position.getPlayer(square) };
+					str << boardType::pieceToString(piece, player);
+				}
+				else
+					str << ".";
+			}
+			str << std::endl;
+		}
+		str << "-+";
+		for (const auto file : fileType::range)
+		{
+			str << "-";
+		}
+		str << std::endl;
+		str << " |";
+		for (const auto file : fileType::range)
+		{
+			str << boardType::fileToString(file);
+		}
+		str << std::endl;
+		if constexpr (countFlags > 0)
+		{
+			str << std::endl;
+			str << "Flags: ";
+			for (const auto flag : flagType::range)
+			{
+				if (position.checkFlag(flag))
+					str << boardType::flagToString(flag);
+				else
+					str << "_";
+			}
+			str << std::endl;
+		}
+		str << std::endl;
+		str << "Player " << boardType::playerToString(position.movingPlayer()) << " is on the move." << std::endl;
+		return str;
+	}
 }

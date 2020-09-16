@@ -26,5 +26,15 @@ namespace pygmalion::state
 		}
 		constexpr flag& operator=(flag&&) noexcept = default;
 		constexpr flag& operator=(const flag&) noexcept = default;
+		constexpr flagsType operator|(const flag other) const noexcept
+		{
+			return static_cast<flagsType>(*this) | flagsType(other);
+		}
+		constexpr operator flagsType() const noexcept
+		{
+			flagsType f{ flagsType(0) };
+			f.set(*this);
+			return f;
+		}
 	};
 }

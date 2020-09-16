@@ -17,7 +17,7 @@ namespace pygmalion::state
 			if (token == "debug-setflag")
 			{
 				std::string remainder2;
-				parser::parseToken(remainder, token, remainder2);
+				parser::parseTokenCaseSensitive(remainder, token, remainder2);
 				flagType flag;
 				size_t len;
 				if (boardType::parseFlag(token, flag, len))

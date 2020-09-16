@@ -42,6 +42,21 @@ namespace pygmalion
 			token = toLower(token_raw);
 			remainder = trimString(remainder = text.substr(i, lenCommand - i));
 		}
+		static void parseTokenCaseSensitive(const std::string text, std::string& token, std::string& remainder) noexcept
+		{
+			size_t lenCommand = text.length();
+			std::string token_raw = "";
+			size_t i;
+			for (i = 0; i < lenCommand; i++)
+			{
+				if (text[i] == ' ')
+					break;
+				else
+					token_raw += text[i];
+			}
+			token = token_raw;
+			remainder = trimString(remainder = text.substr(i, lenCommand - i));
+		}
 		using durationType = typename profiler::durationType;
 		static std::string durationToString(const durationType duration) noexcept
 		{

@@ -182,6 +182,46 @@ namespace pygmalion::state
 			m_Bits.toggle(static_cast<typename squareType::baseType>(square));
 			return *this;
 		}
+		constexpr squares& operator|=(const fileType file) noexcept
+		{
+			m_Bits |= squares(file);
+			return *this;
+		}
+		constexpr squares& operator&=(const fileType file) noexcept
+		{
+			m_Bits &= squares(file);
+			return *this;
+		}
+		constexpr squares& operator-=(const fileType file) noexcept
+		{
+			m_Bits &= ~squares(file);
+			return *this;
+		}
+		constexpr squares& operator^=(const fileType file) noexcept
+		{
+			m_Bits ^= squares(file);
+			return *this;
+		}
+		constexpr squares& operator|=(const rankType rank) noexcept
+		{
+			m_Bits |= squares(rank);
+			return *this;
+		}
+		constexpr squares& operator&=(const rankType rank) noexcept
+		{
+			m_Bits &= squares(rank);
+			return *this;
+		}
+		constexpr squares& operator-=(const rankType rank) noexcept
+		{
+			m_Bits &= ~squares(rank);
+			return *this;
+		}
+		constexpr squares& operator^=(const rankType rank) noexcept
+		{
+			m_Bits ^= squares(rank);
+			return *this;
+		}
 		constexpr bool operator[](const squareType square) const noexcept
 		{
 			return m_Bits[static_cast<typename squareType::baseType>(square)];
@@ -204,9 +244,9 @@ namespace pygmalion::state
 		{
 		}
 		constexpr squares(const squareType square) noexcept :
-			m_Bits{ bitsType::setMask(static_cast<typename squareType::baseType>(square)) }
+			m_Bits{ bitsType::zero() }
 		{
-
+			m_Bits.set(square);
 		}
 		constexpr squares(const squares&) noexcept = default;
 		constexpr squares(squares&&) noexcept = default;

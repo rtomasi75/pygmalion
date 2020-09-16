@@ -20,17 +20,17 @@ namespace pygmalion::state
 				size_t len;
 				std::string remainder2;
 				playerType p;
-				parser::parseToken(remainder, token, remainder2);
+				parser::parseTokenCaseSensitive(remainder, token, remainder2);
 				if (boardType::parsePlayer(token, p, len))
 				{
 					std::string remainder3;
 					pieceType pc;
-					parser::parseToken(remainder2, token, remainder3);
+					parser::parseTokenCaseSensitive(remainder2, token, remainder3);
 					if (boardType::parsePiece(token, pc, len))
 					{
 						std::string remainder4;
 						squareType sq;
-						parser::parseToken(remainder3, token, remainder4);
+						parser::parseTokenCaseSensitive(remainder3, token, remainder4);
 						if (boardType::parseSquare(token, sq, len))
 						{
 							if (this->position().totalOccupancy()[sq])

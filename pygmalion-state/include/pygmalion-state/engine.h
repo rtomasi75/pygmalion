@@ -42,6 +42,7 @@ namespace pygmalion::state
 			this->template addCommand<command_debugRemovePiece<descriptorState, boardType>>();
 			this->template addCommand<command_debugOccupancy<descriptorState, boardType>>();
 			this->template addCommand<command_debugSquares<descriptorState, boardType>>();
+			m_Position.initialize();
 		}
 		virtual ~engine() noexcept = default;
 		virtual std::string version() const noexcept override
