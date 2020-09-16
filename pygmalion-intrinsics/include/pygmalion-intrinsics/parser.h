@@ -3,6 +3,45 @@ namespace pygmalion::intrinsics
 	class parser
 	{
 	public:
+		static auto toLower(std::string s) noexcept
+		{
+			std::transform(s.begin(), s.end(), s.begin(), ::tolower);
+			return s;
+		}
+		static auto toUpper(std::string s) noexcept
+		{
+			std::transform(s.begin(), s.end(), s.begin(), ::toupper);
+			return s;
+		}
+		static auto rightTrimString(std::string s) noexcept
+		{
+			s.erase(std::find_if(s.rbegin(), s.rend(), [](char c) {return !std::isspace(c); }).base(), s.end());
+			return s;
+		}
+		static auto leftTrimString(std::string s) noexcept
+		{
+			s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](char c) {return !std::isspace(c); }));
+			return s;
+		}
+		static auto trimString(std::string s) noexcept
+		{
+			return leftTrimString(rightTrimString(s));
+		}
+		static void parseToken(const std::string text, std::string& token, std::string& remainder) noexcept
+		{
+			size_t lenCommand = text.length();
+			std::string token_raw = "";
+			size_t i;
+			for (i = 0; i < lenCommand; i++)
+			{
+				if (text[i] == ' ')
+					break;
+				else
+					token_raw += text[i];
+			}
+			token = toLower(token_raw);
+			remainder = trimString(remainder = text.substr(i, lenCommand - i));
+		}
 		using durationType = typename profiler::durationType;
 		static std::string durationToString(const durationType duration) noexcept
 		{

@@ -20,6 +20,9 @@
 #include <limits>
 #include <algorithm>
 #include <chrono>
+#include <atomic>
+#include <deque>
+#include <mutex>
 
 #include "pygmalion-intrinsics/arrayhelper.h"
 #include "pygmalion-intrinsics/profiler.h"
@@ -35,5 +38,11 @@
 #include "pygmalion-intrinsics/uint_t_detail.h"
 #include "pygmalion-intrinsics/uint_t.h"
 #include "pygmalion-intrinsics/parser.h"
+#include "pygmalion-intrinsics/command.h"
+#include "pygmalion-intrinsics/command_quit.h"
+#include "pygmalion-intrinsics/command_ver.h"
+#include "pygmalion-intrinsics/command_debugCompiler.h"
+#include "pygmalion-intrinsics/command_debugCpu.h"
+#include "pygmalion-intrinsics/engine.h"
 
 #endif
