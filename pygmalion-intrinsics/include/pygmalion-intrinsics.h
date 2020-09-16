@@ -29,6 +29,8 @@
 #include "pygmalion-intrinsics/popcnt.h"
 #include "pygmalion-intrinsics/bsf.h"
 #include "pygmalion-intrinsics/bsr.h"
+#include "pygmalion-intrinsics/enumeration.h"
+#include "pygmalion-intrinsics/bit.h"
 #include "pygmalion-intrinsics/uint_t.h"
 #include "pygmalion-intrinsics/parser.h"
 

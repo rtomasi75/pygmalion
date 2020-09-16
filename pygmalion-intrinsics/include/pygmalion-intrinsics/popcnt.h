@@ -314,7 +314,7 @@ namespace pygmalion::intrinsics
 			{
 				return bits;
 			};
-			const std::array<size_t, countSlices> countsSlices{ transform_array_n<countSlices,size_t>(transformedSlices, lambdaSlice) };
+			const std::array<size_t, countSlices> countsSlices{ arrayhelper::transform<countSlices,size_t>(transformedSlices, lambdaSlice) };
 			if constexpr (countOddChannels > 0)
 			{
 				const size_t countOdd{ impl<countOddChannels, UINT>(tag_best{},oddChannels,std::make_index_sequence<countOddChannels>{}) };

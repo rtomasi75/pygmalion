@@ -1,14 +1,102 @@
-namespace pygmalion::bits
+namespace pygmalion
 {
-	template<int COUNT, typename INSTANCE>
+	namespace detail
+	{
+		template<size_t COUNT_BYTES>
+		class enumeration_traits
+		{
+		public:
+			using STYPE = std::intmax_t;
+		};
+
+		template<>
+		class enumeration_traits<1>
+		{
+		public:
+			using STYPE = std::int8_t;
+		};
+
+		template<>
+		class enumeration_traits<2>
+		{
+		public:
+			using STYPE = std::int16_t;
+		};
+
+		template<>
+		class enumeration_traits<3>
+		{
+		public:
+			using STYPE = std::int32_t;
+		};
+
+		template<>
+		class enumeration_traits<4>
+		{
+		public:
+			using STYPE = std::int32_t;
+		};
+
+		template<>
+		class enumeration_traits<5>
+		{
+		public:
+			using STYPE = std::int64_t;
+		};
+
+		template<>
+		class enumeration_traits<6>
+		{
+		public:
+			using STYPE = std::int64_t;
+		};
+
+		template<>
+		class enumeration_traits<7>
+		{
+		public:
+			using STYPE = std::int64_t;
+		};
+
+		template<>
+		class enumeration_traits<8>
+		{
+		public:
+			using STYPE = std::int64_t;
+		};
+	}
+
+	template<size_t COUNT, typename INSTANCE>
 	class enumeration
 	{
+	private:
+		constexpr static size_t requiredSignedBytes(const size_t number) noexcept
+		{
+			if (number >= (size_t(1) << 31))
+				return 8;
+			if (number >= (size_t(1) << 15))
+				return 4;
+			if (number >= (size_t(1) << 7))
+				return 2;
+			return 1;
+		}
+		constexpr static size_t requiredUnsignedBits(const size_t number) noexcept
+		{
+			size_t n = 1;
+			size_t k = 0;
+			while (number > n)
+			{
+				n *= 2;
+				k++;
+			}
+			return k;
+		}
 	public:
 		using instanceType = INSTANCE;
-		constexpr static int countValues{ COUNT };
-		constexpr static int countUnsignedBits{ requiredUnsignedBits(countValues) };
-		constexpr static int countSignedBits{ countUnsignedBits + 1 };
-		using baseType = typename intrinsics::int_traits<requiredSignedBytes(countValues)>::STYPE;
+		constexpr static size_t countValues{ COUNT };
+		constexpr static size_t countUnsignedBits{ requiredUnsignedBits(countValues) };
+		constexpr static size_t countSignedBits{ countUnsignedBits + 1 };
+		using baseType = typename detail::enumeration_traits<requiredSignedBytes(countValues)>::STYPE;
 		enum valueType : baseType
 		{
 			invalid = -1

@@ -63,9 +63,9 @@ namespace pygmalion
 			if constexpr (LENGTH == 1)
 				return values[START];
 			if constexpr ((LENGTH % 2) == 1)
-				return sum<SIZE, START, 1>(values) + sum_array_n<SIZE, START + 1, LENGTH - 1>(values);
+				return sum<SIZE, START, 1>(values) + sum<SIZE, START + 1, LENGTH - 1>(values);
 			else
-				return sum<SIZE, START, LENGTH / 2>(values) + sum_array_n<SIZE, START + LENGTH / 2, LENGTH / 2>(values);
+				return sum<SIZE, START, LENGTH / 2>(values) + sum<SIZE, START + LENGTH / 2, LENGTH / 2>(values);
 		}
 	};
 }
