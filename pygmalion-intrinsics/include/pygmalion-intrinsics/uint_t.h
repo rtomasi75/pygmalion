@@ -480,7 +480,7 @@ namespace pygmalion
 						{
 							const std::uint32_t highMask{ static_cast<std::uint32_t>((mask.m_Words[index] & std::uint64_t(0xffffffff00000000)) >> 32) };
 							const std::uint32_t lowMask{ static_cast<std::uint32_t>((mask.m_Words[index] & std::uint64_t(0x00000000ffffffff)) >> 0) };
-							const size_t lowBits{ popcnt::implementation<1,std::uint32_t>({lowMask}) };
+							const size_t lowBits{ intrinsics::popcnt::implementation<1,std::uint32_t>({lowMask}) };
 							const std::uint32_t highIndex{ static_cast<std::uint32_t>(indices[index] >> lowBits) };
 							const std::uint32_t lowIndex{ static_cast<std::uint32_t>(indices[index] & ((std::uint64_t(1) << (lowBits + 1)) - 1)) };
 							const std::uint32_t highVal{ _pdep_u32(highIndex, highMask) };
@@ -593,7 +593,7 @@ namespace pygmalion
 							const std::uint32_t lowMask{ static_cast<std::uint32_t>((mask.m_Words[index] & std::uint64_t(0x00000000ffffffff)) >> 0) };
 							const std::uint32_t highVal{ static_cast<std::uint32_t>((this->m_Words[index] & std::uint64_t(0xffffffff00000000)) >> 32) };
 							const std::uint32_t lowVal{ static_cast<std::uint32_t>((this->m_Words[index] & std::uint64_t(0x00000000ffffffff)) >> 0) };
-							const size_t lowBits{ popcnt::implementation<1,std::uint32_t>({lowMask}) };
+							const size_t lowBits{ intrinsics::popcnt::implementation<1,std::uint32_t>({lowMask}) };
 							const std::uint32_t highIndex{ _pext_u32(highVal, highMask) };
 							const std::uint32_t lowIndex{ _pext_u32(lowVal, lowMask) };
 							const std::uint64_t idx{ (static_cast<std::uint64_t>(highIndex) << lowBits) | static_cast<std::uint64_t>(lowIndex) };
@@ -1358,7 +1358,7 @@ namespace pygmalion
 					{
 						const std::uint32_t highMask{ static_cast<std::uint32_t>((mask.m_Word & std::uint64_t(0xffffffff00000000)) >> 32) };
 						const std::uint32_t lowMask{ static_cast<std::uint32_t>((mask.m_Word & std::uint64_t(0x00000000ffffffff)) >> 0) };
-						const size_t lowBits{ popcnt::implementation<1,std::uint32_t>({lowMask}) };
+						const size_t lowBits{ intrinsics::popcnt::implementation<1,std::uint32_t>({lowMask}) };
 						const std::uint32_t highIndex{ static_cast<std::uint32_t>(m_Word >> lowBits) };
 						const std::uint32_t lowIndex{ static_cast<std::uint32_t>(m_Word & ((std::uint64_t(1) << (lowBits + 1)) - 1)) };
 						const std::uint32_t highVal{ _pdep_u32(highIndex, highMask) };
@@ -1402,7 +1402,7 @@ namespace pygmalion
 						const std::uint32_t lowMask{ static_cast<std::uint32_t>((mask.m_Word & std::uint64_t(0x00000000ffffffff)) >> 0) };
 						const std::uint32_t highVal{ static_cast<std::uint32_t>((m_Word & std::uint64_t(0xffffffff00000000)) >> 32) };
 						const std::uint32_t lowVal{ static_cast<std::uint32_t>((m_Word & std::uint64_t(0x00000000ffffffff)) >> 0) };
-						const size_t lowBits{ popcnt::implementation<1,std::uint32_t>({lowMask}) };
+						const size_t lowBits{ intrinsics::popcnt::implementation<1,std::uint32_t>({lowMask}) };
 						const std::uint32_t highIndex{ _pext_u32(highVal, highMask) };
 						const std::uint32_t lowIndex{ _pext_u32(lowVal, lowMask) };
 						const std::uint64_t index{ (static_cast<std::uint64_t>(highIndex) << lowBits) | static_cast<std::uint64_t>(lowIndex) };

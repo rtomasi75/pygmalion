@@ -33,7 +33,7 @@ namespace pygmalion::intrinsics
 		engine(const engine&) = delete;
 		engine(engine&&) = delete;
 		engine(std::istream& input, std::ostream& output) noexcept;
-		~engine() noexcept = default;
+		virtual ~engine() noexcept = default;
 		bool isRunning() const noexcept;
 		void run() noexcept;
 		void stop() noexcept;

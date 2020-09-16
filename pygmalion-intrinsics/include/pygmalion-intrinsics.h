@@ -43,6 +43,7 @@
 #include "pygmalion-intrinsics/command_ver.h"
 #include "pygmalion-intrinsics/command_debugCompiler.h"
 #include "pygmalion-intrinsics/command_debugCpu.h"
+#include "pygmalion-intrinsics/command_debugIntrinsics.h"
 #include "pygmalion-intrinsics/engine.h"
 
 #endif

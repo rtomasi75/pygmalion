@@ -13,6 +13,7 @@ namespace pygmalion::intrinsics
 		addCommand<command_ver>();
 		addCommand<command_debugCpu>();
 		addCommand<command_debugCompiler>();
+		addCommand<command_debugIntrinsics>();
 	}
 
 	void engine::mainloop() noexcept

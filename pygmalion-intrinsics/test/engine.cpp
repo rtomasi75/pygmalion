@@ -1,6 +1,5 @@
 
 #include <pygmalion-intrinsics.h>
-#include "tests.h"
 
 #include <iostream>
 
