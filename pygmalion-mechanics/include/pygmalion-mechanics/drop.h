@@ -82,7 +82,7 @@ namespace pygmalion::mechanics
 			std::string temp{ text };
 			squareType sq;
 			pieceType pc;
-			if (boardType::parseSquare(temp, sq) + boardType::parsePiece(temp, pc))
+			if (boardType::parseSquare(temp, sq) && boardType::parsePiece(temp, pc))
 			{
 				if (!position.totalOccupancy()[sq])
 				{

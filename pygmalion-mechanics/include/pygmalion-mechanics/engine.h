@@ -21,13 +21,11 @@ namespace pygmalion::mechanics
 			m_PositionHistory.push_back(this->position());
 			motorType::makeMove(this->position(), movebits);
 		}
-		constexpr void unmakeMove(const movebitsType& movebits) noexcept
+		constexpr void unmakeMove() noexcept
 		{
 			assert(m_PositionHistory.size() > 0);
 			this->position() = m_PositionHistory[m_PositionHistory.size() - 1];
 			m_PositionHistory.resize(m_PositionHistory.size() - 1);
-			m_PositionHistory.push_back(this->position());
-			motorType::makeMove(this->position(), movebits);
 		}
 		engine() noexcept = delete;
 		engine(const engine&) = delete;
@@ -37,6 +35,7 @@ namespace pygmalion::mechanics
 		{
 			this->template addCommand<command_debugMechanics<descriptorMechanics, motorType>>();
 			this->template addCommand<command_debugMove<descriptorMechanics, motorType>>();
+			this->template addCommand<command_debugUnmove<descriptorMechanics, motorType>>();
 		}
 		virtual ~engine() noexcept = default;
 		virtual std::string version() const noexcept override
