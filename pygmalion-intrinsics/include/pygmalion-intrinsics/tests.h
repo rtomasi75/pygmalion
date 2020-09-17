@@ -3,6 +3,8 @@ namespace pygmalion
 #include "tests/assignment.h"
 #include "tests/conversion.h"
 #include "tests/clearbits.h"
+#include "tests/setbits.h"
+#include "tests/extractbits.h"
 #include "tests/complement.h"
 #include "tests/disjunction.h"
 #include "tests/conjunction.h"

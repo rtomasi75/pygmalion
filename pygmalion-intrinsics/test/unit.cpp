@@ -14,8 +14,8 @@ int main(int argc, char* argv[])
 	size_t operationsFast(0);
 
 	bool result{ true };
-	result &= intrinsics::test::clearbits(std::cout);
-//	result &= intrinsics::test::clearbits<53, true>(std::cout, durationFast, operationsFast);
+	result &= intrinsics::test::extractbits(std::cout);
+	//result &= intrinsics::test::extractbits<53, true>(std::cout, durationFast, operationsFast);
 /*
 
 
