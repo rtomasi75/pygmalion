@@ -52,7 +52,7 @@ namespace pygmalion::mechanics
 		}
 		constexpr static void encodePiece(typename drop::movebitsType& movebits, const pieceType pc) noexcept
 		{
-			movebits.template setBits<countSquareBits, countPieceBits>(static_cast<typename std::make_unsigned<typename pieceType::baseType>::type>(pc));
+			movebits.template storeBits<countSquareBits, countPieceBits>(static_cast<typename std::make_unsigned<typename pieceType::baseType>::type>(pc));
 		}
 		constexpr static squareType extractSquare(const typename drop::movebitsType& movebits) noexcept
 		{
@@ -61,7 +61,7 @@ namespace pygmalion::mechanics
 		}
 		constexpr static void encodeSquare(typename drop::movebitsType& movebits, const squareType sq) noexcept
 		{
-			movebits.template setBits<0, countSquareBits>(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(sq));
+			movebits.template storeBits<0, countSquareBits>(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(sq));
 		}
 	public:
 		constexpr static typename drop::movedataType doMove_Implementation(boardType& position, const typename drop::movebitsType& moveBits) noexcept
@@ -76,12 +76,12 @@ namespace pygmalion::mechanics
 		{
 			position.removePiece(data.piece(), data.square(), movingPlayer);
 		}
-		constexpr static typename drop::movebitsType&& dropMove(const pieceType piece, const squareType square) noexcept
+		constexpr static typename drop::movebitsType dropMove(const pieceType piece, const squareType square) noexcept
 		{
 			typename drop::movebitsType bits{ drop::movebitsType::zero() };
 			drop::encodeSquare(bits, square);
 			drop::encodePiece(bits, piece);
-			return std::move(bits);
+			return bits;
 		}
 		static bool parse_Implementation(const boardType& position, std::string& text, typename drop::movebitsType& moveBits) noexcept
 		{

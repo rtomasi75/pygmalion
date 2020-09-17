@@ -5,6 +5,7 @@ namespace pygmalion
 #include "tests/clearbits.h"
 #include "tests/setbits.h"
 #include "tests/extractbits.h"
+#include "tests/storebits.h"
 #include "tests/complement.h"
 #include "tests/disjunction.h"
 #include "tests/conjunction.h"

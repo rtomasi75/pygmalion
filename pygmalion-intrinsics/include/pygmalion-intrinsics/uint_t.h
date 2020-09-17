@@ -322,6 +322,50 @@ namespace pygmalion
 				}
 			}
 		}
+		template<size_t START, size_t LEN, typename = typename std::enable_if<enableExtract(START, LEN)>::type>
+		constexpr void storeBits(const uint_t<LEN, isCompact>& bits) noexcept
+		{
+			using L = uint_t<LEN, isCompact>;
+			using WT = typename L::wordType;
+			if constexpr (LEN == 0)
+				return;
+			else if constexpr (LEN == 1)
+			{
+				(*this)[START] = bits[0];
+			}
+			else
+			{
+				size_t w{ START / countBitsPerWord };
+				size_t b{ START % countBitsPerWord };
+				size_t w2{ 0 };
+				size_t b2{ 0 };
+				size_t r{ LEN };
+				while (r > 0)
+				{
+					const size_t rw{ countBitsPerWord - b };
+					const size_t rw2{ L::countBitsPerWord - b2 };
+					const size_t rl{ std::min(rw,rw2) };
+					const size_t ol{ std::min(r,rl) };
+					const wordType mask{ (ol < countBitsPerWord) ? static_cast<wordType>(((wordType(1) << ol) - wordType(1)) << b) : static_cast<wordType>(~wordType(0)) };
+					const WT mask2{ (ol < L::countBitsPerWord) ? static_cast<WT>(((WT(1) << ol) - WT(1)) << b2) : static_cast<WT>(~WT(0)) };
+					m_Words[w] &= ~mask;
+					m_Words[w] |= static_cast<wordType>(static_cast<wordType>((bits.word(w2) & mask2) >> b2) << b);
+					b += ol;
+					if (b >= countBitsPerWord)
+					{
+						b -= countBitsPerWord;
+						w++;
+					}
+					b2 += ol;
+					if (b2 >= L::countBitsPerWord)
+					{
+						b2 -= L::countBitsPerWord;
+						w2++;
+					}
+					r -= ol;
+				}
+			}
+		}
 		class bitref
 		{
 		private:
@@ -1390,7 +1434,12 @@ namespace pygmalion
 		constexpr uint_t<LEN, isCompact> extractBits() const noexcept
 		{
 			using L = uint_t<LEN, isCompact>;
-			if constexpr (L::countWords <= 1)
+			using L = uint_t<LEN, isCompact>;
+			if constexpr (LEN == 0)
+				return L::zero();
+			else if constexpr (LEN == 1)
+				return L(static_cast<typename L::wordType>((*this)[START]), false);
+			else if constexpr (L::countWords <= 1)
 			{
 				using WT = typename L::wordType;
 				return L(([this]()->WT {
@@ -1554,6 +1603,44 @@ namespace pygmalion
 			}
 			else
 				m_Word = static_cast<wordType>(~wordType(0));
+		}
+		template<size_t START, size_t LEN, typename = typename std::enable_if<enableExtract(START, LEN)>::type>
+		constexpr void storeBits(const uint_t<LEN, isCompact>& bits) noexcept
+		{
+			using L = uint_t<LEN, isCompact>;
+			using WT = typename L::wordType;
+			if constexpr (LEN == 0)
+				return;
+			else if constexpr (LEN == 1)
+			{
+				(*this)[START] = bits[0];
+			}
+			else
+			{
+				size_t b{ START % countBitsPerWord };
+				size_t w2{ 0 };
+				size_t b2{ 0 };
+				size_t r{ LEN };
+				while (r > 0)
+				{
+					const size_t rw{ countBitsPerWord - b };
+					const size_t rw2{ L::countBitsPerWord - b2 };
+					const size_t rl{ std::min(rw,rw2) };
+					const size_t ol{ std::min(r,rl) };
+					const wordType mask{ (ol < countBitsPerWord) ? static_cast<wordType>(((wordType(1) << ol) - wordType(1)) << b) : static_cast<wordType>(~wordType(0)) };
+					const WT mask2{ (ol < L::countBitsPerWord) ? static_cast<WT>(((WT(1) << ol) - WT(1)) << b2) : static_cast<WT>(~WT(0)) };
+					m_Word &= ~mask;
+					m_Word |= static_cast<wordType>(static_cast<wordType>((bits.word(w2) & mask2) >> b2) << b);
+					b += ol;
+					b2 += ol;
+					if (b2 >= L::countBitsPerWord)
+					{
+						b2 -= L::countBitsPerWord;
+						w2++;
+					}
+					r -= ol;
+				}
+			}
 		}
 		class bitref
 		{
@@ -2080,7 +2167,11 @@ namespace pygmalion
 		constexpr uint_t<LEN, isCompact> extractBits() const noexcept
 		{
 			using L = uint_t<LEN, isCompact>;
-			if constexpr (L::countWords <= 1)
+			if constexpr (LEN == 0)
+				return L::zero();
+			else if constexpr (LEN == 1)
+				return L(static_cast<typename L::wordType>((*this)[START]), false);
+			else if constexpr (L::countWords <= 1)
 			{
 				using WT = typename L::wordType;
 				return L(([this]()->WT {
@@ -2197,6 +2288,16 @@ namespace pygmalion
 			return (start + length) <= countBits;
 		}
 	public:
+		template<size_t START, size_t LEN, typename = typename std::enable_if<enableExtract(START, LEN)>::type>
+		constexpr void storeBits(const uint_t<LEN, isCompact>& bits) noexcept
+		{
+			using L = uint_t<LEN, isCompact>;
+			using WT = typename L::wordType;
+			if constexpr (LEN == 0)
+				return;
+			else
+				m_Word = static_cast<wordType>(bits[0]);
+		}
 		constexpr uint_t(const wordType word, bool) noexcept :
 			m_Word{ word }
 		{	}
@@ -2597,6 +2698,10 @@ namespace pygmalion
 		constexpr uint_t<LEN, isCompact> extractBits() const noexcept
 		{
 			return uint_t<LEN, isCompact>::zero();
+		}
+		template<size_t START, size_t LEN, typename = typename std::enable_if<enableExtract(START, LEN)>::type>
+		constexpr void storeBits(const uint_t<LEN, isCompact>& bits) noexcept
+		{
 		}
 		class bitref
 		{
