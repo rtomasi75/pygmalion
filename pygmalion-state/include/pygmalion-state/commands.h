@@ -14,3 +14,4 @@
 #include "commands/command_debugRemovePiece.h"
 #include "commands/command_debugOccupancy.h"
 #include "commands/command_debugSquares.h"
+#include "commands/command_debugState.h"

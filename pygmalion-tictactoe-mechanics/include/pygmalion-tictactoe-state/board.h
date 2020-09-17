@@ -6,11 +6,17 @@ namespace pygmalion::tictactoe
 		public pygmalion::board<descriptorState, board>
 	{
 	public:
+		static std::string name_Implementation() noexcept
+		{
+			std::stringstream sstr;
+			sstr << "tictactoe board, " << countFiles << "x" << countRanks << " square" << (countSquares != 1 ? "s" : "") << ", " << countPlayers << " player" << (countPlayers != 1 ? "s" : "") << ", " << countPieces << " piece" << (countPieces != 1 ? "s" : "") << ", " << countFlags << " flag" << (countFlags != 1 ? "s" : "");
+			return sstr.str();
+		}
 		static std::string flagToString_Implementation(const flagType flag) noexcept
 		{
 			return "";
 		}
-		static bool parseFlag_Implementation(const std::string& text, flagType& flag) noexcept
+		static bool parseFlag_Implementation(std::string& text, flagType& flag) noexcept
 		{
 			return false;
 		}
@@ -21,13 +27,14 @@ namespace pygmalion::tictactoe
 			txt += c;
 			return txt;
 		}
-		static bool parseRank_Implementation(const std::string& text, rankType& rank) noexcept
+		static bool parseRank_Implementation(std::string& text, rankType& rank) noexcept
 		{
 			if (text.length() > 0)
 			{
 				if ((text[0] >= '1') && (text[0] < ('1' + countFiles)))
 				{
 					rank = text[0] - '1';
+					text = text.substr(1, text.length() - 1);
 					return true;
 				}
 				else
@@ -43,18 +50,20 @@ namespace pygmalion::tictactoe
 			txt += c;
 			return txt;
 		}
-		static bool parseFile_Implementation(const std::string& text, fileType& file) noexcept
+		static bool parseFile_Implementation(std::string& text, fileType& file) noexcept
 		{
 			if (text.length() > 0)
 			{
 				if ((text[0] >= 'a') && (text[0] < ('a' + countFiles)))
 				{
 					file = text[0] - 'a';
+					text = text.substr(1, text.length() - 1);
 					return true;
 				}
 				else if ((text[0] >= 'A') && (text[0] < ('A' + countFiles)))
 				{
 					file = text[0] - 'A';
+					text = text.substr(1, text.length() - 1);
 					return true;
 				}
 				else
@@ -75,7 +84,7 @@ namespace pygmalion::tictactoe
 				return "O";
 			}
 		}
-		static bool parsePlayer_Implementation(const std::string& text, playerType& player) noexcept
+		static bool parsePlayer_Implementation(std::string& text, playerType& player) noexcept
 		{
 			if (text.length() > 0)
 			{
@@ -85,11 +94,13 @@ namespace pygmalion::tictactoe
 				case 'X':
 				case '0':
 					player = 0;
+					text = text.substr(1, text.length() - 1);
 					return true;
 				case 'o':
 				case 'O':
 				case '1':
 					player = 1;
+					text = text.substr(1, text.length() - 1);
 					return true;
 				default:
 					return false;
@@ -106,7 +117,7 @@ namespace pygmalion::tictactoe
 		{
 			return "#";
 		}
-		static bool parsePiece_Implementation(const std::string& text, pieceType& piece) noexcept
+		static bool parsePiece_Implementation(std::string& text, pieceType& piece) noexcept
 		{
 			if (text.length() > 0)
 			{
@@ -119,6 +130,7 @@ namespace pygmalion::tictactoe
 				case 'O':
 				case '#':
 					piece = 0;
+					text = text.substr(1, text.length() - 1);
 					return true;
 				default:
 					return false;

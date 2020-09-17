@@ -7,8 +7,8 @@ namespace pygmalion
 	public:
 		using moveType = MOVE;
 		using movedataType = typename moveType::movedataType;
-		using boardType = typename MOVE::boardType;
 		using movebitsType = typename moveType::movebitsType;
+		using boardType = typename MOVE::boardType;
 		using descriptorState = typename boardType::descriptorState;
 		constexpr static const size_t countMoveBits{ moveType::countBits };
 	};

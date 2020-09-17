@@ -124,7 +124,7 @@ namespace pygmalion::chess
 				return "?";
 			}
 		}
-		static bool parseFlag_Implementation(const std::string& text, flagType& flag) noexcept
+		static bool parseFlag_Implementation(std::string& text, flagType& flag) noexcept
 		{
 			if (text.length() > 0)
 			{
@@ -132,47 +132,59 @@ namespace pygmalion::chess
 				{
 				case 'k':
 					flag = castleRightKingsideBlack;
+					text = text.substr(1, text.length() - 1);
 					return true;
 				case 'K':
 					flag = castleRightKingsideWhite;
+					text = text.substr(1, text.length() - 1);
 					return true;
 				case 'q':
 					flag = castleRightQueensideBlack;
+					text = text.substr(1, text.length() - 1);
 					return true;
 				case 'Q':
 					flag = castleRightQueensideWhite;
+					text = text.substr(1, text.length() - 1);
 					return true;
 				case 'a':
 				case 'A':
 					flag = enPassantFileA;
+					text = text.substr(1, text.length() - 1);
 					return true;
 				case 'b':
 				case 'B':
 					flag = enPassantFileB;
+					text = text.substr(1, text.length() - 1);
 					return true;
 				case 'd':
 				case 'D':
 					flag = enPassantFileC;
+					text = text.substr(1, text.length() - 1);
 					return true;
 				case 'c':
 				case 'C':
 					flag = enPassantFileD;
+					text = text.substr(1, text.length() - 1);
 					return true;
 				case 'e':
 				case 'E':
 					flag = enPassantFileE;
+					text = text.substr(1, text.length() - 1);
 					return true;
 				case 'f':
 				case 'F':
 					flag = enPassantFileF;
+					text = text.substr(1, text.length() - 1);
 					return true;
 				case 'g':
 				case 'G':
 					flag = enPassantFileG;
+					text = text.substr(1, text.length() - 1);
 					return true;
 				case 'h':
 				case 'H':
 					flag = enPassantFileH;
+					text = text.substr(1, text.length() - 1);
 					return true;
 				default:
 					return false;
@@ -188,13 +200,14 @@ namespace pygmalion::chess
 			txt += c;
 			return txt;
 		}
-		static bool parseRank_Implementation(const std::string& text, rankType& rank) noexcept
+		static bool parseRank_Implementation(std::string& text, rankType& rank) noexcept
 		{
 			if (text.length() > 0)
 			{
 				if ((text[0] >= '1') && (text[0] < ('1' + countFiles)))
 				{
 					rank = text[0] - '1';
+					text = text.substr(1, text.length() - 1);
 					return true;
 				}
 				else
@@ -210,18 +223,20 @@ namespace pygmalion::chess
 			txt += c;
 			return txt;
 		}
-		static bool parseFile_Implementation(const std::string& text, fileType& file) noexcept
+		static bool parseFile_Implementation(std::string& text, fileType& file) noexcept
 		{
 			if (text.length() > 0)
 			{
 				if ((text[0] >= 'a') && (text[0] < ('a' + countFiles)))
 				{
 					file = text[0] - 'a';
+					text = text.substr(1, text.length() - 1);
 					return true;
 				}
 				else if ((text[0] >= 'A') && (text[0] < ('A' + countFiles)))
 				{
 					file = text[0] - 'A';
+					text = text.substr(1, text.length() - 1);
 					return true;
 				}
 				else
@@ -242,7 +257,7 @@ namespace pygmalion::chess
 				return "-";
 			}
 		}
-		static bool parsePlayer_Implementation(const std::string& text, playerType& player) noexcept
+		static bool parsePlayer_Implementation(std::string& text, playerType& player) noexcept
 		{
 			if (text.length() > 0)
 			{
@@ -251,10 +266,12 @@ namespace pygmalion::chess
 				case '+':
 				case '0':
 					player = 0;
+					text = text.substr(1, text.length() - 1);
 					return true;
 				case '-':
 				case '1':
 					player = 1;
+					text = text.substr(1, text.length() - 1);
 					return true;
 				default:
 					return false;
@@ -329,7 +346,7 @@ namespace pygmalion::chess
 				return "?";
 			}
 		}
-		static bool parsePiece_Implementation(const std::string& text, pieceType& piece) noexcept
+		static bool parsePiece_Implementation(std::string& text, pieceType& piece) noexcept
 		{
 			if (text.length() > 0)
 			{
@@ -338,26 +355,32 @@ namespace pygmalion::chess
 				case 'p':
 				case 'P':
 					piece = pawn;
+					text = text.substr(1, text.length() - 1);
 					return true;
 				case 'r':
 				case 'R':
 					piece = rook;
+					text = text.substr(1, text.length() - 1);
 					return true;
 				case 'q':
 				case 'Q':
 					piece = queen;
+					text = text.substr(1, text.length() - 1);
 					return true;
 				case 'b':
 				case 'B':
 					piece = bishop;
+					text = text.substr(1, text.length() - 1);
 					return true;
 				case 'k':
 				case 'K':
 					piece = king;
+					text = text.substr(1, text.length() - 1);
 					return true;
 				case 'n':
 				case 'N':
 					piece = knight;
+					text = text.substr(1, text.length() - 1);
 					return true;
 				default:
 					return false;

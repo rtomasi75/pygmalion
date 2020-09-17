@@ -1,6 +1,6 @@
 namespace pygmalion::mechanics
 {
-	template<typename BOARD, typename INSTANCE>
+	template<typename BOARD, size_t COUNT_BITS, typename MOVEDATA, typename INSTANCE>
 	class move
 	{
 	public:
@@ -8,15 +8,13 @@ namespace pygmalion::mechanics
 		using boardType = BOARD;
 		using descriptorState = typename boardType::descriptorState;
 #include <pygmalion-state/include_state.h>
-	private:
-		constexpr static size_t requiredBits() noexcept
-		{
-			return instanceType::requiredBits_Implementation();
-		}
-	public:
-		constexpr static const size_t countBits{ requiredBits() };
+		constexpr static const size_t countBits{ COUNT_BITS };
 		using movebitsType = uint_t<countBits, false>;
-		using movedataType = typename instanceType::movedata;
+		using movedataType = MOVEDATA;
+		static std::string name() noexcept
+		{
+			return instanceType::name_Implementation();
+		}
 		constexpr static movedataType doMove(boardType& position, const movebitsType& moveBits) noexcept
 		{
 			return instanceType::doMove_Implementation(position, moveBits);
@@ -25,7 +23,7 @@ namespace pygmalion::mechanics
 		{
 			instanceType::undoMove_Implementation(position, data, movingPlayer);
 		}
-		static bool parse(const boardType& position, const std::string text, movebitsType& moveBits) noexcept
+		static bool parse(const boardType& position, std::string& text, movebitsType& moveBits) noexcept
 		{
 			return instanceType::parse_Implementation(position, text, moveBits);
 		}

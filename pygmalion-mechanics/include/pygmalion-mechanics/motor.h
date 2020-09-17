@@ -33,7 +33,7 @@ namespace pygmalion
 		static moveinfoType&& makeMove(boardType& position, const movebitsType& movebits) noexcept
 		{
 			moveinfoType info{ moveinfo(position.movingPlayer(), moveType::doMove(position, movebits)) };
-			position.setMovingPlayer(++postion.movingPlayer());
+			position.setMovingPlayer(++position.movingPlayer());
 			return std::move(info);
 		}
 
@@ -42,6 +42,16 @@ namespace pygmalion
 		{
 			mechanicsType::unmakeMove_Implementation(position, info.data(), info.player());
 			position.setMovingPlayer(info.player());
+		}
+
+		static bool parseMove(const boardType& position, std::string& text, movebitsType& movebits) noexcept
+		{
+			return moveType::parse(position, text, movebits);
+		}
+
+		static std::string moveToString(const boardType& position, const movebitsType& movebits) noexcept
+		{
+			return moveType::toString(position, movebits);
 		}
 	};
 }
