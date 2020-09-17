@@ -17,9 +17,6 @@ add_library(pygmalion-state ${SOURCES} ${HEADERS} "include/pygmalion-state.h")
 target_include_directories(pygmalion-state PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include> PRIVATE src)
 target_link_libraries(pygmalion-state PUBLIC pygmalion-intrinsics)
 
-add_executable(pygmalion-state-engine "test/engine.cpp")
-target_link_libraries(pygmalion-state-engine pygmalion-state)
-
 install(TARGETS pygmalion-state EXPORT pygmalion-stateConfig
 	ARCHIVE  DESTINATION ${CMAKE_INSTALL_LIBDIR}
     LIBRARY  DESTINATION ${CMAKE_INSTALL_LIBDIR}

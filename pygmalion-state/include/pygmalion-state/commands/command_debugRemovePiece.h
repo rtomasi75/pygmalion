@@ -17,11 +17,10 @@ namespace pygmalion::state
 			if (token == "debug-removepiece")
 			{
 				this->output() << std::endl;
-				size_t len;
 				std::string remainder2;
 				squareType sq;
 				parser::parseTokenCaseSensitive(remainder, token, remainder2);
-				if (boardType::parseSquare(token, sq, len))
+				if (boardType::parseSquare(token, sq))
 				{
 					if (!this->position().totalOccupancy()[sq])
 						this->output() << "there is no piece on " << boardType::squareToString(sq) << "." << std::endl;

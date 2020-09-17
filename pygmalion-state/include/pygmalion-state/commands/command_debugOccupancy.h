@@ -21,11 +21,10 @@ namespace pygmalion::state
 				parser::parseToken(remainder, token, remainder2);
 				if (token == "p" || token == "player")
 				{
-					size_t len;
 					std::string remainder3;
 					parser::parseToken(remainder2, token, remainder3);
 					playerType p;
-					if (boardType::parsePlayer(token, p, len))
+					if (boardType::parsePlayer(token, p))
 					{
 
 						this->output() << "occupancy bitboard for player " << boardType::playerToString(p) << ":" << std::endl;
@@ -36,11 +35,10 @@ namespace pygmalion::state
 				}
 				else if (token == "pc" || token == "piece")
 				{
-					size_t len;
 					std::string remainder3;
 					parser::parseToken(remainder2, token, remainder3);
 					pieceType pc;
-					if (boardType::parsePiece(token, pc, len))
+					if (boardType::parsePiece(token, pc))
 					{
 
 						this->output() << "occupancy bitboard for piece " << boardType::pieceToString(pc) << ":" << std::endl;

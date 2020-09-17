@@ -1,20 +1,5 @@
 namespace pygmalion::state
 {
-	namespace detail
-	{
-		constexpr static size_t requiredUnsignedBits(const size_t number) noexcept
-		{
-			size_t n = 1;
-			size_t k = 0;
-			while (number > n)
-			{
-				n *= 2;
-				k++;
-			}
-			return k;
-		}
-	}
-
 	template<typename DESCRIPTION_STATE>
 	class gamestate : 
 		public enumeration<1 + detail::requiredUnsignedBits(DESCRIPTION_STATE::countPlayers), gamestate<DESCRIPTION_STATE>>,

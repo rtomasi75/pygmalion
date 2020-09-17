@@ -17,21 +17,20 @@ namespace pygmalion::state
 			if (token == "debug-addpiece")
 			{
 				this->output() << std::endl;
-				size_t len;
 				std::string remainder2;
 				playerType p;
 				parser::parseTokenCaseSensitive(remainder, token, remainder2);
-				if (boardType::parsePlayer(token, p, len))
+				if (boardType::parsePlayer(token, p))
 				{
 					std::string remainder3;
 					pieceType pc;
 					parser::parseTokenCaseSensitive(remainder2, token, remainder3);
-					if (boardType::parsePiece(token, pc, len))
+					if (boardType::parsePiece(token, pc))
 					{
 						std::string remainder4;
 						squareType sq;
 						parser::parseTokenCaseSensitive(remainder3, token, remainder4);
-						if (boardType::parseSquare(token, sq, len))
+						if (boardType::parseSquare(token, sq))
 						{
 							if (this->position().totalOccupancy()[sq])
 								this->output() << "there already is a piece on " << boardType::squareToString(sq) << "." << std::endl;

@@ -1,6 +1,21 @@
 
 namespace pygmalion
 {
+	namespace detail
+	{
+		constexpr static size_t requiredUnsignedBits(const size_t number) noexcept
+		{
+			size_t n = 1;
+			size_t k = 0;
+			while (number > n)
+			{
+				n *= 2;
+				k++;
+			}
+			return k;
+		}
+	}
+
 	class arrayhelper
 	{
 	private:

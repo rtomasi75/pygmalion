@@ -124,7 +124,7 @@ namespace pygmalion::chess
 				return "?";
 			}
 		}
-		static bool parseFlag_Implementation(const std::string& text, flagType& flag, size_t& len) noexcept
+		static bool parseFlag_Implementation(const std::string& text, flagType& flag) noexcept
 		{
 			if (text.length() > 0)
 			{
@@ -132,59 +132,47 @@ namespace pygmalion::chess
 				{
 				case 'k':
 					flag = castleRightKingsideBlack;
-					len++;
 					return true;
 				case 'K':
 					flag = castleRightKingsideWhite;
-					len++;
 					return true;
 				case 'q':
 					flag = castleRightQueensideBlack;
-					len++;
 					return true;
 				case 'Q':
 					flag = castleRightQueensideWhite;
-					len++;
 					return true;
 				case 'a':
 				case 'A':
 					flag = enPassantFileA;
-					len++;
 					return true;
 				case 'b':
 				case 'B':
 					flag = enPassantFileB;
-					len++;
 					return true;
 				case 'd':
 				case 'D':
 					flag = enPassantFileC;
-					len++;
 					return true;
 				case 'c':
 				case 'C':
 					flag = enPassantFileD;
-					len++;
 					return true;
 				case 'e':
 				case 'E':
 					flag = enPassantFileE;
-					len++;
 					return true;
 				case 'f':
 				case 'F':
 					flag = enPassantFileF;
-					len++;
 					return true;
 				case 'g':
 				case 'G':
 					flag = enPassantFileG;
-					len++;
 					return true;
 				case 'h':
 				case 'H':
 					flag = enPassantFileH;
-					len++;
 					return true;
 				default:
 					return false;
@@ -200,14 +188,13 @@ namespace pygmalion::chess
 			txt += c;
 			return txt;
 		}
-		static bool parseRank_Implementation(const std::string& text, rankType& rank, size_t& len) noexcept
+		static bool parseRank_Implementation(const std::string& text, rankType& rank) noexcept
 		{
 			if (text.length() > 0)
 			{
 				if ((text[0] >= '1') && (text[0] < ('1' + countFiles)))
 				{
 					rank = text[0] - '1';
-					len = 1;
 					return true;
 				}
 				else
@@ -223,20 +210,18 @@ namespace pygmalion::chess
 			txt += c;
 			return txt;
 		}
-		static bool parseFile_Implementation(const std::string& text, fileType& file, size_t& len) noexcept
+		static bool parseFile_Implementation(const std::string& text, fileType& file) noexcept
 		{
 			if (text.length() > 0)
 			{
 				if ((text[0] >= 'a') && (text[0] < ('a' + countFiles)))
 				{
 					file = text[0] - 'a';
-					len = 1;
 					return true;
 				}
 				else if ((text[0] >= 'A') && (text[0] < ('A' + countFiles)))
 				{
 					file = text[0] - 'A';
-					len = 1;
 					return true;
 				}
 				else
@@ -257,7 +242,7 @@ namespace pygmalion::chess
 				return "-";
 			}
 		}
-		static bool parsePlayer_Implementation(const std::string& text, playerType& player, size_t& len) noexcept
+		static bool parsePlayer_Implementation(const std::string& text, playerType& player) noexcept
 		{
 			if (text.length() > 0)
 			{
@@ -265,12 +250,10 @@ namespace pygmalion::chess
 				{
 				case '+':
 				case '0':
-					len = 1;
 					player = 0;
 					return true;
 				case '-':
 				case '1':
-					len = 1;
 					player = 1;
 					return true;
 				default:
@@ -346,7 +329,7 @@ namespace pygmalion::chess
 				return "?";
 			}
 		}
-		static bool parsePiece_Implementation(const std::string& text, pieceType& piece, size_t& len) noexcept
+		static bool parsePiece_Implementation(const std::string& text, pieceType& piece) noexcept
 		{
 			if (text.length() > 0)
 			{
@@ -354,32 +337,26 @@ namespace pygmalion::chess
 				{
 				case 'p':
 				case 'P':
-					len = 1;
 					piece = pawn;
 					return true;
 				case 'r':
 				case 'R':
-					len = 1;
 					piece = rook;
 					return true;
 				case 'q':
 				case 'Q':
-					len = 1;
 					piece = queen;
 					return true;
 				case 'b':
 				case 'B':
-					len = 1;
 					piece = bishop;
 					return true;
 				case 'k':
 				case 'K':
-					len = 1;
 					piece = king;
 					return true;
 				case 'n':
 				case 'N':
-					len = 1;
 					piece = knight;
 					return true;
 				default:

@@ -1,7 +1,5 @@
 namespace pygmalion
 {
-	template<typename DESCRIPTION_STATE> class squares;
-
 	template<size_t COUNT_PLAYERS, size_t COUNT_PIECES, size_t COUNT_RANKS, size_t COUNT_FILES, size_t COUNT_FLAGS, size_t COUNT_HASHBITS>
 	class descriptor_state
 	{

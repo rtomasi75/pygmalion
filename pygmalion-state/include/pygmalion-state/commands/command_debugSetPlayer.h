@@ -19,8 +19,7 @@ namespace pygmalion::state
 				std::string remainder2;
 				parser::parseTokenCaseSensitive(remainder, token, remainder2);
 				playerType player;
-				size_t len;
-				if (boardType::parsePlayer(token, player, len))
+				if (boardType::parsePlayer(token, player))
 				{
 					this->output() << std::endl;
 					this->output() << "set moving player to " << boardType::playerToString(player) << "." << std::endl;
