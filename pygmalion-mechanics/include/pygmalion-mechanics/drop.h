@@ -1,38 +1,43 @@
 namespace pygmalion::mechanics
 {
-	template<typename BOARD>
-	class dropMovedata
+	namespace detail
 	{
-	public:
-		using boardType = BOARD;
-		using descriptorState = typename boardType::descriptorState;
+		template<typename BOARD>
+		class dropMovedata
+		{
+		public:
+			using boardType = BOARD;
+			using descriptorState = typename boardType::descriptorState;
 #include <pygmalion-state/include_state.h>
-	private:
-		pieceType m_Piece;
-		squareType m_Square;
-	public:
-		constexpr squareType square() const noexcept
-		{
-			return m_Square;
-		}
-		constexpr pieceType piece() const noexcept
-		{
-			return m_Piece;
-		}
-		constexpr dropMovedata(const pieceType pc, const squareType sq) noexcept :
-			m_Square{ sq },
-			m_Piece{ pc }
-		{}
-	};
+		private:
+			pieceType m_Piece;
+			squareType m_Square;
+		public:
+			constexpr squareType square() const noexcept
+			{
+				return m_Square;
+			}
+			constexpr pieceType piece() const noexcept
+			{
+				return m_Piece;
+			}
+			constexpr dropMovedata(const pieceType pc, const squareType sq) noexcept :
+				m_Square{ sq },
+				m_Piece{ pc }
+			{}
+		};
+	}
 
 	template<typename BOARD>
 	class drop :
-		public move<BOARD, detail::requiredUnsignedBits(BOARD::countPieces) + detail::requiredUnsignedBits(BOARD::countSquares), dropMovedata<BOARD>, drop<BOARD>>
+		public move<BOARD, BOARD::pieceType::countUnsignedBits + BOARD::squareType::countUnsignedBits, detail::dropMovedata<BOARD>, drop<BOARD>>
 	{
 	public:
 		using boardType = BOARD;
 		using descriptorState = typename boardType::descriptorState;
 #include <pygmalion-state/include_state.h>
+		constexpr static const size_t countSquareBits{ squareType::countUnsignedBits };
+		constexpr static const size_t countPieceBits{ pieceType::countUnsignedBits };
 		static std::string name_Implementation() noexcept
 		{
 			std::stringstream sstr;
@@ -42,19 +47,21 @@ namespace pygmalion::mechanics
 	private:
 		constexpr static pieceType extractPiece(const typename drop::movebitsType& movebits) noexcept
 		{
-			constexpr const typename drop::movebitsType O{ drop::movebitsType::one() };
-			constexpr const size_t shift{ detail::requiredUnsignedBits(countPieces) };
-			constexpr const typename drop::movebitsType mask{ ((shift == drop::movebitsType::countBits) ? ~drop::movebitsType::zero() : (O << shift)) - O };
-			const pieceType pc{ pieceType(static_cast<typename std::make_unsigned<typename pieceType::baseType>::type>((movebits >> shift) & mask)) };
+			const pieceType pc{ pieceType(static_cast<typename std::make_unsigned<typename pieceType::baseType>::type>(movebits.template extractBits<countSquareBits,countPieceBits>())) };
 			return pc;
+		}
+		constexpr static void encodePiece(typename drop::movebitsType& movebits, const pieceType pc) noexcept
+		{
+			movebits.template setBits<countSquareBits, countPieceBits>(static_cast<typename std::make_unsigned<typename pieceType::baseType>::type>(pc));
 		}
 		constexpr static squareType extractSquare(const typename drop::movebitsType& movebits) noexcept
 		{
-			constexpr const typename drop::movebitsType O{ drop::movebitsType::one() };
-			constexpr const size_t S{ detail::requiredUnsignedBits(countSquares) };
-			constexpr const typename drop::movebitsType mask{ ((S == drop::movebitsType::countBits) ? ~drop::movebitsType::zero() : (O << S)) - O };
-			const squareType sq{ squareType(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(movebits & mask)) };
+			const squareType sq{ squareType(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(movebits.template extractBits<0,countSquareBits>())) };
 			return sq;
+		}
+		constexpr static void encodeSquare(typename drop::movebitsType& movebits, const squareType sq) noexcept
+		{
+			movebits.template setBits<0, countSquareBits>(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(sq));
 		}
 	public:
 		constexpr static typename drop::movedataType doMove_Implementation(boardType& position, const typename drop::movebitsType& moveBits) noexcept
@@ -69,13 +76,12 @@ namespace pygmalion::mechanics
 		{
 			position.removePiece(data.piece(), data.square(), movingPlayer);
 		}
-		constexpr static typename drop::movebitsType dropMove(const pieceType piece, const squareType square) noexcept
+		constexpr static typename drop::movebitsType&& dropMove(const pieceType piece, const squareType square) noexcept
 		{
-			typename drop::movebitsType bits{ typename drop::movebitsType(static_cast<typename pieceType::baseType>(piece)) };
-			constexpr const size_t shift{ detail::requiredUnsignedBits(countPieces) };
-			bits <<= shift;
-			bits |= typename drop::movebitsType(static_cast<typename squareType::baseType>(square));
-			return bits;
+			typename drop::movebitsType bits{ drop::movebitsType::zero() };
+			drop::encodeSquare(bits, square);
+			drop::encodePiece(bits, piece);
+			return std::move(bits);
 		}
 		static bool parse_Implementation(const boardType& position, std::string& text, typename drop::movebitsType& moveBits) noexcept
 		{

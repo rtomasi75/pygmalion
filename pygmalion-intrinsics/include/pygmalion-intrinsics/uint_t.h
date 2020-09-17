@@ -219,7 +219,72 @@ namespace pygmalion
 		{
 			return bit < countBits;
 		}
+		constexpr static bool enableExtract(const size_t start, const size_t length) noexcept
+		{
+			return (start + length) <= countBits;
+		}
 	public:
+		template<size_t START, size_t LEN, typename = typename std::enable_if<enableExtract(START, LEN)>::type>
+		constexpr void clearBits() noexcept
+		{
+			if constexpr (LEN == 0)
+				return;
+			else if constexpr (LEN == 1)
+				clear<START>();
+			else
+			{
+				constexpr const size_t w{ START / countBitsPerWord };
+				constexpr const size_t b{ START % countBitsPerWord };
+				constexpr const size_t r{ LEN };
+				constexpr const size_t rw{ countBitsPerWord - b };
+				if constexpr (r <= rw)
+				{
+					if constexpr (r < countBitsPerWord)
+					{
+						const wordType mask{ static_cast<wordType>(~(((wordType(1) << r) - wordType(1)) << b)) };
+						m_Words[w] &= mask;
+					}
+					else
+						m_Words[w] = wordType(0);
+				}
+				else
+				{
+					if constexpr (rw < countBitsPerWord)
+					{
+						const wordType mask{ static_cast<wordType>(~(((wordType(1) << rw) - wordType(1)) << b)) };
+						m_Words[w] &= mask;
+					}
+					else
+						m_Words[w] = wordType(0);
+					constexpr const size_t w2{ w + 1 };
+					constexpr const size_t r2{ r - rw };
+					constexpr const size_t l{ r2 / countBitsPerWord };
+					constexpr const size_t w3{ w2 + l };
+					for (size_t i = w2; i < w3; i++)
+					{
+						m_Words[i] = wordType(0);
+					}
+					constexpr const size_t r3{ r2 - l * countBitsPerWord };
+					if constexpr (r3 > 0)
+					{
+						constexpr const wordType mask2{ static_cast<wordType>(~((wordType(1) << r3) - wordType(1))) };
+						m_Words[w3] &= mask2;
+					}
+				}
+			}
+		}
+		template<size_t START, size_t LEN, typename = typename std::enable_if<enableExtract(START, LEN)>::type>
+		constexpr void setBits(const uint_t<LEN, isCompact>& bits) noexcept
+		{
+			clearBits<START, LEN>();
+			(*this) |= static_cast<uint_t>(bits) << START;
+		}
+		template<size_t START, size_t LEN, typename = typename std::enable_if<enableExtract(START, LEN)>::type>
+		constexpr uint_t<LEN, isCompact> extractBits() const noexcept
+		{
+			const uint_t<START + LEN, false> temp{ static_cast<uint_t<START + LEN,false>>(*this) };
+			return static_cast<uint_t<LEN, isCompact>>(temp >> START);
+		}
 		class bitref
 		{
 		private:
@@ -1323,7 +1388,38 @@ namespace pygmalion
 		{
 			return std::rand() % std::numeric_limits<unsigned char>::max();
 		}
+		constexpr static bool enableExtract(const size_t start, const size_t length) noexcept
+		{
+			return (start + length) <= countBits;
+		}
 	public:
+		template<size_t START, size_t LEN, typename = typename std::enable_if<enableExtract(START, LEN)>::type>
+		constexpr void clearBits() noexcept
+		{
+			if constexpr (LEN == 0)
+				return;
+			else if constexpr (LEN == 1)
+				clear<START>();
+			else if constexpr (LEN < countBitsPerWord)
+			{
+				constexpr const wordType mask{ static_cast<wordType>(~(((wordType(1) << LEN) - wordType(1)) << START)) };
+				m_Word &= mask;
+			}
+			else
+				m_Word = wordType(0);
+		}
+		template<size_t START, size_t LEN, typename = typename std::enable_if<enableExtract(START, LEN)>::type>
+		constexpr void setBits(const uint_t<LEN, isCompact>& bits) noexcept
+		{
+			clearBits<START, LEN>();
+			(*this) |= static_cast<uint_t>(bits) << START;
+		}
+		template<size_t START, size_t LEN, typename = typename std::enable_if<enableExtract(START, LEN)>::type>
+		constexpr uint_t<LEN, isCompact> extractBits() const noexcept
+		{
+			const uint_t<START + LEN, false> temp{ static_cast<uint_t<START + LEN,false>>(*this) };
+			return static_cast<uint_t<LEN, isCompact>>(temp >> START);
+		}
 		class bitref
 		{
 		private:
@@ -1867,7 +1963,31 @@ namespace pygmalion
 		{
 			return std::rand() % std::numeric_limits<unsigned char>::max();
 		}
+		constexpr static bool enableExtract(const size_t start, const size_t length) noexcept
+		{
+			return (start + length) <= countBits;
+		}
 	public:
+		template<size_t START, size_t LEN, typename = typename std::enable_if<enableExtract(START, LEN)>::type>
+		constexpr void clearBits() noexcept
+		{
+			if constexpr (LEN == 0)
+				return;
+			else
+				m_Word = wordType(0);
+		}
+		template<size_t START, size_t LEN, typename = typename std::enable_if<enableExtract(START, LEN)>::type>
+		constexpr void setBits(const uint_t<LEN, isCompact>& bits) noexcept
+		{
+			clearBits<START, LEN>();
+			(*this) |= static_cast<uint_t>(bits) << START;
+		}
+		template<size_t START, size_t LEN, typename = typename std::enable_if<enableExtract(START, LEN)>::type>
+		constexpr uint_t<LEN, isCompact> extractBits() const noexcept
+		{
+			const uint_t<START + LEN, false> temp{ static_cast<uint_t<START + LEN,false>>(*this) };
+			return static_cast<uint_t<LEN, isCompact>>(temp >> START);
+		}
 		constexpr bool operator[](const size_t bit) const noexcept
 		{
 			return m_Word;
@@ -2227,7 +2347,27 @@ namespace pygmalion
 		constexpr static const size_t countWords{ 0 };
 		constexpr static const size_t countStorageBits{ 0 };
 	private:
+		constexpr static bool enableExtract(const size_t start, const size_t length) noexcept
+		{
+			return (start + length) <= countBits;
+		}
 	public:
+		template<size_t START, size_t LEN, typename = typename std::enable_if<enableExtract(START, LEN)>::type>
+		constexpr void clearBits() noexcept
+		{
+		}
+		template<size_t START, size_t LEN, typename = typename std::enable_if<enableExtract(START, LEN)>::type>
+		constexpr void setBits(const uint_t<LEN, isCompact>& bits) noexcept
+		{
+			clearBits<START, LEN>();
+			(*this) |= static_cast<uint_t>(bits) << START;
+		}
+		template<size_t START, size_t LEN, typename = typename std::enable_if<enableExtract(START, LEN)>::type>
+		constexpr uint_t<LEN, isCompact> extractBits() const noexcept
+		{
+			const uint_t<START + LEN, false> temp{ static_cast<uint_t<START + LEN,false>>(*this) };
+			return static_cast<uint_t<LEN, isCompact>>(temp >> START);
+		}
 		class bitref
 		{
 		private:

@@ -8,12 +8,23 @@ using namespace pygmalion;
 
 int main(int argc, char* argv[])
 {
+	typename profiler::durationType durationCompact{ 0 };
+	size_t operationsCompact(0);
+	typename profiler::durationType durationFast{ 0 };
+	size_t operationsFast(0);
+
 	bool result{ true };
+	result &= intrinsics::test::clearbits(std::cout);
+//	result &= intrinsics::test::clearbits<53, true>(std::cout, durationFast, operationsFast);
+/*
+
+
 	std::cout << "===============================" << std::endl;
 	std::cout << "UNIT TEST: pygmalion-intrinsics" << std::endl;
 	std::cout << "===============================" << std::endl;
 	result &= intrinsics::test::assignment(std::cout);
 	result &= intrinsics::test::conversion(std::cout);
+	result &= intrinsics::test::clearbits(std::cout);
 	result &= intrinsics::test::equality(std::cout);
 	result &= intrinsics::test::inequality(std::cout);
 	result &= intrinsics::test::greater(std::cout);
@@ -59,6 +70,6 @@ int main(int argc, char* argv[])
 		std::cout << "PASSED UNIT TEST" << std::endl;
 	else
 		std::cout << "FAILED UNIT TEST" << std::endl;
-	std::cout << "================" << std::endl;
+	std::cout << "================" << std::endl;*/
 	return !result;
 }
