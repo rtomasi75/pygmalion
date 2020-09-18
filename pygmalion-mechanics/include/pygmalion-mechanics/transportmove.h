@@ -91,7 +91,7 @@ namespace pygmalion::mechanics
 			position.removePiece(data.piece(), data.to(), data.player());
 			position.addPiece(data.piece(), data.from(), data.player());
 		}
-		constexpr static typename transportmove::movebitsType transportMove(const squareType from, const squareType to) noexcept
+		constexpr static typename transportmove::movebitsType create(const squareType from, const squareType to) noexcept
 		{
 			typename transportmove::movebitsType bits{ transportmove::movebitsType::zero() };
 			transportmove::encodeFrom(bits, from);
@@ -111,7 +111,7 @@ namespace pygmalion::mechanics
 					{
 						if (!position.totalOccupancy()[to])
 						{
-							moveBits = transportMove(from, to);
+							moveBits = create(from, to);
 							text = temp;
 							return true;
 						}

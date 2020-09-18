@@ -36,7 +36,7 @@ namespace pygmalion::mechanics
 		constexpr static void undoMove_Implementation(boardType& position, const typename nullmove::movedataType& data, const playerType movingPlayer) noexcept
 		{
 		}
-		constexpr static typename nullmove::movebitsType nullMove() noexcept
+		constexpr static typename nullmove::movebitsType create() noexcept
 		{
 			typename nullmove::movebitsType bits{ nullmove::movebitsType::zero() };
 			return bits;
@@ -48,7 +48,7 @@ namespace pygmalion::mechanics
 				if (parser::toLower(text.substr(0, 4)) == "null")
 				{
 					text = text.substr(4, text.length() - 4);
-					moveBits = nullMove();
+					moveBits = create();
 					return true;
 				}
 			}

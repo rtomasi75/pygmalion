@@ -53,6 +53,19 @@ namespace pygmalion::mechanics
 			}
 			constexpr disjunctiveMovedata() noexcept = default;
 		};
+		template<size_t INDEX, size_t COUNTER, typename MOVE, typename... MOVES2>
+		class disjunctivemoveSelector
+		{
+		public:
+			using moveType = typename disjunctivemoveSelector<INDEX, COUNTER + 1, MOVES2...>::type;
+		};
+
+		template<size_t INDEX, typename MOVE, typename... MOVES2>
+		class disjunctivemoveSelector<INDEX, INDEX, MOVE, MOVES2...>
+		{
+		public:
+			using moveType = MOVE;
+		};
 
 	}
 
@@ -192,6 +205,21 @@ namespace pygmalion::mechanics
 				return disjunctivemove::printPack<0, MOVES...>(position, selector, moveBits);
 			else
 				return "";
+		}
+	private:
+	public:
+		template<size_t INDEX>
+		typename disjunctivemove::movebitsType create(const typename detail::disjunctivemoveSelector<INDEX, 0, MOVES...>::type::movebitsType& bits) noexcept
+		{
+			typename disjunctivemove::movebitsType moveBits;
+			if constexpr (sizeof...(MOVES) > 0)
+			{
+				constexpr const muxbitsType mux{ static_cast<muxbitsType>(static_cast<typename std::make_unsigned<size_t>::type>(INDEX)) };
+				using moveType = typename detail::disjunctivemoveSelector<INDEX, 0, MOVES...>::type;
+				moveBits.template storeBits<0, moveType::movebitsType::countBits>(bits);
+				moveBits.template storeBits<countDataBits, countMuxBits>(mux);
+			}
+			return moveBits;
 		}
 	};
 }

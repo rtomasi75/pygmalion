@@ -92,7 +92,7 @@ namespace pygmalion::mechanics
 		{
 			position.removePiece(data.piece(), data.square(), data.owner());
 		}
-		constexpr static typename dropmove::movebitsType dropMove(const pieceType piece, const squareType square, const playerType owner) noexcept
+		constexpr static typename dropmove::movebitsType create(const pieceType piece, const squareType square, const playerType owner) noexcept
 		{
 			typename dropmove::movebitsType bits{ dropmove::movebitsType::zero() };
 			dropmove::encodeSquare(bits, square);
@@ -115,7 +115,7 @@ namespace pygmalion::mechanics
 					{
 						if (!position.totalOccupancy()[sq])
 						{
-							moveBits = dropMove(pc, sq, p);
+							moveBits = create(pc, sq, p);
 							text = temp;
 							return true;
 						}
