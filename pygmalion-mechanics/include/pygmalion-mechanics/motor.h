@@ -16,6 +16,11 @@ namespace pygmalion
 			playerType m_Player;
 			movedataType m_Movedata;
 		public:
+			constexpr moveinfo(const moveinfo&) noexcept = default;
+			constexpr moveinfo(moveinfo&&) noexcept = default;
+			constexpr moveinfo& operator=(const moveinfo&) noexcept = default;
+			constexpr moveinfo& operator=(moveinfo&&) noexcept = default;
+			constexpr moveinfo() noexcept = default;
 			constexpr moveinfo(const playerType p, movedataType&& md) noexcept :
 				m_Player{ p },
 				m_Movedata{ std::move(md) }
@@ -28,19 +33,19 @@ namespace pygmalion
 			{
 				return m_Movedata;
 			}
+			~moveinfo() noexcept = default;
 		};
 		using moveinfoType = moveinfo;
-		static moveinfoType&& makeMove(boardType& position, const movebitsType& movebits) noexcept
+		static moveinfoType makeMove(boardType& position, const movebitsType& movebits) noexcept
 		{
 			moveinfoType info{ moveinfo(position.movingPlayer(), moveType::doMove(position, movebits)) };
 			position.setMovingPlayer(++position.movingPlayer());
-			return std::move(info);
+			return info;
 		}
 
-		template<typename MOVEDATA>
 		static void unmakeMove(boardType& position, const moveinfoType& info) noexcept
 		{
-			mechanicsType::unmakeMove_Implementation(position, info.data(), info.player());
+			moveType::undoMove(position, info.data(), info.player());
 			position.setMovingPlayer(info.player());
 		}
 

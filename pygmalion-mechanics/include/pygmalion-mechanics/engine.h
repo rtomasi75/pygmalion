@@ -11,6 +11,8 @@ namespace pygmalion::mechanics
 #include "include_mechanics.h"
 	private:
 		std::vector<boardType> m_PositionHistory;
+		std::vector<typename motorType::moveinfoType> m_MovedataHistory;
+		std::vector<movebitsType> m_MoveHistory;
 	public:
 		constexpr size_t historyLength() const noexcept
 		{
@@ -19,13 +21,17 @@ namespace pygmalion::mechanics
 		constexpr void makeMove(const movebitsType& movebits) noexcept
 		{
 			m_PositionHistory.push_back(this->position());
-			motorType::makeMove(this->position(), movebits);
+			m_MovedataHistory.push_back(motorType::makeMove(this->position(), movebits));
+			m_MoveHistory.push_back(movebits);
 		}
 		constexpr void unmakeMove() noexcept
 		{
 			assert(m_PositionHistory.size() > 0);
-			this->position() = m_PositionHistory[m_PositionHistory.size() - 1];
+			//	this->position() = m_PositionHistory[m_PositionHistory.size() - 1];
+			motorType::unmakeMove(this->position(), m_MovedataHistory[m_MovedataHistory.size() - 1]);
 			m_PositionHistory.resize(m_PositionHistory.size() - 1);
+			m_MovedataHistory.resize(m_MovedataHistory.size() - 1);
+			m_MoveHistory.resize(m_MoveHistory.size() - 1);
 		}
 		engine() noexcept = delete;
 		engine(const engine&) = delete;
