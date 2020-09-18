@@ -253,19 +253,25 @@ namespace pygmalion
 		{
 			assert(sq.isValid());
 			assert(totalOccupancy()[sq]);
-			pieceType pc{ 0 };
-			for (const auto i : pieceType::range)
-				pc = pc | m_PieceOccupancy[i][sq] * i;
-			return pc;
+			for (const auto pc : pieceType::range)
+			{
+				if (m_PieceOccupancy[pc][sq])
+					return pc;
+			}
+			assert(false);
+			return pieceType::invalid;
 		}
 		constexpr playerType getPlayer(const squareType sq) const noexcept
 		{
 			assert(sq.isValid());
 			assert(totalOccupancy()[sq]);
-			playerType p{ 0 };
-			for (const auto i : playerType::range)
-				p = p | m_PlayerOccupancy[i][sq] * i;
-			return p;
+			for (const auto p : playerType::range)
+			{
+				if (m_PlayerOccupancy[p][sq])
+					return p;
+			}
+			assert(false);
+			return playerType::invalid;
 		}
 		constexpr void clear() noexcept
 		{
