@@ -88,13 +88,20 @@ namespace pygmalion::mechanics
 			std::string temp{ text };
 			squareType sq;
 			pieceType pc;
-			if (boardType::parseSquare(temp, sq) && boardType::parsePiece(temp, pc))
+			if (boardType::parsePiece(temp, pc))
 			{
-				if (!position.totalOccupancy()[sq])
+				if (temp[0] == '@')
 				{
-					moveBits = dropMove(pc, sq);
-					text = temp;
-					return true;
+					temp = temp.substr(1, temp.length() - 1);
+					if (boardType::parseSquare(temp, sq))
+					{
+						if (!position.totalOccupancy()[sq])
+						{
+							moveBits = dropMove(pc, sq);
+							text = temp;
+							return true;
+						}
+					}
 				}
 			}
 			return false;
@@ -103,7 +110,7 @@ namespace pygmalion::mechanics
 		{
 			const squareType sq{ dropmove::extractSquare(moveBits) };
 			const pieceType pc{ dropmove::extractPiece(moveBits) };
-			return boardType::squareToString(sq) + boardType::pieceToString(pc);
+			return boardType::pieceToString(pc) + "@" + boardType::squareToString(sq);
 		}
 	};
 }

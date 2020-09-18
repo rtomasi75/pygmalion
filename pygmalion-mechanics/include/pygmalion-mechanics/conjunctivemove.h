@@ -117,7 +117,15 @@ namespace pygmalion::mechanics
 			{
 				dataBits.template storeBits<BITSPOS, MOVE::countBits>(bits);
 				if constexpr (sizeof...(MOVES2) > 0)
-					return conjunctivemove::parsePack<BITSPOS + MOVE::countBits, MOVES2...>(position, text, dataBits);
+				{
+					if (text[0] == ',')
+					{
+						text = text.substr(1, text.length() - 1);
+						return conjunctivemove::parsePack<BITSPOS + MOVE::countBits, MOVES2...>(position, text, dataBits);
+					}
+					else
+						return false;
+				}
 				else
 					return true;
 			}
@@ -146,7 +154,7 @@ namespace pygmalion::mechanics
 			const typename MOVE::movebitsType bits{ dataBits.template extractBits<BITSPOS,MOVE::countBits>() };
 			std::string text{ MOVE::toString(position, bits) };
 			if constexpr (sizeof...(MOVES2) > 0)
-				return text + conjunctivemove::printPack<BITSPOS + MOVE::countBits, MOVES2...>(position, dataBits);
+				return text + "," + conjunctivemove::printPack<BITSPOS + MOVE::countBits, MOVES2...>(position, dataBits);
 			else
 				return text;
 		}
