@@ -7,8 +7,9 @@
 
 #include "pygmalion-mechanics/descriptor_mechanics.h"
 #include "pygmalion-mechanics/move.h"
-#include "pygmalion-mechanics/dropmove.h"
 #include "pygmalion-mechanics/nullmove.h"
+#include "pygmalion-mechanics/dropmove.h"
+#include "pygmalion-mechanics/transportmove.h"
 #include "pygmalion-mechanics/disjunctivemove.h"
 #include "pygmalion-mechanics/conjunctivemove.h"
 #include "pygmalion-mechanics/motor.h"

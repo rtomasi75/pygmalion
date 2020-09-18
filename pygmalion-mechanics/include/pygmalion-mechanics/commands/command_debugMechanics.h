@@ -19,7 +19,7 @@ namespace pygmalion::mechanics
 				this->output() << std::endl;
 				this->output() << moveType::name() << std::endl;
 				this->output() << std::endl;
-				this->output() << "movebits: " << std::setw(4) << sizeof(rankType) << " = " << sizeof(movebitsType) * CHAR_BIT << "bit" << std::endl;
+				this->output() << "movebits: " << std::setw(4) << sizeof(movebitsType) << " = " << sizeof(movebitsType) * CHAR_BIT << "bit" << std::endl;
 				this->output() << "movedata: " << std::setw(4) << sizeof(movedataType) << " = " << sizeof(movedataType) * CHAR_BIT << "bit" << std::endl;
 				this->output() << std::endl;
 				return true;

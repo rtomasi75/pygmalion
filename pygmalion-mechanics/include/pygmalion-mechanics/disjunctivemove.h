@@ -27,7 +27,7 @@ namespace pygmalion::mechanics
 			using descriptorState = typename boardType::descriptorState;
 #include <pygmalion-state/include_state.h>
 			constexpr static const size_t countMuxBits{ pygmalion::detail::requiredUnsignedBits(sizeof...(MOVES)) };
-			constexpr static const size_t countDataBits{ detail::computeBitsRequired<MOVES...>() };
+			constexpr static const size_t countDataBits{ detail::computeDisjunctiveBitsRequired<MOVES...>() };
 			constexpr static const size_t countMoveBits{ countMuxBits + countDataBits };
 			constexpr static size_t payloadSize{ detail::computeDisjunctiveDataSize<MOVES...>() };
 			using muxbitsType = uint_t<countMuxBits, false>;

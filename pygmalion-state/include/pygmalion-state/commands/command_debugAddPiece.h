@@ -19,35 +19,28 @@ namespace pygmalion::state
 				this->output() << std::endl;
 				std::string remainder2;
 				playerType p;
+				pieceType pc;
 				parser::parseTokenCaseSensitive(remainder, token, remainder2);
-				if (boardType::parsePlayer(token, p))
+				if (boardType::parsePiece(token, pc, p))
 				{
 					std::string remainder3;
-					pieceType pc;
+					squareType sq;
 					parser::parseTokenCaseSensitive(remainder2, token, remainder3);
-					if (boardType::parsePiece(token, pc))
+					if (boardType::parseSquare(token, sq))
 					{
-						std::string remainder4;
-						squareType sq;
-						parser::parseTokenCaseSensitive(remainder3, token, remainder4);
-						if (boardType::parseSquare(token, sq))
-						{
-							if (this->position().totalOccupancy()[sq])
-								this->output() << "there already is a piece on " << boardType::squareToString(sq) << "." << std::endl;
-							else
-							{
-								this->output() << "adding " << boardType::pieceToString(pc, p) << " on " << boardType::squareToString(sq) << "." << std::endl;
-								this->position().addPiece(pc, sq, p);
-							}
-						}
+						if (this->position().totalOccupancy()[sq])
+							this->output() << "there already is a piece on " << boardType::squareToString(sq) << "." << std::endl;
 						else
-							this->output() << "invalid square: " << token;
+						{
+							this->output() << "adding " << boardType::pieceToString(pc, p) << " on " << boardType::squareToString(sq) << "." << std::endl;
+							this->position().addPiece(pc, sq, p);
+						}
 					}
 					else
-						this->output() << "invalid piece: " << token;
+						this->output() << "invalid square: " << token;
 				}
 				else
-					this->output() << "invalid player: " << token;
+					this->output() << "invalid piece: " << token;
 				this->output() << std::endl;
 				return true;
 			}

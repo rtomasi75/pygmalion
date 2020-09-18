@@ -113,11 +113,7 @@ namespace pygmalion::tictactoe
 		{
 			return (player == 0) ? "X" : "O";
 		}
-		static std::string pieceToString_Implementation(const pieceType piece) noexcept
-		{
-			return "#";
-		}
-		static bool parsePiece_Implementation(std::string& text, pieceType& piece) noexcept
+		static bool parsePiece_Implementation(std::string& text, pieceType& piece, playerType& player) noexcept
 		{
 			if (text.length() > 0)
 			{
@@ -125,11 +121,14 @@ namespace pygmalion::tictactoe
 				{
 				case 'x':
 				case 'X':
-				case '0':
+					piece = 0;
+					player = 0;
+					text = text.substr(1, text.length() - 1);
+					return true;
 				case 'o':
 				case 'O':
-				case '#':
 					piece = 0;
+					player = 1;
 					text = text.substr(1, text.length() - 1);
 					return true;
 				default:

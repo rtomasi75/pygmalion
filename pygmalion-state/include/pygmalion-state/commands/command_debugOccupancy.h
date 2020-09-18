@@ -38,11 +38,12 @@ namespace pygmalion::state
 					std::string remainder3;
 					parser::parseToken(remainder2, token, remainder3);
 					pieceType pc;
-					if (boardType::parsePiece(token, pc))
+					playerType p;
+					if (boardType::parsePiece(token, pc, p))
 					{
 
-						this->output() << "occupancy bitboard for piece " << boardType::pieceToString(pc) << ":" << std::endl;
-						this->dumpSquares(this->position().pieceOccupancy(pc));
+						this->output() << "occupancy bitboard for piece " << boardType::pieceToString(pc, p) << ":" << std::endl;
+						this->dumpSquares(this->position().pieceOccupancy(pc) & this->position().playerOccupancy(p));
 					}
 					else
 						this->output() << "invalid player: " << token << std::endl;

@@ -325,61 +325,70 @@ namespace pygmalion::chess
 				}
 			}
 		}
-		static std::string pieceToString_Implementation(const pieceType piece) noexcept
-		{
-			switch (piece)
-			{
-			case knight:
-				return "N";
-			case pawn:
-				return "P";
-			case rook:
-				return "R";
-			case bishop:
-				return "B";
-			case queen:
-				return "Q";
-			case king:
-				return "K";
-			default:
-				assert(false);
-				return "?";
-			}
-		}
-		static bool parsePiece_Implementation(std::string& text, pieceType& piece) noexcept
+		static bool parsePiece_Implementation(std::string& text, pieceType& piece, playerType& player) noexcept
 		{
 			if (text.length() > 0)
 			{
 				switch (text[0])
 				{
 				case 'p':
+					piece = pawn;
+					player = 1;
+					text = text.substr(1, text.length() - 1);
+					return true;
 				case 'P':
 					piece = pawn;
+					player = 0;
 					text = text.substr(1, text.length() - 1);
 					return true;
 				case 'r':
+					piece = rook;
+					player = 1;
+					text = text.substr(1, text.length() - 1);
+					return true;
 				case 'R':
 					piece = rook;
+					player = 0;
 					text = text.substr(1, text.length() - 1);
 					return true;
 				case 'q':
+					piece = queen;
+					player = 1;
+					text = text.substr(1, text.length() - 1);
+					return true;
 				case 'Q':
 					piece = queen;
+					player = 0;
 					text = text.substr(1, text.length() - 1);
 					return true;
 				case 'b':
+					piece = bishop;
+					player = 1;
+					text = text.substr(1, text.length() - 1);
+					return true;
 				case 'B':
 					piece = bishop;
+					player = 0;
 					text = text.substr(1, text.length() - 1);
 					return true;
 				case 'k':
+					piece = king;
+					player = 1;
+					text = text.substr(1, text.length() - 1);
+					return true;
 				case 'K':
 					piece = king;
+					player = 0;
 					text = text.substr(1, text.length() - 1);
 					return true;
 				case 'n':
+					piece = knight;
+					player = 1;
+					text = text.substr(1, text.length() - 1);
+					return true;
 				case 'N':
 					piece = knight;
+					player = 0;
 					text = text.substr(1, text.length() - 1);
 					return true;
 				default:

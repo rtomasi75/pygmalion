@@ -89,13 +89,9 @@ namespace pygmalion
 		{
 			return boardType::pieceToString_Implementation(piece, player);
 		}
-		static std::string pieceToString(const pieceType piece) noexcept
+		static bool parsePiece(std::string& text, pieceType& piece, playerType& player) noexcept
 		{
-			return boardType::pieceToString_Implementation(piece);
-		}
-		static bool parsePiece(std::string& text, pieceType& piece) noexcept
-		{
-			return boardType::parsePiece_Implementation(text, piece);
+			return boardType::parsePiece_Implementation(text, piece, player);
 		}
 		static std::string squareToString(const squareType square) noexcept
 		{

@@ -12,7 +12,12 @@ namespace pygmalion::mechanics
 		private:
 			pieceType m_Piece;
 			squareType m_Square;
+			playerType m_Owner;
 		public:
+			constexpr playerType owner() const noexcept
+			{
+				return m_Owner;
+			}
 			constexpr squareType square() const noexcept
 			{
 				return m_Square;
@@ -21,16 +26,17 @@ namespace pygmalion::mechanics
 			{
 				return m_Piece;
 			}
-			constexpr dropMovedata(const pieceType pc, const squareType sq) noexcept :
+			constexpr dropMovedata(const pieceType pc, const squareType sq, const playerType p) noexcept :
 				m_Square{ sq },
-				m_Piece{ pc }
+				m_Piece{ pc },
+				m_Owner{ p }
 			{}
 		};
 	}
 
 	template<typename BOARD>
 	class dropmove :
-		public move<BOARD, BOARD::pieceType::countUnsignedBits + BOARD::squareType::countUnsignedBits, detail::dropMovedata<BOARD>, dropmove<BOARD>>
+		public move<BOARD, BOARD::pieceType::countUnsignedBits + BOARD::squareType::countUnsignedBits + BOARD::playerType::countUnsignedBits, detail::dropMovedata<BOARD>, dropmove<BOARD>>
 	{
 	public:
 		using boardType = BOARD;
@@ -38,6 +44,7 @@ namespace pygmalion::mechanics
 #include <pygmalion-state/include_state.h>
 		constexpr static const size_t countSquareBits{ squareType::countUnsignedBits };
 		constexpr static const size_t countPieceBits{ pieceType::countUnsignedBits };
+		constexpr static const size_t countOwnerBits{ playerType::countUnsignedBits };
 		static std::string name_Implementation() noexcept
 		{
 			std::stringstream sstr;
@@ -45,6 +52,15 @@ namespace pygmalion::mechanics
 			return sstr.str();
 		}
 	private:
+		constexpr static playerType extractOwner(const typename dropmove::movebitsType& movebits) noexcept
+		{
+			const playerType p{ playerType(static_cast<typename std::make_unsigned<typename playerType::baseType>::type>(movebits.template extractBits<countSquareBits + countPieceBits,countOwnerBits>())) };
+			return p;
+		}
+		constexpr static void encodeOwner(typename dropmove::movebitsType& movebits, const playerType p) noexcept
+		{
+			movebits.template storeBits<countSquareBits + countPieceBits, countOwnerBits>(static_cast<typename std::make_unsigned<typename playerType::baseType>::type>(p));
+		}
 		constexpr static pieceType extractPiece(const typename dropmove::movebitsType& movebits) noexcept
 		{
 			const pieceType pc{ pieceType(static_cast<typename std::make_unsigned<typename pieceType::baseType>::type>(movebits.template extractBits<countSquareBits,countPieceBits>())) };
@@ -68,19 +84,20 @@ namespace pygmalion::mechanics
 		{
 			const squareType sq{ dropmove::extractSquare(moveBits) };
 			const pieceType pc{ dropmove::extractPiece(moveBits) };
-			const playerType p{ position.movingPlayer() };
+			const playerType p{ dropmove::extractOwner(moveBits) };
 			position.addPiece(pc, sq, p);
-			return typename dropmove::movedataType(pc, sq);
+			return typename dropmove::movedataType(pc, sq, p);
 		}
 		constexpr static void undoMove_Implementation(boardType& position, const typename dropmove::movedataType& data, const playerType movingPlayer) noexcept
 		{
-			position.removePiece(data.piece(), data.square(), movingPlayer);
+			position.removePiece(data.piece(), data.square(), data.owner());
 		}
-		constexpr static typename dropmove::movebitsType dropMove(const pieceType piece, const squareType square) noexcept
+		constexpr static typename dropmove::movebitsType dropMove(const pieceType piece, const squareType square, const playerType owner) noexcept
 		{
 			typename dropmove::movebitsType bits{ dropmove::movebitsType::zero() };
 			dropmove::encodeSquare(bits, square);
 			dropmove::encodePiece(bits, piece);
+			dropmove::encodeOwner(bits, owner);
 			return bits;
 		}
 		static bool parse_Implementation(const boardType& position, std::string& text, typename dropmove::movebitsType& moveBits) noexcept
@@ -88,7 +105,8 @@ namespace pygmalion::mechanics
 			std::string temp{ text };
 			squareType sq;
 			pieceType pc;
-			if (boardType::parsePiece(temp, pc))
+			playerType p;
+			if (boardType::parsePiece(temp, pc, p))
 			{
 				if (temp[0] == '@')
 				{
@@ -97,7 +115,7 @@ namespace pygmalion::mechanics
 					{
 						if (!position.totalOccupancy()[sq])
 						{
-							moveBits = dropMove(pc, sq);
+							moveBits = dropMove(pc, sq, p);
 							text = temp;
 							return true;
 						}
@@ -110,7 +128,8 @@ namespace pygmalion::mechanics
 		{
 			const squareType sq{ dropmove::extractSquare(moveBits) };
 			const pieceType pc{ dropmove::extractPiece(moveBits) };
-			return boardType::pieceToString(pc) + "@" + boardType::squareToString(sq);
+			const playerType p{ dropmove::extractOwner(moveBits) };
+			return boardType::pieceToString(pc, p) + "@" + boardType::squareToString(sq);
 		}
 	};
 }
