@@ -1,6 +1,6 @@
 namespace pygmalion::tictactoe
 {
-	using move = pygmalion::mechanics::combinedmove<board, pygmalion::mechanics::nullmove<board>, pygmalion::mechanics::drop<board>>;
+	using move = pygmalion::mechanics::conjunctivemove<board, pygmalion::mechanics::nullmove<board>, pygmalion::mechanics::dropmove<board>>;
 
 	using descriptor_mechanics = pygmalion::descriptor_mechanics<move>;
 
