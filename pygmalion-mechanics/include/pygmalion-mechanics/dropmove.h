@@ -26,11 +26,17 @@ namespace pygmalion::mechanics
 			{
 				return m_Piece;
 			}
+			constexpr dropMovedata() noexcept = default;
 			constexpr dropMovedata(const pieceType pc, const squareType sq, const playerType p) noexcept :
 				m_Square{ sq },
 				m_Piece{ pc },
 				m_Owner{ p }
 			{}
+			constexpr dropMovedata(dropMovedata&&) noexcept = default;
+			constexpr dropMovedata(const dropMovedata&) noexcept = default;
+			constexpr dropMovedata& operator=(dropMovedata&&) noexcept = default;
+			constexpr dropMovedata& operator=(const dropMovedata&) noexcept = default;
+			~dropMovedata() noexcept = default;
 		};
 	}
 
@@ -48,7 +54,7 @@ namespace pygmalion::mechanics
 		static std::string name_Implementation() noexcept
 		{
 			std::stringstream sstr;
-			sstr << dropmove::countBits << "bit@drop";
+			sstr << "" << sizeof(typename dropmove::movedataType) << ":" << dropmove::countBits << "@drop";
 			return sstr.str();
 		}
 	private:
@@ -88,7 +94,7 @@ namespace pygmalion::mechanics
 			position.addPiece(pc, sq, p);
 			return typename dropmove::movedataType(pc, sq, p);
 		}
-		constexpr static void undoMove_Implementation(boardType& position, const typename dropmove::movedataType& data, const playerType movingPlayer) noexcept
+		constexpr static void undoMove_Implementation(boardType& position, const typename dropmove::movedataType& data) noexcept
 		{
 			position.removePiece(data.piece(), data.square(), data.owner());
 		}

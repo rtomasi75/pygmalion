@@ -204,7 +204,7 @@ namespace pygmalion::chess
 		{
 			if (text.length() > 0)
 			{
-				if ((text[0] >= '1') && (text[0] < ('1' + countFiles)))
+				if ((text[0] >= '1') && (text[0] < ('1' + countRanks)))
 				{
 					rank = text[0] - '1';
 					text = text.substr(1, text.length() - 1);

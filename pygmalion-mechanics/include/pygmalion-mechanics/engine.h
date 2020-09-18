@@ -11,7 +11,7 @@ namespace pygmalion::mechanics
 #include "include_mechanics.h"
 	private:
 		std::vector<boardType> m_PositionHistory;
-		std::vector<typename motorType::moveinfoType> m_MovedataHistory;
+		std::vector<movedataType> m_MovedataHistory;
 		std::vector<movebitsType> m_MoveHistory;
 	public:
 		constexpr size_t historyLength() const noexcept

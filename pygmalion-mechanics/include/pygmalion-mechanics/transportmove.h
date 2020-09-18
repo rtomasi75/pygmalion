@@ -37,6 +37,12 @@ namespace pygmalion::mechanics
 				m_To{ toSquare },
 				m_Player{ owner }
 			{}
+			constexpr transportMovedata() noexcept = default;
+			constexpr transportMovedata(transportMovedata&&) noexcept = default;
+			constexpr transportMovedata(const transportMovedata&) noexcept = default;
+			constexpr transportMovedata& operator=(transportMovedata&&) noexcept = default;
+			constexpr transportMovedata& operator=(const transportMovedata&) noexcept = default;
+			~transportMovedata() noexcept = default;
 		};
 	}
 
@@ -53,7 +59,7 @@ namespace pygmalion::mechanics
 		static std::string name_Implementation() noexcept
 		{
 			std::stringstream sstr;
-			sstr << transportmove::countBits << "bit@transport";
+			sstr << "" << sizeof(typename transportmove::movedataType) << ":" << transportmove::countBits << "@transport";
 			return sstr.str();
 		}
 	private:
@@ -86,7 +92,7 @@ namespace pygmalion::mechanics
 			position.addPiece(pc, to, p);
 			return typename transportmove::movedataType(pc, from, to, p);
 		}
-		constexpr static void undoMove_Implementation(boardType& position, const typename transportmove::movedataType& data, const playerType movingPlayer) noexcept
+		constexpr static void undoMove_Implementation(boardType& position, const typename transportmove::movedataType& data) noexcept
 		{
 			position.removePiece(data.piece(), data.to(), data.player());
 			position.addPiece(data.piece(), data.from(), data.player());

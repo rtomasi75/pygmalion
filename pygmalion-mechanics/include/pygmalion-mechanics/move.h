@@ -19,9 +19,9 @@ namespace pygmalion::mechanics
 		{
 			return instanceType::doMove_Implementation(position, moveBits);
 		}
-		constexpr static void undoMove(boardType& position, const movedataType& data, const playerType movingPlayer) noexcept
+		constexpr static void undoMove(boardType& position, const movedataType& data) noexcept
 		{
-			instanceType::undoMove_Implementation(position, data, movingPlayer);
+			instanceType::undoMove_Implementation(position, data);
 		}
 		static bool parse(const boardType& position, std::string& text, movebitsType& moveBits) noexcept
 		{

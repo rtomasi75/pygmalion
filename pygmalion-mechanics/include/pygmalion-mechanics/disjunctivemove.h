@@ -52,6 +52,11 @@ namespace pygmalion::mechanics
 				return m_Data;
 			}
 			constexpr disjunctiveMovedata() noexcept = default;
+			constexpr disjunctiveMovedata(disjunctiveMovedata&&) noexcept = default;
+			constexpr disjunctiveMovedata(const disjunctiveMovedata&) noexcept = default;
+			constexpr disjunctiveMovedata& operator=(disjunctiveMovedata&&) noexcept = default;
+			constexpr disjunctiveMovedata& operator=(const disjunctiveMovedata&) noexcept = default;
+			~disjunctiveMovedata() noexcept = default;
 		};
 		template<size_t INDEX, size_t COUNTER, typename MOVE, typename... MOVES2>
 		class disjunctivemoveSelector
@@ -85,7 +90,7 @@ namespace pygmalion::mechanics
 		static std::string namePack() noexcept
 		{
 			if constexpr (sizeof...(MOVES2) > 0)
-				return MOVE::name() + " | " + disjunctivemove::namePack<MOVES2...>();
+				return MOVE::name() + "|" + disjunctivemove::namePack<MOVES2...>();
 			else
 				return MOVE::name();
 		}
@@ -94,11 +99,11 @@ namespace pygmalion::mechanics
 		{
 			size_t N = pygmalion::detail::requiredUnsignedBits(sizeof...(MOVES));
 			std::stringstream sstr;
-			sstr << disjunctivemove::countBits << "bit@[ ";
-			sstr << disjunctivemove::countMuxBits << "bit@mux & " << disjunctivemove::countDataBits << "bit@( ";
+			sstr << sizeof(typename disjunctivemove::movedataType) << ":" << disjunctivemove::countBits << "@[";
+			sstr << "" << sizeof(muxbitsType) << ":" << disjunctivemove::countMuxBits << "@mux&" << disjunctivemove::movedataType::payloadSize << ":" << disjunctivemove::countDataBits << "@[";
 			if constexpr (sizeof...(MOVES) > 0)
 				sstr << disjunctivemove::namePack<MOVES...>();
-			sstr << " ) ]";
+			sstr << "]]";
 			return sstr.str();
 		}
 	private:
@@ -131,25 +136,25 @@ namespace pygmalion::mechanics
 		}
 	private:
 		template<size_t INDEX, typename MOVE, typename... MOVES2>
-		constexpr static void undoMovePack(boardType& position, const typename disjunctivemove::movedataType& combinedData, const playerType movingPlayer) noexcept
+		constexpr static void undoMovePack(boardType& position, const typename disjunctivemove::movedataType& combinedData) noexcept
 		{
 			constexpr const muxbitsType mux{ static_cast<muxbitsType>(static_cast<typename std::make_unsigned<size_t>::type>(INDEX)) };
 			if (mux == combinedData.mux())
 			{
 				const typename MOVE::movedataType& data{ *reinterpret_cast<const typename MOVE::movedataType*>(combinedData.dataPtr()) };
-				MOVE::undoMove(position, data, movingPlayer);
+				MOVE::undoMove(position, data);
 			}
 			else
 			{
 				if constexpr (sizeof...(MOVES2) > 0)
-					disjunctivemove::undoMovePack<INDEX + 1, MOVES2...>(position, combinedData, movingPlayer);
+					disjunctivemove::undoMovePack<INDEX + 1, MOVES2...>(position, combinedData);
 			}
 		}
 	public:
-		constexpr static void undoMove_Implementation(boardType& position, const typename disjunctivemove::movedataType& data, const playerType movingPlayer) noexcept
+		constexpr static void undoMove_Implementation(boardType& position, const typename disjunctivemove::movedataType& data) noexcept
 		{
 			if constexpr (sizeof...(MOVES) > 0)
-				disjunctivemove::undoMovePack<0, MOVES...>(position, data, movingPlayer);
+				disjunctivemove::undoMovePack<0, MOVES...>(position, data);
 		}
 	private:
 		template<size_t INDEX, typename MOVE, typename... MOVES2>

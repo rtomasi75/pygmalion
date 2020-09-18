@@ -39,6 +39,11 @@ namespace pygmalion::mechanics
 				return m_Data;
 			}
 			constexpr conjunctiveMovedata() noexcept = default;
+			constexpr conjunctiveMovedata(conjunctiveMovedata&&) noexcept = default;
+			constexpr conjunctiveMovedata(const conjunctiveMovedata&) noexcept = default;
+			constexpr conjunctiveMovedata& operator=(conjunctiveMovedata&&) noexcept = default;
+			constexpr conjunctiveMovedata& operator=(const conjunctiveMovedata&) noexcept = default;
+			~conjunctiveMovedata() noexcept = default;
 		};
 
 	}
@@ -57,7 +62,7 @@ namespace pygmalion::mechanics
 		static std::string namePack() noexcept
 		{
 			if constexpr (sizeof...(MOVES2) > 0)
-				return MOVE::name() + " & " + conjunctivemove::namePack<MOVES2...>();
+				return MOVE::name() + "&" + conjunctivemove::namePack<MOVES2...>();
 			else
 				return MOVE::name();
 		}
@@ -65,15 +70,15 @@ namespace pygmalion::mechanics
 		static std::string name_Implementation() noexcept
 		{
 			std::stringstream sstr;
-			sstr << conjunctivemove::countBits << "bit@[ ";
+			sstr << sizeof(typename conjunctivemove::movedataType) << ":" << conjunctivemove::countBits << "@[";
 			if constexpr (sizeof...(MOVES) > 0)
 				sstr << conjunctivemove::namePack<MOVES...>();
-			sstr << " ]";
+			sstr << "]";
 			return sstr.str();
 		}
 	private:
 		template<size_t BITSPOS, size_t DATAPOS, typename MOVE, typename... MOVES2>
-		constexpr static void doMovePack(boardType& position, const typename MOVE::movebitsType& moveBits, typename conjunctivemove::movedataType& combinedData) noexcept
+		constexpr static void doMovePack(boardType& position, const typename conjunctivemove::movebitsType& moveBits, typename conjunctivemove::movedataType& combinedData) noexcept
 		{
 			typename MOVE::movebitsType bits{ moveBits.template extractBits<BITSPOS,MOVE::countBits>() };
 			typename MOVE::movedataType& data{ *reinterpret_cast<typename MOVE::movedataType*>(combinedData.dataPtr() + DATAPOS) };
@@ -91,22 +96,22 @@ namespace pygmalion::mechanics
 		}
 	private:
 		template<size_t DATAPOS, typename MOVE, typename... MOVES2>
-		constexpr static void undoMovePack(boardType& position, const typename conjunctivemove::movedataType& combinedData, const playerType movingPlayer) noexcept
+		constexpr static void undoMovePack(boardType& position, const typename conjunctivemove::movedataType& combinedData) noexcept
 		{
 			const typename MOVE::movedataType& data{ *reinterpret_cast<const typename MOVE::movedataType*>(combinedData.dataPtr() + DATAPOS) };
-			MOVE::undoMove(position, data, movingPlayer);
+			MOVE::undoMove(position, data);
 			if constexpr (sizeof...(MOVES2) > 0)
-				conjunctivemove::undoMovePack<DATAPOS + sizeof(typename MOVE::movedataType), MOVES2...>(position, combinedData, movingPlayer);
+				conjunctivemove::undoMovePack<DATAPOS + sizeof(typename MOVE::movedataType), MOVES2...>(position, combinedData);
 		}
 	public:
-		constexpr static void undoMove_Implementation(boardType& position, const typename conjunctivemove::movedataType& data, const playerType movingPlayer) noexcept
+		constexpr static void undoMove_Implementation(boardType& position, const typename conjunctivemove::movedataType& data) noexcept
 		{
 			if constexpr (sizeof...(MOVES) > 0)
-				conjunctivemove::undoMovePack<0, MOVES...>(position, data, movingPlayer);
+				conjunctivemove::undoMovePack<0, MOVES...>(position, data);
 		}
 	private:
 		template<size_t BITSPOS, typename MOVE, typename... MOVES2>
-		static bool parsePack(const boardType& position, std::string& text, typename conjunctivemove::movedataType& moveBits) noexcept
+		static bool parsePack(const boardType& position, std::string& text, typename conjunctivemove::movebitsType& moveBits) noexcept
 		{
 			typename MOVE::movebitsType bits{ MOVE::movebitsType::zero() };
 			if (!MOVE::parse(position, text, bits))
@@ -115,15 +120,7 @@ namespace pygmalion::mechanics
 			{
 				moveBits.template storeBits<BITSPOS, MOVE::countBits>(bits);
 				if constexpr (sizeof...(MOVES2) > 0)
-				{
-					if (text[0] == ',')
-					{
-						text = text.substr(1, text.length() - 1);
-						return conjunctivemove::parsePack<BITSPOS + MOVE::countBits, MOVES2...>(position, text, moveBits);
-					}
-					else
-						return false;
-				}
+					return conjunctivemove::parsePack<BITSPOS + MOVE::countBits, MOVES2...>(position, text, moveBits);
 				else
 					return true;
 			}
@@ -152,7 +149,7 @@ namespace pygmalion::mechanics
 			const typename MOVE::movebitsType bits{ moveBits.template extractBits<BITSPOS,MOVE::countBits>() };
 			std::string text{ MOVE::toString(position, bits) };
 			if constexpr (sizeof...(MOVES2) > 0)
-				return text + "," + conjunctivemove::printPack<BITSPOS + MOVE::countBits, MOVES2...>(position, moveBits);
+				return text + conjunctivemove::printPack<BITSPOS + MOVE::countBits, MOVES2...>(position, moveBits);
 			else
 				return text;
 		}
