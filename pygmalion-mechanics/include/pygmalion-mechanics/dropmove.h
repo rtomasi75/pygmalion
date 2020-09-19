@@ -120,7 +120,7 @@ namespace pygmalion::mechanics
 			playerType p;
 			if (boardType::parsePiece(temp, pc, p))
 			{
-				if (temp[0] == '@')
+				if ((temp.length() > 0) && (temp[0] == '@'))
 				{
 					temp = temp.substr(1, temp.length() - 1);
 					if (boardType::parseSquare(temp, sq))
