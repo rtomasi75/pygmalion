@@ -11,9 +11,9 @@ namespace pygmalion::chess
 		private:
 			squareType m_From;
 			squareType m_To;
+			uint_t<countFiles, false> m_OldFlags;
 			pieceType m_Piece;
 			playerType m_Player;
-			uint_t<countFiles, false> m_OldFlags;
 		public:
 			constexpr const uint_t<countFiles, false>& oldFlags() const noexcept
 			{
@@ -35,8 +35,8 @@ namespace pygmalion::chess
 			{
 				return m_To;
 			}
-			constexpr quietMovedata(const pieceType quietedPiece, const squareType fromSquare, const squareType toSquare, const playerType owner, const uint_t<countFiles, false>& oldFlags_) noexcept :
-				m_Piece{ quietedPiece },
+			constexpr quietMovedata(const pieceType transportedPiece, const squareType fromSquare, const squareType toSquare, const playerType owner, const uint_t<countFiles, false>& oldFlags_) noexcept :
+				m_Piece{ transportedPiece },
 				m_From{ fromSquare },
 				m_To{ toSquare },
 				m_OldFlags{ oldFlags_ },

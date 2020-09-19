@@ -10,9 +10,9 @@ namespace pygmalion::chess
 #include <pygmalion-state/include_state.h>
 		private:
 			playerType m_MovingPlayer;
+			uint_t<countFiles, false> m_OldFlags;
 			squareType m_From;
 			squareType m_To;
-			uint_t<countFiles, false> m_OldFlags;
 		public:
 			constexpr const uint_t<countFiles, false>& oldFlags() const noexcept
 			{

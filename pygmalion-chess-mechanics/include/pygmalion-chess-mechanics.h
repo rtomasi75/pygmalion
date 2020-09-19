@@ -5,6 +5,7 @@
 #include <pygmalion-mechanics.h>
 
 #include "pygmalion-chess-mechanics/doublepushmove.h"
+#include "pygmalion-chess-mechanics/capturemove.h"
 #include "pygmalion-chess-mechanics/quietmove.h"
 #include "pygmalion-chess-mechanics/motor.h"
 
