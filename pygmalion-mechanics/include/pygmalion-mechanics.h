@@ -15,6 +15,8 @@
 #include "pygmalion-mechanics/promotionmove.h"
 #include "pygmalion-mechanics/promocapturemove.h"
 #include "pygmalion-mechanics/capturemove.h"
+#include "pygmalion-mechanics/clearflagsmove.h"
+#include "pygmalion-mechanics/setflagsmove.h"
 #include "pygmalion-mechanics/killmove.h"
 #include "pygmalion-mechanics/disjunctivemove.h"
 #include "pygmalion-mechanics/conjunctivemove.h"

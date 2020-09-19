@@ -102,9 +102,9 @@ namespace pygmalion::mechanics
 		constexpr void undoMovePack(boardType& position, const typename conjunctivemove::movedataType& combinedData) const noexcept
 		{
 			const typename MOVE::movedataType& data{ *reinterpret_cast<const typename MOVE::movedataType*>(combinedData.dataPtr() + DATAPOS) };
-			std::get<INDEX>(this->m_Moves).undoMove(position, data);
 			if constexpr (sizeof...(MOVES2) > 0)
 				this->template undoMovePack<DATAPOS + sizeof(typename MOVE::movedataType), INDEX + 1, MOVES2...>(position, combinedData);
+			std::get<INDEX>(this->m_Moves).undoMove(position, data);
 		}
 	public:
 		constexpr void undoMove_Implementation(boardType& position, const typename conjunctivemove::movedataType& data) const noexcept

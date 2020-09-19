@@ -42,6 +42,10 @@ namespace pygmalion
 		{
 			reinterpret_cast<boardType*>(this)->onInitialize_Implementation();
 		}
+		constexpr static bool enableRange(const size_t first, const size_t last) noexcept
+		{
+			return (first <= last) && (last < countFlags);
+		}
 	public:
 		static std::string name_Implementation() noexcept
 		{
@@ -154,6 +158,26 @@ namespace pygmalion
 				m_Flags.clear(f);
 				onClearedFlag(f);
 			}
+		}
+		template<size_t FIRST, size_t LAST, typename = typename std::enable_if<board::enableRange(FIRST, LAST)>::type>
+		constexpr void clearFlagRange() noexcept
+		{
+			m_Flags.template clearRange<FIRST, LAST>();
+		}
+		template<size_t FIRST, size_t LAST, typename = typename std::enable_if<board::enableRange(FIRST, LAST)>::type>
+		constexpr void setFlagRange() noexcept
+		{
+			m_Flags.template setRange<FIRST, LAST>();
+		}
+		template<size_t FIRST, size_t LAST, typename = typename std::enable_if<board::enableRange(FIRST, LAST)>::type>
+		constexpr uint_t<1 + LAST - FIRST, false> extractFlagRange() const noexcept
+		{
+			return m_Flags.template extractRange<FIRST, LAST>();
+		}
+		template<size_t FIRST, size_t LAST, typename = typename std::enable_if<board::enableRange(FIRST, LAST)>::type>
+		constexpr void storeFlagRange(const uint_t<1 + LAST - FIRST, false>& flags) noexcept
+		{
+			m_Flags.template storeRange<FIRST, LAST>(flags);
 		}
 		constexpr const flagsType flags() const noexcept
 		{

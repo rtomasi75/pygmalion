@@ -58,7 +58,7 @@ namespace pygmalion::mechanics
 		}
 		constexpr typename nextplayermove::movebitsType create() const noexcept
 		{
-			typename nextplayermove::movebitsType bits{ nextplayermove::movebitsType::zero() };
+			constexpr const typename nextplayermove::movebitsType bits{ nextplayermove::movebitsType::zero() };
 			return bits;
 		}
 		bool parse_Implementation(const boardType& position, std::string& text, typename nextplayermove::movebitsType& moveBits) const noexcept

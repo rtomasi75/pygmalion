@@ -10,7 +10,31 @@ namespace pygmalion::state
 		using bitsType = uint_t<countFlags, false>;
 	private:
 		bitsType m_Bits;
+		constexpr static bool enableRange(const size_t first, const size_t last) noexcept
+		{
+			return (first <= last) && (last < countFlags);
+		}
 	public:
+		template<size_t FIRST, size_t LAST, typename = typename std::enable_if<flags::enableRange(FIRST, LAST)>::type>
+		constexpr void clearRange() noexcept
+		{
+			m_Bits.template clearBits<FIRST, 1 + LAST - FIRST>();
+		}
+		template<size_t FIRST, size_t LAST, typename = typename std::enable_if<flags::enableRange(FIRST, LAST)>::type>
+		constexpr void setRange() noexcept
+		{
+			m_Bits.template setBits<FIRST, 1 + LAST - FIRST>();
+		}
+		template<size_t FIRST, size_t LAST, typename = typename std::enable_if<flags::enableRange(FIRST, LAST)>::type>
+		constexpr uint_t<1 + LAST - FIRST, false> extractRange() const noexcept
+		{
+			return m_Bits.template extractBits<FIRST, 1 + LAST - FIRST>();
+		}
+		template<size_t FIRST, size_t LAST, typename = typename std::enable_if<flags::enableRange(FIRST, LAST)>::type>
+		constexpr void storeRange(const uint_t<1 + LAST - FIRST, false>& flags) noexcept
+		{
+			m_Bits.template storeBits<FIRST, 1 + LAST - FIRST>(flags);
+		}
 		constexpr explicit flags(const bitsType bits) noexcept :
 			m_Bits{ bits }
 		{
