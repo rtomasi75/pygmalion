@@ -33,7 +33,7 @@ namespace pygmalion::mechanics
 			using muxbitsType = uint_t<countMuxBits, false>;
 		private:
 			muxbitsType m_Mux;
-			unsigned char m_Data[payloadSize];
+			std::array<unsigned char, payloadSize> m_Data;
 		public:
 			constexpr muxbitsType& mux() noexcept
 			{
@@ -45,13 +45,15 @@ namespace pygmalion::mechanics
 			}
 			constexpr unsigned char* dataPtr() noexcept
 			{
-				return m_Data;
+				return m_Data.data();
 			}
 			constexpr const unsigned char* dataPtr() const noexcept
 			{
-				return m_Data;
+				return m_Data.data();
 			}
-			constexpr disjunctiveMovedata() noexcept = default;
+			constexpr disjunctiveMovedata() noexcept :
+				m_Data{ arrayhelper::make<payloadSize, unsigned char>(0) }
+			{}
 			constexpr disjunctiveMovedata(disjunctiveMovedata&&) noexcept = default;
 			constexpr disjunctiveMovedata(const disjunctiveMovedata&) noexcept = default;
 			constexpr disjunctiveMovedata& operator=(disjunctiveMovedata&&) noexcept = default;

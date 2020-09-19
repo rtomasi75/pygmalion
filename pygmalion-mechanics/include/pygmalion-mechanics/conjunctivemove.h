@@ -28,17 +28,19 @@ namespace pygmalion::mechanics
 #include <pygmalion-state/include_state.h>
 			constexpr static size_t payloadSize{ detail::computeConjunctiveDataSize<MOVES...>() };
 		private:
-			unsigned char m_Data[payloadSize];
+			std::array<unsigned char, payloadSize> m_Data;
 		public:
 			constexpr unsigned char* dataPtr() noexcept
 			{
-				return m_Data;
+				return m_Data.data();
 			}
 			constexpr const unsigned char* dataPtr() const noexcept
 			{
-				return m_Data;
+				return m_Data.data();
 			}
-			constexpr conjunctiveMovedata() noexcept = default;
+			constexpr conjunctiveMovedata() noexcept :
+				m_Data{ arrayhelper::make<payloadSize, unsigned char>(0) }
+			{}
 			constexpr conjunctiveMovedata(conjunctiveMovedata&&) noexcept = default;
 			constexpr conjunctiveMovedata(const conjunctiveMovedata&) noexcept = default;
 			constexpr conjunctiveMovedata& operator=(conjunctiveMovedata&&) noexcept = default;

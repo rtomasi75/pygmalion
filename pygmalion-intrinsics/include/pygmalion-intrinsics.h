@@ -23,6 +23,7 @@
 #include <atomic>
 #include <deque>
 #include <mutex>
+#include <memory>
 
 #include "pygmalion-intrinsics/arrayhelper.h"
 #include "pygmalion-intrinsics/profiler.h"
