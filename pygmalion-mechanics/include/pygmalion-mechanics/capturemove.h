@@ -94,7 +94,13 @@ namespace pygmalion::mechanics
 			movebits.template storeBits<0, countFromBits>(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(sq));
 		}
 	public:
-		constexpr static typename capturemove::movedataType doMove_Implementation(boardType& position, const typename capturemove::movebitsType& moveBits) noexcept
+		constexpr capturemove() noexcept = default;
+		~capturemove() noexcept = default;
+		constexpr capturemove(capturemove&&) noexcept = default;
+		constexpr capturemove(const capturemove&) noexcept = default;
+		constexpr capturemove& operator=(capturemove&&) noexcept = default;
+		constexpr capturemove& operator=(const capturemove&) noexcept = default;
+		constexpr typename capturemove::movedataType doMove_Implementation(boardType& position, const typename capturemove::movebitsType& moveBits) const noexcept
 		{
 			const squareType from{ capturemove::extractFrom(moveBits) };
 			const squareType to{ capturemove::extractTo(moveBits) };
@@ -107,20 +113,20 @@ namespace pygmalion::mechanics
 			position.addPiece(pc, to, p);
 			return typename capturemove::movedataType(pc, from, to, p, pc2, p2);
 		}
-		constexpr static void undoMove_Implementation(boardType& position, const typename capturemove::movedataType& data) noexcept
+		constexpr void undoMove_Implementation(boardType& position, const typename capturemove::movedataType& data) const noexcept
 		{
 			position.removePiece(data.transportedPiece(), data.to(), data.ownerTransported());
 			position.addPiece(data.capturedPiece(), data.to(), data.ownerCaptured());
 			position.addPiece(data.transportedPiece(), data.from(), data.ownerTransported());
 		}
-		constexpr static typename capturemove::movebitsType create(const squareType from, const squareType to) noexcept
+		constexpr typename capturemove::movebitsType create(const squareType from, const squareType to) const noexcept
 		{
 			typename capturemove::movebitsType bits{ capturemove::movebitsType::zero() };
 			capturemove::encodeFrom(bits, from);
 			capturemove::encodeTo(bits, to);
 			return bits;
 		}
-		static bool parse_Implementation(const boardType& position, std::string& text, typename capturemove::movebitsType& moveBits) noexcept
+		bool parse_Implementation(const boardType& position, std::string& text, typename capturemove::movebitsType& moveBits) const noexcept
 		{
 			std::string temp{ text };
 			squareType from;
@@ -146,7 +152,7 @@ namespace pygmalion::mechanics
 			}
 			return false;
 		}
-		static std::string toString_Implementation(const boardType& position, const typename capturemove::movebitsType& moveBits) noexcept
+		std::string toString_Implementation(const boardType& position, const typename capturemove::movebitsType& moveBits) const noexcept
 		{
 			const squareType from{ capturemove::extractFrom(moveBits) };
 			const squareType to{ capturemove::extractTo(moveBits) };

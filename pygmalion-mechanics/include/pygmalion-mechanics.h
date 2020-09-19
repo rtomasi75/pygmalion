@@ -2,6 +2,7 @@
 #define PYGMALION_MECHANICS
 
 #include <vector>
+#include <tuple>
 
 #include <pygmalion-state.h>
 

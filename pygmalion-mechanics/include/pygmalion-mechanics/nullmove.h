@@ -28,25 +28,31 @@ namespace pygmalion::mechanics
 		using boardType = BOARD;
 		using descriptorState = typename boardType::descriptorState;
 #include <pygmalion-state/include_state.h>
+		constexpr nullmove() noexcept = default;
+		~nullmove() noexcept = default;
+		constexpr nullmove(nullmove&&) noexcept = default;
+		constexpr nullmove(const nullmove&) noexcept = default;
+		constexpr nullmove& operator=(nullmove&&) noexcept = default;
+		constexpr nullmove& operator=(const nullmove&) noexcept = default;
 		static std::string name_Implementation() noexcept
 		{
 			std::stringstream sstr;
 			sstr << "" << sizeof(typename nullmove::movedataType) << ":" << nullmove::countBits << "@null";
 			return sstr.str();
 		}
-		constexpr static typename nullmove::movedataType doMove_Implementation(boardType& position, const typename nullmove::movebitsType& moveBits) noexcept
+		constexpr typename nullmove::movedataType doMove_Implementation(boardType& position, const typename nullmove::movebitsType& moveBits) const noexcept
 		{
 			return typename nullmove::movedataType();
 		}
-		constexpr static void undoMove_Implementation(boardType& position, const typename nullmove::movedataType& data) noexcept
+		constexpr void undoMove_Implementation(boardType& position, const typename nullmove::movedataType& data) const noexcept
 		{
 		}
-		constexpr static typename nullmove::movebitsType create() noexcept
+		constexpr typename nullmove::movebitsType create() const noexcept
 		{
 			typename nullmove::movebitsType bits{ nullmove::movebitsType::zero() };
 			return bits;
 		}
-		static bool parse_Implementation(const boardType& position, std::string& text, typename nullmove::movebitsType& moveBits) noexcept
+		bool parse_Implementation(const boardType& position, std::string& text, typename nullmove::movebitsType& moveBits) const noexcept
 		{
 			if (text.length() >= 4)
 			{
@@ -59,7 +65,7 @@ namespace pygmalion::mechanics
 			}
 			return false;
 		}
-		static std::string toString_Implementation(const boardType& position, const typename nullmove::movebitsType& moveBits) noexcept
+		std::string toString_Implementation(const boardType& position, const typename nullmove::movebitsType& moveBits) const noexcept
 		{
 			return "null";
 		}

@@ -36,26 +36,32 @@ namespace pygmalion::mechanics
 		using boardType = BOARD;
 		using descriptorState = typename boardType::descriptorState;
 #include <pygmalion-state/include_state.h>
+		constexpr nextplayermove() noexcept = default;
+		~nextplayermove() noexcept = default;
+		constexpr nextplayermove(nextplayermove&&) noexcept = default;
+		constexpr nextplayermove(const nextplayermove&) noexcept = default;
+		constexpr nextplayermove& operator=(nextplayermove&&) noexcept = default;
+		constexpr nextplayermove& operator=(const nextplayermove&) noexcept = default;
 		static std::string name_Implementation() noexcept
 		{
 			std::stringstream sstr;
 			sstr << "" << sizeof(typename nextplayermove::movedataType) << ":" << nextplayermove::countBits << "@nextplayer";
 			return sstr.str();
 		}
-		constexpr static typename nextplayermove::movedataType doMove_Implementation(boardType& position, const typename nextplayermove::movebitsType& moveBits) noexcept
+		constexpr typename nextplayermove::movedataType doMove_Implementation(boardType& position, const typename nextplayermove::movebitsType& moveBits) const noexcept
 		{
 			return typename nextplayermove::movedataType(position.movingPlayer()++);
 		}
-		constexpr static void undoMove_Implementation(boardType& position, const typename nextplayermove::movedataType& data) noexcept
+		constexpr void undoMove_Implementation(boardType& position, const typename nextplayermove::movedataType& data) const noexcept
 		{
 			position.movingPlayer() = data.movingPlayer();
 		}
-		constexpr static typename nextplayermove::movebitsType create() noexcept
+		constexpr typename nextplayermove::movebitsType create() const noexcept
 		{
 			typename nextplayermove::movebitsType bits{ nextplayermove::movebitsType::zero() };
 			return bits;
 		}
-		static bool parse_Implementation(const boardType& position, std::string& text, typename nextplayermove::movebitsType& moveBits) noexcept
+		bool parse_Implementation(const boardType& position, std::string& text, typename nextplayermove::movebitsType& moveBits) const noexcept
 		{
 			if (text.length() >= 1)
 			{
@@ -68,7 +74,7 @@ namespace pygmalion::mechanics
 			}
 			return false;
 		}
-		static std::string toString_Implementation(const boardType& position, const typename nextplayermove::movebitsType& moveBits) noexcept
+		std::string toString_Implementation(const boardType& position, const typename nextplayermove::movebitsType& moveBits) const noexcept
 		{
 			return "+";
 		}

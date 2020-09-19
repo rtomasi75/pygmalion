@@ -66,7 +66,13 @@ namespace pygmalion::mechanics
 			movebits.template storeBits<0, countSquareBits>(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(sq));
 		}
 	public:
-		constexpr static typename killmove::movedataType doMove_Implementation(boardType& position, const typename killmove::movebitsType& moveBits) noexcept
+		constexpr killmove() noexcept = default;
+		~killmove() noexcept = default;
+		constexpr killmove(killmove&&) noexcept = default;
+		constexpr killmove(const killmove&) noexcept = default;
+		constexpr killmove& operator=(killmove&&) noexcept = default;
+		constexpr killmove& operator=(const killmove&) noexcept = default;
+		constexpr typename killmove::movedataType doMove_Implementation(boardType& position, const typename killmove::movebitsType& moveBits) const noexcept
 		{
 			const squareType sq{ killmove::extractSquare(moveBits) };
 			const pieceType pc{ position.getPiece(sq) };
@@ -74,17 +80,17 @@ namespace pygmalion::mechanics
 			position.removePiece(pc, sq, p);
 			return typename killmove::movedataType(pc, sq, p);
 		}
-		constexpr static void undoMove_Implementation(boardType& position, const typename killmove::movedataType& data) noexcept
+		constexpr void undoMove_Implementation(boardType& position, const typename killmove::movedataType& data) const noexcept
 		{
 			position.addPiece(data.piece(), data.square(), data.owner());
 		}
-		constexpr static typename killmove::movebitsType create(const squareType square) noexcept
+		constexpr typename killmove::movebitsType create(const squareType square) const noexcept
 		{
 			typename killmove::movebitsType bits{ killmove::movebitsType::zero() };
 			killmove::encodeSquare(bits, square);
 			return bits;
 		}
-		static bool parse_Implementation(const boardType& position, std::string& text, typename killmove::movebitsType& moveBits) noexcept
+		bool parse_Implementation(const boardType& position, std::string& text, typename killmove::movebitsType& moveBits) const noexcept
 		{
 			std::string temp{ text };
 			squareType sq;
@@ -103,7 +109,7 @@ namespace pygmalion::mechanics
 			}
 			return false;
 		}
-		static std::string toString_Implementation(const boardType& position, const typename killmove::movebitsType& moveBits) noexcept
+		std::string toString_Implementation(const boardType& position, const typename killmove::movebitsType& moveBits) const noexcept
 		{
 			const squareType sq{ killmove::extractSquare(moveBits) };
 			return "!" + boardType::squareToString(sq);

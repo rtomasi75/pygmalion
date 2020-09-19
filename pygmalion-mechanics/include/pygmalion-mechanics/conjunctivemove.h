@@ -58,6 +58,7 @@ namespace pygmalion::mechanics
 		using descriptorState = typename boardType::descriptorState;
 #include <pygmalion-state/include_state.h>
 	private:
+		std::tuple<MOVES...> m_Moves;
 		template<typename MOVE, typename... MOVES2>
 		static std::string namePack() noexcept
 		{
@@ -77,61 +78,61 @@ namespace pygmalion::mechanics
 			return sstr.str();
 		}
 	private:
-		template<size_t BITSPOS, size_t DATAPOS, typename MOVE, typename... MOVES2>
-		constexpr static void doMovePack(boardType& position, const typename conjunctivemove::movebitsType& moveBits, typename conjunctivemove::movedataType& combinedData) noexcept
+		template<size_t BITSPOS, size_t DATAPOS, size_t INDEX, typename MOVE, typename... MOVES2>
+		constexpr void doMovePack(boardType& position, const typename conjunctivemove::movebitsType& moveBits, typename conjunctivemove::movedataType& combinedData) const noexcept
 		{
 			typename MOVE::movebitsType bits{ moveBits.template extractBits<BITSPOS,MOVE::countBits>() };
 			typename MOVE::movedataType& data{ *reinterpret_cast<typename MOVE::movedataType*>(combinedData.dataPtr() + DATAPOS) };
-			data = MOVE::doMove(position, bits);
+			data = std::get<INDEX>(this->m_Moves).doMove(position, bits);
 			if constexpr (sizeof...(MOVES2) > 0)
-				conjunctivemove::doMovePack<BITSPOS + MOVE::countBits, DATAPOS + sizeof(typename MOVE::movedataType), MOVES2...>(position, moveBits, combinedData);
+				this->template doMovePack<BITSPOS + MOVE::countBits, DATAPOS + sizeof(typename MOVE::movedataType), INDEX + 1, MOVES2...>(position, moveBits, combinedData);
 		}
 	public:
-		constexpr static typename conjunctivemove::movedataType doMove_Implementation(boardType& position, const typename conjunctivemove::movebitsType& moveBits) noexcept
+		constexpr typename conjunctivemove::movedataType doMove_Implementation(boardType& position, const typename conjunctivemove::movebitsType& moveBits) const noexcept
 		{
 			typename conjunctivemove::movedataType data;
 			if constexpr (sizeof...(MOVES) > 0)
-				conjunctivemove::doMovePack<0, 0, MOVES...>(position, moveBits, data);
+				this->template doMovePack<0, 0, 0, MOVES...>(position, moveBits, data);
 			return data;
 		}
 	private:
-		template<size_t DATAPOS, typename MOVE, typename... MOVES2>
-		constexpr static void undoMovePack(boardType& position, const typename conjunctivemove::movedataType& combinedData) noexcept
+		template<size_t DATAPOS, size_t INDEX, typename MOVE, typename... MOVES2>
+		constexpr void undoMovePack(boardType& position, const typename conjunctivemove::movedataType& combinedData) const noexcept
 		{
 			const typename MOVE::movedataType& data{ *reinterpret_cast<const typename MOVE::movedataType*>(combinedData.dataPtr() + DATAPOS) };
-			MOVE::undoMove(position, data);
+			std::get<INDEX>(this->m_Moves).undoMove(position, data);
 			if constexpr (sizeof...(MOVES2) > 0)
-				conjunctivemove::undoMovePack<DATAPOS + sizeof(typename MOVE::movedataType), MOVES2...>(position, combinedData);
+				this->template undoMovePack<DATAPOS + sizeof(typename MOVE::movedataType), INDEX + 1, MOVES2...>(position, combinedData);
 		}
 	public:
-		constexpr static void undoMove_Implementation(boardType& position, const typename conjunctivemove::movedataType& data) noexcept
+		constexpr void undoMove_Implementation(boardType& position, const typename conjunctivemove::movedataType& data) const noexcept
 		{
 			if constexpr (sizeof...(MOVES) > 0)
-				conjunctivemove::undoMovePack<0, MOVES...>(position, data);
+				this->template undoMovePack<0, 0, MOVES...>(position, data);
 		}
 	private:
-		template<size_t BITSPOS, typename MOVE, typename... MOVES2>
-		static bool parsePack(const boardType& position, std::string& text, typename conjunctivemove::movebitsType& moveBits) noexcept
+		template<size_t BITSPOS, size_t INDEX, typename MOVE, typename... MOVES2>
+		bool parsePack(const boardType& position, std::string& text, typename conjunctivemove::movebitsType& moveBits) const noexcept
 		{
 			typename MOVE::movebitsType bits{ MOVE::movebitsType::zero() };
-			if (!MOVE::parse(position, text, bits))
+			if (!std::get<INDEX>(this->m_Moves).parse(position, text, bits))
 				return false;
 			else
 			{
 				moveBits.template storeBits<BITSPOS, MOVE::countBits>(bits);
 				if constexpr (sizeof...(MOVES2) > 0)
-					return conjunctivemove::parsePack<BITSPOS + MOVE::countBits, MOVES2...>(position, text, moveBits);
+					return this->template parsePack<BITSPOS + MOVE::countBits, INDEX + 1, MOVES2...>(position, text, moveBits);
 				else
 					return true;
 			}
 		}
 	public:
-		static bool parse_Implementation(const boardType& position, std::string& text, typename conjunctivemove::movebitsType& moveBits) noexcept
+		bool parse_Implementation(const boardType& position, std::string& text, typename conjunctivemove::movebitsType& moveBits) const noexcept
 		{
 			std::string txt{ text };
 			if constexpr (sizeof...(MOVES) > 0)
 			{
-				if (conjunctivemove::parsePack<0, MOVES...>(position, text, moveBits))
+				if (this->template parsePack<0, 0, MOVES...>(position, text, moveBits))
 				{
 					text = txt;
 					return true;
@@ -143,35 +144,47 @@ namespace pygmalion::mechanics
 				return true;
 		}
 	private:
-		template<size_t BITSPOS, typename MOVE, typename... MOVES2>
-		static std::string printPack(const boardType& position, const typename conjunctivemove::movebitsType& moveBits) noexcept
+		template<size_t BITSPOS, size_t INDEX, typename MOVE, typename... MOVES2>
+		std::string printPack(const boardType& position, const typename conjunctivemove::movebitsType& moveBits) const noexcept
 		{
 			const typename MOVE::movebitsType bits{ moveBits.template extractBits<BITSPOS,MOVE::countBits>() };
-			std::string text{ MOVE::toString(position, bits) };
+			std::string text{ std::get<INDEX>(this->m_Moves).toString(position, bits) };
 			if constexpr (sizeof...(MOVES2) > 0)
-				return text + conjunctivemove::printPack<BITSPOS + MOVE::countBits, MOVES2...>(position, moveBits);
+				return text + this->template printPack<BITSPOS + MOVE::countBits, INDEX + 1, MOVES2...>(position, moveBits);
 			else
 				return text;
 		}
+	public:
+		std::string toString_Implementation(const boardType& position, const typename conjunctivemove::movebitsType& moveBits) const noexcept
+		{
+			return this->template printPack<0, 0, MOVES...>(position, moveBits);
+		}
 	private:
 		template<size_t BITSPOS, typename MOVE, typename... MOVES2>
-		static void encodePack(typename conjunctivemove::movebitsType& moveBits, typename MOVE::movebitsType bit, typename MOVES2::movebitsType... bits) noexcept
+		constexpr void encodePack(typename conjunctivemove::movebitsType& moveBits, typename MOVE::movebitsType bit, typename MOVES2::movebitsType... bits) const noexcept
 		{
-			moveBits.template storeBits<BITSPOS, MOVE::countBits>(bits);
+			moveBits.template storeBits<BITSPOS, MOVE::countBits>(bit);
 			if constexpr (sizeof...(MOVES2) > 0)
-				encodePack<BITSPOS + MOVE::countBits, MOVES2...>(moveBits, bits...);
+				this->template encodePack<BITSPOS + MOVE::countBits, MOVES2...>(moveBits, bits...);
 		}
 	public:
-		static std::string toString_Implementation(const boardType& position, const typename conjunctivemove::movebitsType& moveBits) noexcept
-		{
-			return conjunctivemove::printPack<0, MOVES...>(position, moveBits);
-		}
-		constexpr static typename conjunctivemove::movebitsType create(typename MOVES::movebitsType... bits) noexcept
+		constexpr typename conjunctivemove::movebitsType create(typename MOVES::movebitsType... bits) const noexcept
 		{
 			typename conjunctivemove::movebitsType moveBits;
 			if constexpr (sizeof...(MOVES) > 0)
-				encodePack<0, MOVES...>(moveBits, bits...);
+				this->template encodePack<0, MOVES...>(moveBits, bits...);
 			return moveBits;
 		}
+	public:
+		constexpr conjunctivemove() noexcept :
+			m_Moves{ std::tuple<MOVES...>(MOVES()...) }
+		{
+
+		}
+		~conjunctivemove() noexcept = default;
+		constexpr conjunctivemove(conjunctivemove&&) noexcept = default;
+		constexpr conjunctivemove(const conjunctivemove&) noexcept = default;
+		constexpr conjunctivemove& operator=(conjunctivemove&&) noexcept = default;
+		constexpr conjunctivemove& operator=(const conjunctivemove&) noexcept = default;
 	};
 }

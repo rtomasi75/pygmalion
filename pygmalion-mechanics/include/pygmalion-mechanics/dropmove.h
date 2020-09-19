@@ -86,7 +86,13 @@ namespace pygmalion::mechanics
 			movebits.template storeBits<0, countSquareBits>(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(sq));
 		}
 	public:
-		constexpr static typename dropmove::movedataType doMove_Implementation(boardType& position, const typename dropmove::movebitsType& moveBits) noexcept
+		constexpr dropmove() noexcept = default;
+		~dropmove() noexcept = default;
+		constexpr dropmove(dropmove&&) noexcept = default;
+		constexpr dropmove(const dropmove&) noexcept = default;
+		constexpr dropmove& operator=(dropmove&&) noexcept = default;
+		constexpr dropmove& operator=(const dropmove&) noexcept = default;
+		constexpr typename dropmove::movedataType doMove_Implementation(boardType& position, const typename dropmove::movebitsType& moveBits) const noexcept
 		{
 			const squareType sq{ dropmove::extractSquare(moveBits) };
 			const pieceType pc{ dropmove::extractPiece(moveBits) };
@@ -94,11 +100,11 @@ namespace pygmalion::mechanics
 			position.addPiece(pc, sq, p);
 			return typename dropmove::movedataType(pc, sq, p);
 		}
-		constexpr static void undoMove_Implementation(boardType& position, const typename dropmove::movedataType& data) noexcept
+		constexpr void undoMove_Implementation(boardType& position, const typename dropmove::movedataType& data) const noexcept
 		{
 			position.removePiece(data.piece(), data.square(), data.owner());
 		}
-		constexpr static typename dropmove::movebitsType create(const pieceType piece, const squareType square, const playerType owner) noexcept
+		constexpr typename dropmove::movebitsType create(const pieceType piece, const squareType square, const playerType owner) const noexcept
 		{
 			typename dropmove::movebitsType bits{ dropmove::movebitsType::zero() };
 			dropmove::encodeSquare(bits, square);
@@ -106,7 +112,7 @@ namespace pygmalion::mechanics
 			dropmove::encodeOwner(bits, owner);
 			return bits;
 		}
-		static bool parse_Implementation(const boardType& position, std::string& text, typename dropmove::movebitsType& moveBits) noexcept
+		bool parse_Implementation(const boardType& position, std::string& text, typename dropmove::movebitsType& moveBits) const noexcept
 		{
 			std::string temp{ text };
 			squareType sq;
@@ -130,7 +136,7 @@ namespace pygmalion::mechanics
 			}
 			return false;
 		}
-		static std::string toString_Implementation(const boardType& position, const typename dropmove::movebitsType& moveBits) noexcept
+		std::string toString_Implementation(const boardType& position, const typename dropmove::movebitsType& moveBits) const noexcept
 		{
 			const squareType sq{ dropmove::extractSquare(moveBits) };
 			const pieceType pc{ dropmove::extractPiece(moveBits) };

@@ -82,7 +82,13 @@ namespace pygmalion::mechanics
 			movebits.template storeBits<0, countFromBits>(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(sq));
 		}
 	public:
-		constexpr static typename transportmove::movedataType doMove_Implementation(boardType& position, const typename transportmove::movebitsType& moveBits) noexcept
+		constexpr transportmove() noexcept = default;
+		~transportmove() noexcept = default;
+		constexpr transportmove(transportmove&&) noexcept = default;
+		constexpr transportmove(const transportmove&) noexcept = default;
+		constexpr transportmove& operator=(transportmove&&) noexcept = default;
+		constexpr transportmove& operator=(const transportmove&) noexcept = default;
+		constexpr typename transportmove::movedataType doMove_Implementation(boardType& position, const typename transportmove::movebitsType& moveBits) const noexcept
 		{
 			const squareType from{ transportmove::extractFrom(moveBits) };
 			const squareType to{ transportmove::extractTo(moveBits) };
@@ -92,19 +98,19 @@ namespace pygmalion::mechanics
 			position.addPiece(pc, to, p);
 			return typename transportmove::movedataType(pc, from, to, p);
 		}
-		constexpr static void undoMove_Implementation(boardType& position, const typename transportmove::movedataType& data) noexcept
+		constexpr void undoMove_Implementation(boardType& position, const typename transportmove::movedataType& data) const noexcept
 		{
 			position.removePiece(data.piece(), data.to(), data.player());
 			position.addPiece(data.piece(), data.from(), data.player());
 		}
-		constexpr static typename transportmove::movebitsType create(const squareType from, const squareType to) noexcept
+		constexpr typename transportmove::movebitsType create(const squareType from, const squareType to) const noexcept
 		{
 			typename transportmove::movebitsType bits{ transportmove::movebitsType::zero() };
 			transportmove::encodeFrom(bits, from);
 			transportmove::encodeTo(bits, to);
 			return bits;
 		}
-		static bool parse_Implementation(const boardType& position, std::string& text, typename transportmove::movebitsType& moveBits) noexcept
+		bool parse_Implementation(const boardType& position, std::string& text, typename transportmove::movebitsType& moveBits) const noexcept
 		{
 			std::string temp{ text };
 			squareType from;
@@ -126,7 +132,7 @@ namespace pygmalion::mechanics
 			}
 			return false;
 		}
-		static std::string toString_Implementation(const boardType& position, const typename transportmove::movebitsType& moveBits) noexcept
+		std::string toString_Implementation(const boardType& position, const typename transportmove::movebitsType& moveBits) const noexcept
 		{
 			const squareType from{ transportmove::extractFrom(moveBits) };
 			const squareType to{ transportmove::extractTo(moveBits) };
