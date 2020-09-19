@@ -13,6 +13,7 @@
 #include "pygmalion-mechanics/dropmove.h"
 #include "pygmalion-mechanics/transportmove.h"
 #include "pygmalion-mechanics/promotionmove.h"
+#include "pygmalion-mechanics/promocapturemove.h"
 #include "pygmalion-mechanics/capturemove.h"
 #include "pygmalion-mechanics/killmove.h"
 #include "pygmalion-mechanics/disjunctivemove.h"
