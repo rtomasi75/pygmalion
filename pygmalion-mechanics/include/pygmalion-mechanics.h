@@ -12,6 +12,7 @@
 #include "pygmalion-mechanics/dropmove.h"
 #include "pygmalion-mechanics/transportmove.h"
 #include "pygmalion-mechanics/capturemove.h"
+#include "pygmalion-mechanics/killmove.h"
 #include "pygmalion-mechanics/disjunctivemove.h"
 #include "pygmalion-mechanics/conjunctivemove.h"
 #include "pygmalion-mechanics/motor.h"
