@@ -1,7 +1,7 @@
 namespace pygmalion::chess
 {
 	using basemove = pygmalion::mechanics::disjunctivemove<doublepushmove> ;
-	using move = doublepushmove;
+	using move = quietmove;
 
 	using descriptor_mechanics = pygmalion::descriptor_mechanics<move>;
 

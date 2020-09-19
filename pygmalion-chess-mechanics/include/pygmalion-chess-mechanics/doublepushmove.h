@@ -121,10 +121,10 @@ namespace pygmalion::chess
 		}
 		constexpr void undoMove_Implementation(boardType& position, const typename doublepushmove::movedataType& data) const noexcept
 		{
-			position.storeFlagRange<4, 11>(data.oldFlags());
+			position.setMovingPlayer(--position.movingPlayer());
 			position.removePiece(pawn, data.to(), data.movingPlayer());
 			position.addPiece(pawn, data.from(), data.movingPlayer());
-			position.setMovingPlayer(--position.movingPlayer());
+			position.storeFlagRange<4, 11>(data.oldFlags());
 		}
 		constexpr typename doublepushmove::movebitsType create(const playerType movingPlayer, const fileType file) const noexcept
 		{
