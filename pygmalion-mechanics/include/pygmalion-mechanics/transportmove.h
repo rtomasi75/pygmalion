@@ -10,9 +10,9 @@ namespace pygmalion::mechanics
 			using descriptorState = typename boardType::descriptorState;
 #include <pygmalion-state/include_state.h>
 		private:
-			pieceType m_Piece;
 			squareType m_From;
 			squareType m_To;
+			pieceType m_Piece;
 			playerType m_Player;
 		public:
 			constexpr playerType player() const noexcept

@@ -1,12 +1,12 @@
-#include <pygmalion-tictactoe-mechanics.h>
+#include <pygmalion-tictactoe-state.h>
 
 using namespace pygmalion;
-using namespace pygmalion::mechanics;
+using namespace pygmalion::state;
 using namespace pygmalion::tictactoe;
 
 int main(int argc, char* argv[])
 {
-	engine<pygmalion::tictactoe::motor> eng(std::cin, std::cout);
+	engine<pygmalion::tictactoe::board> eng(std::cin, std::cout);
 	eng.run();
 	return 0;
 }
