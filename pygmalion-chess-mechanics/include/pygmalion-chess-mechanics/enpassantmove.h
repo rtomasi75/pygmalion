@@ -1,0 +1,232 @@
+namespace pygmalion::chess
+{
+	namespace detail
+	{
+		class enpassantMovedata
+		{
+		public:
+			using boardType = board;
+			using descriptorState = typename boardType::descriptorState;
+#include <pygmalion-state/include_state.h>
+		private:
+			playerType m_MovingPlayer;
+			uint_t<countFiles, false> m_OldFlags;
+			squareType m_From;
+			squareType m_To;
+			squareType m_CaptureSquare;
+		public:
+			constexpr const uint_t<countFiles, false>& oldFlags() const noexcept
+			{
+				return m_OldFlags;
+			}
+			constexpr squareType from() const noexcept
+			{
+				return m_From;
+			}
+			constexpr squareType captureSquare() const noexcept
+			{
+				return m_CaptureSquare;
+			}
+			constexpr squareType to() const noexcept
+			{
+				return m_To;
+			}
+			constexpr playerType movingPlayer() const noexcept
+			{
+				return m_MovingPlayer;
+			}
+			constexpr enpassantMovedata(const playerType movingPlayer_, const squareType from_, const squareType to_, const uint_t<countFiles, false>& oldFlags_, const squareType captureSquare) noexcept :
+				m_From{ from_ },
+				m_To{ to_ },
+				m_MovingPlayer{ movingPlayer_ },
+				m_OldFlags{ oldFlags_ },
+				m_CaptureSquare{ captureSquare }
+			{}
+			constexpr enpassantMovedata() noexcept = default;
+			constexpr enpassantMovedata(enpassantMovedata&&) noexcept = default;
+			constexpr enpassantMovedata(const enpassantMovedata&) noexcept = default;
+			constexpr enpassantMovedata& operator=(enpassantMovedata&&) noexcept = default;
+			constexpr enpassantMovedata& operator=(const enpassantMovedata&) noexcept = default;
+			~enpassantMovedata() noexcept = default;
+		};
+	}
+
+	class enpassantmove :
+		public pygmalion::mechanics::move<board, board::playerType::countUnsignedBits + 2 * board::fileType::countUnsignedBits, detail::enpassantMovedata, enpassantmove>,
+		public board::descriptorState
+	{
+	public:
+		using boardType = board;
+		using descriptorState = typename boardType::descriptorState;
+#include <pygmalion-state/include_state.h>
+		constexpr static const size_t countPlayerBits{ playerType::countUnsignedBits };
+		constexpr static const size_t countFileBits{ fileType::countUnsignedBits };
+		static std::string name_Implementation() noexcept
+		{
+			std::stringstream sstr;
+			sstr << "" << sizeof(typename enpassantmove::movedataType) << ":" << enpassantmove::countBits << "@enpassant";
+			return sstr.str();
+		}
+	private:
+		constexpr static fileType extractFile2(const typename enpassantmove::movebitsType& movebits) noexcept
+		{
+			const fileType f{ fileType(static_cast<typename std::make_unsigned<typename fileType::baseType>::type>(movebits.template extractBits<countPlayerBits + countFileBits, countFileBits>())) };
+			return f;
+		}
+		constexpr static void encodeFile2(typename enpassantmove::movebitsType& movebits, const fileType f) noexcept
+		{
+			movebits.template storeBits<countPlayerBits + countFileBits, countFileBits>(static_cast<typename std::make_unsigned<typename fileType::baseType>::type>(f));
+		}
+		constexpr static fileType extractFile1(const typename enpassantmove::movebitsType& movebits) noexcept
+		{
+			const fileType f{ fileType(static_cast<typename std::make_unsigned<typename fileType::baseType>::type>(movebits.template extractBits<countPlayerBits, countFileBits>())) };
+			return f;
+		}
+		constexpr static void encodeFile1(typename enpassantmove::movebitsType& movebits, const fileType f) noexcept
+		{
+			movebits.template storeBits<countPlayerBits, countFileBits>(static_cast<typename std::make_unsigned<typename fileType::baseType>::type>(f));
+		}
+		constexpr static playerType extractPlayer(const typename enpassantmove::movebitsType& movebits) noexcept
+		{
+			const playerType p{ playerType(static_cast<typename std::make_unsigned<typename playerType::baseType>::type>(movebits.template extractBits<0,countPlayerBits>())) };
+			return p;
+		}
+		constexpr static void encodePlayer(typename enpassantmove::movebitsType& movebits, const playerType p) noexcept
+		{
+			movebits.template storeBits<0, countPlayerBits>(static_cast<typename std::make_unsigned<typename playerType::baseType>::type>(p));
+		}
+	public:
+		constexpr enpassantmove() noexcept = default;
+		~enpassantmove() noexcept = default;
+		constexpr enpassantmove(enpassantmove&&) noexcept = default;
+		constexpr enpassantmove(const enpassantmove&) noexcept = default;
+		constexpr enpassantmove& operator=(enpassantmove&&) noexcept = default;
+		constexpr enpassantmove& operator=(const enpassantmove&) noexcept = default;
+		constexpr typename enpassantmove::movedataType doMove_Implementation(boardType& position, const typename enpassantmove::movebitsType& moveBits) const noexcept
+		{
+			const playerType p{ enpassantmove::extractPlayer(moveBits) };
+			const playerType p2{ p + 1 };
+			const fileType f1{ enpassantmove::extractFile1(moveBits) };
+			const fileType f2{ enpassantmove::extractFile2(moveBits) };
+			const uint_t<countFiles, false> oldFlags{ position.extractFlagRange<4, 11>() };
+			if (p == whitePlayer)
+			{
+				const rankType r1{ rank5 };
+				const rankType r2{ rank6 };
+				const squareType from{ f1 & r1 };
+				const squareType to{ f2 & r2 };
+				const squareType capture{ f2 & r1 };
+				position.clearEnPassantFiles();
+				position.removePiece(pawn, from, p);
+				position.addPiece(pawn, to, p);
+				position.removePiece(pawn, capture, p2);
+				position.setMovingPlayer(++position.movingPlayer());
+				return typename enpassantmove::movedataType(p, from, to, oldFlags, capture);
+			}
+			else
+			{
+				const rankType r1{ rank4 };
+				const rankType r2{ rank3 };
+				const squareType from{ f1 & r1 };
+				const squareType to{ f2 & r2 };
+				const squareType capture{ f2 & r1 };
+				position.clearEnPassantFiles();
+				position.removePiece(pawn, from, p);
+				position.addPiece(pawn, to, p);
+				position.removePiece(pawn, capture, p2);
+				position.setMovingPlayer(++position.movingPlayer());
+				return typename enpassantmove::movedataType(p, from, to, oldFlags, capture);
+			}
+		}
+		constexpr void undoMove_Implementation(boardType& position, const typename enpassantmove::movedataType& data) const noexcept
+		{
+			const playerType p2{ data.movingPlayer() + 1 };
+			position.setMovingPlayer(--position.movingPlayer());
+			position.removePiece(pawn, data.to(), data.movingPlayer());
+			position.addPiece(pawn, data.from(), data.movingPlayer());
+			position.addPiece(pawn, data.captureSquare(), p2);
+			position.storeFlagRange<4, 11>(data.oldFlags());
+		}
+		constexpr typename enpassantmove::movebitsType create(const playerType movingPlayer, const fileType file1, const fileType file2) const noexcept
+		{
+			typename enpassantmove::movebitsType bits{ enpassantmove::movebitsType::zero() };
+			enpassantmove::encodePlayer(bits, movingPlayer);
+			enpassantmove::encodeFile1(bits, file1);
+			enpassantmove::encodeFile2(bits, file2);
+			return bits;
+		}
+		bool parse_Implementation(const boardType& position, std::string& text, typename enpassantmove::movebitsType& moveBits) const noexcept
+		{
+			std::string temp{ text };
+			playerType movingPlayer{ position.movingPlayer() };
+			squareType from;
+			squareType to;
+			if (movingPlayer == whitePlayer)
+			{
+				if (boardType::parseSquare(temp, from))
+				{
+					if ((position.playerOccupancy(movingPlayer) & position.pieceOccupancy(descriptorState::pawn))[from] && (from.rank() == rank5))
+					{
+						if (boardType::parseSquare(temp, to))
+						{
+							if ((position.checkEnPassantFile(to.file())) && (position.playerOccupancy(movingPlayer + 1) & position.pieceOccupancy(descriptorState::pawn))[rank5 & to.file()] && (to.rank() == rank6))
+							{
+								if (!position.totalOccupancy()[to])
+								{
+									moveBits = create(movingPlayer, from.file(), to.file());
+									text = temp;
+									return true;
+								}
+							}
+						}
+					}
+				}
+			}
+			else
+			{
+				if (boardType::parseSquare(temp, from))
+				{
+					if ((position.playerOccupancy(movingPlayer) & position.pieceOccupancy(descriptorState::pawn))[from] && (from.rank() == rank4))
+					{
+						if (boardType::parseSquare(temp, to))
+						{
+							if ((position.checkEnPassantFile(to.file())) && (position.playerOccupancy(movingPlayer + 1) & position.pieceOccupancy(descriptorState::pawn))[rank4 & to.file()] && (to.rank() == rank3))
+							{
+								if (!position.totalOccupancy()[to])
+								{
+									moveBits = create(movingPlayer, from.file(), to.file());
+									text = temp;
+									return true;
+								}
+							}
+						}
+					}
+				}
+			}
+			return false;
+		}
+		std::string toString_Implementation(const boardType& position, const typename enpassantmove::movebitsType& moveBits) const noexcept
+		{
+			const playerType p{ enpassantmove::extractPlayer(moveBits) };
+			const fileType f1{ enpassantmove::extractFile1(moveBits) };
+			const fileType f2{ enpassantmove::extractFile2(moveBits) };
+			if (p == whitePlayer)
+			{
+				const rankType r1{ rank5 };
+				const rankType r2{ rank6 };
+				const squareType from{ f1 & r1 };
+				const squareType to{ f2 & r2 };
+				return boardType::squareToString(from) + boardType::squareToString(to);
+			}
+			else
+			{
+				const rankType r1{ rank4 };
+				const rankType r2{ rank3 };
+				const squareType from{ f1 & r1 };
+				const squareType to{ f2 & r2 };
+				return boardType::squareToString(from) + boardType::squareToString(to);
+			}
+		}
+	};
+
+}
