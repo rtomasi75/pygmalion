@@ -79,6 +79,11 @@ namespace pygmalion::mechanics
 			sstr << "]";
 			return sstr.str();
 		}
+		template<size_t INDEX>
+		const auto& component()
+		{
+			return std::get<INDEX>(this->m_Moves);
+		}
 	private:
 		template<size_t BITSPOS, size_t DATAPOS, size_t INDEX, typename MOVE, typename... MOVES2>
 		constexpr void doMovePack(boardType& position, const typename conjunctivemove::movebitsType& moveBits, typename conjunctivemove::movedataType& combinedData) const noexcept

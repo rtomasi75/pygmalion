@@ -64,14 +64,14 @@ namespace pygmalion::chess
 			const squareType sq{ squareType(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(movebits.template extractBits<countFromBits,countToBits>())) };
 			return sq;
 		}
-		constexpr static void encodeTo(typename promotionmove::movebitsType& movebits, const squareType sq) noexcept
-		{
-			movebits.template storeBits<countFromBits, countToBits>(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(sq));
-		}
 		constexpr static squareType extractFrom(const typename promotionmove::movebitsType& movebits) noexcept
 		{
 			const squareType sq{ squareType(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(movebits.template extractBits<0,countFromBits>())) };
 			return sq;
+		}
+		constexpr static void encodeTo(typename promotionmove::movebitsType& movebits, const squareType sq) noexcept
+		{
+			movebits.template storeBits<countFromBits, countToBits>(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(sq));
 		}
 		constexpr static void encodeFrom(typename promotionmove::movebitsType& movebits, const squareType sq) noexcept
 		{
