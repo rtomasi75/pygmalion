@@ -9,19 +9,14 @@ namespace pygmalion::chess
 			using descriptorState = typename boardType::descriptorState;
 #include <pygmalion-state/include_state.h>
 		private:
+			uint_t<countFlags, false> m_OldFlags;
 			squareType m_From;
 			squareType m_To;
-			uint_t<countFiles, false> m_OldFlags;
 			pieceType m_Piece;
-			playerType m_Player;
 		public:
-			constexpr const uint_t<countFiles, false>& oldFlags() const noexcept
+			constexpr const uint_t<countFlags, false>& oldFlags() const noexcept
 			{
 				return m_OldFlags;
-			}
-			constexpr playerType player() const noexcept
-			{
-				return m_Player;
 			}
 			constexpr pieceType piece() const noexcept
 			{
@@ -35,12 +30,11 @@ namespace pygmalion::chess
 			{
 				return m_To;
 			}
-			constexpr quietMovedata(const pieceType transportedPiece, const squareType fromSquare, const squareType toSquare, const playerType owner, const uint_t<countFiles, false>& oldFlags_) noexcept :
+			constexpr quietMovedata(const pieceType transportedPiece, const squareType fromSquare, const squareType toSquare, const uint_t<countFlags, false>& oldFlags_) noexcept :
 				m_Piece{ transportedPiece },
 				m_From{ fromSquare },
 				m_To{ toSquare },
-				m_OldFlags{ oldFlags_ },
-				m_Player{ owner }
+				m_OldFlags{ oldFlags_ }
 			{}
 			constexpr quietMovedata() noexcept = default;
 			constexpr quietMovedata(quietMovedata&&) noexcept = default;
@@ -99,19 +93,44 @@ namespace pygmalion::chess
 			const squareType to{ quietmove::extractTo(moveBits) };
 			const pieceType pc{ position.getPiece(from) };
 			const playerType p{ position.getPlayer(from) };
-			const uint_t<countFiles, false> oldFlags{ position.extractFlagRange<4, 11>() };
+			const uint_t<countFlags, false> oldFlags{ position.extractFlagRange<0, 11>() };
 			position.clearEnPassantFiles();
 			position.removePiece(pc, from, p);
 			position.addPiece(pc, to, p);
 			position.setMovingPlayer(++position.movingPlayer());
-			return typename quietmove::movedataType(pc, from, to, p, oldFlags);
+			if ((p == whitePlayer))
+			{
+				if (pc == king)
+					position.clearCastleRightsWhite();
+				else if (pc == rook)
+				{
+					if (from == squareA1)
+						position.clearCastleRightQueensideWhite();
+					else if (from == squareH1)
+						position.clearCastleRightKingsideWhite();
+				}
+			}
+			else
+			{
+				if (pc == king)
+					position.clearCastleRightsBlack();
+				else if (pc == rook)
+				{
+					if (from == squareA8)
+						position.clearCastleRightQueensideBlack();
+					else if (from == squareH8)
+						position.clearCastleRightKingsideBlack();
+				}
+			}
+			return typename quietmove::movedataType(pc, from, to, oldFlags);
 		}
 		constexpr void undoMove_Implementation(boardType& position, const typename quietmove::movedataType& data) const noexcept
 		{
-			position.setMovingPlayer(--position.movingPlayer());
-			position.removePiece(data.piece(), data.to(), data.player());
-			position.addPiece(data.piece(), data.from(), data.player());
-			position.storeFlagRange<4, 11>(data.oldFlags());
+			const playerType p{ --position.movingPlayer() };
+			position.setMovingPlayer(p);
+			position.removePiece(data.piece(), data.to(), p);
+			position.addPiece(data.piece(), data.from(), p);
+			position.storeFlagRange<0, 11>(data.oldFlags());
 		}
 		constexpr typename quietmove::movebitsType create(const squareType from, const squareType to) const noexcept
 		{

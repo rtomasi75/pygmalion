@@ -9,18 +9,13 @@ namespace pygmalion::chess
 			using descriptorState = typename boardType::descriptorState;
 #include <pygmalion-state/include_state.h>
 		private:
+			uint_t<countFiles, false> m_OldFlags;
 			squareType m_From;
 			squareType m_To;
-			uint_t<countFiles, false> m_OldFlags;
-			playerType m_Player;
 		public:
 			constexpr const uint_t<countFiles, false>& oldFlags() const noexcept
 			{
 				return m_OldFlags;
-			}
-			constexpr playerType player() const noexcept
-			{
-				return m_Player;
 			}
 			constexpr squareType from() const noexcept
 			{
@@ -30,11 +25,10 @@ namespace pygmalion::chess
 			{
 				return m_To;
 			}
-			constexpr promotionMovedata(const squareType fromSquare, const squareType toSquare, const playerType owner, const uint_t<countFiles, false>& oldFlags_) noexcept :
+			constexpr promotionMovedata(const squareType fromSquare, const squareType toSquare, const uint_t<countFiles, false>& oldFlags_) noexcept :
 				m_From{ fromSquare },
 				m_To{ toSquare },
-				m_OldFlags{ oldFlags_ },
-				m_Player{ owner }
+				m_OldFlags{ oldFlags_ }
 			{}
 			constexpr promotionMovedata() noexcept = default;
 			constexpr promotionMovedata(promotionMovedata&&) noexcept = default;
@@ -99,19 +93,20 @@ namespace pygmalion::chess
 		{
 			const squareType from{ promotionmove::extractFrom(moveBits) };
 			const squareType to{ promotionmove::extractTo(moveBits) };
-			const playerType p{ position.getPlayer(from) };
+			const playerType p{ position.movingPlayer() };
 			const uint_t<countFiles, false> oldFlags{ position.extractFlagRange<4, 11>() };
 			position.clearEnPassantFiles();
 			position.removePiece(pawn, from, p);
 			position.addPiece(m_PromotedPiece, to, p);
 			position.setMovingPlayer(++position.movingPlayer());
-			return typename promotionmove::movedataType(from, to, p, oldFlags);
+			return typename promotionmove::movedataType(from, to, oldFlags);
 		}
 		constexpr void undoMove_Implementation(boardType& position, const typename promotionmove::movedataType& data) const noexcept
 		{
-			position.setMovingPlayer(--position.movingPlayer());
-			position.removePiece(m_PromotedPiece, data.to(), data.player());
-			position.addPiece(pawn, data.from(), data.player());
+			const playerType p{ --position.movingPlayer() };
+			position.setMovingPlayer(p);
+			position.removePiece(m_PromotedPiece, data.to(), p);
+			position.addPiece(pawn, data.from(), p);
 			position.storeFlagRange<4, 11>(data.oldFlags());
 		}
 		constexpr typename promotionmove::movebitsType create(const squareType from, const squareType to) const noexcept
@@ -123,14 +118,15 @@ namespace pygmalion::chess
 		}
 		bool parse_Implementation(const boardType& position, std::string& text, typename promotionmove::movebitsType& moveBits) const noexcept
 		{
+			const playerType p{ position.movingPlayer() };
 			std::string temp{ text };
 			squareType from;
 			squareType to;
 			if (boardType::parseSquare(temp, from))
 			{
-				if ((position.pieceOccupancy(pawn) & position.playerOccupancy(position.movingPlayer()))[from])
+				if ((position.pieceOccupancy(pawn) & position.playerOccupancy(p))[from])
 				{
-					if (position.movingPlayer() == whitePlayer)
+					if (p == whitePlayer)
 					{
 						if (from.rank() == rank7)
 						{
@@ -140,9 +136,9 @@ namespace pygmalion::chess
 								{
 									if (!position.totalOccupancy()[to])
 									{
-										playerType p;
+										playerType p2;
 										pieceType pc;
-										if (boardType::parsePiece(temp, pc, p))
+										if (boardType::parsePiece(temp, pc, p2))
 										{
 											if (pc == m_PromotedPiece)
 											{
@@ -166,9 +162,9 @@ namespace pygmalion::chess
 								{
 									if (!position.totalOccupancy()[to])
 									{
-										playerType p;
+										playerType p2;
 										pieceType pc;
-										if (boardType::parsePiece(temp, pc, p))
+										if (boardType::parsePiece(temp, pc, p2))
 										{
 											if (pc == m_PromotedPiece)
 											{

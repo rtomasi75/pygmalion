@@ -13,16 +13,10 @@ namespace pygmalion::chess
 			squareType m_To;
 			uint_t<countFiles, false> m_OldFlags;
 			pieceType m_CapturedPiece;
-			playerType m_Player;
-			playerType m_CapturedPlayer;
 		public:
 			constexpr const uint_t<countFiles, false>& oldFlags() const noexcept
 			{
 				return m_OldFlags;
-			}
-			constexpr playerType player() const noexcept
-			{
-				return m_Player;
 			}
 			constexpr squareType from() const noexcept
 			{
@@ -32,21 +26,15 @@ namespace pygmalion::chess
 			{
 				return m_To;
 			}
-			constexpr playerType capturedPlayer() const noexcept
-			{
-				return m_CapturedPlayer;
-			}
 			constexpr pieceType capturedPiece() const noexcept
 			{
 				return m_CapturedPiece;
 			}
-			constexpr promocaptureMovedata(const squareType fromSquare, const squareType toSquare, const playerType owner, const uint_t<countFiles, false>& oldFlags_, const pieceType capturedPiece_, const playerType capturedPlayer_) noexcept :
+			constexpr promocaptureMovedata(const squareType fromSquare, const squareType toSquare, const uint_t<countFiles, false>& oldFlags_, const pieceType capturedPiece_) noexcept :
 				m_From{ fromSquare },
 				m_To{ toSquare },
 				m_OldFlags{ oldFlags_ },
-				m_Player{ owner },
-				m_CapturedPiece{ capturedPiece_ },
-				m_CapturedPlayer{ capturedPlayer_ }
+				m_CapturedPiece{ capturedPiece_ }
 			{}
 			constexpr promocaptureMovedata() noexcept = default;
 			constexpr promocaptureMovedata(promocaptureMovedata&&) noexcept = default;
@@ -111,23 +99,25 @@ namespace pygmalion::chess
 		{
 			const squareType from{ promocapturemove::extractFrom(moveBits) };
 			const squareType to{ promocapturemove::extractTo(moveBits) };
-			const playerType p{ position.getPlayer(from) };
+			const playerType p{ position.movingPlayer() };
 			const pieceType pc2{ position.getPiece(to) };
-			const playerType p2{ position.getPlayer(to) };
+			const playerType p2{ ++position.movingPlayer() };
 			const uint_t<countFiles, false> oldFlags{ position.extractFlagRange<4, 11>() };
 			position.clearEnPassantFiles();
 			position.removePiece(pawn, from, p);
 			position.removePiece(pc2, to, p2);
 			position.addPiece(m_PromotedPiece, to, p);
-			position.setMovingPlayer(++position.movingPlayer());
-			return typename promocapturemove::movedataType(from, to, p, oldFlags, pc2, p2);
+			position.setMovingPlayer(p2);
+			return typename promocapturemove::movedataType(from, to, oldFlags, pc2);
 		}
 		constexpr void undoMove_Implementation(boardType& position, const typename promocapturemove::movedataType& data) const noexcept
 		{
-			position.setMovingPlayer(--position.movingPlayer());
-			position.removePiece(m_PromotedPiece, data.to(), data.player());
-			position.addPiece(pawn, data.from(), data.player());
-			position.addPiece(data.capturedPiece(), data.to(), data.capturedPlayer());
+			const playerType p2{ position.movingPlayer() };
+			const playerType p{ --position.movingPlayer() };
+			position.setMovingPlayer(p);
+			position.removePiece(m_PromotedPiece, data.to(), p);
+			position.addPiece(pawn, data.from(), p);
+			position.addPiece(data.capturedPiece(), data.to(), p2);
 			position.storeFlagRange<4, 11>(data.oldFlags());
 		}
 		constexpr typename promocapturemove::movebitsType create(const squareType from, const squareType to) const noexcept
@@ -139,14 +129,16 @@ namespace pygmalion::chess
 		}
 		bool parse_Implementation(const boardType& position, std::string& text, typename promocapturemove::movebitsType& moveBits) const noexcept
 		{
+			const playerType p{ position.movingPlayer() };
+			const playerType p2{ ++position.movingPlayer() };
 			std::string temp{ text };
 			squareType from;
 			squareType to;
 			if (boardType::parseSquare(temp, from))
 			{
-				if ((position.pieceOccupancy(pawn) & position.playerOccupancy(position.movingPlayer()))[from])
+				if ((position.pieceOccupancy(pawn) & position.playerOccupancy(p))[from])
 				{
-					if (position.movingPlayer() == whitePlayer)
+					if (p == whitePlayer)
 					{
 						if (from.rank() == rank7)
 						{
@@ -154,11 +146,11 @@ namespace pygmalion::chess
 							{
 								if (to.rank() == rank8)
 								{
-									if (position.totalOccupancy()[to])
+									if ((position.pieceOccupancy(pawn) & position.playerOccupancy(p2))[to])
 									{
-										playerType p;
+										playerType p3;
 										pieceType pc;
-										if (boardType::parsePiece(temp, pc, p))
+										if (boardType::parsePiece(temp, pc, p3))
 										{
 											if (pc == m_PromotedPiece)
 											{
@@ -180,11 +172,11 @@ namespace pygmalion::chess
 							{
 								if (to.rank() == rank1)
 								{
-									if (position.totalOccupancy()[to])
+									if ((position.pieceOccupancy(pawn) & position.playerOccupancy(p2))[to])
 									{
-										playerType p;
+										playerType p3;
 										pieceType pc;
-										if (boardType::parsePiece(temp, pc, p))
+										if (boardType::parsePiece(temp, pc, p3))
 										{
 											if (pc == m_PromotedPiece)
 											{
@@ -206,7 +198,7 @@ namespace pygmalion::chess
 		{
 			const squareType from{ promocapturemove::extractFrom(moveBits) };
 			const squareType to{ promocapturemove::extractTo(moveBits) };
-			return boardType::squareToString(from) + boardType::squareToString(to) + boardType::pieceToString(m_PromotedPiece, whitePlayer);
+			return boardType::squareToString(from) + boardType::squareToString(to) + boardType::pieceToString(m_PromotedPiece, position.movingPlayer());
 		}
 	};
 }

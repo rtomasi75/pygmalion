@@ -9,29 +9,19 @@ namespace pygmalion::chess
 			using descriptorState = typename boardType::descriptorState;
 #include <pygmalion-state/include_state.h>
 		private:
+			uint_t<countFlags, false> m_OldFlags;
 			squareType m_From;
 			squareType m_To;
-			uint_t<countFiles, false> m_OldFlags;
 			pieceType m_Piece;
 			pieceType m_CapturedPiece;
-			playerType m_Player;
-			playerType m_CapturedPlayer;
 		public:
-			constexpr const uint_t<countFiles, false>& oldFlags() const noexcept
+			constexpr const uint_t<countFlags, false>& oldFlags() const noexcept
 			{
 				return m_OldFlags;
-			}
-			constexpr playerType player() const noexcept
-			{
-				return m_Player;
 			}
 			constexpr pieceType piece() const noexcept
 			{
 				return m_Piece;
-			}
-			constexpr playerType capturedPlayer() const noexcept
-			{
-				return m_CapturedPlayer;
 			}
 			constexpr pieceType capturedPiece() const noexcept
 			{
@@ -45,14 +35,12 @@ namespace pygmalion::chess
 			{
 				return m_To;
 			}
-			constexpr captureMovedata(const pieceType transportedPiece, const squareType fromSquare, const squareType toSquare, const playerType owner, const uint_t<countFiles, false>& oldFlags_, const pieceType capturedPiece_, const playerType capturedPlayer_) noexcept :
+			constexpr captureMovedata(const pieceType transportedPiece, const squareType fromSquare, const squareType toSquare, const uint_t<countFlags, false>& oldFlags_, const pieceType capturedPiece_) noexcept :
 				m_Piece{ transportedPiece },
 				m_From{ fromSquare },
 				m_To{ toSquare },
 				m_OldFlags{ oldFlags_ },
-				m_Player{ owner },
-				m_CapturedPiece{ capturedPiece_ },
-				m_CapturedPlayer{ capturedPlayer_ }
+				m_CapturedPiece{ capturedPiece_ }
 			{}
 			constexpr captureMovedata() noexcept = default;
 			constexpr captureMovedata(captureMovedata&&) noexcept = default;
@@ -113,21 +101,61 @@ namespace pygmalion::chess
 			const playerType p{ position.getPlayer(from) };
 			const pieceType pc2{ position.getPiece(to) };
 			const playerType p2{ position.getPlayer(to) };
-			const uint_t<countFiles, false> oldFlags{ position.extractFlagRange<4, 11>() };
+			const uint_t<countFlags, false> oldFlags{ position.extractFlagRange<0, 11>() };
 			position.clearEnPassantFiles();
 			position.removePiece(pc, from, p);
 			position.removePiece(pc2, to, p2);
 			position.addPiece(pc, to, p);
 			position.setMovingPlayer(++position.movingPlayer());
-			return typename capturemove::movedataType(pc, from, to, p, oldFlags, pc2, p2);
+			if ((p == whitePlayer))
+			{
+				if (pc == king)
+					position.clearCastleRightsWhite();
+				else if (pc == rook)
+				{
+					if (from == squareA1)
+						position.clearCastleRightQueensideWhite();
+					else if (from == squareH1)
+						position.clearCastleRightKingsideWhite();
+				}
+				if (pc2 == rook)
+				{
+					if (to == squareA8)
+						position.clearCastleRightQueensideBlack();
+					else if (to == squareH8)
+						position.clearCastleRightKingsideBlack();
+				}
+			}
+			else
+			{
+				if (pc == king)
+					position.clearCastleRightsBlack();
+				else if (pc == rook)
+				{
+					if (from == squareA8)
+						position.clearCastleRightQueensideBlack();
+					else if (from == squareH8)
+						position.clearCastleRightKingsideBlack();
+				}
+				if (pc2 == rook)
+				{
+					if (to == squareA1)
+						position.clearCastleRightQueensideWhite();
+					else if (to == squareH1)
+						position.clearCastleRightKingsideWhite();
+				}
+			}
+			return typename capturemove::movedataType(pc, from, to, oldFlags, pc2);
 		}
 		constexpr void undoMove_Implementation(boardType& position, const typename capturemove::movedataType& data) const noexcept
 		{
-			position.setMovingPlayer(--position.movingPlayer());
-			position.removePiece(data.piece(), data.to(), data.player());
-			position.addPiece(data.piece(), data.from(), data.player());
-			position.addPiece(data.capturedPiece(), data.to(), data.capturedPlayer());
-			position.storeFlagRange<4, 11>(data.oldFlags());
+			const playerType p2{ position.movingPlayer() };
+			const playerType p1{ --position.movingPlayer() };
+			position.setMovingPlayer(p1);
+			position.removePiece(data.piece(), data.to(), p1);
+			position.addPiece(data.piece(), data.from(), p1);
+			position.addPiece(data.capturedPiece(), data.to(), p2);
+			position.storeFlagRange<0, 11>(data.oldFlags());
 		}
 		constexpr typename capturemove::movebitsType create(const squareType from, const squareType to) const noexcept
 		{
@@ -147,7 +175,7 @@ namespace pygmalion::chess
 				{
 					if (boardType::parseSquare(temp, to))
 					{
-						if (position.totalOccupancy()[to])
+						if (position.playerOccupancy(++position.movingPlayer())[to])
 						{
 							moveBits = create(from, to);
 							text = temp;
