@@ -52,7 +52,8 @@ namespace pygmalion::chess
 	}
 
 	class quietmove :
-		public pygmalion::mechanics::move<board, 2 * board::squareType::countUnsignedBits, detail::quietMovedata, quietmove>
+		public pygmalion::mechanics::move<board, 2 * board::squareType::countUnsignedBits, detail::quietMovedata, quietmove>,
+		public board::descriptorState
 	{
 	public:
 		using boardType = board;
@@ -126,7 +127,7 @@ namespace pygmalion::chess
 			squareType to;
 			if (boardType::parseSquare(temp, from))
 			{
-				if (position.totalOccupancy()[from])
+				if (position.playerOccupancy(position.movingPlayer())[from])
 				{
 					if (boardType::parseSquare(temp, to))
 					{
