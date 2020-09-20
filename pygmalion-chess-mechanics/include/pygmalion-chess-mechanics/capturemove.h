@@ -25,13 +25,13 @@ namespace pygmalion::chess
 			{
 				return m_Player;
 			}
-			constexpr playerType capturedPlayer() const noexcept
-			{
-				return m_CapturedPlayer;
-			}
 			constexpr pieceType piece() const noexcept
 			{
 				return m_Piece;
+			}
+			constexpr playerType capturedPlayer() const noexcept
+			{
+				return m_CapturedPlayer;
 			}
 			constexpr pieceType capturedPiece() const noexcept
 			{
@@ -110,8 +110,8 @@ namespace pygmalion::chess
 			const squareType from{ capturemove::extractFrom(moveBits) };
 			const squareType to{ capturemove::extractTo(moveBits) };
 			const pieceType pc{ position.getPiece(from) };
-			const pieceType pc2{ position.getPiece(to) };
 			const playerType p{ position.getPlayer(from) };
+			const pieceType pc2{ position.getPiece(to) };
 			const playerType p2{ position.getPlayer(to) };
 			const uint_t<countFiles, false> oldFlags{ position.extractFlagRange<4, 11>() };
 			position.clearEnPassantFiles();
