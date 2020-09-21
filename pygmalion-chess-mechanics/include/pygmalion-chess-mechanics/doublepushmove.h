@@ -48,7 +48,7 @@ namespace pygmalion::chess
 		using descriptorState = typename boardType::descriptorState;
 #include <pygmalion-state/include_state.h>
 		constexpr static const size_t countFileBits{ fileType::countUnsignedBits };
-		static std::string name_Implementation() noexcept
+		std::string name_Implementation() const noexcept
 		{
 			std::stringstream sstr;
 			sstr << "" << sizeof(typename doublepushmove::movedataType) << ":" << doublepushmove::countBits << "@doublepush";

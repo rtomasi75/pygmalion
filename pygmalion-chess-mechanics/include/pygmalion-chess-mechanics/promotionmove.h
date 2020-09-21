@@ -52,10 +52,10 @@ namespace pygmalion::chess
 	private:
 		pieceType m_PromotedPiece;
 	public:
-		static std::string name_Implementation() noexcept
+		std::string name_Implementation() const noexcept
 		{
 			std::stringstream sstr;
-			sstr << "" << sizeof(typename promotionmove::movedataType) << ":" << promotionmove::countBits << "@promotion";
+			sstr << "" << sizeof(typename promotionmove::movedataType) << ":" << promotionmove::countBits << "@promotion" << boardType::pieceToString(m_PromotedPiece, whitePlayer);
 			return sstr.str();
 		}
 	private:

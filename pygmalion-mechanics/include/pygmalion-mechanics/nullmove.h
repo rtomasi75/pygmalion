@@ -34,7 +34,7 @@ namespace pygmalion::mechanics
 		constexpr nullmove(const nullmove&) noexcept = default;
 		constexpr nullmove& operator=(nullmove&&) noexcept = default;
 		constexpr nullmove& operator=(const nullmove&) noexcept = default;
-		static std::string name_Implementation() noexcept
+		std::string name_Implementation() const noexcept
 		{
 			std::stringstream sstr;
 			sstr << "" << sizeof(typename nullmove::movedataType) << ":" << nullmove::countBits << "@null";

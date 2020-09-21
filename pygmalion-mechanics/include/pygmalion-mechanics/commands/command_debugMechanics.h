@@ -16,8 +16,9 @@ namespace pygmalion::mechanics
 			parser::parseToken(cmd, token, remainder);
 			if (token == "debug-mechanics")
 			{
+				constexpr const moveType move;
 				this->output() << std::endl;
-				this->output() << moveType::name() << std::endl;
+				this->output() << move.name() << std::endl;
 				this->output() << std::endl;
 				this->output() << "movebits: " << std::setw(4) << sizeof(movebitsType) << " = " << sizeof(movebitsType) * CHAR_BIT << "bit" << std::endl;
 				this->output() << "movedata: " << std::setw(4) << sizeof(movedataType) << " = " << sizeof(movedataType) * CHAR_BIT << "bit" << std::endl;

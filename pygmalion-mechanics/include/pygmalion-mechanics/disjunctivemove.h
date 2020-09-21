@@ -114,13 +114,14 @@ namespace pygmalion::mechanics
 		template<typename MOVE, typename... MOVES2>
 		static std::string namePack() noexcept
 		{
+			constexpr const MOVE move;
 			if constexpr (sizeof...(MOVES2) > 0)
-				return MOVE::name() + "|" + disjunctivemove::namePack<MOVES2...>();
+				return move.name() + "|" + disjunctivemove::namePack<MOVES2...>();
 			else
-				return MOVE::name();
+				return move.name();
 		}
 	public:
-		static std::string name_Implementation() noexcept
+		std::string name_Implementation() const noexcept
 		{
 			size_t N = pygmalion::detail::requiredUnsignedBits(sizeof...(MOVES));
 			std::stringstream sstr;

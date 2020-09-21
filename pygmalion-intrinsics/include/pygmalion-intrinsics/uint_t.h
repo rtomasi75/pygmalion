@@ -806,26 +806,7 @@ namespace pygmalion
 		}
 		operator std::string() const noexcept
 		{
-			std::stringstream sstr;
-			if constexpr (isCompact)
-				sstr << "(" << countBits << ")";
-			else
-				sstr << "{" << countBits << "}";
-			sstr << "[";
-			for (size_t index = 0; index < countWords; index++)
-			{
-				sstr << (index > 0 ? ":" : "");
-				for (size_t i = 0; i < countBitsPerWord; i++)
-				{
-					if (((countWords - 1 - index) * countBitsPerWord + countBitsPerWord - 1 - i) < countBits)
-						sstr << ((m_Words[countWords - 1 - index] & (wordType(1) << (countBitsPerWord - 1 - i))) ? '1' : '0');
-					else
-						sstr << ((m_Words[countWords - 1 - index] & (wordType(1) << (countBitsPerWord - 1 - i))) ? 'E' : '_');
-
-				}
-			}
-			sstr << "]";
-			return sstr.str();
+			return toString();
 		}
 		constexpr uint_t operator~() const noexcept
 		{
@@ -1322,9 +1303,41 @@ namespace pygmalion
 		static const inline std::string populationCount_Intrinsic{ intrinsics::popcnt::implementationName<countWords,wordType>() };
 		static const inline std::string bitscanForward_Intrinsic{ intrinsics::bsf::implementationName<countWords,wordType>() };
 		static const inline std::string bitscanReverse_Intrinsic{ intrinsics::bsr::implementationName<countWords,wordType>() };
-		static std::string toString(uint_t& ref) noexcept
+		std::string toString() const noexcept
 		{
-			return static_cast<std::string>(ref);
+			std::stringstream sstr;
+			if constexpr (isCompact)
+				sstr << "(" << countBits << ")";
+			else
+				sstr << "{" << countBits << "}";
+			sstr << "[";
+			for (size_t index = 0; index < countWords; index++)
+			{
+				const size_t m{ countWords - 1 - index };
+				if (index > 0)
+					sstr << ":";
+				for (size_t i = 0; i < countBitsPerWord; i++)
+				{
+					const size_t n{ countBitsPerWord - 1 - i };
+					const size_t k{ (m * countBitsPerWord + n) < countBits };
+					if (k < countBits)
+					{
+						if (m_Words[m] & static_cast<wordType>((wordType(1) << n)))
+							sstr << "1";
+						else
+							sstr << "0";
+					}
+					else
+					{
+						if (m_Words[m] & static_cast<wordType>((wordType(1) << n)))
+							sstr << "E";
+						else
+							sstr << "_";
+					}
+				}
+			}
+			sstr << "]";
+			return sstr.str();
 		}
 		class iterator
 		{
@@ -1862,22 +1875,7 @@ namespace pygmalion
 		}
 		operator std::string() const noexcept
 		{
-			std::stringstream sstr;
-			if constexpr (isCompact)
-				sstr << "(" << countBits << ")";
-			else
-				sstr << "{" << countBits << "}";
-			sstr << "[";
-			for (size_t i = 0; i < countBitsPerWord; i++)
-			{
-				if ((countBitsPerWord - 1 - i) < countBits)
-					sstr << ((m_Word & (wordType(1) << (countBitsPerWord - 1 - i))) ? '1' : '0');
-				else
-					sstr << ((m_Word & (wordType(1) << (countBitsPerWord - 1 - i))) ? 'E' : '_');
-
-			}
-			sstr << "]";
-			return sstr.str();
+			return toString();
 		}
 		constexpr uint_t operator~() const noexcept
 		{
@@ -2054,9 +2052,34 @@ namespace pygmalion
 		static const inline std::string populationCount_Intrinsic{ intrinsics::popcnt::implementationName<countWords,wordType>() };
 		static const inline std::string bitscanForward_Intrinsic{ intrinsics::bsf::implementationName<countWords,wordType>() };
 		static const inline std::string bitscanReverse_Intrinsic{ intrinsics::bsr::implementationName<countWords,wordType>() };
-		static std::string toString(uint_t& ref) noexcept
+		std::string toString() const noexcept
 		{
-			return static_cast<std::string>(ref);
+			std::stringstream sstr;
+			if constexpr (isCompact)
+				sstr << "(" << countBits << ")";
+			else
+				sstr << "{" << countBits << "}";
+			sstr << "[";
+			for (size_t i = 0; i < countBitsPerWord; i++)
+			{
+				const size_t n{ countBitsPerWord - 1 - i };
+				if (n < countBits)
+				{
+					if (m_Word & static_cast<wordType>((wordType(1) << n)))
+						sstr << "1";
+					else
+						sstr << "0";
+				}
+				else
+				{
+					if (m_Word & static_cast<wordType>((wordType(1) << n)))
+						sstr << "E";
+					else
+						sstr << "_";
+				}
+			}
+			sstr << "]";
+			return sstr.str();
 		}
 		class iterator
 		{
@@ -2418,15 +2441,7 @@ namespace pygmalion
 		}
 		operator std::string() const noexcept
 		{
-			std::stringstream sstr;
-			if constexpr (isCompact)
-				sstr << "(1)";
-			else
-				sstr << "{1}";
-			sstr << "[";
-			sstr << (m_Word ? '1' : '0');
-			sstr << "]";
-			return sstr.str();
+			return toString();
 		}
 		constexpr uint_t operator~() const noexcept
 		{
@@ -2663,9 +2678,17 @@ namespace pygmalion
 		{
 			return uint_t<LEN, isCompact>((LEN > 0) ? (test<START>() ? uint_t<LEN, isCompact>::one() : uint_t<LEN, isCompact>::zero()) : uint_t<LEN, isCompact>::zero());
 		}
-		static std::string toString(uint_t& ref) noexcept
+		std::string toString() const noexcept
 		{
-			return static_cast<std::string>(ref);
+			std::stringstream sstr;
+			if constexpr (isCompact)
+				sstr << "(1)";
+			else
+				sstr << "{1}";
+			sstr << "[";
+			sstr << (m_Word ? '1' : '0');
+			sstr << "]";
+			return sstr.str();
 		}
 	};
 
@@ -2765,9 +2788,15 @@ namespace pygmalion
 		{
 			assert(false);
 		}
-		static std::string toString(uint_t& ref) noexcept
+		std::string toString() const noexcept
 		{
-			return static_cast<std::string>(ref);
+			std::stringstream sstr;
+			if constexpr (isCompact)
+				sstr << "(0)";
+			else
+				sstr << "{0}";
+			sstr << "[]";
+			return sstr.str();
 		}
 		template<typename T, typename = typename std::enable_if<std::is_integral<T>::value && !std::is_same<bool, T>::value>::type>
 		constexpr uint_t(const T value) noexcept :uint_t()
@@ -2807,13 +2836,7 @@ namespace pygmalion
 		}
 		operator std::string() const noexcept
 		{
-			std::stringstream sstr;
-			if constexpr (isCompact)
-				sstr << "(0)";
-			else
-				sstr << "{0}";
-			sstr << "[]";
-			return sstr.str();
+			return toString();
 		}
 		constexpr uint_t operator~() const noexcept
 		{
@@ -3037,7 +3060,7 @@ namespace pygmalion
 
 	std::ostream& operator<<(std::ostream& str, const uint_t<COUNT_BITS, IS_COMPACT>& value) noexcept
 	{
-		str << static_cast<std::string>(value);
+		str << value.toString();
 		return str;
 	}
 }

@@ -51,7 +51,7 @@ namespace pygmalion::mechanics
 		constexpr static const size_t countSquareBits{ squareType::countUnsignedBits };
 		constexpr static const size_t countPieceBits{ pieceType::countUnsignedBits };
 		constexpr static const size_t countOwnerBits{ playerType::countUnsignedBits };
-		static std::string name_Implementation() noexcept
+		std::string name_Implementation() const noexcept
 		{
 			std::stringstream sstr;
 			sstr << "" << sizeof(typename dropmove::movedataType) << ":" << dropmove::countBits << "@drop";

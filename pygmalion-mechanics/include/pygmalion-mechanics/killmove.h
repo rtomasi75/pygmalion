@@ -49,7 +49,7 @@ namespace pygmalion::mechanics
 		using descriptorState = typename boardType::descriptorState;
 #include <pygmalion-state/include_state.h>
 		constexpr static const size_t countSquareBits{ squareType::countUnsignedBits };
-		static std::string name_Implementation() noexcept
+		std::string name_Implementation() const noexcept
 		{
 			std::stringstream sstr;
 			sstr << "" << sizeof(typename killmove::movedataType) << ":" << killmove::countBits << "@kill";

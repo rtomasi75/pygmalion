@@ -20,12 +20,6 @@
 #include "pygmalion-chess-mechanics/bishoppromocapturemove.h"
 #include "pygmalion-chess-mechanics/knightpromocapturemove.h"
 #include "pygmalion-chess-mechanics/quietmove.h"
-#include "pygmalion-chess-mechanics/combinedpromotions.h"
-#include "pygmalion-chess-mechanics/combinedpromocaptures.h"
-#include "pygmalion-chess-mechanics/combinedpromos.h"
-#include "pygmalion-chess-mechanics/combinedcastles.h"
-#include "pygmalion-chess-mechanics/combinedquiet.h"
-#include "pygmalion-chess-mechanics/combinedcaptures.h"
 #include "pygmalion-chess-mechanics/combinedmoves.h"
 #include "pygmalion-chess-mechanics/motor.h"
 

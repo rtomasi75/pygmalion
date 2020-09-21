@@ -17,7 +17,10 @@ namespace pygmalion::intrinsics
 				output() << std::endl;
 				result &= intrinsics::test::assignment(this->output());
 				result &= intrinsics::test::conversion(this->output());
-				result &= intrinsics::test::clearbits(this->output());
+				result &= intrinsics::test::clearbits(std::cout);
+				result &= intrinsics::test::setbits(std::cout);
+				result &= intrinsics::test::extractbits(std::cout);
+				result &= intrinsics::test::storebits(std::cout);
 				result &= intrinsics::test::equality(this->output());
 				result &= intrinsics::test::inequality(this->output());
 				result &= intrinsics::test::greater(this->output());
@@ -66,6 +69,12 @@ namespace pygmalion::intrinsics
 				result &= intrinsics::test::conversion(this->output());
 			else if (token == "clearbits")
 				result &= intrinsics::test::clearbits(this->output());
+			else if (token == "setbits")
+				result &= intrinsics::test::setbits(this->output());
+			else if (token == "extractbits")
+				result &= intrinsics::test::extractbits(this->output());
+			else if (token == "storebits")
+				result &= intrinsics::test::storebits(this->output());
 			else if (token == "equality")
 				result &= intrinsics::test::equality(this->output());
 			else if (token == "inequality")

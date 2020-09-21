@@ -37,7 +37,7 @@ namespace pygmalion::chess
 #include <pygmalion-state/include_state.h>
 		constexpr static const size_t countPlayerBits{ playerType::countUnsignedBits };
 		constexpr static const size_t countFileBits{ fileType::countUnsignedBits };
-		static std::string name_Implementation() noexcept
+		std::string name_Implementation() const noexcept
 		{
 			std::stringstream sstr;
 			sstr << "" << sizeof(typename kingsidecastlemove::movedataType) << ":" << kingsidecastlemove::countBits << "@kingsidecastle";
