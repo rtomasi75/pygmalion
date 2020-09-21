@@ -9,10 +9,11 @@ ENABLE_TESTING()
 
 include(CheckCXXCompilerFlag)
 
-    option(OPTIMIZE_FOR_BMI2 "Build for BMI2" ON)
-    option(OPTIMIZE_FOR_AVX512 "Build for AVX512" OFF)
-    option(OPTIMIZE_FOR_AVX2 "Build for AVX2" OFF)
-    option(OPTIMIZE_FOR_AVX "Build for AVX" OFF)
+option(OPTIMIZE_FOR_BMI2 "Build for BMI2" OFF)
+option(OPTIMIZE_FOR_AVX512 "Build for AVX512" OFF)
+option(OPTIMIZE_FOR_AVX2 "Build for AVX2" OFF)
+option(OPTIMIZE_FOR_AVX "Build for AVX" OFF)
+option(OPTIMIZE_FOR_NATIVE "Build with -march=native" OFF)
 
 if(MSVC)
 
@@ -122,8 +123,6 @@ else()
         endif()
     endif()
 endif()
-
-option(OPTIMIZE_FOR_NATIVE "Build with -march=native" OFF)
 
 if(OPTIMIZE_FOR_NATIVE)
     message("-- trying to build with -march=native")
