@@ -11,6 +11,10 @@ namespace pygmalion
 	private:
 		constexpr static const inline moveType m_Move{ moveType() };
 	public:
+		constexpr static const moveType& move() noexcept
+		{
+			return m_Move;
+		}
 		static movedataType makeMove(boardType& position, const movebitsType& movebits) noexcept
 		{
 			movedataType data{ m_Move.doMove(position, movebits) };

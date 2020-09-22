@@ -75,7 +75,7 @@ namespace pygmalion::intrinsics
 	template<size_t COUNT_VALUEBITS, size_t COUNT_MAXPATTERNBITS>
 	class magic<COUNT_VALUEBITS, COUNT_MAXPATTERNBITS, true>
 	{
-	private:
+	protected:
 		constexpr static size_t requiredBitBytes(const size_t bits) noexcept
 		{
 			if (bits > 32)
@@ -117,7 +117,7 @@ namespace pygmalion::intrinsics
 		constexpr magic(const magic&) = default;
 		constexpr magic(magic&&) = default;
 		constexpr magic(const bitsType& premask, const bitsType&, const sizeType bits) noexcept :
-			magic<countMaxPatternBits, true>(premask, bits)
+			magic<countValueBits, countMaxPatternBits, true>(premask, bits)
 		{
 		}
 		constexpr magic& operator=(const magic&) noexcept = default;
@@ -137,7 +137,7 @@ namespace pygmalion::intrinsics
 		}
 		size_t cast(const bitsType& bitboard) const noexcept
 		{
-			return static_cast<size_t>(bitboard.pext(m_Premask).bits());
+			return static_cast<size_t>(bitboard.extractPattern(m_Premask));
 		}
 	public:
 		void find(bitsType& premask, bitsType& factor, size_t& countValueBits) const noexcept
@@ -167,9 +167,14 @@ namespace pygmalion::intrinsics
 		using sizeType = typename detail::magic_traits<magic::requiredBitBytes(countMaxPatternBits)>::UTYPE;
 	protected:
 		bitsType m_Factor;
+	private:
+		constexpr static size_t castMagic(const bitsType& bits, const bitsType& premask, const bitsType& factor, const size_t countIndexBits) noexcept
+		{
+			return static_cast<size_t>(static_cast<typename std::make_unsigned<size_t>::type>((((bits & premask) * factor) >> (countValueBits - countIndexBits))));
+		}
 	public:
 		magic(const bitsType& premask) noexcept :
-			magic<countMaxPatternBits, true>(premask),
+			magic<countValueBits, countMaxPatternBits, true>(premask),
 			m_Factor{ bitsType::zero() }
 		{
 			this->find(premask, m_Factor);
@@ -177,7 +182,7 @@ namespace pygmalion::intrinsics
 		constexpr magic(const magic&) = default;
 		constexpr magic(magic&&) = default;
 		constexpr magic(const bitsType& premask, const bitsType& factor, const size_t bits) noexcept :
-			magic<countMaxPatternBits, true>(premask, bits),
+			magic<countValueBits, countMaxPatternBits, true>(premask, bits),
 			m_Factor{ factor }
 		{
 		}
@@ -186,7 +191,7 @@ namespace pygmalion::intrinsics
 		~magic() noexcept = default;
 		size_t cast(const bitsType& bitboard) const noexcept
 		{
-			return bitsType::castMagic(bitboard, this->premask(), m_Factor, this->countBits());
+			return magic::castMagic(bitboard, this->premask(), m_Factor, this->countBits());
 		}
 		constexpr const bitsType& factor() const noexcept
 		{

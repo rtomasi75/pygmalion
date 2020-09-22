@@ -28,7 +28,7 @@ namespace pygmalion
 			const size_t N{ m_Magic.countValues() };
 			for (size_t k = 0; k < N; k++)
 			{
-				const bitsType bb{ bitsType(k).pdep(m_Magic.premask()) };
+				const bitsType bb{ bitsType(static_cast<typename std::make_unsigned<size_t>::type>(k)).deposePattern(m_Magic.premask()) };
 				const size_t idx{ m_Magic.cast(bb) };
 				assert(idx < N);
 				initializeValue(m_pValues[idx], bb);
@@ -43,7 +43,7 @@ namespace pygmalion
 			m_pValues = new valueType[N];
 			for (size_t k = 0; k < N; k++)
 			{
-				const bitsType bb{ bitsType(k).pdep(m_Magic.premask()) };
+				const bitsType bb{ bitsType(static_cast<typename std::make_unsigned<size_t>::type>(k)).deposePattern(m_Magic.premask()) };
 				const size_t idx{ m_Magic.cast(bb) };
 				assert(idx < N);
 				initializeValue(m_pValues[idx], bb);

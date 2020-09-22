@@ -4,6 +4,7 @@
 #include <pygmalion-tictactoe-state.h>
 #include <pygmalion-mechanics.h>
 
+#include "pygmalion-tictactoe-mechanics/move.h"
 #include "pygmalion-tictactoe-mechanics/motor.h"
 
 #endif

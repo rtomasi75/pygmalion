@@ -57,69 +57,88 @@ namespace pygmalion
 			token = token_raw;
 			remainder = trimString(remainder = text.substr(i, lenCommand - i));
 		}
+		static std::string valueToString(const double value, const std::string& unit) noexcept
+		{
+			std::stringstream sstr;
+			sstr << std::fixed;
+			sstr << std::setw(6);
+			if (value < 0.00000000001)
+				sstr << std::setprecision(2) << 1000000000000.0 * value << " n" << unit;
+			else if (value < 0.0000000001)
+				sstr << std::setprecision(1) << 1000000000000.0 * value << " n" << unit;
+			else if (value < 0.000000001)
+				sstr << std::setprecision(0) << 1000000000000.0 * value << " n" << unit;
+			else if (value < 0.00000001)
+				sstr << std::setprecision(2) << 1000000000.0 * value << " mc" << unit;
+			else if (value < 0.0000001)
+				sstr << std::setprecision(1) << 1000000000.0 * value << " mc" << unit;
+			else if (value < 0.000001)
+				sstr << std::setprecision(0) << 1000000000.0 * value << " mc" << unit;
+			else if (value < 0.00001)
+				sstr << std::setprecision(2) << 1000000.0 * value << " mc" << unit;
+			else if (value < 0.0001)
+				sstr << std::setprecision(1) << 1000000.0 * value << " mc" << unit;
+			else if (value < 0.001)
+				sstr << std::setprecision(0) << 1000000.0 * value << " mc" << unit;
+			else if (value < 0.01)
+				sstr << std::setprecision(2) << 1000.0 * value << " m" << unit;
+			else if (value < 0.1)
+				sstr << std::setprecision(1) << 1000.0 * value << " m" << unit;
+			else if (value < 1.0)
+				sstr << std::setprecision(0) << 1000.0 * value << " m" << unit;
+			else if (value < 10.0)
+				sstr << std::setprecision(2) << 1.0 * value << " " << unit;
+			else if (value < 100.0)
+				sstr << std::setprecision(1) << 1.0 * value << " " << unit;
+			else if (value < 1000.0)
+				sstr << std::setprecision(0) << 1.0 * value << " " << unit;
+			else if (value < 10000)
+				sstr << std::setprecision(2) << 0.001 * value << " k" << unit;
+			else if (value < 100000)
+				sstr << std::setprecision(1) << 0.001 * value << " k" << unit;
+			else if (value < 1000000)
+				sstr << std::setprecision(0) << 0.001 * value << " k" << unit;
+			else if (value < 10000000)
+				sstr << std::setprecision(2) << 0.000001 * value << " M" << unit;
+			else if (value < 100000000)
+				sstr << std::setprecision(1) << 0.000001 * value << " M" << unit;
+			else if (value < 1000000000)
+				sstr << std::setprecision(0) << 0.000001 * value << " M" << unit;
+			else if (value < 10000000000)
+				sstr << std::setprecision(2) << 0.000000001 * value << " G" << unit;
+			else if (value < 10000000000)
+				sstr << std::setprecision(1) << 0.000000001 * value << " G" << unit;
+			else
+				sstr << std::setprecision(0) << 0.000000001 * value << " G" << unit;
+			return sstr.str();
+		}
 		using durationType = typename profiler::durationType;
 		static std::string durationToString(const durationType duration) noexcept
 		{
-			std::stringstream sstr;
 			auto ctr = duration.count();
-			sstr << std::fixed;
-			sstr << std::setw(6);
-			if (std::abs(ctr) < 1)
-				sstr << std::setprecision(3) << 1.0 * static_cast<double>(ctr) << " ns";
-			else if (std::abs(ctr) < 10)
-				sstr << std::setprecision(2) << 1.0 * static_cast<double>(ctr) << " ns";
-			else if (std::abs(ctr) < 100)
-				sstr << std::setprecision(1) << 1.0 * static_cast<double>(ctr) << " ns";
-			else if (std::abs(ctr) < 1000)
-				sstr << std::setprecision(0) << 1.0 * static_cast<double>(ctr) << " ns";
-			else if (std::abs(ctr) < 10000)
-				sstr << std::setprecision(2) << 0.001 * static_cast<double>(ctr) << " mcs";
-			else if (std::abs(ctr) < 100000)
-				sstr << std::setprecision(1) << 0.001 * static_cast<double>(ctr) << " mcs";
-			else if (std::abs(ctr) < 1000000)
-				sstr << std::setprecision(0) << 0.001 * static_cast<double>(ctr) << " mcs";
-			else if (std::abs(ctr) < 10000000)
-				sstr << std::setprecision(2) << 0.000001 * static_cast<double>(ctr) << " ms";
-			else if (std::abs(ctr) < 100000000)
-				sstr << std::setprecision(1) << 0.000001 * static_cast<double>(ctr) << " ms";
-			else if (std::abs(ctr) < 10000000000)
-				sstr << std::setprecision(0) << 0.000001 * static_cast<double>(ctr) << " ms";
-			else if (std::abs(ctr) < 100000000000)
-				sstr << std::setprecision(2) << 0.000000001 * static_cast<double>(ctr) << " s";
-			else if (std::abs(ctr) < 1000000000000)
-				sstr << std::setprecision(1) << 0.000000001 * static_cast<double>(ctr) << " s";
-			else
-				sstr << std::setprecision(0) << 0.000000001 * static_cast<double>(ctr) << " s";
-			return sstr.str();
+			return valueToString(static_cast<double>(ctr) / 1000000000.0, "s");
 		}
 
 		static auto speedToString(const profiler::speed& spd) noexcept
 		{
 			const double ups{ spd.operationsPerSec() };
-			std::stringstream sstr;
-			sstr << std::fixed;
-			sstr << std::setw(6);
-			if (ups < 1000.0)
-				sstr << std::setprecision(0) << 1.0 * ups << " " << spd.operationUnit() << "/s";
-			else if (ups < 10000)
-				sstr << std::setprecision(2) << 0.001 * ups << " k" << spd.operationUnit() << "/s";
-			else if (ups < 100000)
-				sstr << std::setprecision(1) << 0.001 * ups << " k" << spd.operationUnit() << "/s";
-			else if (ups < 1000000)
-				sstr << std::setprecision(0) << 0.001 * ups << " k" << spd.operationUnit() << "/s";
-			else if (ups < 10000000)
-				sstr << std::setprecision(2) << 0.000001 * ups << " M" << spd.operationUnit() << "/s";
-			else if (ups < 100000000)
-				sstr << std::setprecision(1) << 0.000001 * ups << " M" << spd.operationUnit() << "/s";
-			else if (ups < 1000000000)
-				sstr << std::setprecision(0) << 0.000001 * ups << " M" << spd.operationUnit() << "/s";
-			else if (ups < 10000000000)
-				sstr << std::setprecision(2) << 0.000000001 * ups << " G" << spd.operationUnit() << "/s";
-			else if (ups < 10000000000)
-				sstr << std::setprecision(1) << 0.000000001 * ups << " G" << spd.operationUnit() << "/s";
-			else
-				sstr << std::setprecision(0) << 0.000000001 * ups << " G" << spd.operationUnit() << "/s";
-			return sstr.str();
+			return valueToString(ups, spd.operationUnit() + "/s");
+		}
+
+		static long long int parseInt(const std::string& str) noexcept
+		{
+			try
+			{
+#if defined _MSC_VER
+				return _strtoui64(str.c_str(), nullptr, 10);
+#else
+				return strtoll(str.c_str(), nullptr, 10);
+#endif
+			}
+			catch (...)
+			{
+				return 0;
+			}
 		}
 	};
 }

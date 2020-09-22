@@ -415,6 +415,10 @@ namespace pygmalion
 		{
 			return uint_t(0);
 		}
+		constexpr static uint_t universe() noexcept
+		{
+			return ~uint_t(0);
+		}
 		constexpr bool test(const size_t bit) const noexcept
 		{
 			assert(bit < countBits);
@@ -1704,6 +1708,10 @@ namespace pygmalion
 		{
 			return uint_t(0, true);
 		}
+		constexpr static uint_t universe() noexcept
+		{
+			return ~uint_t(0, true);
+		}
 		uint_t deposePattern(uint_t mask) const noexcept
 		{
 #if (defined(PYGMALION_INTRINSICS_MSC)||defined(PYGMALION_INTRINSICS_GNU))&&(defined(PYGMALION_CPU_X86)||defined(PYGMALION_CPU_X64))&&defined(PYGMALION_CPU_BMI2)
@@ -2356,6 +2364,10 @@ namespace pygmalion
 		{
 			return uint_t(0, true);
 		}
+		constexpr static uint_t universe() noexcept
+		{
+			return uint_t(1, false);
+		}
 		uint_t extractPattern(const uint_t mask) const noexcept
 		{
 			return uint_t(mask.m_Word & m_Word, false);
@@ -2760,6 +2772,10 @@ namespace pygmalion
 			return uint_t();
 		}
 		constexpr static uint_t zero() noexcept
+		{
+			return uint_t();
+		}
+		constexpr static uint_t universe() noexcept
 		{
 			return uint_t();
 		}

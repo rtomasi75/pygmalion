@@ -2,7 +2,7 @@
 constexpr static const int countMaxGeneratedMoves{ descriptorDynamics::countMaxGeneratedMoves };
 using movelistType = typename descriptorDynamics::movelistType;
 using indexType = typename descriptorDynamics::indexType;
-using mechanicsType = typename descriptorDynamics::mechanicsType;
+using motorType = typename descriptorDynamics::motorType;
 
-using descriptorMechanics = typename mechanicsType::descriptorMechanics;
+using descriptorMechanics = typename motorType::descriptorMechanics;
 #include <pygmalion-mechanics/include_mechanics.h>

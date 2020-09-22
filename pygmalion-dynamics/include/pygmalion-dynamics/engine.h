@@ -1,13 +1,13 @@
 namespace pygmalion::dynamics
 {
-	template<typename DYNAMICS>
+	template<typename GENERATOR>
 	class engine :
-		public pygmalion::mechanics::engine<typename DYNAMICS::descriptorMechanics>,
-		public DYNAMICS::descriptorDynamics
+		public pygmalion::mechanics::engine<typename GENERATOR::motorType>,
+		public GENERATOR::descriptorDynamics
 	{
 	public:
-		using dynamicsType = DYNAMICS;
-		using descriptorDynamics = typename DYNAMICS::descriptorDynamics;
+		using generatorType = GENERATOR;
+		using descriptorDynamics = typename GENERATOR::descriptorDynamics;
 #include "include_dynamics.h"
 	private:
 	public:
@@ -15,9 +15,11 @@ namespace pygmalion::dynamics
 		engine(const engine&) = delete;
 		engine(engine&&) = delete;
 		engine(std::istream& input, std::ostream& output) noexcept :
-			pygmalion::state::engine<boardType>(input, output)
+			pygmalion::mechanics::engine<typename GENERATOR::motorType>(input, output)
 		{
-		//	this->template addCommand<command_debugMechanics<descriptorMechanics, motorType>>();
+			this->template addCommand<command_debugMoves<descriptorDynamics, generatorType>>();
+			this->template addCommand<command_debugDynamics<descriptorDynamics, generatorType>>();
+			this->template addCommand<command_debugPerft<descriptorDynamics, generatorType>>();
 		}
 		virtual ~engine() noexcept = default;
 		virtual std::string version() const noexcept override

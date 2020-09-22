@@ -57,29 +57,29 @@ namespace pygmalion::mechanics
 			sstr << "" << sizeof(typename dropmove::movedataType) << ":" << dropmove::countBits << "@drop";
 			return sstr.str();
 		}
-	private:
 		constexpr static playerType extractOwner(const typename dropmove::movebitsType& movebits) noexcept
 		{
 			const playerType p{ playerType(static_cast<typename std::make_unsigned<typename playerType::baseType>::type>(movebits.template extractBits<countSquareBits + countPieceBits,countOwnerBits>())) };
 			return p;
-		}
-		constexpr static void encodeOwner(typename dropmove::movebitsType& movebits, const playerType p) noexcept
-		{
-			movebits.template storeBits<countSquareBits + countPieceBits, countOwnerBits>(static_cast<typename std::make_unsigned<typename playerType::baseType>::type>(p));
 		}
 		constexpr static pieceType extractPiece(const typename dropmove::movebitsType& movebits) noexcept
 		{
 			const pieceType pc{ pieceType(static_cast<typename std::make_unsigned<typename pieceType::baseType>::type>(movebits.template extractBits<countSquareBits,countPieceBits>())) };
 			return pc;
 		}
-		constexpr static void encodePiece(typename dropmove::movebitsType& movebits, const pieceType pc) noexcept
-		{
-			movebits.template storeBits<countSquareBits, countPieceBits>(static_cast<typename std::make_unsigned<typename pieceType::baseType>::type>(pc));
-		}
 		constexpr static squareType extractSquare(const typename dropmove::movebitsType& movebits) noexcept
 		{
 			const squareType sq{ squareType(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(movebits.template extractBits<0,countSquareBits>())) };
 			return sq;
+		}
+	private:
+		constexpr static void encodeOwner(typename dropmove::movebitsType& movebits, const playerType p) noexcept
+		{
+			movebits.template storeBits<countSquareBits + countPieceBits, countOwnerBits>(static_cast<typename std::make_unsigned<typename playerType::baseType>::type>(p));
+		}
+		constexpr static void encodePiece(typename dropmove::movebitsType& movebits, const pieceType pc) noexcept
+		{
+			movebits.template storeBits<countSquareBits, countPieceBits>(static_cast<typename std::make_unsigned<typename pieceType::baseType>::type>(pc));
 		}
 		constexpr static void encodeSquare(typename dropmove::movebitsType& movebits, const squareType sq) noexcept
 		{

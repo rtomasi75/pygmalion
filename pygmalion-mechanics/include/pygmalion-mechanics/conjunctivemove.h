@@ -81,7 +81,7 @@ namespace pygmalion::mechanics
 			return sstr.str();
 		}
 		template<size_t INDEX>
-		const auto& component()
+		const auto& component() const noexcept
 		{
 			return std::get<INDEX>(this->m_Moves);
 		}

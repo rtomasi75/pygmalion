@@ -121,7 +121,7 @@ namespace pygmalion
 			}
 			m_Length = tail.m_Length + 1;
 		}
-		list& operator=(const list&) noexcept
+		list& operator=(const list& other) noexcept
 		{
 			m_Length = other.m_Length;
 			for (counterType i = 0; i < m_Length; i++)
@@ -130,13 +130,13 @@ namespace pygmalion
 		}
 		list& operator=(list&& other) noexcept
 		{
-			m_Length = other.m_Length;
+			m_Length = std::move(other.m_Length);
 			for (counterType i = 0; i < m_Length; i++)
 				m_Items[i] = std::move(other.m_Items[i]);
 			return *this;
 		}
 		list(list&&) noexcept :
-			m_Length(other.m_Length)
+			m_Length(std::move(other.m_Length))
 		{
 			for (counterType i = 0; i < m_Length; i++)
 				m_Items[i] = std::move(other.m_Items[i]);

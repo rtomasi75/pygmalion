@@ -1,13 +1,14 @@
 namespace pygmalion
 {
-	template<typename MECHANICS, int COUNT_MAX_GENERATED_MOVES>
+	template<typename MOTOR, int COUNT_MAX_GENERATED_MOVES>
 	class descriptor_dynamics :
-		public MECHANICS::descriptorMechanics
+		public MOTOR::descriptorMechanics
 	{
 	public:
 		constexpr static const int countMaxGeneratedMoves{ COUNT_MAX_GENERATED_MOVES };
-		using mechanicsType = MECHANICS;
-		using movelistType = list<typename mechanicsType::descriptorMechanics::movebitsType, countMaxGeneratedMoves>;
+		using motorType = MOTOR;
+		using descriptorMechanics = typename MOTOR::descriptorMechanics;
+		using movelistType = list<typename descriptorMechanics::movebitsType, countMaxGeneratedMoves>;
 		using indexType = typename movelistType::counterType;
 	};
 

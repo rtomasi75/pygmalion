@@ -7,7 +7,6 @@ namespace pygmalion
 	public:
 		using generatorType = INSTANCE;
 		using descriptorDynamics = DESCRIPTOR_DYNAMICS;
-	private:
 #include "include_dynamics.h"
 		class stack :
 			public DESCRIPTOR_DYNAMICS
@@ -21,17 +20,16 @@ namespace pygmalion
 			mutable movelistType m_TacticalMoves;
 			boardType& m_Position;
 			const movedataType m_MoveData;
-			const playerType m_MovingPlayer;
-			const playerType m_NextPlayer;
-			const bool m_IsNullmove;
-			mutable int m_CurrentPass;
+			mutable size_t m_CurrentPass;
+			mutable size_t m_CurrentTacticalPass;
 			mutable indexType m_CurrentMove;
-			mutable int m_CurrentTacticalPass;
 			mutable indexType m_CurrentTacticalMove;
 			mutable indexType m_CurrentLegalMove;
+			const playerType m_MovingPlayer;
+			const playerType m_NextPlayer;
 			mutable bool m_HasLegalMove;
 			mutable bool m_HasLegalMoveValid;
-			constexpr static const inline moveType m_Move{ moveType() };
+			const bool m_IsNullmove;
 			bool computeHasLegalMove() const
 			{
 				bool allMovesGenerated{ false };
@@ -64,11 +62,11 @@ namespace pygmalion
 				}
 				return m_HasLegalMove;
 			}
-			bool isMoveLegal(const moveType& move) const noexcept
+			bool isMoveLegal(const movebitsType& moveBits) const noexcept
 			{
-				return generatorType::isMoveLegal(*this, move);
+				return generatorType::isMoveLegal(*this, moveBits);
 			}
-			bool nextMove(moveType& move) const noexcept
+			bool nextMove(movebitsType& moveBits) const noexcept
 			{
 				bool allMovesGenerated{ false };
 				while (!allMovesGenerated)
@@ -83,15 +81,15 @@ namespace pygmalion
 					}
 					while (m_CurrentMove < m_Moves.length())
 					{
-						move = m_Moves[m_CurrentMove];
+						moveBits = m_Moves[m_CurrentMove];
 						m_CurrentMove++;
-						if (generatorType::isMoveLegal(*this, move))
+						if (generatorType::isMoveLegal(*this, moveBits))
 							return true;
 					}
 				}
 				return false;
 			}
-			bool nextTacticalMove(moveType& move) const noexcept
+			bool nextTacticalMove(movebitsType& moveBits) const noexcept
 			{
 				bool allMovesGenerated{ false };
 				while (!allMovesGenerated)
@@ -106,15 +104,15 @@ namespace pygmalion
 					}
 					while (m_CurrentTacticalMove < m_TacticalMoves.length())
 					{
-						move = m_TacticalMoves[m_CurrentTacticalMove];
+						moveBits = m_TacticalMoves[m_CurrentTacticalMove];
 						m_CurrentTacticalMove++;
-						if (generatorType::isMoveLegal(*this, move))
+						if (generatorType::isMoveLegal(*this, moveBits))
 							return true;
 					}
 				}
 				return false;
 			}
-			stack(const stack& parent, const movebitsType mv) noexcept :
+			stack(const stack& parent, const movebitsType moveBits) noexcept :
 				m_Position{ parent.m_Position },
 				m_Moves(),
 				m_HasLegalMove{ false },
@@ -124,7 +122,7 @@ namespace pygmalion
 				m_CurrentTacticalPass{ 0 },
 				m_CurrentTacticalMove{ 0 },
 				m_CurrentLegalMove{ 0 },
-				m_MoveData(m_Move.doMove(m_Position, mv)),
+				m_MoveData(motorType::move().doMove(m_Position, moveBits)),
 				m_MovingPlayer{ m_Position.movingPlayer() },
 				m_NextPlayer{ m_MovingPlayer.next() },
 				m_IsNullmove{ false }
@@ -165,24 +163,24 @@ namespace pygmalion
 			~stack() noexcept
 			{
 				if (!m_IsNullmove)
-					m_Move.undoMove(m_Position, m_MoveData);
+					motorType::move().undoMove(m_Position, m_MoveData);
 			}
 		};
 
 		template<typename stackType>
-		static bool generateMoves(const stackType& stack, movelistType& moves, int& currentPass) noexcept
+		static bool generateMoves(const stackType& stack, movelistType& moves, size_t& currentPass) noexcept
 		{
 			return generatorType::generateMoves_Implementation(stack, moves, currentPass);
 		}
 		template<typename stackType>
-		static bool generateTacticalMoves(const stackType& stack, movelistType& moves, int& currentPass) noexcept
+		static bool generateTacticalMoves(const stackType& stack, movelistType& moves, size_t& currentPass) noexcept
 		{
 			return generatorType::generateTacticalMoves_Implementation(stack, moves, currentPass);
 		}
 		template<typename stackType>
-		static bool isMoveLegal(const stackType& stack, const moveType mv) noexcept
+		static bool isMoveLegal(const stackType& stack, const movebitsType& moveBits) noexcept
 		{
-			return generatorType::isMoveLegal_Implementation(stack, mv);
+			return generatorType::isMoveLegal_Implementation(stack, moveBits);
 		}
 
 	};
