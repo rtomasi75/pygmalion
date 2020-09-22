@@ -64,7 +64,7 @@ namespace pygmalion::mechanics
 		class disjunctivemoveSelector
 		{
 		public:
-			using moveType = typename disjunctivemoveSelector<INDEX, COUNTER + 1, MOVES2...>::type;
+			using moveType = typename disjunctivemoveSelector<INDEX, COUNTER + 1, MOVES2...>::moveType;
 		};
 
 		template<size_t INDEX, typename MOVE, typename... MOVES2>
@@ -245,13 +245,13 @@ namespace pygmalion::mechanics
 	private:
 	public:
 		template<size_t INDEX>
-		constexpr typename disjunctivemove::movebitsType create(const typename detail::disjunctivemoveSelector<INDEX, 0, MOVES...>::type::movebitsType& bits) const noexcept
+		constexpr typename disjunctivemove::movebitsType create(const typename detail::disjunctivemoveSelector<INDEX, 0, MOVES...>::moveType::movebitsType& bits) const noexcept
 		{
 			typename disjunctivemove::movebitsType moveBits;
 			if constexpr (sizeof...(MOVES) > 0)
 			{
 				constexpr const muxbitsType mux{ static_cast<muxbitsType>(static_cast<typename std::make_unsigned<size_t>::type>(INDEX)) };
-				using moveType = typename detail::disjunctivemoveSelector<INDEX, 0, MOVES...>::type;
+				using moveType = typename detail::disjunctivemoveSelector<INDEX, 0, MOVES...>::moveType;
 				moveBits.template storeBits<0, moveType::movebitsType::countBits>(bits);
 				moveBits.template storeBits<countDataBits, countMuxBits>(mux);
 			}

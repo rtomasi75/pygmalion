@@ -41,69 +41,69 @@ namespace pygmalion::state
 		{
 			return ~none();
 		}
-		constexpr static squares right(const squares sqs) noexcept
+		constexpr squares right() const noexcept
 		{
-			return static_cast<squares>((sqs.m_Bits & squares::notLastFileBits) << 1);
+			return static_cast<squares>((this->m_Bits & (~lastFileBits)) << 1);
 		}
-		constexpr static squares left(const squares sqs) noexcept
+		constexpr squares left() const noexcept
 		{
-			return static_cast<squares>((sqs.m_Bits & squares::notFirstFileBits) >> 1);
+			return static_cast<squares>((this->m_Bits & (~firstFileBits)) >> 1);
 		}
-		constexpr static squares down(const squares sqs) noexcept
+		constexpr squares down() const noexcept
 		{
-			return static_cast<squares>(sqs.m_Bits >> countFiles);
+			return static_cast<squares>(this->m_Bits >> countFiles);
 		}
-		constexpr static squares up(const squares sqs) noexcept
+		constexpr squares up() const noexcept
 		{
-			return static_cast<squares>(sqs.m_Bits << countFiles);
+			return static_cast<squares>(this->m_Bits << countFiles);
 		}
-		constexpr static squares downRight(const squares sqs) noexcept
+		constexpr squares downRight() const noexcept
 		{
-			return static_cast<squares>((sqs.m_Bits & squares::notLastFileBits) >> (countFiles - 1));
+			return down(right());
 		}
-		constexpr static squares upRight(const squares sqs) noexcept
+		constexpr squares upRight() const noexcept
 		{
-			return static_cast<squares>((sqs.m_Bits & squares::notLastFileBits) << (countFiles + 1));
+			return up(right());
 		}
-		constexpr static squares downLeft(const squares sqs) noexcept
+		constexpr squares downLeft() const noexcept
 		{
-			return static_cast<squares>((sqs.m_Bits & squares::notFirstFileBits) >> (countFiles + 1));
+			return down(left());
 		}
-		constexpr static squares upLeft(const squares sqs) noexcept
+		constexpr squares upLeft() const noexcept
 		{
-			return static_cast<squares>((sqs.m_Bits & squares::notFirstFileBits) << (countFiles - 1));
+			return up(left());
 		}
-		constexpr static squares upUpLeft(const squares sqs) noexcept
+		constexpr squares upUpLeft() const noexcept
 		{
-			return up(upLeft(sqs));
+			return up(upLeft());
 		}
-		constexpr static squares upUpRight(const squares sqs) noexcept
+		constexpr squares upUpRight() const noexcept
 		{
-			return up(upRight(sqs));
+			return up(upRight());
 		}
-		constexpr static squares downDownLeft(const squares sqs) noexcept
+		constexpr squares downDownLeft() const noexcept
 		{
-			return down(downLeft(sqs));
+			return down(downLeft());
 		}
-		constexpr static squares downDownRight(const squares sqs) noexcept
+		constexpr squares downDownRight() const noexcept
 		{
-			return down(downRight(sqs));
+			return down(downRight());
 		}
-		constexpr static squares upLeftLeft(const squares sqs) noexcept
+		constexpr squares upLeftLeft() const noexcept
 		{
-			return upLeft(left(sqs));
+			return upLeft(left());
 		}
-		constexpr static squares downLeftLeft(const squares sqs) noexcept
+		constexpr squares downLeftLeft() const noexcept
 		{
-			return downLeft(left(sqs));
+			return downLeft(left());
 		}
-		constexpr static squares upRightRight(const squares sqs) noexcept
+		constexpr squares upRightRight() const noexcept
 		{
-			return upRight(right(sqs));
+			return upRight(right());
 		}
-		constexpr static squares downRightRight(const squares sqs) noexcept
+		constexpr squares downRightRight() const noexcept
 		{
-			return downRight(right(sqs));
+			return downRight(right());
 		}
 		constexpr explicit squares(const bitsType bits) noexcept :
 			m_Bits{ bits }
@@ -223,6 +223,10 @@ namespace pygmalion::state
 			return *this;
 		}
 		constexpr bool operator[](const squareType square) const noexcept
+		{
+			return m_Bits[static_cast<typename squareType::baseType>(square)];
+		}
+		constexpr auto operator[](const squareType square) noexcept
 		{
 			return m_Bits[static_cast<typename squareType::baseType>(square)];
 		}

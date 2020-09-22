@@ -9,20 +9,34 @@ namespace pygmalion::chess
 		using descriptorState = typename boardType::descriptorState;
 #include <pygmalion-state/include_state.h>
 	private:
-		constexpr static const muxbitsType muxQueenPromoCapture{ 0 };
-		constexpr static const muxbitsType muxQueenPromo{ 1 };
-		constexpr static const muxbitsType muxRookPromoCapture{ 2 };
-		constexpr static const muxbitsType muxRookPromo{ 3 };
-		constexpr static const muxbitsType muxBishopPromoCapture{ 4 };
-		constexpr static const muxbitsType muxBishopPromo{ 5 };
-		constexpr static const muxbitsType muxKnightPromoCapture{ 6 };
-		constexpr static const muxbitsType muxKnightPromo{ 7 };
-		constexpr static const muxbitsType muxCapture{ 8 };
-		constexpr static const muxbitsType muxQuiet{ 9 };
-		constexpr static const muxbitsType muxEnPassant{ 10 };
-		constexpr static const muxbitsType muxDoublePush{ 11 };
-		constexpr static const muxbitsType muxKingside{ 12 };
-		constexpr static const muxbitsType muxQueenside{ 13 };
+		constexpr static const size_t indexQueenPromoCapture{ 0 };
+		constexpr static const size_t indexQueenPromo{ 1 };
+		constexpr static const size_t indexRookPromoCapture{ 2 };
+		constexpr static const size_t indexRookPromo{ 3 };
+		constexpr static const size_t indexBishopPromoCapture{ 4 };
+		constexpr static const size_t indexBishopPromo{ 5 };
+		constexpr static const size_t indexKnightPromoCapture{ 6 };
+		constexpr static const size_t indexKnightPromo{ 7 };
+		constexpr static const size_t indexDoublePush{ 8 };
+		constexpr static const size_t indexEnPassant{ 9 };
+		constexpr static const size_t indexCapture{ 10 };
+		constexpr static const size_t indexQuiet{ 11 };
+		constexpr static const size_t indexKingside{ 12 };
+		constexpr static const size_t indexQueenside{ 13 };
+		constexpr static const muxbitsType muxQueenPromoCapture{ indexQueenPromoCapture };
+		constexpr static const muxbitsType muxQueenPromo{ indexQueenPromo };
+		constexpr static const muxbitsType muxRookPromoCapture{ indexRookPromoCapture };
+		constexpr static const muxbitsType muxRookPromo{ indexRookPromo };
+		constexpr static const muxbitsType muxBishopPromoCapture{ indexBishopPromoCapture };
+		constexpr static const muxbitsType muxBishopPromo{ indexBishopPromo };
+		constexpr static const muxbitsType muxKnightPromoCapture{ indexKnightPromoCapture };
+		constexpr static const muxbitsType muxKnightPromo{ indexKnightPromo };
+		constexpr static const muxbitsType muxCapture{ indexCapture };
+		constexpr static const muxbitsType muxQuiet{ indexQuiet };
+		constexpr static const muxbitsType muxEnPassant{ indexEnPassant };
+		constexpr static const muxbitsType muxDoublePush{ indexDoublePush };
+		constexpr static const muxbitsType muxKingside{ indexKingside };
+		constexpr static const muxbitsType muxQueenside{ indexQueenside };
 	public:
 		constexpr static bool isPromotion(const movebitsType& movebits) noexcept
 		{
@@ -39,7 +53,7 @@ namespace pygmalion::chess
 				return knight;
 			else if ((mux == muxRookPromo) || (mux == muxRookPromoCapture))
 				return rook;
-			else 
+			else
 				return bishop;
 		}
 		constexpr static bool isCapture(const movebitsType& movebits) noexcept
@@ -71,6 +85,10 @@ namespace pygmalion::chess
 		{
 			const muxbitsType mux{ combinedmoves::muxbits(movebits) };
 			return (mux == muxQueenside) || (mux == muxKingside);
+		}
+		constexpr movebitsType createQuiet(const squareType from, const squareType to) const noexcept
+		{
+			return create<indexQuiet>(this->component<indexQuiet>().create(from, to));
 		}
 	};
 }

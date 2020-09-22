@@ -154,6 +154,7 @@ add_subdirectory(pygmalion-tictactoe-dynamics)
 
 add_subdirectory(pygmalion-chess-state)
 add_subdirectory(pygmalion-chess-mechanics)
+add_subdirectory(pygmalion-chess-dynamics)
 
 #add_subdirectory(pygmalion-bits)
 #add_subdirectory(pygmalion-core)
