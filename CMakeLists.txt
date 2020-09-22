@@ -146,6 +146,7 @@ endif()
 add_subdirectory(pygmalion-intrinsics)
 add_subdirectory(pygmalion-state)
 add_subdirectory(pygmalion-mechanics)
+add_subdirectory(pygmalion-dynamics)
 
 add_subdirectory(pygmalion-tictactoe-state)
 add_subdirectory(pygmalion-tictactoe-mechanics)

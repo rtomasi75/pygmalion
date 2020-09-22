@@ -38,6 +38,7 @@
 #include "pygmalion-intrinsics/uint_t_traits.h"
 #include "pygmalion-intrinsics/uint_t_detail.h"
 #include "pygmalion-intrinsics/uint_t.h"
+#include "pygmalion-intrinsics/list.h"
 #include "pygmalion-intrinsics/parser.h"
 #include "pygmalion-intrinsics/command.h"
 #include "pygmalion-intrinsics/command_quit.h"
