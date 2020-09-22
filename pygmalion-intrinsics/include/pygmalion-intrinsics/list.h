@@ -6,63 +6,63 @@ namespace pygmalion
 		class list_traits
 		{
 		public:
-			using STYPE = std::uintmax_t;
+			using UTYPE = std::uintmax_t;
 		};
 
 		template<>
 		class list_traits<1>
 		{
 		public:
-			using STYPE = std::uint8_t;
+			using UTYPE = std::uint8_t;
 		};
 
 		template<>
 		class list_traits<2>
 		{
 		public:
-			using STYPE = std::uint16_t;
+			using UTYPE = std::uint16_t;
 		};
 
 		template<>
 		class list_traits<3>
 		{
 		public:
-			using STYPE = std::uint32_t;
+			using UTYPE = std::uint32_t;
 		};
 
 		template<>
 		class list_traits<4>
 		{
 		public:
-			using STYPE = std::uint32_t;
+			using UTYPE = std::uint32_t;
 		};
 
 		template<>
 		class list_traits<5>
 		{
 		public:
-			using STYPE = std::uint64_t;
+			using UTYPE = std::uint64_t;
 		};
 
 		template<>
 		class list_traits<6>
 		{
 		public:
-			using STYPE = std::uint64_t;
+			using UTYPE = std::uint64_t;
 		};
 
 		template<>
 		class list_traits<7>
 		{
 		public:
-			using STYPE = std::uint64_t;
+			using UTYPE = std::uint64_t;
 		};
 
 		template<>
 		class list_traits<8>
 		{
 		public:
-			using STYPE = std::uint64_t;
+			using UTYPE = std::uint64_t;
 		};
 	}
 	template<typename ITEM, int MAXLENGTH>
@@ -82,7 +82,7 @@ namespace pygmalion
 	public:
 		constexpr static int maxLength{ MAXLENGTH };
 		using itemType = ITEM;
-		using counterType = typename detail::list_traits<requiredUnsignedBytes(maxLength + 1)>::STYPE;
+		using counterType = typename detail::list_traits<requiredUnsignedBytes(maxLength + 1)>::UTYPE;
 	private:
 		std::array<itemType, maxLength> m_Items;
 		counterType m_Length;
