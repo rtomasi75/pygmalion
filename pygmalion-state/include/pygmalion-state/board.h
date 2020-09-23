@@ -104,12 +104,14 @@ namespace pygmalion
 		static bool parseSquare(std::string& text, squareType& square) noexcept
 		{
 			fileType f;
-			if (parseFile(text, f))
+			std::string temp{ text };
+			if (parseFile(temp, f))
 			{
 				rankType r;
-				if (parseRank(text, r))
+				if (parseRank(temp, r))
 				{
 					square = f & r;
+					text = temp;
 					return true;
 				}
 			}

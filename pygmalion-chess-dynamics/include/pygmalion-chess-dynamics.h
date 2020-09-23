@@ -8,5 +8,7 @@
 #include "pygmalion-chess-dynamics/slidermagic.h"
 #include "pygmalion-chess-dynamics/propagator_knight.h"
 #include "pygmalion-chess-dynamics/generator.h"
+#include "pygmalion-chess-dynamics/commands.h"
+#include "pygmalion-chess-dynamics/engine.h"
 
 #endif

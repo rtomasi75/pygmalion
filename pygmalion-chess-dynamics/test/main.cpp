@@ -6,7 +6,7 @@ using namespace pygmalion::chess;
 
 int main(int argc, char* argv[])
 {
-	engine<pygmalion::chess::generator> eng(std::cin, std::cout);
+	pygmalion::chess::dynamics::engine eng(std::cin, std::cout);
 	eng.run();
 	return 0;
 }

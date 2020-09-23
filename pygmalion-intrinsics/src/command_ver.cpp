@@ -6,8 +6,10 @@ namespace pygmalion::intrinsics
 	{
 		if (cmd == "ver")
 		{
+			output() << std::endl;
 			output() << "Pygmalion ver. 3.0" << std::endl;
 			output() << "playing " << intrinsicsEngine().version() << std::endl;
+			output() << std::endl;
 			return true;
 		}
 		else

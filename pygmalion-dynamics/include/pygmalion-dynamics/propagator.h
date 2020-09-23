@@ -126,9 +126,9 @@ namespace pygmalion::dynamics
 					pattern = pattern.right();
 				}
 			}
-			else if constexpr (RAY::fileIncrement > 0)
+			else if constexpr (RAY::fileIncrement < 0)
 			{
-				for (int i = 0; i < -RAY::fileIncrement; i++)
+				for (int i = RAY::fileIncrement; i < 0; i++)
 				{
 					pattern = pattern.left();
 				}
@@ -140,9 +140,9 @@ namespace pygmalion::dynamics
 					pattern = pattern.up();
 				}
 			}
-			else if constexpr (RAY::rankIncrement > 0)
+			else if constexpr (RAY::rankIncrement < 0)
 			{
-				for (int i = 0; i < -RAY::rankIncrement; i++)
+				for (int i = RAY::rankIncrement; i < 0; i++)
 				{
 					pattern = pattern.down();
 				}

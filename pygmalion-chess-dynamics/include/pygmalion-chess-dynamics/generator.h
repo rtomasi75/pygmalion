@@ -19,6 +19,10 @@ namespace pygmalion::chess
 			}
 		}
 	public:
+		constexpr static squaresType knightTargets(const squareType sq) noexcept
+		{
+			return m_KnightPropagator.targets(sq, squaresType::all());
+		}
 		static bool isMoveLegal_Implementation(const stackType& stack, const movebitsType& mv) noexcept
 		{
 			return true;

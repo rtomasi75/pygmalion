@@ -17,21 +17,21 @@ namespace pygmalion::state
 		constexpr static bitsType fromFile(const fileType file) noexcept
 		{
 			bitsType bits{ bitsType::zero() };
-			for (const auto rank : rankType::range)
-				bits.set(bit(rank | file));
+			for (const rankType rank : rankType::range)
+				bits.set(bit(rank & file));
 			return bits;
 		}
 		constexpr static bitsType fromRank(const rankType rank) noexcept
 		{
 			bitsType bits{ bitsType::zero() };
-			for (const auto file : fileType::range)
-				bits.set(bit(rank | file));
+			for (const fileType file : fileType::range)
+				bits.set(bit(file & rank));
 			return bits;
 		}
 		constexpr static const bitsType firstFileBits{ fromFile(0) };
 		constexpr static const bitsType lastFileBits{ fromFile(countFiles - 1) };
-		constexpr static const bitsType firstRankBits{ fromFile(0) };
-		constexpr static const bitsType lastRankBits{ fromFile(countRanks - 1) };
+		constexpr static const bitsType firstRankBits{ fromRank(0) };
+		constexpr static const bitsType lastRankBits{ fromRank(countRanks - 1) };
 	public:
 		constexpr static squares none()
 		{

@@ -29,7 +29,9 @@ namespace pygmalion::state
 			this->template addCommand<command_debugPlayers<descriptorState, boardType>>();
 			this->template addCommand<command_debugPieces<descriptorState, boardType>>();
 			this->template addCommand<command_debugFiles<descriptorState, boardType>>();
+			this->template addCommand<command_debugFile<descriptorState, boardType>>();
 			this->template addCommand<command_debugRanks<descriptorState, boardType>>();
+			this->template addCommand<command_debugRank<descriptorState, boardType>>();
 			this->template addCommand<command_debugFlags<descriptorState, boardType>>();
 			this->template addCommand<command_debugBoard<descriptorState, boardType>>();
 			this->template addCommand<command_debugSetFlag<descriptorState, boardType>>();
