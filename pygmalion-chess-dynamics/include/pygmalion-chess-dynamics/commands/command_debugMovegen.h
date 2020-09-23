@@ -31,7 +31,34 @@ namespace pygmalion::chess::dynamics
 						switch (pc)
 						{
 						case knight:
-							dumpSquares(generatorType::knightTargets(sq));
+							if (p == whitePlayer)
+								this->output() << "white ";
+							else
+								this->output() << "black ";
+							this->output() << "knight quiet moves from " << boardType::squareToString(sq) << ":" << std::endl;
+							dumpSquares(generatorType::knightTargets(sq, ~position().totalOccupancy()));
+							this->output() << std::endl;
+							if (p == whitePlayer)
+								this->output() << "white ";
+							else
+								this->output() << "black ";
+							this->output() << "knight capture moves from " << boardType::squareToString(sq) << ":" << std::endl;
+							dumpSquares(generatorType::knightAttacks(sq, ~position().totalOccupancy()) & position().playerOccupancy(p.next()));
+							break;
+						case pawn:
+							if (p == whitePlayer)
+								this->output() << "white ";
+							else
+								this->output() << "black ";
+							this->output() << "pawn push from " << boardType::squareToString(sq) << ":" << std::endl;
+							dumpSquares(generatorType::pawnPushTargets(sq, p, ~position().totalOccupancy()));
+							this->output() << std::endl;
+							if (p == whitePlayer)
+								this->output() << "white ";
+							else
+								this->output() << "black ";
+							this->output() << "pawn double push from " << boardType::squareToString(sq) << ":" << std::endl;
+							dumpSquares(generatorType::pawnDoublePushTargets(sq, p, ~position().totalOccupancy()));
 							break;
 						}
 					}

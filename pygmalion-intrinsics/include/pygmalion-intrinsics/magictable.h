@@ -17,7 +17,7 @@ namespace pygmalion
 		valueType* m_pValues;
 		void initializeValue(valueType& value, const bitsType& bitboard) const noexcept
 		{
-			instanceType::initializeValue_Implementation(value, m_Info, bitboard, m_Magic.premask());
+			reinterpret_cast<const instanceType*>(this)->initializeValue_Implementation(value, m_Info, bitboard, m_Magic.premask());
 		}
 	protected:
 		constexpr magictable(const infoType& info, const bitsType& premask, const bitsType& factor, const size_t countBits) noexcept :

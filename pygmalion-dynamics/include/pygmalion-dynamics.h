@@ -5,6 +5,7 @@
 
 #include "pygmalion-dynamics/descriptor_dynamics.h"
 #include "pygmalion-dynamics/ray.h"
+#include "pygmalion-dynamics/slidermagic.h"
 #include "pygmalion-dynamics/propagator.h"
 #include "pygmalion-dynamics/movegen.h"
 #include "pygmalion-dynamics/generator.h"

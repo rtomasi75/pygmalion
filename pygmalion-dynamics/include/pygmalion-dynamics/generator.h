@@ -144,7 +144,7 @@ namespace pygmalion
 				m_IsNullmove{ true }
 			{
 			}
-			const boardType& position() const noexcept
+			constexpr const boardType& position() const noexcept
 			{
 				return m_Position;
 			}

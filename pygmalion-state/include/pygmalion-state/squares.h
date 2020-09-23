@@ -110,7 +110,7 @@ namespace pygmalion::state
 		{
 
 		}
-		constexpr explicit operator bitsType()
+		constexpr explicit operator bitsType() const noexcept
 		{
 			return m_Bits;
 		}

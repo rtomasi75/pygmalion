@@ -16,6 +16,7 @@ namespace pygmalion::chess::dynamics
 			pygmalion::dynamics::engine<generator>(input, output)
 		{
 			this->template addCommand<command_debugMovegen>();
+			this->template addCommand<command_debugUntabled>();
 		}
 		virtual ~engine() noexcept = default;
 		virtual std::string version() const noexcept override

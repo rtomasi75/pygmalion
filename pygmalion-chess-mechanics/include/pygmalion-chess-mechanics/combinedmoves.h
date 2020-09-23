@@ -86,9 +86,17 @@ namespace pygmalion::chess
 			const muxbitsType mux{ combinedmoves::muxbits(movebits) };
 			return (mux == muxQueenside) || (mux == muxKingside);
 		}
+		constexpr movebitsType createCapture(const squareType from, const squareType to) const noexcept
+		{
+			return create<indexCapture>(this->component<indexCapture>().create(from, to));
+		}
 		constexpr movebitsType createQuiet(const squareType from, const squareType to) const noexcept
 		{
 			return create<indexQuiet>(this->component<indexQuiet>().create(from, to));
+		}
+		constexpr movebitsType createDoublePush(const fileType file) const noexcept
+		{
+			return create<indexDoublePush>(this->component<indexDoublePush>().create(file));
 		}
 	};
 }

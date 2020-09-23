@@ -135,7 +135,7 @@ namespace pygmalion
 				m_Items[i] = std::move(other.m_Items[i]);
 			return *this;
 		}
-		list(list&&) noexcept :
+		list(list&& other) noexcept :
 			m_Length(std::move(other.m_Length))
 		{
 			for (counterType i = 0; i < m_Length; i++)

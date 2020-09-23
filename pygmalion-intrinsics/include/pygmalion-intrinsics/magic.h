@@ -145,13 +145,52 @@ namespace pygmalion::intrinsics
 			premask = m_Premask;
 			bitsType::findMagic(m_Premask, factor, countValueBits);
 		}
+	private:
+		constexpr static size_t castMagic(const bitsType& bits, const bitsType& premask, const bitsType& factor, const size_t countIndexBits) noexcept
+		{
+			return static_cast<size_t>((((bits & premask) * factor) >> (bitsType::countBits - countIndexBits)));
+		}
+		static void findMagic(const bitsType& premask, bitsType& factor, size_t& countIndexBits) noexcept
+		{
+			countIndexBits = premask.populationCount();
+			const size_t N{ size_t(1) << countIndexBits };
+			size_t* pIndices = new size_t[N];
+			bool* pUsed = new bool[N];
+			while (true)
+			{
+				bool bFound{ true };
+				factor = bitsType::sparse();
+				for (size_t i = 0; i < N; i++)
+				{
+					pIndices[i] = 0;
+					pUsed[i] = false;
+				}
+				for (size_t k = 0; k < N; k++)
+				{
+					const bitsType pattern{ bitsType(static_cast<typename std::make_unsigned<size_t>::type>(k)).deposePattern(premask) };
+					const size_t idx{ magic::castMagic(pattern,premask,factor,countIndexBits) };
+					assert(idx < N);
+					if (pUsed[idx])
+					{
+						bFound = false;
+						break;
+					}
+					pUsed[idx] = true;
+					pIndices[idx] = k;
+				}
+				if (bFound)
+					break;
+			}
+			delete[] pIndices;
+			delete[] pUsed;
+		}
 	protected:
 		void find(const bitsType& premask, bitsType& factor) noexcept
 		{
 			m_Premask = premask;
 			assert(m_Premask.populationCount() <= countMaxPatternBits);
 			size_t countValueBits;
-			bitsType::findMagic(m_Premask, factor, countValueBits);
+			magic::findMagic(m_Premask, factor, countValueBits);
 			m_CountBits = static_cast<sizeType>(static_cast<typename std::make_unsigned<size_t>::type>(countValueBits));
 		}
 	};

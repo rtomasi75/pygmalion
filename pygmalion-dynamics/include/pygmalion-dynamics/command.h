@@ -17,11 +17,11 @@ namespace pygmalion::dynamics
 	public:
 		engine<generatorType>& dynamicsEngine() noexcept
 		{
-			return dynamic_cast<engine<generatorType>&>(mechanicsEngine());
+			return dynamic_cast<engine<generatorType>&>(this->mechanicsEngine());
 		}
 		const engine<generatorType>& dynamicsEngine() const noexcept
 		{
-			return dynamic_cast<const engine<generatorType>&>(mechanicsEngine());
+			return dynamic_cast<const engine<generatorType>&>(this->mechanicsEngine());
 		}
 	protected:
 	};
