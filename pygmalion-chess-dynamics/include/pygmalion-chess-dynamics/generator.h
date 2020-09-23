@@ -106,6 +106,39 @@ namespace pygmalion::chess
 				}
 			}
 		}
+		constexpr static void generatePawnEnPassant(const stackType& stack, movelistType& moves) noexcept
+		{
+			const uint_t<8, false> epFlags{ stack.position().flags().extractRange<4,11>() };
+			size_t bit{ 0 };
+			if (stack.position().movingPlayer() == whitePlayer)
+			{
+				if (epFlags.bitscanForward(bit))
+				{
+					const fileType epFile{ static_cast<typename fileType::baseType>(bit) };
+					const squaresType leftFile{ static_cast<squaresType>(epFile).left() };
+					const squaresType rightFile{ static_cast<squaresType>(epFile).right() };
+					const squaresType rank{ static_cast<squaresType>(rank5) };
+					const squaresType fromSquares = (leftFile | rightFile) & rank;
+					const squareType toSquare{ epFile & rank6 };
+					for (const squareType from : fromSquares & (stack.position().playerOccupancy(whitePlayer)& stack.position().pieceOccupancy(pawn)))
+						moves.add(motorType::move().createEnPassant(from.file(), epFile));
+				}
+			}
+			else
+			{
+				if (epFlags.bitscanForward(bit))
+				{
+					const fileType epFile{ static_cast<typename fileType::baseType>(bit) };
+					const squaresType leftFile{ static_cast<squaresType>(epFile).left() };
+					const squaresType rightFile{ static_cast<squaresType>(epFile).right() };
+					const squaresType rank{ static_cast<squaresType>(rank4) };
+					const squaresType fromSquares = (leftFile | rightFile) & rank;
+					const squareType toSquare{ epFile & rank3 };
+					for (const squareType from : fromSquares & (stack.position().playerOccupancy(blackPlayer)& stack.position().pieceOccupancy(pawn)))
+						moves.add(motorType::move().createEnPassant(from.file(), epFile));
+				}
+			}
+		}
 	public:
 		static bool isMoveLegal_Implementation(const stackType& stack, const movebitsType& mv) noexcept
 		{
@@ -138,6 +171,10 @@ namespace pygmalion::chess
 				currentPass = 5;
 				generatePawnCaptures(stack, moves);
 				return true;
+			case 5:
+				currentPass = 6;
+				generatePawnEnPassant(stack, moves);
+				return true;
 			}
 		}
 		static bool generateTacticalMoves_Implementation(const stackType& stack, movelistType& moves, size_t& currentPass) noexcept
@@ -153,6 +190,10 @@ namespace pygmalion::chess
 			case 1:
 				currentPass = 2;
 				generatePawnCaptures(stack, moves);
+				return true;
+			case 2:
+				currentPass = 3;
+				generatePawnEnPassant(stack, moves);
 				return true;
 			}
 			return false;

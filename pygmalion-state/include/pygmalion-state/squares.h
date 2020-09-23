@@ -244,7 +244,7 @@ namespace pygmalion::state
 		{
 		}
 		constexpr squares(const fileType file) noexcept :
-			m_Bits{ firstRankBits << file }
+			m_Bits{ firstFileBits << file }
 		{
 		}
 		constexpr squares(const squareType square) noexcept :

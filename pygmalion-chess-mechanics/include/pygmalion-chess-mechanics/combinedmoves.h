@@ -98,5 +98,9 @@ namespace pygmalion::chess
 		{
 			return create<indexDoublePush>(this->component<indexDoublePush>().create(file));
 		}
+		constexpr movebitsType createEnPassant(const fileType file1, const fileType file2) const noexcept
+		{
+			return create<indexEnPassant>(this->component<indexEnPassant>().create(file1, file2));
+		}
 	};
 }

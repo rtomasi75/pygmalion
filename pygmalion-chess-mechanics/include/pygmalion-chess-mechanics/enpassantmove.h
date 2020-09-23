@@ -119,7 +119,7 @@ namespace pygmalion::chess
 				position.removePiece(pawn, from, p);
 				position.addPiece(pawn, to, p);
 				position.removePiece(pawn, capture, p2);
-				position.setMovingPlayer(++position.movingPlayer());
+				position.setMovingPlayer(p2);
 				return typename enpassantmove::movedataType(from, to, oldFlags, capture);
 			}
 		}
