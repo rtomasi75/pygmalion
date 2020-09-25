@@ -284,7 +284,7 @@ namespace pygmalion::chess
 		static void generatePawnEnPassant(const stackType& stack, movelistType& moves) noexcept
 		{
 			const uint_t<8, false> epFlags{ stack.position().flags().extractRange<4,11>() };
-			size_t bit{ 0 };
+			size_t bit;
 			if (stack.position().movingPlayer() == whitePlayer)
 			{
 				if (epFlags.bitscanForward(bit))

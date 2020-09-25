@@ -81,6 +81,18 @@ namespace pygmalion::dynamics
 				}
 			}
 		}
+		template<typename RAY, size_t DISTANCE>
+		constexpr static size_t computePossibilitiesRay(const squaresType& seeds) noexcept
+		{
+			if constexpr ((DISTANCE + 1) < RANGE)
+			{
+				squaresType pattern{ squaresType::none() };
+				propagator::computeRayStep<RAY>(seeds, pattern);
+				if (pattern)
+					return 1 + propagator::computePossibilitiesRay<RAY, DISTANCE + 1>(pattern);
+			}
+			return 0;
+		}
 		template<typename RAY, typename... RAYS2>
 		constexpr static void computeTargets(const squaresType& seeds, const squaresType& allowed, squaresType& targets) noexcept
 		{
@@ -101,6 +113,21 @@ namespace pygmalion::dynamics
 				propagator::computeRelevant<RAYS2...>(seeds, targets);
 		}
 		template<typename RAY, typename... RAYS2>
+		constexpr static size_t computePossibilities(const squaresType& seeds) noexcept
+		{
+			squaresType pattern{ squaresType::none() };
+			propagator::computeRayStep<RAY>(seeds, pattern);
+			size_t rayPossibilities{ 1 };
+			if (pattern)
+			{
+				rayPossibilities += propagator::computePossibilitiesRay<RAY, 0>(pattern);
+			}
+			if constexpr (sizeof...(RAYS2) > 0)
+				return rayPossibilities * propagator::computePossibilities<RAYS2...>(seeds);
+			else
+				return rayPossibilities;
+		}
+		template<typename RAY, typename... RAYS2>
 		constexpr static void computeAttacks(const squaresType& seeds, const squaresType& allowed, squaresType& targets) noexcept
 		{
 			propagator::computeAttackRay<RAY, 0>(seeds, allowed, targets);
@@ -113,6 +140,25 @@ namespace pygmalion::dynamics
 			if constexpr (sizeof...(RAYS) > 0)
 				propagator::computeRelevant<RAYS...>(seeds, mask);
 			return mask;
+		}
+		constexpr static size_t possibilities(const squaresType& seeds) noexcept
+		{
+			if constexpr (sizeof...(RAYS) > 0)
+				return propagator::computePossibilities<RAYS...>(seeds);
+			else
+				return 1;
+		}
+	public:
+		constexpr static size_t possibilities(const squareType seed) noexcept
+		{
+			return propagator::possibilities(squaresType(seed));
+		}
+		constexpr static size_t maxPossibilities() noexcept
+		{
+			size_t maxCount{ 0 };
+			for (const auto sq : squareType::range)
+				maxCount = std::max(maxCount, propagator::possibilities(sq));
+			return maxCount;
 		}
 	private:
 		constexpr static typename squaresType::bitsType magicFactor(const size_t index) noexcept
