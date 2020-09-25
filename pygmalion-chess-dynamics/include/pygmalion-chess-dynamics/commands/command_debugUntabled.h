@@ -45,6 +45,72 @@ namespace pygmalion::chess::dynamics
 							this->output() << "knight untabled capture moves from " << boardType::squareToString(sq) << ":" << std::endl;
 							dumpSquares(generatorType::movegenKnight.untabled_attacks(sq, ~position().totalOccupancy()) & position().playerOccupancy(p.next()));
 							break;
+						case rook:
+							if (p == whitePlayer)
+								this->output() << "white ";
+							else
+								this->output() << "black ";
+							this->output() << "rook relevant squares from " << boardType::squareToString(sq) << ":" << std::endl;
+							dumpSquares(propagator_sliders_hv::relevant(sq));
+							this->output() << std::endl;
+							if (p == whitePlayer)
+								this->output() << "white ";
+							else
+								this->output() << "black ";
+							this->output() << "rook quiet moves from " << boardType::squareToString(sq) << ":" << std::endl;
+							dumpSquares(generatorType::movegenSlidersHV.untabled_targets(sq, ~position().totalOccupancy()));
+							this->output() << std::endl;
+							if (p == whitePlayer)
+								this->output() << "white ";
+							else
+								this->output() << "black ";
+							this->output() << "rook capture moves from " << boardType::squareToString(sq) << ":" << std::endl;
+							dumpSquares((generatorType::movegenSlidersHV.untabled_attacks(sq, ~position().totalOccupancy())) & position().playerOccupancy(p.next()));
+							break;
+						case bishop:
+							if (p == whitePlayer)
+								this->output() << "white ";
+							else
+								this->output() << "black ";
+							this->output() << "bishop relevant squares from " << boardType::squareToString(sq) << ":" << std::endl;
+							dumpSquares(propagator_sliders_diag::relevant(sq));
+							this->output() << std::endl;
+							if (p == whitePlayer)
+								this->output() << "white ";
+							else
+								this->output() << "black ";
+							this->output() << "bishop quiet moves from " << boardType::squareToString(sq) << ":" << std::endl;
+							dumpSquares(generatorType::movegenSlidersDiag.untabled_targets(sq, ~position().totalOccupancy()));
+							this->output() << std::endl;
+							if (p == whitePlayer)
+								this->output() << "white ";
+							else
+								this->output() << "black ";
+							this->output() << "bishop capture moves from " << boardType::squareToString(sq) << ":" << std::endl;
+							dumpSquares((generatorType::movegenSlidersDiag.untabled_attacks(sq, ~position().totalOccupancy())) & position().playerOccupancy(p.next()));
+							break;
+						case queen:
+							if (p == whitePlayer)
+								this->output() << "white ";
+							else
+								this->output() << "black ";
+							this->output() << "queen relevant squares from " << boardType::squareToString(sq) << ":" << std::endl;
+							dumpSquares(propagator_sliders_hv::relevant(sq) | propagator_sliders_diag::relevant(sq));
+							this->output() << std::endl;
+							if (p == whitePlayer)
+								this->output() << "white ";
+							else
+								this->output() << "black ";
+							this->output() << "queen quiet moves from " << boardType::squareToString(sq) << ":" << std::endl;
+							dumpSquares(generatorType::movegenSlidersHV.untabled_targets(sq, ~position().totalOccupancy()) | generatorType::movegenSlidersDiag.untabled_targets(sq, ~position().totalOccupancy()));
+							this->output() << std::endl;
+							if (p == whitePlayer)
+								this->output() << "white ";
+							else
+								this->output() << "black ";
+							this->output() << "queen capture moves from " << boardType::squareToString(sq) << ":" << std::endl;
+							dumpSquares((generatorType::movegenSlidersHV.untabled_attacks(sq, ~position().totalOccupancy()) | generatorType::movegenSlidersDiag.untabled_attacks(sq, ~position().totalOccupancy())) & position().playerOccupancy(p.next()));
+							break;
 						case pawn:
 							if (p == whitePlayer)
 							{

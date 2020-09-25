@@ -76,6 +76,17 @@ namespace pygmalion::intrinsics
 	class magic<COUNT_VALUEBITS, COUNT_MAXPATTERNBITS, true>
 	{
 	protected:
+		constexpr static size_t requiredUnsignedBits(const size_t number) noexcept
+		{
+			size_t n = 1;
+			size_t k = 0;
+			while (number > n)
+			{
+				n *= 2;
+				k++;
+			}
+			return k;
+		}
 		constexpr static size_t requiredBitBytes(const size_t bits) noexcept
 		{
 			if (bits > 32)
@@ -93,24 +104,33 @@ namespace pygmalion::intrinsics
 		using sizeType = typename detail::magic_traits<magic::requiredBitBytes(countMaxPatternBits)>::UTYPE;
 	private:
 		bitsType m_Premask;
-		sizeType m_CountBits;
+		using shiftType = uint_t<requiredUnsignedBits(bitsType::countBits), true>;
+		shiftType m_CountBits;
+		constexpr static shiftType toShift(const size_t sz) noexcept
+		{
+			return shiftType(static_cast<typename std::make_unsigned<size_t>::type>(sz));
+		}
+		constexpr static size_t toSize(const shiftType& s) noexcept
+		{
+			return static_cast<size_t>(static_cast<typename std::make_unsigned<size_t>::type>(s));
+		}
 	protected:
 		constexpr void setPremask(const bitsType& premask) noexcept
 		{
 			m_Premask = premask;
-			m_CountBits = m_Premask.populationCount();
+			m_CountBits = toShift(m_Premask.populationCount());
 			assert(m_Premask.populationCount() <= countMaxPatternBits);
 		}
 		constexpr magic(const bitsType& premask, const size_t countValueBits) noexcept :
 			m_Premask{ premask },
-			m_CountBits{ static_cast<sizeType>(static_cast<typename std::make_unsigned<size_t>::type>(countValueBits)) }
+			m_CountBits{ toShift(countValueBits) }
 		{
 			assert(m_Premask.populationCount() <= countMaxPatternBits);
 		}
 	public:
 		magic(const bitsType& premask) noexcept :
 			m_Premask{ premask },
-			m_CountBits{ static_cast<sizeType>(premask.populationCount()) }
+			m_CountBits{ toShift(premask.populationCount()) }
 		{
 			assert(m_Premask.populationCount() <= countMaxPatternBits);
 		}
@@ -129,27 +149,28 @@ namespace pygmalion::intrinsics
 		}
 		constexpr size_t countBits() const noexcept
 		{
-			return m_CountBits;
+			return toSize(m_CountBits);
 		}
 		constexpr size_t countValues() const noexcept
 		{
-			return static_cast<size_t>(size_t(1) << m_CountBits);
+			return static_cast<size_t>(size_t(1) << toSize(m_CountBits));
 		}
 		size_t cast(const bitsType& bitboard) const noexcept
 		{
 			return static_cast<size_t>(bitboard.extractPattern(m_Premask));
 		}
 	public:
-		void find(bitsType& premask, bitsType& factor, size_t& countValueBits) const noexcept
+		void find(bitsType& premask, bitsType& factor, size_t& countIndexBits) const noexcept
 		{
 			premask = m_Premask;
-			bitsType::findMagic(m_Premask, factor, countValueBits);
+			magic::findMagic(m_Premask, factor, countIndexBits);
 		}
-	private:
+	protected:
 		constexpr static size_t castMagic(const bitsType& bits, const bitsType& premask, const bitsType& factor, const size_t countIndexBits) noexcept
 		{
 			return static_cast<size_t>((((bits & premask) * factor) >> (bitsType::countBits - countIndexBits)));
 		}
+	private:
 		static void findMagic(const bitsType& premask, bitsType& factor, size_t& countIndexBits) noexcept
 		{
 			countIndexBits = premask.populationCount();
@@ -165,9 +186,10 @@ namespace pygmalion::intrinsics
 					pIndices[i] = 0;
 					pUsed[i] = false;
 				}
-				for (size_t k = 0; k < N; k++)
+				const bitsType N2{ bitsType(static_cast<typename std::make_unsigned<size_t>::type>(N)) };
+				for (bitsType k = 0; k < N; k++)
 				{
-					const bitsType pattern{ bitsType(static_cast<typename std::make_unsigned<size_t>::type>(k)).deposePattern(premask) };
+					const bitsType pattern{ k.deposePattern(premask) };
 					const size_t idx{ magic::castMagic(pattern,premask,factor,countIndexBits) };
 					assert(idx < N);
 					if (pUsed[idx])
@@ -176,7 +198,7 @@ namespace pygmalion::intrinsics
 						break;
 					}
 					pUsed[idx] = true;
-					pIndices[idx] = k;
+					pIndices[idx] = static_cast<size_t>(static_cast<typename std::make_unsigned<size_t>::type>(k));
 				}
 				if (bFound)
 					break;
@@ -189,9 +211,9 @@ namespace pygmalion::intrinsics
 		{
 			m_Premask = premask;
 			assert(m_Premask.populationCount() <= countMaxPatternBits);
-			size_t countValueBits;
-			magic::findMagic(m_Premask, factor, countValueBits);
-			m_CountBits = static_cast<sizeType>(static_cast<typename std::make_unsigned<size_t>::type>(countValueBits));
+			size_t countIndexBits;
+			magic::findMagic(m_Premask, factor, countIndexBits);
+			m_CountBits = toShift(countIndexBits);
 		}
 	};
 
@@ -206,11 +228,6 @@ namespace pygmalion::intrinsics
 		using sizeType = typename detail::magic_traits<magic::requiredBitBytes(countMaxPatternBits)>::UTYPE;
 	protected:
 		bitsType m_Factor;
-	private:
-		constexpr static size_t castMagic(const bitsType& bits, const bitsType& premask, const bitsType& factor, const size_t countIndexBits) noexcept
-		{
-			return static_cast<size_t>(static_cast<typename std::make_unsigned<size_t>::type>((((bits & premask) * factor) >> (countValueBits - countIndexBits))));
-		}
 	public:
 		magic(const bitsType& premask) noexcept :
 			magic<countValueBits, countMaxPatternBits, true>(premask),

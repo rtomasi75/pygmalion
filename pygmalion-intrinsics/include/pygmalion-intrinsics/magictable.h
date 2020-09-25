@@ -20,9 +20,9 @@ namespace pygmalion
 			reinterpret_cast<const instanceType*>(this)->initializeValue_Implementation(value, m_Info, bitboard, m_Magic.premask());
 		}
 	protected:
-		constexpr magictable(const infoType& info, const bitsType& premask, const bitsType& factor, const size_t countBits) noexcept :
+		constexpr magictable(const infoType& info, const bitsType& factor,const size_t shift) noexcept :
 			m_Info{ info },
-			m_Magic(premask, factor, countBits),
+			m_Magic(instanceType::calculatePremask(info), factor, shift),
 			m_pValues{ new valueType[m_Magic.countValues()] }
 		{
 			const size_t N{ m_Magic.countValues() };

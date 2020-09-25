@@ -63,53 +63,59 @@ namespace pygmalion
 			sstr << std::fixed;
 			sstr << std::setw(6);
 			if (value < 0.00000000001)
-				sstr << std::setprecision(2) << 1000000000000.0 * value << " n" << unit;
+				sstr << std::setprecision(2) << 1000000000000.0 * value << " f" << unit << " ";
 			else if (value < 0.0000000001)
-				sstr << std::setprecision(1) << 1000000000000.0 * value << " n" << unit;
+				sstr << std::setprecision(1) << 1000000000000.0 * value << " f" << unit << " ";
 			else if (value < 0.000000001)
-				sstr << std::setprecision(0) << 1000000000000.0 * value << " n" << unit;
+				sstr << std::setprecision(0) << 1000000000000.0 * value << " f" << unit << " ";
 			else if (value < 0.00000001)
-				sstr << std::setprecision(2) << 1000000000.0 * value << " mc" << unit;
+				sstr << std::setprecision(2) << 1000000000.0 * value << " n" << unit << " ";
 			else if (value < 0.0000001)
-				sstr << std::setprecision(1) << 1000000000.0 * value << " mc" << unit;
+				sstr << std::setprecision(1) << 1000000000.0 * value << " n" << unit << " ";
 			else if (value < 0.000001)
-				sstr << std::setprecision(0) << 1000000000.0 * value << " mc" << unit;
+				sstr << std::setprecision(0) << 1000000000.0 * value << " n" << unit << " ";
 			else if (value < 0.00001)
-				sstr << std::setprecision(2) << 1000000.0 * value << " mc" << unit;
+				sstr << std::setprecision(2) << 1000000.0 * value << " mc" << unit << "";
 			else if (value < 0.0001)
-				sstr << std::setprecision(1) << 1000000.0 * value << " mc" << unit;
+				sstr << std::setprecision(1) << 1000000.0 * value << " mc" << unit << "";
 			else if (value < 0.001)
-				sstr << std::setprecision(0) << 1000000.0 * value << " mc" << unit;
+				sstr << std::setprecision(0) << 1000000.0 * value << " mc" << unit << "";
 			else if (value < 0.01)
-				sstr << std::setprecision(2) << 1000.0 * value << " m" << unit;
+				sstr << std::setprecision(2) << 1000.0 * value << " m" << unit << " ";
 			else if (value < 0.1)
-				sstr << std::setprecision(1) << 1000.0 * value << " m" << unit;
+				sstr << std::setprecision(1) << 1000.0 * value << " m" << unit << " ";
 			else if (value < 1.0)
-				sstr << std::setprecision(0) << 1000.0 * value << " m" << unit;
+				sstr << std::setprecision(0) << 1000.0 * value << " m" << unit << " ";
 			else if (value < 10.0)
-				sstr << std::setprecision(2) << 1.0 * value << " " << unit;
+				sstr << std::setprecision(2) << 1.0 * value << " " << unit << "  ";
 			else if (value < 100.0)
-				sstr << std::setprecision(1) << 1.0 * value << " " << unit;
+				sstr << std::setprecision(1) << 1.0 * value << " " << unit << "  ";
 			else if (value < 1000.0)
-				sstr << std::setprecision(0) << 1.0 * value << " " << unit;
+				sstr << std::setprecision(0) << 1.0 * value << " " << unit << "  ";
 			else if (value < 10000)
-				sstr << std::setprecision(2) << 0.001 * value << " k" << unit;
+				sstr << std::setprecision(2) << 0.001 * value << " k" << unit << " ";
 			else if (value < 100000)
-				sstr << std::setprecision(1) << 0.001 * value << " k" << unit;
+				sstr << std::setprecision(1) << 0.001 * value << " k" << unit << " ";
 			else if (value < 1000000)
-				sstr << std::setprecision(0) << 0.001 * value << " k" << unit;
+				sstr << std::setprecision(0) << 0.001 * value << " k" << unit << " ";
 			else if (value < 10000000)
-				sstr << std::setprecision(2) << 0.000001 * value << " M" << unit;
+				sstr << std::setprecision(2) << 0.000001 * value << " M" << unit << " ";
 			else if (value < 100000000)
-				sstr << std::setprecision(1) << 0.000001 * value << " M" << unit;
+				sstr << std::setprecision(1) << 0.000001 * value << " M" << unit << " ";
 			else if (value < 1000000000)
-				sstr << std::setprecision(0) << 0.000001 * value << " M" << unit;
+				sstr << std::setprecision(0) << 0.000001 * value << " M" << unit << " ";
 			else if (value < 10000000000)
-				sstr << std::setprecision(2) << 0.000000001 * value << " G" << unit;
-			else if (value < 10000000000)
-				sstr << std::setprecision(1) << 0.000000001 * value << " G" << unit;
+				sstr << std::setprecision(2) << 0.000000001 * value << " G" << unit << " ";
+			else if (value < 100000000000)
+				sstr << std::setprecision(1) << 0.000000001 * value << " G" << unit << " ";
+			else if (value < 1000000000000)
+				sstr << std::setprecision(0) << 0.000000001 * value << " G" << unit << " ";
+			else if (value < 10000000000000)
+				sstr << std::setprecision(2) << 0.000000000001 * value << " T" << unit << " ";
+			else if (value < 100000000000000)
+				sstr << std::setprecision(1) << 0.000000000001 * value << " T" << unit << " ";
 			else
-				sstr << std::setprecision(0) << 0.000000001 * value << " G" << unit;
+				sstr << std::setprecision(0) << 0.000000000001 * value << " T" << unit << " ";
 			return sstr.str();
 		}
 		using durationType = typename profiler::durationType;
@@ -139,6 +145,6 @@ namespace pygmalion
 			{
 				return 0;
 			}
-		}
-	};
+	}
+};
 }

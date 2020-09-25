@@ -21,15 +21,15 @@ namespace pygmalion::tictactoe
 		}
 		constexpr static bitsType calculatePremask(const movetableinfo& info) noexcept
 		{
-			return bitsType(squaresType::all().bits());
+			return bitsType(squaresType::all());
 		}
 		movetable() noexcept :
 			pygmalion::magictable<DESCRIPTOR_DYNAMICS::boardType::countSquares, DESCRIPTOR_DYNAMICS::boardType::countSquares, typename DESCRIPTOR_DYNAMICS::movelistType, movetableinfo, movetable<DESCRIPTOR_DYNAMICS>>(movetableinfo())
 		{
 
 		}
-		movetable(const bitsType& premask, const bitsType& factor, const size_t countBits) noexcept :
-			pygmalion::magictable<DESCRIPTOR_DYNAMICS::boardType::countSquares, DESCRIPTOR_DYNAMICS::boardType::countSquares, typename DESCRIPTOR_DYNAMICS::movelistType, movetableinfo, movetable<DESCRIPTOR_DYNAMICS>>(movetableinfo(), premask, factor, countBits)
+		movetable(const bitsType& factor,const size_t shift) noexcept :
+			pygmalion::magictable<DESCRIPTOR_DYNAMICS::boardType::countSquares, DESCRIPTOR_DYNAMICS::boardType::countSquares, typename DESCRIPTOR_DYNAMICS::movelistType, movetableinfo, movetable<DESCRIPTOR_DYNAMICS>>(movetableinfo(), factor, shift)
 		{
 
 		}

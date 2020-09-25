@@ -1,6 +1,8 @@
 namespace pygmalion::chess
 {
-	using propagator_pawn_capture_white = pygmalion::dynamics::propagator<descriptor_dynamics, 1, pygmalion::dynamics::ray<1, 1>, pygmalion::dynamics::ray<-1, 1>>;
+	class propagator_pawn_capture_white :
+		public pygmalion::dynamics::propagator<descriptor_dynamics, 1, propagator_pawn_capture_white, pygmalion::dynamics::ray<1, 1>, pygmalion::dynamics::ray<-1, 1>>
+	{};
 
 	class movegen_pawn_capture_white :
 		public pygmalion::dynamics::movegen<motor, propagator_pawn_capture_white>

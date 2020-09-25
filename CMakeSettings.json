@@ -66,6 +66,11 @@
           "name": "OPTIMIZE_FOR_AVX512",
           "value": "False",
           "type": "BOOL"
+        },
+        {
+          "name": "OPTIMIZE_FOR_BMI2",
+          "value": "False",
+          "type": "BOOL"
         }
       ]
     },
@@ -87,6 +92,11 @@
         },
         {
           "name": "OPTIMIZE_FOR_BMI2",
+          "value": "False",
+          "type": "BOOL"
+        },
+        {
+          "name": "OPTIMIZE_FOR_AVX2",
           "value": "False",
           "type": "BOOL"
         }

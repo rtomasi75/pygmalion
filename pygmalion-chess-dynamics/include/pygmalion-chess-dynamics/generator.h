@@ -11,14 +11,113 @@ namespace pygmalion::chess
 		constexpr static const inline movegen_pawn_capture_black movegenPawnCaptureBlack{ movegen_pawn_capture_black() };
 		constexpr static const inline movegen_pawn_doublepush_white movegenPawnDoublePushWhite{ movegen_pawn_doublepush_white() };
 		constexpr static const inline movegen_pawn_doublepush_black movegenPawnDoublePushBlack{ movegen_pawn_doublepush_black() };
-		using stackType = typename pygmalion::generator<descriptor_dynamics, generator>::stack;
+		constexpr static const inline movegen_sliders_hv movegenSlidersHV{ movegen_sliders_hv() };
+		constexpr static const inline movegen_sliders_diag movegenSlidersDiag{ movegen_sliders_diag() };
+		constexpr static const inline movegen_king movegenKing{ movegen_king() };
+
+		class stack :
+			public pygmalion::generator<descriptor_dynamics, generator>::stack
+		{
+		private:
+			mutable std::array<squareType, countPlayers> m_KingSquare{ arrayhelper::make<countPlayers,squareType>(squareType::invalid) };
+			mutable std::array<squaresType, countPlayers> m_SquaresAttackedByPlayer{ arrayhelper::make<countPlayers,squaresType>(squaresType::none()) };
+			mutable std::array<bool, countPlayers> m_IsKingSquareValid{ arrayhelper::make<countPlayers,bool>(false) };
+			mutable std::array<bool, countPlayers> m_SquaresAttackedByPlayerValid{ arrayhelper::make<countPlayers,bool>(false) };
+		public:
+			squareType kingSquare(const playerType player) const noexcept
+			{
+				if (!m_IsKingSquareValid[player])
+				{
+					m_KingSquare[player] = position().kingSquare(player);
+					m_IsKingSquareValid[player] = true;
+				}
+				return m_KingSquare[player];
+			}
+			squaresType squaresAttackedByPlayer(const playerType player) const
+			{
+				if (!m_SquaresAttackedByPlayerValid[player])
+				{
+					m_SquaresAttackedByPlayer[player] = generatorType::squaresAttackedByPlayer(*this, player);
+					m_SquaresAttackedByPlayerValid[player] = true;
+				}
+				return m_SquaresAttackedByPlayer[player];
+			}
+			stack(const stack& parent, const movebitsType& movebits) noexcept :
+				pygmalion::generator<descriptor_dynamics, generator>::stack(parent, movebits)
+			{
+			}
+			stack(boardType& position, const playerType oldPlayer) noexcept :
+				pygmalion::generator<descriptor_dynamics, generator>::stack(position, oldPlayer)
+			{
+			}
+			~stack() noexcept
+			{
+			}
+		};
+		using stackType = stack;
+		constexpr static squaresType sliderTargetsHV(const squareType sq, const squaresType& allowed) noexcept
+		{
+			return movegenSlidersHV.targets(sq, allowed);
+		}
+		constexpr static squaresType sliderTargetsDiag(const squareType sq, const squaresType& allowed) noexcept
+		{
+			return movegenSlidersDiag.targets(sq, allowed);
+		}
+		constexpr static squaresType sliderTargetsHV(const squaresType squares, const squaresType& allowed) noexcept
+		{
+			return movegenSlidersHV.targets(squares, allowed);
+		}
+		constexpr static squaresType sliderTargetsDiag(const squaresType squares, const squaresType& allowed) noexcept
+		{
+			return movegenSlidersDiag.targets(squares, allowed);
+		}
+		constexpr static squaresType sliderAttacksHV(const squareType sq, const squaresType& allowed) noexcept
+		{
+			return movegenSlidersHV.attacks(sq, allowed);
+		}
+		constexpr static squaresType sliderAttacksDiag(const squareType sq, const squaresType& allowed) noexcept
+		{
+			return movegenSlidersDiag.attacks(sq, allowed);
+		}
+		constexpr static squaresType sliderAttacksHV(const squaresType squares, const squaresType& allowed) noexcept
+		{
+			return movegenSlidersHV.attacks(squares, allowed);
+		}
+		constexpr static squaresType sliderAttacksDiag(const squaresType squares, const squaresType& allowed) noexcept
+		{
+			return movegenSlidersDiag.attacks(squares, allowed);
+		}
 		constexpr static squaresType knightTargets(const squareType sq, const squaresType& allowed) noexcept
 		{
 			return movegenKnight.targets(sq, allowed);
 		}
+		constexpr static squaresType knightTargets(const squaresType squares, const squaresType& allowed) noexcept
+		{
+			return movegenKnight.targets(squares, allowed);
+		}
 		constexpr static squaresType knightAttacks(const squareType sq, const squaresType& allowed) noexcept
 		{
 			return movegenKnight.attacks(sq, allowed);
+		}
+		constexpr static squaresType knightAttacks(const squaresType squares, const squaresType& allowed) noexcept
+		{
+			return movegenKnight.attacks(squares, allowed);
+		}
+		constexpr static squaresType kingTargets(const squaresType squares, const squaresType& allowed) noexcept
+		{
+			return movegenKing.targets(squares, allowed);
+		}
+		constexpr static squaresType kingTargets(const squareType sq, const squaresType& allowed) noexcept
+		{
+			return movegenKing.targets(sq, allowed);
+		}
+		constexpr static squaresType kingAttacks(const squaresType squares, const squaresType& allowed) noexcept
+		{
+			return movegenKing.attacks(squares, allowed);
+		}
+		constexpr static squaresType kingAttacks(const squareType sq, const squaresType& allowed) noexcept
+		{
+			return movegenKing.attacks(sq, allowed);
 		}
 		constexpr static squaresType pawnPushTargets(const squareType sq, const playerType p, const squaresType& allowed) noexcept
 		{
@@ -28,17 +127,93 @@ namespace pygmalion::chess
 		{
 			return (p == whitePlayer) ? movegenPawnCaptureWhite.attacks(sq, allowed) : movegenPawnCaptureBlack.attacks(sq, allowed);
 		}
+		constexpr static squaresType pawnCaptureTargets(const squaresType squares, const playerType p, const squaresType& allowed) noexcept
+		{
+			return (p == whitePlayer) ? movegenPawnCaptureWhite.attacks(squares, allowed) : movegenPawnCaptureBlack.attacks(squares, allowed);
+		}
 		constexpr static squaresType pawnDoublePushTargets(const squareType sq, const playerType p, const squaresType& allowed) noexcept
 		{
 			return (p == whitePlayer) ? movegenPawnDoublePushWhite.targets(sq, allowed) : movegenPawnDoublePushBlack.targets(sq, allowed);
 		}
+		friend class stack;
 	private:
+		static squaresType squaresAttackedByPlayer(const stackType& stack, const playerType attackingPlayer) noexcept
+		{
+			assert(attackingPlayer.isValid());
+			const boardType& position{ stack.position() };
+			const squaresType totalOccupancy{ position.totalOccupancy() };
+			const squaresType notBlockers = ~totalOccupancy;
+			const squaresType attackerOccupancy{ position.playerOccupancy(attackingPlayer) };
+			const squaresType knights{ position.pieceOccupancy(knight) & attackerOccupancy };
+			squaresType attacked{ knightAttacks(knights, notBlockers) };
+			attacked |= kingAttacks(stack.kingSquare(attackingPlayer), notBlockers);
+			const squaresType queens{ position.pieceOccupancy(queen) };
+			const squaresType slidersHV{ (position.pieceOccupancy(rook) | queens) & attackerOccupancy };
+			const squaresType slidersDiag{ (position.pieceOccupancy(bishop) | queens) & attackerOccupancy };
+			attacked |= sliderAttacksHV(slidersHV, notBlockers);
+			attacked |= sliderAttacksDiag(slidersDiag, notBlockers);;
+			const squaresType pawns{ position.pieceOccupancy(pawn) & attackerOccupancy };
+			attacked |= pawnCaptureTargets(pawns, attackingPlayer, notBlockers);
+			return attacked;
+		}
 		constexpr static void generateKnightMoves(const stackType& stack, movelistType& moves) noexcept
 		{
 			for (const squareType from : stack.position().pieceOccupancy(knight)& stack.position().playerOccupancy(stack.position().movingPlayer()))
 			{
 				for (const squareType to : knightTargets(from, ~stack.position().totalOccupancy()))
 					moves.add(motorType::move().createQuiet(from, to));
+			}
+		}
+		static void generateKingMoves(const stackType& stack, movelistType& moves) noexcept
+		{
+			const squaresType forbidden{ stack.squaresAttackedByPlayer(stack.nextPlayer()) };
+			const squaresType allowed{ ~forbidden };
+			for (const squareType from : stack.position().pieceOccupancy(king)& stack.position().playerOccupancy(stack.position().movingPlayer()))
+			{
+				for (const squareType to : allowed & kingTargets(from, ~stack.position().totalOccupancy()))
+					moves.add(motorType::move().createQuiet(from, to));
+			}
+		}
+		static void generateKingCaptures(const stackType& stack, movelistType& moves) noexcept
+		{
+			const squaresType forbidden{ stack.squaresAttackedByPlayer(stack.nextPlayer()) };
+			const squaresType allowed{ ~forbidden };
+			for (const squareType from : stack.position().pieceOccupancy(king)& stack.position().playerOccupancy(stack.position().movingPlayer()))
+			{
+				for (const squareType to : allowed & kingAttacks(from, ~stack.position().totalOccupancy())& stack.position().playerOccupancy(stack.nextPlayer()))
+					moves.add(motorType::move().createCapture(from, to));
+			}
+		}
+		constexpr static void generateSliderMovesHV(const stackType& stack, movelistType& moves) noexcept
+		{
+			for (const squareType from : (stack.position().pieceOccupancy(rook) | stack.position().pieceOccupancy(queen))& stack.position().playerOccupancy(stack.position().movingPlayer()))
+			{
+				for (const squareType to : sliderTargetsHV(from, ~stack.position().totalOccupancy()))
+					moves.add(motorType::move().createQuiet(from, to));
+			}
+		}
+		constexpr static void generateSliderMovesDiag(const stackType& stack, movelistType& moves) noexcept
+		{
+			for (const squareType from : (stack.position().pieceOccupancy(bishop) | stack.position().pieceOccupancy(queen))& stack.position().playerOccupancy(stack.position().movingPlayer()))
+			{
+				for (const squareType to : sliderTargetsDiag(from, ~stack.position().totalOccupancy()))
+					moves.add(motorType::move().createQuiet(from, to));
+			}
+		}
+		constexpr static void generateSliderCapturesHV(const stackType& stack, movelistType& moves) noexcept
+		{
+			for (const squareType from : (stack.position().pieceOccupancy(rook) | stack.position().pieceOccupancy(queen))& stack.position().playerOccupancy(stack.position().movingPlayer()))
+			{
+				for (const squareType to : sliderAttacksHV(from, ~stack.position().totalOccupancy())& stack.position().playerOccupancy(stack.nextPlayer()))
+					moves.add(motorType::move().createCapture(from, to));
+			}
+		}
+		constexpr static void generateSliderCapturesDiag(const stackType& stack, movelistType& moves) noexcept
+		{
+			for (const squareType from : (stack.position().pieceOccupancy(bishop) | stack.position().pieceOccupancy(queen))& stack.position().playerOccupancy(stack.position().movingPlayer()))
+			{
+				for (const squareType to : sliderAttacksDiag(from, ~stack.position().totalOccupancy())& stack.position().playerOccupancy(stack.nextPlayer()))
+					moves.add(motorType::move().createCapture(from, to));
 			}
 		}
 		constexpr static void generateKnightCaptures(const stackType& stack, movelistType& moves) noexcept
@@ -144,7 +319,6 @@ namespace pygmalion::chess
 		{
 			return true;
 		}
-
 		static bool generateMoves_Implementation(const stackType& stack, movelistType& moves, size_t& currentPass) noexcept
 		{
 			switch (currentPass)
@@ -175,6 +349,30 @@ namespace pygmalion::chess
 				currentPass = 6;
 				generatePawnEnPassant(stack, moves);
 				return true;
+			case 6:
+				currentPass = 7;
+				generateSliderMovesHV(stack, moves);
+				return true;
+			case 7:
+				currentPass = 8;
+				generateSliderMovesDiag(stack, moves);
+				return true;
+			case 8:
+				currentPass = 9;
+				generateSliderCapturesHV(stack, moves);
+				return true;
+			case 9:
+				currentPass = 10;
+				generateSliderCapturesDiag(stack, moves);
+				return true;
+			case 10:
+				currentPass = 11;
+				generateKingMoves(stack, moves);
+				return true;
+			case 11:
+				currentPass = 12;
+				generateKingCaptures(stack, moves);
+				return true;
 			}
 		}
 		static bool generateTacticalMoves_Implementation(const stackType& stack, movelistType& moves, size_t& currentPass) noexcept
@@ -195,9 +393,22 @@ namespace pygmalion::chess
 				currentPass = 3;
 				generatePawnEnPassant(stack, moves);
 				return true;
+			case 3:
+				currentPass = 4;
+				generateSliderCapturesHV(stack, moves);
+				return true;
+			case 4:
+				currentPass = 5;
+				generateSliderCapturesDiag(stack, moves);
+				return true;
+			case 5:
+				currentPass = 6;
+				generateKingCaptures(stack, moves);
+				return true;
 			}
 			return false;
 		}
+
 
 	};
 }

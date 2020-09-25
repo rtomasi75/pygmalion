@@ -45,29 +45,24 @@ namespace pygmalion::dynamics
 		using parentType = pygmalion::magictable<DESCRIPTOR_DYNAMICS::squaresType::countSquares, DESCRIPTOR_DYNAMICS::squaresType::countSquares, typename DESCRIPTOR_DYNAMICS::squaresType, slidermagicinfo<DESCRIPTOR_DYNAMICS>, slidermagic<DESCRIPTOR_DYNAMICS, PROPAGATOR>>;
 		using bitsType = typename parentType::bitsType;
 	public:
-		static squaresType attacks_untabled(const squareType square, const squaresType& blockers) noexcept
-		{
-			assert(square.isValid());
-			return propagatorType::attacks(static_cast<squaresType>(square), ~blockers);
-		}
 	private:
 	public:
-		void initializeValue_Implementation(squaresType& value, const slidermagicinfo<descriptorDynamics>& info, const bitsType& bitboard, const bitsType& premask) const noexcept
+		void initializeValue_Implementation(squaresType& value, const slidermagicinfo<descriptorDynamics>& info, const bitsType& blockers, const bitsType& premask) const noexcept
 		{
 			assert(info.square().isValid());
-			value = attacks_untabled(info.square(), static_cast<const squaresType>(bitboard));
+			value = propagatorType::attacks(squaresType(info.square()), squaresType(~blockers));
 		}
 		static bitsType calculatePremask(const slidermagicinfo<descriptorDynamics>& info) noexcept
 		{
 			assert(info.square().isValid());
-			return static_cast<bitsType>(propagatorType::attacks(static_cast<squaresType>(info.square()), squaresType::all()));
+			return static_cast<bitsType>(propagatorType::relevant(info.square()));
 		}
 		slidermagic(const slidermagicinfo<descriptorDynamics>& info) noexcept :
 			parentType(info)
 		{
 		}
-		slidermagic(const slidermagicinfo<descriptorDynamics>& info, const squaresType& factor) noexcept :
-			parentType(info, factor)
+		slidermagic(const slidermagicinfo<descriptorDynamics>& info, const bitsType& factor, const size_t shift) noexcept :
+			parentType(info, factor, shift)
 		{
 		}
 		slidermagic() noexcept = default;

@@ -1,6 +1,8 @@
 namespace pygmalion::chess
 {
-	using propagator_pawn_push_black = pygmalion::dynamics::propagator<descriptor_dynamics, 1, pygmalion::dynamics::ray<0, -1>>;
+	class propagator_pawn_push_black :
+		public pygmalion::dynamics::propagator<descriptor_dynamics, 1, propagator_pawn_push_black, pygmalion::dynamics::ray<0, -1>>
+	{};
 
 	class movegen_pawn_push_black :
 		public pygmalion::dynamics::movegen<motor, propagator_pawn_push_black>

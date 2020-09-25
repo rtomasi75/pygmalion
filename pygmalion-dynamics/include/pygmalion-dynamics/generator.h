@@ -64,7 +64,7 @@ namespace pygmalion
 			}
 			bool isMoveLegal(const movebitsType& moveBits) const noexcept
 			{
-				return generatorType::isMoveLegal(*this, moveBits);
+				return generatorType::isMoveLegal(*reinterpret_cast<const typename generatorType::stackType*>(this), moveBits);
 			}
 			bool nextMove(movebitsType& moveBits) const noexcept
 			{
@@ -73,7 +73,7 @@ namespace pygmalion
 				{
 					if (m_CurrentMove >= m_Moves.length())
 					{
-						if (!generatorType::generateMoves(*this, m_Moves, m_CurrentPass))
+						if (!generatorType::generateMoves(*reinterpret_cast<const typename generatorType::stackType*>(this), m_Moves, m_CurrentPass))
 						{
 							allMovesGenerated = true;
 							return false;
@@ -83,7 +83,7 @@ namespace pygmalion
 					{
 						moveBits = m_Moves[m_CurrentMove];
 						m_CurrentMove++;
-						if (generatorType::isMoveLegal(*this, moveBits))
+						if (generatorType::isMoveLegal(*reinterpret_cast<const typename generatorType::stackType*>(this), moveBits))
 							return true;
 					}
 				}
@@ -96,7 +96,7 @@ namespace pygmalion
 				{
 					if (m_CurrentTacticalMove >= m_TacticalMoves.length())
 					{
-						if (!generatorType::generateTacticalMoves(*this, m_TacticalMoves, m_CurrentTacticalPass))
+						if (!generatorType::generateTacticalMoves(*reinterpret_cast<const typename generatorType::stackType*>(this), m_TacticalMoves, m_CurrentTacticalPass))
 						{
 							allMovesGenerated = true;
 							return false;
@@ -106,7 +106,7 @@ namespace pygmalion
 					{
 						moveBits = m_TacticalMoves[m_CurrentTacticalMove];
 						m_CurrentTacticalMove++;
-						if (generatorType::isMoveLegal(*this, moveBits))
+						if (generatorType::isMoveLegal(*reinterpret_cast<const typename generatorType::stackType*>(this), moveBits))
 							return true;
 					}
 				}

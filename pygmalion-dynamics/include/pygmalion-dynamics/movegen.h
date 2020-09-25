@@ -46,7 +46,7 @@ namespace pygmalion::dynamics
 		constexpr squaresType untabled_targets(const squareType seed, const squaresType& allowed) const noexcept
 		{
 			if (m_AllowedFromSquares[seed])
-				return propagatorType::untabled_targets(seed, allowed) & m_AllowedToSquares;
+				return propagatorType::targets(squaresType(seed), allowed) & m_AllowedToSquares;
 			else
 				return squaresType::none();
 		}
@@ -60,7 +60,7 @@ namespace pygmalion::dynamics
 		constexpr squaresType untabled_attacks(const squareType seed, const squaresType& allowed) const noexcept
 		{
 			if (m_AllowedFromSquares[seed])
-				return propagatorType::untabled_attacks(seed, allowed) & m_AllowedToSquares;
+				return propagatorType::attacks(squaresType(seed), allowed) & m_AllowedToSquares;
 			else
 				return squaresType::none();
 		}
