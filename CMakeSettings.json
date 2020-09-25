@@ -69,7 +69,7 @@
         },
         {
           "name": "OPTIMIZE_FOR_BMI2",
-          "value": "False",
+          "value": "True",
           "type": "BOOL"
         }
       ]

@@ -281,7 +281,7 @@ namespace pygmalion::chess
 				}
 			}
 		}
-		constexpr static void generatePawnEnPassant(const stackType& stack, movelistType& moves) noexcept
+		static void generatePawnEnPassant(const stackType& stack, movelistType& moves) noexcept
 		{
 			const uint_t<8, false> epFlags{ stack.position().flags().extractRange<4,11>() };
 			size_t bit{ 0 };
