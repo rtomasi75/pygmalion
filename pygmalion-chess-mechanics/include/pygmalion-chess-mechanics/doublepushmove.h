@@ -173,21 +173,80 @@ namespace pygmalion::chess
 			const fileType f{ doublepushmove::extractFile(moveBits) };
 			if (p == whitePlayer)
 			{
-				const rankType r1{ rank2 };
-				const rankType r2{ rank4 };
+				constexpr const rankType r1{ rank2 };
+				constexpr const rankType r2{ rank4 };
 				const squareType from{ f & r1 };
 				const squareType to{ f & r2 };
 				return boardType::squareToString(from) + boardType::squareToString(to);
 			}
 			else
 			{
-				const rankType r1{ rank7 };
-				const rankType r2{ rank5 };
+				constexpr const rankType r1{ rank7 };
+				constexpr const rankType r2{ rank5 };
 				const squareType from{ f & r1 };
 				const squareType to{ f & r2 };
 				return boardType::squareToString(from) + boardType::squareToString(to);
 			}
 		}
-	};
+		constexpr squaresType otherOccupancyDelta_Implementation(const boardType& position, const movebitsType& moveBits) const noexcept
+		{
+			return squaresType::none();
+		}
+		constexpr squaresType ownOccupancyDelta_Implementation(const boardType& position, const movebitsType& moveBits) const noexcept
+		{
+			const playerType p{ position.movingPlayer() };
+			const fileType f{ doublepushmove::extractFile(moveBits) };
+			if (p == whitePlayer)
+			{
+				constexpr const rankType r1{ rank2 };
+				constexpr const rankType r2{ rank4 };
+				const squareType from{ f & r1 };
+				const squareType to{ f & r2 };
+				return squaresType(from) ^ squaresType(to);
+			}
+			else
+			{
+				constexpr const rankType r1{ rank7 };
+				constexpr const rankType r2{ rank5 };
+				const squareType from{ f & r1 };
+				const squareType to{ f & r2 };
+				return squaresType(from) ^ squaresType(to);
+			}
+		}
+		constexpr squareType fromSquare_Implementation(const boardType& position, const movebitsType& moveBits) const noexcept
+		{
+			const playerType p{ position.movingPlayer() };
+			const fileType f{ doublepushmove::extractFile(moveBits) };
+			if (p == whitePlayer)
+			{
+				constexpr const rankType r1{ rank2 };
+				const squareType from{ f & r1 };
+				return from;
+			}
+			else
+			{
+				constexpr const rankType r1{ rank7 };
+				const squareType from{ f & r1 };
+				return from;
+			}
+		}
+		constexpr squareType toSquare_Implementation(const boardType& position, const movebitsType& moveBits) const noexcept
+		{
+			const playerType p{ position.movingPlayer() };
+			const fileType f{ doublepushmove::extractFile(moveBits) };
+			if (p == whitePlayer)
+			{
+				constexpr const rankType r2{ rank4 };
+				const squareType to{ f & r2 };
+				return to;
+			}
+			else
+			{
+				constexpr const rankType r2{ rank5 };
+				const squareType to{ f & r2 };
+				return to;
+			}
+		}
+};
 
 }

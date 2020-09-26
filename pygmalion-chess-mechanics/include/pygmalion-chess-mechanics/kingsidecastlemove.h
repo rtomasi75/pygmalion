@@ -187,6 +187,31 @@ namespace pygmalion::chess
 				return boardType::squareToString(kingFrom) + boardType::squareToString(kingTo);
 			}
 		}
+		constexpr squaresType otherOccupancyDelta_Implementation(const boardType& position, const movebitsType& moveBits) const noexcept
+		{
+			return squaresType::none();
+		}
+		constexpr squaresType ownOccupancyDelta_Implementation(const boardType& position, const movebitsType& moveBits) const noexcept
+		{
+			if (position.movingPlayer() == whitePlayer)
+				return squaresType(squareE1) ^ squaresType(squareG1) ^ squaresType(squareH1) ^ squaresType(squareF1);
+			else
+				return squaresType(squareE8) ^ squaresType(squareG8) ^ squaresType(squareH8) ^ squaresType(squareF8);
+		}
+		constexpr squareType fromSquare_Implementation(const boardType& position, const movebitsType& moveBits) const noexcept
+		{
+			if (position.movingPlayer() == whitePlayer)
+				return squareE1;
+			else
+				return squareE8;
+		}
+		constexpr squareType toSquare_Implementation(const boardType& position, const movebitsType& moveBits) const noexcept
+		{
+			if (position.movingPlayer() == whitePlayer)
+				return squareG1;
+			else
+				return squareG8;
+		}
 	};
 
 }

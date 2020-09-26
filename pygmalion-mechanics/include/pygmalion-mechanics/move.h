@@ -39,5 +39,21 @@ namespace pygmalion::mechanics
 		{
 			return reinterpret_cast<const instanceType*>(this)->toString_Implementation(position, moveBits);
 		}
+		constexpr squaresType otherOccupancyDelta(const boardType& position, const movebitsType& moveBits) const noexcept
+		{
+			return reinterpret_cast<const instanceType*>(this)->otherOccupancyDelta_Implementation(position, moveBits);
+		}
+		constexpr squaresType ownOccupancyDelta(const boardType& position, const movebitsType& moveBits) const noexcept
+		{
+			return reinterpret_cast<const instanceType*>(this)->ownOccupancyDelta_Implementation(position, moveBits);
+		}
+		constexpr squareType fromSquare(const boardType& position, const movebitsType& moveBits) const noexcept
+		{
+			return reinterpret_cast<const instanceType*>(this)->fromSquare_Implementation(position, moveBits);
+		}
+		constexpr squareType toSquare(const boardType& position, const movebitsType& moveBits) const noexcept
+		{
+			return reinterpret_cast<const instanceType*>(this)->toSquare_Implementation(position, moveBits);
+		}
 	};
 }

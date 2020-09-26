@@ -268,5 +268,119 @@ namespace pygmalion::mechanics
 		constexpr disjunctivemove(const disjunctivemove&) noexcept = default;
 		constexpr disjunctivemove& operator=(disjunctivemove&&) noexcept = default;
 		constexpr disjunctivemove& operator=(const disjunctivemove&) noexcept = default;
+	private:
+		template<size_t INDEX, typename MOVE, typename... MOVES2>
+		squaresType otherOccupancyDeltaPack(const boardType& position, const size_t selector, const typename disjunctivemove::movebitsType& moveBits) const noexcept
+		{
+			if (INDEX == selector)
+			{
+				typename MOVE::movebitsType bits{ moveBits.template extractBits<0,MOVE::countBits>() };
+				return std::get<INDEX>(this->m_Moves).otherOccupancyDelta(position, bits);
+			}
+			else
+			{
+				if constexpr (sizeof...(MOVES2) > 0)
+					return this->template otherOccupancyDeltaPack<INDEX + 1, MOVES2...>(position, selector, moveBits);
+				else
+					return squaresType::none();
+			}
+		}
+		template<size_t INDEX, typename MOVE, typename... MOVES2>
+		squaresType ownOccupancyDeltaPack(const boardType& position, const size_t selector, const typename disjunctivemove::movebitsType& moveBits) const noexcept
+		{
+			if (INDEX == selector)
+			{
+				typename MOVE::movebitsType bits{ moveBits.template extractBits<0,MOVE::countBits>() };
+				return std::get<INDEX>(this->m_Moves).ownOccupancyDelta(position, bits);
+			}
+			else
+			{
+				if constexpr (sizeof...(MOVES2) > 0)
+					return this->template ownOccupancyDeltaPack<INDEX + 1, MOVES2...>(position, selector, moveBits);
+				else
+					return squaresType::none();
+			}
+		}
+		template<size_t INDEX, typename MOVE, typename... MOVES2>
+		squareType fromSquarePack(const boardType& position, const size_t selector, const typename disjunctivemove::movebitsType& moveBits) const noexcept
+		{
+			if (INDEX == selector)
+			{
+				typename MOVE::movebitsType bits{ moveBits.template extractBits<0,MOVE::countBits>() };
+				return std::get<INDEX>(this->m_Moves).fromSquare(position, bits);
+			}
+			else
+			{
+				if constexpr (sizeof...(MOVES2) > 0)
+					return this->template fromSquarePack<INDEX + 1, MOVES2...>(position, selector, moveBits);
+				else
+				{
+					assert(false);
+					return squareType::invalid;
+				}
+			}
+		}
+		template<size_t INDEX, typename MOVE, typename... MOVES2>
+		squareType toSquarePack(const boardType& position, const size_t selector, const typename disjunctivemove::movebitsType& moveBits) const noexcept
+		{
+			if (INDEX == selector)
+			{
+				typename MOVE::movebitsType bits{ moveBits.template extractBits<0,MOVE::countBits>() };
+				return std::get<INDEX>(this->m_Moves).toSquare(position, bits);
+			}
+			else
+			{
+				if constexpr (sizeof...(MOVES2) > 0)
+					return this->template toSquarePack<INDEX + 1, MOVES2...>(position, selector, moveBits);
+				else
+				{
+					assert(false);
+					return squareType::invalid;
+				}
+			}
+		}
+	public:
+		constexpr squaresType otherOccupancyDelta_Implementation(const boardType& position, const typename disjunctivemove::movebitsType& moveBits) const noexcept
+		{
+			const muxbitsType mux{ disjunctivemove::muxbits(moveBits) };
+			const size_t selector{ static_cast<size_t>(static_cast<typename std::make_unsigned<size_t>::type>(mux)) };
+			if constexpr (sizeof...(MOVES) > 0)
+				return this->template otherOccupancyDeltaPack<0, MOVES...>(position, selector, moveBits);
+			else
+				return squaresType::none();
+		}
+		constexpr squaresType ownOccupancyDelta_Implementation(const boardType& position, const typename disjunctivemove::movebitsType& moveBits) const noexcept
+		{
+			const muxbitsType mux{ disjunctivemove::muxbits(moveBits) };
+			const size_t selector{ static_cast<size_t>(static_cast<typename std::make_unsigned<size_t>::type>(mux)) };
+			if constexpr (sizeof...(MOVES) > 0)
+				return this->template ownOccupancyDeltaPack<0, MOVES...>(position, selector, moveBits);
+			else
+				return squaresType::none();
+		}
+		constexpr squareType fromSquare_Implementation(const boardType& position, const typename disjunctivemove::movebitsType& moveBits) const noexcept
+		{
+			const muxbitsType mux{ disjunctivemove::muxbits(moveBits) };
+			const size_t selector{ static_cast<size_t>(static_cast<typename std::make_unsigned<size_t>::type>(mux)) };
+			if constexpr (sizeof...(MOVES) > 0)
+				return this->template fromSquarePack<0, MOVES...>(position, selector, moveBits);
+			else
+			{
+				assert(false);
+				return squareType::invalid;
+			}
+		}
+		constexpr squareType toSquare_Implementation(const boardType& position, const typename disjunctivemove::movebitsType& moveBits) const noexcept
+		{
+			const muxbitsType mux{ disjunctivemove::muxbits(moveBits) };
+			const size_t selector{ static_cast<size_t>(static_cast<typename std::make_unsigned<size_t>::type>(mux)) };
+			if constexpr (sizeof...(MOVES) > 0)
+				return this->template toSquarePack<0, MOVES...>(position, selector, moveBits);
+			else
+			{
+				assert(false);
+				return squareType::invalid;
+			}
+		}
 	};
 }
