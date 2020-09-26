@@ -149,6 +149,20 @@ namespace pygmalion::dynamics
 				return 1;
 		}
 	public:
+		constexpr static squaresType targets(const squaresType& seeds, const squaresType& allowed) noexcept
+		{
+			squaresType targets{ squaresType::none() };
+			if constexpr (sizeof...(RAYS) > 0)
+				propagator::computeTargets<RAYS...>(seeds, allowed, targets);
+			return targets;
+		}
+		constexpr static squaresType attacks(const squaresType& seeds, const squaresType& allowed) noexcept
+		{
+			squaresType attacks{ squaresType::none() };
+			if constexpr (sizeof...(RAYS) > 0)
+				propagator::computeAttacks<RAYS...>(seeds, allowed, attacks);
+			return attacks;
+		}
 		constexpr static size_t possibilities(const squareType seed) noexcept
 		{
 			return propagator::possibilities(squaresType(seed));
@@ -159,6 +173,24 @@ namespace pygmalion::dynamics
 			for (const auto sq : squareType::range)
 				maxCount = std::max(maxCount, propagator::possibilities(sq));
 			return maxCount;
+		}
+		constexpr static size_t countAttackSquares(const squareType seed) noexcept
+		{
+			const squaresType attackSquares{ attacks(squaresType(seed),squaresType::all()) };
+			size_t n{ 0 };
+			for (const auto sq : squareType::range)
+			{
+				if (attackSquares[sq])
+					n++;
+			}
+			return n;
+		}
+		constexpr static size_t maxAttackSquares() noexcept
+		{
+			size_t n{ 0 };
+			for (const auto sq : squareType::range)
+				n = std::max(n, countAttackSquares(sq));
+			return n;
 		}
 	private:
 		constexpr static typename squaresType::bitsType magicFactor(const size_t index) noexcept
@@ -177,20 +209,6 @@ namespace pygmalion::dynamics
 		constexpr propagator& operator=(const propagator&) noexcept = default;
 		constexpr propagator& operator=(propagator&&) noexcept = default;
 		~propagator() noexcept = default;
-		constexpr static squaresType targets(const squaresType& seeds, const squaresType& allowed) noexcept
-		{
-			squaresType targets{ squaresType::none() };
-			if constexpr (sizeof...(RAYS) > 0)
-				propagator::computeTargets<RAYS...>(seeds, allowed, targets);
-			return targets;
-		}
-		constexpr static squaresType attacks(const squaresType& seeds, const squaresType& allowed) noexcept
-		{
-			squaresType attacks{ squaresType::none() };
-			if constexpr (sizeof...(RAYS) > 0)
-				propagator::computeAttacks<RAYS...>(seeds, allowed, attacks);
-			return attacks;
-		}
 		constexpr static squaresType targets(const squareType seed, const squaresType& allowed) noexcept
 		{
 			return m_Magic[seed][~allowed] & allowed;

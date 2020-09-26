@@ -49,9 +49,14 @@ namespace pygmalion::dynamics
 				return k;
 			}
 			template<typename PROPAGATOR>
-			constexpr static size_t requiredBits()
+			constexpr static size_t requiredBits() noexcept
 			{
 				return slidermagic_helper::requiredUnsignedBits(PROPAGATOR::maxPossibilities());
+			}
+			template<typename PROPAGATOR>
+			constexpr static size_t requiredValueBits() noexcept
+			{
+				return PROPAGATOR::maxAttackSquares();
 			}
 		};
 	}
@@ -59,32 +64,84 @@ namespace pygmalion::dynamics
 	template<typename DESCRIPTOR_DYNAMICS, typename PROPAGATOR>
 	class slidermagic :
 		public DESCRIPTOR_DYNAMICS,
-#if defined(PYGMALION_COMPACTSLIDERS)
+#if defined(PYGMALION_SLIDERMAGIC_COMPACT)&&defined(PYGMALION_CPU_BMI2)
+#if defined(PYGMALION_SLIDERMAGIC_INDIRECT)
+		public pygmalion::magictable<PROPAGATOR::maxAttackSquares(), DESCRIPTOR_DYNAMICS::squaresType::countSquares, uint_t<detail::slidermagic_helper::requiredBits<PROPAGATOR>(), true>, slidermagicinfo<DESCRIPTOR_DYNAMICS>, slidermagic<DESCRIPTOR_DYNAMICS, PROPAGATOR>>
+#else
+		public pygmalion::magictable<PROPAGATOR::maxAttackSquares(), DESCRIPTOR_DYNAMICS::squaresType::countSquares, uint_t<PROPAGATOR::maxAttackSquares(), true>, slidermagicinfo<DESCRIPTOR_DYNAMICS>, slidermagic<DESCRIPTOR_DYNAMICS, PROPAGATOR>>
+#endif
+#else
+#if defined(PYGMALION_SLIDERMAGIC_INDIRECT)
 		public pygmalion::magictable<DESCRIPTOR_DYNAMICS::squaresType::countSquares, DESCRIPTOR_DYNAMICS::squaresType::countSquares, uint_t<detail::slidermagic_helper::requiredBits<PROPAGATOR>(), true>, slidermagicinfo<DESCRIPTOR_DYNAMICS>, slidermagic<DESCRIPTOR_DYNAMICS, PROPAGATOR>>
 #else
 		public pygmalion::magictable<DESCRIPTOR_DYNAMICS::squaresType::countSquares, DESCRIPTOR_DYNAMICS::squaresType::countSquares, typename DESCRIPTOR_DYNAMICS::squaresType, slidermagicinfo<DESCRIPTOR_DYNAMICS>, slidermagic<DESCRIPTOR_DYNAMICS, PROPAGATOR>>
+#endif
 #endif
 	{
 	public:
 		using propagatorType = PROPAGATOR;
 		using descriptorDynamics = DESCRIPTOR_DYNAMICS;
+#if defined(PYGMALION_SLIDERMAGIC_INDIRECT)
 		using entryType = uint_t<detail::slidermagic_helper::requiredUnsignedBits(propagatorType::maxPossibilities()), true>;
+#endif
 #include "include_dynamics.h"
-	private:
-#if defined(PYGMALION_COMPACTSLIDERS)
+#if defined(PYGMALION_SLIDERMAGIC_COMPACT)&&defined(PYGMALION_CPU_BMI2)
+		using valueType = uint_t<propagatorType::maxAttackSquares(), true>;
+#else
+		using valueType = squaresType;
+#endif
+#if defined(PYGMALION_SLIDERMAGIC_COMPACT)&&defined(PYGMALION_CPU_BMI2)
+#if defined(PYGMALION_SLIDERMAGIC_INDIRECT)
+		using parentType = pygmalion::magictable<PROPAGATOR::maxAttackSquares(), DESCRIPTOR_DYNAMICS::squaresType::countSquares, uint_t<detail::slidermagic_helper::requiredBits<PROPAGATOR>(), true>, slidermagicinfo<DESCRIPTOR_DYNAMICS>, slidermagic<DESCRIPTOR_DYNAMICS, PROPAGATOR>>;
+#else
+		using parentType = pygmalion::magictable<PROPAGATOR::maxAttackSquares(), DESCRIPTOR_DYNAMICS::squaresType::countSquares, valueType, slidermagicinfo<DESCRIPTOR_DYNAMICS>, slidermagic<DESCRIPTOR_DYNAMICS, PROPAGATOR>>;
+#endif
+#else
+#if defined(PYGMALION_SLIDERMAGIC_INDIRECT)
 		using parentType = pygmalion::magictable<DESCRIPTOR_DYNAMICS::squaresType::countSquares, DESCRIPTOR_DYNAMICS::squaresType::countSquares, uint_t<detail::slidermagic_helper::requiredBits<PROPAGATOR>(), true>, slidermagicinfo<DESCRIPTOR_DYNAMICS>, slidermagic<DESCRIPTOR_DYNAMICS, PROPAGATOR>>;
 #else
-		using parentType = pygmalion::magictable<DESCRIPTOR_DYNAMICS::squaresType::countSquares, DESCRIPTOR_DYNAMICS::squaresType::countSquares, typename DESCRIPTOR_DYNAMICS::squaresType, slidermagicinfo<DESCRIPTOR_DYNAMICS>, slidermagic<DESCRIPTOR_DYNAMICS, PROPAGATOR>>;
+		using parentType = pygmalion::magictable<DESCRIPTOR_DYNAMICS::squaresType::countSquares, DESCRIPTOR_DYNAMICS::squaresType::countSquares, valueType, slidermagicinfo<DESCRIPTOR_DYNAMICS>, slidermagic<DESCRIPTOR_DYNAMICS, PROPAGATOR>>;
+#endif
 #endif
 		using bitsType = typename parentType::bitsType;
-		squaresType* m_Table;
+	private:
+		valueType* m_Table;
+#if defined(PYGMALION_SLIDERMAGIC_COMPACT)&&defined(PYGMALION_CPU_BMI2)
+		bitsType m_Mask;
+#endif
+		constexpr squaresType decodeSquares(const valueType& value) const noexcept
+		{
+#if defined(PYGMALION_SLIDERMAGIC_COMPACT)&&defined(PYGMALION_CPU_BMI2)
+			const bitsType extracted{ static_cast<bitsType>(value) };
+			const bitsType squarebits{ extracted.deposePattern(m_Mask) };
+			const squaresType squares{ squaresType(squarebits) };
+			return squares;
+#else
+			return value;
+#endif
+		}
+		constexpr valueType encodeSquares(const squaresType& squares) const noexcept
+		{
+#if defined(PYGMALION_SLIDERMAGIC_COMPACT)&&defined(PYGMALION_CPU_BMI2)
+			const bitsType squarebits{ static_cast<bitsType>(squares) };
+			const bitsType extracted{ squarebits.extractPattern(m_Mask) };
+			const valueType value{ static_cast<valueType>(extracted) };
+			assert(squarebits.populationCount() == value.populationCount());
+			return value;
+#else
+			return squares;
+#endif
+		}
 	public:
-#if defined(PYGMALION_COMPACTSLIDERS)
+#if defined(PYGMALION_SLIDERMAGIC_INDIRECT)
 		void* preInitialize_Implementation(const slidermagicinfo<descriptorDynamics>& info) noexcept
 		{
+#if defined(PYGMALION_SLIDERMAGIC_COMPACT)&&defined(PYGMALION_CPU_BMI2)
+			m_Mask = static_cast<bitsType>(propagatorType::attacks(squaresType(info.square()), squaresType::all()));
+#endif
 			const size_t count{ propagatorType::possibilities(info.square()) };
 			bool* pUsage = new bool[count];
-			m_Table = new squaresType[count];
+			m_Table = new valueType[count];
 			for (size_t i = 0; i < count; i++)
 				pUsage[i] = false;
 			return static_cast<void*>(pUsage);
@@ -92,11 +149,6 @@ namespace pygmalion::dynamics
 		void postInitialize_Implementation(const slidermagicinfo<descriptorDynamics>& info, void* pData) noexcept
 		{
 			bool* pUsage = static_cast<bool*>(pData);
-#if !defined(NDEBUG)
-			const size_t count{ propagatorType::possibilities(info.square()) };
-			for (size_t i = 0; i < count; i++)
-				assert(pUsage[i]);
-#endif
 			delete[] pUsage;
 		}
 		void initializeValue_Implementation(entryType& value, const slidermagicinfo<descriptorDynamics>& info, const bitsType& blockers, const bitsType& premask, void* pData) const noexcept
@@ -110,7 +162,7 @@ namespace pygmalion::dynamics
 			{
 				if (pUsage[i])
 				{
-					if (m_Table[i] == attacks)
+					if (m_Table[i] == encodeSquares(attacks))
 					{
 						value = static_cast<entryType>(static_cast<typename std::make_unsigned<size_t>::type>(i));
 						return;
@@ -123,7 +175,7 @@ namespace pygmalion::dynamics
 			{
 				if (!pUsage[i])
 				{
-					m_Table[i] = attacks;
+					m_Table[i] = encodeSquares(attacks);
 					value = static_cast<entryType>(static_cast<typename std::make_unsigned<size_t>::type>(i));
 					pUsage[i] = true;
 					return;
@@ -134,15 +186,18 @@ namespace pygmalion::dynamics
 #else
 		void* preInitialize_Implementation(const slidermagicinfo<descriptorDynamics>& info) noexcept
 		{
+#if defined(PYGMALION_SLIDERMAGIC_COMPACT)&&defined(PYGMALION_CPU_BMI2)
+			m_Mask = static_cast<bitsType>(propagatorType::attacks(squaresType(info.square()), squaresType::all()));
+#endif
 			return nullptr;
 		}
 		void postInitialize_Implementation(const slidermagicinfo<descriptorDynamics>& info, void* pData) noexcept
 		{
 		}
-		void initializeValue_Implementation(squaresType& value, const slidermagicinfo<descriptorDynamics>& info, const bitsType& blockers, const bitsType& premask, void* pData) const noexcept
+		void initializeValue_Implementation(valueType& value, const slidermagicinfo<descriptorDynamics>& info, const bitsType& blockers, const bitsType& premask, void* pData) const noexcept
 		{
 			assert(info.square().isValid());
-			value = propagatorType::attacks(squaresType(info.square()), squaresType(~blockers));
+			value = encodeSquares(propagatorType::attacks(squaresType(info.square()), squaresType(~blockers)));
 		}
 #endif
 		static bitsType calculatePremask(const slidermagicinfo<descriptorDynamics>& info) noexcept
@@ -153,27 +208,33 @@ namespace pygmalion::dynamics
 		slidermagic(const slidermagicinfo<descriptorDynamics>& info) noexcept :
 			parentType(info)
 		{
+#if defined(PYGMALION_SLIDERMAGIC_COMPACT)&&defined(PYGMALION_CPU_BMI2)
+			m_Mask = static_cast<bitsType>(propagatorType::attacks(squaresType(info.square()), squaresType::all()));
+#endif
 		}
 		slidermagic(const slidermagicinfo<descriptorDynamics>& info, const bitsType& factor, const size_t shift) noexcept :
 			parentType(info, factor, shift)
 		{
+#if defined(PYGMALION_SLIDERMAGIC_COMPACT)&&defined(PYGMALION_CPU_BMI2)
+			m_Mask = static_cast<bitsType>(propagatorType::attacks(squaresType(info.square()), squaresType::all()));
+#endif
 		}
 		slidermagic() noexcept = default;
 		slidermagic(const slidermagic&) noexcept = default;
 		constexpr slidermagic(slidermagic&&) noexcept = default;
 		~slidermagic() noexcept
 		{
-#if defined(PYGMALION_COMPACTSLIDERS)
+#if defined(PYGMALION_SLIDERMAGIC_INDIRECT)
 			delete[] m_Table;
 #endif
 		}
-		const squaresType& operator[](const squaresType& blockers) const
+		const squaresType operator[](const squaresType& blockers) const
 		{
-#if defined(PYGMALION_COMPACTSLIDERS)
+#if defined(PYGMALION_SLIDERMAGIC_INDIRECT)
 			const entryType idx{ slidermagic::value(static_cast<bitsType>(blockers)) };
-			return m_Table[static_cast<typename std::make_unsigned<size_t>::type>(idx)];
+			return slidermagic::decodeSquares(m_Table[static_cast<typename std::make_unsigned<size_t>::type>(idx)]);
 #else
-			return slidermagic::value(static_cast<bitsType>(blockers));
+			return slidermagic::decodeSquares(slidermagic::value(static_cast<bitsType>(blockers)));
 #endif
 		}
 		slidermagic& operator=(const slidermagic&) noexcept = default;

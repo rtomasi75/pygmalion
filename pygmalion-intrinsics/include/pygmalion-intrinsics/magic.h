@@ -1,6 +1,6 @@
 namespace pygmalion::intrinsics
 {
-	template<size_t COUNT_VALUEBITS, size_t COUNT_MAXPATTERNBITS, bool USEBMI>
+	template<size_t COUNT_MAXPATTERNBITS, typename VALUE, bool USEBMI>
 	class magic
 	{
 
@@ -72,8 +72,8 @@ namespace pygmalion::intrinsics
 		};
 	}
 
-	template<size_t COUNT_VALUEBITS, size_t COUNT_MAXPATTERNBITS>
-	class magic<COUNT_VALUEBITS, COUNT_MAXPATTERNBITS, true>
+	template<size_t COUNT_MAXPATTERNBITS, typename VALUE>
+	class magic<COUNT_MAXPATTERNBITS, VALUE, true>
 	{
 	protected:
 		constexpr static size_t requiredUnsignedBits(const size_t number) noexcept
@@ -99,8 +99,7 @@ namespace pygmalion::intrinsics
 		}
 	public:
 		constexpr static const size_t countMaxPatternBits{ COUNT_MAXPATTERNBITS };
-		constexpr static const size_t countValueBits{ COUNT_VALUEBITS };
-		using bitsType = uint_t<countValueBits, false>;
+		using bitsType = VALUE;
 		using sizeType = typename detail::magic_traits<magic::requiredBitBytes(countMaxPatternBits)>::UTYPE;
 	private:
 		bitsType m_Premask;
@@ -137,7 +136,7 @@ namespace pygmalion::intrinsics
 		constexpr magic(const magic&) = default;
 		constexpr magic(magic&&) = default;
 		constexpr magic(const bitsType& premask, const bitsType&, const sizeType bits) noexcept :
-			magic<countValueBits, countMaxPatternBits, true>(premask, bits)
+			magic<countMaxPatternBits, VALUE, true>(premask, bits)
 		{
 		}
 		constexpr magic& operator=(const magic&) noexcept = default;
@@ -217,20 +216,19 @@ namespace pygmalion::intrinsics
 		}
 	};
 
-	template<size_t COUNT_VALUEBITS, size_t COUNT_MAXPATTERNBITS>
-	class magic<COUNT_VALUEBITS, COUNT_MAXPATTERNBITS, false>
-		: public magic<COUNT_VALUEBITS, COUNT_MAXPATTERNBITS, true>
+	template<size_t COUNT_MAXPATTERNBITS, typename VALUE>
+	class magic<COUNT_MAXPATTERNBITS, VALUE, false>
+		: public magic<COUNT_MAXPATTERNBITS, VALUE, true>
 	{
 	public:
 		constexpr static const size_t countMaxPatternBits{ COUNT_MAXPATTERNBITS };
-		constexpr static const size_t countValueBits{ COUNT_VALUEBITS };
-		using bitsType = uint_t<countValueBits, false>;
+		using bitsType = VALUE;
 		using sizeType = typename detail::magic_traits<magic::requiredBitBytes(countMaxPatternBits)>::UTYPE;
 	protected:
 		bitsType m_Factor;
 	public:
 		magic(const bitsType& premask) noexcept :
-			magic<countValueBits, countMaxPatternBits, true>(premask),
+			magic<countMaxPatternBits, VALUE, true>(premask),
 			m_Factor{ bitsType::zero() }
 		{
 			this->find(premask, m_Factor);
@@ -238,7 +236,7 @@ namespace pygmalion::intrinsics
 		constexpr magic(const magic&) = default;
 		constexpr magic(magic&&) = default;
 		constexpr magic(const bitsType& premask, const bitsType& factor, const size_t bits) noexcept :
-			magic<countValueBits, countMaxPatternBits, true>(premask, bits),
+			magic<countMaxPatternBits, VALUE, true>(premask, bits),
 			m_Factor{ factor }
 		{
 		}

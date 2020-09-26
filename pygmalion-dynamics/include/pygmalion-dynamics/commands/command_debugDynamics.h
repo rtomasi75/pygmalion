@@ -19,6 +19,19 @@ namespace pygmalion::dynamics
 				this->output() << "index:    " << std::setw(4) << sizeof(indexType) << " = " << sizeof(indexType) * CHAR_BIT << "bit" << std::endl;
 				this->output() << "stack:    " << std::setw(4) << sizeof(stackType) << " = " << sizeof(stackType) * CHAR_BIT << "bit" << std::endl;
 				this->output() << std::endl;
+#if defined(PYGMALION_SLIDERMAGIC_COMPACT)&&defined(PYGMALION_CPU_BMI2)
+				this->output() << "compact slidermagics:  enabled" << std::endl;
+#elif defined(PYGMALION_SLIDERMAGIC_COMPACT)&&!defined(PYGMALION_CPU_BMI2)
+				this->output() << "compact slidermagics:  disabled (no BMI2 support)" << std::endl;
+#else
+				this->output() << "compact slidermagics:  disabled" << std::endl;
+#endif
+#if defined(PYGMALION_SLIDERMAGIC_INDIRECT)
+				this->output() << "indirect slidermagics: enabled" << std::endl;
+#else
+				this->output() << "indirect slidermagics: disabled" << std::endl;
+#endif
+				this->output() << std::endl;
 				return true;
 			}
 			else

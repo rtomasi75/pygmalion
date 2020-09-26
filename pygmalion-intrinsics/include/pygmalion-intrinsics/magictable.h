@@ -1,6 +1,6 @@
 namespace pygmalion
 {
-	template<size_t COUNT_BITS, size_t COUNT_MAXPATTERNBITS, typename VALUE, typename INFO, typename INSTANCE>
+	template< size_t COUNT_MAXPATTERNBITS, size_t COUNT_BITS, typename VALUE, typename INFO, typename INSTANCE>
 	class magictable
 	{
 	public:
@@ -10,9 +10,9 @@ namespace pygmalion
 		using infoType = INFO;
 		using bitsType = uint_t<COUNT_BITS, false>;
 		using instanceType = INSTANCE;
-		using magicType = intrinsics::magic<countBits, countMaxPatternBits, cpu::supports(cpu::flags::BMI2)>;
+		using magicType = intrinsics::magic<countMaxPatternBits, bitsType, cpu::supports(cpu::flags::BMI2)>;
 	private:
-		infoType m_Info;
+		const infoType m_Info;
 		magicType m_Magic;
 		valueType* m_pValues;
 		void initializeValue(valueType& value, const bitsType& bitboard, void* pData) const noexcept
@@ -20,6 +20,10 @@ namespace pygmalion
 			reinterpret_cast<const instanceType*>(this)->initializeValue_Implementation(value, m_Info, bitboard, m_Magic.premask(), pData);
 		}
 	protected:
+		constexpr const infoType& info() const noexcept
+		{
+			return m_Info;
+		}
 		constexpr magictable(const infoType& info, const bitsType& factor, const size_t shift) noexcept :
 			m_Info{ info },
 			m_Magic(instanceType::calculatePremask(info), factor, shift),

@@ -10,15 +10,6 @@ find_package (Threads REQUIRED)
 
 set (CMAKE_CXX_STANDARD 17)
 
-option(USE_COMPACT_SLIDERS "Build with compact slider magics" OFF)
-
-if(USE_COMPACT_SLIDERS)
-    add_definitions(-DPYGMALION_COMPACTSLIDERS)
-    message("-- building with compact slider magics")
-else()
-    message("-- NOT building with compact slider magics")
-endif()
-
 file(GLOB SOURCES src/*.cpp)
 file(GLOB HEADERS include/pygmalion-dynamics/*.h)
 

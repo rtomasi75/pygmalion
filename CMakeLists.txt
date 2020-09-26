@@ -15,6 +15,23 @@ option(OPTIMIZE_FOR_AVX2 "Build for AVX2" OFF)
 option(OPTIMIZE_FOR_AVX "Build for AVX" OFF)
 option(OPTIMIZE_FOR_NATIVE "Build with -march=native" OFF)
 
+option(USE_COMPACT_SLIDERS "Build with compact slider magics" OFF)
+option(USE_INDIRECT_SLIDERS "Build with compact slider magics" OFF)
+
+if(USE_COMPACT_SLIDERS)
+    add_definitions(-DPYGMALION_SLIDERMAGIC_COMPACT)
+    message("-- building with compact slider magics")
+else()
+    message("-- NOT building with compact slider magics")
+endif()
+
+if(USE_INDIRECT_SLIDERS)
+    add_definitions(-DPYGMALION_SLIDERMAGIC_INDIRECT)
+    message("-- building with indirect slider magics")
+else()
+    message("-- NOT building with indirect slider magics")
+endif()
+
 if(MSVC)
 
     if(OPTIMIZE_FOR_BMI2)
