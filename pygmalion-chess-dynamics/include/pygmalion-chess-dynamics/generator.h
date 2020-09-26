@@ -394,7 +394,7 @@ namespace pygmalion::chess
 					for (const auto sq : allowedDoublePushes)
 						moves.add(motorType::move().createDoublePush(sq.file()));
 				}
-		}
+			}
 #else
 			if (stack.position().movingPlayer() == whitePlayer)
 			{
@@ -413,6 +413,47 @@ namespace pygmalion::chess
 				}
 			}
 #endif
+		}
+		static void generateCastles(const stackType& stack, movelistType& moves) noexcept
+		{
+			if (stack.position().movingPlayer() == whitePlayer)
+			{
+				if (stack.position().checkCastleRightKingsideWhite())
+				{
+					if (!(stack.position().totalOccupancy() & kingsideCastleInterestWhite))
+					{
+						if (!(stack.squaresAttackedByPlayer(blackPlayer) & kingsideCastleWalkWhite))
+							moves.add(motorType::move().createKingsideCastle());
+					}
+				}
+				if (stack.position().checkCastleRightQueensideWhite())
+				{
+					if (!(stack.position().totalOccupancy() & queensideCastleInterestWhite))
+					{
+						if (!(stack.squaresAttackedByPlayer(blackPlayer) & queensideCastleWalkWhite))
+							moves.add(motorType::move().createQueensideCastle());
+					}
+				}
+			}
+			else
+			{
+				if (stack.position().checkCastleRightKingsideBlack())
+				{
+					if (!(stack.position().totalOccupancy() & kingsideCastleInterestBlack))
+					{
+						if (!(stack.squaresAttackedByPlayer(whitePlayer) & kingsideCastleWalkBlack))
+							moves.add(motorType::move().createKingsideCastle());
+					}
+				}
+				if (stack.position().checkCastleRightQueensideBlack())
+				{
+					if (!(stack.position().totalOccupancy() & queensideCastleInterestBlack))
+					{
+						if (!(stack.squaresAttackedByPlayer(whitePlayer) & queensideCastleWalkBlack))
+							moves.add(motorType::move().createQueensideCastle());
+					}
+				}
+			}
 		}
 		static void generatePawnEnPassant(const stackType& stack, movelistType& moves) noexcept
 		{
@@ -506,6 +547,10 @@ namespace pygmalion::chess
 				currentPass = 12;
 				generateKingCaptures(stack, moves);
 				return true;
+			case 12:
+				currentPass = 13;
+				generateCastles(stack, moves);
+				return true;
 			}
 		}
 		static bool generateTacticalMoves_Implementation(const stackType& stack, movelistType& moves, size_t& currentPass) noexcept
@@ -541,7 +586,5 @@ namespace pygmalion::chess
 			}
 			return false;
 		}
-
-
 	};
 }

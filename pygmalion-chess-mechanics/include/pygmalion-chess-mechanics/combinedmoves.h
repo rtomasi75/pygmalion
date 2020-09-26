@@ -102,5 +102,13 @@ namespace pygmalion::chess
 		{
 			return create<indexEnPassant>(this->component<indexEnPassant>().create(file1, file2));
 		}
+		constexpr movebitsType createKingsideCastle() const noexcept
+		{
+			return create<indexKingside>(this->component<indexKingside>().create());
+		}
+		constexpr movebitsType createQueensideCastle() const noexcept
+		{
+			return create<indexQueenside>(this->component<indexQueenside>().create());
+		}
 	};
 }
