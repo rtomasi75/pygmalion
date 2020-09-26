@@ -59,51 +59,51 @@ namespace pygmalion::state
 		}
 		constexpr squares downRight() const noexcept
 		{
-			return down(right());
+			return down().right();
 		}
 		constexpr squares upRight() const noexcept
 		{
-			return up(right());
+			return up().right();
 		}
 		constexpr squares downLeft() const noexcept
 		{
-			return down(left());
+			return left().down();
 		}
 		constexpr squares upLeft() const noexcept
 		{
-			return up(left());
+			return left().up();
 		}
 		constexpr squares upUpLeft() const noexcept
 		{
-			return up(upLeft());
+			return up().upLeft();
 		}
 		constexpr squares upUpRight() const noexcept
 		{
-			return up(upRight());
+			return up().upRight();
 		}
 		constexpr squares downDownLeft() const noexcept
 		{
-			return down(downLeft());
+			return down().downLeft();
 		}
 		constexpr squares downDownRight() const noexcept
 		{
-			return down(downRight());
+			return down().downRight();
 		}
 		constexpr squares upLeftLeft() const noexcept
 		{
-			return upLeft(left());
+			return upLeft().left();
 		}
 		constexpr squares downLeftLeft() const noexcept
 		{
-			return downLeft(left());
+			return downLeft().left();
 		}
 		constexpr squares upRightRight() const noexcept
 		{
-			return upRight(right());
+			return upRight().right();
 		}
 		constexpr squares downRightRight() const noexcept
 		{
-			return downRight(right());
+			return downRight().right();
 		}
 		constexpr explicit squares(const bitsType bits) noexcept :
 			m_Bits{ bits }

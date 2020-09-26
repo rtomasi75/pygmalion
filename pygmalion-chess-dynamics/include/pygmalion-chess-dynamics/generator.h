@@ -1,5 +1,7 @@
 namespace pygmalion::chess
 {
+#define FASTPAWNS
+
 	class generator :
 		public pygmalion::generator<descriptor_dynamics, generator>
 	{
@@ -119,6 +121,34 @@ namespace pygmalion::chess
 		{
 			return movegenKing.attacks(sq, allowed);
 		}
+	private:
+		constexpr static const squaresType pawnFromSquaresBlack() noexcept
+		{
+			squaresType squares{ squaresType::none() };
+			for (rankType rank = 2; rank < (countRanks - 1); rank++)
+				squares |= static_cast<squaresType>(rank);
+			return squares;
+		}
+		constexpr static const squaresType pawnFromSquaresWhite() noexcept
+		{
+			squaresType squares{ squaresType::none() };
+			for (rankType rank = 1; rank < (countRanks - 3); rank++)
+				squares |= static_cast<squaresType>(rank);
+			return squares;
+		}
+		constexpr static const squaresType pawnDoublePushFromSquaresBlack() noexcept
+		{
+			squaresType squares{ squaresType::none() };
+			squares |= static_cast<squaresType>(static_cast<rankType>(countRanks - 2));
+			return squares;
+		}
+		constexpr static const squaresType pawnDoublePushFromSquaresWhite() noexcept
+		{
+			squaresType squares{ squaresType::none() };
+			squares |= static_cast<squaresType>(static_cast<rankType>(1));
+			return squares;
+		}
+	public:
 		constexpr static squaresType pawnPushTargets(const squareType sq, const playerType p, const squaresType& allowed) noexcept
 		{
 			return (p == whitePlayer) ? movegenPawnPushWhite.targets(sq, allowed) : movegenPawnPushBlack.targets(sq, allowed);
@@ -226,6 +256,35 @@ namespace pygmalion::chess
 		}
 		constexpr static void generatePawnPushes(const stackType& stack, movelistType& moves) noexcept
 		{
+#if defined(FASTPAWNS)
+			const squaresType allowed{ ~stack.position().totalOccupancy() };
+			if (stack.position().movingPlayer() == whitePlayer)
+			{
+				constexpr const squaresType fromSquares{ pawnFromSquaresWhite() };
+				const squaresType pawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(whitePlayer) };
+				const squaresType allowedPawns{ pawns & fromSquares };
+				if (allowedPawns)
+				{
+					const squaresType pushedPawns{ allowedPawns.up() };
+					const squaresType allowedPushes{ pushedPawns & allowed };
+					for (const auto sq : allowedPushes)
+						moves.add(motorType::move().createQuiet(sq.down(), sq));
+				}
+			}
+			else
+			{
+				constexpr const squaresType fromSquares{ pawnFromSquaresBlack() };
+				const squaresType pawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(blackPlayer) };
+				const squaresType allowedPawns{ pawns & fromSquares };
+				if (allowedPawns)
+				{
+					const squaresType pushedPawns{ allowedPawns.down() };
+					const squaresType allowedPushes{ pushedPawns & allowed };
+					for (const auto sq : allowedPushes)
+						moves.add(motorType::move().createQuiet(sq.up(), sq));
+				}
+			}
+#else
 			if (stack.position().movingPlayer() == whitePlayer)
 			{
 				for (const squareType from : stack.position().pieceOccupancy(pawn)& stack.position().playerOccupancy(whitePlayer))
@@ -242,9 +301,48 @@ namespace pygmalion::chess
 						moves.add(motorType::move().createQuiet(from, to));
 				}
 			}
+#endif
 		}
 		constexpr static void generatePawnCaptures(const stackType& stack, movelistType& moves) noexcept
 		{
+#if defined(FASTPAWNS)
+			if (stack.position().movingPlayer() == whitePlayer)
+			{
+				const squaresType allowed{ stack.position().playerOccupancy(blackPlayer) };
+				constexpr const squaresType fromSquares{ pawnFromSquaresWhite() };
+				const squaresType pawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(whitePlayer) };
+				const squaresType allowedPawns{ pawns & fromSquares };
+				if (allowedPawns)
+				{
+					const squaresType leftCaptures{ allowedPawns.upLeft() };
+					const squaresType rightCaptures{ allowedPawns.upRight() };
+					const squaresType allowedLeftCaptures{ leftCaptures & allowed };
+					const squaresType allowedRightCaptures{ rightCaptures & allowed };
+					for (const auto sq : allowedLeftCaptures)
+						moves.add(motorType::move().createCapture(sq.downRight(), sq));
+					for (const auto sq : allowedRightCaptures)
+						moves.add(motorType::move().createCapture(sq.downLeft(), sq));
+				}
+			}
+			else
+			{
+				const squaresType allowed{ stack.position().playerOccupancy(whitePlayer) };
+				constexpr const squaresType fromSquares{ pawnFromSquaresBlack() };
+				const squaresType pawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(blackPlayer) };
+				const squaresType allowedPawns{ pawns & fromSquares };
+				if (allowedPawns)
+				{
+					const squaresType leftCaptures{ allowedPawns.downLeft() };
+					const squaresType rightCaptures{ allowedPawns.downRight() };
+					const squaresType allowedLeftCaptures{ leftCaptures & allowed };
+					const squaresType allowedRightCaptures{ rightCaptures & allowed };
+					for (const auto sq : allowedLeftCaptures)
+						moves.add(motorType::move().createCapture(sq.upRight(), sq));
+					for (const auto sq : allowedRightCaptures)
+						moves.add(motorType::move().createCapture(sq.upLeft(), sq));
+				}
+			}
+#else
 			if (stack.position().movingPlayer() == whitePlayer)
 			{
 				for (const squareType from : stack.position().pieceOccupancy(pawn)& stack.position().playerOccupancy(whitePlayer))
@@ -261,9 +359,43 @@ namespace pygmalion::chess
 						moves.add(motorType::move().createCapture(from, to));
 				}
 			}
+#endif
 		}
 		constexpr static void generatePawnDoublePushes(const stackType& stack, movelistType& moves) noexcept
 		{
+#if defined(FASTPAWNS)
+			const squaresType allowed{ ~stack.position().totalOccupancy() };
+			if (stack.position().movingPlayer() == whitePlayer)
+			{
+				constexpr const squaresType fromSquares{ pawnDoublePushFromSquaresWhite() };
+				const squaresType pawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(whitePlayer) };
+				const squaresType allowedPawns{ pawns & fromSquares };
+				if (allowedPawns)
+				{
+					const squaresType pushedPawns{ allowedPawns.up() };
+					const squaresType allowedPushes{ pushedPawns & allowed };
+					const squaresType doublePushedPawns{ allowedPushes.up() };
+					const squaresType allowedDoublePushes{ doublePushedPawns & allowed };
+					for (const auto sq : allowedDoublePushes)
+						moves.add(motorType::move().createDoublePush(sq.file()));
+				}
+			}
+			else
+			{
+				constexpr const squaresType fromSquares{ pawnDoublePushFromSquaresBlack() };
+				const squaresType pawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(blackPlayer) };
+				const squaresType allowedPawns{ pawns & fromSquares };
+				if (allowedPawns)
+				{
+					const squaresType pushedPawns{ allowedPawns.down() };
+					const squaresType allowedPushes{ pushedPawns & allowed };
+					const squaresType doublePushedPawns{ allowedPushes.down() };
+					const squaresType allowedDoublePushes{ doublePushedPawns & allowed };
+					for (const auto sq : allowedDoublePushes)
+						moves.add(motorType::move().createDoublePush(sq.file()));
+				}
+		}
+#else
 			if (stack.position().movingPlayer() == whitePlayer)
 			{
 				for (const squareType from : stack.position().pieceOccupancy(pawn)& stack.position().playerOccupancy(whitePlayer))
@@ -280,6 +412,7 @@ namespace pygmalion::chess
 						moves.add(motorType::move().createDoublePush(from.file()));
 				}
 			}
+#endif
 		}
 		static void generatePawnEnPassant(const stackType& stack, movelistType& moves) noexcept
 		{

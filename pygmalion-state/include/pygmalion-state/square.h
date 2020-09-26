@@ -62,5 +62,49 @@ namespace pygmalion::state
 		{
 			return ~static_cast<squaresType>(*this);
 		}
+		constexpr square up() const noexcept
+		{
+			assert(rank() < (countRanks - 1));
+			return fromRankFile(rank() + 1, file());
+		}
+		constexpr square upLeft() const noexcept
+		{
+			assert(rank() < (countRanks - 1));
+			assert(file() > 0);
+			return fromRankFile(rank() + 1, file() - 1);
+		}
+		constexpr square upRight() const noexcept
+		{
+			assert(rank() < (countRanks - 1));
+			assert(file() < (countRanks - 1));
+			return fromRankFile(rank() + 1, file() + 1);
+		}
+		constexpr square down() const noexcept
+		{
+			assert(rank() > 0);
+			return fromRankFile(rank() - 1, file());
+		}
+		constexpr square downLeft() const noexcept
+		{
+			assert(rank() > 0);
+			assert(file() > 0);
+			return fromRankFile(rank() - 1, file() - 1);
+		}
+		constexpr square downRight() const noexcept
+		{
+			assert(rank() > 0);
+			assert(file() < (countRanks - 1));
+			return fromRankFile(rank() - 1, file() + 1);
+		}
+		constexpr square right() const noexcept
+		{
+			assert(file() < (countRanks - 1));
+			return fromRankFile(rank(), file() + 1);
+		}
+		constexpr square left() const noexcept
+		{
+			assert(file() > 0);
+			return fromRankFile(rank(), file() - 1);
+		}
 	};
 }
