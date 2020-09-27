@@ -51,13 +51,33 @@ namespace pygmalion::chess::dynamics
 				movebitsType moveBits;
 				while (stack.nextMove(moveBits))
 				{
-					perftdata data2;
+					if (depth == 1)
 					{
-						const stackType substack{ stackType(stack,moveBits) };
-						perft(substack, 1, depth - 1, data2);
+						data.Moves++;
+						if (motorType::move().isCapture(moveBits))
+							data.Captures++;
+						if (motorType::move().isEnPassant(moveBits))
+							data.EnPassant++;
+						if (motorType::move().isDoublePush(moveBits))
+							data.DoublePushes++;
+						if (motorType::move().isQueensideCastle(moveBits))
+							data.QueensideCastles++;
+						if (motorType::move().isKingsideCastle(moveBits))
+							data.KingsideCastles++;
+						if (motorType::move().isCastle(moveBits))
+							data.Castles++;
+						this->output() << "  " << motorType::move().toString(this->position(), moveBits) << std::endl;
 					}
-					this->output() << "  " << motorType::move().toString(this->position(), moveBits) << "\t: " << data2.Moves << std::endl;
-					data += data2;
+					else
+					{
+						perftdata data2;
+						{
+							const stackType substack{ stackType(stack,moveBits) };
+							perft(substack, 1, depth - 1, data2);
+						}
+						this->output() << "  " << motorType::move().toString(this->position(), moveBits) << "\t: " << data2.Moves << std::endl;
+						data += data2;
+					}
 				}
 				p.stop();
 				this->output() << std::endl;

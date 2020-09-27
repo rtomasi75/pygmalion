@@ -22,6 +22,21 @@ namespace pygmalion::chess::dynamics
 				{
 					switch (pc)
 					{
+					case king:
+						if (p == whitePlayer)
+							this->output() << "white ";
+						else
+							this->output() << "black ";
+						this->output() << "king untabled quiet moves from " << boardType::squareToString(sq) << ":" << std::endl;
+						dumpSquares(generatorType::movegenKing.untabled_targets(sq, ~position().totalOccupancy()));
+						this->output() << std::endl;
+						if (p == whitePlayer)
+							this->output() << "white ";
+						else
+							this->output() << "black ";
+						this->output() << "king untabled capture moves from " << boardType::squareToString(sq) << ":" << std::endl;
+						dumpSquares(generatorType::movegenKing.untabled_attacks(sq, ~position().totalOccupancy()) & position().playerOccupancy(p.next()));
+						break;
 					case knight:
 						if (p == whitePlayer)
 							this->output() << "white ";

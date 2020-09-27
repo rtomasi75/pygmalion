@@ -37,6 +37,21 @@ namespace pygmalion::chess::dynamics
 						this->output() << "knight capture moves from " << boardType::squareToString(sq) << ":" << std::endl;
 						dumpSquares(generatorType::knightAttacks(sq, ~position().totalOccupancy()) & position().playerOccupancy(p.next()));
 						break;
+					case king:
+						if (p == whitePlayer)
+							this->output() << "white ";
+						else
+							this->output() << "black ";
+						this->output() << "king quiet moves from " << boardType::squareToString(sq) << ":" << std::endl;
+						dumpSquares(generatorType::kingTargets(sq, ~position().totalOccupancy()));
+						this->output() << std::endl;
+						if (p == whitePlayer)
+							this->output() << "white ";
+						else
+							this->output() << "black ";
+						this->output() << "king capture moves from " << boardType::squareToString(sq) << ":" << std::endl;
+						dumpSquares(generatorType::kingAttacks(sq, ~position().totalOccupancy()) & position().playerOccupancy(p.next()));
+						break;
 					case rook:
 						if (p == whitePlayer)
 							this->output() << "white ";

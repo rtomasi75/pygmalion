@@ -208,7 +208,8 @@ namespace pygmalion::chess
 			const squaresType allowed{ ~forbidden };
 			for (const squareType from : stack.position().pieceOccupancy(king)& stack.position().playerOccupancy(stack.position().movingPlayer()))
 			{
-				for (const squareType to : allowed & kingTargets(from, ~stack.position().totalOccupancy()))
+				const squaresType destinations{ allowed & kingTargets(from, ~stack.position().totalOccupancy()) };
+				for (const squareType to : destinations)
 					moves.add(motorType::move().createQuiet(from, to));
 			}
 		}
@@ -714,7 +715,7 @@ namespace pygmalion::chess
 
 			// Is he attacked diagonally by sliding pieces?
 			const squaresType otherSlidersDiag = occOther & (position.pieceOccupancy(bishop) | queens);
-			if (movegenSlidersDiag.attacks(otherSlidersHV, ~occTotal)[kingsquare])
+			if (movegenSlidersDiag.attacks(otherSlidersDiag, ~occTotal)[kingsquare])
 				return false;
 
 			// The move seems legal

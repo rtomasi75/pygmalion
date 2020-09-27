@@ -645,7 +645,7 @@ namespace pygmalion::chess
 				eprank = 3;
 				break;
 			case '6':
-				eprank = 4;
+				eprank = 6;
 				break;
 			}
 			pos++;
@@ -653,14 +653,12 @@ namespace pygmalion::chess
 			if ((eprank == 3) && (moveSide == blackPlayer))
 			{
 				const squaresType whitepawns{ pieceOccupancy(pawn) & playerOccupancy(whitePlayer) };
-				if (whitepawns[fileType(epfile) & rankType(eprank)])
-					setEnPassantFile(fileType(epfile));
+				setEnPassantFile(fileType(epfile));
 			}
-			else if ((eprank == 4) && (moveSide == whitePlayer))
+			else if ((eprank == 6) && (moveSide == whitePlayer))
 			{
 				const squaresType blackpawns{ pieceOccupancy(pawn) & playerOccupancy(blackPlayer) };
-				if (blackpawns[fileType(epfile) & rankType(eprank)])
-					setEnPassantFile(fileType(epfile));
+				setEnPassantFile(fileType(epfile));
 			}
 		}
 		return true;
@@ -742,8 +740,8 @@ namespace pygmalion::chess
 				else
 					l++;
 			}
-			if (l == 8)
-				fen = fen + "8";
+			if (l != 0)
+				fen = fen + parser::fromInt(l);
 			if (rank != 0)
 				fen = fen + "/";
 		}
@@ -786,6 +784,10 @@ namespace pygmalion::chess
 				fen = fen + "g";
 			else if (checkEnPassantFile(fileH))
 				fen = fen + "h";
+			if (movingPlayer() == whitePlayer)
+				fen = fen + "6 ";
+			else
+				fen = fen + "3 ";
 		}
 		return fen;
 	}
