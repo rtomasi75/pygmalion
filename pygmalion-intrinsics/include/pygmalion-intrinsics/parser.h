@@ -57,6 +57,12 @@ namespace pygmalion
 			token = token_raw;
 			remainder = trimString(remainder = text.substr(i, lenCommand - i));
 		}
+		static std::string fromInt(const std::uintmax_t value) noexcept
+		{
+			std::stringstream sstr;
+			sstr << value;
+			return sstr.str();
+		}
 		static std::string valueToString(const double value, const std::string& unit) noexcept
 		{
 			std::stringstream sstr;

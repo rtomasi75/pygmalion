@@ -2,8 +2,6 @@ namespace pygmalion::intrinsics
 {
 	class engine
 	{
-	public:
-		virtual std::string version() const noexcept;
 	private:
 		std::ostream& m_Output;
 		std::istream& m_Input;
@@ -25,13 +23,14 @@ namespace pygmalion::intrinsics
 			m_Commands.emplace_back(std::move(pCommand));
 		}
 	public:
-		std::istream& inputStream() noexcept;
-		std::ostream& outputStream() noexcept;
+		virtual std::string version() const noexcept;
 		engine() noexcept = delete;
 		engine(const engine&) = delete;
 		engine(engine&&) = delete;
 		engine(std::istream& input, std::ostream& output) noexcept;
 		virtual ~engine() noexcept = default;
+		std::istream& inputStream() noexcept;
+		std::ostream& outputStream() noexcept;
 		bool isRunning() const noexcept;
 		void run() noexcept;
 		void stop() noexcept;

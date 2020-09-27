@@ -2,3 +2,5 @@
 #include "commands/command_debugUntabled.h"
 #include "commands/command_debugMagics.h"
 #include "commands/command_perft.h"
+#include "commands/command_setFen.h"
+#include "commands/command_getFen.h"

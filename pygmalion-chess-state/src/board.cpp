@@ -109,7 +109,7 @@ namespace pygmalion::chess
 		else
 			return false;
 	}
-	
+
 	std::string board::rankToString_Implementation(const rankType rank) noexcept
 	{
 		const char c{ static_cast<char>('1' + static_cast<char>(rank)) };
@@ -382,6 +382,414 @@ namespace pygmalion::chess
 		addPiece(queen, squareD1, whitePlayer);
 		addPiece(queen, squareD8, blackPlayer);
 	}
+
+	bool board::setFen(const std::string& fen, std::string& error) noexcept
+	{
+		clear();
+		size_t pos{ 0 };
+		typename fileType::baseType file{ fileA };
+		typename rankType::baseType rank{ rank8 };
+		bool bParse{ true };
+		while (bParse)
+		{
+			if (fen.length() <= pos)
+			{
+				error = "Unexpected end of string.";
+				clear();
+				return false;
+			}
+			switch (fen[pos])
+			{
+			default:
+				error = "Invalid symbol.";
+				clear();
+				return false;
+			case ' ':
+				bParse = false;
+				break;
+			case '1':
+				file++;
+				break;
+			case '2':
+				file += 2;
+				break;
+			case '3':
+				file += 3;
+				break;
+			case '4':
+				file += 4;
+				break;
+			case '5':
+				file += 5;
+				break;
+			case '6':
+				file += 6;
+				break;
+			case '7':
+				file += 7;
+				break;
+			case '8':
+				break;
+			case '/':
+				file = 0;
+				rank--;
+				break;
+			case 'p':
+				addPiece(pawn, fileType(file) & rankType(rank), blackPlayer);
+				file++;
+				break;
+			case 'P':
+				addPiece(pawn, fileType(file) & rankType(rank), whitePlayer);
+				file++;
+				break;
+			case 'n':
+				addPiece(knight, fileType(file) & rankType(rank), blackPlayer);
+				file++;
+				break;
+			case 'N':
+				addPiece(knight, fileType(file) & rankType(rank), whitePlayer);
+				file++;
+				break;
+			case 'b':
+				addPiece(bishop, fileType(file) & rankType(rank), blackPlayer);
+				file++;
+				break;
+			case 'B':
+				addPiece(bishop, fileType(file) & rankType(rank), whitePlayer);
+				file++;
+				break;
+			case 'r':
+				addPiece(rook, fileType(file) & rankType(rank), blackPlayer);
+				file++;
+				break;
+			case 'R':
+				addPiece(rook, fileType(file) & rankType(rank), whitePlayer);
+				file++;
+				break;
+			case 'q':
+				addPiece(queen, fileType(file) & rankType(rank), blackPlayer);
+				file++;
+				break;
+			case 'Q':
+				addPiece(queen, fileType(file) & rankType(rank), whitePlayer);
+				file++;
+				break;
+			case 'k':
+				addPiece(king, fileType(file) & rankType(rank), blackPlayer);
+				file++;
+				break;
+			case 'K':
+				addPiece(king, fileType(file) & rankType(rank), whitePlayer);
+				file++;
+				break;
+			}
+			pos++;
+			if (file < 0)
+				break;
+		}
+		if (fen.length() <= pos)
+		{
+			error = "Unexpected end of string.";
+			clear();
+			return false;
+		}
+		switch (fen[pos])
+		{
+		default:
+			error = "Invalid symbol.";
+			clear();
+			return false;
+		case 'w':
+			setMovingPlayer(whitePlayer);
+			break;
+		case 'b':
+			setMovingPlayer(blackPlayer);
+			break;
+		}
+		pos++;
+		if (fen.length() <= pos)
+		{
+			error = "Unexpected end of string.";
+			clear();
+			return false;
+		}
+		if (fen[pos] != ' ')
+		{
+			error = "Invalid symbol.";
+			clear();
+			return false;
+		}
+		pos++;
+		if (fen.length() <= pos)
+		{
+			error = "Unexpected end of string.";
+			clear();
+			return false;
+		}
+		if (fen[pos] == '-')
+		{
+			pos++;
+			if (fen.length() <= pos)
+			{
+				error = "Unexpected end of string.";
+				clear();
+				return false;
+			}
+			if (fen[pos] != ' ')
+			{
+				error = "Invalid symbol.";
+				clear();
+				return false;
+			}
+			pos++;
+		}
+		else
+		{
+			bool bParsing = true;
+			size_t len = 0;
+			while (bParsing)
+			{
+				if (len >= 5)
+				{
+					error = "Invalid symbol.";
+					clear();
+					return false;
+				}
+				switch (fen[pos])
+				{
+				default:
+					error = "Invalid symbol.";
+					clear();
+					return false;
+				case ' ':
+					bParsing = false;
+					break;
+				case 'K':
+					setCastleRightKingsideWhite();
+					break;
+				case 'k':
+					setCastleRightKingsideBlack();
+					break;
+				case 'Q':
+					setCastleRightQueensideWhite();
+					break;
+				case 'q':
+					setCastleRightQueensideBlack();
+					break;
+				}
+				pos++;
+				len++;
+			}
+			if (len == 0)
+			{
+				error = "Invalid symbol.";
+				clear();
+				return false;
+			}
+		}
+		if (fen.length() <= pos)
+		{
+			error = "Unexpected end of string.";
+			clear();
+			return false;
+		}
+		if (fen[pos] != '-')
+		{
+			typename fileType::baseType epfile{ 0 };
+			typename rankType::baseType eprank{ 0 };
+			switch (fen[pos])
+			{
+			default:
+				error = "Invalid symbol.";
+				clear();
+				return false;
+			case 'a':
+				epfile = 0;
+				break;
+			case 'b':
+				epfile = 1;
+				break;
+			case 'c':
+				epfile = 2;
+				break;
+			case 'd':
+				epfile = 3;
+				break;
+			case 'e':
+				epfile = 4;
+				break;
+			case 'f':
+				epfile = 5;
+				break;
+			case 'g':
+				epfile = 6;
+				break;
+			case 'h':
+				epfile = 7;
+				break;
+			}
+			pos++;
+			if (fen.length() <= pos)
+			{
+				error = "Unexpected end of string.";
+				clear();
+				return false;
+			}
+			switch (fen[pos])
+			{
+			default:
+				error = "Invalid symbol.";
+				clear();
+				return false;
+			case '3':
+				eprank = 3;
+				break;
+			case '6':
+				eprank = 4;
+				break;
+			}
+			pos++;
+			const playerType moveSide{ movingPlayer() };
+			if ((eprank == 3) && (moveSide == blackPlayer))
+			{
+				const squaresType whitepawns{ pieceOccupancy(pawn) & playerOccupancy(whitePlayer) };
+				if (whitepawns[fileType(epfile) & rankType(eprank)])
+					setEnPassantFile(fileType(epfile));
+			}
+			else if ((eprank == 4) && (moveSide == whitePlayer))
+			{
+				const squaresType blackpawns{ pieceOccupancy(pawn) & playerOccupancy(blackPlayer) };
+				if (blackpawns[fileType(epfile) & rankType(eprank)])
+					setEnPassantFile(fileType(epfile));
+			}
+		}
+		return true;
+	}
+
+	std::string board::getFen() const noexcept
+	{
+		std::string fen = "";
+		for (typename rankType::baseType rank = 7; rank >= 0; rank--)
+		{
+			size_t l{ 0 };
+			for (typename fileType::baseType file = 0; file < 8; file++)
+			{
+				const squareType square{ fileType(file) & rankType(rank) };
+				if (totalOccupancy()[square])
+				{
+					if (l != 0)
+					{
+						fen = fen + parser::fromInt(l);
+					}
+					l = 0;
+					const playerType side{ getPlayer(square) };
+					const pieceType piece{ getPiece(square) };
+					if (side == whitePlayer)
+					{
+						switch (piece)
+						{
+						default:
+							assert(false);
+							break;
+						case pawn:
+							fen = fen + "P";
+							break;
+						case rook:
+							fen = fen + "R";
+							break;
+						case bishop:
+							fen = fen + "B";
+							break;
+						case knight:
+							fen = fen + "N";
+							break;
+						case queen:
+							fen = fen + "Q";
+							break;
+						case king:
+							fen = fen + "K";
+							break;
+						}
+					}
+					else
+					{
+						switch (piece)
+						{
+						default:
+							assert(false);
+							break;
+						case pawn:
+							fen = fen + "p";
+							break;
+						case rook:
+							fen = fen + "r";
+							break;
+						case bishop:
+							fen = fen + "b";
+							break;
+						case knight:
+							fen = fen + "n";
+							break;
+						case queen:
+							fen = fen + "q";
+							break;
+						case king:
+							fen = fen + "k";
+							break;
+						}
+					}
+				}
+				else
+					l++;
+			}
+			if (l == 8)
+				fen = fen + "8";
+			if (rank != 0)
+				fen = fen + "/";
+		}
+		fen = fen + " ";
+		if (movingPlayer() == whitePlayer)
+			fen = fen + "w ";
+		else
+			fen = fen + "b ";
+		if (!extractFlagRange<0, 3>())
+			fen = fen + "- ";
+		else
+		{
+			if (checkCastleRightKingsideWhite())
+				fen = fen + "K";
+			if (checkCastleRightQueensideWhite())
+				fen = fen + "Q";
+			if (checkCastleRightKingsideBlack())
+				fen = fen + "k";
+			if (checkCastleRightQueensideBlack())
+				fen = fen + "q";
+			fen = fen + " ";
+		}
+		if (!extractFlagRange<4, 11>())
+			fen = fen + "-";
+		else
+		{
+			if (checkEnPassantFile(fileA))
+				fen = fen + "a";
+			else if (checkEnPassantFile(fileB))
+				fen = fen + "b";
+			else if (checkEnPassantFile(fileC))
+				fen = fen + "c";
+			else if (checkEnPassantFile(fileD))
+				fen = fen + "d";
+			else if (checkEnPassantFile(fileE))
+				fen = fen + "e";
+			else if (checkEnPassantFile(fileF))
+				fen = fen + "f";
+			else if (checkEnPassantFile(fileG))
+				fen = fen + "g";
+			else if (checkEnPassantFile(fileH))
+				fen = fen + "h";
+		}
+		return fen;
+	}
+
 
 	std::ostream& operator<<(std::ostream& str, const board& position) noexcept
 	{

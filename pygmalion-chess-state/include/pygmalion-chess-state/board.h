@@ -86,6 +86,8 @@ namespace pygmalion::chess
 			clearFlags(enPassantFlags);
 		}
 		squareType kingSquare(const playerType player) const noexcept;
+		bool setFen(const std::string& fen, std::string& error) noexcept;
+		std::string getFen() const noexcept;
 
 		// Implementation
 		static std::string flagToString_Implementation(const flagType flag) noexcept;
