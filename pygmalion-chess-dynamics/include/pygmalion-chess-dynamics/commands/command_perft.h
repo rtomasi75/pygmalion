@@ -18,6 +18,8 @@ namespace pygmalion::chess::dynamics
 			std::uintmax_t QueensideCastles;
 			std::uintmax_t KingsideCastles;
 			std::uintmax_t Castles;
+			std::uintmax_t Checks;
+			std::uintmax_t Checkmates;
 			constexpr perftdata() :
 				Moves{ 0 },
 				Captures{ 0 },
@@ -25,6 +27,8 @@ namespace pygmalion::chess::dynamics
 				DoublePushes{ 0 },
 				QueensideCastles{ 0 },
 				KingsideCastles{ 0 },
+				Checks{ 0 },
+				Checkmates{ 0 },
 				Castles{ 0 }
 			{}
 			perftdata& operator+=(const perftdata& data) noexcept;

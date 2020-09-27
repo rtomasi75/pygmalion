@@ -21,6 +21,16 @@ namespace pygmalion::chess::dynamics
 					data.KingsideCastles++;
 				if (motorType::move().isCastle(moveBits))
 					data.Castles++;
+				{
+					const stackType substack{ stackType(stack,moveBits) };
+					if (substack.isCheck())
+					{
+						data.Checks++;
+						movebitsType moveBits2;
+						if (!substack.nextMove(moveBits2))
+							data.Checkmates++;
+					}
+				}
 			}
 		}
 		else
@@ -66,6 +76,16 @@ namespace pygmalion::chess::dynamics
 							data.KingsideCastles++;
 						if (motorType::move().isCastle(moveBits))
 							data.Castles++;
+						{
+							const stackType substack{ stackType(stack,moveBits) };
+							if (substack.isCheck())
+							{
+								data.Checks++;
+								movebitsType moveBits2;
+								if (!substack.nextMove(moveBits2))
+									data.Checkmates++;
+							}
+						}
 						this->output() << "  " << motorType::move().toString(this->position(), moveBits) << std::endl;
 					}
 					else
@@ -90,6 +110,8 @@ namespace pygmalion::chess::dynamics
 				this->output() << " Queenside castles: " << data.QueensideCastles << std::endl;
 				this->output() << " Kingside castles:  " << data.KingsideCastles << std::endl;
 				this->output() << " Castles:           " << data.Castles << std::endl;
+				this->output() << " Checks:            " << data.Checks << std::endl;
+				this->output() << " Checkmates:        " << data.Checkmates << std::endl;
 				this->output() << std::endl;
 			}
 			return true;
@@ -107,6 +129,8 @@ namespace pygmalion::chess::dynamics
 		QueensideCastles += data.QueensideCastles;
 		KingsideCastles += data.KingsideCastles;
 		Castles += data.Castles;
+		Checks += data.Checks;
+		Checkmates += data.Checkmates;
 		return *this;
 	}
 }

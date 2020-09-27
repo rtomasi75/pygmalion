@@ -21,10 +21,12 @@ namespace pygmalion::chess
 			public pygmalion::generator<descriptor_dynamics, generator>::stack
 		{
 		private:
-			mutable std::array<squareType, countPlayers> m_KingSquare{ arrayhelper::make<countPlayers,squareType>(squareType::invalid) };
 			mutable std::array<squaresType, countPlayers> m_SquaresAttackedByPlayer{ arrayhelper::make<countPlayers,squaresType>(squaresType::none()) };
+			mutable std::array<squareType, countPlayers> m_KingSquare{ arrayhelper::make<countPlayers,squareType>(squareType::invalid) };
 			mutable std::array<bool, countPlayers> m_IsKingSquareValid{ arrayhelper::make<countPlayers,bool>(false) };
 			mutable std::array<bool, countPlayers> m_SquaresAttackedByPlayerValid{ arrayhelper::make<countPlayers,bool>(false) };
+			mutable bool m_IsCheckValid{ false };
+			mutable bool m_IsCheck{ false };
 		public:
 			squareType kingSquare(const playerType player) const noexcept
 			{
@@ -43,6 +45,15 @@ namespace pygmalion::chess
 					m_SquaresAttackedByPlayerValid[player] = true;
 				}
 				return m_SquaresAttackedByPlayer[player];
+			}
+			bool isCheck() const noexcept
+			{
+				if (!m_IsCheckValid)
+				{
+					m_IsCheck = generatorType::isAttacked(position(), kingSquare(movingPlayer()), nextPlayer());
+					m_IsCheckValid = true;
+				}
+				return m_IsCheck;
 			}
 			stack(const stack& parent, const movebitsType& movebits) noexcept :
 				pygmalion::generator<descriptor_dynamics, generator>::stack(parent, movebits)
@@ -100,6 +111,20 @@ namespace pygmalion::chess
 		constexpr static squaresType knightAttacks(const squareType sq, const squaresType& allowed) noexcept
 		{
 			return movegenKnight.attacks(sq, allowed);
+		}
+		constexpr static squaresType pawnAttacks(const squareType sq, const playerType p, const squaresType& allowed) noexcept
+		{
+			if (p == whitePlayer)
+				return movegenPawnCaptureWhite.attacks(sq, allowed);
+			else
+				return movegenPawnCaptureBlack.attacks(sq, allowed);
+		}
+		constexpr static squaresType pawnAttacks(const squaresType squares, const playerType p, const squaresType& allowed) noexcept
+		{
+			if (p == whitePlayer)
+				return movegenPawnCaptureWhite.attacks(squares, allowed);
+			else
+				return movegenPawnCaptureBlack.attacks(squares, allowed);
 		}
 		constexpr static squaresType knightAttacks(const squaresType squares, const squaresType& allowed) noexcept
 		{
@@ -175,6 +200,61 @@ namespace pygmalion::chess
 		}
 		friend class stack;
 	private:
+		static squaresType attackers(const boardType& position, const squareType square) noexcept
+		{
+			assert(square.isValid());
+			squaresType attackers{ squaresType::none() };
+			const squaresType allowed{ ~position.totalOccupancy() };
+			attackers |= knightAttacks(square, allowed) & position.pieceOccupancy(knight);
+			attackers |= kingAttacks(square, allowed) & position.pieceOccupancy(king);
+			const squaresType whitepawns{ position.pieceOccupancy(pawn) & position.playerOccupancy(whitePlayer) };
+			const squaresType blackpawns{ position.pieceOccupancy(pawn) & position.playerOccupancy(blackPlayer) };
+			const squaresType piecemap{ squaresType(square) };
+			attackers |= (piecemap.upLeft() | piecemap.upRight()) & blackpawns;
+			attackers |= (piecemap.downLeft() | piecemap.downRight()) & whitepawns;
+			const squaresType slidersHV{ position.pieceOccupancy(queen) | position.pieceOccupancy(rook) };
+			const squaresType slidersDiag{ position.pieceOccupancy(queen) | position.pieceOccupancy(bishop) };
+			attackers |= sliderAttacksHV(square, allowed) & slidersHV;
+			attackers |= sliderAttacksDiag(square, allowed) & slidersDiag;
+			return attackers;
+		}
+		static squaresType attackers(const boardType& position, const squareType square, const playerType attacker) noexcept
+		{
+			assert(square.isValid());
+			squaresType attackers{ squaresType::none() };
+			const squaresType allowed{ ~position.totalOccupancy() };
+			attackers |= knightAttacks(square, allowed) & position.pieceOccupancy(knight);
+			attackers |= kingAttacks(square, allowed) & position.pieceOccupancy(king);
+			const squaresType pawns{ position.pieceOccupancy(pawn) };
+			const squaresType piecemap{ squaresType(square) };
+			attackers |= ((attacker == whitePlayer) ? (piecemap.downLeft() | piecemap.downRight()) : (piecemap.upLeft() | piecemap.upRight())) & pawns;
+			const squaresType slidersHV{ (position.pieceOccupancy(queen) | position.pieceOccupancy(rook)) };
+			const squaresType slidersDiag{ (position.pieceOccupancy(queen) | position.pieceOccupancy(bishop)) };
+			attackers |= sliderAttacksHV(square, allowed) & slidersHV;
+			attackers |= sliderAttacksDiag(square, allowed) & slidersDiag;
+			return attackers & position.playerOccupancy(attacker);
+		}
+		static bool isAttacked(const boardType& position, const squareType square, const playerType attacker) noexcept
+		{
+			assert(square.isValid());
+			const squaresType allowed{ ~position.totalOccupancy() };
+			if (knightAttacks(square, allowed) & position.pieceOccupancy(knight) & position.playerOccupancy(attacker))
+				return true;
+			if (kingAttacks(square, allowed) & position.pieceOccupancy(king) & position.playerOccupancy(attacker))
+				return true;
+			const squaresType pawns{ position.pieceOccupancy(pawn) & position.playerOccupancy(attacker) };
+			const squaresType piecemap{ squaresType(square) };
+			const squaresType pawnAttacks{ (attacker == whitePlayer) ? (pawns.upLeft() | pawns.upRight()) : (pawns.downLeft() | pawns.downRight()) };
+			if (pawnAttacks & piecemap)
+				return true;
+			const squaresType slidersDiag{ (position.pieceOccupancy(queen) | position.pieceOccupancy(bishop)) & position.playerOccupancy(attacker) };
+			if (sliderAttacksDiag(square, allowed) & slidersDiag)
+				return true;
+			const squaresType slidersHV{ (position.pieceOccupancy(queen) | position.pieceOccupancy(rook)) & position.playerOccupancy(attacker) };
+			if (sliderAttacksHV(square, allowed) & slidersHV)
+				return true;
+			return false;
+		}
 		static squaresType squaresAttackedByPlayer(const stackType& stack, const playerType attackingPlayer) noexcept
 		{
 			assert(attackingPlayer.isValid());

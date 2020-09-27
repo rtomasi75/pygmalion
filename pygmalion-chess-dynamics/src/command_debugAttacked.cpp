@@ -10,7 +10,6 @@ namespace pygmalion::chess::dynamics
 		{
 			std::string remainder2;
 			parser::parseTokenCaseSensitive(remainder, token, remainder2);
-			pieceType pc;
 			playerType p;
 			this->output() << std::endl;
 			if (boardType::parsePlayer(token, p))
