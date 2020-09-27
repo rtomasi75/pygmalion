@@ -122,6 +122,14 @@ namespace pygmalion::chess
 			return movegenKing.attacks(sq, allowed);
 		}
 	private:
+		constexpr static const squaresType pawnPromotionFromSquaresBlack() noexcept
+		{
+			return static_cast<squaresType>(static_cast<squareType>(1));
+		}
+		constexpr static const squaresType pawnPromotionFromSquaresWhite() noexcept
+		{
+			return static_cast<squaresType>(static_cast<squareType>(countRanks - 2));
+		}
 		constexpr static const squaresType pawnFromSquaresBlack() noexcept
 		{
 			squaresType squares{ squaresType::none() };
@@ -303,6 +311,77 @@ namespace pygmalion::chess
 			}
 #endif
 		}
+		constexpr static void generatePawnPromotions(const stackType& stack, movelistType& moves) noexcept
+		{
+#if defined(FASTPAWNS)
+			const squaresType allowed{ ~stack.position().totalOccupancy() };
+			if (stack.position().movingPlayer() == whitePlayer)
+			{
+				constexpr const squaresType fromSquares{ pawnPromotionFromSquaresWhite() };
+				const squaresType pawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(whitePlayer) };
+				const squaresType allowedPawns{ pawns & fromSquares };
+				if (allowedPawns)
+				{
+					const squaresType pushedPawns{ allowedPawns.up() };
+					const squaresType allowedPushes{ pushedPawns & allowed };
+					for (const auto sq : allowedPushes)
+					{
+						const squareType sq1{ sq.down() };
+						moves.add(motorType::move().createPromotionQueen(sq1, sq));
+						moves.add(motorType::move().createPromotionKnight(sq1, sq));
+						moves.add(motorType::move().createPromotionRook(sq1, sq));
+						moves.add(motorType::move().createPromotionBishop(sq1, sq));
+					}
+				}
+			}
+			else
+			{
+				constexpr const squaresType fromSquares{ pawnPromotionFromSquaresBlack() };
+				const squaresType pawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(blackPlayer) };
+				const squaresType allowedPawns{ pawns & fromSquares };
+				if (allowedPawns)
+				{
+					const squaresType pushedPawns{ allowedPawns.down() };
+					const squaresType allowedPushes{ pushedPawns & allowed };
+					for (const auto sq : allowedPushes)
+					{
+						const squareType sq1{ sq.up() };
+						moves.add(motorType::move().createPromotionQueen(sq1, sq));
+						moves.add(motorType::move().createPromotionKnight(sq1, sq));
+						moves.add(motorType::move().createPromotionRook(sq1, sq));
+						moves.add(motorType::move().createPromotionBishop(sq1, sq));
+					}
+				}
+			}
+#else
+			if (stack.position().movingPlayer() == whitePlayer)
+			{
+				for (const squareType from : stack.position().pieceOccupancy(pawn)& stack.position().playerOccupancy(whitePlayer))
+				{
+					for (const squareType to : movegenPawnPromotionWhite.targets(from, ~stack.position().totalOccupancy()))
+					{
+						moves.add(motorType::move().createPromotionQueen(from, to));
+						moves.add(motorType::move().createPromotionKnight(from, to));
+						moves.add(motorType::move().createPromotionRook(from, to));
+						moves.add(motorType::move().createPromotionBishop(from, to));
+					}
+				}
+			}
+			else
+			{
+				for (const squareType from : stack.position().pieceOccupancy(pawn)& stack.position().playerOccupancy(blackPlayer))
+				{
+					for (const squareType to : movegenPawnPromotionBlack.targets(from, ~stack.position().totalOccupancy()))
+					{
+						moves.add(motorType::move().createPromotionQueen(from, to));
+						moves.add(motorType::move().createPromotionKnight(from, to));
+						moves.add(motorType::move().createPromotionRook(from, to));
+						moves.add(motorType::move().createPromotionBishop(from, to));
+					}
+				}
+			}
+#endif
+		}
 		constexpr static void generatePawnCaptures(const stackType& stack, movelistType& moves) noexcept
 		{
 #if defined(FASTPAWNS)
@@ -357,6 +436,98 @@ namespace pygmalion::chess
 				{
 					for (const squareType to : movegenPawnCaptureBlack.attacks(from, ~stack.position().totalOccupancy())& stack.position().playerOccupancy(whitePlayer))
 						moves.add(motorType::move().createCapture(from, to));
+				}
+			}
+#endif
+		}
+		constexpr static void generatePawnPromoCaptures(const stackType& stack, movelistType& moves) noexcept
+		{
+#if defined(FASTPAWNS)
+			if (stack.position().movingPlayer() == whitePlayer)
+			{
+				const squaresType allowed{ stack.position().playerOccupancy(blackPlayer) };
+				constexpr const squaresType fromSquares{ pawnPromotionFromSquaresWhite() };
+				const squaresType pawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(whitePlayer) };
+				const squaresType allowedPawns{ pawns & fromSquares };
+				if (allowedPawns)
+				{
+					const squaresType leftCaptures{ allowedPawns.upLeft() };
+					const squaresType rightCaptures{ allowedPawns.upRight() };
+					const squaresType allowedLeftCaptures{ leftCaptures & allowed };
+					const squaresType allowedRightCaptures{ rightCaptures & allowed };
+					for (const auto sq : allowedLeftCaptures)
+					{
+						const squareType sq1{ sq.downRight() };
+						moves.add(motorType::move().createPromoCaptureQueen(sq1, sq));
+						moves.add(motorType::move().createPromoCaptureKnight(sq1, sq));
+						moves.add(motorType::move().createPromoCaptureRook(sq1, sq));
+						moves.add(motorType::move().createPromoCaptureBishop(sq1, sq));
+					}
+					for (const auto sq : allowedRightCaptures)
+					{
+						const squareType sq1{ sq.downLeft() };
+						moves.add(motorType::move().createPromoCaptureQueen(sq1, sq));
+						moves.add(motorType::move().createPromoCaptureKnight(sq1, sq));
+						moves.add(motorType::move().createPromoCaptureRook(sq1, sq));
+						moves.add(motorType::move().createPromoCaptureBishop(sq1, sq));
+					}
+				}
+			}
+			else
+			{
+				const squaresType allowed{ stack.position().playerOccupancy(whitePlayer) };
+				constexpr const squaresType fromSquares{ pawnPromotionFromSquaresBlack() };
+				const squaresType pawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(blackPlayer) };
+				const squaresType allowedPawns{ pawns & fromSquares };
+				if (allowedPawns)
+				{
+					const squaresType leftCaptures{ allowedPawns.downLeft() };
+					const squaresType rightCaptures{ allowedPawns.downRight() };
+					const squaresType allowedLeftCaptures{ leftCaptures & allowed };
+					const squaresType allowedRightCaptures{ rightCaptures & allowed };
+					for (const auto sq : allowedLeftCaptures)
+					{
+						const squareType sq1{ sq.upRight() };
+						moves.add(motorType::move().createPromoCaptureQueen(sq1, sq));
+						moves.add(motorType::move().createPromoCaptureKnight(sq1, sq));
+						moves.add(motorType::move().createPromoCaptureRook(sq1, sq));
+						moves.add(motorType::move().createPromoCaptureBishop(sq1, sq));
+					}
+					for (const auto sq : allowedRightCaptures)
+					{
+						const squareType sq1{ sq.upLeft() };
+						moves.add(motorType::move().createPromoCaptureQueen(sq1, sq));
+						moves.add(motorType::move().createPromoCaptureKnight(sq1, sq));
+						moves.add(motorType::move().createPromoCaptureRook(sq1, sq));
+						moves.add(motorType::move().createPromoCaptureBishop(sq1, sq));
+					}
+				}
+			}
+#else
+			if (stack.position().movingPlayer() == whitePlayer)
+			{
+				for (const squareType from : stack.position().pieceOccupancy(pawn)& stack.position().playerOccupancy(whitePlayer))
+				{
+					for (const squareType to : movegenPawnPromoCaptureWhite.attacks(from, ~stack.position().totalOccupancy())& stack.position().playerOccupancy(blackPlayer))
+					{
+						moves.add(motorType::move().createPromoCaptureQueen(from, to));
+						moves.add(motorType::move().createPromoCaptureKnight(from, to));
+						moves.add(motorType::move().createPromoCaptureRook(from, to));
+						moves.add(motorType::move().createPromoCaptureBishop(from, to));
+					}
+				}
+			}
+			else
+			{
+				for (const squareType from : stack.position().pieceOccupancy(pawn)& stack.position().playerOccupancy(blackPlayer))
+				{
+					for (const squareType to : movegenPawnPromoCaptureBlack.attacks(from, ~stack.position().totalOccupancy())& stack.position().playerOccupancy(whitePlayer))
+					{
+						moves.add(motorType::move().createPromoCaptureQueen(from, to));
+						moves.add(motorType::move().createPromoCaptureKnight(from, to));
+						moves.add(motorType::move().createPromoCaptureRook(from, to));
+						moves.add(motorType::move().createPromoCaptureBishop(from, to));
+					}
 				}
 			}
 #endif
@@ -607,6 +778,14 @@ namespace pygmalion::chess
 				currentPass = 13;
 				generateCastles(stack, moves);
 				return true;
+			case 13:
+				currentPass = 14;
+				generatePawnPromotions(stack, moves);
+				return true;
+			case 14:
+				currentPass = 15;
+				generatePawnPromoCaptures(stack, moves);
+				return true;
 			}
 		}
 		static bool generateTacticalMoves_Implementation(const stackType& stack, movelistType& moves, size_t& currentPass) noexcept
@@ -638,6 +817,10 @@ namespace pygmalion::chess
 			case 5:
 				currentPass = 6;
 				generateKingCaptures(stack, moves);
+				return true;
+			case 6:
+				currentPass = 7;
+				generatePawnPromoCaptures(stack, moves);
 				return true;
 			}
 			return false;

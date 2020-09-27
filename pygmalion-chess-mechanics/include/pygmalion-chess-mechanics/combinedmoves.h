@@ -110,5 +110,37 @@ namespace pygmalion::chess
 		{
 			return create<indexQueenside>(this->component<indexQueenside>().create());
 		}
+		constexpr movebitsType createPromotionQueen(const squareType from, const squareType to) const noexcept
+		{
+			return create<indexQueenPromo>(this->component<indexQueenPromo>().create(from, to));
+		}
+		constexpr movebitsType createPromotionRook(const squareType from, const squareType to) const noexcept
+		{
+			return create<indexRookPromo>(this->component<indexRookPromo>().create(from, to));
+		}
+		constexpr movebitsType createPromotionBishop(const squareType from, const squareType to) const noexcept
+		{
+			return create<indexBishopPromo>(this->component<indexBishopPromo>().create(from, to));
+		}
+		constexpr movebitsType createPromotionKnight(const squareType from, const squareType to) const noexcept
+		{
+			return create<indexKnightPromo>(this->component<indexKnightPromo>().create(from, to));
+		}
+		constexpr movebitsType createPromoCaptureQueen(const squareType from, const squareType to) const noexcept
+		{
+			return create<indexQueenPromoCapture>(this->component<indexQueenPromoCapture>().create(from, to));
+		}
+		constexpr movebitsType createPromoCaptureRook(const squareType from, const squareType to) const noexcept
+		{
+			return create<indexRookPromoCapture>(this->component<indexRookPromoCapture>().create(from, to));
+		}
+		constexpr movebitsType createPromoCaptureBishop(const squareType from, const squareType to) const noexcept
+		{
+			return create<indexBishopPromoCapture>(this->component<indexBishopPromoCapture>().create(from, to));
+		}
+		constexpr movebitsType createPromoCaptureKnight(const squareType from, const squareType to) const noexcept
+		{
+			return create<indexKnightPromoCapture>(this->component<indexKnightPromoCapture>().create(from, to));
+		}
 	};
 }

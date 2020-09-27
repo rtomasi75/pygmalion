@@ -10,17 +10,26 @@ namespace pygmalion::dynamics
 		using descriptorDynamics = DESCRIPTION_DYNAMICS;
 #include "../include_dynamics.h"
 	private:
-		static void perft(const stackType& stack, std::uintmax_t& counter, const size_t depth, const size_t maxDepth) noexcept
+		static std::uintmax_t perft(const stackType& stack, const size_t depth, const size_t maxDepth) noexcept
 		{
-			if (depth == maxDepth)
-				return;
 			movebitsType moveBits;
-			while (stack.nextMove(moveBits))
+			std::uintmax_t counter{ 0 };
+			if (depth == maxDepth)
 			{
-				counter++;
-				const stackType substack{ stackType(stack,moveBits) };
-				perft(substack, counter, depth + 1, maxDepth);
+				while (stack.nextMove(moveBits))
+				{
+					counter++;
+				}
 			}
+			else
+			{
+				while (stack.nextMove(moveBits))
+				{
+					const stackType substack{ stackType(stack,moveBits) };
+					counter += perft(substack, depth + 1, maxDepth);
+				}
+			}
+			return counter;
 		}
 	protected:
 		virtual bool onProcess(const std::string& cmd) noexcept override
@@ -36,10 +45,9 @@ namespace pygmalion::dynamics
 				this->output() << std::endl;
 				for (size_t i = 0; i < depth; i++)
 				{
-					nodes = 0;
 					p.start();
 					stackType stack{ stackType(this->position(), this->position().movingPlayer()) };
-					perft(stack, nodes, 0, i + 1);
+					nodes = perft(stack, 0, i);
 					p.stop();
 					this->output() << "depth: " << std::setw(2) << static_cast<int>(i + 1) << " nodes: " << parser::valueToString(static_cast<double>(nodes), "N") << " time: " << parser::durationToString(p.duration()) << " speed: " << p.computeSpeed(nodes, "N") << std::endl;
 				}
