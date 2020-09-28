@@ -182,6 +182,23 @@ namespace pygmalion
 		{
 			return generatorType::isMoveLegal_Implementation(stack, moveBits);
 		}
-
+		template<typename stackType>
+		static std::uintmax_t perft(const stackType& stack, const size_t depth, std::uintmax_t& nodes) noexcept
+		{
+			if (depth <= 0)
+				return 1;
+			else
+			{
+				movebitsType mb;
+				std::uintmax_t count{ 0 };
+				while (stack.nextMove(mb))
+				{
+					nodes++;
+					stackType subStack(stack, mb);
+					count += generator::perft(subStack, depth - 1, nodes);
+				}
+				return count;
+			}
+		}
 	};
 }
