@@ -35,6 +35,7 @@ namespace pygmalion::chess::dynamics
 			this->output() << std::endl;
 			const profiler::speed spd(static_cast<double>(nodes), duration, "N");
 			this->output() << parser::valueToString(static_cast<double>(nodes), "N") << " in " << parser::durationToString(duration) << " => " << spd << std::endl;
+			this->output() << std::endl;
 			return true;
 		}
 		else

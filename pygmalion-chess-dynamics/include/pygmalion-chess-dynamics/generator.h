@@ -1,6 +1,6 @@
 namespace pygmalion::chess
 {
-//#define FASTPAWNS
+#define FASTPAWNS
 
 	class generator :
 		public pygmalion::generator<descriptor_dynamics, generator>
@@ -481,8 +481,9 @@ namespace pygmalion::chess
 				const squaresType allowedPawns{ pawns & fromSquares };
 				if (allowedPawns)
 				{
-					const squaresType leftCaptures{ allowedPawns.upLeft() };
-					const squaresType rightCaptures{ allowedPawns.upRight() };
+					const squaresType temp{ allowedPawns.up() };
+					const squaresType leftCaptures{ temp.left() };
+					const squaresType rightCaptures{ temp.right() };
 					const squaresType allowedLeftCaptures{ leftCaptures & allowed };
 					const squaresType allowedRightCaptures{ rightCaptures & allowed };
 					for (const auto sq : allowedLeftCaptures)
@@ -499,8 +500,9 @@ namespace pygmalion::chess
 				const squaresType allowedPawns{ pawns & fromSquares };
 				if (allowedPawns)
 				{
-					const squaresType leftCaptures{ allowedPawns.downLeft() };
-					const squaresType rightCaptures{ allowedPawns.downRight() };
+					const squaresType temp{ allowedPawns.down() };
+					const squaresType leftCaptures{ temp.left() };
+					const squaresType rightCaptures{ temp.right() };
 					const squaresType allowedLeftCaptures{ leftCaptures & allowed };
 					const squaresType allowedRightCaptures{ rightCaptures & allowed };
 					for (const auto sq : allowedLeftCaptures)
@@ -539,8 +541,9 @@ namespace pygmalion::chess
 				const squaresType allowedPawns{ pawns & fromSquares };
 				if (allowedPawns)
 				{
-					const squaresType leftCaptures{ allowedPawns.upLeft() };
-					const squaresType rightCaptures{ allowedPawns.upRight() };
+					const squaresType temp{ allowedPawns.up() };
+					const squaresType leftCaptures{ temp.left() };
+					const squaresType rightCaptures{ temp.right() };
 					const squaresType allowedLeftCaptures{ leftCaptures & allowed };
 					const squaresType allowedRightCaptures{ rightCaptures & allowed };
 					for (const auto sq : allowedLeftCaptures)
@@ -569,8 +572,9 @@ namespace pygmalion::chess
 				const squaresType allowedPawns{ pawns & fromSquares };
 				if (allowedPawns)
 				{
-					const squaresType leftCaptures{ allowedPawns.downLeft() };
-					const squaresType rightCaptures{ allowedPawns.downRight() };
+					const squaresType temp{ allowedPawns.down() };
+					const squaresType leftCaptures{ temp.left() };
+					const squaresType rightCaptures{ temp.right() };
 					const squaresType allowedLeftCaptures{ leftCaptures & allowed };
 					const squaresType allowedRightCaptures{ rightCaptures & allowed };
 					for (const auto sq : allowedLeftCaptures)

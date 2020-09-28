@@ -11,10 +11,10 @@ namespace pygmalion::chess
 		private:
 			squareType m_From;
 			squareType m_To;
-			uint_t<countFiles, false> m_OldFlags;
+			uint_t<countFlags, false> m_OldFlags;
 			pieceType m_CapturedPiece;
 		public:
-			constexpr const uint_t<countFiles, false>& oldFlags() const noexcept
+			constexpr const uint_t<countFlags, false>& oldFlags() const noexcept
 			{
 				return m_OldFlags;
 			}
@@ -30,7 +30,7 @@ namespace pygmalion::chess
 			{
 				return m_CapturedPiece;
 			}
-			constexpr promocaptureMovedata(const squareType fromSquare, const squareType toSquare, const uint_t<countFiles, false>& oldFlags_, const pieceType capturedPiece_) noexcept :
+			constexpr promocaptureMovedata(const squareType fromSquare, const squareType toSquare, const uint_t<countFlags, false>& oldFlags_, const pieceType capturedPiece_) noexcept :
 				m_From{ fromSquare },
 				m_To{ toSquare },
 				m_OldFlags{ oldFlags_ },
@@ -102,12 +102,42 @@ namespace pygmalion::chess
 			const playerType p{ position.movingPlayer() };
 			const pieceType pc2{ position.getPiece(to) };
 			const playerType p2{ ++position.movingPlayer() };
-			const uint_t<countFiles, false> oldFlags{ position.extractFlagRange<4, 11>() };
+			const uint_t<countFlags, false> oldFlags{ position.extractFlagRange<0, 11>() };
 			position.clearEnPassantFiles();
 			position.removePiece(pawn, from, p);
 			position.removePiece(pc2, to, p2);
 			position.addPiece(m_PromotedPiece, to, p);
 			position.setMovingPlayer(p2);
+			if (p == whitePlayer)
+			{
+				if (pc2 == rook)
+				{
+					switch (to)
+					{
+					case squareA8:
+						position.clearCastleRightQueensideBlack();
+						break;
+					case squareH8:
+						position.clearCastleRightKingsideBlack();
+						break;
+					}
+				}
+			}
+			else
+			{
+				if (pc2 == rook)
+				{
+					switch (to)
+					{
+					case squareA1:
+						position.clearCastleRightQueensideWhite();
+						break;
+					case squareH1:
+						position.clearCastleRightKingsideWhite();
+						break;
+					}
+				}
+			}
 			return typename promocapturemove::movedataType(from, to, oldFlags, pc2);
 		}
 		constexpr void undoMove_Implementation(boardType& position, const typename promocapturemove::movedataType& data) const noexcept
@@ -118,7 +148,7 @@ namespace pygmalion::chess
 			position.removePiece(m_PromotedPiece, data.to(), p);
 			position.addPiece(pawn, data.from(), p);
 			position.addPiece(data.capturedPiece(), data.to(), p2);
-			position.storeFlagRange<4, 11>(data.oldFlags());
+			position.storeFlagRange<0, 11>(data.oldFlags());
 		}
 		constexpr typename promocapturemove::movebitsType create(const squareType from, const squareType to) const noexcept
 		{
@@ -172,7 +202,7 @@ namespace pygmalion::chess
 							{
 								if (to.rank() == rank1)
 								{
-									if ((position.pieceOccupancy(pawn) & position.playerOccupancy(p2))[to])
+									if (position.playerOccupancy(p2)[to])
 									{
 										playerType p3;
 										pieceType pc;

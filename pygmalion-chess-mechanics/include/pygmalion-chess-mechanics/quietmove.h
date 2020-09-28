@@ -98,28 +98,44 @@ namespace pygmalion::chess
 			position.removePiece(pc, from, p);
 			position.addPiece(pc, to, p);
 			position.setMovingPlayer(++position.movingPlayer());
-			if ((p == whitePlayer))
+			if (p == whitePlayer)
 			{
-				if (pc == king)
-					position.clearCastleRightsWhite();
-				else if (pc == rook)
+				switch (pc)
 				{
-					if (from == squareA1)
+				case king:
+					position.clearCastleRightsWhite();
+					break;
+				case rook:
+					switch (from)
+					{
+					case squareA1:
 						position.clearCastleRightQueensideWhite();
-					else if (from == squareH1)
+						break;
+					case squareH1:
 						position.clearCastleRightKingsideWhite();
+						break;
+					}
+					break;
 				}
 			}
 			else
 			{
-				if (pc == king)
-					position.clearCastleRightsBlack();
-				else if (pc == rook)
+				switch (pc)
 				{
-					if (from == squareA8)
+				case king:
+					position.clearCastleRightsBlack();
+					break;
+				case rook:
+					switch (from)
+					{
+					case squareA8:
 						position.clearCastleRightQueensideBlack();
-					else if (from == squareH8)
+						break;
+					case squareH8:
 						position.clearCastleRightKingsideBlack();
+						break;
+					}
+					break;
 				}
 			}
 			return typename quietmove::movedataType(pc, from, to, oldFlags);

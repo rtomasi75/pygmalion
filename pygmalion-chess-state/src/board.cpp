@@ -336,8 +336,7 @@ namespace pygmalion::chess
 	}
 
 	void board::onRemovedPiece_Implementation(const pieceType piece, const squareType square, const playerType player) noexcept
-	{
-	}
+	{}
 
 	void board::onSetFlag_Implementation(const flagType flag) noexcept
 	{
@@ -807,12 +806,45 @@ namespace pygmalion::chess
 				const squareType square{ rank & file };
 				if (position.totalOccupancy()[square])
 				{
-					const pieceType piece{ position.getPiece(square) };
-					const playerType player{ position.getPlayer(square) };
-					str << boardType::pieceToString(piece, player);
+					if (position.playerOccupancy(descriptorState::whitePlayer)[square] && position.playerOccupancy(descriptorState::blackPlayer)[square])
+						str << "!";
+					else
+					{
+						bool hasPiece{ false };
+						for (const auto pc : pieceType::range)
+						{
+							if (position.pieceOccupancy(pc)[square])
+							{
+								hasPiece = true;
+								break;
+							}
+						}
+						if (hasPiece)
+						{
+							const pieceType piece{ position.getPiece(square) };
+							const playerType player{ position.getPlayer(square) };
+							str << boardType::pieceToString(piece, player);
+						}
+						else
+							str << "E";
+					}
 				}
 				else
-					str << ".";
+				{
+					bool hasPiece{ false };
+					for (const auto pc : pieceType::range)
+					{
+						if (position.pieceOccupancy(pc)[square])
+						{
+							hasPiece = true;
+							break;
+						}
+					}
+					if (hasPiece)
+						str << "?";
+					else
+						str << ".";
+				}
 			}
 			str << std::endl;
 		}

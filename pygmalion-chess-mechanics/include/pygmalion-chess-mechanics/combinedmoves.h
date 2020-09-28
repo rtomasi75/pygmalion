@@ -47,14 +47,21 @@ namespace pygmalion::chess
 		{
 			const muxbitsType mux{ combinedmoves::muxbits(movebits) };
 			assert(isPromotion(movebits));
-			if ((mux == muxQueenPromo) || (mux == muxQueenPromoCapture))
+			const size_t mx{ static_cast<size_t>(static_cast<typename std::make_unsigned<size_t>::type>(mux)) };
+			switch (mx)
+			{
+			default:
 				return queen;
-			else if ((mux == muxKnightPromo) || (mux == muxKnightPromoCapture))
-				return knight;
-			else if ((mux == muxRookPromo) || (mux == muxRookPromoCapture))
-				return rook;
-			else
+			case indexBishopPromo:
+			case indexBishopPromoCapture:
 				return bishop;
+			case indexKnightPromo:
+			case indexKnightPromoCapture:
+				return knight;
+			case indexRookPromo:
+			case indexRookPromoCapture:
+				return knight;
+			}
 		}
 		constexpr static bool isCapture(const movebitsType& movebits) noexcept
 		{
