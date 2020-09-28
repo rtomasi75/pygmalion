@@ -149,11 +149,11 @@ namespace pygmalion::chess
 	private:
 		constexpr static const squaresType pawnPromotionFromSquaresBlack() noexcept
 		{
-			return static_cast<squaresType>(static_cast<squareType>(1));
+			return static_cast<squaresType>(static_cast<rankType>(1));
 		}
 		constexpr static const squaresType pawnPromotionFromSquaresWhite() noexcept
 		{
-			return static_cast<squaresType>(static_cast<squareType>(countRanks - 2));
+			return static_cast<squaresType>(static_cast<rankType>(countRanks - 2));
 		}
 		constexpr static const squaresType pawnFromSquaresBlack() noexcept
 		{
@@ -271,7 +271,10 @@ namespace pygmalion::chess
 			attacked |= sliderAttacksHV(slidersHV, notBlockers);
 			attacked |= sliderAttacksDiag(slidersDiag, notBlockers);;
 			const squaresType pawns{ position.pieceOccupancy(pawn) & attackerOccupancy };
-			attacked |= pawnCaptureTargets(pawns, attackingPlayer, notBlockers);
+			if (attackingPlayer == whitePlayer)
+				attacked |= pawns.upLeft() | pawns.upRight();
+			else
+				attacked |= pawns.downLeft() | pawns.downRight();
 			return attacked;
 		}
 		constexpr static void generateKnightMoves(const stackType& stack, movelistType& moves) noexcept

@@ -10,11 +10,11 @@ namespace pygmalion::chess
 	private:
 		constexpr static const squaresType pawnToSquares() noexcept
 		{
-			return static_cast<squaresType>(static_cast<squareType>(countRanks - 1));
+			return static_cast<squaresType>(static_cast<rankType>(countRanks - 1));
 		}
 		constexpr static const squaresType pawnFromSquares() noexcept
 		{
-			return static_cast<squaresType>(static_cast<squareType>(countRanks - 2));
+			return static_cast<squaresType>(static_cast<rankType>(countRanks - 2));
 		}
 	public:
 		constexpr movegen_pawn_promocapture_white() noexcept :

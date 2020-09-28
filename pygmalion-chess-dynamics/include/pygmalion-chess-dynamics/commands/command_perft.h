@@ -11,7 +11,8 @@ namespace pygmalion::chess::dynamics
 	private:
 		struct perftdata
 		{
-			std::uintmax_t Moves;
+			std::uintmax_t Nodes;
+			std::uintmax_t Leafs;
 			std::uintmax_t Captures;
 			std::uintmax_t EnPassant;
 			std::uintmax_t DoublePushes;
@@ -20,8 +21,10 @@ namespace pygmalion::chess::dynamics
 			std::uintmax_t Castles;
 			std::uintmax_t Checks;
 			std::uintmax_t Checkmates;
+			std::uintmax_t Promotions;
 			constexpr perftdata() :
-				Moves{ 0 },
+				Nodes{ 0 },
+				Leafs{ 0 },
 				Captures{ 0 },
 				EnPassant{ 0 },
 				DoublePushes{ 0 },
@@ -29,7 +32,8 @@ namespace pygmalion::chess::dynamics
 				KingsideCastles{ 0 },
 				Checks{ 0 },
 				Checkmates{ 0 },
-				Castles{ 0 }
+				Castles{ 0 },
+				Promotions{ 0 }
 			{}
 			perftdata& operator+=(const perftdata& data) noexcept;
 		};
