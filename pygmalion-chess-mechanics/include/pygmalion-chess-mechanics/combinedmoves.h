@@ -41,7 +41,7 @@ namespace pygmalion::chess
 		constexpr static bool isPromotion(const movebitsType& movebits) noexcept
 		{
 			const muxbitsType mux{ combinedmoves::muxbits(movebits) };
-			return (mux == muxQueenPromo) || (mux == muxQueenPromoCapture) || (mux == muxKnightPromoCapture) || (mux == muxKnightPromoCapture) || (mux == muxRookPromoCapture) || (mux == muxRookPromoCapture) || (mux == muxBishopPromoCapture) || (mux == muxBishopPromoCapture);
+			return (mux == muxQueenPromo) || (mux == muxQueenPromoCapture) || (mux == muxKnightPromo) || (mux == muxKnightPromoCapture) || (mux == muxRookPromo) || (mux == muxRookPromoCapture) || (mux == muxBishopPromo) || (mux == muxBishopPromoCapture);
 		}
 		constexpr static pieceType promotedPiece(const movebitsType& movebits) noexcept
 		{

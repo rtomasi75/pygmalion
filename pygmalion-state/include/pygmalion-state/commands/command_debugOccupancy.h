@@ -22,7 +22,7 @@ namespace pygmalion::state
 				if (token == "p" || token == "player")
 				{
 					std::string remainder3;
-					parser::parseToken(remainder2, token, remainder3);
+					parser::parseTokenCaseSensitive(remainder2, token, remainder3);
 					playerType p;
 					if (boardType::parsePlayer(token, p))
 					{
@@ -36,7 +36,7 @@ namespace pygmalion::state
 				else if (token == "pc" || token == "piece")
 				{
 					std::string remainder3;
-					parser::parseToken(remainder2, token, remainder3);
+					parser::parseTokenCaseSensitive(remainder2, token, remainder3);
 					pieceType pc;
 					playerType p;
 					if (boardType::parsePiece(token, pc, p))

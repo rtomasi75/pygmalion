@@ -1,6 +1,6 @@
 namespace pygmalion::chess
 {
-#define FASTPAWNS
+//#define FASTPAWNS
 
 	class generator :
 		public pygmalion::generator<descriptor_dynamics, generator>
@@ -10,6 +10,10 @@ namespace pygmalion::chess
 		constexpr static const inline movegen_pawn_push_white movegenPawnPushWhite{ movegen_pawn_push_white() };
 		constexpr static const inline movegen_pawn_push_black movegenPawnPushBlack{ movegen_pawn_push_black() };
 		constexpr static const inline movegen_pawn_capture_white movegenPawnCaptureWhite{ movegen_pawn_capture_white() };
+		constexpr static const inline movegen_pawn_promotion_black movegenPawnPromotionBlack{ movegen_pawn_promotion_black() };
+		constexpr static const inline movegen_pawn_promotion_white movegenPawnPromotionWhite{ movegen_pawn_promotion_white() };
+		constexpr static const inline movegen_pawn_promocapture_black movegenPawnPromoCaptureBlack{ movegen_pawn_promocapture_black() };
+		constexpr static const inline movegen_pawn_promocapture_white movegenPawnPromoCaptureWhite{ movegen_pawn_promocapture_white() };
 		constexpr static const inline movegen_pawn_capture_black movegenPawnCaptureBlack{ movegen_pawn_capture_black() };
 		constexpr static const inline movegen_pawn_doublepush_white movegenPawnDoublePushWhite{ movegen_pawn_doublepush_white() };
 		constexpr static const inline movegen_pawn_doublepush_black movegenPawnDoublePushBlack{ movegen_pawn_doublepush_black() };
@@ -165,7 +169,7 @@ namespace pygmalion::chess
 		constexpr static const squaresType pawnFromSquaresWhite() noexcept
 		{
 			squaresType squares{ squaresType::none() };
-			for (rankType rank = 1; rank < (countRanks - 3); rank++)
+			for (rankType rank = 1; rank < (countRanks - 2); rank++)
 				squares |= static_cast<squaresType>(rank);
 			return squares;
 		}
@@ -780,9 +784,20 @@ namespace pygmalion::chess
 
 			// Does he live on a square that is guarded by an enemy pawn?
 			const squaresType otherPawns{ ((position.pieceOccupancy(pawn) & otherOccupancy) ^ otherDelta) & occOther };
-			const squaresType attackedByOtherPawns{ (otherPlayer == whitePlayer) ? movegenPawnCaptureWhite.attacks(otherPawns,squaresType::all()) : movegenPawnCaptureBlack.attacks(otherPawns,squaresType::all()) };
-			if (attackedByOtherPawns[kingsquare])
-				return false;
+			if (otherPlayer == whitePlayer)
+			{
+				const squaresType pawnsTemp{ otherPawns.up() };
+				const squaresType attackedByOtherPawns{ pawnsTemp.right() | pawnsTemp.left() };
+				if (attackedByOtherPawns[kingsquare])
+					return false;
+			}
+			else
+			{
+				const squaresType pawnsTemp{ otherPawns.down() };
+				const squaresType attackedByOtherPawns{ pawnsTemp.right() | pawnsTemp.left() };
+				if (attackedByOtherPawns[kingsquare])
+					return false;
+			}
 
 			// We need the total occupancy bitboard as it would be after the move...
 			const squaresType movingOccupancy{ position.playerOccupancy(movingPlayer) };

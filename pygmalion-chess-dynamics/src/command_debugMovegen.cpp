@@ -102,15 +102,22 @@ namespace pygmalion::chess::dynamics
 							this->output() << "white ";
 						else
 							this->output() << "black ";
-						this->output() << "pawn push from " << boardType::squareToString(sq) << ":" << std::endl;
+						this->output() << "pawn pushes from " << boardType::squareToString(sq) << ":" << std::endl;
 						dumpSquares(generatorType::pawnPushTargets(sq, p, ~position().totalOccupancy()));
 						this->output() << std::endl;
 						if (p == whitePlayer)
 							this->output() << "white ";
 						else
 							this->output() << "black ";
-						this->output() << "pawn double push from " << boardType::squareToString(sq) << ":" << std::endl;
+						this->output() << "pawn double pushes from " << boardType::squareToString(sq) << ":" << std::endl;
 						dumpSquares(generatorType::pawnDoublePushTargets(sq, p, ~position().totalOccupancy()));
+						this->output() << std::endl;
+						if (p == whitePlayer)
+							this->output() << "white ";
+						else
+							this->output() << "black ";
+						this->output() << "pawn captures from " << boardType::squareToString(sq) << ":" << std::endl;
+						dumpSquares(generatorType::pawnCaptureTargets(sq, p, ~position().totalOccupancy()));
 						break;
 					}
 				}

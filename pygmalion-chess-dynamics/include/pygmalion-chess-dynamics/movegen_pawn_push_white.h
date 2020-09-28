@@ -11,14 +11,14 @@ namespace pygmalion::chess
 		constexpr static const squaresType pawnToSquares() noexcept
 		{
 			squaresType squares{ squaresType::none() };
-			for (rankType rank = 2; rank < (countRanks - 2); rank++)
+			for (rankType rank = 2; rank < (countRanks - 1); rank++)
 				squares |= static_cast<squaresType>(rank);
 			return squares;
 		}
 		constexpr static const squaresType pawnFromSquares() noexcept
 		{
 			squaresType squares{ squaresType::none() };
-			for (rankType rank = 1; rank < (countRanks - 3); rank++)
+			for (rankType rank = 1; rank < (countRanks - 2); rank++)
 				squares |= static_cast<squaresType>(rank);
 			return squares;
 		}
