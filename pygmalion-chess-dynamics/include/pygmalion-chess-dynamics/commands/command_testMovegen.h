@@ -80,6 +80,10 @@ namespace pygmalion::chess::dynamics
 		};
 		bool test(const testset& set, std::uintmax_t& nodes, typename profiler::durationType& duration) noexcept;
 	protected:
+		virtual std::string help() noexcept override
+		{
+			return "TEST-MOVEGEN";
+		}
 		virtual bool onProcess(const std::string& cmd) noexcept override;
 	};
 

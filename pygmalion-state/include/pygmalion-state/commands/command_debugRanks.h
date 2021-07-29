@@ -27,6 +27,10 @@ namespace pygmalion::state
 			else
 				return false;
 		}
+		virtual std::string help() noexcept override
+		{
+			return "DEBUG-RANKS";
+		}
 	};
 
 }

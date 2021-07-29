@@ -23,4 +23,9 @@ namespace pygmalion::intrinsics
 		else
 			return false;
 	}
+
+	std::string command_debugCpu::help() noexcept
+	{
+		return "DEBUG-CPU";
+	}
 }

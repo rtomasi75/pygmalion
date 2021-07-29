@@ -38,4 +38,9 @@ namespace pygmalion::intrinsics
 		return m_pEngine->inputStream();
 	}
 
+	std::string command::help() noexcept
+	{
+		return "<TODO: implement help>";
+	}
+
 }

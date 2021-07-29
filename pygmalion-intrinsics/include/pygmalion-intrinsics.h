@@ -45,6 +45,7 @@
 #include "pygmalion-intrinsics/command.h"
 #include "pygmalion-intrinsics/command_quit.h"
 #include "pygmalion-intrinsics/command_ver.h"
+#include "pygmalion-intrinsics/command_help.h"
 #include "pygmalion-intrinsics/command_debugCompiler.h"
 #include "pygmalion-intrinsics/command_debugCpu.h"
 #include "pygmalion-intrinsics/command_debugIntrinsics.h"

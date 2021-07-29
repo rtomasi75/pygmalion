@@ -9,6 +9,7 @@ namespace pygmalion::intrinsics
 		m_Commands(),
 		m_StartStopMutex()
 	{
+		addCommand<command_help>();
 		addCommand<command_quit>();
 		addCommand<command_ver>();
 		addCommand<command_debugCpu>();

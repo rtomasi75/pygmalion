@@ -15,4 +15,9 @@ namespace pygmalion::intrinsics
 		else
 			return false;
 	}
+
+	std::string command_ver::help() noexcept
+	{
+		return "VER";
+	}
 }

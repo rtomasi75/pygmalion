@@ -16,5 +16,6 @@ namespace pygmalion::intrinsics
 		std::istream& input() noexcept;
 		command() noexcept;
 		bool process(const std::string& cmd) noexcept;
+		virtual std::string help() noexcept;
 	};
 }

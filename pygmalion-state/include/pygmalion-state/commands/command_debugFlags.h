@@ -19,7 +19,7 @@ namespace pygmalion::state
 				this->output() << std::endl;
 				this->output() << countFlags << " flag" << (countFlags != 1 ? "s" : "") << ":";
 				for (const auto flag : flagType::range)
-					this->output() << " "<< boardType::flagToString(flag);
+					this->output() << " " << boardType::flagToString(flag);
 				this->output() << std::endl;
 				this->output() << std::endl;
 				return true;
@@ -27,6 +27,9 @@ namespace pygmalion::state
 			else
 				return false;
 		}
+		virtual std::string help() noexcept override
+		{
+			return "DEBUG-FLAGS";
+		}
 	};
-
 }

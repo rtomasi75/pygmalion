@@ -12,4 +12,9 @@ namespace pygmalion::intrinsics
 		else
 			return false;
 	}
+
+	std::string command_quit::help() noexcept
+	{
+		return "QUIT";
+	}
 }

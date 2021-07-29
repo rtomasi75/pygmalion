@@ -8,6 +8,7 @@ namespace pygmalion::intrinsics
 		std::atomic_bool m_IsRunning;
 		std::recursive_mutex m_StartStopMutex;
 		void mainloop() noexcept;
+		friend class command_help;
 	private:
 		std::deque<std::shared_ptr<command>> m_Commands;
 	protected:

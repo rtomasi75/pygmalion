@@ -39,6 +39,10 @@ namespace pygmalion::chess::dynamics
 		};
 		static void perft(const stackType& stack, const size_t depth, const size_t maxDepth, perftdata& data) noexcept;
 	protected:
+		virtual std::string help() noexcept override
+		{
+			return "PERFT";
+		}
 		virtual bool onProcess(const std::string& cmd) noexcept override;
 	};
 

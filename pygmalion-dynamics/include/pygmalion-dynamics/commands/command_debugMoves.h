@@ -35,6 +35,10 @@ namespace pygmalion::dynamics
 			else
 				return false;
 		}
+		virtual std::string help() noexcept override
+		{
+			return "DEBUG-MOVES";
+		}
 	};
 
 }

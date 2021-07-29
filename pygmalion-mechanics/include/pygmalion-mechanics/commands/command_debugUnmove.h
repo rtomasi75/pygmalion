@@ -30,6 +30,10 @@ namespace pygmalion::mechanics
 			else
 				return false;
 		}
+		virtual std::string help() noexcept override
+		{
+			return "DEBUG-UNMOVE";
+		}
 	};
 
 }

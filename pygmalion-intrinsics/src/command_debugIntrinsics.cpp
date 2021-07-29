@@ -173,4 +173,9 @@ namespace pygmalion::intrinsics
 		else
 			return false;
 	}
+
+	std::string command_debugIntrinsics::help() noexcept
+	{
+		return "DEBUG-INTRINSICS";
+	}
 }
