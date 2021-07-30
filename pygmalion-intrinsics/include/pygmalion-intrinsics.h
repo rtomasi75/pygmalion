@@ -9,6 +9,7 @@
 
 #include <cstdint>
 #include <cassert>
+#include <cmath>
 #include <type_traits>
 #include <iterator>
 #include <string>

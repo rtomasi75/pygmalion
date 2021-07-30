@@ -1,6 +1,6 @@
 namespace pygmalion
 {
-	template<size_t COUNT_PLAYERS, size_t COUNT_PIECES, size_t COUNT_RANKS, size_t COUNT_FILES, size_t COUNT_FLAGS, size_t COUNT_HASHBITS>
+	template<size_t COUNT_PLAYERS, size_t COUNT_PIECES, size_t COUNT_RANKS, size_t COUNT_FILES, size_t COUNT_FLAGS, size_t COUNT_HASHBITS, typename CUMULATION>
 	class descriptor_state
 	{
 	public:
@@ -20,5 +20,6 @@ namespace pygmalion
 		using flagType = pygmalion::state::flag<descriptor_state>;
 		using flagsType = pygmalion::state::flags<descriptor_state>;
 		using gamestateType = pygmalion::state::gamestate<descriptor_state>;
+		using cumulationType = CUMULATION;
 	};
 }

@@ -1,6 +1,6 @@
 namespace pygmalion::tictactoe
 {
-	using descriptorState = pygmalion::descriptor_state<2, 1, 3,3, 0, 8>;
+	using descriptorState = pygmalion::descriptor_state<2, 1, 3,3, 0, 8, char>;
 
 	class board :
 		public pygmalion::board<descriptorState, board>
@@ -49,6 +49,10 @@ namespace pygmalion::tictactoe
 			std::string txt = "";
 			txt += c;
 			return txt;
+		}
+		static std::string cumulationToString_Implementation(const cumulationType&) noexcept
+		{
+			return "none";
 		}
 		static bool parseFile_Implementation(std::string& text, fileType& file) noexcept
 		{

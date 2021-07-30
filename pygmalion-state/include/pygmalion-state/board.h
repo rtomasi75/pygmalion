@@ -13,6 +13,7 @@ namespace pygmalion
 		std::array<squaresType, countPlayers> m_PlayerOccupancy;
 		playerType m_MovingPlayer;
 		flagsType m_Flags;
+		cumulationType m_Cumulation;
 	protected:
 		void onClear() noexcept
 		{
@@ -47,6 +48,14 @@ namespace pygmalion
 			return (first <= last) && (last < countFlags);
 		}
 	public:
+		constexpr cumulationType& cumulation() noexcept
+		{
+			return m_Cumulation;
+		}
+		constexpr const cumulationType& cumulation() const noexcept
+		{
+			return m_Cumulation;
+		}
 		static std::string name_Implementation() noexcept
 		{
 			std::stringstream sstr;
@@ -56,6 +65,10 @@ namespace pygmalion
 		static std::string name() noexcept
 		{
 			return boardType::name_Implementation();
+		}
+		static std::string cumulationToString(const cumulationType& cumulation)
+		{
+			return boardType::cumulationToString_Implementation(cumulation);
 		}
 		static std::string fileToString(const fileType file) noexcept
 		{
@@ -378,6 +391,9 @@ namespace pygmalion
 			}
 			str << std::endl;
 		}
+		str << std::endl;
+		str << "Cumulation: ";
+		str << boardType::cumulationToString(position.cumulation());
 		str << std::endl;
 		str << "Player " << boardType::playerToString(position.movingPlayer()) << " is on the move." << std::endl;
 		return str;

@@ -1,6 +1,8 @@
 #include <pygmalion-chess-state.h>
 namespace pygmalion::chess
 {
+	state::materialTables<state::descriptor_state> board::m_Material;
+
 	typename board::squareType board::kingSquare(const playerType player) const noexcept
 	{
 		return *(pieceOccupancy(king) & playerOccupancy(player)).begin();
@@ -38,6 +40,11 @@ namespace pygmalion::chess
 			assert(false);
 			return "?";
 		}
+	}
+ 
+	std::string board::cumulationToString_Implementation(const cumulationType&) noexcept
+	{
+		return "none";
 	}
 
 	bool board::parseFlag_Implementation(std::string& text, flagType& flag) noexcept
@@ -329,6 +336,7 @@ namespace pygmalion::chess
 
 	void board::onAddedPiece_Implementation(const pieceType piece, const squareType square, const playerType player) noexcept
 	{
+		cumulation().score() += m_Material.material(player, piece);
 	}
 
 	void board::onSetMovingPlayer_Implementation(const playerType player) noexcept
@@ -336,7 +344,9 @@ namespace pygmalion::chess
 	}
 
 	void board::onRemovedPiece_Implementation(const pieceType piece, const squareType square, const playerType player) noexcept
-	{}
+	{
+		cumulation().score() -= m_Material.material(player, piece);
+	}
 
 	void board::onSetFlag_Implementation(const flagType flag) noexcept
 	{
@@ -344,6 +354,7 @@ namespace pygmalion::chess
 
 	void board::onClearedFlag_Implementation(const flagType flag) noexcept
 	{
+		cumulation().clear();
 	}
 
 	void board::onInitialize_Implementation() noexcept
@@ -872,6 +883,8 @@ namespace pygmalion::chess
 				str << "_";
 		}
 		str << std::endl;
+		str << std::endl;
+		str << "Material: " << position.material() << std::endl;
 		str << std::endl;
 		str << "Player " << boardType::playerToString(position.movingPlayer()) << " is on the move." << std::endl;
 		return str;

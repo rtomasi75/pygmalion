@@ -4,6 +4,8 @@ namespace pygmalion::chess
 	class board :
 		public pygmalion::board<state::descriptor_state, board>
 	{
+	private:
+		static state::materialTables<state::descriptor_state> m_Material;
 	public:
 		constexpr void clearCastleRightQueensideBlack() noexcept
 		{
@@ -88,7 +90,10 @@ namespace pygmalion::chess
 		squareType kingSquare(const playerType player) const noexcept;
 		bool setFen(const std::string& fen, std::string& error) noexcept;
 		std::string getFen() const noexcept;
-
+		constexpr materialScore material() const noexcept
+		{
+			return cumulation().score();
+		}
 		// Implementation
 		static std::string flagToString_Implementation(const flagType flag) noexcept;
 		static bool parseFlag_Implementation(std::string& text, flagType& flag) noexcept;
@@ -107,6 +112,7 @@ namespace pygmalion::chess
 		void onSetFlag_Implementation(const flagType flag) noexcept;
 		void onClearedFlag_Implementation(const flagType flag) noexcept;
 		void onInitialize_Implementation() noexcept;
+		static std::string cumulationToString_Implementation(const cumulationType&) noexcept;
 	};
 
 	std::ostream& operator<<(std::ostream& str, const board& position) noexcept;
