@@ -48,7 +48,7 @@ namespace intrinsics::test
 		profile.stop();
 		const auto durationCastFrom{ profile.duration() };
 		const auto speedFrom{ profile.computeSpeed(countIterations, "op") };
-		str << "      " << parser::durationToString(durationCastTo) << " -> " << speedFrom << std::endl;
+		str << "      " << parser::durationToString(durationCastFrom) << " -> " << speedFrom << std::endl;
 		str << "    verifying..." << std::endl;
 		str << std::endl;
 		for (size_t i = 0; i < countIterations; i++)

@@ -3073,7 +3073,6 @@ namespace pygmalion
 	using uint_fast_t = uint_t<COUNT_BITS, false>;
 
 	template<size_t COUNT_BITS, bool IS_COMPACT>
-
 	std::ostream& operator<<(std::ostream& str, const uint_t<COUNT_BITS, IS_COMPACT>& value) noexcept
 	{
 		str << value.toString();

@@ -42,6 +42,7 @@
 #include "pygmalion-intrinsics/magic.h"
 #include "pygmalion-intrinsics/magictable.h"
 #include "pygmalion-intrinsics/parser.h"
+#include "pygmalion-intrinsics/score.h"
 #include "pygmalion-intrinsics/command.h"
 #include "pygmalion-intrinsics/command_quit.h"
 #include "pygmalion-intrinsics/command_ver.h"

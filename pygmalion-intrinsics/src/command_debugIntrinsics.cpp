@@ -61,10 +61,46 @@ namespace pygmalion::intrinsics
 				result &= intrinsics::test::bitclear(this->output());
 				result &= intrinsics::test::pext(this->output());
 				result &= intrinsics::test::pdep(this->output());
+				result &= intrinsics::test::score_assignment(this->output());
+				result &= intrinsics::test::score_conversion(this->output());
+				result &= intrinsics::test::score_equality(this->output());
+				result &= intrinsics::test::score_inequality(this->output());
+				result &= intrinsics::test::score_greater(this->output());
+				result &= intrinsics::test::score_less(this->output());
+				result &= intrinsics::test::score_greaterequal(this->output());
+				result &= intrinsics::test::score_lessequal(this->output());
+				result &= intrinsics::test::score_addition(this->output());
+				result &= intrinsics::test::score_subtraction(this->output());
+				result &= intrinsics::test::score_addition_inplace(this->output());
+				result &= intrinsics::test::score_subtraction_inplace(this->output());
 				output() << std::endl;
 			}
 			else if (token == "assignment")
 				result &= intrinsics::test::assignment(this->output());
+			else if (token == "score_assignment")
+				result &= intrinsics::test::score_assignment(this->output());
+			else if (token == "score_conversion")
+				result &= intrinsics::test::score_conversion(this->output());
+			else if (token == "score_equality")
+				result &= intrinsics::test::score_equality(this->output());
+			else if (token == "score_greater")
+				result &= intrinsics::test::score_greater(this->output());
+			else if (token == "score_less")
+				result &= intrinsics::test::score_less(this->output());
+			else if (token == "score_lessequal")
+				result &= intrinsics::test::score_lessequal(this->output());
+			else if (token == "score_greaterequal")
+				result &= intrinsics::test::score_greaterequal(this->output());
+			else if (token == "score_inequality")
+				result &= intrinsics::test::score_inequality(this->output());
+			else if (token == "score_addition")
+				result &= intrinsics::test::score_addition(this->output());
+			else if (token == "score_addition_inplace")
+				result &= intrinsics::test::score_addition_inplace(this->output());
+			else if (token == "score_subtraction_inplace")
+				result &= intrinsics::test::score_subtraction_inplace(this->output());
+			else if (token == "score_subtraction")
+				result &= intrinsics::test::score_subtraction(this->output());
 			else if (token == "conversion")
 				result &= intrinsics::test::conversion(this->output());
 			else if (token == "clearbits")

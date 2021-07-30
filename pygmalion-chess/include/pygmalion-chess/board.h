@@ -1,6 +1,5 @@
 namespace pygmalion::chess
 {
-
 	class board : public pygmalion::board<descriptor_board, board>
 	{
 	public:
