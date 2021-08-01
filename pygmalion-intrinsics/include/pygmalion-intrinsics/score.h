@@ -12,7 +12,6 @@ namespace pygmalion
 		public:
 			using STYPE = std::int8_t;
 			using SLONG = std::int16_t;
-			using UTYPE = std::uint8_t;
 		};
 
 		template<>
@@ -21,7 +20,6 @@ namespace pygmalion
 		public:
 			using STYPE = std::int16_t;
 			using SLONG = std::int32_t;
-			using UTYPE = std::uint16_t;
 		};
 
 		template<>
@@ -30,7 +28,6 @@ namespace pygmalion
 		public:
 			using STYPE = std::int32_t;
 			using SLONG = std::int64_t;
-			using UTYPE = std::uint32_t;
 		};
 
 		template<>
@@ -39,7 +36,6 @@ namespace pygmalion
 		public:
 			using STYPE = std::int64_t;
 			using SLONG = std::intmax_t;
-			using UTYPE = std::uint64_t;
 		};
 	}
 	template<size_t MANTISSA, size_t SHIFT, size_t MAXDIST>

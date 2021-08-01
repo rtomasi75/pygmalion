@@ -13,7 +13,7 @@ namespace pygmalion::chess
 	public:
 		static evaluationType evaluate_Implementation(const boardType& position) noexcept
 		{
-			evaluationType sc{ static_cast<evaluationType>(position.material()) };
+			const evaluationType sc{ static_cast<evaluationType>(position.material()) };
 			return sc;
 		}
 	};
