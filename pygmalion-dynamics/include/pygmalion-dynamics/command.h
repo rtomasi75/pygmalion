@@ -11,7 +11,7 @@ namespace pygmalion::dynamics
 	public:
 		using generatorType = GENERATOR;
 	public:
-		using parentType = pygmalion::intrinsics::command;
+		using parentType = pygmalion::mechanics::command<typename DESCRIPTION_DYNAMICS::descriptorMechanics, typename DESCRIPTION_DYNAMICS::motorType>;
 		using descriptorDynamics = DESCRIPTION_DYNAMICS;
 #include "include_dynamics.h"	
 	public:

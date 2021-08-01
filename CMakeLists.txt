@@ -164,14 +164,17 @@ add_subdirectory(pygmalion-intrinsics)
 add_subdirectory(pygmalion-state)
 add_subdirectory(pygmalion-mechanics)
 add_subdirectory(pygmalion-dynamics)
+add_subdirectory(pygmalion-evaluation)
 
 add_subdirectory(pygmalion-tictactoe-state)
 add_subdirectory(pygmalion-tictactoe-mechanics)
 add_subdirectory(pygmalion-tictactoe-dynamics)
+add_subdirectory(pygmalion-tictactoe-evaluation)
 
 add_subdirectory(pygmalion-chess-state)
 add_subdirectory(pygmalion-chess-mechanics)
 add_subdirectory(pygmalion-chess-dynamics)
+add_subdirectory(pygmalion-chess-evaluation)
 
 #add_subdirectory(pygmalion-bits)
 #add_subdirectory(pygmalion-core)
