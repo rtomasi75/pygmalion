@@ -1,4 +1,4 @@
-#include <pygmalion-evaluation.h>
+#include <pygmalion-search.h>
 
 int main(int argc, char* argv[])
 {

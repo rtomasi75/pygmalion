@@ -7,6 +7,7 @@ namespace pygmalion
 		{
 		public:
 			using UTYPE = std::uintmax_t;
+			using STYPE = std::intmax_t;
 		};
 
 		template<>
@@ -14,6 +15,7 @@ namespace pygmalion
 		{
 		public:
 			using UTYPE = std::uint8_t;
+			using STYPE = std::int8_t;
 		};
 
 		template<>
@@ -21,6 +23,7 @@ namespace pygmalion
 		{
 		public:
 			using UTYPE = std::uint16_t;
+			using STYPE = std::int16_t;
 		};
 
 		template<>
@@ -28,6 +31,7 @@ namespace pygmalion
 		{
 		public:
 			using UTYPE = std::uint32_t;
+			using STYPE = std::int32_t;
 		};
 
 		template<>
@@ -35,6 +39,7 @@ namespace pygmalion
 		{
 		public:
 			using UTYPE = std::uint32_t;
+			using STYPE = std::int32_t;
 		};
 
 		template<>
@@ -42,6 +47,7 @@ namespace pygmalion
 		{
 		public:
 			using UTYPE = std::uint64_t;
+			using STYPE = std::int64_t;
 		};
 
 		template<>
@@ -49,6 +55,7 @@ namespace pygmalion
 		{
 		public:
 			using UTYPE = std::uint64_t;
+			using STYPE = std::int64_t;
 		};
 
 		template<>
@@ -56,6 +63,7 @@ namespace pygmalion
 		{
 		public:
 			using UTYPE = std::uint64_t;
+			using STYPE = std::int64_t;
 		};
 
 		template<>
@@ -63,26 +71,30 @@ namespace pygmalion
 		{
 		public:
 			using UTYPE = std::uint64_t;
+			using STYPE = std::int64_t;
 		};
 	}
 	template<typename ITEM, int MAXLENGTH>
 	class list
 	{
 	private:
-		constexpr static size_t requiredUnsignedBytes(const size_t number) noexcept
+		constexpr static size_t requiredSignedBytes(const std::uintmax_t number) noexcept
 		{
-			if (static_cast<std::uint64_t>(number) >= (std::uint64_t(1) << 32))
+			if (number >= (size_t(1) << 31))
+			{
+				assert(sizeof(size_t) > 4);
 				return 8;
-			if (number >= (size_t(1) << 16))
+			}
+			if (number >= (size_t(1) << 15))
 				return 4;
-			if (number >= (size_t(1) << 8))
+			if (number >= (size_t(1) << 7))
 				return 2;
 			return 1;
 		}
 	public:
 		constexpr static int maxLength{ MAXLENGTH };
 		using itemType = ITEM;
-		using counterType = typename detail::list_traits<requiredUnsignedBytes(maxLength + 1)>::UTYPE;
+		using counterType = typename detail::list_traits<requiredSignedBytes(maxLength + 1)>::STYPE;
 	private:
 		std::array<itemType, maxLength> m_Items;
 		counterType m_Length;

@@ -1,6 +1,7 @@
 
 using generatorType = typename descriptorEvaluation::generatorType;
-using evaluationType = typename descriptorEvaluation::evaluationType;
+using objectiveType = typename descriptorEvaluation::objectiveType;
+using subjectiveType = typename descriptorEvaluation::subjectiveType;
 
 constexpr static const size_t evaluationMantissa{ descriptorEvaluation::evaluationMantissa };
 constexpr static const size_t evaluationShift{ descriptorEvaluation::evaluationShift };

@@ -37,7 +37,7 @@ namespace pygmalion
 				{
 					if (m_CurrentLegalMove >= m_Moves.length())
 					{
-						if (!generatorType::generateMoves(*this, m_Moves, m_CurrentPass))
+						if (!generatorType::generateMoves(*static_cast<const typename generatorType::stackType*>(this), m_Moves, m_CurrentPass))
 						{
 							allMovesGenerated = true;
 							return false;
@@ -45,7 +45,7 @@ namespace pygmalion
 					}
 					while (m_CurrentLegalMove < m_Moves.length())
 					{
-						if (generatorType::isMoveLegal(*this, m_Moves[m_CurrentLegalMove]))
+						if (generatorType::isMoveLegal(*static_cast<const typename generatorType::stackType*>(this), m_Moves[m_CurrentLegalMove]))
 							return true;
 						m_CurrentLegalMove++;
 					}
@@ -165,8 +165,17 @@ namespace pygmalion
 				if (!m_IsNullmove)
 					motorType::move().undoMove(m_Position, m_MoveData);
 			}
+			std::string moveToString(const movebitsType moveBits) const
+			{
+				return generatorType::moveToString(*static_cast<const typename generatorType::stackType*>(this), moveBits);
+			}
 		};
 
+		template<typename stackType>
+		static std::string moveToString(const stackType& stack, const movebitsType moveBits) noexcept
+		{
+			return generatorType::moveToString_Implementation(stack, moveBits);
+		}
 		template<typename stackType>
 		static bool generateMoves(const stackType& stack, movelistType& moves, size_t& currentPass) noexcept
 		{

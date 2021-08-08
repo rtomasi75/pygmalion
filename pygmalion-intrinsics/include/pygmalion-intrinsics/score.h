@@ -42,7 +42,7 @@ namespace pygmalion
 	class score
 	{
 	private:
-		constexpr static size_t requiredSignedBytes(const size_t number) noexcept
+		constexpr static size_t requiredSignedBytes(const std::uintmax_t number) noexcept
 		{
 			if (number >= (size_t(1) << 31))
 			{
@@ -56,13 +56,13 @@ namespace pygmalion
 			return 1;
 		}
 	public:
-		using valueType = typename detail::score_traits < requiredSignedBytes((std::uint64_t(1) << MANTISSA) - 1) > ::STYPE;
+		using valueType = typename detail::score_traits < requiredSignedBytes((std::uintmax_t(1) << MANTISSA) - 1) > ::STYPE;
 		constexpr static size_t countMantissaBits{ MANTISSA };
 		constexpr static size_t countShiftBits{ SHIFT };
 		constexpr static valueType granularity{ size_t(1) << countShiftBits };
 		constexpr static size_t maxDistance{ MAXDIST };
 	private:
-		using longType = typename detail::score_traits < requiredSignedBytes((std::uint64_t(1) << MANTISSA)) > ::STYPE;
+		using longType = typename detail::score_traits < requiredSignedBytes((std::uintmax_t(1) << MANTISSA)) > ::STYPE;
 	public:
 		static constexpr valueType MAXVALUE{ valueType((longType(1) << MANTISSA) - 1) };
 		static constexpr valueType MINVALUE{ valueType(-MAXVALUE) };
@@ -180,7 +180,11 @@ namespace pygmalion
 		constexpr score(score&&) noexcept = default;
 		constexpr score(const score&) noexcept = default;
 		constexpr score& operator=(score&&) noexcept = default;
-		constexpr score& operator=(const score&)  noexcept = default;
+		constexpr score& operator=(const score&) noexcept = default;
+		static constexpr score max(const score sc1, const score sc2) noexcept
+		{
+			return score(std::max(sc1.m_Value, sc2.m_Value), 0);
+		}
 		static constexpr score atom() noexcept
 		{
 			return score(1, 0);
@@ -236,7 +240,7 @@ namespace pygmalion
 		}
 		constexpr bool isOpen() const noexcept
 		{
-			return  std::abs(m_Value) < WINNINGVALUE;
+			return std::abs(m_Value) < WINNINGVALUE;
 		}
 		constexpr bool isWon() const noexcept
 		{
@@ -333,11 +337,11 @@ namespace pygmalion
 		}
 		constexpr auto plyUp() const noexcept
 		{
-			return score(m_Value + ((m_Value < LOSINGVALUE) & (m_Value > MINVALUE)) - ((m_Value > WINNINGVALUE) & (m_Value < MINVALUE)), 0);
+			return score(m_Value + ((m_Value < LOSINGVALUE) & (m_Value > MINVALUE)) - ((m_Value > WINNINGVALUE) & (m_Value < MAXVALUE)), 0);
 		}
 		constexpr auto plyDown() const noexcept
 		{
-			return score(m_Value - ((m_Value < LOSINGVALUE) & (m_Value > MINVALUE)) + ((m_Value > WINNINGVALUE) & (m_Value < MINVALUE)), 0);
+			return score(m_Value - ((m_Value < LOSINGVALUE) & (m_Value > (MINVALUE + 1))) + ((m_Value > WINNINGVALUE) & (m_Value < (MAXVALUE - 1))), 0);
 		}
 		std::string toString() const noexcept
 		{

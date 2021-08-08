@@ -124,7 +124,6 @@ namespace pygmalion
 			assert(isLosing());
 			return m_Value - LOSSVALUE;
 		}
-		~score() = default;
 		template<int otherMantissa, int otherShift, int otherMaxDistance>
 		explicit constexpr score(const score<otherMantissa, otherShift, otherMaxDistance> other) noexcept :
 			m_Value{ 0 }
@@ -186,6 +185,7 @@ namespace pygmalion
 			assert(isOpen());
 			return static_cast<float>(m_Value) / static_cast<float>(granularity);
 		}
+		~score() = default;
 		constexpr score(score&&) noexcept = default;
 		constexpr score(const score&) noexcept = default;
 		constexpr score& operator=(score&&) noexcept = default;

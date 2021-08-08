@@ -32,6 +32,43 @@ namespace pygmalion::tictactoe
 		{
 			return false;
 		}
-
+		static std::string moveToString_Implementation(const stackType& stack, const movebitsType moveBits) noexcept
+		{
+			squareType sq = moveType::extractSquare(moveBits);
+			auto file = sq.file();
+			auto rank = sq.rank();
+			std::string text{ "" };
+			switch (file)
+			{
+			default:
+				assert(false);
+				break;
+			case 0:
+				text += "a";
+				break;
+			case 1:
+				text += "b";
+				break;
+			case 2:
+				text += "c";
+				break;
+			}
+			switch (rank)
+			{
+			default:
+				assert(false);
+				break;
+			case 0:
+				text += "1";
+				break;
+			case 1:
+				text += "2";
+				break;
+			case 2:
+				text += "3";
+				break;
+			}
+			return text;
+		}
 	};
 }

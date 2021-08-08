@@ -928,5 +928,206 @@ namespace pygmalion::chess
 			}
 			return false;
 		}
+		static void movesFromSquare(const stackType& stack, const squareType square, squaresType& moves, squaresType& captures) noexcept
+		{
+			const boardType& position{ stack.position() };
+			moves = squaresType::none();
+			captures = squaresType::none();
+			movelistType list;
+			size_t pass{ 0 };
+			while (generateMoves(stack, list, pass));
+			for (indexType i = 0; i < list.length(); i++)
+			{
+				const squareType fromSquare{ motorType::move().fromSquare(position, list[i]) };
+				if (square == fromSquare)
+				{
+					const squareType toSquare{ motorType::move().toSquare(position,list[i]) };
+					if (motorType::move().isCapture(list[i]))
+					{
+						captures |= toSquare;
+					}
+					else
+					{
+						moves |= toSquare;
+					}
+				}
+			}
+		}
+		static std::string moveToString_Implementation(const stackType& stack, const movebitsType mv) noexcept
+		{
+			const boardType& position{ stack.position() };
+			const squareType from{ motorType::move().fromSquare(position,mv) };
+			const squareType to{ motorType::move().toSquare(position,mv) };
+			const pieceType piece{ position.getPiece(from) };
+			const playerType side{ position.movingPlayer() };
+			if (motorType::move().isKingsideCastle(mv))
+				return "O-O";
+			if (motorType::move().isQueensideCastle(mv))
+				return "O-O-O";
+			std::string ret = "";
+			switch (piece)
+			{
+			default:
+				assert(0);
+				break;
+			case pawn:
+				break;
+			case knight:
+				ret += "N";
+				break;
+			case bishop:
+				ret += "B";
+				break;
+			case rook:
+				ret += "R";
+				break;
+			case queen:
+				ret += "Q";
+				break;
+			case king:
+				ret += "K";
+				break;
+			}
+			int countamb{ 0 };
+			for (const auto sq : squareType::range)
+			{
+				if ((position.pieceOccupancy(piece) & position.playerOccupancy(side))[sq])
+				{
+					squaresType captures{ squaresType::none() };
+					squaresType moves{ squaresType::none() };
+					generatorType::movesFromSquare(stack, sq, moves, captures);
+					if ((captures | moves)[to])
+					{
+						countamb++;
+					}
+				}
+			}
+			if (countamb > 1)
+			{
+				const auto file{ from.file() };
+				countamb = 0;
+				for (const auto sq : squareType::range)
+				{
+					if ((position.pieceOccupancy(piece) & position.playerOccupancy(side))[sq])
+					{
+						squaresType captures{ squaresType::none() };
+						squaresType moves{ squaresType::none() };
+						generatorType::movesFromSquare(stack, sq, moves, captures);
+						if ((captures | moves)[to])
+						{
+							if (sq.file() == file)
+								countamb++;
+						}
+					}
+				}
+				if (countamb > 1)
+				{
+					const auto rank{ from.rank() };
+					countamb = 0;
+					for (const auto sq : squareType::range)
+					{
+						if ((position.pieceOccupancy(piece) & position.playerOccupancy(side))[sq])
+						{
+							squaresType captures{ squaresType::none() };
+							squaresType moves{ squaresType::none() };
+							generatorType::movesFromSquare(stack, sq, moves, captures);
+							if ((captures | moves)[to])
+							{
+								if (sq.rank() == rank)
+									countamb++;
+							}
+						}
+					}
+					if (countamb > 1)
+					{
+						ret += boardType::squareToString(from);
+					}
+					else
+					{
+						switch (rank)
+						{
+						case 0:
+							ret += "1";
+							break;
+						case 1:
+							ret += "2";
+							break;
+						case 2:
+							ret += "3";
+							break;
+						case 3:
+							ret += "4";
+							break;
+						case 4:
+							ret += "5";
+							break;
+						case 5:
+							ret += "6";
+							break;
+						case 6:
+							ret += "7";
+							break;
+						case 7:
+							ret += "8";
+							break;
+						}
+					}
+				}
+				else
+				{
+					switch (file)
+					{
+					case 0:
+						ret += "a";
+						break;
+					case 1:
+						ret += "b";
+						break;
+					case 2:
+						ret += "c";
+						break;
+					case 3:
+						ret += "d";
+						break;
+					case 4:
+						ret += "e";
+						break;
+					case 5:
+						ret += "f";
+						break;
+					case 6:
+						ret += "g";
+						break;
+					case 7:
+						ret += "h";
+						break;
+					}
+				}
+			}
+			if (motorType::move().isCapture(mv))
+				ret += "x";
+			ret = ret + boardType::squareToString(to);
+			if (motorType::move().isEnPassant(mv))
+				ret += "ep";
+			if (motorType::move().isPromotion(mv))
+			{
+				switch (motorType::move().promotedPiece(mv))
+				{
+				case knight:
+					ret += "=N";
+					break;
+				case bishop:
+					ret += "=B";
+					break;
+				case rook:
+					ret += "=R";
+					break;
+				case queen:
+					ret += "=Q";
+					break;
+				}
+			}
+			return ret;
+		}
 	};
 }

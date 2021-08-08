@@ -14,7 +14,8 @@ namespace pygmalion::evaluation
 			if (cmd == "debug-evaluation")
 			{
 				this->output() << std::endl;
-				this->output() << "evaluation: " << std::setw(4) << sizeof(evaluationType) << " = " << sizeof(evaluationType) * CHAR_BIT << "bit" << std::endl;
+				this->output() << "objective:  " << std::setw(4) << sizeof(objectiveType) << " = " << sizeof(objectiveType) * CHAR_BIT << "bit" << std::endl;
+				this->output() << "subjective: " << std::setw(4) << sizeof(subjectiveType) << " = " << sizeof(subjectiveType) * CHAR_BIT << "bit" << std::endl;
 				this->output() << std::endl;
 				this->output() << "mantissa: " << std::setw(4) << evaluationMantissa << std::endl;
 				this->output() << "shift:    " << std::setw(4) << evaluationShift << std::endl;

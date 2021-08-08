@@ -13,8 +13,10 @@ namespace pygmalion::evaluation
 		{
 			if (cmd == "debug-evaluate")
 			{
-				evaluationType eval{ evaluatorType::evaluate(this->position()) };
-				this->output() << "objective score: " << eval << std::endl;
+				typename generatorType::stackType stack(this->position(), this->position().movingPlayer());
+				objectiveType eval{ evaluatorType::evaluate(stack) };
+				this->output() << "evaluation score: " << eval << std::endl;
+				return true;
 			}
 			else
 				return false;
