@@ -20,6 +20,11 @@ namespace pygmalion::dynamics
 			this->template addCommand<command_debugMoves<descriptorDynamics, generatorType>>();
 			this->template addCommand<command_debugDynamics<descriptorDynamics, generatorType>>();
 			this->template addCommand<command_debugPerft<descriptorDynamics, generatorType>>();
+			std::deque<std::shared_ptr<pygmalion::intrinsics::command>> list{ generatorType::commands() };
+			for (auto& cmd : list)
+			{
+				this->addCommand(cmd);
+			}
 		}
 		virtual ~engine() noexcept = default;
 		virtual std::string version() const noexcept override

@@ -1,7 +1,7 @@
 namespace pygmalion::chess
 {
 	class descriptor_evaluation :
-		public pygmalion::descriptor_evaluation<generator, 7, 0, 10>
+		public pygmalion::descriptor_evaluation<generator, 31, 15, 10>
 	{
 	public:
 	};
@@ -10,6 +10,20 @@ namespace pygmalion::chess
 		public pygmalion::evaluator<descriptor_evaluation, evaluator>
 	{
 	private:
+		constexpr static inline objectiveType m_MobilityFactor{ static_cast<objectiveType>(0.125 / 64.0) };
+		constexpr static inline objectiveType m_AttackFactor{ static_cast<objectiveType>(0.125 / 64.0) };
+		static objectiveType mobility(const generatorType::stackType& stack) noexcept
+		{
+			const squaresType attackedByBlack{ stack.squaresAttackedByPlayer(blackPlayer) };
+			const squaresType attackedByWhite{ stack.squaresAttackedByPlayer(whitePlayer) };
+			const squaresType targetedByBlack{ stack.squaresTargetedByPlayer(blackPlayer) };
+			const squaresType targetedByWhite{ stack.squaresTargetedByPlayer(whitePlayer) };
+			const int attacks{ static_cast<int>(attackedByWhite.count()) - static_cast<int>(attackedByBlack.count()) };
+			const int targets{ static_cast<int>(targetedByWhite.count()) - static_cast<int>(targetedByBlack.count()) };
+			const objectiveType scoreTargets{ targets * m_MobilityFactor };
+			const objectiveType scoreAttacks{ attacks * m_AttackFactor };
+			return scoreTargets + scoreAttacks;
+		}
 	public:
 		static gamestateType earlyResult_Implementation(const generatorType::stackType& stack) noexcept
 		{
@@ -24,8 +38,9 @@ namespace pygmalion::chess
 		}
 		static objectiveType evaluate_Implementation(const generatorType::stackType& stack) noexcept
 		{
-			const objectiveType sc{ static_cast<objectiveType>(stack.position().material()) };
-			return sc;
+			const objectiveType mat{ static_cast<objectiveType>(stack.position().material()) };
+			const objectiveType mob{ mobility(stack) };
+			return mat + mob;
 		}
 		constexpr static subjectiveType makeSubjective_Implementation(const objectiveType& sc, const playerType player) noexcept
 		{

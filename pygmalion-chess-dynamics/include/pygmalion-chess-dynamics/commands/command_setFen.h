@@ -12,7 +12,7 @@ namespace pygmalion::chess::dynamics
 		virtual bool onProcess(const std::string& cmd) noexcept override;
 		virtual std::string help() noexcept override
 		{
-			return "SETFEN";
+			return "SET-FEN";
 		}
 	};
 

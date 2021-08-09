@@ -16,6 +16,11 @@ namespace pygmalion::tictactoe
 		{
 			return !stack.position().isOccupied(moveType::extractSquare(mv));
 		}
+		static std::deque<std::shared_ptr<pygmalion::intrinsics::command>> commandsImplementation() noexcept
+		{
+			std::deque<std::shared_ptr<pygmalion::intrinsics::command>> list{ std::deque<std::shared_ptr<pygmalion::intrinsics::command>>() };
+			return list;
+		}
 
 		static bool generateMoves_Implementation(const stackType& stack, movelistType& moves, size_t& currentPass) noexcept
 		{

@@ -26,9 +26,11 @@ namespace pygmalion::chess
 		{
 		private:
 			mutable std::array<squaresType, countPlayers> m_SquaresAttackedByPlayer{ arrayhelper::make<countPlayers,squaresType>(squaresType::none()) };
+			mutable std::array<squaresType, countPlayers> m_SquaresTargetedByPlayer{ arrayhelper::make<countPlayers,squaresType>(squaresType::none()) };
 			mutable std::array<squareType, countPlayers> m_KingSquare{ arrayhelper::make<countPlayers,squareType>(squareType::invalid) };
 			mutable std::array<bool, countPlayers> m_IsKingSquareValid{ arrayhelper::make<countPlayers,bool>(false) };
 			mutable std::array<bool, countPlayers> m_SquaresAttackedByPlayerValid{ arrayhelper::make<countPlayers,bool>(false) };
+			mutable std::array<bool, countPlayers> m_SquaresTargetedByPlayerValid{ arrayhelper::make<countPlayers,bool>(false) };
 			mutable bool m_IsCheckValid{ false };
 			mutable bool m_IsCheck{ false };
 		public:
@@ -40,6 +42,15 @@ namespace pygmalion::chess
 					m_IsKingSquareValid[player] = true;
 				}
 				return m_KingSquare[player];
+			}
+			squaresType squaresTargetedByPlayer(const playerType player) const
+			{
+				if (!m_SquaresTargetedByPlayerValid[player])
+				{
+					m_SquaresTargetedByPlayer[player] = generatorType::squaresTargetedByPlayer(*this, player);
+					m_SquaresTargetedByPlayerValid[player] = true;
+				}
+				return m_SquaresTargetedByPlayer[player];
 			}
 			squaresType squaresAttackedByPlayer(const playerType player) const
 			{
@@ -288,6 +299,28 @@ namespace pygmalion::chess
 				for (const squareType to : knightTargets(from, ~stack.position().totalOccupancy()))
 					moves.add(motorType::move().createQuiet(from, to));
 			}
+		}
+		static squaresType squaresTargetedByPlayer(const stackType& stack, const playerType attackingPlayer) noexcept
+		{
+			assert(attackingPlayer.isValid());
+			const boardType& position{ stack.position() };
+			const squaresType totalOccupancy{ position.totalOccupancy() };
+			const squaresType notBlockers = ~totalOccupancy;
+			const squaresType attackerOccupancy{ position.playerOccupancy(attackingPlayer) };
+			const squaresType knights{ position.pieceOccupancy(knight) & attackerOccupancy };
+			squaresType attacked{ knightTargets(knights, notBlockers) };
+			attacked |= kingTargets(stack.kingSquare(attackingPlayer), notBlockers);
+			const squaresType queens{ position.pieceOccupancy(queen) };
+			const squaresType slidersHV{ (position.pieceOccupancy(rook) | queens) & attackerOccupancy };
+			const squaresType slidersDiag{ (position.pieceOccupancy(bishop) | queens) & attackerOccupancy };
+			attacked |= sliderTargetsHV(slidersHV, notBlockers);
+			attacked |= sliderTargetsDiag(slidersDiag, notBlockers);;
+			const squaresType pawns{ position.pieceOccupancy(pawn) & attackerOccupancy };
+			if (attackingPlayer == whitePlayer)
+				attacked |= pawns.upLeft() | pawns.upRight();
+			else
+				attacked |= pawns.downLeft() | pawns.downRight();
+			return attacked;
 		}
 		static void generateKingMoves(const stackType& stack, movelistType& moves) noexcept
 		{
@@ -752,6 +785,7 @@ namespace pygmalion::chess
 			}
 		}
 	public:
+		static std::deque<std::shared_ptr<pygmalion::intrinsics::command>> commandsImplementation() noexcept;
 		static bool isMoveLegal_Implementation(const stackType& stack, const movebitsType& moveBits) noexcept
 		{
 			const boardType& position{ stack.position() };

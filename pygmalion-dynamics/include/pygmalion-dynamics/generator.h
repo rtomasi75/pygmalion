@@ -170,6 +170,29 @@ namespace pygmalion
 				return generatorType::moveToString(*static_cast<const typename generatorType::stackType*>(this), moveBits);
 			}
 		};
+	private:
+		template<typename COMMAND>
+		static std::shared_ptr<pygmalion::intrinsics::command> createCommand() noexcept
+		{
+			auto delCmd = [](pygmalion::intrinsics::command* pCmd)
+			{
+				delete static_cast<COMMAND*>(pCmd);
+			};
+			std::shared_ptr<pygmalion::intrinsics::command> pCommand(static_cast<pygmalion::intrinsics::command*>(new COMMAND()), delCmd);
+			return pCommand;
+		}
+	protected:
+		template<typename COMMAND>
+		static void addCommand(std::deque<std::shared_ptr<pygmalion::intrinsics::command>>& list) noexcept
+		{
+			std::shared_ptr<pygmalion::intrinsics::command> pCommand{ createCommand<COMMAND>() };
+			list.emplace_back(std::move(pCommand));
+		}
+	public:
+		static std::deque<std::shared_ptr<pygmalion::intrinsics::command>> commands() noexcept
+		{
+			return generatorType::commandsImplementation();
+		}
 
 		template<typename stackType>
 		static std::string moveToString(const stackType& stack, const movebitsType moveBits) noexcept

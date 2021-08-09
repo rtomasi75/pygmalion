@@ -12,16 +12,20 @@ namespace pygmalion::intrinsics
 	private:
 		std::deque<std::shared_ptr<command>> m_Commands;
 	protected:
+		void addCommand(std::shared_ptr<command> pCommand) noexcept
+		{
+			pCommand->m_pEngine = this;
+			m_Commands.emplace_back(std::move(pCommand));
+		}
 		template<typename T>
-		void addCommand()
+		void addCommand() noexcept
 		{
 			auto delCmd = [](command* pCmd)
 			{
 				delete static_cast<T*>(pCmd);
 			};
 			std::shared_ptr<command> pCommand(static_cast<command*>(new T()), delCmd);
-			pCommand->m_pEngine = this;
-			m_Commands.emplace_back(std::move(pCommand));
+			this->addCommand(pCommand);
 		}
 	public:
 		virtual std::string version() const noexcept;
