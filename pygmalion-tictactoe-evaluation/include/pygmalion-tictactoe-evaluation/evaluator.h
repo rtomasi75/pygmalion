@@ -9,9 +9,13 @@ namespace pygmalion::tictactoe
 	class evaluator :
 		public pygmalion::evaluator<descriptor_evaluation, evaluator>
 	{
-	private:
-		static const inline patterns<descriptorEvaluation> m_Patterns;
 	public:
+		static const inline patterns<descriptorEvaluation> m_Patterns;
+		static std::deque<std::shared_ptr<pygmalion::intrinsics::command>> commandsImplementation() noexcept
+		{
+			std::deque<std::shared_ptr<pygmalion::intrinsics::command>> list{ std::deque<std::shared_ptr<pygmalion::intrinsics::command>>() };
+			return list;
+		}
 		constexpr static subjectiveType makeSubjective_Implementation(const objectiveType& sc, const playerType player) noexcept
 		{
 			return (player != 0) ? -sc : sc;
@@ -42,7 +46,7 @@ namespace pygmalion::tictactoe
 			}
 			return (canDecide && (position.totalOccupancy().count() < 9)) ? gamestateType::open() : gamestateType::draw();
 		}
-		static objectiveType evaluate_Implementation(const generatorType::stackType& stack) noexcept
+		static objectiveType evaluate_Implementation(const multiscoreType& score, const generatorType::stackType& stack) noexcept
 		{
 			const auto& position{ stack.position() };
 			auto sc = objectiveType::zero();

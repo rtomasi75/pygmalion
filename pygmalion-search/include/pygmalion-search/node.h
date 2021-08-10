@@ -86,7 +86,7 @@ namespace pygmalion
 				heuristics.endNodeEarly(m_Stack.position());
 				return early;
 			}
-			const objectiveType stand_pat{ evaluatorType::evaluate(m_Stack) };
+			const objectiveType stand_pat{ evaluatorType::evaluate(currentScore,m_Stack) };
 			const playerType movingPlayer{ m_Stack.movingPlayer() };
 			if (currentScore.refuted(movingPlayer, stand_pat))
 			{

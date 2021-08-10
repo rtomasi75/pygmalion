@@ -8,6 +8,7 @@ namespace pygmalion::chess
 		generatorType::addCommand<pygmalion::chess::dynamics::command_debugUntabled>(list);
 		generatorType::addCommand<pygmalion::chess::dynamics::command_debugMagics>(list);
 		generatorType::addCommand<pygmalion::chess::dynamics::command_debugAttacked>(list);
+		generatorType::addCommand<pygmalion::chess::dynamics::command_debugTargeted>(list);
 		generatorType::addCommand<pygmalion::chess::dynamics::command_debugCheck>(list);
 		generatorType::addCommand<pygmalion::chess::dynamics::command_perft>(list);
 		generatorType::addCommand<pygmalion::chess::dynamics::command_setFen>(list);

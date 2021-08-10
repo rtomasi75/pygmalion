@@ -16,6 +16,7 @@ namespace pygmalion
 		constexpr static const size_t evaluationMantissa{ MANTISSA };
 		constexpr static const size_t evaluationShift{ SHIFT };
 		constexpr static const size_t evaluationMaxDistance{ MAXDIST };
+
 	}; 
 
 }

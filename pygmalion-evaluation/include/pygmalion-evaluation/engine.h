@@ -19,6 +19,11 @@ namespace pygmalion::evaluation
 		{
 			this->template addCommand<command_debugEvaluation<descriptorEvaluation, evaluatorType>>();
 			this->template addCommand<command_debugEvaluate<descriptorEvaluation, evaluatorType>>();
+			std::deque<std::shared_ptr<pygmalion::intrinsics::command>> list{ evaluatorType::commands() };
+			for (auto& cmd : list)
+			{
+				this->addCommand(cmd);
+			}
 		}
 		virtual ~engine() noexcept = default;
 		virtual std::string version() const noexcept override

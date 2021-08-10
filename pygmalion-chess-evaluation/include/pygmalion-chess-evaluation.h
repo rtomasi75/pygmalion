@@ -5,5 +5,6 @@
 #include <pygmalion-evaluation.h>
 
 #include "pygmalion-chess-evaluation/evaluator.h"
+#include "pygmalion-chess-evaluation/commands.h"
 
 #endif

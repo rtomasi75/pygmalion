@@ -332,6 +332,7 @@ namespace pygmalion::chess
 
 	void board::onClear_Implementation() noexcept
 	{
+		cumulation().clear();
 	}
 
 	void board::onAddedPiece_Implementation(const pieceType piece, const squareType square, const playerType player) noexcept
@@ -354,7 +355,6 @@ namespace pygmalion::chess
 
 	void board::onClearedFlag_Implementation(const flagType flag) noexcept
 	{
-		cumulation().clear();
 	}
 
 	void board::onInitialize_Implementation() noexcept
