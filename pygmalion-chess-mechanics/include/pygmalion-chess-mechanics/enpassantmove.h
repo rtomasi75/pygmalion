@@ -13,7 +13,12 @@ namespace pygmalion::chess
 			squareType m_From;
 			squareType m_To;
 			squareType m_CaptureSquare;
+			std::uint16_t m_ReversiblePlies{ 0 };
 		public:
+			constexpr std::uint16_t reversiblePlies() const noexcept
+			{
+				return m_ReversiblePlies;
+			}
 			constexpr const uint_t<countFiles, false>& oldFlags() const noexcept
 			{
 				return m_OldFlags;
@@ -30,11 +35,12 @@ namespace pygmalion::chess
 			{
 				return m_To;
 			}
-			constexpr enpassantMovedata(const squareType from_, const squareType to_, const uint_t<countFiles, false>& oldFlags_, const squareType captureSquare) noexcept :
+			constexpr enpassantMovedata(const squareType from_, const squareType to_, const uint_t<countFiles, false>& oldFlags_, const squareType captureSquare, const std::uint16_t reversiblePlies_) noexcept :
 				m_From{ from_ },
 				m_To{ to_ },
 				m_OldFlags{ oldFlags_ },
-				m_CaptureSquare{ captureSquare }
+				m_CaptureSquare{ captureSquare },
+				m_ReversiblePlies{ reversiblePlies_ }
 			{}
 			constexpr enpassantMovedata() noexcept = default;
 			constexpr enpassantMovedata(enpassantMovedata&&) noexcept = default;
@@ -94,6 +100,7 @@ namespace pygmalion::chess
 			const fileType f1{ enpassantmove::extractFile1(moveBits) };
 			const fileType f2{ enpassantmove::extractFile2(moveBits) };
 			const uint_t<countFiles, false> oldFlags{ position.extractFlagRange<4, 11>() };
+			const std::uint16_t reversiblePlies{ position.cumulation().reversiblePlies() };
 			if (p == whitePlayer)
 			{
 				const rankType r1{ rank5 };
@@ -106,7 +113,8 @@ namespace pygmalion::chess
 				position.addPiece(pawn, to, p);
 				position.removePiece(pawn, capture, p2);
 				position.setMovingPlayer(p2);
-				return typename enpassantmove::movedataType(from, to, oldFlags, capture);
+				position.cumulation().reversiblePlies() = 0;
+				return typename enpassantmove::movedataType(from, to, oldFlags, capture, reversiblePlies);
 			}
 			else
 			{
@@ -120,7 +128,8 @@ namespace pygmalion::chess
 				position.addPiece(pawn, to, p);
 				position.removePiece(pawn, capture, p2);
 				position.setMovingPlayer(p2);
-				return typename enpassantmove::movedataType(from, to, oldFlags, capture);
+				position.cumulation().reversiblePlies() = 0;
+				return typename enpassantmove::movedataType(from, to, oldFlags, capture, reversiblePlies);
 			}
 		}
 		constexpr void undoMove_Implementation(boardType& position, const typename enpassantmove::movedataType& data) const noexcept
@@ -132,6 +141,7 @@ namespace pygmalion::chess
 			position.addPiece(pawn, data.from(), p);
 			position.addPiece(pawn, data.captureSquare(), p2);
 			position.storeFlagRange<4, 11>(data.oldFlags());
+			position.cumulation().reversiblePlies() = data.reversiblePlies();
 		}
 		constexpr typename enpassantmove::movebitsType create(const fileType file1, const fileType file2) const noexcept
 		{

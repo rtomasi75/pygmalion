@@ -4,10 +4,12 @@ namespace pygmalion::chess::state
 	{
 	private:
 		materialScore m_Material;
+		std::uint16_t m_ReversiblePlies;
 	public:
 		constexpr void clear() noexcept
 		{
 			m_Material = materialScore::zero();
+			m_ReversiblePlies = 0;
 		}
 		constexpr const materialScore& score() const noexcept
 		{
@@ -17,8 +19,17 @@ namespace pygmalion::chess::state
 		{
 			return m_Material;
 		}
+		constexpr const std::uint16_t& reversiblePlies() const noexcept
+		{
+			return m_ReversiblePlies;
+		}
+		constexpr std::uint16_t& reversiblePlies() noexcept
+		{
+			return m_ReversiblePlies;
+		}
 		constexpr cumulation() noexcept :
-			m_Material{ materialScore::zero()}
+			m_Material{ materialScore::zero() },
+			m_ReversiblePlies{ 0 }
 		{
 		}
 		constexpr cumulation(cumulation&&) noexcept = default;

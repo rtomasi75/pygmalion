@@ -13,7 +13,12 @@ namespace pygmalion::chess
 			squareType m_From;
 			squareType m_To;
 			pieceType m_Piece;
+			std::uint16_t m_ReversiblePlies{ 0 };
 		public:
+			constexpr std::uint16_t reversiblePlies() const noexcept
+			{
+				return m_ReversiblePlies;
+			}
 			constexpr const uint_t<countFlags, false>& oldFlags() const noexcept
 			{
 				return m_OldFlags;
@@ -30,11 +35,12 @@ namespace pygmalion::chess
 			{
 				return m_To;
 			}
-			constexpr quietMovedata(const pieceType transportedPiece, const squareType fromSquare, const squareType toSquare, const uint_t<countFlags, false>& oldFlags_) noexcept :
+			constexpr quietMovedata(const pieceType transportedPiece, const squareType fromSquare, const squareType toSquare, const uint_t<countFlags, false>& oldFlags_, const std::uint16_t reversiblePlies_) noexcept :
 				m_Piece{ transportedPiece },
 				m_From{ fromSquare },
 				m_To{ toSquare },
-				m_OldFlags{ oldFlags_ }
+				m_OldFlags{ oldFlags_ },
+				m_ReversiblePlies{ reversiblePlies_ }
 			{}
 			constexpr quietMovedata() noexcept = default;
 			constexpr quietMovedata(quietMovedata&&) noexcept = default;
@@ -94,10 +100,15 @@ namespace pygmalion::chess
 			const pieceType pc{ position.getPiece(from) };
 			const playerType p{ position.getPlayer(from) };
 			const uint_t<countFlags, false> oldFlags{ position.extractFlagRange<0, 11>() };
+			const std::uint16_t reversiblePlies{ position.cumulation().reversiblePlies() };
 			position.clearEnPassantFiles();
 			position.removePiece(pc, from, p);
 			position.addPiece(pc, to, p);
 			position.setMovingPlayer(++position.movingPlayer());
+			if (pc == pawn)
+				position.cumulation().reversiblePlies() = 0;
+			else
+				position.cumulation().reversiblePlies()++;
 			if (p == whitePlayer)
 			{
 				switch (pc)
@@ -138,7 +149,7 @@ namespace pygmalion::chess
 					break;
 				}
 			}
-			return typename quietmove::movedataType(pc, from, to, oldFlags);
+			return typename quietmove::movedataType(pc, from, to, oldFlags, reversiblePlies);
 		}
 		constexpr void undoMove_Implementation(boardType& position, const typename quietmove::movedataType& data) const noexcept
 		{
@@ -147,6 +158,7 @@ namespace pygmalion::chess
 			position.removePiece(data.piece(), data.to(), p);
 			position.addPiece(data.piece(), data.from(), p);
 			position.storeFlagRange<0, 11>(data.oldFlags());
+			position.cumulation().reversiblePlies() = data.reversiblePlies();
 		}
 		constexpr typename quietmove::movebitsType create(const squareType from, const squareType to) const noexcept
 		{

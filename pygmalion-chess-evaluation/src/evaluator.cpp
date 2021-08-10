@@ -38,6 +38,8 @@ namespace pygmalion::chess
 
 	evaluator::gamestateType evaluator::earlyResult_Implementation(const generatorType::stackType& stack) noexcept
 	{
+		if (stack.position().cumulation().reversiblePlies() >= 100)
+			return gamestateType::draw();
 		return gamestateType::open();
 	}
 

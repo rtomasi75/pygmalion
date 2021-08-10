@@ -10,13 +10,19 @@ namespace pygmalion::chess
 #include <pygmalion-state/include_state.h>
 		private:
 			uint_t<countFlags, false> m_OldFlags;
+			std::uint16_t m_ReversiblePlies{ 0 };
 		public:
+			constexpr std::uint16_t reversiblePlies() const noexcept
+			{
+				return m_ReversiblePlies;
+			}
 			constexpr const uint_t<countFlags, false>& oldFlags() const noexcept
 			{
 				return m_OldFlags;
 			}
-			constexpr kingsidecastleMovedata(const uint_t<countFlags, false>& oldFlags_) noexcept :
-				m_OldFlags{ oldFlags_ }
+			constexpr kingsidecastleMovedata(const uint_t<countFlags, false>& oldFlags_, const std::uint16_t reversiblePlies_) noexcept :
+				m_OldFlags{ oldFlags_ },
+				m_ReversiblePlies{ reversiblePlies_ }
 			{}
 			constexpr kingsidecastleMovedata() noexcept = default;
 			constexpr kingsidecastleMovedata(kingsidecastleMovedata&&) noexcept = default;
@@ -55,6 +61,7 @@ namespace pygmalion::chess
 			const uint_t<countFlags, false> oldFlags{ position.extractFlagRange<0, 11>() };
 			position.clearEnPassantFiles();
 			position.setMovingPlayer(++position.movingPlayer());
+			const std::uint16_t reversiblePlies{ position.cumulation().reversiblePlies() };
 			if (p == whitePlayer)
 			{
 				position.clearCastleRightsWhite();
@@ -66,7 +73,8 @@ namespace pygmalion::chess
 				position.removePiece(rook, rookFrom, whitePlayer);
 				position.addPiece(king, kingTo, whitePlayer);
 				position.addPiece(rook, rookTo, whitePlayer);
-				return typename kingsidecastlemove::movedataType(oldFlags);
+				position.cumulation().reversiblePlies() = 0;
+				return typename kingsidecastlemove::movedataType(oldFlags, reversiblePlies);
 			}
 			else
 			{
@@ -79,7 +87,8 @@ namespace pygmalion::chess
 				position.removePiece(rook, rookFrom, blackPlayer);
 				position.addPiece(king, kingTo, blackPlayer);
 				position.addPiece(rook, rookTo, blackPlayer);
-				return typename kingsidecastlemove::movedataType(oldFlags);
+				position.cumulation().reversiblePlies() = 0;
+				return typename kingsidecastlemove::movedataType(oldFlags, reversiblePlies);
 			}
 		}
 		constexpr void undoMove_Implementation(boardType& position, const typename kingsidecastlemove::movedataType& data) const noexcept
@@ -109,6 +118,7 @@ namespace pygmalion::chess
 				position.removePiece(king, kingTo, blackPlayer);
 				position.removePiece(rook, rookTo, blackPlayer);
 			}
+			position.cumulation().reversiblePlies() = data.reversiblePlies();
 		}
 		constexpr typename kingsidecastlemove::movebitsType create() const noexcept
 		{

@@ -12,7 +12,12 @@ namespace pygmalion::chess
 			uint_t<countFiles, false> m_OldFlags;
 			squareType m_From;
 			squareType m_To;
+			std::uint16_t m_ReversiblePlies{ 0 };
 		public:
+			constexpr std::uint16_t reversiblePlies() const noexcept
+			{
+				return m_ReversiblePlies;
+			}
 			constexpr const uint_t<countFiles, false>& oldFlags() const noexcept
 			{
 				return m_OldFlags;
@@ -25,10 +30,11 @@ namespace pygmalion::chess
 			{
 				return m_To;
 			}
-			constexpr promotionMovedata(const squareType fromSquare, const squareType toSquare, const uint_t<countFiles, false>& oldFlags_) noexcept :
+			constexpr promotionMovedata(const squareType fromSquare, const squareType toSquare, const uint_t<countFiles, false>& oldFlags_, const std::uint16_t reversiblePlies_) noexcept :
 				m_From{ fromSquare },
 				m_To{ toSquare },
-				m_OldFlags{ oldFlags_ }
+				m_OldFlags{ oldFlags_ },
+				m_ReversiblePlies{ reversiblePlies_ }
 			{}
 			constexpr promotionMovedata() noexcept = default;
 			constexpr promotionMovedata(promotionMovedata&&) noexcept = default;
@@ -95,11 +101,13 @@ namespace pygmalion::chess
 			const squareType to{ promotionmove::extractTo(moveBits) };
 			const playerType p{ position.movingPlayer() };
 			const uint_t<countFiles, false> oldFlags{ position.extractFlagRange<4, 11>() };
+			const std::uint16_t reversiblePlies{ position.cumulation().reversiblePlies() };
 			position.clearEnPassantFiles();
 			position.removePiece(pawn, from, p);
 			position.addPiece(m_PromotedPiece, to, p);
 			position.setMovingPlayer(++position.movingPlayer());
-			return typename promotionmove::movedataType(from, to, oldFlags);
+			position.cumulation().reversiblePlies() = 0;
+			return typename promotionmove::movedataType(from, to, oldFlags, reversiblePlies);
 		}
 		constexpr void undoMove_Implementation(boardType& position, const typename promotionmove::movedataType& data) const noexcept
 		{
@@ -108,6 +116,7 @@ namespace pygmalion::chess
 			position.removePiece(m_PromotedPiece, data.to(), p);
 			position.addPiece(pawn, data.from(), p);
 			position.storeFlagRange<4, 11>(data.oldFlags());
+			position.cumulation().reversiblePlies() = data.reversiblePlies();
 		}
 		constexpr typename promotionmove::movebitsType create(const squareType from, const squareType to) const noexcept
 		{
