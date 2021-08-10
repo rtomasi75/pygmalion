@@ -2,11 +2,11 @@ namespace pygmalion::state
 {
 	template<typename DESCRIPTION_STATE>
 	class flag :
-		public enumeration<DESCRIPTION_STATE::countFlags, flag<DESCRIPTION_STATE>>,
+		public enumeration<DESCRIPTION_STATE::countFlags, DESCRIPTION_STATE::countHashBits, flag<DESCRIPTION_STATE>>,
 		public DESCRIPTION_STATE
 	{
 	public:
-		using parentType = enumeration<DESCRIPTION_STATE::countFlags, flag<DESCRIPTION_STATE>>;
+		using parentType = enumeration<DESCRIPTION_STATE::countFlags, DESCRIPTION_STATE::countHashBits, flag<DESCRIPTION_STATE>>;
 		using descriptorState = DESCRIPTION_STATE;
 #include "include_state.h"	
 		constexpr flag(const flag&) noexcept = default;

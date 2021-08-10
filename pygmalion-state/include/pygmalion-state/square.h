@@ -2,13 +2,13 @@ namespace pygmalion::state
 {
 	template<typename DESCRIPTION_STATE>
 	class square :
-		public enumeration<DESCRIPTION_STATE::countSquares, square<DESCRIPTION_STATE>>,
+		public enumeration<DESCRIPTION_STATE::countSquares, DESCRIPTION_STATE::countHashBits, square<DESCRIPTION_STATE>>,
 		public DESCRIPTION_STATE
 	{
 		friend class file<DESCRIPTION_STATE>;
 		friend class rank<DESCRIPTION_STATE>;
 	public:
-		using parentType = enumeration<DESCRIPTION_STATE::countSquares, square<DESCRIPTION_STATE>>;
+		using parentType = enumeration<DESCRIPTION_STATE::countSquares, DESCRIPTION_STATE::countHashBits, square<DESCRIPTION_STATE>>;
 		using descriptorState = DESCRIPTION_STATE;
 #include "include_state.h"
 	private:

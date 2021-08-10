@@ -1,6 +1,6 @@
 namespace pygmalion
 {
-	template<size_t COUNT_BITS, bool IS_COMPACT, typename = typename std::enable_if<true>::type>
+	template<size_t COUNT_BITS, bool IS_COMPACT, typename>
 	class uint_t
 	{
 	};

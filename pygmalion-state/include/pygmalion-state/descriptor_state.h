@@ -20,6 +20,7 @@ namespace pygmalion
 		using flagType = pygmalion::state::flag<descriptor_state>;
 		using flagsType = pygmalion::state::flags<descriptor_state>;
 		using gamestateType = pygmalion::state::gamestate<descriptor_state>;
+		using hashType = pygmalion::uint_t<countHashBits, false>;
 		using cumulationType = CUMULATION;
 	};
 }

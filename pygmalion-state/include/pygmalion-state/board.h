@@ -13,30 +13,49 @@ namespace pygmalion
 		std::array<squaresType, countPlayers> m_PlayerOccupancy;
 		playerType m_MovingPlayer;
 		flagsType m_Flags;
+		hashType m_Hash;
 		cumulationType m_Cumulation;
 	protected:
+		constexpr static const hashType& playerHash(const playerType player) noexcept
+		{
+			return playerType::hash(player);
+		}
+		constexpr static const hashType& flagHash(const flagType flag) noexcept
+		{
+			return flagType::hash(flag);
+		}
+		constexpr static hashType pieceHash(const pieceType piece, const squareType square, const playerType player) noexcept
+		{
+			return pieceType::hash(piece) ^ squareType::hash(square) ^ playerType::hash(player);
+		}
 		void onClear() noexcept
 		{
+			m_Hash = playerHash(m_MovingPlayer);
 			reinterpret_cast<boardType*>(this)->onClear_Implementation();
 		}
 		void onAddedPiece(const pieceType piece, const squareType square, const playerType player) noexcept
 		{
+			m_Hash ^= pieceHash(piece, square, player);
 			reinterpret_cast<boardType*>(this)->onAddedPiece_Implementation(piece, square, player);
 		}
 		void onSetMovingPlayer(const playerType player) noexcept
 		{
+			m_Hash ^= playerHash(m_MovingPlayer);
 			reinterpret_cast<boardType*>(this)->onSetMovingPlayer_Implementation(player);
 		}
 		void onRemovedPiece(const pieceType piece, const squareType square, const playerType player) noexcept
 		{
+			m_Hash ^= pieceHash(piece, square, player);
 			reinterpret_cast<boardType*>(this)->onRemovedPiece_Implementation(piece, square, player);
 		}
 		void onSetFlag(const flagType flag) noexcept
 		{
+			m_Hash ^= flagHash(flag);
 			reinterpret_cast<boardType*>(this)->onSetFlag_Implementation(flag);
 		}
 		void onClearedFlag(const flagType flag) noexcept
 		{
+			m_Hash ^= flagHash(flag);
 			reinterpret_cast<boardType*>(this)->onClearedFlag_Implementation(flag);
 		}
 		void onInitialize() noexcept
@@ -48,6 +67,10 @@ namespace pygmalion
 			return (first <= last) && (last < countFlags);
 		}
 	public:
+		constexpr const hashType& hash() const noexcept
+		{
+			return m_Hash;
+		}
 		constexpr cumulationType& cumulation() noexcept
 		{
 			return m_Cumulation;
@@ -177,11 +200,19 @@ namespace pygmalion
 		template<size_t FIRST, size_t LAST, typename = typename std::enable_if<board::enableRange(FIRST, LAST)>::type>
 		constexpr void clearFlagRange() noexcept
 		{
+			for (const auto f : m_Flags.template extractRange<FIRST, LAST>())
+			{
+				onClearedFlag(f);
+			}
 			m_Flags.template clearRange<FIRST, LAST>();
 		}
 		template<size_t FIRST, size_t LAST, typename = typename std::enable_if<board::enableRange(FIRST, LAST)>::type>
 		constexpr void setFlagRange() noexcept
 		{
+			for (const auto f : ~m_Flags.template extractRange<FIRST, LAST>())
+			{
+				onSetFlag(f);
+			}
 			m_Flags.template setRange<FIRST, LAST>();
 		}
 		template<size_t FIRST, size_t LAST, typename = typename std::enable_if<board::enableRange(FIRST, LAST)>::type>
@@ -192,7 +223,15 @@ namespace pygmalion
 		template<size_t FIRST, size_t LAST, typename = typename std::enable_if<board::enableRange(FIRST, LAST)>::type>
 		constexpr void storeFlagRange(const uint_t<1 + LAST - FIRST, false>& flags) noexcept
 		{
+			flagsType oldFlags{ m_Flags };
 			m_Flags.template storeRange<FIRST, LAST>(flags);
+			for (const auto f : oldFlags ^ m_Flags)
+			{
+				if (m_Flags[f])
+					onSetFlag(f);
+				else
+					onClearedFlag(f);
+			}
 		}
 		constexpr const flagsType flags() const noexcept
 		{
@@ -201,6 +240,7 @@ namespace pygmalion
 		constexpr void setMovingPlayer(const playerType movingPlayer) noexcept
 		{
 			assert(movingPlayer.isValid());
+			m_Hash ^= playerHash(m_MovingPlayer);
 			m_MovingPlayer = movingPlayer;
 			onSetMovingPlayer(m_MovingPlayer);
 		}
@@ -231,10 +271,6 @@ namespace pygmalion
 		{
 			assert(p.isValid());
 			return m_PlayerOccupancy[p];
-		}
-		constexpr flagsType& flags() noexcept
-		{
-			return m_Flags;
 		}
 		constexpr squaresType totalOccupancy() const noexcept
 		{
@@ -391,6 +427,9 @@ namespace pygmalion
 			}
 			str << std::endl;
 		}
+		str << std::endl;
+		str << "Hash: ";
+		str << position.hash();
 		str << std::endl;
 		str << "Cumulation: ";
 		str << boardType::cumulationToString(position.cumulation());

@@ -2,11 +2,11 @@ namespace pygmalion::state
 {
 	template<typename DESCRIPTION_STATE>
 	class rank :
-		public enumeration<DESCRIPTION_STATE::countRanks, rank<DESCRIPTION_STATE>>,
+		public enumeration<DESCRIPTION_STATE::countRanks, DESCRIPTION_STATE::countHashBits, rank<DESCRIPTION_STATE>>,
 		public DESCRIPTION_STATE
 	{
 	public:
-		using parentType = enumeration<DESCRIPTION_STATE::countRanks, rank<DESCRIPTION_STATE>>;
+		using parentType = enumeration<DESCRIPTION_STATE::countRanks, DESCRIPTION_STATE::countHashBits, rank<DESCRIPTION_STATE>>;
 		using descriptorState = DESCRIPTION_STATE;
 #include "include_state.h"	
 		constexpr rank(const rank&) noexcept = default;

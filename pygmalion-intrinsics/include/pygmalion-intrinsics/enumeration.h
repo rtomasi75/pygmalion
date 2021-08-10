@@ -66,7 +66,7 @@ namespace pygmalion
 		};
 	}
 
-	template<size_t COUNT, typename INSTANCE>
+	template<size_t COUNT, size_t HASHBITS, typename INSTANCE>
 	class enumeration
 	{
 	private:
@@ -94,9 +94,12 @@ namespace pygmalion
 	public:
 		using instanceType = INSTANCE;
 		constexpr static size_t countValues{ COUNT };
+		constexpr static size_t countHashBits{ HASHBITS };
 		constexpr static size_t countUnsignedBits{ requiredUnsignedBits(countValues) };
 		constexpr static size_t countSignedBits{ countUnsignedBits + 1 };
+		static inline const hash<countHashBits, countValues> m_HashTable{ hash<countHashBits, countValues>() };
 		using baseType = typename detail::enumeration_traits<requiredSignedBytes(countValues)>::STYPE;
+		using hashValue = typename hash<countHashBits, countValues>::hashValue;
 		enum valueType : baseType
 		{
 			invalid = -1,
@@ -123,6 +126,10 @@ namespace pygmalion
 		constexpr enumeration& operator=(enumeration&&) noexcept = default;
 		constexpr enumeration& operator=(const enumeration&) noexcept = default;
 	public:
+		constexpr static const hashValue& hash(const instanceType instance) noexcept
+		{
+			return m_HashTable[instance];
+		}
 		~enumeration() noexcept = default;
 		constexpr operator baseType() const noexcept
 		{

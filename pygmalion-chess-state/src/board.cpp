@@ -886,6 +886,8 @@ namespace pygmalion::chess
 		str << std::endl;
 		str << "Material: " << position.material() << std::endl;
 		str << std::endl;
+		str << "Hash: " << position.hash() << std::endl;
+		str << std::endl;
 		str << "Player " << boardType::playerToString(position.movingPlayer()) << " is on the move." << std::endl;
 		return str;
 	}

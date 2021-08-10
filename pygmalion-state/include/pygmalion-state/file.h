@@ -2,11 +2,11 @@ namespace pygmalion::state
 {
 	template<typename DESCRIPTION_STATE>
 	class file :
-		public enumeration<DESCRIPTION_STATE::countFiles, file<DESCRIPTION_STATE>>,
+		public enumeration<DESCRIPTION_STATE::countFiles, DESCRIPTION_STATE::countHashBits, file<DESCRIPTION_STATE>>,
 		public DESCRIPTION_STATE
 	{
 	public:
-		using parentType = enumeration<DESCRIPTION_STATE::countFiles, file<DESCRIPTION_STATE>>;
+		using parentType = enumeration<DESCRIPTION_STATE::countFiles, DESCRIPTION_STATE::countHashBits, file<DESCRIPTION_STATE>>;
 		using descriptorState = DESCRIPTION_STATE;
 #include "include_state.h"	
 		constexpr file(const file&) noexcept = default;

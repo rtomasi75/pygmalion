@@ -2,11 +2,11 @@ namespace pygmalion::state
 {
 	template<typename DESCRIPTION_STATE>
 	class piece :
-		public enumeration<DESCRIPTION_STATE::countPieces, piece<DESCRIPTION_STATE>>,
+		public enumeration<DESCRIPTION_STATE::countPieces, DESCRIPTION_STATE::countHashBits, piece<DESCRIPTION_STATE>>,
 		public DESCRIPTION_STATE
 	{
 	public:
-		using parentType = enumeration<DESCRIPTION_STATE::countPieces, piece<DESCRIPTION_STATE>>;
+		using parentType = enumeration<DESCRIPTION_STATE::countPieces, DESCRIPTION_STATE::countHashBits, piece<DESCRIPTION_STATE>>;
 		using descriptorState = DESCRIPTION_STATE;
 #include "include_state.h"	
 		constexpr piece(const piece&) noexcept = default;
