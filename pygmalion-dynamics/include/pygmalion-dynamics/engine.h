@@ -9,17 +9,7 @@ namespace pygmalion::dynamics
 		using generatorType = GENERATOR;
 		using descriptorDynamics = typename GENERATOR::descriptorDynamics;
 #include "include_dynamics.h"
-	private:
-		bloomfilterType m_Bloomfilter;
 	public:
-		constexpr const bloomfilterType& bloomfilter() const noexcept
-		{
-			return m_Bloomfilter;
-		}
-		constexpr bloomfilterType& bloomfilter() noexcept
-		{
-			return m_Bloomfilter;
-		}
 		engine() noexcept = delete;
 		engine(const engine&) = delete;
 		engine(engine&&) = delete;

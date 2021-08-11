@@ -16,7 +16,7 @@ namespace pygmalion::dynamics
 			{
 				this->output() << std::endl;
 				movelistType moves;
-				stackType stack(this->position(), this->bloomfilter(), this->position().movingPlayer());
+				stackType stack(this->position(), this->history(), this->position().movingPlayer());
 				movebitsType movebits;
 				bool hasMoves{ false };
 				while (stack.nextMove(movebits))

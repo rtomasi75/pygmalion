@@ -3,7 +3,6 @@
 
 #include <pygmalion-mechanics.h>
 
-#include "pygmalion-dynamics/bloomfilter.h"
 #include "pygmalion-dynamics/descriptor_dynamics.h"
 #include "pygmalion-dynamics/ray.h"
 #include "pygmalion-dynamics/slidermagic.h"

@@ -40,6 +40,8 @@ namespace pygmalion::chess
 	{
 		if (stack.position().cumulation().reversiblePlies() >= 100)
 			return gamestateType::draw();
+		if (stack.occurs(stack.position(), 2, 4, 4))
+			return gamestateType::draw();
 		return gamestateType::open();
 	}
 

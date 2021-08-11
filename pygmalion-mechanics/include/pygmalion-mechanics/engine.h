@@ -10,28 +10,23 @@ namespace pygmalion::mechanics
 		using descriptorMechanics = typename MOTOR::descriptorMechanics;
 #include "include_mechanics.h"
 	private:
-		std::vector<boardType> m_PositionHistory;
-		std::vector<movedataType> m_MovedataHistory;
-		std::vector<movebitsType> m_MoveHistory;
+		historyType m_History;
 	public:
-		constexpr size_t historyLength() const noexcept
+		constexpr const historyType& history() const noexcept
 		{
-			return m_PositionHistory.size();
+			return m_History;
+		}
+		constexpr historyType& history() noexcept
+		{
+			return m_History;
 		}
 		constexpr void makeMove(const movebitsType& movebits) noexcept
 		{
-			m_PositionHistory.push_back(this->position());
-			m_MovedataHistory.push_back(motorType::makeMove(this->position(), movebits));
-			m_MoveHistory.push_back(movebits);
+			m_History.template makeMove<motorType>(this->position(), movebits);
 		}
 		constexpr void unmakeMove() noexcept
 		{
-			assert(m_PositionHistory.size() > 0);
-			//	this->position() = m_PositionHistory[m_PositionHistory.size() - 1];
-			motorType::unmakeMove(this->position(), m_MovedataHistory[m_MovedataHistory.size() - 1]);
-			m_PositionHistory.resize(m_PositionHistory.size() - 1);
-			m_MovedataHistory.resize(m_MovedataHistory.size() - 1);
-			m_MoveHistory.resize(m_MoveHistory.size() - 1);
+			m_History.template unmakeMove<motorType>(this->position());
 		}
 		engine() noexcept = delete;
 		engine(const engine&) = delete;
@@ -42,6 +37,7 @@ namespace pygmalion::mechanics
 			this->template addCommand<command_debugMechanics<descriptorMechanics, motorType>>();
 			this->template addCommand<command_debugMove<descriptorMechanics, motorType>>();
 			this->template addCommand<command_debugUnmove<descriptorMechanics, motorType>>();
+			this->template addCommand<command_debugHistory<descriptorMechanics, motorType>>();
 		}
 		virtual ~engine() noexcept = default;
 		virtual std::string version() const noexcept override

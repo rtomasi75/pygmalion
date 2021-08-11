@@ -36,6 +36,14 @@ namespace pygmalion::chess::state
 		constexpr cumulation(const cumulation&) noexcept = default;
 		constexpr cumulation& operator=(cumulation&&) noexcept = default;
 		constexpr cumulation& operator=(const cumulation&) noexcept = default;
+		constexpr bool operator==(const cumulation& other) const noexcept
+		{
+			return m_Material == other.m_Material && m_ReversiblePlies == other.reversiblePlies();
+		}
+		constexpr bool operator!=(const cumulation& other) const noexcept
+		{
+			return m_Material != other.m_Material || m_ReversiblePlies != other.reversiblePlies();
+		}
 		~cumulation() noexcept = default;
 	};
 }

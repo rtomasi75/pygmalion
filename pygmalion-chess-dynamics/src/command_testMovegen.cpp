@@ -47,7 +47,7 @@ namespace pygmalion::chess::dynamics
 		this->output() << "Position: " << set.fen() << std::endl;
 		this->output() << "Depth:    " << set.depth() << std::endl;
 		this->output() << "Expected: " << set.expected() << std::endl;
-		bloomfilterType bloomfilter;
+		historyType history;
 		boardType position;
 		std::string error;
 		if (!position.setFen(set.fen(), error))
@@ -55,7 +55,7 @@ namespace pygmalion::chess::dynamics
 			this->output() << "Invalid FEN: " << error << std::endl;
 		}
 		this->output() << "Computed: ";
-		stackType stack(position, bloomfilter, position.movingPlayer().next());
+		stackType stack(position, history, position.movingPlayer().next());
 		profiler p;
 		p.start();
 		std::uintmax_t computed{ generatorType::perft(stack, set.depth(), nodes) };

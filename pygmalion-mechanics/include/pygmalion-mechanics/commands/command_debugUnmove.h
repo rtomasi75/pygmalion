@@ -17,7 +17,7 @@ namespace pygmalion::mechanics
 			if (token == "debug-unmove")
 			{
 				this->output() << std::endl;
-				if (this->mechanicsEngine().historyLength() > 0)
+				if (this->mechanicsEngine().history().length() > 0)
 				{
 					this->output() << "restored previous position." << std::endl;
 					this->mechanicsEngine().unmakeMove();

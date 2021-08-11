@@ -41,15 +41,15 @@ namespace pygmalion
 		constexpr bloomfilter& operator=(bloomfilter&&) noexcept = default;
 		constexpr valueType operator[](const hashValue hash) const noexcept
 		{
-			return m_Entry[hash & m_HashMask];
+			return m_Entry[static_cast<size_t>(hash & m_HashMask)];
 		}
 		constexpr void increment(const hashValue hash) noexcept
 		{
-			m_Entry[hash & m_HashMask]++;
+			m_Entry[static_cast<size_t>(hash & m_HashMask)]++;
 		}
 		constexpr void decrement(const hashValue hash) noexcept
 		{
-			m_Entry[hash & m_HashMask]--;
+			m_Entry[static_cast<size_t>(hash & m_HashMask)]--;
 		}
 	};
 }

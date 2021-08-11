@@ -67,6 +67,24 @@ namespace pygmalion
 			return (first <= last) && (last < countFlags);
 		}
 	public:
+		constexpr bool operator==(const boardType& other) const noexcept
+		{
+			if (m_Hash != other.m_Hash)
+				return false;
+			for (const auto pc : pieceType::range)
+			{
+				if (m_PieceOccupancy[pc] != other.m_PieceOccupancy[pc])
+					return false;
+			}
+			for (const auto pl : playerType::range)
+			{
+				if (m_PlayerOccupancy[pl] != other.m_PlayerOccupancy[pl])
+					return false;
+			}
+			if (m_Flags != other.m_Flags)
+				return false;
+			return true;
+		}
 		constexpr const hashType& hash() const noexcept
 		{
 			return m_Hash;

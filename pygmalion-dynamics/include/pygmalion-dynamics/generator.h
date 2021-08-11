@@ -16,10 +16,11 @@ namespace pygmalion
 			using descriptorDynamics = DESCRIPTOR_DYNAMICS;
 #include "include_dynamics.h"
 		private:
+			const stack* m_pParent;
 			mutable movelistType m_Moves;
 			mutable movelistType m_TacticalMoves;
 			boardType& m_Position;
-			bloomfilterType& m_Bloomfilter;
+			historyType& m_History;
 			const movedataType m_MoveData;
 			mutable size_t m_CurrentPass;
 			mutable size_t m_CurrentTacticalPass;
@@ -114,8 +115,9 @@ namespace pygmalion
 				return false;
 			}
 			stack(const stack& parent, const movebitsType moveBits) noexcept :
+				m_pParent{ &parent },
 				m_Position{ parent.m_Position },
-				m_Bloomfilter{ parent.m_Bloomfilter },
+				m_History{ parent.m_History },
 				m_Moves(),
 				m_HasLegalMove{ false },
 				m_HasLegalMoveValid{ false },
@@ -130,9 +132,10 @@ namespace pygmalion
 				m_IsNullmove{ false }
 			{
 			}
-			stack(boardType& position, bloomfilterType& bloomfilter, const playerType oldPlayer) noexcept :
+			stack(boardType& position, historyType& history, const playerType oldPlayer) noexcept :
+				m_pParent{ nullptr },
 				m_Position{ position },
-				m_Bloomfilter{ bloomfilter },
+				m_History{ history },
 				m_Moves(),
 				m_HasLegalMove{ false },
 				m_HasLegalMoveValid{ false },
@@ -171,6 +174,31 @@ namespace pygmalion
 			std::string moveToString(const movebitsType moveBits) const
 			{
 				return generatorType::moveToString(*static_cast<const typename generatorType::stackType*>(this), moveBits);
+			}
+			constexpr bool occurs(const boardType& position, const int times, const int start = 3, const int frequency = 4) const noexcept
+			{
+				int n{ 0 };
+				if (m_pParent != nullptr)
+				{
+					if (start == 0)
+					{
+						if (m_Position == position)
+						{
+							if (times == 1)
+								return true;
+							else
+								return m_pParent->occurs(position, times - 1, frequency, frequency);
+						}
+						else
+							return m_pParent->occurs(position, times, start - 1, frequency);
+					}
+					else
+						return m_pParent->occurs(position, times, start - 1, frequency);
+				}
+				else
+				{
+					return m_History.occurs(position, times, start, frequency);
+				}
 			}
 		};
 	private:

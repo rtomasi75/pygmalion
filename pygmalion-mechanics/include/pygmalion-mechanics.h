@@ -6,6 +6,8 @@
 
 #include <pygmalion-state.h>
 
+#include "pygmalion-mechanics/bloomfilter.h"
+#include "pygmalion-mechanics/history.h"
 #include "pygmalion-mechanics/descriptor_mechanics.h"
 #include "pygmalion-mechanics/move.h"
 #include "pygmalion-mechanics/nullmove.h"

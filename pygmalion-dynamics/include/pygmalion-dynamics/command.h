@@ -15,13 +15,13 @@ namespace pygmalion::dynamics
 		using descriptorDynamics = DESCRIPTION_DYNAMICS;
 #include "include_dynamics.h"	
 	public:
-		bloomfilterType& bloomfilter() noexcept
+		historyType& history() noexcept
 		{
-			return this->dynamicsEngine().bloomfilter();
+			return this->dynamicsEngine().history();
 		}
-		const bloomfilterType& bloomfilter() const noexcept
+		const historyType& history() const noexcept
 		{
-			return this->dynamicsEngine().bloomfilter();
+			return this->dynamicsEngine().history();
 		}
 		engine<generatorType>& dynamicsEngine() noexcept
 		{

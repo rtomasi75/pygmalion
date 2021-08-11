@@ -878,8 +878,8 @@ namespace pygmalion::chess
 	{
 	}
 
-	generator::stack::stack(boardType& position, bloomfilterType& bloomfilter, const playerType oldPlayer) noexcept :
-		pygmalion::generator<descriptor_dynamics, generator>::stack(position, bloomfilter, oldPlayer)
+	generator::stack::stack(boardType& position, historyType& history, const playerType oldPlayer) noexcept :
+		pygmalion::generator<descriptor_dynamics, generator>::stack(position, history, oldPlayer)
 	{
 	}
 
