@@ -42,7 +42,7 @@ namespace pygmalion::chess
 			squaresType squaresAttackedByPlayer(const playerType player) const;
 			bool isCheck() const noexcept;
 			stack(const stack& parent, const movebitsType& movebits) noexcept;
-			stack(boardType& position, const playerType oldPlayer) noexcept;
+			stack(boardType& position, bloomfilterType& bloomfilter, const playerType oldPlayer) noexcept;
 			~stack() noexcept;
 		};
 		using stackType = stack;

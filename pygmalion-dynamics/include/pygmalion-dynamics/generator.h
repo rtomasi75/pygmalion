@@ -19,6 +19,7 @@ namespace pygmalion
 			mutable movelistType m_Moves;
 			mutable movelistType m_TacticalMoves;
 			boardType& m_Position;
+			bloomfilterType& m_Bloomfilter;
 			const movedataType m_MoveData;
 			mutable size_t m_CurrentPass;
 			mutable size_t m_CurrentTacticalPass;
@@ -114,6 +115,7 @@ namespace pygmalion
 			}
 			stack(const stack& parent, const movebitsType moveBits) noexcept :
 				m_Position{ parent.m_Position },
+				m_Bloomfilter{ parent.m_Bloomfilter },
 				m_Moves(),
 				m_HasLegalMove{ false },
 				m_HasLegalMoveValid{ false },
@@ -128,8 +130,9 @@ namespace pygmalion
 				m_IsNullmove{ false }
 			{
 			}
-			stack(boardType& position, const playerType oldPlayer) noexcept :
+			stack(boardType& position, bloomfilterType& bloomfilter, const playerType oldPlayer) noexcept :
 				m_Position{ position },
+				m_Bloomfilter{ bloomfilter },
 				m_Moves(),
 				m_HasLegalMove{ false },
 				m_HasLegalMoveValid{ false },

@@ -5,12 +5,12 @@ namespace pygmalion::search
 
 	template<typename DESCRIPTION_SEARCH, typename NODE>
 	class command :
-		public pygmalion::dynamics::command<typename DESCRIPTION_SEARCH::descriptorEvaluation, typename DESCRIPTION_SEARCH::objectiveType>,
+		public pygmalion::evaluation::command<typename DESCRIPTION_SEARCH::descriptorEvaluation, typename DESCRIPTION_SEARCH::evaluatorType>,
 		public DESCRIPTION_SEARCH
 	{
 	public:
 		using nodeType = NODE;
-		using parentType = pygmalion::dynamics::command<typename DESCRIPTION_SEARCH::descriptorEvaluation, typename DESCRIPTION_SEARCH::objectiveType>;
+		using parentType = pygmalion::evaluation::command<typename DESCRIPTION_SEARCH::descriptorEvaluation, typename DESCRIPTION_SEARCH::evaluatorType>;
 		using descriptorSearch = DESCRIPTION_SEARCH;
 #include "include_search.h"	
 	public:

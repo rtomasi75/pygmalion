@@ -60,7 +60,7 @@ namespace pygmalion::chess::dynamics
 			{
 				perftdata data;
 				p.start();
-				stackType stack{ stackType(this->position(), this->position().movingPlayer()) };
+				stackType stack{ stackType(this->position(),this->bloomfilter(), this->position().movingPlayer()) };
 				movebitsType moveBits;
 				while (stack.nextMove(moveBits))
 				{

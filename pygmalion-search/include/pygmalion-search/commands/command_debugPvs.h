@@ -60,7 +60,7 @@ namespace pygmalion::search
 				{
 					variationType principalVariation;
 					heuristicsType heuristics;
-					stackType stack{ stackType(this->position(), this->position().movingPlayer()) };
+					stackType stack{ stackType(this->position(), this->bloomfilter(),  this->position().movingPlayer()) };
 					objectiveType score{ vpvs(stack, principalVariation, i, heuristics, this->output()) };
 					uint64_t nodeCount{ heuristics.nodeCount() };
 					this->output() << static_cast<int>(i + 1) << ": " << std::setw(12) << score << " - " << variationToString(stack, principalVariation) << std::endl;
@@ -78,7 +78,7 @@ namespace pygmalion::search
 				{
 					variationType principalVariation;
 					heuristicsType heuristics;
-					stackType stack{ stackType(this->position(), this->position().movingPlayer()) };
+					stackType stack{ stackType(this->position(), this->bloomfilter(), this->position().movingPlayer()) };
 					objectiveType score{ pvs(stack, principalVariation, i, heuristics, this->output()) };
 					uint64_t nodeCount{ heuristics.nodeCount() };
 					this->output() << static_cast<int>(i + 1) << ": " << std::setw(12) << score << " - " << variationToString(stack, principalVariation) << std::endl;

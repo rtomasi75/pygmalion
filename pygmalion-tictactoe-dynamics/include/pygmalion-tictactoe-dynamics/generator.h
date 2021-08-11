@@ -1,7 +1,7 @@
 namespace pygmalion::tictactoe
 {
 	class descriptor_dynamics :
-		public pygmalion::descriptor_dynamics<motor, 9>
+		public pygmalion::descriptor_dynamics<motor, 9, 10, 256>
 	{
 	public:
 		static inline movetable<descriptor_dynamics> moveTable{ movetable<descriptor_dynamics>(0x0095,9) };

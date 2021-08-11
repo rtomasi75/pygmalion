@@ -16,7 +16,7 @@ namespace pygmalion::chess
 		generatorType::addCommand<pygmalion::chess::dynamics::command_testMovegen>(list);
 		return list;
 	}
-	
+
 	void generator::control(const generatorType::stackType& stack, squaresType& white, squaresType& black) noexcept
 	{
 		const squaresType whitePawns{ stack.position().playerOccupancy(whitePlayer) & stack.position().pieceOccupancy(pawn) };
@@ -236,7 +236,7 @@ namespace pygmalion::chess
 		white = whiteControl;
 		black = blackControl;
 	}
-	
+
 	generator::squaresType generator::attackers(const boardType& position, const squareType square) noexcept
 	{
 		assert(square.isValid());
@@ -255,7 +255,7 @@ namespace pygmalion::chess
 		attackers |= sliderAttacksDiag(square, allowed) & slidersDiag;
 		return attackers;
 	}
-	
+
 	generator::squaresType generator::attackers(const boardType& position, const squareType square, const playerType attacker) noexcept
 	{
 		assert(square.isValid());
@@ -272,7 +272,7 @@ namespace pygmalion::chess
 		attackers |= sliderAttacksDiag(square, allowed) & slidersDiag;
 		return attackers & position.playerOccupancy(attacker);
 	}
-	
+
 	bool generator::isAttacked(const boardType& position, const squareType square, const playerType attacker) noexcept
 	{
 		assert(square.isValid());
@@ -294,7 +294,7 @@ namespace pygmalion::chess
 			return true;
 		return false;
 	}
-	
+
 	generator::squaresType generator::squaresAttackedByPlayer(const stackType& stack, const playerType attackingPlayer) noexcept
 	{
 		assert(attackingPlayer.isValid());
@@ -317,7 +317,7 @@ namespace pygmalion::chess
 			attacked |= pawns.downLeft() | pawns.downRight();
 		return attacked;
 	}
-	
+
 	generator::squaresType generator::squaresTargetedByPlayer(const stackType& stack, const playerType attackingPlayer) noexcept
 	{
 		assert(attackingPlayer.isValid());
@@ -340,7 +340,7 @@ namespace pygmalion::chess
 			attacked |= pawns.downLeft() | pawns.downRight();
 		return attacked;
 	}
-	
+
 	void generator::generateKingMoves(const stackType& stack, movelistType& moves) noexcept
 	{
 		const squaresType forbidden{ stack.squaresAttackedByPlayer(stack.nextPlayer()) };
@@ -352,7 +352,7 @@ namespace pygmalion::chess
 				moves.add(motorType::move().createQuiet(from, to));
 		}
 	}
-	
+
 	void generator::generateKingCaptures(const stackType& stack, movelistType& moves) noexcept
 	{
 		const squaresType forbidden{ stack.squaresAttackedByPlayer(stack.nextPlayer()) };
@@ -363,7 +363,7 @@ namespace pygmalion::chess
 				moves.add(motorType::move().createCapture(from, to));
 		}
 	}
-	
+
 	void generator::generateCastles(const stackType& stack, movelistType& moves) noexcept
 	{
 		if (stack.position().movingPlayer() == whitePlayer)
@@ -405,7 +405,7 @@ namespace pygmalion::chess
 			}
 		}
 	}
-	
+
 	void generator::generatePawnEnPassant(const stackType& stack, movelistType& moves) noexcept
 	{
 		const uint_t<8, false> epFlags{ stack.position().flags().extractRange<4,11>() };
@@ -511,7 +511,7 @@ namespace pygmalion::chess
 		// The move seems legal
 		return true;
 	}
-	
+
 	bool generator::generateMoves_Implementation(const stackType& stack, movelistType& moves, size_t& currentPass) noexcept
 	{
 		switch (currentPass)
@@ -580,7 +580,7 @@ namespace pygmalion::chess
 			return true;
 		}
 	}
-	
+
 	bool generator::generateTacticalMoves_Implementation(const stackType& stack, movelistType& moves, size_t& currentPass) noexcept
 	{
 		switch (currentPass)
@@ -618,7 +618,7 @@ namespace pygmalion::chess
 		}
 		return false;
 	}
-	
+
 	void generator::movesFromSquare(const stackType& stack, const squareType square, squaresType& moves, squaresType& captures) noexcept
 	{
 		const boardType& position{ stack.position() };
@@ -644,7 +644,7 @@ namespace pygmalion::chess
 			}
 		}
 	}
-	
+
 	std::string generator::moveToString_Implementation(const stackType& stack, const movebitsType mv) noexcept
 	{
 		const boardType& position{ stack.position() };
@@ -878,8 +878,8 @@ namespace pygmalion::chess
 	{
 	}
 
-	generator::stack::stack(boardType& position, const playerType oldPlayer) noexcept :
-		pygmalion::generator<descriptor_dynamics, generator>::stack(position, oldPlayer)
+	generator::stack::stack(boardType& position, bloomfilterType& bloomfilter, const playerType oldPlayer) noexcept :
+		pygmalion::generator<descriptor_dynamics, generator>::stack(position, bloomfilter, oldPlayer)
 	{
 	}
 
