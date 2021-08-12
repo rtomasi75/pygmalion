@@ -29,6 +29,10 @@ namespace pygmalion::state
 			assert(this->isValid());
 			return (*this) % countFiles;
 		}
+		constexpr bool isDark() const noexcept
+		{
+			return (rank() + file()) % 2 == 0;
+		}
 		constexpr square(const square&) noexcept = default;
 		constexpr square(square&&) noexcept = default;
 		constexpr square() noexcept :

@@ -18,7 +18,7 @@ namespace pygmalion::search
 		{
 			return dynamic_cast<engine<nodeType>&>(this->evaluationEngine());
 		}
-		const engine<nodeType>& evaluationEngine() const noexcept
+		const engine<nodeType>& searchEngine() const noexcept
 		{
 			return dynamic_cast<const engine<nodeType>&>(this->evaluationEngine());
 		}

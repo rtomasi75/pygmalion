@@ -9,8 +9,6 @@ namespace pygmalion::search
 		using nodeType = NODE;
 		using descriptorSearch = typename NODE::descriptorSearch;
 #include "include_search.h"
-	private:
-	public:
 		engine() noexcept = delete;
 		engine(const engine&) = delete;
 		engine(engine&&) = delete;

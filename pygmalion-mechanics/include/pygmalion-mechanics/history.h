@@ -40,8 +40,10 @@ namespace pygmalion
 		}
 		void clear() noexcept
 		{
-			m_CountEntries = 0;
 			m_Bloomfilter.clear();
+			m_MovedataHistory.resize(0);
+			m_MoveHistory.resize(0);
+			m_Boards.resize(0);
 		}
 		const boardType& board(const size_t index) const noexcept
 		{

@@ -97,9 +97,9 @@ namespace pygmalion
 		constexpr static size_t countHashBits{ HASHBITS };
 		constexpr static size_t countUnsignedBits{ requiredUnsignedBits(countValues) };
 		constexpr static size_t countSignedBits{ countUnsignedBits + 1 };
-		static inline const hash<countHashBits, countValues> m_HashTable{ hash<countHashBits, countValues>() };
+		static inline const hashprovider<countHashBits, countValues> m_HashTable{ hashprovider<countHashBits, countValues>() };
 		using baseType = typename detail::enumeration_traits<requiredSignedBytes(countValues)>::STYPE;
-		using hashValue = typename hash<countHashBits, countValues>::hashValue;
+		using hashValue = typename hashprovider<countHashBits, countValues>::hashValue;
 		enum valueType : baseType
 		{
 			invalid = -1,

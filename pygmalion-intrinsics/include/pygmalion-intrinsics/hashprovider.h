@@ -4,7 +4,7 @@ namespace pygmalion
 	class uint_t;
 
 	template<size_t BITCOUNT, size_t VALUECOUNT>
-	class hash
+	class hashprovider
 	{
 	public:
 		constexpr static size_t countBits{ BITCOUNT };
@@ -13,15 +13,15 @@ namespace pygmalion
 	private:
 		std::array<hashValue, countValues> m_HashOfValue;
 	public:
-		hash() noexcept :
+		hashprovider() noexcept :
 			m_HashOfValue{ arrayhelper::generate<countValues, hashValue>([](const size_t idx) {return hashValue::random(); }) }
 		{
 		}
-		constexpr hash(hash&&) noexcept = default;
-		constexpr hash(const hash&) noexcept = default;
-		constexpr hash& operator=(hash&&) noexcept = default;
-		constexpr hash& operator=(const hash&) noexcept = default;
-		~hash() noexcept = default;
+		constexpr hashprovider(hashprovider&&) noexcept = default;
+		constexpr hashprovider(const hashprovider&) noexcept = default;
+		constexpr hashprovider& operator=(hashprovider&&) noexcept = default;
+		constexpr hashprovider& operator=(const hashprovider&) noexcept = default;
+		~hashprovider() noexcept = default;
 		constexpr const hashValue& operator[](const size_t value) const noexcept
 		{
 			assert(value >= 0);

@@ -130,13 +130,15 @@ namespace pygmalion
 			auto ctr = duration.count();
 			return valueToString(static_cast<double>(ctr) / 1000000000.0, "s");
 		}
-
-		static auto speedToString(const profiler::speed& spd) noexcept
+		static std::string nodesCountToString(const std::uint64_t nodes) noexcept
+		{
+			return valueToString(static_cast<double>(nodes), "N");
+		}
+		static std::string speedToString(const profiler::speed& spd) noexcept
 		{
 			const double ups{ spd.operationsPerSec() };
 			return valueToString(ups, spd.operationUnit() + "/s");
 		}
-
 		static long long int parseInt(const std::string& str) noexcept
 		{
 			try
