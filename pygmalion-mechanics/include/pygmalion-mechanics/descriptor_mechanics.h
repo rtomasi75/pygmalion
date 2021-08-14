@@ -15,6 +15,7 @@ namespace pygmalion
 		constexpr static const size_t countValuesBloomfilter{ COUNT_VALUES_BLOOMFILTER };
 		using bloomfilterType = bloomfilter<typename descriptorState::hashType, COUNT_BITS_BLOOMFILTER, COUNT_VALUES_BLOOMFILTER - 1>;
 		using historyType = history<descriptor_mechanics, COUNT_BITS_BLOOMFILTER, COUNT_VALUES_BLOOMFILTER>;
+		using gameType = game<boardType>;
 	};
 
 }

@@ -7,18 +7,28 @@ namespace pygmalion::state
 	{
 	public:
 		using boardType = BOARD;
+		using gameType = game<boardType>;
 		using descriptorState = typename BOARD::descriptorState;
 #include "include_state.h"
 	private:
-		boardType m_Position;
+		gameType m_Game;
 	public:
+
+		gameType& game() noexcept
+		{
+			return m_Game;
+		}
+		const gameType& game() const noexcept
+		{
+			return m_Game;
+		}
 		boardType& position() noexcept
 		{
-			return m_Position;
+			return m_Game.position();
 		}
 		const boardType& position() const noexcept
 		{
-			return m_Position;
+			return m_Game.position();
 		}
 		engine() noexcept = delete;
 		engine(const engine&) = delete;
@@ -45,7 +55,7 @@ namespace pygmalion::state
 			this->template addCommand<command_debugOccupancy<descriptorState, boardType>>();
 			this->template addCommand<command_debugSquares<descriptorState, boardType>>();
 			this->template addCommand<command_debugState<descriptorState, boardType>>();
-			m_Position.initialize();
+			m_Game.initialize();
 		}
 		virtual ~engine() noexcept = default;
 		virtual std::string version() const noexcept override
