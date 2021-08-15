@@ -6,6 +6,7 @@
 
 #include "pygmalion-chess-frontend/descriptor_frontend.h"
 #include "pygmalion-chess-frontend/front.h"
+#include "pygmalion-chess-frontend/commands.h"
 #include "pygmalion-chess-frontend/engine.h"
 
 #endif

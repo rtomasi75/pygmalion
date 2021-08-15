@@ -11,8 +11,11 @@ namespace pygmalion::chess::frontend
 		engine(std::istream& input, std::ostream& output) noexcept :
 			pygmalion::frontend::engine<FRONT>(input, output)
 		{
-		//	this->template addCommand<command_debugSearch<descriptorSearch, nodeType>>();
-		//	this->template addCommand<command_debugPvs<descriptorSearch, nodeType>>();
+			this->template addCommand<command_white<descriptorFrontend, frontType>>();
+			this->template addCommand<command_black<descriptorFrontend, frontType>>();
+			this->template addCommand<command_time<descriptorFrontend, frontType>>();
+			this->template addCommand<command_otim<descriptorFrontend, frontType>>();
+			this->template addCommand<command_rating<descriptorFrontend, frontType>>();
 		}
 		virtual ~engine() noexcept = default;
 		virtual std::string version() const noexcept override

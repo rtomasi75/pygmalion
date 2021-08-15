@@ -1,0 +1,5 @@
+#include "commands/command_white.h"
+#include "commands/command_black.h"
+#include "commands/command_time.h"
+#include "commands/command_otim.h"
+#include "commands/command_rating.h"

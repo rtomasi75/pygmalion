@@ -30,9 +30,13 @@ namespace pygmalion::frontend
 			this->template addCommand<command_debugFrontend<descriptorFrontend, frontType>>();
 			this->template addCommand<command_xboard<descriptorFrontend, frontType>>();
 			this->template addCommand<command_protover<descriptorFrontend, frontType>>();
+			this->template addCommand<command_accepted<descriptorFrontend, frontType>>();
+			this->template addCommand<command_rejected<descriptorFrontend, frontType>>();
 			this->template addCommand<command_random<descriptorFrontend, frontType>>();
 			this->template addCommand<command_computer<descriptorFrontend, frontType>>();
 			this->template addCommand<command_sd<descriptorFrontend, frontType>>();
+			this->template addCommand<command_st<descriptorFrontend, frontType>>();
+			this->template addCommand<command_force<descriptorFrontend, frontType>>();
 		}
 		virtual ~engine() noexcept = default;
 		virtual std::string version() const noexcept override

@@ -18,12 +18,19 @@ namespace pygmalion::frontend
 				this->output() << std::endl;
 				this->output() << "xboard mode:      " << (this->front().isXBoard() ? "enabled" : "disabled") << std::endl;
 				this->output() << "protocol version: " << this->front().protocolVersion() << std::endl;
+				this->output() << "force mode:       " << (this->front().forceMode() ? "enabled" : "disabled") << std::endl;
 				this->output() << "random mode:      " << (this->front().isRandom() ? "enabled" : "disabled") << std::endl;
 				this->output() << "against computer: " << (this->front().playingComputer() ? "yes" : "no") << std::endl;
 				if (this->front().isDepthLimited())
 					this->output() << "depth limit:      " << static_cast<int>(this->front().depthLimit()) << std::endl;
 				else
 					this->output() << "depth limit:      none" << std::endl;
+				this->output() << "engine player:    " << boardType::playerToString(this->front().enginePlayer()) << std::endl;
+				this->output() << std::endl;
+				for (const auto pl : playerType::range)
+				{
+					this->output() << "player " << boardType::playerToString(pl) << " rating: " << static_cast<int>(this->front().playerRating(pl)) << std::endl;
+				}
 				this->output() << std::endl;
 				return true;
 			}

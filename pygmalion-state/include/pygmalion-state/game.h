@@ -19,6 +19,14 @@ namespace pygmalion
 			m_MaxDepth{ -1 }
 		{
 		}
+		constexpr const clock& playerClock(const playerType pl) const noexcept
+		{
+			return m_Clock[pl];
+		}
+		constexpr clock& playerClock(const playerType pl) noexcept
+		{
+			return m_Clock[pl];
+		}
 		constexpr const boardType& position() const noexcept
 		{
 			return m_Board;

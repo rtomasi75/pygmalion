@@ -16,7 +16,7 @@ namespace pygmalion::intrinsics
 		addCommand<command_debugCompiler>();
 		addCommand<command_debugIntrinsics>();
 	}
-	
+
 	std::string engine::version() const noexcept
 	{
 		return "no game (intrinsics only)";
@@ -38,7 +38,7 @@ namespace pygmalion::intrinsics
 			if (!processed)
 			{
 				m_Output << std::endl;
-				m_Output << "invalid command." << std::endl;
+				m_Output << "Error (invalid command): " << input << std::endl;
 				m_Output << std::endl;
 			}
 		}
