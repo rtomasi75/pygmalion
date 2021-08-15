@@ -10,6 +10,7 @@ namespace pygmalion
 		using stackType = typename generatorType::stackType;
 	private:
 		stackType m_Stack;
+		std::atomic_bool& m_IsRunning;
 		objectiveType lateScore() const noexcept
 		{
 			const gamestateType lateState{ evaluatorType::lateResult(m_Stack) };
@@ -217,13 +218,15 @@ namespace pygmalion
 		constexpr node(const node&) = default;
 		constexpr node(node&&) = default;
 		constexpr node& operator=(const node&) = default;
-		constexpr node(const stackType& stack) noexcept :
-			m_Stack{ stack }
+		constexpr node(const stackType& stack, std::atomic_bool& isRunning) noexcept :
+			m_Stack{ stack },
+			m_IsRunning{ isRunning }
 		{
 
 		}
 		constexpr node(const node& parent, const movebitsType moveBits) noexcept :
-			m_Stack(parent.m_Stack, moveBits)
+			m_Stack(parent.m_Stack, moveBits),
+			m_IsRunning{ parent.m_IsRunning }
 		{
 		}
 		~node() noexcept = default;

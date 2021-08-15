@@ -1,6 +1,8 @@
 #if !defined(PYGMALION_SEARCH)
 #define PYGMALION_SEARCH
 
+#include <atomic>
+
 #include <pygmalion-evaluation.h>
 
 #include "pygmalion-search/descriptor_search.h"

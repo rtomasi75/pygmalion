@@ -18,7 +18,9 @@ namespace pygmalion::frontend
 				this->output() << std::endl;
 				this->output() << "xboard mode:      " << (this->front().isXBoard() ? "enabled" : "disabled") << std::endl;
 				this->output() << "protocol version: " << this->front().protocolVersion() << std::endl;
+				this->output() << "opponent name:    " << this->front().opponentName() << std::endl;
 				this->output() << "force mode:       " << (this->front().forceMode() ? "enabled" : "disabled") << std::endl;
+				this->output() << "post mode:        " << (this->front().postMode() ? "enabled" : "disabled") << std::endl;
 				this->output() << "random mode:      " << (this->front().isRandom() ? "enabled" : "disabled") << std::endl;
 				this->output() << "against computer: " << (this->front().playingComputer() ? "yes" : "no") << std::endl;
 				if (this->front().isDepthLimited())

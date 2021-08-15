@@ -28,7 +28,8 @@ namespace pygmalion::search
 		}
 		objectiveType pvs(const stackType& stack, variationType& principalVariation, const depthType depthRemaining, heuristicsType& heuristics, std::ostream& str) noexcept
 		{
-			nodeType node(stack);
+			std::atomic_bool isRunning{ true };
+			nodeType node(stack, isRunning);
 			principalVariation.clear();
 			multiscoreType alphabeta;
 			heuristics.beginSearch();
@@ -38,7 +39,8 @@ namespace pygmalion::search
 		}
 		objectiveType vpvs(const stackType& stack, variationType& principalVariation, const depthType depthRemaining, heuristicsType& heuristics, std::ostream& str) noexcept
 		{
-			nodeType node(stack);
+			std::atomic_bool isRunning{ true };
+			nodeType node(stack, isRunning);
 			principalVariation.clear();
 			multiscoreType alphabeta;
 			heuristics.beginSearch();

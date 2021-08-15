@@ -8,3 +8,6 @@
 #include "commands/command_computer.h"
 #include "commands/command_sd.h"
 #include "commands/command_st.h"
+#include "commands/command_name.h"
+#include "commands/command_post.h"
+#include "commands/command_nopost.h"

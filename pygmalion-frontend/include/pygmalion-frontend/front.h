@@ -18,7 +18,17 @@ namespace pygmalion
 		bool m_IsRandom;
 		bool m_PlayingComputer;
 		bool m_ForceMode;
+		bool m_PostMode;
+		std::string m_OpponentName;
 	public:
+		constexpr const std::string& opponentName() const noexcept
+		{
+			return m_OpponentName;
+		}
+		constexpr std::string& opponentName() noexcept
+		{
+			return m_OpponentName;
+		}
 		constexpr std::uint16_t playerRating(const playerType pl) const noexcept
 		{
 			return m_Rating[pl];
@@ -95,6 +105,14 @@ namespace pygmalion
 		{
 			return m_ForceMode;
 		}
+		constexpr bool postMode() const noexcept
+		{
+			return m_PostMode;
+		}
+		constexpr bool& postMode() noexcept
+		{
+			return m_PostMode;
+		}
 		constexpr bool& playingComputer() noexcept
 		{
 			return m_PlayingComputer;
@@ -120,7 +138,8 @@ namespace pygmalion
 			m_MaxDepth{ -1 },
 			m_MaxTime{ -1 },
 			m_EnginePlayer{ 0 },
-			m_Rating{ arrayhelper::make<countPlayers,std::uint16_t>(0) }
+			m_Rating{ arrayhelper::make<countPlayers,std::uint16_t>(0) },
+			m_OpponentName{ std::string("<unknown>") }
 		{
 
 		}

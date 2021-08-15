@@ -4,6 +4,8 @@ namespace pygmalion::chess::frontend
 	class engine :
 		public pygmalion::frontend::engine<FRONT>
 	{
+	private:
+
 	public:
 		engine() noexcept = delete;
 		engine(const engine&) = delete;
@@ -16,6 +18,7 @@ namespace pygmalion::chess::frontend
 			this->template addCommand<command_time<descriptorFrontend, frontType>>();
 			this->template addCommand<command_otim<descriptorFrontend, frontType>>();
 			this->template addCommand<command_rating<descriptorFrontend, frontType>>();
+			this->template addCommand<command_new<descriptorFrontend, frontType>>();
 		}
 		virtual ~engine() noexcept = default;
 		virtual std::string version() const noexcept override
