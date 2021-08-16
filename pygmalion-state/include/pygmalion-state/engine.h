@@ -13,12 +13,11 @@ namespace pygmalion::state
 	private:
 		gameType m_Game;
 	public:
-
-		gameType& game() noexcept
+		gameType& currentGame() noexcept
 		{
 			return m_Game;
 		}
-		const gameType& game() const noexcept
+		const gameType& currentGame() const noexcept
 		{
 			return m_Game;
 		}

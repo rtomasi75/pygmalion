@@ -13,11 +13,11 @@ namespace pygmalion::chess::frontend
 		{
 			if ((cmd == "white")&& this->front().isXBoard())
 			{
-				this->front().enginePlayer() = blackPlayer;
-				this->searchEngine().game().position().movingPlayer() = whitePlayer;
+				this->front().enginePlayer() = descriptorFrontend::blackPlayer;
+				this->searchEngine().currentGame().position().movingPlayer() = descriptorFrontend::whitePlayer;
 				for (const auto pl : playerType::range)
 				{
-					this->searchEngine().game().playerClock(pl).stop();
+					this->searchEngine().currentGame().playerClock(pl).stop();
 				}
 				this->output() << std::endl;
 				return true;

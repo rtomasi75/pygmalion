@@ -152,6 +152,8 @@ namespace pygmalion
 				movebitsType move;
 				while (m_Stack.nextMove(move))
 				{
+					if (!m_IsRunning)
+						return objectiveType::zero();
 					if constexpr (VERBOSE)
 					{
 						for (depthType d = 0; d < depth; d++)
@@ -209,7 +211,7 @@ namespace pygmalion
 				{
 					return lateScore();
 				}
-				return evaluatorType::neutralScore();
+				return objectiveType::zero();
 			}
 			else
 				return this->template eval<VERBOSE>(currentScore, depth, principalVariation, heuristics, str);

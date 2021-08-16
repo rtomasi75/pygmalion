@@ -17,7 +17,7 @@ namespace pygmalion::chess::frontend
 			if ((this->front().isXBoard()) && (token == "otim"))
 			{
 				const std::chrono::milliseconds timeRemaining{ 10 * parser::parseInt(remainder) };
-				this->searchEngine().game().playerClock(this->front().enginePlayer().next()).set(std::chrono::duration_cast<std::chrono::microseconds>(timeRemaining));
+				this->searchEngine().currentGame().playerClock(this->front().enginePlayer().next()).set(std::chrono::duration_cast<std::chrono::microseconds>(timeRemaining));
 				this->output() << std::endl;
 				return true;
 			}

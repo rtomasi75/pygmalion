@@ -51,7 +51,7 @@ namespace pygmalion
 		}
 		constexpr bool isTimeLimited() const noexcept
 		{
-			return m_MaxTime >= 0;
+			return m_MaxTime >= std::chrono::seconds(0);
 		}
 		constexpr bool exceedsDepthLimit(const depthType depth) const noexcept
 		{

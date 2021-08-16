@@ -16,7 +16,7 @@ namespace pygmalion::frontend
 				this->front().forceMode() = true;
 				for (const auto pl : playerType::range)
 				{
-					this->searchEngine().game().playerClock(pl).stop();
+					this->searchEngine().currentGame().playerClock(pl).stop();
 				}
 				this->output() << std::endl;
 				return true;

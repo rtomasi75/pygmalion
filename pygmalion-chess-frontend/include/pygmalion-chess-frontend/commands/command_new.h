@@ -13,14 +13,14 @@ namespace pygmalion::chess::frontend
 		{
 			if ((cmd == "new")&& this->front().isXBoard())
 			{
-				this->stateEngine().game().initialize();
+				this->stateEngine().currentGame().initialize();
 				this->mechanicsEngine().history().clear();
 				this->front().clearDepthLimit();
 				this->front().forceMode() = false;
-				this->front().enginePlayer() = blackPlayer;
+				this->front().enginePlayer() = descriptorFrontend::blackPlayer;
 				for (const auto pl : playerType::range)
 				{
-					this->searchEngine().game().playerClock(pl).stop();
+					this->searchEngine().currentGame().playerClock(pl).stop();
 				}
 				return true;
 			}
