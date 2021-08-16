@@ -1,7 +1,7 @@
 namespace pygmalion
 {
 	template<typename DESCRIPTION_MECHANICS, size_t COUNT_BITS_BLOOMFILTER, size_t COUNT_VALUES_BLOOMFILTER>
-	class history : 
+	class history :
 		public DESCRIPTION_MECHANICS
 	{
 	public:
@@ -18,7 +18,7 @@ namespace pygmalion
 		{
 
 		}
-	    ~history() noexcept
+		~history() noexcept
 		{
 		}
 		constexpr bool occurs(const boardType& position, const int times, const int start = 4, const int frequency = 4) const noexcept
@@ -26,7 +26,7 @@ namespace pygmalion
 			if (m_Bloomfilter[position.hash()] >= times)
 			{
 				int nCount{ 0 };
-				for (int i = m_Boards.size() - start; i >= 0; i -= frequency)
+				for (int i = m_Boards.size() - start - 1; i >= 0; i -= frequency)
 				{
 					if (m_Boards[i] == position)
 					{

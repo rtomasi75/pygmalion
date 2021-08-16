@@ -25,6 +25,7 @@
 #include <deque>
 #include <mutex>
 #include <memory>
+#include <future>
 
 #include "pygmalion-intrinsics/arrayhelper.h"
 #include "pygmalion-intrinsics/profiler.h"
@@ -40,6 +41,7 @@
 #include "pygmalion-intrinsics/uint_t_traits.h"
 #include "pygmalion-intrinsics/uint_t_detail.h"
 #include "pygmalion-intrinsics/uint_t.h"
+#include "pygmalion-intrinsics/autoresetevent.h"
 #include "pygmalion-intrinsics/list.h"
 #include "pygmalion-intrinsics/magic.h"
 #include "pygmalion-intrinsics/magictable.h"

@@ -21,12 +21,18 @@ namespace pygmalion::frontend
 				this->output() << "opponent name:    " << this->front().opponentName() << std::endl;
 				this->output() << "force mode:       " << (this->front().forceMode() ? "enabled" : "disabled") << std::endl;
 				this->output() << "post mode:        " << (this->front().postMode() ? "enabled" : "disabled") << std::endl;
+				this->output() << "ponder mode:      " << (this->front().ponderMode() ? "enabled" : "disabled") << std::endl;
 				this->output() << "random mode:      " << (this->front().isRandom() ? "enabled" : "disabled") << std::endl;
 				this->output() << "against computer: " << (this->front().playingComputer() ? "yes" : "no") << std::endl;
 				if (this->front().isDepthLimited())
 					this->output() << "depth limit:      " << static_cast<int>(this->front().depthLimit()) << std::endl;
 				else
 					this->output() << "depth limit:      none" << std::endl;
+				if (this->front().isTimeLimited())
+					this->output() << "time limit:       " << this->front().timeLimit().count() << "s" << std::endl;
+				else
+					this->output() << "time limit:       none" << std::endl;
+				this->output() << "time control:     " << this->front().movesPerTimeControl() << " " << this->front().baseTime().count() << "s " << this->front().incrementTime().count() << "s" << std::endl;
 				this->output() << "engine player:    " << boardType::playerToString(this->front().enginePlayer()) << std::endl;
 				this->output() << std::endl;
 				for (const auto pl : playerType::range)

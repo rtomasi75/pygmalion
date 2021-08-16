@@ -10,6 +10,9 @@ namespace pygmalion
 #include "include_frontend.h"	
 	private:
 		std::chrono::seconds m_MaxTime;
+		std::chrono::seconds m_BaseTime;
+		std::chrono::seconds m_IncrementTime;
+		int m_MovesPerTimeControl;
 		int m_ProtocolVersion;
 		std::array<std::uint16_t, countPlayers> m_Rating;
 		depthType m_MaxDepth;
@@ -19,8 +22,27 @@ namespace pygmalion
 		bool m_PlayingComputer;
 		bool m_ForceMode;
 		bool m_PostMode;
+		bool m_PonderMode;
 		std::string m_OpponentName;
 	public:
+		constexpr std::chrono::seconds baseTime() const noexcept
+		{
+			return m_BaseTime;
+		}
+		constexpr std::chrono::seconds incrementTime() const noexcept
+		{
+			return m_IncrementTime;
+		}
+		constexpr int movesPerTimeControl() const noexcept
+		{
+			return m_MovesPerTimeControl;
+		}
+		constexpr void setTimeControl(const int movesPerTimeControl, const std::chrono::seconds baseTime, const std::chrono::seconds incrementTime) noexcept
+		{
+			m_MovesPerTimeControl = movesPerTimeControl;
+			m_BaseTime = baseTime;
+			m_IncrementTime = incrementTime;
+		}
 		constexpr const std::string& opponentName() const noexcept
 		{
 			return m_OpponentName;
@@ -55,11 +77,11 @@ namespace pygmalion
 		}
 		constexpr bool exceedsDepthLimit(const depthType depth) const noexcept
 		{
-			return depth > m_MaxDepth;
+			return isDepthLimited() && (depth > m_MaxDepth);
 		}
 		constexpr bool exceedsTimeLimit(const std::chrono::seconds duration) const noexcept
 		{
-			return duration > timeLimit();
+			return isTimeLimited() && (duration > timeLimit());
 		}
 		constexpr void setDepthLimit(const depthType limit) noexcept
 		{
@@ -72,6 +94,10 @@ namespace pygmalion
 		constexpr void clearDepthLimit() noexcept
 		{
 			m_MaxDepth = static_cast<depthType>(-1);
+		}
+		constexpr void clearTimeLimit() noexcept
+		{
+			m_MaxTime = std::chrono::seconds(-1);
 		}
 		constexpr int& protocolVersion() noexcept
 		{
@@ -96,6 +122,14 @@ namespace pygmalion
 		constexpr bool isRandom() const noexcept
 		{
 			return m_IsRandom;
+		}
+		constexpr bool ponderMode() const noexcept
+		{
+			return m_PonderMode;
+		}
+		constexpr bool& ponderMode() noexcept
+		{
+			return m_PonderMode;
 		}
 		constexpr bool forceMode() const noexcept
 		{
@@ -133,13 +167,17 @@ namespace pygmalion
 			m_IsXBoard{ false },
 			m_IsRandom{ false },
 			m_ForceMode{ false },
+			m_PonderMode{ false },
 			m_PlayingComputer{ false },
 			m_ProtocolVersion{ 1 },
 			m_MaxDepth{ -1 },
 			m_MaxTime{ -1 },
 			m_EnginePlayer{ 0 },
 			m_Rating{ arrayhelper::make<countPlayers,std::uint16_t>(0) },
-			m_OpponentName{ std::string("<unknown>") }
+			m_OpponentName{ std::string("<unknown>") },
+			m_MovesPerTimeControl{ 0 },
+			m_IncrementTime{ 0 },
+			m_BaseTime{ 0 }
 		{
 
 		}

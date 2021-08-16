@@ -19,10 +19,10 @@ namespace pygmalion::mechanics
 				this->output() << std::endl;
 				for (size_t i = 0; i < this->mechanicsEngine().history().length(); i++)
 				{
-					this->output() << std::setw(4) << i << " " << std::setw(8) << std::hex << static_cast<std::uint64_t>(this->mechanicsEngine().history().board(i).hash()) << " " << std::setw(8) << motorType::moveToString(this->mechanicsEngine().history().board(i), this->mechanicsEngine().history().movebits(i)) << std::endl;
+					this->output() << std::setw(4) << i << " " << std::setw(8) << std::hex << static_cast<std::uint64_t>(this->mechanicsEngine().history().board(i).hash()) << std::dec << " " << std::setw(8) << motorType::moveToString(this->mechanicsEngine().history().board(i), this->mechanicsEngine().history().movebits(i)) << std::endl;
 				}
 				this->output() << std::endl;
-				this->output() << std::setw(8) << std::hex << static_cast<std::uint64_t>(this->position().hash()) << (this->mechanicsEngine().history().occurs(this->position(), 1) ? " repeating, " : " not repeating, ");
+				this->output() << std::setw(8) << std::hex << static_cast<std::uint64_t>(this->position().hash()) << std::dec << (this->mechanicsEngine().history().occurs(this->position(), 1) ? " repeating, " : " not repeating, ");
 				this->output() << (this->mechanicsEngine().history().occurs(this->position(), 2) ? "repeating twice" : "not repeating twice");
 				this->output() << std::endl;
 				return true;

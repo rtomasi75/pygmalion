@@ -1,7 +1,7 @@
 namespace pygmalion::chess
 {
 	class combinedmoves :
-		public pygmalion::mechanics::disjunctivemove<board, queenpromocapturemove, queenpromotionmove, rookpromocapturemove, rookpromotionmove, bishoppromocapturemove, bishoppromotionmove, knightpromocapturemove, knightpromotionmove, doublepushmove, enpassantmove, capturemove, quietmove, kingsidecastlemove, queensidecastlemove>,
+		public pygmalion::mechanics::disjunctivemove<board, queenpromocapturemove, queenpromotionmove, rookpromocapturemove, rookpromotionmove, bishoppromocapturemove, bishoppromotionmove, knightpromocapturemove, knightpromotionmove, doublepushmove, enpassantmove, kingsidecastlemove, queensidecastlemove, capturemove, quietmove>,
 		public board::descriptorState
 	{
 	public:
@@ -19,10 +19,10 @@ namespace pygmalion::chess
 		constexpr static const size_t indexKnightPromo{ 7 };
 		constexpr static const size_t indexDoublePush{ 8 };
 		constexpr static const size_t indexEnPassant{ 9 };
-		constexpr static const size_t indexCapture{ 10 };
-		constexpr static const size_t indexQuiet{ 11 };
-		constexpr static const size_t indexKingside{ 12 };
-		constexpr static const size_t indexQueenside{ 13 };
+		constexpr static const size_t indexKingside{ 10 };
+		constexpr static const size_t indexQueenside{ 11 };
+		constexpr static const size_t indexCapture{ 12 };
+		constexpr static const size_t indexQuiet{ 13 };
 		constexpr static const muxbitsType muxQueenPromoCapture{ indexQueenPromoCapture };
 		constexpr static const muxbitsType muxQueenPromo{ indexQueenPromo };
 		constexpr static const muxbitsType muxRookPromoCapture{ indexRookPromoCapture };

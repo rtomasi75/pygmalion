@@ -27,7 +27,7 @@ namespace pygmalion
 		{
 			return leftTrimString(rightTrimString(s));
 		}
-		static void parseToken(const std::string text, std::string& token, std::string& remainder) noexcept
+		static void parseToken(const std::string& text, std::string& token, std::string& remainder) noexcept
 		{
 			size_t lenCommand = text.length();
 			std::string token_raw = "";
@@ -42,7 +42,7 @@ namespace pygmalion
 			token = toLower(token_raw);
 			remainder = trimString(remainder = text.substr(i, lenCommand - i));
 		}
-		static void parseTokenCaseSensitive(const std::string text, std::string& token, std::string& remainder) noexcept
+		static void parseTokenCaseSensitive(const std::string& text, std::string& token, std::string& remainder) noexcept
 		{
 			size_t lenCommand = text.length();
 			std::string token_raw = "";
@@ -56,6 +56,63 @@ namespace pygmalion
 			}
 			token = token_raw;
 			remainder = trimString(remainder = text.substr(i, lenCommand - i));
+		}
+		static std::chrono::seconds parseDuration(const std::string& text) noexcept
+		{
+			std::string minutes{ "" };
+			std::string seconds{ "" };
+			size_t i{ 0 };
+			for (; i < text.length(); i++)
+			{
+				bool bBreak{ false };
+				switch (text[i])
+				{
+				case '0':
+				case '1':
+				case '2':
+				case '3':
+				case '4':
+				case '5':
+				case '6':
+				case '7':
+				case '8':
+				case '9':
+					minutes += text[i];
+					break;
+				default:
+					bBreak = true;
+					break;
+				}
+				if (bBreak)
+					break;
+			}
+			for (i++; i < text.length(); i++)
+			{
+				bool bBreak{ false };
+				switch (text[i])
+				{
+				case '0':
+				case '1':
+				case '2':
+				case '3':
+				case '4':
+				case '5':
+				case '6':
+				case '7':
+				case '8':
+				case '9':
+					seconds += text[i];
+					break;
+				default:
+					bBreak = true;
+					break;
+				}
+				if (bBreak)
+					break;
+			}
+			const std::int64_t mins{ parseInt(minutes) };
+			const std::int64_t secs{ parseInt(seconds) };
+			return std::chrono::seconds(60 * mins + secs);
 		}
 		static std::string fromInt(const std::uintmax_t value) noexcept
 		{
@@ -139,7 +196,7 @@ namespace pygmalion
 			const double ups{ spd.operationsPerSec() };
 			return valueToString(ups, spd.operationUnit() + "/s");
 		}
-		static long long int parseInt(const std::string& str) noexcept
+		static std::int64_t parseInt(const std::string& str) noexcept
 		{
 			try
 			{
@@ -153,6 +210,6 @@ namespace pygmalion
 			{
 				return 0;
 			}
-	}
-};
+		}
+	};
 }
