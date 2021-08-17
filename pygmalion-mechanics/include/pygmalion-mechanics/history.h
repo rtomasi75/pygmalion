@@ -21,12 +21,14 @@ namespace pygmalion
 		~history() noexcept
 		{
 		}
-		constexpr bool occurs(const boardType& position, const int times, const int start = 4, const int frequency = 4) const noexcept
+		constexpr bool occurs(const boardType& position, const int times, int start = 4, const int frequency = 4) const noexcept
 		{
 			if (m_Bloomfilter[position.hash()] >= times)
 			{
 				int nCount{ 0 };
-				for (int i = m_Boards.size() - start - 1; i >= 0; i -= frequency)
+				if (start == 0)
+					start = 4;
+				for (int i = m_Boards.size() - start; i >= 0; i -= frequency)
 				{
 					if (m_Boards[i] == position)
 					{
