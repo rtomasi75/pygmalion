@@ -1,16 +1,16 @@
 namespace pygmalion
 {
-	template<typename FRONTEND>
+	template<typename FRONT>
 	class engine
 	{
 	public:
-		using frontendType = FRONTEND;
-		using stackType = typename frontendType::stackType;
+		using frontType = FRONT;
+		using stackType = typename frontType::stackType;
 
-		using descriptorFrontend = typename frontendType::descriptorFrontend;
+		using descriptorFrontend = typename frontType::descriptorFrontend;
 #include "include_frontend.h"
 
-		using commandType = command<engine<frontendType>>;
+		using commandType = command<engine<frontType>>;
 	private:
 		class command_quit : public commandType
 		{
@@ -34,7 +34,7 @@ namespace pygmalion
 				if (cmd == "ver")
 				{
 					eng.outputStream() << "Pygmalion ver. 3.0" << std::endl;
-					eng.outputStream() << "playing " << frontendType::name() << std::endl;
+					eng.outputStream() << "playing " << frontType::name() << std::endl;
 					return true;
 				}
 				else
@@ -48,7 +48,7 @@ namespace pygmalion
 			{
 				if (cmd == "debug-board")
 				{
-					frontendType::dumpBoard(eng.board(), eng.outputStream());
+					frontType::dumpBoard(eng.board(), eng.outputStream());
 					eng.outputStream() << std::endl;
 					return true;
 				}
@@ -72,10 +72,10 @@ namespace pygmalion
 					while (stack.nextMove(move))
 					{
 						hasMoves = true;
-						eng.outputStream() << frontendType::moveToString(eng.board(), move) << "\t";
+						eng.outputStream() << frontType::moveToString(eng.board(), move) << "\t";
 						stackType subStack(stack, move);
 						auto score_new{ evaluationType::evaluate(subStack) };
-						eng.outputStream() << FRONTEND::objectiveToString(score_new) << "\t";
+						eng.outputStream() << FRONT::objectiveToString(score_new) << "\t";
 						eng.outputStream() << std::endl;
 					}
 					if (!hasMoves)
@@ -107,9 +107,9 @@ namespace pygmalion
 						moveType mv;
 						std::string error;
 						stackType stack(eng.board(), eng.board().movingPlayer());
-						if (frontendType::parseMove(move, stack, mv, error))
+						if (frontType::parseMove(move, stack, mv, error))
 						{
-							std::string mvstr{ frontendType::moveToString(stack,mv) };
+							std::string mvstr{ frontType::moveToString(stack,mv) };
 							if (eng.makeMove(mv))
 								eng.outputStream() << "perforing move " << mvstr << "." << std::endl;
 							else
@@ -143,7 +143,7 @@ namespace pygmalion
 					if (operation == "fh")
 					{
 						squaresType rnd = squaresType(squaresType::bitsType::random_sparse());
-						frontendType::dumpSquares(rnd, eng.outputStream());
+						frontType::dumpSquares(rnd, eng.outputStream());
 					}
 					else
 						eng.outputStream() << "ERROR: invalid operation " << operation << std::endl;
@@ -174,7 +174,7 @@ namespace pygmalion
 						objectiveType score{ searchType::pvs(eng.board(), principalVariation, i, heuristics) };
 						uint64_t nodeCount{ heuristics.nodeCount() };
 						stackType stack(eng.board(), eng.board().movingPlayer());
-						eng.outputStream() << static_cast<int>(i) << ": " << std::setw(12) << FRONTEND::objectiveToString(score) << " - " << FRONTEND::variationToString(stack, principalVariation) << std::endl;
+						eng.outputStream() << static_cast<int>(i) << ": " << std::setw(12) << FRONT::objectiveToString(score) << " - " << FRONT::variationToString(stack, principalVariation) << std::endl;
 						eng.outputStream() << heuristics.toString();
 						eng.outputStream() << std::endl;
 					}
@@ -227,8 +227,8 @@ namespace pygmalion
 					eng.outputStream() << std::endl;
 					stackType stack(eng.board(), eng.board().movingPlayer());
 					objectiveType score{ evaluationType::evaluate(stack) };
-					eng.outputStream() << "eval obj.  = " << frontendType::objectiveToString(score) << std::endl;
-					eng.outputStream() << "eval subj. = " << frontendType::subjectiveToString(evaluationType::makeSubjective(score, stack.position().movingPlayer())) << std::endl;
+					eng.outputStream() << "eval obj.  = " << frontType::objectiveToString(score) << std::endl;
+					eng.outputStream() << "eval subj. = " << frontType::subjectiveToString(evaluationType::makeSubjective(score, stack.position().movingPlayer())) << std::endl;
 					eng.outputStream() << std::endl;
 					return true;
 				}

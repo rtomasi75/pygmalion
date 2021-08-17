@@ -28,7 +28,7 @@ namespace pygmalion::tictactoe
 						else
 						{
 							eng.outputStream() << "line " << line << ":" << std::endl;
-							frontendType::dumpSquares(evaluationType::patterns().line(line), eng.outputStream());
+							frontType::dumpSquares(evaluationType::patterns().line(line), eng.outputStream());
 						}
 					}
 					else if (token2 == "occupancy")
@@ -36,13 +36,13 @@ namespace pygmalion::tictactoe
 						if (remainder2 == "white")
 						{
 							eng.outputStream() << "white occupancy:" << std::endl;
-							frontendType::dumpSquares(eng.board().playerOccupancy(static_cast<playerType>(0)), eng.outputStream());
+							frontType::dumpSquares(eng.board().playerOccupancy(static_cast<playerType>(0)), eng.outputStream());
 						}
 						else	if (remainder2 == "black")
 
 						{
 							eng.outputStream() << "black occupancy:" << std::endl;
-							frontendType::dumpSquares(eng.board().playerOccupancy(static_cast<playerType>(1)), eng.outputStream());
+							frontType::dumpSquares(eng.board().playerOccupancy(static_cast<playerType>(1)), eng.outputStream());
 						}
 						else
 						{

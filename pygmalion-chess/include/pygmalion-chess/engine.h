@@ -23,7 +23,7 @@ namespace pygmalion::chess
 						std::string square;
 						std::string remainder3;
 						parser::parseToken(remainder2, square, remainder3);
-						squareType sq{ frontendType::squareFromString(square) };
+						squareType sq{ frontType::squareFromString(square) };
 						if (sq.isValid())
 						{
 							frontend::dumpSquares(generatorType::movegenTable().kingMoveMap(sq), eng.outputStream());
@@ -38,7 +38,7 @@ namespace pygmalion::chess
 						std::string square;
 						std::string remainder3;
 						parser::parseToken(remainder2, square, remainder3);
-						squareType sq{ frontendType::squareFromString(square) };
+						squareType sq{ frontType::squareFromString(square) };
 						if (sq.isValid())
 						{
 							frontend::dumpSquares(generatorType::movegenTable().knightMoveMap(sq), eng.outputStream());
@@ -55,15 +55,15 @@ namespace pygmalion::chess
 						parser::parseToken(remainder2, player, remainder3);
 						playerType p{ playerType::invalid };
 						if (player == "white" || player == "w" || player == "+" || player == "0")
-							p = frontendType::whitePlayer;
+							p = frontType::whitePlayer;
 						else if (player == "black" || player == "b" || player == "-" || player == "1")
-							p = frontendType::blackPlayer;
+							p = frontType::blackPlayer;
 						if (p.isValid())
 						{
 							std::string square;
 							std::string remainder4;
 							parser::parseToken(remainder3, square, remainder4);
-							squareType sq{ frontendType::squareFromString(square) };
+							squareType sq{ frontType::squareFromString(square) };
 							if (sq.isValid())
 							{
 								frontend::dumpSquares(generatorType::movegenTable().pawnMoveMap(sq, p), eng.outputStream());
@@ -81,23 +81,23 @@ namespace pygmalion::chess
 						parser::parseToken(remainder2, player, remainder3);
 						playerType p{ playerType::invalid };
 						if (player == "white" || player == "w" || player == "+" || player == "0")
-							p = frontendType::whitePlayer;
+							p = frontType::whitePlayer;
 						else if (player == "black" || player == "b" || player == "-" || player == "1")
-							p = frontendType::blackPlayer;
+							p = frontType::blackPlayer;
 						if (p.isValid())
 						{
 							std::string square;
 							std::string remainder4;
 							parser::parseToken(remainder3, square, remainder4);
-							squareType sq{ frontendType::squareFromString(square) };
+							squareType sq{ frontType::squareFromString(square) };
 							if (sq.isValid())
 							{
-								eng.outputStream() << frontendType::playerToString(p) << " " << frontendType::pieceToString(frontendType::pawn) << ": " << frontendType::objectiveToString(evaluationType::material(p, frontendType::pawn, sq)) << std::endl;
-								eng.outputStream() << frontendType::playerToString(p) << " " << frontendType::pieceToString(frontendType::knight) << ": " << frontendType::objectiveToString(evaluationType::material(p, frontendType::knight, sq)) << std::endl;
-								eng.outputStream() << frontendType::playerToString(p) << " " << frontendType::pieceToString(frontendType::bishop) << ": " << frontendType::objectiveToString(evaluationType::material(p, frontendType::bishop, sq)) << std::endl;
-								eng.outputStream() << frontendType::playerToString(p) << " " << frontendType::pieceToString(frontendType::rook) << ": " << frontendType::objectiveToString(evaluationType::material(p, frontendType::rook, sq)) << std::endl;
-								eng.outputStream() << frontendType::playerToString(p) << " " << frontendType::pieceToString(frontendType::queen) << ": " << frontendType::objectiveToString(evaluationType::material(p, frontendType::queen, sq)) << std::endl;
-								eng.outputStream() << frontendType::playerToString(p) << " " << frontendType::pieceToString(frontendType::king) << ": " << frontendType::objectiveToString(evaluationType::material(p, frontendType::king, sq)) << std::endl;
+								eng.outputStream() << frontType::playerToString(p) << " " << frontType::pieceToString(frontType::pawn) << ": " << frontType::objectiveToString(evaluationType::material(p, frontType::pawn, sq)) << std::endl;
+								eng.outputStream() << frontType::playerToString(p) << " " << frontType::pieceToString(frontType::knight) << ": " << frontType::objectiveToString(evaluationType::material(p, frontType::knight, sq)) << std::endl;
+								eng.outputStream() << frontType::playerToString(p) << " " << frontType::pieceToString(frontType::bishop) << ": " << frontType::objectiveToString(evaluationType::material(p, frontType::bishop, sq)) << std::endl;
+								eng.outputStream() << frontType::playerToString(p) << " " << frontType::pieceToString(frontType::rook) << ": " << frontType::objectiveToString(evaluationType::material(p, frontType::rook, sq)) << std::endl;
+								eng.outputStream() << frontType::playerToString(p) << " " << frontType::pieceToString(frontType::queen) << ": " << frontType::objectiveToString(evaluationType::material(p, frontType::queen, sq)) << std::endl;
+								eng.outputStream() << frontType::playerToString(p) << " " << frontType::pieceToString(frontType::king) << ": " << frontType::objectiveToString(evaluationType::material(p, frontType::king, sq)) << std::endl;
 							}
 							else
 								eng.outputStream() << "invalid square: " << square << std::endl;
@@ -137,24 +137,24 @@ namespace pygmalion::chess
 						parser::parseToken(remainder2, player, remainder3);
 						playerType p{ playerType::invalid };
 						if (player == "white" || player == "w" || player == "+" || player == "0")
-							p = frontendType::whitePlayer;
+							p = frontType::whitePlayer;
 						else if (player == "black" || player == "b" || player == "-" || player == "1")
-							p = frontendType::blackPlayer;
+							p = frontType::blackPlayer;
 						if (p.isValid())
 						{
 							std::string piece;
 							std::string remainder4;
 							parser::parseToken(remainder3, piece, remainder4);
-							pieceType pc{ frontendType::pieceFromString(piece) };
+							pieceType pc{ frontType::pieceFromString(piece) };
 							if (pc.isValid())
 							{
-								eng.outputStream() << frontendType::playerToString(p) << " " << frontendType::pieceToString(pc) << ": " << std::endl;
+								eng.outputStream() << frontType::playerToString(p) << " " << frontType::pieceToString(pc) << ": " << std::endl;
 								for (typename boardType::rankType rank = 7; rank >= 0; rank--)
 								{
 									for (const auto file : boardType::fileType::range)
 									{
 										const squareType sq{ squareType::fromRankFile(rank,file) };
-										eng.outputStream() << std::setw(10) << frontendType::objectiveToString(evaluationType::material(p, pc, sq)) << " ";
+										eng.outputStream() << std::setw(10) << frontType::objectiveToString(evaluationType::material(p, pc, sq)) << " ";
 									}
 									eng.outputStream() << std::endl;
 								}

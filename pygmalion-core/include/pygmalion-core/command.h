@@ -5,7 +5,7 @@ namespace pygmalion
 	{
 	public:
 		using engineType = ENGINE;
-		using frontendType = typename engineType::frontendType;
+		using frontType = typename engineType::frontType;
 		using descriptorFrontend = typename engineType::descriptorFrontend;
 #include "include_frontend.h"
 	protected:

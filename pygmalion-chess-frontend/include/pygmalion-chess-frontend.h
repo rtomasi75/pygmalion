@@ -1,5 +1,5 @@
-#if !defined(PYGMALION_CHESS_FRONTEND)
-#define PYGMALION_CHESS_FRONTEND
+#if !defined(PYGMALION_CHESS_FRONT)
+#define PYGMALION_CHESS_FRONT
 
 #include <pygmalion-chess-search.h>
 #include <pygmalion-frontend.h>

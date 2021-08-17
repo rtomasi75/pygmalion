@@ -1,11 +1,11 @@
 namespace pygmalion::frontend
 {
-	template<typename DESCRIPTION_FRONTEND, typename FRONTEND>
+	template<typename DESCRIPTION_FRONTEND, typename FRONT>
 	class command_debugFrontend :
-		public pygmalion::frontend::command<DESCRIPTION_FRONTEND, FRONTEND>
+		public pygmalion::frontend::command<DESCRIPTION_FRONTEND, FRONT>
 	{
 	public:
-		using frontendType = FRONTEND;
+		using frontType = FRONT;
 		using descriptorFrontend = DESCRIPTION_FRONTEND;
 #include "../include_frontend.h"	
 	protected:
@@ -14,7 +14,7 @@ namespace pygmalion::frontend
 			if (cmd == "debug-frontend")
 			{
 				this->output() << std::endl;
-				this->output() << "frontend: " << std::setw(4) << sizeof(frontendType) << " = " << sizeof(frontendType) * CHAR_BIT << "bit" << std::endl;
+				this->output() << "frontend: " << std::setw(4) << sizeof(frontType) << " = " << sizeof(frontType) * CHAR_BIT << "bit" << std::endl;
 				this->output() << std::endl;
 				this->output() << "xboard mode:      " << (this->front().isXBoard() ? "enabled" : "disabled") << std::endl;
 				this->output() << "protocol version: " << this->front().protocolVersion() << std::endl;
@@ -47,7 +47,7 @@ namespace pygmalion::frontend
 		}
 		virtual std::string help() noexcept override
 		{
-			return "DEBUG-FRONTEND";
+			return "DEBUG-FRONT";
 		}
 	};
 

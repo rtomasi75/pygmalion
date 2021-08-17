@@ -25,7 +25,7 @@ namespace pygmalion
 		bool m_PonderMode;
 		std::string m_OpponentName;
 	public:
-		constexpr static std::string gamestateToString(const boardType& position, const gamestateType gs) noexcept
+		static std::string gamestateToString(const boardType& position, const gamestateType gs) noexcept
 		{
 			return frontType::gamestateToString_Implementation(position, gs);
 		}

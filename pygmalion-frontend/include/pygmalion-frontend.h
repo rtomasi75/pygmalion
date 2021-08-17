@@ -1,5 +1,5 @@
-#if !defined(PYGMALION_FRONTEND)
-#define PYGMALION_FRONTEND
+#if !defined(PYGMALION_FRONT)
+#define PYGMALION_FRONT
 
 #include <pygmalion-search.h>
 

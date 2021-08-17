@@ -6,7 +6,7 @@ namespace pygmalion
 		public base_frontend<DESCRIPTION_FRONTEND>
 	{
 	public:
-		using frontendType = INSTANCE;
+		using frontType = INSTANCE;
 
 		using descriptorFrontend = DESCRIPTION_FRONTEND;
 #include "include_frontend.h"
@@ -16,7 +16,7 @@ namespace pygmalion
 			public searchType::stackType
 		{
 		public:
-			using frontendType = INSTANCE;
+			using frontType = INSTANCE;
 
 			using descriptorFrontend = DESCRIPTION_FRONTEND;
 #include "include_frontend.h"
@@ -53,28 +53,28 @@ namespace pygmalion
 		using stackType = stack;
 		static std::string name() noexcept
 		{
-			return frontendType::name_Implementation();
+			return frontType::name_Implementation();
 		}
 		static std::string subjectiveToString(const subjectiveType score) noexcept
 		{
-			return frontendType::subjectiveToString_Implementation(score);
+			return frontType::subjectiveToString_Implementation(score);
 		}
 		static std::string objectiveToString(const objectiveType score) noexcept
 		{
-			return frontendType::objectiveToString_Implementation(score);
+			return frontType::objectiveToString_Implementation(score);
 		}
 		template<typename stackType>
 		static std::string moveToString(const stackType& stack, const moveType mv) noexcept
 		{
-			return frontendType::moveToString_Implementation(stack, mv);
+			return frontType::moveToString_Implementation(stack, mv);
 		}
 		static void dumpBoard(const boardType& board, std::ostream& str) noexcept
 		{
-			return frontendType::dumpBoard_Implementation(board, str);
+			return frontType::dumpBoard_Implementation(board, str);
 		}
 		static bool parseMove(const std::string str, const stackType& stack, moveType& move, std::string& error) noexcept
 		{
-			return frontendType::parseMove_Implementation(str, stack, move, error);
+			return frontType::parseMove_Implementation(str, stack, move, error);
 		}
 		static std::string variationToStringFromDepth(const stackType& stack, const variationType& variation, const depthType depth) noexcept
 		{

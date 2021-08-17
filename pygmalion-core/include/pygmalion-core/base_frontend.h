@@ -1,10 +1,10 @@
 namespace pygmalion
 {
-	template<typename DESCRIPTOR_FRONTEND>
+	template<typename DESCRIPTOR_FRONT>
 	class base_frontend :
-		public DESCRIPTOR_FRONTEND
+		public DESCRIPTOR_FRONT
 	{
 	public:
-		using descriptorFrontend = DESCRIPTOR_FRONTEND;
+		using descriptorFrontend = DESCRIPTOR_FRONT;
 	};
 }

@@ -1,11 +1,11 @@
 namespace pygmalion::frontend
 {
-	template<typename DESCRIPTION_FRONTEND, typename FRONTEND>
+	template<typename DESCRIPTION_FRONTEND, typename FRONT>
 	class command_name :
-		public pygmalion::frontend::command<DESCRIPTION_FRONTEND, FRONTEND>
+		public pygmalion::frontend::command<DESCRIPTION_FRONTEND, FRONT>
 	{
 	public:
-		using frontendType = FRONTEND;
+		using frontType = FRONT;
 		using descriptorFrontend = DESCRIPTION_FRONTEND;
 #include "../include_frontend.h"	
 	protected:
