@@ -18,7 +18,14 @@ namespace pygmalion::frontend
 				this->frontendEngine().currentGame().playerClock(this->frontendEngine().currentGame().position().movingPlayer()).stop();
 				this->frontendEngine().doMove(movebits);
 				this->output() << std::endl;
-				if (!this->front().forceMode())
+				const typename descriptorFrontend::stackType stack{ typename descriptorFrontend::stackType(this->position(), this->history(),  this->position().movingPlayer()) };
+				const gamestateType result{ evaluatorType::earlyResult(stack) };
+				if (!gamestateType::isOpen(result))
+				{
+					this->output() << "result " << frontType::gamestateToString(this->frontendEngine().currentGame().position(), result) << std::endl;
+					return true;
+				}
+				if (gamestateType::isOpen(this->position().arbitration()) && (!this->front().forceMode()))
 				{
 					this->frontendEngine().thinkMove();
 				}

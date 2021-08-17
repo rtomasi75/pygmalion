@@ -42,6 +42,10 @@ namespace pygmalion
 		}
 		static gamestateType earlyResult(const typename generatorType::stackType& stack) noexcept
 		{
+			if (!gamestateType::isOpen(stack.position().arbitration()))
+			{
+				return stack.position().arbitration();
+			}
 			return evaluatorType::earlyResult_Implementation(stack);
 		}
 		static gamestateType lateResult(const typename generatorType::stackType& stack) noexcept

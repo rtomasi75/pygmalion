@@ -90,10 +90,15 @@ namespace pygmalion::frontend
 			{
 				if (finalVariation.length() > 0)
 				{
-					const std::string moveString{ motorType::moveToString(this->position(), finalVariation[0]) };
+					const std::string moveString{ motorType::moveToString(this->currentGame().position(), finalVariation[0]) };
 					this->doMove(finalVariation[0]);
 					this->currentGame().playerClock(this->currentGame().position().movingPlayer()).start();
 					this->outputStream() << "move " << moveString << std::endl;
+					const gamestateType result{ evaluatorType::earlyResult(stack) };
+					if (!gamestateType::isOpen(result))
+					{
+						this->outputStream() << "result " << frontType::gamestateToString(this->currentGame().position(), result) << std::endl;
+					}
 				}
 			}
 			std::unique_lock<std::mutex> lock;

@@ -4,3 +4,4 @@
 #include "commands/command_otim.h"
 #include "commands/command_rating.h"
 #include "commands/command_new.h"
+#include "commands/command_result.h"

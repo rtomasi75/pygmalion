@@ -17,6 +17,7 @@ namespace pygmalion::chess::frontend
 			this->template addCommand<command_otim<typename pygmalion::frontend::engine<FRONT>::descriptorFrontend, typename pygmalion::frontend::engine<FRONT>::frontType>>();
 			this->template addCommand<command_rating<typename pygmalion::frontend::engine<FRONT>::descriptorFrontend, typename pygmalion::frontend::engine<FRONT>::frontType>>();
 			this->template addCommand<command_new<typename pygmalion::frontend::engine<FRONT>::descriptorFrontend, typename pygmalion::frontend::engine<FRONT>::frontType>>();
+			this->template addCommand<command_result<typename pygmalion::frontend::engine<FRONT>::descriptorFrontend, typename pygmalion::frontend::engine<FRONT>::frontType>>();
 		}
 		virtual ~engine() noexcept = default;
 		virtual std::string version() const noexcept override

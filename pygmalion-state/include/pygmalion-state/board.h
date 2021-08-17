@@ -12,6 +12,7 @@ namespace pygmalion
 		std::array<squaresType, countPieces> m_PieceOccupancy;
 		std::array<squaresType, countPlayers> m_PlayerOccupancy;
 		playerType m_MovingPlayer;
+		gamestateType m_Arbitration;
 		flagsType m_Flags;
 		hashType m_Hash;
 		cumulationType m_Cumulation;
@@ -67,6 +68,14 @@ namespace pygmalion
 			return (first <= last) && (last < countFlags);
 		}
 	public:
+		constexpr gamestateType arbitration() const noexcept
+		{
+			return m_Arbitration;
+		}
+		constexpr gamestateType& arbitration() noexcept
+		{
+			return m_Arbitration;
+		}
 		constexpr bool operator==(const boardType& other) const noexcept
 		{
 			if (m_Hash != other.m_Hash)
@@ -374,13 +383,15 @@ namespace pygmalion
 				m_PieceOccupancy[pc] = squaresType::none();
 			m_Flags.clear();
 			m_MovingPlayer = 0;
+			m_Arbitration = gamestateType::open();
 			onClear();
 		}
 		constexpr board() noexcept :
 			m_PieceOccupancy{ },
 			m_PlayerOccupancy{ },
 			m_MovingPlayer{ 0 },
-			m_Flags{ flagsType(0) }
+			m_Flags{ flagsType(0) },
+			m_Arbitration{ gamestateType::open() }
 		{
 			clear();
 		}

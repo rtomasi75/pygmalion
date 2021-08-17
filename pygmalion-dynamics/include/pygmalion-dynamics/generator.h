@@ -224,7 +224,6 @@ namespace pygmalion
 		{
 			return generatorType::commandsImplementation();
 		}
-
 		template<typename stackType>
 		static std::string moveToString(const stackType& stack, const movebitsType moveBits) noexcept
 		{
