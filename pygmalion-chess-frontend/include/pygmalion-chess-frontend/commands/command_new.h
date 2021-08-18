@@ -22,7 +22,7 @@ namespace pygmalion::chess::frontend
 				for (const auto pl : playerType::range)
 				{
 					this->searchEngine().currentGame().playerClock(pl).stop();
-					this->searchEngine().currentGame().playerClock(pl).set(std::chrono::duration_cast<std::chrono::microseconds>(this->front().baseTime()));
+					this->searchEngine().currentGame().playerClock(pl).set(std::chrono::duration_cast<std::chrono::microseconds>(this->frontendEngine().currentGame().baseTime()));
 				}
 				this->output() << std::endl;
 				return true;

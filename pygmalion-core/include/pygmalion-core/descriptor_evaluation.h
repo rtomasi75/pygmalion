@@ -9,7 +9,7 @@ namespace pygmalion
 		constexpr static const int countScoreBitsShift{ COUNT_SCORE_BITS_SHIFT };
 		constexpr static const int countScorePlies{ COUNT_SCORE_PLIES };
 		using generatorType = GENERATOR;
-		using objectiveType = score<countScoreBitsMantissa, countScoreBitsShift, countScorePlies>;
+		using scoreType = score<countScoreBitsMantissa, countScoreBitsShift, countScorePlies>;
 		using subjectiveType = score<countScoreBitsMantissa, countScoreBitsShift, countScorePlies>;
 	};
 

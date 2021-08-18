@@ -13,7 +13,7 @@ namespace pygmalion::tictactoe
 		{
 			return static_cast<std::string>(score);
 		}
-		static std::string objectiveToString_Implementation(const objectiveType& score) noexcept
+		static std::string objectiveToString_Implementation(const scoreType& score) noexcept
 		{
 			return static_cast<std::string>(score);
 		}

@@ -26,25 +26,23 @@ namespace pygmalion::search
 		{
 			return variationToStringFromDepth(stack, variation, 0);
 		}
-		objectiveType pvs(const stackType& stack, variationType& principalVariation, const depthType depthRemaining, heuristicsType& heuristics, std::ostream& str) noexcept
+		scoreType pvs(const stackType& stack, variationType& principalVariation, const depthType depthRemaining, heuristicsType& heuristics, std::ostream& str) noexcept
 		{
 			std::atomic_bool isRunning{ true };
 			nodeType node(stack, isRunning);
 			principalVariation.clear();
-			multiscoreType alphabeta;
 			heuristics.beginSearch();
-			const objectiveType score{ node.template search<false>(alphabeta, depthRemaining, 0, principalVariation, heuristics, str) };
+			const scoreType score{ node.template search<false>(scoreType::minimum(),scoreType::maximum(), depthRemaining, 0, principalVariation, heuristics, str) };
 			heuristics.endSearch();
 			return score;
 		}
-		objectiveType vpvs(const stackType& stack, variationType& principalVariation, const depthType depthRemaining, heuristicsType& heuristics, std::ostream& str) noexcept
+		scoreType vpvs(const stackType& stack, variationType& principalVariation, const depthType depthRemaining, heuristicsType& heuristics, std::ostream& str) noexcept
 		{
 			std::atomic_bool isRunning{ true };
 			nodeType node(stack, isRunning);
 			principalVariation.clear();
-			multiscoreType alphabeta;
 			heuristics.beginSearch();
-			const objectiveType score{ node.template search<true>(alphabeta, depthRemaining, 0, principalVariation, heuristics, str) };
+			const scoreType score{ node.template search<true>(scoreType::minimum(),scoreType::maximum(), depthRemaining, 0, principalVariation, heuristics, str) };
 			heuristics.endSearch();
 			return score;
 		}
@@ -63,7 +61,7 @@ namespace pygmalion::search
 					variationType principalVariation;
 					heuristicsType heuristics;
 					stackType stack{ stackType(this->position(), this->history(),  this->position().movingPlayer()) };
-					objectiveType score{ vpvs(stack, principalVariation, i, heuristics, this->output()) };
+					scoreType score{ vpvs(stack, principalVariation, i, heuristics, this->output()) };
 					uint64_t nodeCount{ heuristics.nodeCount() };
 					this->output() << static_cast<int>(i + 1) << ": " << std::setw(12) << score << " - " << variationToString(stack, principalVariation) << std::endl;
 					this->output() << heuristics.toString();
@@ -81,7 +79,7 @@ namespace pygmalion::search
 					variationType principalVariation;
 					heuristicsType heuristics;
 					stackType stack{ stackType(this->position(), this->history(), this->position().movingPlayer()) };
-					objectiveType score{ pvs(stack, principalVariation, i, heuristics, this->output()) };
+					scoreType score{ pvs(stack, principalVariation, i, heuristics, this->output()) };
 					uint64_t nodeCount{ heuristics.nodeCount() };
 					this->output() << static_cast<int>(i + 1) << ": " << std::setw(12) << score << " - " << variationToString(stack, principalVariation) << std::endl;
 					this->output() << heuristics.toString();

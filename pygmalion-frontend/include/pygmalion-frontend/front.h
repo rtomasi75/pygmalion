@@ -10,11 +10,8 @@ namespace pygmalion
 #include "include_frontend.h"	
 	private:
 		std::chrono::seconds m_MaxTime;
-		std::chrono::seconds m_BaseTime;
-		std::chrono::seconds m_IncrementTime;
-		int m_MovesPerTimeControl;
-		int m_ProtocolVersion;
 		std::array<std::uint16_t, countPlayers> m_Rating;
+		int m_ProtocolVersion;
 		depthType m_MaxDepth;
 		playerType m_EnginePlayer;
 		bool m_IsXBoard;
@@ -28,24 +25,6 @@ namespace pygmalion
 		static std::string gamestateToString(const boardType& position, const gamestateType gs) noexcept
 		{
 			return frontType::gamestateToString_Implementation(position, gs);
-		}
-		constexpr std::chrono::seconds baseTime() const noexcept
-		{
-			return m_BaseTime;
-		}
-		constexpr std::chrono::seconds incrementTime() const noexcept
-		{
-			return m_IncrementTime;
-		}
-		constexpr int movesPerTimeControl() const noexcept
-		{
-			return m_MovesPerTimeControl;
-		}
-		constexpr void setTimeControl(const int movesPerTimeControl, const std::chrono::seconds baseTime, const std::chrono::seconds incrementTime) noexcept
-		{
-			m_MovesPerTimeControl = movesPerTimeControl;
-			m_BaseTime = baseTime;
-			m_IncrementTime = incrementTime;
 		}
 		constexpr const std::string& opponentName() const noexcept
 		{
@@ -178,10 +157,7 @@ namespace pygmalion
 			m_MaxTime{ -1 },
 			m_EnginePlayer{ 0 },
 			m_Rating{ arrayhelper::make<countPlayers,std::uint16_t>(0) },
-			m_OpponentName{ std::string("<unknown>") },
-			m_MovesPerTimeControl{ 0 },
-			m_IncrementTime{ 0 },
-			m_BaseTime{ 0 }
+			m_OpponentName{ std::string("<unknown>") }
 		{
 
 		}

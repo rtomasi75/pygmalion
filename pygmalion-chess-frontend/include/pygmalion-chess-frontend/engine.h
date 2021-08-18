@@ -19,6 +19,10 @@ namespace pygmalion::chess::frontend
 			this->template addCommand<command_new<typename pygmalion::frontend::engine<FRONT>::descriptorFrontend, typename pygmalion::frontend::engine<FRONT>::frontType>>();
 			this->template addCommand<command_result<typename pygmalion::frontend::engine<FRONT>::descriptorFrontend, typename pygmalion::frontend::engine<FRONT>::frontType>>();
 		}
+		virtual double timeSkew() const noexcept override
+		{
+			return 4.0;
+		}
 		virtual ~engine() noexcept = default;
 		virtual std::string version() const noexcept override
 		{

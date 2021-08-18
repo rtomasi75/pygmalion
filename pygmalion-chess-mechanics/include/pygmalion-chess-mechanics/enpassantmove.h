@@ -164,7 +164,7 @@ namespace pygmalion::chess
 					{
 						if (boardType::parseSquare(temp, to))
 						{
-							if ((position.checkEnPassantFile(to.file())) && (position.playerOccupancy(movingPlayer + 1) & position.pieceOccupancy(descriptorState::pawn))[rank5 & to.file()] && (to.rank() == rank6))
+							if ((position.checkEnPassantFile(to.file())) && (position.playerOccupancy(((movingPlayer + 1) % countPlayers)) & position.pieceOccupancy(descriptorState::pawn))[rank5 & to.file()] && (to.rank() == rank6))
 							{
 								if (!position.totalOccupancy()[to])
 								{
@@ -185,7 +185,7 @@ namespace pygmalion::chess
 					{
 						if (boardType::parseSquare(temp, to))
 						{
-							if ((position.checkEnPassantFile(to.file())) && (position.playerOccupancy(movingPlayer + 1) & position.pieceOccupancy(descriptorState::pawn))[rank4 & to.file()] && (to.rank() == rank3))
+							if ((position.checkEnPassantFile(to.file())) && (position.playerOccupancy((movingPlayer + 1) % countPlayers) & position.pieceOccupancy(descriptorState::pawn))[rank4 & to.file()] && (to.rank() == rank3))
 							{
 								if (!position.totalOccupancy()[to])
 								{

@@ -171,7 +171,7 @@ namespace pygmalion
 					{
 						variationType principalVariation;
 						heuristicsType heuristics;
-						objectiveType score{ searchType::pvs(eng.board(), principalVariation, i, heuristics) };
+						scoreType score{ searchType::pvs(eng.board(), principalVariation, i, heuristics) };
 						uint64_t nodeCount{ heuristics.nodeCount() };
 						stackType stack(eng.board(), eng.board().movingPlayer());
 						eng.outputStream() << static_cast<int>(i) << ": " << std::setw(12) << FRONT::objectiveToString(score) << " - " << FRONT::variationToString(stack, principalVariation) << std::endl;
@@ -226,7 +226,7 @@ namespace pygmalion
 				{
 					eng.outputStream() << std::endl;
 					stackType stack(eng.board(), eng.board().movingPlayer());
-					objectiveType score{ evaluationType::evaluate(stack) };
+					scoreType score{ evaluationType::evaluate(stack) };
 					eng.outputStream() << "eval obj.  = " << frontType::objectiveToString(score) << std::endl;
 					eng.outputStream() << "eval subj. = " << frontType::subjectiveToString(evaluationType::makeSubjective(score, stack.position().movingPlayer())) << std::endl;
 					eng.outputStream() << std::endl;
@@ -270,7 +270,7 @@ namespace pygmalion
 					eng.outputStream() << std::endl;
 					eng.outputStream() << "EVALUATION: " << std::endl;
 					eng.outputStream() << "  gamestateType  = " << sizeof(gamestateType) << std::endl;
-					eng.outputStream() << "  objectiveType  = " << sizeof(objectiveType) << std::endl;
+					eng.outputStream() << "  scoreType  = " << sizeof(scoreType) << std::endl;
 					eng.outputStream() << "  subjectiveType = " << sizeof(subjectiveType) << std::endl;
 					eng.outputStream() << std::endl;
 					eng.outputStream() << "SEARCH: " << std::endl;

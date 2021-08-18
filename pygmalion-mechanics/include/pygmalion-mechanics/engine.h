@@ -22,10 +22,12 @@ namespace pygmalion::mechanics
 		}
 		constexpr void makeMove(const movebitsType& movebits) noexcept
 		{
+			this->currentGame().makeMove(this->position().movingPlayer());
 			m_History.template makeMove<motorType>(this->position(), movebits);
 		}
 		constexpr void unmakeMove() noexcept
 		{
+			this->currentGame().unmakeMove(this->position().movingPlayer());
 			m_History.template unmakeMove<motorType>(this->position());
 		}
 		engine() noexcept = delete;

@@ -11,7 +11,6 @@ namespace pygmalion
 		using variationType = list<typename descriptorEvaluation::movebitsType, countSearchPlies>;
 		using depthType = typename variationType::counterType;
 		using heuristicsType = HEURISTICS;
-		using multiscoreType = multiscore<descriptorEvaluation, EVALUATOR>;
 	};
 
 }

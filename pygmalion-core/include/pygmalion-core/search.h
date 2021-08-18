@@ -35,14 +35,14 @@ namespace pygmalion
 		using stackType = typename pygmalion::search<DESCRIPTION_SEARCH, searchType>::stack;
 
 	public:
-		static objectiveType pvs(const boardType& position, variationType& principalVariation, const depthType depthRemaining, heuristicsType& heuristics) noexcept
+		static scoreType pvs(const boardType& position, variationType& principalVariation, const depthType depthRemaining, heuristicsType& heuristics) noexcept
 		{
 			boardType b{ position };
 			nodeType node(b);
 			principalVariation.clear();
 			multiscoreType alphabeta;
 			heuristics.beginSearch();
-			const objectiveType score{ node.search(alphabeta, depthRemaining, 0, principalVariation, heuristics) };
+			const scoreType score{ node.search(alphabeta, depthRemaining, 0, principalVariation, heuristics) };
 			heuristics.endSearch();
 			return score;
 		}

@@ -8,7 +8,6 @@ namespace pygmalion
 		using evaluatorType = INSTANCE;
 		using descriptorEvaluation = DESCRIPTOR_EVALUATION;
 #include "include_evaluation.h"
-		using multiscoreType = multiscore<descriptorEvaluation, evaluatorType>;
 	private:
 		template<typename COMMAND>
 		static std::shared_ptr<pygmalion::intrinsics::command> createCommand() noexcept
@@ -28,17 +27,17 @@ namespace pygmalion
 			list.emplace_back(std::move(pCommand));
 		}
 	public:
+		constexpr static bool isFutile(const scoreType alpha, const scoreType beta, const scoreType approx, const scoreType delta) noexcept
+		{
+			return (approx + delta <= alpha) && (approx + delta < beta);
+		}
 		static std::deque<std::shared_ptr<pygmalion::intrinsics::command>> commands() noexcept
 		{
 			return evaluatorType::commandsImplementation();
 		}
-		constexpr static subjectiveType makeSubjective(const objectiveType sc, const playerType player) noexcept
+		static scoreType evaluate(const scoreType alpha, const scoreType beta, const typename generatorType::stackType& stack) noexcept
 		{
-			return evaluatorType::makeSubjective_Implementation(sc, player);
-		}
-		static objectiveType evaluate(const multiscoreType& score, const typename generatorType::stackType& stack) noexcept
-		{
-			return evaluatorType::evaluate_Implementation(score, stack);
+			return evaluatorType::evaluate_Implementation(alpha, beta, stack);
 		}
 		static gamestateType earlyResult(const typename generatorType::stackType& stack) noexcept
 		{
@@ -51,26 +50,6 @@ namespace pygmalion
 		static gamestateType lateResult(const typename generatorType::stackType& stack) noexcept
 		{
 			return evaluatorType::lateResult_Implementation(stack);
-		}
-		constexpr static objectiveType maxScore(const playerType player) noexcept
-		{
-			return evaluatorType::maxScore_Implementation(player);
-		}
-		constexpr static objectiveType neutralScore() noexcept
-		{
-			return evaluatorType::neutralScore_Implementation();
-		}
-		constexpr static objectiveType winScore(const playerType player) noexcept
-		{
-			return evaluatorType::winScore_Implementation(player);
-		}
-		constexpr static objectiveType lossScore(const playerType player) noexcept
-		{
-			return evaluatorType::lossScore_Implementation(player);
-		}
-		constexpr static objectiveType minScore(const playerType player) noexcept
-		{
-			return evaluatorType::minScore_Implementation(player);
 		}
 	};
 }

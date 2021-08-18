@@ -15,7 +15,7 @@ namespace pygmalion::frontend
 		bool m_MoveThreadAborted;
 		std::mutex m_Mutex;
 		std::thread* m_pMoveThread;
-		std::string scoreToString(const subjectiveType score)
+		std::string scoreToString(const scoreType score)
 		{
 			std::stringstream str{ std::stringstream() };
 			if (score.isWinning())
@@ -52,10 +52,9 @@ namespace pygmalion::frontend
 		{
 			nodeType node(stack, isRunning);
 			variationType principalVariation{ variationType() };
-			multiscoreType alphabeta{ multiscoreType() };
 			heuristicsType heuristics{ heuristicsType() };
 			heuristics.beginSearch();
-			const objectiveType score{ node.template search<false>(alphabeta, depthRemaining, 0, principalVariation, heuristics, this->outputStream()) };
+			const scoreType score{ node.template search<false>(scoreType::minimum(), scoreType::maximum(), depthRemaining, 0, principalVariation, heuristics, this->outputStream()) };
 			heuristics.endSearch();
 			if (isRunning)
 			{
@@ -63,7 +62,7 @@ namespace pygmalion::frontend
 				if (this->front().postMode())
 				{
 					this->outputStream() << static_cast<int>(depthRemaining) << " ";
-					this->outputStream() << scoreToString(evaluatorType::makeSubjective(score, this->position().movingPlayer())) << " ";
+					this->outputStream() << scoreToString(score) << " ";
 					const std::chrono::milliseconds milliseconds{ std::chrono::duration_cast<std::chrono::milliseconds>(heuristics.duration()) };
 					const int centiseconds{ static_cast<int>(milliseconds.count() / 10) };
 					this->outputStream() << centiseconds << " ";
@@ -74,16 +73,33 @@ namespace pygmalion::frontend
 			}
 			return false;
 		}
-		void moveThreadFunc()
+		void moveThreadFunc(const std::chrono::milliseconds allocatedTime)
 		{
 			typename descriptorFrontend::stackType stack{ typename descriptorFrontend::stackType(this->position(), this->history(),  this->position().movingPlayer()) };
 			depthType depthRemaining{ 0 };
 			variationType finalVariation{ variationType() };
+			std::chrono::milliseconds timeRemaining{ std::chrono::duration_cast<std::chrono::milliseconds>(this->currentGame().playerClock(this->position().movingPlayer()).timeRemaining()) };
+			std::chrono::milliseconds searchTime{ std::chrono::milliseconds(0) };
+			double factor[]{ 0.0,0.0 };
 			while (principalVariationSearch(stack, depthRemaining, finalVariation, m_MoveThreadIsRunning))
 			{
 				depthRemaining++;
 				if (this->front().exceedsDepthLimit(depthRemaining))
 					break;
+				const std::chrono::milliseconds plyTime{ timeRemaining - std::chrono::duration_cast<std::chrono::milliseconds>(this->currentGame().playerClock(this->position().movingPlayer()).timeRemaining()) };
+				timeRemaining = std::chrono::duration_cast<std::chrono::milliseconds>(this->currentGame().playerClock(this->position().movingPlayer()).timeRemaining());
+				searchTime += plyTime;
+				if (depthRemaining > 2)
+				{
+					factor[depthRemaining % 2] = static_cast<double>(searchTime.count()) / static_cast<double>((searchTime - plyTime).count());
+					if (depthRemaining > 4)
+					{
+						const std::chrono::milliseconds projectedTime{ std::chrono::milliseconds(static_cast<long>(searchTime.count() * factor[(depthRemaining + 1) % 2])) };
+						const std::chrono::milliseconds neededTime{ projectedTime - searchTime };
+						if (neededTime > (allocatedTime - searchTime))
+							break;
+					}
+				}
 			}
 			this->currentGame().playerClock(this->currentGame().position().movingPlayer()).stop();
 			if (!m_MoveThreadAborted)
@@ -153,18 +169,42 @@ namespace pygmalion::frontend
 		{
 			return "no game (frontend only)";
 		}
+		virtual double timeSkew() const noexcept
+		{
+			return 1.0;
+		}
+		virtual int expectedGameLength() const noexcept
+		{
+			return 60;
+		}
+		virtual int minimumExpectedGameLength() const noexcept
+		{
+			return 20;
+		}
+		constexpr std::chrono::milliseconds allocateTime(const playerType pl) const noexcept
+		{
+			const int historyLength{ static_cast<int>(this->history().length() / 2) };
+			const int movesPerTimeControl{ this->currentGame().movesPerTimeControl() ? static_cast<int>(this->currentGame().movesPerTimeControl()) : expectedGameLength() };
+			const int movesPlayed{ this->currentGame().movesPerTimeControl() ? static_cast<int>(this->currentGame().lastTimeControl(pl)) : historyLength };
+			const int movesLeft{ std::max(this->currentGame().movesPerTimeControl() ? 1 : minimumExpectedGameLength(),movesPerTimeControl - movesPlayed) };
+			const std::chrono::milliseconds allocated{ std::chrono::duration_cast<std::chrono::milliseconds>(this->currentGame().playerClock(pl).timeRemaining() / movesLeft) + this->currentGame().incrementTime() };
+			const double factor{ std::max(static_cast<double>(expectedGameLength() - historyLength), 0.0) / static_cast<double>(expectedGameLength()) };
+			const double skew{ (factor * timeSkew()) + (1.0 - factor) };
+			const std::chrono::milliseconds result{ std::chrono::milliseconds(std::min(static_cast<long>(skew * allocated.count()), static_cast<long>(0.95 * this->currentGame().playerClock(pl).timeRemaining().count()))) };
+			return result;
+		}
 		void thinkMove() noexcept
 		{
 			std::unique_lock<std::mutex> lock;
 			if (!m_MoveThreadIsRunning)
 			{
-				const std::chrono::milliseconds timeLeft{ this->allocateTime(std::chrono::duration_cast<std::chrono::milliseconds>(this->currentGame().playerClock(this->currentGame().position().movingPlayer()).timeRemaining()),20) };
+				const std::chrono::milliseconds timeLeft{ this->allocateTime(this->currentGame().position().movingPlayer()) };
 				const std::chrono::milliseconds timeLimit{ std::chrono::duration_cast<std::chrono::milliseconds>(this->front().timeLimit()) };
 				const std::chrono::milliseconds timeAvailable{ this->front().isTimeLimited() ? std::min(timeLeft,timeLimit) : timeLeft };
 				this->currentGame().playerClock(this->currentGame().position().movingPlayer()).start();
 				m_MoveThreadIsRunning = true;
 				m_MoveThreadAborted = false;
-				m_pMoveThread = new std::thread([this]() {moveThreadFunc(); });
+				m_pMoveThread = new std::thread([this, timeLeft]() {moveThreadFunc(timeLeft); });
 				std::thread timerThread
 				{
 					std::thread(
@@ -215,7 +255,7 @@ namespace pygmalion::frontend
 		}
 		constexpr void doMove(const movebitsType& movebits) noexcept
 		{
-			this->currentGame().playerClock(this->position().movingPlayer()).set(this->currentGame().playerClock(this->position().movingPlayer()).timeRemaining() + std::chrono::duration_cast<std::chrono::microseconds>(this->front().incrementTime()));
+			this->currentGame().playerClock(this->position().movingPlayer()).set(this->currentGame().playerClock(this->position().movingPlayer()).timeRemaining() + std::chrono::duration_cast<std::chrono::microseconds>(this->currentGame().incrementTime()));
 			this->makeMove(movebits);
 		}
 		constexpr void undoMove() noexcept

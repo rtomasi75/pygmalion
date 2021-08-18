@@ -41,39 +41,39 @@ namespace pygmalion
 		{
 			return evaluationType::lateResult_Implementation(stack);
 		}
-		static objectiveType evaluate(const stackType& stack) noexcept
+		static scoreType evaluate(const stackType& stack) noexcept
 		{
 			return evaluationType::evaluate_Implementation(stack);
 		}
-		constexpr static objectiveType makeSubjective(const objectiveType sc, const playerType player) noexcept
+		constexpr static scoreType makeSubjective(const scoreType sc, const playerType player) noexcept
 		{
 			return evaluationType::makeSubjective_Implementation(sc, player);
 		}
-		constexpr static objectiveType maxScore(const playerType player) noexcept
+		constexpr static scoreType maxScore(const playerType player) noexcept
 		{
 			return evaluationType::maxScore_Implementation(player);
 		}
-		constexpr static objectiveType neutralScore() noexcept
+		constexpr static scoreType neutralScore() noexcept
 		{
 			return evaluationType::neutralScore_Implementation();
 		}
-		constexpr static objectiveType winScore(const playerType player) noexcept
+		constexpr static scoreType winScore(const playerType player) noexcept
 		{
 			return evaluationType::winScore_Implementation(player);
 		}
-		constexpr static objectiveType lossScore(const playerType player) noexcept
+		constexpr static scoreType lossScore(const playerType player) noexcept
 		{
 			return evaluationType::lossScore_Implementation(player);
 		}
-		constexpr static objectiveType minScore(const playerType player) noexcept
+		constexpr static scoreType minScore(const playerType player) noexcept
 		{
 			return evaluationType::minScore_Implementation(player);
 		}
-		constexpr static void plyDown(objectiveType& sc) noexcept
+		constexpr static void plyDown(scoreType& sc) noexcept
 		{
 			evaluationType::plyDown_Implementation(sc);
 		}
-		constexpr static void plyUp(objectiveType& sc) noexcept
+		constexpr static void plyUp(scoreType& sc) noexcept
 		{
 			evaluationType::plyDown_Implementation(sc);
 		}

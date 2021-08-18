@@ -8,31 +8,31 @@ namespace pygmalion::chess
 		return list;
 	}
 
-	evaluator::objectiveType evaluator::mobility(const generatorType::stackType& stack) noexcept
+	evaluator::scoreType evaluator::mobility(const generatorType::stackType& stack) noexcept
 	{
 		const squaresType targetedByBlack{ stack.squaresTargetedByPlayer(blackPlayer) };
 		const squaresType targetedByWhite{ stack.squaresTargetedByPlayer(whitePlayer) };
 		const int targets{ static_cast<int>(targetedByWhite.count()) - static_cast<int>(targetedByBlack.count()) };
-		const objectiveType scoreTargets{ targets * m_MobilityFactor };
+		const scoreType scoreTargets{ targets * MobilityFactor };
 		return scoreTargets;
 	}
 
-	evaluator::objectiveType evaluator::attack(const generatorType::stackType& stack) noexcept
+	evaluator::scoreType evaluator::attack(const generatorType::stackType& stack) noexcept
 	{
 		const squaresType attackedByBlack{ stack.squaresAttackedByPlayer(blackPlayer) };
 		const squaresType attackedByWhite{ stack.squaresAttackedByPlayer(whitePlayer) };
 		const int attacks{ static_cast<int>(attackedByWhite.count()) - static_cast<int>(attackedByBlack.count()) };
-		const objectiveType scoreAttacks{ attacks * m_AttackFactor };
+		const scoreType scoreAttacks{ attacks * AttackFactor };
 		return scoreAttacks;
 	}
 
-	evaluator::objectiveType evaluator::control(const generatorType::stackType& stack) noexcept
+	evaluator::scoreType evaluator::control(const generatorType::stackType& stack) noexcept
 	{
 		squaresType controlledByBlack;
 		squaresType controlledByWhite;
 		stack.control(controlledByWhite, controlledByBlack);
 		const int control{ static_cast<int>(controlledByWhite.count()) - static_cast<int>(controlledByBlack.count()) };
-		const objectiveType scoreControl{ control * m_ControlFactor };
+		const scoreType scoreControl{ control * ControlFactor };
 		return scoreControl;
 	}
 
@@ -97,25 +97,21 @@ namespace pygmalion::chess
 			return gamestateType::draw();
 	}
 
-	evaluator::objectiveType evaluator::evaluate_Implementation(const multiscoreType& score, const generatorType::stackType& stack) noexcept
+	evaluator::scoreType evaluator::evaluate_Implementation(const scoreType alpha, const scoreType beta, const generatorType::stackType& stack) noexcept
 	{
-		const objectiveType mat{ static_cast<objectiveType>(stack.position().material()) };
-		objectiveType sc{ mat };
+		const scoreType mat{ static_cast<scoreType>(stack.position().material()) };
+		const bool invert{ stack.movingPlayer() == playerType(0) };
+		scoreType sc{ invert ? mat : -mat };
 		const playerType movingPlayer{ stack.movingPlayer() };
-		if (!score.isFutile(movingPlayer, sc, m_DeltaMobility + m_DeltaAttack + m_DeltaControl))
+		for (size_t stage = 0; stage < CountStages; stage++)
 		{
-			const objectiveType mob{ mobility(stack) };
-			sc += mob;
-			if (!score.isFutile(movingPlayer, sc, m_DeltaAttack + m_DeltaControl))
+			if (!evaluatorType::isFutile(alpha, beta, sc, Delta[stage]))
 			{
-				const objectiveType att{ attack(stack) };
-				sc += att;
-				if (!score.isFutile(movingPlayer, sc, m_DeltaControl))
-				{
-					const objectiveType ctrl{ control(stack) };
-					sc += ctrl;
-				}
+				const scoreType value{ evaluationFunction(stage,stack) };
+				sc += invert ? value : -value;
 			}
+			else
+				break;
 		}
 		return sc;
 	}

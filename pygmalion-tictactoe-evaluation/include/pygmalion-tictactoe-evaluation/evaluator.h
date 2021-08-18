@@ -16,10 +16,6 @@ namespace pygmalion::tictactoe
 			std::deque<std::shared_ptr<pygmalion::intrinsics::command>> list{ std::deque<std::shared_ptr<pygmalion::intrinsics::command>>() };
 			return list;
 		}
-		constexpr static subjectiveType makeSubjective_Implementation(const objectiveType& sc, const playerType player) noexcept
-		{
-			return (player != 0) ? -sc : sc;
-		}
 		constexpr static gamestateType lateResult_Implementation(const generatorType::stackType& stack) noexcept
 		{
 			return gamestateType::draw();
@@ -46,41 +42,21 @@ namespace pygmalion::tictactoe
 			}
 			return (canDecide && (position.totalOccupancy().count() < 9)) ? gamestateType::open() : gamestateType::draw();
 		}
-		static objectiveType evaluate_Implementation(const multiscoreType& score, const generatorType::stackType& stack) noexcept
+		static scoreType evaluate_Implementation(const scoreType alpha, const scoreType beta, const generatorType::stackType& stack) noexcept
 		{
 			const auto& position{ stack.position() };
-			auto sc = objectiveType::zero();
+			auto sc = scoreType::zero();
 			for (int line = 0; line < m_Patterns.countLines; line++)
 			{
 				const auto ctr1 = (position.playerOccupancy(0) & m_Patterns.line(line)).count();
 				const auto ctr2 = (position.playerOccupancy(1) & m_Patterns.line(line)).count();
 
 				if ((ctr1 > 0) && (ctr2 == 0))
-					sc += objectiveType::one() * (ctr1 * ctr1);
+					sc += scoreType::one() * (ctr1 * ctr1);
 				if ((ctr2 > 0) && (ctr1 == 0))
-					sc -= objectiveType::one() * (ctr2 * ctr2);
+					sc -= scoreType::one() * (ctr2 * ctr2);
 			}
-			return sc;
-		}
-		constexpr static objectiveType maxScore_Implementation(const playerType player) noexcept
-		{
-			return (player != 0) ? objectiveType::minimum() : objectiveType::maximum();
-		}
-		constexpr static objectiveType minScore_Implementation(const playerType player) noexcept
-		{
-			return (player != 0) ? objectiveType::maximum() : objectiveType::minimum();
-		}
-		constexpr static objectiveType neutralScore_Implementation() noexcept
-		{
-			return objectiveType::zero();
-		}
-		constexpr static objectiveType winScore_Implementation(const playerType player) noexcept
-		{
-			return (player > 0) ? objectiveType::loss() : objectiveType::win();
-		}
-		constexpr static objectiveType lossScore_Implementation(const playerType player) noexcept
-		{
-			return (player > 0) ? objectiveType::win() : objectiveType::loss();
+			return stack.movingPlayer() == playerType(0) ? sc : -sc;
 		}
 	};
 }

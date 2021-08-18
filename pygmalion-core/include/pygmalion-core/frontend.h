@@ -59,7 +59,7 @@ namespace pygmalion
 		{
 			return frontType::subjectiveToString_Implementation(score);
 		}
-		static std::string objectiveToString(const objectiveType score) noexcept
+		static std::string objectiveToString(const scoreType score) noexcept
 		{
 			return frontType::objectiveToString_Implementation(score);
 		}

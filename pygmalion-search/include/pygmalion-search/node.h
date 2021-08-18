@@ -11,63 +11,33 @@ namespace pygmalion
 	private:
 		stackType m_Stack;
 		std::atomic_bool& m_IsRunning;
-		objectiveType lateScore() const noexcept
+		scoreType lateScore() const noexcept
 		{
 			const gamestateType lateState{ evaluatorType::lateResult(m_Stack) };
 			assert(!gamestateType::isOpen(lateState));
 			if (gamestateType::isDraw(lateState))
 			{
-				return objectiveType::zero();
+				return scoreType::zero();
 			}
 			else
 			{
-				for (const playerType i : playerType::range)
-				{
-					if (gamestateType::isWin(lateState, i))
-					{
-						return  (i > 0) ? objectiveType::loss() : objectiveType::win();;
-					}
-				}
-				for (const playerType i : playerType::range)
-				{
-					if (gamestateType::isLoss(lateState, i))
-					{
-						return (i > 0) ? objectiveType::win() : objectiveType::loss();
-					}
-				}
+				return gamestateType::isWin(lateState, m_Stack.movingPlayer()) ? scoreType::win() : scoreType::loss();
 			}
-			assert(false);
-			return objectiveType::zero();
 		}
-		bool earlyScore(objectiveType& score) const noexcept
+		bool earlyScore(scoreType& score) const noexcept
 		{
 			const gamestateType earlyState{ evaluatorType::earlyResult(m_Stack) };
 			if (!gamestateType::isOpen(earlyState))
 			{
 				if (gamestateType::isDraw(earlyState))
 				{
-					score = objectiveType::zero();
+					score = scoreType::zero();
 					return true;
 				}
 				else
 				{
-					for (const playerType i : playerType::range)
-					{
-						if (gamestateType::isWin(earlyState, i))
-						{
-							score = (i > 0) ? objectiveType::loss() : objectiveType::win();
-							return true;
-						}
-					}
-					for (const playerType i : playerType::range)
-					{
-						if (gamestateType::isLoss(earlyState, i))
-						{
-							score = (i > 0) ? objectiveType::win() : objectiveType::loss();
-							return true;
-						}
-					}
-					assert(false);
+					score = gamestateType::isWin(earlyState, m_Stack.movingPlayer()) ? scoreType::win() : scoreType::loss();
+					return true;
 				}
 			}
 			return false;
@@ -78,23 +48,24 @@ namespace pygmalion
 			return m_Stack;
 		}
 		template<bool VERBOSE>
-		objectiveType eval(multiscoreType currentScore, const depthType depth, variationType& principalVariation, heuristicsType& heuristics, std::ostream& str) const noexcept
+		scoreType eval(scoreType alpha, scoreType beta, const depthType depth, variationType& principalVariation, heuristicsType& heuristics, std::ostream& str) const noexcept
 		{
 			heuristics.beginNode(m_Stack.position());
-			objectiveType early{ evaluatorType::neutralScore() };
+			scoreType early{ scoreType::zero() };
 			if (earlyScore(early))
 			{
 				heuristics.endNodeEarly(m_Stack.position());
 				return early;
 			}
-			const objectiveType stand_pat{ evaluatorType::evaluate(currentScore,m_Stack) };
+			const scoreType stand_pat{ evaluatorType::evaluate(alpha, beta, m_Stack) };
 			const playerType movingPlayer{ m_Stack.movingPlayer() };
-			if (currentScore.refuted(movingPlayer, stand_pat))
+			if (stand_pat >= beta)
 			{
 				heuristics.endNodeLeaf(m_Stack.position());
-				return stand_pat;
+				return beta;
 			}
-			currentScore.accepted(movingPlayer, stand_pat);
+			if (stand_pat > alpha)
+				alpha = stand_pat;
 			bool hasLegalMove{ false };
 			movebitsType move;
 			if (depth < countSearchPlies)
@@ -104,22 +75,17 @@ namespace pygmalion
 					heuristics.beginMove(m_Stack.position(), move);
 					hasLegalMove = true;
 					variationType subVariation;
-					currentScore.plyDown();
-					objectiveType sc{ objectiveType::zero() };
-					{
-						node subnode(*this, move);
-						sc = subnode.search<VERBOSE>(currentScore, -1, depth + 1, subVariation, heuristics, str);
-					}
-					sc = sc.plyUp();
-					currentScore.plyUp();
-					if (currentScore.refuted(movingPlayer, sc))
+					node subnode(*this, move);
+					const scoreType sc{ -subnode.search<VERBOSE>(-beta.plyDown(), -alpha.plyDown(), -1, depth + 1, subVariation, heuristics, str).plyUp() };
+					if (sc >= beta)
 					{
 						heuristics.endMoveRefuted(m_Stack.position(), move);
 						heuristics.endNodeCut(m_Stack.position());
-						return sc;
+						return beta;
 					}
-					if (currentScore.accepted(movingPlayer, sc))
+					if (sc > alpha)
 					{
+						alpha = sc;
 						heuristics.endMoveAccepted(m_Stack.position(), move);
 						principalVariation.combine(move, subVariation);
 					}
@@ -131,17 +97,17 @@ namespace pygmalion
 			if (!hasLegalMove)
 				hasLegalMove = m_Stack.hasLegalMove();
 			if (hasLegalMove)
-				return currentScore.score(movingPlayer);
+				return alpha;
 			else
 				return lateScore();
 		}
 		template<bool VERBOSE>
-		objectiveType search(multiscoreType currentScore, const depthType depthRemaining, const depthType depth, variationType& principalVariation, heuristicsType& heuristics, std::ostream& str) const noexcept
+		scoreType search(scoreType alpha, scoreType beta, const depthType depthRemaining, const depthType depth, variationType& principalVariation, heuristicsType& heuristics, std::ostream& str) const noexcept
 		{
 			if ((depthRemaining >= 0) && (depth < countSearchPlies))
 			{
 				heuristics.beginNode(m_Stack.position());
-				objectiveType early{ evaluatorType::neutralScore() };
+				scoreType early{ scoreType::zero() };
 				if (earlyScore(early))
 				{
 					heuristics.endNodeEarly(m_Stack.position());
@@ -153,7 +119,7 @@ namespace pygmalion
 				while (m_Stack.nextMove(move))
 				{
 					if (!m_IsRunning)
-						return objectiveType::zero();
+						return scoreType::zero();
 					if constexpr (VERBOSE)
 					{
 						for (depthType d = 0; d < depth; d++)
@@ -163,19 +129,13 @@ namespace pygmalion
 					heuristics.beginMove(m_Stack.position(), move);
 					hasLegalMove = true;
 					variationType subVariation;
-					currentScore.plyDown();
-					objectiveType sc{ objectiveType::zero() };
-					{
-						node subnode(*this, move);
-						sc = subnode.search<VERBOSE>(currentScore, depthRemaining - 1, depth + 1, subVariation, heuristics, str);
-					}
-					sc = sc.plyUp();
+					node subnode(*this, move);
+					const scoreType sc{ -subnode.search<VERBOSE>(-beta.plyDown(), -alpha.plyDown(), depthRemaining - 1, depth + 1, subVariation, heuristics, str).plyUp() };
 					if constexpr (VERBOSE)
 					{
 						str << "  " << sc;
 					}
-					currentScore.plyUp();
-					if (currentScore.refuted(movingPlayer, sc))
+					if (sc >= beta)
 					{
 						if constexpr (VERBOSE)
 						{
@@ -183,14 +143,15 @@ namespace pygmalion
 						}
 						heuristics.endMoveRefuted(m_Stack.position(), move);
 						heuristics.endNodeCut(m_Stack.position());
-						return sc;
+						return beta;
 					}
-					if (currentScore.accepted(movingPlayer, sc))
+					if (sc > alpha)
 					{
 						if constexpr (VERBOSE)
 						{
 							str << " ACCEPTED";
 						}
+						alpha = sc;
 						heuristics.endMoveAccepted(m_Stack.position(), move);
 						principalVariation.combine(move, subVariation);
 					}
@@ -205,16 +166,16 @@ namespace pygmalion
 				heuristics.endNodeLate(m_Stack.position());
 				if (hasLegalMove)
 				{
-					return currentScore.score(movingPlayer);
+					return alpha;
 				}
 				else
 				{
 					return lateScore();
 				}
-				return objectiveType::zero();
+				return scoreType::zero();
 			}
 			else
-				return this->template eval<VERBOSE>(currentScore, depth, principalVariation, heuristics, str);
+				return this->template eval<VERBOSE>(alpha, beta, depth, principalVariation, heuristics, str);
 		}
 		node() = delete;
 		constexpr node(const node&) = default;

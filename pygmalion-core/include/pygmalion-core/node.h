@@ -12,7 +12,7 @@ namespace pygmalion
 
 	private:
 		stackType m_Stack;
-		objectiveType lateScore() const noexcept
+		scoreType lateScore() const noexcept
 		{
 			const auto lateState{ evaluationType::lateResult(m_Stack) };
 			assert(!gamestateType::isOpen(lateState));
@@ -21,7 +21,7 @@ namespace pygmalion
 			else
 				return evaluationType::lossScore(m_Stack.movingPlayer());
 		}
-		bool earlyScore(objectiveType& score) const noexcept
+		bool earlyScore(scoreType& score) const noexcept
 		{
 			const auto earlyState{ evaluationType::earlyResult(m_Stack) };
 			if (!gamestateType::isOpen(earlyState))
@@ -55,7 +55,7 @@ namespace pygmalion
 			return false;
 		}
 	public:
-		objectiveType eval(multiscoreType currentScore, const depthType depth, variationType& principalVariation, heuristicsType& heuristics) const noexcept
+		scoreType eval(multiscoreType currentScore, const depthType depth, variationType& principalVariation, heuristicsType& heuristics) const noexcept
 		{
 			heuristics.beginNode(m_Stack.position());
 			score early{ evaluationType::neutralScore() };
@@ -64,7 +64,7 @@ namespace pygmalion
 				heuristics.endNodeEarly(m_Stack.position());
 				return early;
 			}
-			const objectiveType stand_pat{ evaluationType::evaluate(m_Stack) };
+			const scoreType stand_pat{ evaluationType::evaluate(m_Stack) };
 			const playerType movingPlayer{ m_Stack.movingPlayer() };
 			if (currentScore.refuted(movingPlayer, stand_pat))
 			{
@@ -82,7 +82,7 @@ namespace pygmalion
 					hasLegalMove = true;
 					variationType subVariation;
 					currentScore.plyDown();
-					objectiveType sc{ objectiveType::zero() };
+					scoreType sc{ scoreType::zero() };
 					{
 						node subnode(*this, move);
 						sc = subnode.search(currentScore, -1, depth + 1, subVariation, heuristics);
@@ -112,7 +112,7 @@ namespace pygmalion
 			else
 				return lateScore();
 		}
-		objectiveType search(multiscoreType currentScore, const depthType depthRemaining, const depthType depth, variationType& principalVariation, heuristicsType& heuristics) const noexcept
+		scoreType search(multiscoreType currentScore, const depthType depthRemaining, const depthType depth, variationType& principalVariation, heuristicsType& heuristics) const noexcept
 		{
 			if ((depthRemaining >= 0) && (depth < countSearchPlies))
 			{
@@ -132,7 +132,7 @@ namespace pygmalion
 					hasLegalMove = true;
 					variationType subVariation;
 					currentScore.plyDown();
-					objectiveType sc{ objectiveType::zero() };
+					scoreType sc{ scoreType::zero() };
 					{
 						node subnode(*this, move);
 						sc = subnode.search(currentScore, depthRemaining - 1, depth + 1, subVariation, heuristics);

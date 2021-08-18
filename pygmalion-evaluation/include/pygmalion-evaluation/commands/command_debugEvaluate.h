@@ -13,10 +13,8 @@ namespace pygmalion::evaluation
 		{
 			if (cmd == "debug-evaluate")
 			{
-				typename generatorType::stackType stack(this->position(),this->history(), this->position().movingPlayer());
-				using multiscoreType = multiscore<descriptorEvaluation, evaluatorType>;
-				multiscoreType alphabeta;
-				objectiveType eval{ evaluatorType::evaluate(alphabeta,stack) };
+				typename generatorType::stackType stack(this->position(), this->history(), this->position().movingPlayer());
+				scoreType eval{ evaluatorType::evaluate(scoreType::minimum(), scoreType::maximum(),stack) };
 				this->output() << "evaluation score: " << eval << std::endl;
 				return true;
 			}

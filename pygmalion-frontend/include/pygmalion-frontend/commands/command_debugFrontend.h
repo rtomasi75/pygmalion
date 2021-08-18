@@ -32,7 +32,7 @@ namespace pygmalion::frontend
 					this->output() << "time limit:       " << this->front().timeLimit().count() << "s" << std::endl;
 				else
 					this->output() << "time limit:       none" << std::endl;
-				this->output() << "time control:     " << this->front().movesPerTimeControl() << " " << this->front().baseTime().count() << "s " << this->front().incrementTime().count() << "s" << std::endl;
+				this->output() << "time control:     " << this->frontendEngine().currentGame().movesPerTimeControl() << " " << this->frontendEngine().currentGame().baseTime().count() << "s " << this->frontendEngine().currentGame().incrementTime().count() << "s" << std::endl;
 				this->output() << "engine player:    " << boardType::playerToString(this->front().enginePlayer()) << std::endl;
 				this->output() << std::endl;
 				for (const auto pl : playerType::range)

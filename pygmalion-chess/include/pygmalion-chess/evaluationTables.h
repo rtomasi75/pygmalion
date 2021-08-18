@@ -8,7 +8,7 @@ namespace pygmalion::chess
 		using descriptorEvaluation = DESCRIPTION_EVALUATION;
 #include <pygmalion-core/include_evaluation.h>
 
-		constexpr static objectiveType m_PromotionStep{ 0.25 };
+		constexpr static scoreType m_PromotionStep{ 0.25 };
 	private:
 		constexpr static int8_t m_LazyMaterial[7]
 		{
@@ -32,7 +32,7 @@ namespace pygmalion::chess
 		};
 		constexpr static int8_t maxSquareValue{ 4 };
 		squaresType m_SquareImportance[maxSquareValue + 1];
-		objectiveType m_Material[2][6][64];
+		scoreType m_Material[2][6][64];
 	public:
 		evaluationTables::evaluationTables() noexcept
 		{
@@ -41,7 +41,7 @@ namespace pygmalion::chess
 				for (const auto pc : pieceType::range)
 				{
 					for (const auto sq : squareType::range)
-						m_Material[2][6][64] = objectiveType::zero();
+						m_Material[2][6][64] = scoreType::zero();
 				}
 			}
 			for (int8_t i = 0; i <= maxSquareValue; i++)
@@ -82,7 +82,7 @@ namespace pygmalion::chess
 								imp += importance * (relevant & moveMap).count();
 								imp += importance * (relevant & capMap).count();
 							}
-							m_Material[s][pawn][square] = ((s == whitePlayer) ? objectiveType::one() : -objectiveType::one()) * (m_LazyMaterial[pawn] * objectiveType::one() + objectiveType::atom() * imp);
+							m_Material[s][pawn][square] = ((s == whitePlayer) ? scoreType::one() : -scoreType::one()) * (m_LazyMaterial[pawn] * scoreType::one() + scoreType::atom() * imp);
 						}
 						moveMap = generatorType::movegenTable().knightMoveMap(square);
 						capMap = generatorType::movegenTable().knightMoveMap(square);
@@ -93,7 +93,7 @@ namespace pygmalion::chess
 							imp += importance * (relevant & moveMap).count();
 							imp += importance * (relevant & capMap).count();
 						}
-						m_Material[s][knight][square] = ((s == whitePlayer) ? objectiveType::one() : -objectiveType::one()) * (m_LazyMaterial[knight] * objectiveType::one() + objectiveType::atom() * imp);
+						m_Material[s][knight][square] = ((s == whitePlayer) ? scoreType::one() : -scoreType::one()) * (m_LazyMaterial[knight] * scoreType::one() + scoreType::atom() * imp);
 						moveMap = squaresType::none();
 						capMap = squaresType::none();
 						generatorType::movegenTable().sliderMoveMaps(true, square, squaresType::none(), squaresType::all(), moveMap, capMap);
@@ -104,7 +104,7 @@ namespace pygmalion::chess
 							imp += importance * (relevant & moveMap).count();
 							imp += importance * (relevant & capMap).count();
 						}
-						m_Material[s][bishop][square] = ((s == whitePlayer) ? objectiveType::one() : -objectiveType::one()) * (m_LazyMaterial[bishop] * objectiveType::one() + objectiveType::atom() * imp);
+						m_Material[s][bishop][square] = ((s == whitePlayer) ? scoreType::one() : -scoreType::one()) * (m_LazyMaterial[bishop] * scoreType::one() + scoreType::atom() * imp);
 						moveMap = squaresType::none();
 						capMap = squaresType::none();
 						generatorType::movegenTable().sliderMoveMaps(false, square, squaresType::none(), squaresType::all(), moveMap, capMap);
@@ -115,7 +115,7 @@ namespace pygmalion::chess
 							imp += importance * (relevant & moveMap).count();
 							imp += importance * (relevant & capMap).count();
 						}
-						m_Material[s][rook][square] = ((s == whitePlayer) ? objectiveType::one() : -objectiveType::one()) * (m_LazyMaterial[rook] * objectiveType::one() + objectiveType::atom() * imp);
+						m_Material[s][rook][square] = ((s == whitePlayer) ? scoreType::one() : -scoreType::one()) * (m_LazyMaterial[rook] * scoreType::one() + scoreType::atom() * imp);
 						moveMap = squaresType::none();
 						capMap = squaresType::none();
 						generatorType::movegenTable().sliderMoveMaps(false, square, squaresType::none(), squaresType::all(), moveMap, capMap);
@@ -127,7 +127,7 @@ namespace pygmalion::chess
 							imp += importance * (relevant & moveMap).count();
 							imp += importance * (relevant & capMap).count();
 						}
-						m_Material[s][queen][square] = ((s == whitePlayer) ? objectiveType::one() : -objectiveType::one()) * (m_LazyMaterial[queen] * objectiveType::one() + objectiveType::atom() * imp);
+						m_Material[s][queen][square] = ((s == whitePlayer) ? scoreType::one() : -scoreType::one()) * (m_LazyMaterial[queen] * scoreType::one() + scoreType::atom() * imp);
 						moveMap = generatorType::movegenTable().kingMoveMap(square);
 						capMap = generatorType::movegenTable().kingMoveMap(square);
 						imp = 0;
@@ -137,7 +137,7 @@ namespace pygmalion::chess
 							imp += importance * (relevant & moveMap).count();
 							imp += importance * (relevant & capMap).count();
 						}
-						m_Material[s][king][square] = ((s == whitePlayer) ? objectiveType::one() : -objectiveType::one()) * (m_LazyMaterial[king] * objectiveType::one() + objectiveType::atom() * imp);
+						m_Material[s][king][square] = ((s == whitePlayer) ? scoreType::one() : -scoreType::one()) * (m_LazyMaterial[king] * scoreType::one() + scoreType::atom() * imp);
 					}
 				}
 			}
@@ -152,7 +152,7 @@ namespace pygmalion::chess
 						score promotedscore = m_Material[side][queen][promotionrank & file] + m_Material[side][knight][promotionrank & file];
 						for (int d = 0; d <= dist; d++)
 						{
-							promotedscore *= static_cast<objectiveType>(0.5);
+							promotedscore *= static_cast<scoreType>(0.5);
 						}
 						m_Material[side][pawn][rank & file] += m_PromotionStep * promotedscore;
 					}
@@ -164,7 +164,7 @@ namespace pygmalion::chess
 			}
 		}
 		~evaluationTables() noexcept = default;
-		constexpr objectiveType material(const playerType p, const pieceType pc, const squareType sq) const noexcept
+		constexpr scoreType material(const playerType p, const pieceType pc, const squareType sq) const noexcept
 		{
 			assert(p.isValid());
 			assert(pc.isValid());

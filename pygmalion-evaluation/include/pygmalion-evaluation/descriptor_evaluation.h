@@ -10,8 +10,7 @@ namespace pygmalion
 	public:
 		using generatorType = GENERATOR;
 		using descriptorDynamics = typename GENERATOR::descriptorDynamics;
-		using subjectiveType = pygmalion::score<MANTISSA, SHIFT, MAXDIST>;
-		using objectiveType = pygmalion::score<MANTISSA, SHIFT, MAXDIST>;
+		using scoreType = pygmalion::score<MANTISSA, SHIFT, MAXDIST>;
 		using stackType = typename generatorType::stackType;
 		constexpr static const size_t evaluationMantissa{ MANTISSA };
 		constexpr static const size_t evaluationShift{ SHIFT };

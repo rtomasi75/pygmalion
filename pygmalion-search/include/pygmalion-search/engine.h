@@ -23,9 +23,5 @@ namespace pygmalion::search
 		{
 			return "no game (search only)";
 		}
-		constexpr std::chrono::milliseconds allocateTime(const std::chrono::milliseconds timeRemaining, const depthType movesRemaining)
-		{
-			return timeRemaining / movesRemaining;
-		}
 	};
 }

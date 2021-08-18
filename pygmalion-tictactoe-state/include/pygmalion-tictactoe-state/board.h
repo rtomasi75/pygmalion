@@ -1,6 +1,6 @@
 namespace pygmalion::tictactoe
 {
-	using descriptorState = pygmalion::descriptor_state<2, 1, 3,3, 0, 8, bool>;
+	using descriptorState = pygmalion::descriptor_state<1, 3, 3, 0, 8, bool>;
 
 	class board :
 		public pygmalion::board<descriptorState, board>

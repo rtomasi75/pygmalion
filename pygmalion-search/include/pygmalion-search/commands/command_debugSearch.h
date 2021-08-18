@@ -15,7 +15,6 @@ namespace pygmalion::search
 			{
 				this->output() << std::endl;
 				this->output() << "depth:      " << std::setw(4) << sizeof(depthType) << " = " << sizeof(depthType) * CHAR_BIT << "bit" << std::endl;
-				this->output() << "multiscore: " << std::setw(4) << sizeof(multiscoreType) << " = " << sizeof(multiscoreType) * CHAR_BIT << "bit" << std::endl;
 				this->output() << "variation:  " << std::setw(4) << sizeof(variationType) << " = " << sizeof(variationType) * CHAR_BIT << "bit" << std::endl;
 				this->output() << "heuristics: " << std::setw(4) << sizeof(heuristicsType) << " = " << sizeof(heuristicsType) * CHAR_BIT << "bit" << std::endl;
 				this->output() << std::endl;
