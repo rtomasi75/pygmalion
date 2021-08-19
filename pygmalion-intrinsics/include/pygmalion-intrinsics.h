@@ -26,6 +26,11 @@
 #include <mutex>
 #include <memory>
 #include <future>
+#include <shared_mutex>
+
+using chronographType = std::chrono::system_clock;
+using durationType = std::chrono::milliseconds;
+using timeType = typename chronographType::time_point;
 
 #include "pygmalion-intrinsics/arrayhelper.h"
 #include "pygmalion-intrinsics/profiler.h"
@@ -41,6 +46,8 @@
 #include "pygmalion-intrinsics/uint_t_traits.h"
 #include "pygmalion-intrinsics/uint_t_detail.h"
 #include "pygmalion-intrinsics/uint_t.h"
+#include "pygmalion-intrinsics/timer.h"
+#include "pygmalion-intrinsics/clock.h"
 #include "pygmalion-intrinsics/autoresetevent.h"
 #include "pygmalion-intrinsics/list.h"
 #include "pygmalion-intrinsics/magic.h"

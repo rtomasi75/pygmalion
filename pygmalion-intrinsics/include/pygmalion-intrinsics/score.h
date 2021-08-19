@@ -226,6 +226,10 @@ namespace pygmalion
 		{
 
 		}
+		constexpr score zeroWindow() const noexcept
+		{
+			return score(m_Value - 1, 0);
+		}
 		constexpr bool isLosing() const noexcept
 		{
 			return m_Value <= LOSINGVALUE;

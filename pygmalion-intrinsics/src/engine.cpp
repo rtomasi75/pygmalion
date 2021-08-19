@@ -41,6 +41,7 @@ namespace pygmalion::intrinsics
 				m_Output << "Error (invalid command): " << input << std::endl;
 				m_Output << std::endl;
 			}
+			m_Output.flush();
 		}
 	}
 

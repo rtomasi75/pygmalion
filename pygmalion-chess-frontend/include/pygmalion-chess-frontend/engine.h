@@ -23,6 +23,14 @@ namespace pygmalion::chess::frontend
 		{
 			return 4.0;
 		}
+		virtual int expectedGameLength() const noexcept override
+		{
+			return 40;
+		}
+		virtual int minimumExpectedGameLength() const noexcept override
+		{
+			return 10;
+		}
 		virtual ~engine() noexcept = default;
 		virtual std::string version() const noexcept override
 		{

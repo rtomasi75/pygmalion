@@ -12,15 +12,15 @@ namespace pygmalion
 		boardType m_Board;
 		std::array<clock, countPlayers> m_Clock;
 		std::array<int, countPlayers> m_LastTimeControl;
-		std::chrono::seconds m_BaseTime;
-		std::chrono::seconds m_IncrementTime;
+		durationType m_BaseTime;
+		durationType m_IncrementTime;
 		int m_MovesPerTimeControl;
 	public:
-		constexpr std::chrono::seconds baseTime() const noexcept
+		constexpr durationType baseTime() const noexcept
 		{
 			return m_BaseTime;
 		}
-		constexpr std::chrono::seconds incrementTime() const noexcept
+		constexpr durationType incrementTime() const noexcept
 		{
 			return m_IncrementTime;
 		}
@@ -28,11 +28,13 @@ namespace pygmalion
 		{
 			return m_MovesPerTimeControl;
 		}
-		constexpr void setTimeControl(const int movesPerTimeControl, const std::chrono::seconds baseTime, const std::chrono::seconds incrementTime) noexcept
+		constexpr void setTimeControl(const int movesPerTimeControl, const durationType baseTime, const durationType incrementTime) noexcept
 		{
 			m_MovesPerTimeControl = movesPerTimeControl;
 			m_BaseTime = baseTime;
 			m_IncrementTime = incrementTime;
+			for (const auto pl : playerType::range)
+				m_LastTimeControl[pl] = 0;
 		}
 		constexpr int lastTimeControl(const playerType pl) const noexcept
 		{

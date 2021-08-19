@@ -30,6 +30,10 @@ namespace pygmalion::frontend
 						int incrementseconds = parser::parseInt(increment);
 						std::chrono::seconds baseseconds = parser::parseDuration(basetime);
 						this->frontendEngine().currentGame().setTimeControl(movecount, baseseconds, std::chrono::seconds(incrementseconds));
+						for (const auto pl : playerType::range)
+						{
+							this->searchEngine().currentGame().playerClock(pl).set(this->frontendEngine().currentGame().baseTime());
+						}
 					}
 				}
 				this->output() << std::endl;

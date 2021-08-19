@@ -2,7 +2,6 @@
 #define PYGMALION_STATE
 
 #include <chrono>
-#include <shared_mutex>
 
 #include <pygmalion-intrinsics.h>
 
@@ -19,7 +18,6 @@
 #include "pygmalion-state/descriptor_state.h"
 #include "pygmalion-state/command.h"
 #include "pygmalion-state/commands.h"
-#include "pygmalion-state/clock.h"
 #include "pygmalion-state/game.h"
 #include "pygmalion-state/engine.h"
 
