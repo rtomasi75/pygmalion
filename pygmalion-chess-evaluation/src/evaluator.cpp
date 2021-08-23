@@ -40,8 +40,6 @@ namespace pygmalion::chess
 	{
 		if (stack.position().cumulation().reversiblePlies() >= 100)
 			return gamestateType::draw();
-		if (stack.occurs(stack.position(), 2, 4, 4))
-			return gamestateType::draw();
 		if (stack.position().playerOccupancy(whitePlayer) == squaresType(stack.kingSquare(whitePlayer)))
 		{
 			if (stack.position().playerOccupancy(blackPlayer) == squaresType(stack.kingSquare(blackPlayer)))
@@ -86,6 +84,8 @@ namespace pygmalion::chess
 					return gamestateType::draw();
 			}
 		}
+		if (stack.occurs(stack.position(), 2, 4, 4))
+			return gamestateType::draw();
 		return gamestateType::open();
 	}
 

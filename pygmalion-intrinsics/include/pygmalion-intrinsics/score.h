@@ -185,6 +185,10 @@ namespace pygmalion
 		{
 			return score(std::max(sc1.m_Value, sc2.m_Value), 0);
 		}
+		static constexpr score min(const score sc1, const score sc2) noexcept
+		{
+			return score(std::min(sc1.m_Value, sc2.m_Value), 0);
+		}
 		static constexpr score atom() noexcept
 		{
 			return score(1, 0);

@@ -5,6 +5,7 @@ namespace pygmalion
 		public DESCRIPTOR_MECHANICS
 	{
 	public:
+		using motorType = INSTANCE;
 		using mechanicsType = INSTANCE;
 		using descriptorMechanics = DESCRIPTOR_MECHANICS;
 #include "include_mechanics.h"
@@ -34,6 +35,11 @@ namespace pygmalion
 		static std::string moveToString(const boardType& position, const movebitsType& movebits) noexcept
 		{
 			return m_Move.toString(position, movebits);
+		}
+
+		static bool isTacticalMove(const movebitsType& movebits) noexcept
+		{
+			return motorType::isTacticalMove_Implementation(movebits);
 		}
 	};
 }

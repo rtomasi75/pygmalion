@@ -4,6 +4,7 @@
 #include <pygmalion-chess-state.h>
 #include <pygmalion-mechanics.h>
 
+#include "pygmalion-chess-mechanics/nullmove.h"
 #include "pygmalion-chess-mechanics/doublepushmove.h"
 #include "pygmalion-chess-mechanics/enpassantmove.h"
 #include "pygmalion-chess-mechanics/kingsidecastlemove.h"

@@ -32,30 +32,13 @@ namespace pygmalion::frontend
 				str << static_cast<int>(100 * score);
 			return str.str();
 		}
-		static std::string variationToStringFromDepth(const typename descriptorFrontend::stackType& stack, const variationType& variation, const depthType depth) noexcept
-		{
-			if (variation.length() > depth)
-			{
-				std::stringstream sstr;
-				sstr << stack.moveToString(variation[depth]) << " ";
-				typename descriptorFrontend::stackType subStack(stack, variation[depth]);
-				sstr << variationToStringFromDepth(subStack, variation, depth + 1);
-				return sstr.str();
-			}
-			return "";
-		}
-		static std::string variationToString(const typename descriptorFrontend::stackType& stack, const variationType& variation) noexcept
-		{
-			return variationToStringFromDepth(stack, variation, 0);
-		}
 		bool principalVariationSearch(const typename descriptorFrontend::stackType& stack, const depthType depthRemaining, variationType& finalVariation, std::atomic_bool& isRunning)
 		{
-			nodeType node(stack, isRunning);
+			nodeType node(stack, isRunning, this->heuristics());
 			variationType principalVariation{ variationType() };
-			heuristicsType heuristics{ heuristicsType() };
-			heuristics.beginSearch();
-			const scoreType score{ node.template search<false>(scoreType::minimum(), scoreType::maximum(), depthRemaining, 0, principalVariation, heuristics, this->outputStream()) };
-			heuristics.endSearch();
+			this->heuristics().beginSearch();
+			const scoreType score{ node.template search<false>(scoreType::minimum(), scoreType::maximum(), depthRemaining, 0, principalVariation, this->outputStream()) };
+			this->heuristics().endSearch();
 			if (isRunning)
 			{
 				finalVariation = principalVariation;
@@ -63,11 +46,11 @@ namespace pygmalion::frontend
 				{
 					this->outputStream() << static_cast<int>(depthRemaining) << " ";
 					this->outputStream() << scoreToString(score) << " ";
-					const std::chrono::milliseconds milliseconds{ std::chrono::duration_cast<std::chrono::milliseconds>(heuristics.duration()) };
+					const std::chrono::milliseconds milliseconds{ std::chrono::duration_cast<std::chrono::milliseconds>(this->heuristics().duration()) };
 					const int centiseconds{ static_cast<int>(milliseconds.count() / 10) };
 					this->outputStream() << centiseconds << " ";
-					this->outputStream() << heuristics.nodeCount() << " ";
-					this->outputStream() << variationToString(stack, finalVariation) << std::endl;
+					this->outputStream() << this->heuristics().nodeCount() << " ";
+					this->outputStream() << this->variationToString(finalVariation) << std::endl;
 				}
 				return true;
 			}

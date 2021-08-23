@@ -30,6 +30,7 @@ namespace pygmalion::state
 				this->output() << "gamestate:  " << std::setw(4) << sizeof(gamestateType) << " = " << sizeof(gamestateType) * CHAR_BIT << "bit" << std::endl;
 				this->output() << "cumulation: " << std::setw(4) << sizeof(cumulationType) << " = " << sizeof(cumulationType) * CHAR_BIT << "bit" << std::endl;
 				this->output() << "board:      " << std::setw(4) << sizeof(boardType) << " = " << sizeof(boardType) * CHAR_BIT << "bit" << std::endl;
+				this->output() << "signature:  " << std::setw(4) << sizeof(typename boardType::signatureType) << " = " << sizeof(typename boardType::signatureType) * CHAR_BIT << "bit" << std::endl;
 				this->output() << std::endl;
 				return true;
 			}

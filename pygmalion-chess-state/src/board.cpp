@@ -888,6 +888,8 @@ namespace pygmalion::chess
 		str << std::endl;
 		str << "Hash: " << std::setw(8) << std::hex << static_cast<std::uint64_t>(position.hash()) << std::dec << std::endl;
 		str << std::endl;
+		str << "Signature: " << position.signature().toString() << std::endl;
+		str << std::endl;
 		str << "Player " << boardType::playerToString(position.movingPlayer()) << " is on the move." << std::endl;
 		return str;
 	}

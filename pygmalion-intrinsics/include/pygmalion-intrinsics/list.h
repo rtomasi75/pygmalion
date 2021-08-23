@@ -164,6 +164,11 @@ namespace pygmalion
 		{
 
 		}
+		list(const itemType& item) noexcept :
+			m_Length(1) 
+		{
+			m_Items[0] = item;
+		}
 		~list() noexcept = default;
 		counterType length() const noexcept
 		{

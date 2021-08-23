@@ -27,10 +27,12 @@ namespace pygmalion
 			mutable indexType m_CurrentMove;
 			mutable indexType m_CurrentTacticalMove;
 			mutable indexType m_CurrentLegalMove;
+			mutable signatureType m_Signature;
 			const playerType m_MovingPlayer;
 			const playerType m_NextPlayer;
 			mutable bool m_HasLegalMove;
 			mutable bool m_HasLegalMoveValid;
+			mutable bool m_SignatureValid;
 			const bool m_IsNullmove;
 			bool computeHasLegalMove() const
 			{
@@ -63,6 +65,15 @@ namespace pygmalion
 					m_HasLegalMoveValid = true;
 				}
 				return m_HasLegalMove;
+			}
+			signatureType signature() const
+			{
+				if (!m_SignatureValid)
+				{
+					m_Signature = this->position().signature();
+					m_SignatureValid = true;
+				}
+				return m_Signature;
 			}
 			bool isMoveLegal(const movebitsType& moveBits) const noexcept
 			{
@@ -121,6 +132,7 @@ namespace pygmalion
 				m_Moves(),
 				m_HasLegalMove{ false },
 				m_HasLegalMoveValid{ false },
+				m_SignatureValid{ false },
 				m_CurrentPass{ 0 },
 				m_CurrentMove{ 0 },
 				m_CurrentTacticalPass{ 0 },
@@ -139,6 +151,7 @@ namespace pygmalion
 				m_Moves(),
 				m_HasLegalMove{ false },
 				m_HasLegalMoveValid{ false },
+				m_SignatureValid{ false },
 				m_CurrentPass{ 0 },
 				m_CurrentMove{ 0 },
 				m_CurrentTacticalPass{ 0 },

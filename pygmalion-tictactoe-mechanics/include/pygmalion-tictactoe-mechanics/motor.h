@@ -5,6 +5,10 @@ namespace pygmalion::tictactoe
 	class motor :
 		public pygmalion::motor<descriptor_mechanics, motor>
 	{
-
+public:
+		static bool isTacticalMove_Implementation(const movebitsType& movebits) noexcept
+		{
+			return false;
+		}
 	};
 }

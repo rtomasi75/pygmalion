@@ -14,11 +14,15 @@ namespace pygmalion::search
 			if (cmd == "debug-search")
 			{
 				this->output() << std::endl;
-				this->output() << "depth:      " << std::setw(4) << sizeof(depthType) << " = " << sizeof(depthType) * CHAR_BIT << "bit" << std::endl;
-				this->output() << "variation:  " << std::setw(4) << sizeof(variationType) << " = " << sizeof(variationType) * CHAR_BIT << "bit" << std::endl;
-				this->output() << "heuristics: " << std::setw(4) << sizeof(heuristicsType) << " = " << sizeof(heuristicsType) * CHAR_BIT << "bit" << std::endl;
+				this->output() << "depth:              " << std::setw(4) << sizeof(depthType) << " = " << sizeof(depthType) * CHAR_BIT << "bit" << std::endl;
+				this->output() << "variation:          " << std::setw(4) << sizeof(variationType) << " = " << sizeof(variationType) * CHAR_BIT << "bit" << std::endl;
+				this->output() << "transposition:      " << std::setw(4) << sizeof(typename transpositiontable<descriptorSearch>::transposition) << " = " << sizeof(typename transpositiontable<descriptorSearch>::transposition) * CHAR_BIT << "bit" << std::endl;
+				this->output() << "heuristics:         " << std::setw(4) << sizeof(heuristicsType) << " = " << sizeof(heuristicsType) * CHAR_BIT << "bit" << std::endl;
 				this->output() << std::endl;
-				this->output() << "countSearchPlies: " << std::setw(4) << countSearchPlies << std::endl;
+				this->output() << "max. depth: " << std::setw(4) << countSearchPlies << std::endl;
+				this->output() << "TT bits:    " << std::setw(4) << this->searchEngine().transpositionTable().bitCount() << std::endl;
+				this->output() << "TT entries: " << std::setw(4) << this->searchEngine().transpositionTable().countEntries() << std::endl;
+				this->output() << "TT memory:  " << std::setw(4) << parser::valueToString(this->searchEngine().transpositionTable().memoryUsed(), "B") << std::endl;
 				this->output() << std::endl;
 				return true;
 			}

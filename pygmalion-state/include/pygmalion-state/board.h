@@ -16,6 +16,19 @@ namespace pygmalion
 		flagsType m_Flags;
 		hashType m_Hash;
 		cumulationType m_Cumulation;
+		signatureType m_Signature;
+		static const inline std::array<hashType, countPlayers* countPieces* countSquares> m_HashTable{ arrayhelper::generate< countPlayers* countPieces* countSquares ,hashType>([](const size_t index) {return hashType::random(); }) };
+		constexpr static size_t requiredUnsignedBits(const size_t number) noexcept
+		{
+			size_t n = 1;
+			size_t k = 0;
+			while (number > n)
+			{
+				n *= 2;
+				k++;
+			}
+			return k;
+		}
 	protected:
 		constexpr static const hashType& playerHash(const playerType player) noexcept
 		{
@@ -27,7 +40,8 @@ namespace pygmalion
 		}
 		constexpr static hashType pieceHash(const pieceType piece, const squareType square, const playerType player) noexcept
 		{
-			return pieceType::hash(piece) ^ squareType::hash(square) ^ playerType::hash(player);
+			//	return pieceType::hash(piece) ^ squareType::hash(square) ^ playerType::hash(player);
+			return m_HashTable[static_cast<size_t>(player) * countSquares * countPieces + static_cast<size_t>(piece) * countSquares + static_cast<size_t>(square)];
 		}
 		void onClear() noexcept
 		{
@@ -68,6 +82,10 @@ namespace pygmalion
 			return (first <= last) && (last < countFlags);
 		}
 	public:
+		const signatureType& signature() const noexcept
+		{
+			return m_Signature;
+		}
 		constexpr gamestateType arbitration() const noexcept
 		{
 			return m_Arbitration;
@@ -336,6 +354,7 @@ namespace pygmalion
 #endif
 			m_PlayerOccupancy[player] |= square;
 			m_PieceOccupancy[piece] |= square;
+			m_Signature.addPiece(piece, player);
 			onAddedPiece(piece, square, player);
 		}
 		constexpr void removePiece(const pieceType piece, const squareType square, const playerType player) noexcept
@@ -349,6 +368,7 @@ namespace pygmalion
 #endif
 			m_PlayerOccupancy[player] -= square;
 			m_PieceOccupancy[piece] -= square;
+			m_Signature.removePiece(piece, player);
 			onRemovedPiece(piece, square, player);
 		}
 		constexpr pieceType getPiece(const squareType sq) const noexcept
@@ -384,6 +404,7 @@ namespace pygmalion
 			m_Flags.clear();
 			m_MovingPlayer = 0;
 			m_Arbitration = gamestateType::open();
+			m_Signature.clear();
 			onClear();
 		}
 		constexpr board() noexcept :

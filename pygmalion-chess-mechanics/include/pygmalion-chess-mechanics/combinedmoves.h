@@ -1,7 +1,7 @@
 namespace pygmalion::chess
 {
 	class combinedmoves :
-		public pygmalion::mechanics::disjunctivemove<board, queenpromocapturemove, queenpromotionmove, rookpromocapturemove, rookpromotionmove, bishoppromocapturemove, bishoppromotionmove, knightpromocapturemove, knightpromotionmove, doublepushmove, enpassantmove, kingsidecastlemove, queensidecastlemove, capturemove, quietmove>,
+		public pygmalion::mechanics::disjunctivemove<board, queenpromocapturemove, queenpromotionmove, rookpromocapturemove, rookpromotionmove, bishoppromocapturemove, bishoppromotionmove, knightpromocapturemove, knightpromotionmove, doublepushmove, enpassantmove, kingsidecastlemove, queensidecastlemove, capturemove, quietmove, nullmove>,
 		public board::descriptorState
 	{
 	public:
@@ -23,6 +23,7 @@ namespace pygmalion::chess
 		constexpr static const size_t indexQueenside{ 11 };
 		constexpr static const size_t indexCapture{ 12 };
 		constexpr static const size_t indexQuiet{ 13 };
+		constexpr static const size_t indexNull{ 14 };
 		constexpr static const muxbitsType muxQueenPromoCapture{ indexQueenPromoCapture };
 		constexpr static const muxbitsType muxQueenPromo{ indexQueenPromo };
 		constexpr static const muxbitsType muxRookPromoCapture{ indexRookPromoCapture };
@@ -37,7 +38,13 @@ namespace pygmalion::chess
 		constexpr static const muxbitsType muxDoublePush{ indexDoublePush };
 		constexpr static const muxbitsType muxKingside{ indexKingside };
 		constexpr static const muxbitsType muxQueenside{ indexQueenside };
+		constexpr static const muxbitsType muxNull{ indexNull };
 	public:
+		constexpr static bool isNull(const movebitsType& movebits) noexcept
+		{
+			const muxbitsType mux{ combinedmoves::muxbits(movebits) };
+			return mux == muxNull;
+		}
 		constexpr static bool isPromotion(const movebitsType& movebits) noexcept
 		{
 			const muxbitsType mux{ combinedmoves::muxbits(movebits) };
@@ -148,6 +155,10 @@ namespace pygmalion::chess
 		constexpr movebitsType createPromoCaptureKnight(const squareType from, const squareType to) const noexcept
 		{
 			return create<indexKnightPromoCapture>(this->component<indexKnightPromoCapture>().create(from, to));
+		}
+		constexpr movebitsType createNull() const noexcept
+		{
+			return create<indexNull>(this->component<indexNull>().create());
 		}
 	};
 }
