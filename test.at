@@ -58,7 +58,7 @@ FCHnames=
 [Data]
 LastPGNEPDindex=4
 LastGameDate=2021.08.23
-LastGameTime=23:29:43
+LastGameTime=23:30:13
 Country=Germany
 Site=LIQUIDITY
 Hardware=Intel(R) Core(TM) i9-10920X CPU @ 3.50GHz with 31,7 GB Memory
@@ -69,7 +69,7 @@ ArenaVersion=Arena 3.5.1
 FirstGameDate=2021.08.23
 FirstGameTime=23:11:24
 [PairingResults]
-Pygmalion (Reference) ------ Pygmalion (Release)=101½00½1
+Pygmalion (Reference) ------ Pygmalion (Release)=101½00½1?
 [Participants]
 Engine1=Pygmalion (Reference)
 Engine2=Pygmalion (Release)

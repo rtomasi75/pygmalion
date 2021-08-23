@@ -99,6 +99,10 @@ namespace pygmalion
 		std::array<itemType, maxLength> m_Items;
 		counterType m_Length;
 	public:
+		ITEM* ptr() noexcept
+		{
+			return &m_Items[0];
+		}
 		void replace(const counterType idx, const itemType& item) noexcept
 		{
 			assert(idx <= (m_Length + 1));

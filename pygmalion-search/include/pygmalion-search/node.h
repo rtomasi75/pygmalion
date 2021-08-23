@@ -53,12 +53,12 @@ namespace pygmalion
 			return false;
 		}
 	protected:
-		constexpr bool nextMove(movebitsType& movebits) noexcept
+		constexpr bool nextMove(const depthType depth, movebitsType& movebits) noexcept
 		{
 			if (m_MoveGeneratorStage < 0)
 			{
 				m_MoveGeneratorStage = 0;
-				m_Heuristics.transpositionTable().probeMoves(m_Stack, m_MovesTT);
+				m_Heuristics.transpositionTable().probeMoves(m_Stack, depth, m_MovesTT);
 				m_MoveTT = 0;
 			}
 			if (m_MoveGeneratorStage == 0)
@@ -94,12 +94,12 @@ namespace pygmalion
 			}
 			return false;
 		}
-		constexpr bool nextTacticalMove(movebitsType& movebits) noexcept
+		constexpr bool nextTacticalMove(const depthType depth, movebitsType& movebits) noexcept
 		{
 			if (m_TacticalMoveGeneratorStage < 0)
 			{
 				m_TacticalMoveGeneratorStage = 0;
-				m_Heuristics.transpositionTable().probeTacticalMoves(m_Stack, m_TacticalMovesTT);
+				m_Heuristics.transpositionTable().probeTacticalMoves(m_Stack, depth, m_TacticalMovesTT);
 				m_TacticalMoveTT = 0;
 			}
 			if (m_TacticalMoveGeneratorStage == 0)
@@ -671,7 +671,7 @@ namespace pygmalion
 				if constexpr (USE_TT)
 					m_Heuristics.transpositionTable().store(m_Stack, -1, best, transpositiontable<descriptorSearch>::flags_upper, movebitsType(0));
 			}
-			if ((!hasLegalMove) && nextTacticalMove(move))
+			if ((!hasLegalMove) && nextTacticalMove(-1, move))
 			{
 				hasLegalMove = true;
 				if (this->qsearchSubNode<VERBOSE, false, false>(move, alpha, beta, best, bestmove, depth, principalVariation, str))
@@ -695,7 +695,7 @@ namespace pygmalion
 					return late;
 				}
 			}
-			while (nextTacticalMove(move))
+			while (nextTacticalMove(-1, move))
 			{
 				if (this->qsearchSubNode<VERBOSE, false, true>(move, alpha, beta, best, bestmove, depth, principalVariation, str))
 					return best;
@@ -766,7 +766,7 @@ namespace pygmalion
 				if constexpr (USE_TT)
 					m_Heuristics.transpositionTable().store(m_Stack, -1, best, transpositiontable<descriptorSearch>::flags_upper, movebitsType(0));
 			}
-			if ((!hasLegalMove) && nextTacticalMove(move))
+			if ((!hasLegalMove) && nextTacticalMove(-1, move))
 			{
 				hasLegalMove = true;
 				if (this->qzwsearchSubNode<VERBOSE, false, false>(move, alpha, beta, best, bestmove, depth, str))
@@ -790,7 +790,7 @@ namespace pygmalion
 					return late;
 				}
 			}
-			while (nextTacticalMove(move))
+			while (nextTacticalMove(-1, move))
 			{
 				if (this->qzwsearchSubNode<VERBOSE, false, true>(move, alpha, beta, best, bestmove, depth, str))
 					return best;
@@ -836,7 +836,7 @@ namespace pygmalion
 					}
 				}
 				const playerType movingPlayer{ m_Stack.movingPlayer() };
-				if ((!hasLegalMove) && nextMove(move))
+				if ((!hasLegalMove) && nextMove(depthRemaining, move))
 				{
 					hasLegalMove = true;
 					if (this->zwsearchSubNode<VERBOSE, false>(move, alpha, beta, best, bestmove, depthRemaining, depth, str))
@@ -850,7 +850,7 @@ namespace pygmalion
 						m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, late, transpositiontable<descriptorSearch>::flags_exact, movebitsType(0));
 					return late;
 				}
-				while (nextMove(move))
+				while (nextMove(depthRemaining, move))
 				{
 					if (this->zwsearchSubNode<VERBOSE, true>(move, alpha, beta, best, bestmove, depthRemaining, depth, str))
 						return best;
@@ -904,7 +904,7 @@ namespace pygmalion
 					}
 				}
 				const playerType movingPlayer{ m_Stack.movingPlayer() };
-				if ((!hasLegalMove) && nextMove(move))
+				if ((!hasLegalMove) && nextMove(depthRemaining, move))
 				{
 					hasLegalMove = true;
 					if (this->searchSubNode<VERBOSE, false>(move, alpha, beta, best, bestmove, depthRemaining, depth, principalVariation, str))
@@ -918,7 +918,7 @@ namespace pygmalion
 						m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, late, transpositiontable<descriptorSearch>::flags_exact, movebitsType(0));
 					return late;
 				}
-				while (nextMove(move))
+				while (nextMove(depthRemaining, move))
 				{
 					if (this->searchSubNode<VERBOSE, true>(move, alpha, beta, best, bestmove, depthRemaining, depth, principalVariation, str))
 						return best;

@@ -277,10 +277,11 @@ namespace pygmalion
 		{
 			return m_Entry.size() * sizeof(transposition);
 		}
-		constexpr void probeMoves(const stackType& stack, movelistType& moves) const noexcept
+		constexpr void probeMoves(const stackType& stack, const depthType depth, movelistType& moves) const noexcept
 		{
 			m_Probes++;
 			const hashType i = { computeKey(stack.position().hash()) };
+			depthType score[countBuckets];
 			for (size_t j = 0; j < countBuckets; j++)
 			{
 				const size_t index = static_cast<std::uint64_t>(i) * countBuckets + j;
@@ -288,15 +289,18 @@ namespace pygmalion
 				{
 					if (m_Entry[index].flags() & flags_move)
 					{
+						score[moves.length()] = -std::abs(m_Entry[index].draft() - depth);
 						moves.add(m_Entry[index].move());
 					}
 				}
 			}
+			sort<movebitsType, depthType>::sortValues(moves.ptr(), &score[0], moves.length());
 		}
-		constexpr void probeTacticalMoves(const stackType& stack, movelistType& moves) const noexcept
+		constexpr void probeTacticalMoves(const stackType& stack, const depthType depth, movelistType& moves) const noexcept
 		{
 			m_Probes++;
 			const hashType i = { computeKey(stack.position().hash()) };
+			depthType score[countBuckets];
 			for (size_t j = 0; j < countBuckets; j++)
 			{
 				const size_t index = static_cast<std::uint64_t>(i) * countBuckets + j;
@@ -305,10 +309,14 @@ namespace pygmalion
 					if (m_Entry[index].flags() & flags_move)
 					{
 						if (motorType::isTacticalMove(m_Entry[index].move()))
+						{
+							score[moves.length()] = -std::abs(m_Entry[index].draft() - depth);
 							moves.add(m_Entry[index].move());
+						}
 					}
 				}
 			}
+			sort<movebitsType, depthType>::sortValues(moves.ptr(), &score[0], moves.length());
 		}
 		constexpr std::uint8_t probe(const stackType& stack, const depthType depth, scoreType& alpha, scoreType& beta, scoreType& score, movebitsType& move) const noexcept
 		{
