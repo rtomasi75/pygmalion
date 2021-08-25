@@ -10,5 +10,9 @@ namespace pygmalion::tictactoe
 		{
 
 		}
+		constexpr node(const node& parent, const movebitsType moveBits) noexcept :
+			pygmalion::node<descriptor_search>(parent, moveBits)
+		{
+		}
 	};
 }

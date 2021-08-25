@@ -50,6 +50,17 @@ namespace pygmalion
 			return make_impl<SIZE>(std::forward<T>(value), std::make_index_sequence<SIZE - 1>{});
 		}
 	public:
+		constexpr static size_t requiredUnsignedBits(const size_t number) noexcept
+		{
+			size_t n = 1;
+			size_t k = 0;
+			while (number > n)
+			{
+				n *= 2;
+				k++;
+			}
+			return k;
+		}
 		template<size_t SIZE, typename T>
 		constexpr static auto make(T&& value) noexcept
 		{

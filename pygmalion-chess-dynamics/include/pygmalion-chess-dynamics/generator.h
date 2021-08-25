@@ -42,7 +42,7 @@ namespace pygmalion::chess
 			squaresType squaresAttackedByPlayer(const playerType player) const;
 			bool isCheck() const noexcept;
 			stack(const stack& parent, const movebitsType& movebits) noexcept;
-			stack(boardType& position, historyType& history, const playerType oldPlayer) noexcept;
+			stack(boardType& position, historyType& history, const playerType oldPlayer, movegenFeedback& feedback) noexcept;
 			~stack() noexcept;
 		};
 		using stackType = stack;
@@ -282,9 +282,9 @@ namespace pygmalion::chess
 					for (const squareType to : movegenPawnPushBlack.targets(from, ~stack.position().totalOccupancy()))
 						moves.add(motorType::move().createQuiet(from, to));
 				}
-				}
-#endif
 			}
+#endif
+		}
 		constexpr static void generatePawnPromotions(const stackType& stack, movelistType& moves) noexcept
 		{
 #if defined(FASTPAWNS)
@@ -413,9 +413,9 @@ namespace pygmalion::chess
 					for (const squareType to : movegenPawnCaptureBlack.attacks(from, ~stack.position().totalOccupancy())& stack.position().playerOccupancy(whitePlayer))
 						moves.add(motorType::move().createCapture(from, to));
 				}
-				}
-#endif
 			}
+#endif
+		}
 		constexpr static void generatePawnPromoCaptures(const stackType& stack, movelistType& moves) noexcept
 		{
 #if defined(FASTPAWNS)
@@ -560,15 +560,18 @@ namespace pygmalion::chess
 					for (const squareType to : movegenPawnDoublePushBlack.targets(from, ~stack.position().totalOccupancy()))
 						moves.add(motorType::move().createDoublePush(from.file()));
 				}
-				}
-#endif
 			}
+#endif
+		}
 	public:
 		static std::deque<std::shared_ptr<pygmalion::intrinsics::command>> commandsImplementation() noexcept;
 		static bool isMoveLegal_Implementation(const stackType& stack, const movebitsType& moveBits) noexcept;
-		static bool generateMoves_Implementation(const stackType& stack, movelistType& moves, size_t& currentPass) noexcept;
-		static bool generateTacticalMoves_Implementation(const stackType& stack, movelistType& moves, size_t& currentPass) noexcept;
-		static void movesFromSquare(const stackType& stack, const squareType square, squaresType& moves, squaresType& captures) noexcept;
-		static std::string moveToString_Implementation(const stackType& stack, const movebitsType mv) noexcept;
-		};
-		}
+		static bool isMoveTactical_Implementation(const stackType& stack, const movebitsType& moveBits) noexcept;
+		static void generateMoves_Implementation(const stackType& stack, movelistType& moves, const passType currentPass) noexcept;
+		static void generateTacticalMoves_Implementation(const stackType& stack, movelistType& moves, const passType currentPass) noexcept;
+		static void movesFromSquare(const stackType& stack, const squareType square, squaresType& moves, squaresType& captures, const size_t depth) noexcept;
+		static std::string moveToString_Implementation(const stackType& stack, const movebitsType mv, const size_t depth) noexcept;
+		static std::string passToString_Implementation(const passType pass) noexcept;
+		static std::string tacticalPassToString_Implementation(const passType tacticalPass) noexcept;
+	};
+}

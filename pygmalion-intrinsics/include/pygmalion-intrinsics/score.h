@@ -315,6 +315,11 @@ namespace pygmalion
 			assert(isOpen());
 			return score(static_cast<valueType>(m_Value * i), 0);
 		}
+		constexpr auto operator/(const valueType i) const noexcept
+		{
+			assert(isOpen());
+			return score(static_cast<valueType>(m_Value / i), 0);
+		}
 		constexpr auto operator*(const score sc) const noexcept
 		{
 			assert(isOpen());
@@ -342,6 +347,11 @@ namespace pygmalion
 		{
 			assert(isOpen());
 			m_Value *= i;
+		}
+		constexpr auto operator/=(const valueType i) noexcept
+		{
+			assert(isOpen());
+			m_Value /= i;
 		}
 		constexpr auto plyUp() const noexcept
 		{

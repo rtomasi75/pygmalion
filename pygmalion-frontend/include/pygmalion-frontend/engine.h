@@ -36,8 +36,9 @@ namespace pygmalion::frontend
 		{
 			nodeType node(stack, isRunning, this->heuristics());
 			variationType principalVariation{ variationType() };
+			this->feedback().sortIndices(this->history().length());
 			this->heuristics().beginSearch();
-			const scoreType score{ node.template search<false>(scoreType::minimum(), scoreType::maximum(), depthRemaining, 0, principalVariation, this->outputStream()) };
+			const scoreType score{ node.template search<false,true>(scoreType::minimum(), scoreType::maximum(), depthRemaining, this->history().length(), principalVariation, this->outputStream()) };
 			this->heuristics().endSearch();
 			if (isRunning)
 			{
@@ -58,7 +59,7 @@ namespace pygmalion::frontend
 		}
 		void moveThreadFunc(const durationType allocatedTime)
 		{
-			typename descriptorFrontend::stackType stack{ typename descriptorFrontend::stackType(this->position(), this->history(),  this->position().movingPlayer()) };
+			typename descriptorFrontend::stackType stack{ typename descriptorFrontend::stackType(this->position(), this->history(),  this->position().movingPlayer(), this->feedback()) };
 			depthType depthRemaining{ 0 };
 			variationType finalVariation{ variationType() };
 			durationType timeRemaining{ this->currentGame().playerClock(this->position().movingPlayer()).timeRemaining() };
@@ -174,7 +175,7 @@ namespace pygmalion::frontend
 				const int movesLeft{ std::max(minimumExpectedGameLength(),expectedGameLength() - movesPlayed) };
 				const durationType timeRemaining{ this->currentGame().playerClock(pl).timeRemaining() / movesLeft };
 				const durationType allocated{ timeRemaining + this->currentGame().incrementTime() };
-				const double factor{ std::max(0.0,static_cast<double>(movesLeft - expectedGameLength())) / static_cast<double>(expectedGameLength()) };
+				const double factor{ std::max(0.0,static_cast<double>(movesLeft - (expectedGameLength() - minimumExpectedGameLength()))) / static_cast<double>(expectedGameLength() - minimumExpectedGameLength()) };
 				const double skew{ factor * timeSkew() + (1.0 - factor) * 1.0 };
 				const durationType skewed{ durationType(static_cast<long long>(skew * static_cast<double>(allocated.count()))) };
 				return skewed;
@@ -185,7 +186,7 @@ namespace pygmalion::frontend
 				const int movesLeft{ movesPerTimeControl - movesPlayed };
 				const durationType timeRemaining{ this->currentGame().playerClock(pl).timeRemaining() / movesLeft };
 				const durationType allocated{ timeRemaining - std::chrono::duration_cast<durationType>(std::chrono::milliseconds(20)) };
-				const double factor{ std::max(0.0,static_cast<double>(movesLeft - expectedGameLength())) / static_cast<double>(expectedGameLength()) };
+				const double factor{ std::max(0.0,static_cast<double>(movesLeft - (expectedGameLength() - minimumExpectedGameLength()))) / static_cast<double>(expectedGameLength() - minimumExpectedGameLength()) };
 				const double skew{ factor * timeSkew() + (1.0 - factor) * 1.0 };
 				const durationType skewed{ durationType(static_cast<long long>(skew * static_cast<double>(allocated.count()))) };
 				return skewed;
@@ -217,9 +218,8 @@ namespace pygmalion::frontend
 								std::this_thread::sleep_until(end);
 								std::this_thread::sleep_for(std::chrono::milliseconds(10));
 								const durationType elapsedTime{ std::chrono::duration_cast<durationType>(chronographType::now() - start) };
-								if (elapsedTime > timeAvailable)
+								if ((elapsedTime + std::chrono::milliseconds(10)) > timeAvailable)
 								{
-									std::cout << elapsedTime.count() << "ms" << std::endl;
 									isElapsed = true;
 								}
 							}
@@ -235,8 +235,6 @@ namespace pygmalion::frontend
 									m_pMoveThread = nullptr;
 								}
 							}
-									durationType elapsedTime2{ std::chrono::duration_cast<durationType>(chronographType::now() - start) };
-									std::cout << elapsedTime2.count() << "ms" << std::endl;
 						}
 					)
 				};

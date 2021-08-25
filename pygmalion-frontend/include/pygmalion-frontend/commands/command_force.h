@@ -13,6 +13,7 @@ namespace pygmalion::frontend
 		{
 			if ((cmd == "force")&& this->front().isXBoard())
 			{
+				this->frontendEngine().cancelMove();
 				this->front().forceMode() = true;
 				for (const auto pl : playerType::range)
 				{

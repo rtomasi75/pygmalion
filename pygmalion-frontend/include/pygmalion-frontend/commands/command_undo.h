@@ -13,6 +13,7 @@ namespace pygmalion::frontend
 		{
 			if ((cmd == "undo") && this->front().isXBoard())
 			{
+				this->frontendEngine().cancelMove();
 				this->frontendEngine().undoMove();
 				this->output() << std::endl;
 				return true;

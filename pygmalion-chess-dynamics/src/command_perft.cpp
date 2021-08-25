@@ -7,7 +7,7 @@ namespace pygmalion::chess::dynamics
 		data.Nodes++;
 		if (depth == maxDepth)
 		{
-			while (stack.nextMove(moveBits))
+			while (stack.nextMove(moveBits, depth))
 			{
 				data.Leafs++;
 				if (motorType::move().isCapture(moveBits))
@@ -30,7 +30,7 @@ namespace pygmalion::chess::dynamics
 					{
 						data.Checks++;
 						movebitsType moveBits2;
-						if (!substack.nextMove(moveBits2))
+						if (!substack.nextMove(moveBits2, depth + 1))
 							data.Checkmates++;
 					}
 				}
@@ -38,7 +38,7 @@ namespace pygmalion::chess::dynamics
 		}
 		else
 		{
-			while (stack.nextMove(moveBits))
+			while (stack.nextMove(moveBits, depth))
 			{
 				const stackType substack{ stackType(stack,moveBits) };
 				perft(substack, depth + 1, maxDepth, data);
@@ -60,9 +60,9 @@ namespace pygmalion::chess::dynamics
 			{
 				perftdata data;
 				p.start();
-				stackType stack{ stackType(this->position(),this->history(), this->position().movingPlayer()) };
+				stackType stack{ stackType(this->position(),this->history(), this->position().movingPlayer(), this->dynamicsEngine().feedback()) };
 				movebitsType moveBits;
-				while (stack.nextMove(moveBits))
+				while (stack.nextMove(moveBits, 0))
 				{
 					data.Nodes++;
 					if (depth == 1)
@@ -88,7 +88,7 @@ namespace pygmalion::chess::dynamics
 							{
 								data.Checks++;
 								movebitsType moveBits2;
-								if (!substack.nextMove(moveBits2))
+								if (!substack.nextMove(moveBits2, 1))
 									data.Checkmates++;
 							}
 						}

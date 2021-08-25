@@ -16,10 +16,10 @@ namespace pygmalion::dynamics
 			{
 				this->output() << std::endl;
 				movelistType moves;
-				stackType stack(this->position(), this->history(), this->position().movingPlayer());
+				stackType stack(this->position(), this->history(), this->position().movingPlayer(), this->dynamicsEngine().feedback());
 				movebitsType movebits;
 				bool hasMoves{ false };
-				while (stack.nextMove(movebits))
+				while (stack.nextMove(movebits, this->history().length()))
 				{
 					hasMoves = true;
 					this->output() << motorType::move().toString(this->position(), movebits) << "\t";

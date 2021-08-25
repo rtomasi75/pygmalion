@@ -1,6 +1,8 @@
 #if !defined(PYGMALION_DYNAMICS)
 #define PYGMALION_DYNAMICS
 
+#include <vector>
+
 #include <pygmalion-mechanics.h>
 
 #include "pygmalion-dynamics/descriptor_dynamics.h"

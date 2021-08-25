@@ -34,7 +34,18 @@ namespace pygmalion
 			~transposition() = default;
 			constexpr bool isValid(const stackType& stack) const noexcept
 			{
-				return (m_Hash == stack.position().hash()) && (m_BoardFlags == stack.position().flags()) && (m_MovingPlayer == stack.position().movingPlayer()) && (m_Signature == stack.signature());
+				const bool bOk{ (m_Hash == stack.position().hash()) && (m_BoardFlags == stack.position().flags()) && (m_MovingPlayer == stack.position().movingPlayer()) && (m_Signature == stack.signature()) };
+				if (bOk)
+				{
+					if (m_Flags & transpositiontable::flags_move)
+					{
+						return generatorType::isMoveLegal(stack, m_Move);
+					}
+					else
+						return true;
+				}
+				else
+					return false;
 			}
 			constexpr hashType hash() const noexcept
 			{
@@ -98,7 +109,7 @@ namespace pygmalion
 				m_BoardFlags = stack.position().flags();
 				m_Signature = stack.signature();
 				m_Draft = draft;
-				m_Flags = flags;
+				m_Flags = flags_unused;
 				if (flags & transpositiontable::flags_lower)
 				{
 					m_Flags |= transpositiontable::flags_lower;
@@ -277,7 +288,7 @@ namespace pygmalion
 		{
 			return m_Entry.size() * sizeof(transposition);
 		}
-		constexpr void probeMoves(const stackType& stack, const depthType depth, movelistType& moves) const noexcept
+		constexpr void probeMoves(const stackType& stack, const depthType depthRemaining, movelistType& moves) const noexcept
 		{
 			m_Probes++;
 			const hashType i = { computeKey(stack.position().hash()) };
@@ -289,14 +300,17 @@ namespace pygmalion
 				{
 					if (m_Entry[index].flags() & flags_move)
 					{
-						score[moves.length()] = -std::abs(m_Entry[index].draft() - depth);
-						moves.add(m_Entry[index].move());
+						if (!moves.contains(m_Entry[index].move()))
+						{
+							score[moves.length()] = -std::abs(m_Entry[index].draft() - depthRemaining);
+							moves.add(m_Entry[index].move());
+						}
 					}
 				}
 			}
 			sort<movebitsType, depthType>::sortValues(moves.ptr(), &score[0], moves.length());
 		}
-		constexpr void probeTacticalMoves(const stackType& stack, const depthType depth, movelistType& moves) const noexcept
+		constexpr void probeTacticalMoves(const stackType& stack, movelistType& moves) const noexcept
 		{
 			m_Probes++;
 			const hashType i = { computeKey(stack.position().hash()) };
@@ -308,10 +322,13 @@ namespace pygmalion
 				{
 					if (m_Entry[index].flags() & flags_move)
 					{
-						if (motorType::isTacticalMove(m_Entry[index].move()))
+						if (generatorType::isMoveTactical(stack, m_Entry[index].move()))
 						{
-							score[moves.length()] = -std::abs(m_Entry[index].draft() - depth);
-							moves.add(m_Entry[index].move());
+							if (!moves.contains(m_Entry[index].move()))
+							{
+								score[moves.length()] = -std::abs(m_Entry[index].draft() + 1);
+								moves.add(m_Entry[index].move());
+							}
 						}
 					}
 				}
@@ -333,9 +350,12 @@ namespace pygmalion
 						{
 							if (m_Entry[index].value() > alpha)
 							{
-								score = m_Entry[index].value();
 								if (m_Entry[index].value() >= beta)
 								{
+									if constexpr (failSoft)
+										score = m_Entry[index].value();
+									else
+										score = beta;
 									hitBeta();
 									if (m_Entry[index].flags() & flags_move)
 									{
@@ -344,6 +364,7 @@ namespace pygmalion
 									}
 									return flags_lower | flags_return;
 								}
+								score = m_Entry[index].value();
 								if (m_Entry[index].flags() & flags_exact)
 								{
 									hitExact();

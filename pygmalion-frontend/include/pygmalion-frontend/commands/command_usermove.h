@@ -15,10 +15,11 @@ namespace pygmalion::frontend
 			std::string token{ cmd };
 			if (motorType::parseMove(this->position(), token, movebits) && this->front().isXBoard())
 			{
+				this->frontendEngine().cancelMove();
 				this->frontendEngine().currentGame().playerClock(this->frontendEngine().currentGame().position().movingPlayer()).stop();
 				this->frontendEngine().doMove(movebits);
 				this->output() << std::endl;
-				const typename descriptorFrontend::stackType stack{ typename descriptorFrontend::stackType(this->position(), this->history(),  this->position().movingPlayer()) };
+				const typename descriptorFrontend::stackType stack{ typename descriptorFrontend::stackType(this->position(), this->history(),  this->position().movingPlayer(), this->dynamicsEngine().feedback()) };
 				const gamestateType result{ evaluatorType::earlyResult(stack) };
 				if (!gamestateType::isOpen(result))
 				{

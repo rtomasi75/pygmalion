@@ -29,6 +29,7 @@ namespace pygmalion::chess::frontend
 					this->position().arbitration() = gamestateType::draw();
 				else
 					return false;
+				this->frontendEngine().cancelMove();
 				return true;
 			}
 			else

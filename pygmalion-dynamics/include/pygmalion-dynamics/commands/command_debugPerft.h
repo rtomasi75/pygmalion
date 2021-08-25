@@ -16,14 +16,14 @@ namespace pygmalion::dynamics
 			std::uintmax_t counter{ 0 };
 			if (depth == maxDepth)
 			{
-				while (stack.nextMove(moveBits))
+				while (stack.nextMove(moveBits, depth))
 				{
 					counter++;
 				}
 			}
 			else
 			{
-				while (stack.nextMove(moveBits))
+				while (stack.nextMove(moveBits, depth))
 				{
 					const stackType substack{ stackType(stack,moveBits) };
 					counter += perft(substack, depth + 1, maxDepth);
@@ -46,8 +46,8 @@ namespace pygmalion::dynamics
 				for (size_t i = 0; i < depth; i++)
 				{
 					p.start();
-					stackType stack{ stackType(this->position(),this->history(), this->position().movingPlayer()) };
-					nodes = perft(stack, 0, i);
+					stackType stack{ stackType(this->position(),this->history(), this->position().movingPlayer(), this->dynamicsEngine().feedback()) };
+					nodes = perft(stack,this->history().length(), i);
 					p.stop();
 					this->output() << "depth: " << std::setw(2) << static_cast<int>(i + 1) << " nodes: " << parser::valueToString(static_cast<double>(nodes), "N") << " time: " << parser::durationToString(p.duration()) << " speed: " << p.computeSpeed(nodes, "N") << std::endl;
 				}

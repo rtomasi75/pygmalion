@@ -49,16 +49,17 @@ namespace pygmalion::chess::dynamics
 		this->output() << "Expected: " << set.expected() << std::endl;
 		historyType history;
 		boardType position;
+		typename generatorType::movegenFeedback feedback;
 		std::string error;
 		if (!position.setFen(set.fen(), error))
 		{
 			this->output() << "Invalid FEN: " << error << std::endl;
 		}
 		this->output() << "Computed: ";
-		stackType stack(position, history, position.movingPlayer().next());
+		stackType stack(position, history, position.movingPlayer().next(), feedback);
 		profiler p;
 		p.start();
-		std::uintmax_t computed{ generatorType::perft(stack, set.depth(), nodes) };
+		std::uintmax_t computed{ generatorType::perft(stack, set.depth(),0, nodes) };
 		p.stop();
 		duration += p.duration();
 		this->output() << computed << std::endl;

@@ -1,18 +1,19 @@
 namespace pygmalion
 {
 
-	template<bool VERBOSE, typename DESCRIPTION_SEARCH>
+	template<bool VERBOSE, typename DESCRIPTION_SEARCH, typename INSTANCE>
 	class heuristics
 	{
 
 	};
 
-	template<typename DESCRIPTION_SEARCH>
-	class heuristics<false, DESCRIPTION_SEARCH> :
+	template<typename DESCRIPTION_SEARCH, typename INSTANCE>
+	class heuristics<false, DESCRIPTION_SEARCH, INSTANCE> :
 		public DESCRIPTION_SEARCH
 	{
-		friend class heuristics<true, DESCRIPTION_SEARCH>;
+		friend class heuristics<true, DESCRIPTION_SEARCH, INSTANCE>;
 	public:
+		using instanceType = INSTANCE;
 		using descriptorSearch = DESCRIPTION_SEARCH;
 #include "include_search.h"
 
@@ -24,43 +25,41 @@ namespace pygmalion
 		std::uintmax_t m_NodeCounter;
 		transpositiontable<descriptorSearch> m_TranspositionTable;
 	protected:
-		virtual void onBeginSearch() noexcept
+		void onBeginSearch() noexcept
 		{
 			m_NodeCounter = 0;
 			m_SearchProfiler.start();
 		}
-
-		virtual void onEndSearch() noexcept
+		void onEndSearch() noexcept
 		{
 			m_SearchProfiler.stop();
 		}
-
-		virtual void onBeginNode(const boardType& position) noexcept
+		void onBeginNode(const boardType& position) noexcept
 		{
 			m_NodeCounter++;
 		}
-		virtual void onEndNodeEarly(const boardType& position) noexcept
+		void onEndNodeEarly(const boardType& position) noexcept
 		{
 		}
-		virtual void onEndNodeLate(const boardType& position) noexcept
+		void onEndNodeLate(const boardType& position) noexcept
 		{
 		}
-		virtual void onBeginMove(const boardType& position, const movebitsType moveBits) noexcept
+		void onBeginMove(const boardType& position, const movebitsType moveBits) noexcept
 		{
 		}
-		virtual void onEndMoveRefuted(const boardType& position, const movebitsType moveBits) noexcept
+		void onEndMoveRefuted(const boardType& position, const movebitsType moveBits) noexcept
 		{
 		}
-		virtual void onEndMoveSilent(const boardType& position, const movebitsType moveBits) noexcept
+		void onEndMoveSilent(const boardType& position, const movebitsType moveBits) noexcept
 		{
 		}
-		virtual void onEndMoveAccepted(const boardType& position, const movebitsType moveBits) noexcept
+		void onEndMoveAccepted(const boardType& position, const movebitsType moveBits) noexcept
 		{
 		}
-		virtual void onEndNodeCut(const boardType& position) noexcept
+		void onEndNodeCut(const boardType& position) noexcept
 		{
 		}
-		virtual void onEndNodeLeaf(const boardType& position) noexcept
+		void onEndNodeLeaf(const boardType& position) noexcept
 		{
 		}
 	public:
@@ -99,7 +98,7 @@ namespace pygmalion
 			assert(!m_IsSearching);
 			m_IsSearching = true;
 #endif
-			this->onBeginSearch();
+			reinterpret_cast<instanceType*>(this)->onBeginSearch();
 		}
 		void endSearch() noexcept
 		{
@@ -107,70 +106,70 @@ namespace pygmalion
 			assert(m_IsSearching);
 			m_IsSearching = false;
 #endif
-			this->onEndSearch();
+			reinterpret_cast<instanceType*>(this)->onEndSearch();
 		}
 		void beginNode(const boardType& position) noexcept
 		{
 #if !defined(NDEBUG)
 			assert(m_IsSearching);
 #endif
-			this->onBeginNode(position);
+			reinterpret_cast<instanceType*>(this)->onBeginNode(position);
 		}
 		void endNodeEarly(const boardType& position) noexcept
 		{
 #if !defined(NDEBUG)
 			assert(m_IsSearching);
 #endif
-			this->onEndNodeEarly(position);
+			reinterpret_cast<instanceType*>(this)->onEndNodeEarly(position);
 		}
 		void endNodeLate(const boardType& position) noexcept
 		{
 #if !defined(NDEBUG)
 			assert(m_IsSearching);
 #endif
-			this->onEndNodeLate(position);
+			reinterpret_cast<instanceType*>(this)->onEndNodeLate(position);
 		}
 		void beginMove(const boardType& position, const movebitsType moveBits) noexcept
 		{
 #if !defined(NDEBUG)
 			assert(m_IsSearching);
 #endif
-			this->onBeginMove(position, moveBits);
+			reinterpret_cast<instanceType*>(this)->onBeginMove(position, moveBits);
 		}
 		void endMoveAccepted(const boardType& position, const movebitsType moveBits) noexcept
 		{
 #if !defined(NDEBUG)
 			assert(m_IsSearching);
 #endif
-			this->onEndMoveAccepted(position, moveBits);
+			reinterpret_cast<instanceType*>(this)->onEndMoveAccepted(position, moveBits);
 		}
 		void endMoveRefuted(const boardType& position, const movebitsType moveBits) noexcept
 		{
 #if !defined(NDEBUG)
 			assert(m_IsSearching);
 #endif
-			this->onEndMoveRefuted(position, moveBits);
+			reinterpret_cast<instanceType*>(this)->onEndMoveRefuted(position, moveBits);
 		}
 		void endMoveSilent(const boardType& position, const movebitsType moveBits) noexcept
 		{
 #if !defined(NDEBUG)
 			assert(m_IsSearching);
 #endif
-			this->onEndMoveSilent(position, moveBits);
+			reinterpret_cast<instanceType*>(this)->onEndMoveSilent(position, moveBits);
 		}
 		void endNodeCut(const boardType& position) noexcept
 		{
 #if !defined(NDEBUG)
 			assert(m_IsSearching);
 #endif
-			this->onEndNodeCut(position);
+			reinterpret_cast<instanceType*>(this)->onEndNodeCut(position);
 		}
 		void endNodeLeaf(const boardType& position) noexcept
 		{
 #if !defined(NDEBUG)
 			assert(m_IsSearching);
 #endif
-			this->onEndNodeLeaf(position);
+			reinterpret_cast<instanceType*>(this)->onEndNodeLeaf(position);
 		}
 		heuristics() noexcept :
 #if !defined(NDEBUG)
@@ -184,13 +183,13 @@ namespace pygmalion
 		~heuristics() noexcept = default;
 	};
 
-	template<typename DESCRIPTION_SEARCH>
-	class heuristics<true, DESCRIPTION_SEARCH> :
-		public heuristics<false, DESCRIPTION_SEARCH>
+	template<typename DESCRIPTION_SEARCH, typename INSTANCE>
+	class heuristics<true, DESCRIPTION_SEARCH, INSTANCE> :
+		public heuristics<false, DESCRIPTION_SEARCH, INSTANCE>
 	{
-		friend class heuristics<false, DESCRIPTION_SEARCH>;
+		friend class heuristics<false, DESCRIPTION_SEARCH, INSTANCE>;
 	public:
-		using baseclassType = heuristics<false, DESCRIPTION_SEARCH>;
+		using baseclassType = heuristics<false, DESCRIPTION_SEARCH, INSTANCE>;
 		using descriptorSearch = DESCRIPTION_SEARCH;
 #include "include_search.h"
 
@@ -200,7 +199,7 @@ namespace pygmalion
 		std::uint64_t m_CutNodes;
 		std::uint64_t m_LeafNodes;
 	protected:
-		virtual void onBeginSearch() noexcept override
+		void onBeginSearch() noexcept
 		{
 			baseclassType::onBeginSearch();
 			m_EarlyNodes = 0;
@@ -208,22 +207,22 @@ namespace pygmalion
 			m_CutNodes = 0;
 			m_LeafNodes = 0;
 		}
-		virtual void onEndNodeEarly(const boardType& position) noexcept override
+		void onEndNodeEarly(const boardType& position) noexcept
 		{
 			baseclassType::onEndNodeEarly(position);
 			m_EarlyNodes++;
 		}
-		virtual void onEndNodeLate(const boardType& position) noexcept override
+		void onEndNodeLate(const boardType& position) noexcept
 		{
 			baseclassType::onEndNodeLate(position);
 			m_LateNodes++;
 		}
-		virtual void onEndNodeCut(const boardType& position) noexcept override
+		void onEndNodeCut(const boardType& position) noexcept
 		{
 			baseclassType::onEndNodeCut(position);
 			m_CutNodes++;
 		}
-		virtual void onEndNodeLeaf(const boardType& position) noexcept override
+		void onEndNodeLeaf(const boardType& position) noexcept
 		{
 			baseclassType::onEndNodeLeaf(position);
 			m_LeafNodes++;

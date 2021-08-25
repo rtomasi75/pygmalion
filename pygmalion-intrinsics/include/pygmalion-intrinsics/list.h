@@ -127,6 +127,28 @@ namespace pygmalion
 			}
 			m_Length = tail.m_Length + 1;
 		}
+		void combine(const list& head, const list& tail) noexcept
+		{
+			assert(tail.m_Length + head.m_Length <= maxLength);
+			for (counterType i = 0; i < tail.m_Length; i++)
+			{
+				m_Items[i] = head.m_Items[i];
+			}
+			for (counterType i = 0; i < tail.m_Length; i++)
+			{
+				m_Items[i + head.m_Length] = tail.m_Items[i];
+			}
+			m_Length = tail.m_Length + head.m_Length;
+		}
+		bool contains(const itemType& item) const noexcept
+		{
+			for (counterType i = 0; i < m_Length; i++)
+			{
+				if (m_Items[i] == item)
+					return true;
+			}
+			return false;
+		}
 		void combine(const itemType& item, list&& tail) noexcept
 		{
 			assert(tail.m_Length < maxLength);
@@ -169,7 +191,7 @@ namespace pygmalion
 
 		}
 		list(const itemType& item) noexcept :
-			m_Length(1) 
+			m_Length(1)
 		{
 			m_Items[0] = item;
 		}

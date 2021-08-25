@@ -1,7 +1,7 @@
 namespace pygmalion::tictactoe
 {
 	class descriptor_evaluation :
-		public pygmalion::descriptor_evaluation<generator, 7, 0, 10>
+		public pygmalion::descriptor_evaluation<generator>
 	{
 	public:
 	};

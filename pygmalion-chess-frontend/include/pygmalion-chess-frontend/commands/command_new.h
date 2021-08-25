@@ -13,8 +13,10 @@ namespace pygmalion::chess::frontend
 		{
 			if ((cmd == "new") && this->front().isXBoard())
 			{
+				this->frontendEngine().cancelMove();
 				this->stateEngine().currentGame().initialize();
 				this->mechanicsEngine().history().clear();
+				this->dynamicsEngine().feedback().reset();
 				this->front().clearDepthLimit();
 				this->front().clearTimeLimit();
 				this->front().forceMode() = false;

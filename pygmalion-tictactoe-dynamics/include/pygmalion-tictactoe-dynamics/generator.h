@@ -1,7 +1,7 @@
 namespace pygmalion::tictactoe
 {
 	class descriptor_dynamics :
-		public pygmalion::descriptor_dynamics<motor, 9>
+		public pygmalion::descriptor_dynamics<motor, 9, 7, 0, 10, 1, 0>
 	{
 	public:
 		static inline movetable<descriptor_dynamics> moveTable{ movetable<descriptor_dynamics>(0x0095,9) };
@@ -16,28 +16,30 @@ namespace pygmalion::tictactoe
 		{
 			return !stack.position().isOccupied(moveType::extractSquare(mv));
 		}
+		static bool isMoveTactical_Implementation(const stackType& stack, const movebitsType& mv) noexcept
+		{
+			return false;
+		}
 		static std::deque<std::shared_ptr<pygmalion::intrinsics::command>> commandsImplementation() noexcept
 		{
 			std::deque<std::shared_ptr<pygmalion::intrinsics::command>> list{ std::deque<std::shared_ptr<pygmalion::intrinsics::command>>() };
 			return list;
 		}
 
-		static bool generateMoves_Implementation(const stackType& stack, movelistType& moves, size_t& currentPass) noexcept
+		static void generateMoves_Implementation(const stackType& stack, movelistType& moves, const passType currentPass) noexcept
 		{
 			if (currentPass == 0)
 			{
 				moves = moveTable[static_cast<typename squaresType::bitsType>(stack.position().totalOccupancy())];
-				currentPass++;
-				return true;
 			}
 			else
-				return false;
+				assert(0);
 		}
-		static bool generateTacticalMoves_Implementation(const stackType& stack, movelistType& moves, size_t& currentPass) noexcept
+		static void generateTacticalMoves_Implementation(const stackType& stack, movelistType& moves, const passType currentPass) noexcept
 		{
-			return false;
+			assert(0);
 		}
-		static std::string moveToString_Implementation(const stackType& stack, const movebitsType moveBits) noexcept
+		static std::string moveToString_Implementation(const stackType& stack, const movebitsType moveBits, const size_t depth) noexcept
 		{
 			squareType sq = moveType::extractSquare(moveBits);
 			auto file = sq.file();
@@ -74,6 +76,14 @@ namespace pygmalion::tictactoe
 				break;
 			}
 			return text;
+		}
+		static std::string passToString_Implementation(const passType pass) noexcept
+		{
+			return "standard";
+		}
+		static std::string tacticalPassToString_Implementation(const passType tacticalPass) noexcept
+		{
+			return "standard tactical";
 		}
 	};
 }

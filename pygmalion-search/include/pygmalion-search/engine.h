@@ -17,7 +17,7 @@ namespace pygmalion::search
 			if (variation.length() > depth)
 			{
 				std::stringstream sstr;
-				sstr << stack.moveToString(variation[depth]) << " ";
+				sstr << stack.moveToString(variation[depth], depth) << " ";
 				stackType subStack(stack, variation[depth]);
 				sstr << variationToStringFromDepth(subStack, variation, depth + 1);
 				return sstr.str();
@@ -35,28 +35,30 @@ namespace pygmalion::search
 		}
 		std::string variationToString(const variationType& variation) noexcept
 		{
-			stackType stack{ stackType(this->position(), this->history(),  this->position().movingPlayer()) };
+			stackType stack{ stackType(this->position(), this->history(),  this->position().movingPlayer(), this->feedback()) };
 			return variationToStringFromDepth(stack, variation, 0);
 		}
 		scoreType pvs(variationType& principalVariation, const depthType depthRemaining, std::ostream& str) noexcept
 		{
-			stackType stack{ stackType(this->position(), this->history(),  this->position().movingPlayer()) };
+			this->feedback().sortIndices(this->history().length());
+			stackType stack{ stackType(this->position(), this->history(),  this->position().movingPlayer(), this->feedback()) };
 			std::atomic_bool isRunning{ true };
 			m_Heuristics.beginSearch();
 			nodeType node(stack, isRunning, m_Heuristics);
 			principalVariation.clear();
-			const scoreType score{ node.template search<false>(scoreType::minimum(),scoreType::maximum(), depthRemaining, 0, principalVariation, str) };
+			const scoreType score{ node.template search<false,true>(scoreType::minimum(),scoreType::maximum(), depthRemaining, this->history().length(), principalVariation, str) };
 			m_Heuristics.endSearch();
 			return score;
 		}
 		scoreType vpvs(variationType& principalVariation, const depthType depthRemaining, std::ostream& str) noexcept
 		{
-			stackType stack{ stackType(this->position(), this->history(),  this->position().movingPlayer()) };
+			this->feedback().sortIndices(this->history().length());
+			stackType stack{ stackType(this->position(), this->history(),  this->position().movingPlayer(), this->feedback()) };
 			std::atomic_bool isRunning{ true };
 			m_Heuristics.beginSearch();
 			nodeType node(stack, isRunning, m_Heuristics);
 			principalVariation.clear();
-			const scoreType score{ node.template search<true>(scoreType::minimum(),scoreType::maximum(), depthRemaining, 0, principalVariation, str) };
+			const scoreType score{ node.template search<true,true>(scoreType::minimum(),scoreType::maximum(), depthRemaining, this->history().length(), principalVariation, str) };
 			m_Heuristics.endSearch();
 			return score;
 		}

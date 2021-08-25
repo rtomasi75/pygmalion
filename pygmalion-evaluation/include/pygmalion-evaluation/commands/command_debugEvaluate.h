@@ -13,7 +13,7 @@ namespace pygmalion::evaluation
 		{
 			if (cmd == "debug-evaluate")
 			{
-				typename generatorType::stackType stack(this->position(), this->history(), this->position().movingPlayer());
+				typename generatorType::stackType stack(this->position(), this->history(), this->position().movingPlayer(), this->dynamicsEngine().feedback());
 				scoreType eval{ evaluatorType::evaluate(scoreType::minimum(), scoreType::maximum(),stack) };
 				this->output() << "evaluation score: " << eval << std::endl;
 				return true;

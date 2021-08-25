@@ -511,122 +511,107 @@ namespace pygmalion::chess
 		// The move seems legal
 		return true;
 	}
-
-	bool generator::generateMoves_Implementation(const stackType& stack, movelistType& moves, size_t& currentPass) noexcept
+	bool generator::isMoveTactical_Implementation(const stackType& stack, const movebitsType& moveBits) noexcept
 	{
-		switch (currentPass)
+		return motorType::move().isCapture(moveBits);
+	}
+
+	void generator::generateMoves_Implementation(const stackType& stack, movelistType& moves, const passType currentPass) noexcept
+	{
+		switch (static_cast<size_t>(currentPass))
 		{
 		default:
-			return false;
+			assert(0);
+			return;
 		case 0:
-			currentPass = 1;
 			generateKnightMoves(stack, moves);
-			return true;
+			break;
 		case 1:
-			currentPass = 2;
 			generatePawnPushes(stack, moves);
-			return true;
+			break;
 		case 2:
-			currentPass = 3;
 			generatePawnDoublePushes(stack, moves);
-			return true;
+			break;
 		case 3:
-			currentPass = 4;
 			generateKnightCaptures(stack, moves);
-			return true;
+			break;
 		case 4:
-			currentPass = 5;
 			generatePawnCaptures(stack, moves);
-			return true;
+			break;
 		case 5:
-			currentPass = 6;
 			generatePawnEnPassant(stack, moves);
-			return true;
+			break;
 		case 6:
-			currentPass = 7;
 			generateSliderMovesHV(stack, moves);
-			return true;
+			break;
 		case 7:
-			currentPass = 8;
 			generateSliderMovesDiag(stack, moves);
-			return true;
+			break;
 		case 8:
-			currentPass = 9;
 			generateSliderCapturesHV(stack, moves);
-			return true;
+			break;
 		case 9:
-			currentPass = 10;
 			generateSliderCapturesDiag(stack, moves);
-			return true;
+			break;
 		case 10:
-			currentPass = 11;
 			generateKingMoves(stack, moves);
-			return true;
+			break;
 		case 11:
-			currentPass = 12;
 			generateKingCaptures(stack, moves);
-			return true;
+			break;
 		case 12:
-			currentPass = 13;
 			generateCastles(stack, moves);
-			return true;
+			break;
 		case 13:
-			currentPass = 14;
 			generatePawnPromotions(stack, moves);
-			return true;
+			break;
 		case 14:
-			currentPass = 15;
 			generatePawnPromoCaptures(stack, moves);
-			return true;
+			break;
 		}
 	}
 
-	bool generator::generateTacticalMoves_Implementation(const stackType& stack, movelistType& moves, size_t& currentPass) noexcept
+
+	void generator::generateTacticalMoves_Implementation(const stackType& stack, movelistType& moves, const passType currentPass) noexcept
 	{
-		switch (currentPass)
+		switch (static_cast<size_t>(currentPass))
 		{
 		default:
-			return false;
+			assert(0);
+			return;
 		case 0:
-			currentPass = 1;
 			generateKnightCaptures(stack, moves);
-			return true;
+			break;
 		case 1:
-			currentPass = 2;
 			generatePawnCaptures(stack, moves);
-			return true;
+			break;
 		case 2:
-			currentPass = 3;
 			generatePawnEnPassant(stack, moves);
-			return true;
+			break;
 		case 3:
-			currentPass = 4;
 			generateSliderCapturesHV(stack, moves);
-			return true;
+			break;
 		case 4:
-			currentPass = 5;
 			generateSliderCapturesDiag(stack, moves);
-			return true;
+			break;
 		case 5:
-			currentPass = 6;
 			generateKingCaptures(stack, moves);
-			return true;
+			break;
 		case 6:
-			currentPass = 7;
 			generatePawnPromoCaptures(stack, moves);
-			return true;
+			break;
 		}
-		return false;
 	}
 
-	void generator::movesFromSquare(const stackType& stack, const squareType square, squaresType& moves, squaresType& captures) noexcept
+	void generator::movesFromSquare(const stackType& stack, const squareType square, squaresType& moves, squaresType& captures, const size_t depth) noexcept
 	{
 		const boardType& position{ stack.position() };
 		moves = squaresType::none();
 		captures = squaresType::none();
 		movelistType list;
 		size_t pass{ 0 };
-		while (generateMoves(stack, list, pass));
+		for (size_t pass = 0; pass < countPasses; pass++)
+			generateMoves(stack, list, pass);
 		for (indexType i = 0; i < list.length(); i++)
 		{
 			const squareType fromSquare{ motorType::move().fromSquare(position, list[i]) };
@@ -645,7 +630,7 @@ namespace pygmalion::chess
 		}
 	}
 
-	std::string generator::moveToString_Implementation(const stackType& stack, const movebitsType mv) noexcept
+	std::string generator::moveToString_Implementation(const stackType& stack, const movebitsType mv, const size_t depth) noexcept
 	{
 		const boardType& position{ stack.position() };
 		const squareType from{ motorType::move().fromSquare(position,mv) };
@@ -687,7 +672,7 @@ namespace pygmalion::chess
 			{
 				squaresType captures{ squaresType::none() };
 				squaresType moves{ squaresType::none() };
-				generatorType::movesFromSquare(stack, sq, moves, captures);
+				generatorType::movesFromSquare(stack, sq, moves, captures, depth);
 				if ((captures | moves)[to])
 				{
 					countamb++;
@@ -704,7 +689,7 @@ namespace pygmalion::chess
 				{
 					squaresType captures{ squaresType::none() };
 					squaresType moves{ squaresType::none() };
-					generatorType::movesFromSquare(stack, sq, moves, captures);
+					generatorType::movesFromSquare(stack, sq, moves, captures, depth);
 					if ((captures | moves)[to])
 					{
 						if (sq.file() == file)
@@ -722,7 +707,7 @@ namespace pygmalion::chess
 					{
 						squaresType captures{ squaresType::none() };
 						squaresType moves{ squaresType::none() };
-						generatorType::movesFromSquare(stack, sq, moves, captures);
+						generatorType::movesFromSquare(stack, sq, moves, captures, depth);
 						if ((captures | moves)[to])
 						{
 							if (sq.rank() == rank)
@@ -878,13 +863,77 @@ namespace pygmalion::chess
 	{
 	}
 
-	generator::stack::stack(boardType& position, historyType& history, const playerType oldPlayer) noexcept :
-		pygmalion::generator<descriptor_dynamics, generator>::stack(position, history, oldPlayer)
+	generator::stack::stack(boardType& position, historyType& history, const playerType oldPlayer, movegenFeedback& feedback) noexcept :
+		pygmalion::generator<descriptor_dynamics, generator>::stack(position, history, oldPlayer, feedback)
 	{
 	}
 
 	generator::stack::~stack() noexcept
 	{
+	}
+
+	std::string generator::passToString_Implementation(const passType pass) noexcept
+	{
+		switch (static_cast<size_t>(pass))
+		{
+		default:
+			assert(0);
+			return "???";
+		case 0:
+			return "knight moves";
+		case 1:
+			return "pawn pushes";
+		case 2:
+			return "double pushes";
+		case 3:
+			return "knight captures";
+		case 4:
+			return "pawn captures";
+		case 5:
+			return "en Passant";
+		case 6:
+			return "slider moves h./v.";
+		case 7:
+			return "slider moves diag.";
+		case 8:
+			return "slider captures h./v.";
+		case 9:
+			return "slider captures diag.";
+		case 10:
+			return "king moves";
+		case 11:
+			return "king captures";
+		case 12:
+			return "castles";
+		case 13:
+			return "promotions";
+		case 14:
+			return "promotion captures";
+		}
+	}
+	
+	std::string generator::tacticalPassToString_Implementation(const passType tacticalPass) noexcept
+	{
+		switch (static_cast<size_t>(tacticalPass))
+		{
+		default:
+			assert(0);
+			return "???";
+		case 0:
+			return "knight captures";
+		case 1:
+			return "pawn captures";
+		case 2:
+			return "en Passant";
+		case 3:
+			return "slider captures h./v.";
+		case 4:
+			return "slider captures diag.";
+		case 5:
+			return "king captures";
+		case 6:
+			return "promotion captures";
+		}
 	}
 
 }
