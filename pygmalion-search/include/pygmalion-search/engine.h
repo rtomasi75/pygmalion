@@ -35,13 +35,13 @@ namespace pygmalion::search
 		}
 		std::string variationToString(const variationType& variation) noexcept
 		{
-			stackType stack{ stackType(this->position(), this->history(),  this->position().movingPlayer(), this->feedback()) };
+			stackType stack{ stackType(this->position(), this->history(),  this->position().movingPlayer()) };
 			return variationToStringFromDepth(stack, variation, 0);
 		}
 		scoreType pvs(variationType& principalVariation, const depthType depthRemaining, std::ostream& str) noexcept
 		{
 			this->feedback().sortIndices(this->history().length());
-			stackType stack{ stackType(this->position(), this->history(),  this->position().movingPlayer(), this->feedback()) };
+			stackType stack{ stackType(this->position(), this->history(),  this->position().movingPlayer()) };
 			std::atomic_bool isRunning{ true };
 			m_Heuristics.beginSearch();
 			nodeType node(stack, isRunning, m_Heuristics);
@@ -53,7 +53,7 @@ namespace pygmalion::search
 		scoreType vpvs(variationType& principalVariation, const depthType depthRemaining, std::ostream& str) noexcept
 		{
 			this->feedback().sortIndices(this->history().length());
-			stackType stack{ stackType(this->position(), this->history(),  this->position().movingPlayer(), this->feedback()) };
+			stackType stack{ stackType(this->position(), this->history(),  this->position().movingPlayer()) };
 			std::atomic_bool isRunning{ true };
 			m_Heuristics.beginSearch();
 			nodeType node(stack, isRunning, m_Heuristics);
@@ -75,7 +75,7 @@ namespace pygmalion::search
 		engine(engine&&) = delete;
 		engine(std::istream& input, std::ostream& output) noexcept :
 			pygmalion::evaluation::engine<typename NODE::evaluatorType>(input, output),
-			m_Heuristics{ heuristicsType() }
+			m_Heuristics{ heuristicsType(this->feedback()) }
 		{
 			this->template addCommand<command_debugSearch<descriptorSearch, nodeType>>();
 			this->template addCommand<command_debugPvs<descriptorSearch, nodeType>>();

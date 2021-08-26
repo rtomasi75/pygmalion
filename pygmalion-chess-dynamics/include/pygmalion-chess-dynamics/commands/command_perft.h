@@ -37,7 +37,7 @@ namespace pygmalion::chess::dynamics
 			{}
 			perftdata& operator+=(const perftdata& data) noexcept;
 		};
-		static void perft(const stackType& stack, const size_t depth, const size_t maxDepth, perftdata& data) noexcept;
+		static void perft(const stackType& stack, const size_t depth, const size_t maxDepth, perftdata& data, typename generatorType::movegenFeedback& feedback) noexcept;
 	protected:
 		virtual std::string help() noexcept override
 		{

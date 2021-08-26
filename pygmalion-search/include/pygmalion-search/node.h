@@ -75,7 +75,7 @@ namespace pygmalion
 				}
 			}
 			movebitsType testBits{ movebitsType(0) };
-			while (m_Stack.nextMove(testBits, depth))
+			while (m_Stack.nextMove(testBits, depth, m_Heuristics.feedback()))
 			{
 				bool bDouble{ false };
 				for (indexType i = 0; i < m_MovesTT.length(); i++)
@@ -116,7 +116,7 @@ namespace pygmalion
 				}
 			}
 			movebitsType testBits{ movebitsType(0) };
-			while (m_Stack.nextTacticalMove(testBits, depth))
+			while (m_Stack.nextTacticalMove(testBits, depth, m_Heuristics.feedback()))
 			{
 				bool bDouble{ false };
 				for (indexType i = 0; i < m_TacticalMovesTT.length(); i++)
@@ -201,7 +201,7 @@ namespace pygmalion
 							alpha = sc;
 							if constexpr (TT)
 								m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, sc, transpositiontable<descriptorSearch>::flags_upper | transpositiontable<descriptorSearch>::flags_move, move);
-							m_Stack.allMove(depth, sc);
+							m_Stack.allMove(m_Heuristics.feedback(), depth, sc);
 						}
 					}
 				}
@@ -215,7 +215,7 @@ namespace pygmalion
 							alpha = sc;
 							if constexpr (TT)
 								m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, sc, transpositiontable<descriptorSearch>::flags_upper | transpositiontable<descriptorSearch>::flags_move, move);
-							m_Stack.allMove(depth, sc);
+							m_Stack.allMove(m_Heuristics.feedback(), depth, sc);
 						}
 					}
 				}
@@ -238,14 +238,14 @@ namespace pygmalion
 						{
 							if constexpr (TT)
 								m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, best, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
-							m_Stack.cutMove(depth, best);
+							m_Stack.cutMove(m_Heuristics.feedback(), depth, best);
 							return true;
 						}
 						else
 						{
 							if constexpr (TT)
 								m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, beta, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
-							m_Stack.cutMove(depth, beta);
+							m_Stack.cutMove(m_Heuristics.feedback(), depth, beta);
 							return true;
 						}
 					}
@@ -288,14 +288,14 @@ namespace pygmalion
 						{
 							if constexpr (TT)
 								m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, best, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
-							m_Stack.cutMove(depth, best);
+							m_Stack.cutMove(m_Heuristics.feedback(), depth, best);
 							return true;
 						}
 						else
 						{
 							if constexpr (TT)
 								m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, beta, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
-							m_Stack.cutMove(depth, beta);
+							m_Stack.cutMove(m_Heuristics.feedback(), depth, beta);
 							return true;
 						}
 					}
@@ -309,7 +309,7 @@ namespace pygmalion
 					bestmove = move;
 					if constexpr (TT)
 						m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, best, transpositiontable<descriptorSearch>::flags_upper | transpositiontable<descriptorSearch>::flags_move, move);
-					m_Stack.allMove(depth, best);
+					m_Stack.allMove(m_Heuristics.feedback(), depth, best);
 				}
 				else
 					m_Heuristics.endMoveSilent(m_Stack.position(), move);
@@ -340,7 +340,7 @@ namespace pygmalion
 						alpha = sc;
 						if constexpr (TT)
 							m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, sc, transpositiontable<descriptorSearch>::flags_upper | transpositiontable<descriptorSearch>::flags_move, move);
-						m_Stack.allMove(depth, sc);
+						m_Stack.allMove(m_Heuristics.feedback(), depth, sc);
 					}
 				}
 				if constexpr (VERBOSE)
@@ -362,14 +362,14 @@ namespace pygmalion
 						{
 							if constexpr (TT)
 								m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, best, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
-							m_Stack.cutMove(depth, best);
+							m_Stack.cutMove(m_Heuristics.feedback(), depth, best);
 							return true;
 						}
 						else
 						{
 							if constexpr (TT)
 								m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, beta, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
-							m_Stack.cutMove(depth, beta);
+							m_Stack.cutMove(m_Heuristics.feedback(), depth, beta);
 							return true;
 						}
 					}
@@ -411,14 +411,14 @@ namespace pygmalion
 						{
 							if constexpr (TT)
 								m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, best, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
-							m_Stack.cutMove(depth, best);
+							m_Stack.cutMove(m_Heuristics.feedback(), depth, best);
 							return true;
 						}
 						else
 						{
 							if constexpr (TT)
 								m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, beta, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
-							m_Stack.cutMove(depth, beta);
+							m_Stack.cutMove(m_Heuristics.feedback(), depth, beta);
 							return true;
 						}
 					}
@@ -431,7 +431,7 @@ namespace pygmalion
 					bestmove = move;
 					if constexpr (TT)
 						m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, best, transpositiontable<descriptorSearch>::flags_upper | transpositiontable<descriptorSearch>::flags_move, move);
-					m_Stack.allMove(depth, best);
+					m_Stack.allMove(m_Heuristics.feedback(), depth, best);
 				}
 				else
 					m_Heuristics.endMoveSilent(m_Stack.position(), move);
@@ -467,7 +467,7 @@ namespace pygmalion
 						alpha = sc;
 						if constexpr (USE_TT)
 							m_Heuristics.transpositionTable().store(m_Stack, -1, sc, transpositiontable<descriptorSearch>::flags_upper | transpositiontable<descriptorSearch>::flags_move, move);
-						m_Stack.tacticalAllMove(depth, sc);
+						m_Stack.tacticalAllMove(m_Heuristics.feedback(), depth, sc);
 					}
 				}
 				if constexpr (VERBOSE)
@@ -489,14 +489,14 @@ namespace pygmalion
 						{
 							if constexpr (USE_TT)
 								m_Heuristics.transpositionTable().store(m_Stack, -1, best, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
-							m_Stack.tacticalCutMove(depth, best);
+							m_Stack.tacticalCutMove(m_Heuristics.feedback(), depth, best);
 							return true;
 						}
 						else
 						{
 							if constexpr (USE_TT)
 								m_Heuristics.transpositionTable().store(m_Stack, -1, beta, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
-							m_Stack.tacticalCutMove(depth, beta);
+							m_Stack.tacticalCutMove(m_Heuristics.feedback(), depth, beta);
 							return true;
 						}
 					}
@@ -542,14 +542,14 @@ namespace pygmalion
 						{
 							if constexpr (USE_TT)
 								m_Heuristics.transpositionTable().store(m_Stack, -1, best, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
-							m_Stack.tacticalCutMove(depth, best);
+							m_Stack.tacticalCutMove(m_Heuristics.feedback(), depth, best);
 							return true;
 						}
 						else
 						{
 							if constexpr (USE_TT)
 								m_Heuristics.transpositionTable().store(m_Stack, -1, beta, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
-							m_Stack.tacticalCutMove(depth, beta);
+							m_Stack.tacticalCutMove(m_Heuristics.feedback(), depth, beta);
 							return true;
 						}
 					}
@@ -563,7 +563,7 @@ namespace pygmalion
 					alpha = best;
 					if constexpr (USE_TT)
 						m_Heuristics.transpositionTable().store(m_Stack, -1, best, transpositiontable<descriptorSearch>::flags_upper | transpositiontable<descriptorSearch>::flags_move, move);
-					m_Stack.tacticalAllMove(depth, best);
+					m_Stack.tacticalAllMove(m_Heuristics.feedback(), depth, best);
 				}
 				else
 					m_Heuristics.endMoveSilent(m_Stack.position(), move);
@@ -598,7 +598,7 @@ namespace pygmalion
 						alpha = sc;
 						if constexpr (USE_TT)
 							m_Heuristics.transpositionTable().store(m_Stack, -1, sc, transpositiontable<descriptorSearch>::flags_upper | transpositiontable<descriptorSearch>::flags_move, move);
-						m_Stack.tacticalAllMove(depth, sc);
+						m_Stack.tacticalAllMove(m_Heuristics.feedback(), depth, sc);
 					}
 				}
 				if constexpr (VERBOSE)
@@ -620,14 +620,14 @@ namespace pygmalion
 						{
 							if constexpr (USE_TT)
 								m_Heuristics.transpositionTable().store(m_Stack, -1, best, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
-							m_Stack.tacticalCutMove(depth, best);
+							m_Stack.tacticalCutMove(m_Heuristics.feedback(), depth, best);
 							return true;
 						}
 						else
 						{
 							if constexpr (USE_TT)
 								m_Heuristics.transpositionTable().store(m_Stack, -1, beta, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
-							m_Stack.tacticalCutMove(depth, beta);
+							m_Stack.tacticalCutMove(m_Heuristics.feedback(), depth, beta);
 							return true;
 						}
 					}
@@ -672,14 +672,14 @@ namespace pygmalion
 						{
 							if constexpr (USE_TT)
 								m_Heuristics.transpositionTable().store(m_Stack, -1, best, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
-							m_Stack.tacticalCutMove(depth, best);
+							m_Stack.tacticalCutMove(m_Heuristics.feedback(), depth, best);
 							return true;
 						}
 						else
 						{
 							if constexpr (USE_TT)
 								m_Heuristics.transpositionTable().store(m_Stack, -1, beta, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
-							m_Stack.tacticalCutMove(depth, beta);
+							m_Stack.tacticalCutMove(m_Heuristics.feedback(), depth, beta);
 							return true;
 						}
 					}
@@ -692,7 +692,7 @@ namespace pygmalion
 					bestmove = move;
 					if constexpr (USE_TT)
 						m_Heuristics.transpositionTable().store(m_Stack, -1, best, transpositiontable<descriptorSearch>::flags_upper | transpositiontable<descriptorSearch>::flags_move, move);
-					m_Stack.tacticalAllMove(depth, best);
+					m_Stack.tacticalAllMove(m_Heuristics.feedback(), depth, best);
 				}
 				else
 					m_Heuristics.endMoveSilent(m_Stack.position(), move);
@@ -799,7 +799,7 @@ namespace pygmalion
 			if (!hasLegalMove)
 			{
 				m_Heuristics.endNodeLate(m_Stack.position());
-				hasLegalMove = m_Stack.hasLegalMove(depth);
+				hasLegalMove = m_Stack.hasLegalMove(depth, m_Heuristics.feedback());
 				if (hasLegalMove)
 				{
 					if constexpr (USE_TT)
@@ -906,7 +906,7 @@ namespace pygmalion
 			if (!hasLegalMove)
 			{
 				m_Heuristics.endNodeLate(m_Stack.position());
-				hasLegalMove = m_Stack.hasLegalMove(depth);
+				hasLegalMove = m_Stack.hasLegalMove(depth, m_Heuristics.feedback());
 				if (hasLegalMove)
 				{
 					if constexpr (USE_TT)

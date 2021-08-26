@@ -11,11 +11,11 @@ namespace pygmalion::chess::dynamics
 			std::string remainder2;
 			parser::parseTokenCaseSensitive(remainder, token, remainder2);
 			this->output() << std::endl;
-			stackType stack(this->position(), this->history(), this->position().movingPlayer().next(), this->dynamicsEngine().feedback());
+			stackType stack(this->position(), this->history(), this->position().movingPlayer().next());
 			if (stack.isCheck())
 			{
 				movebitsType moveBits;
-				if (stack.nextMove(moveBits, 0))
+				if (stack.nextMove(moveBits, 0, this->feedback()))
 					this->output() << "Check." << std::endl;
 				else
 					this->output() << "Checkmate." << std::endl;

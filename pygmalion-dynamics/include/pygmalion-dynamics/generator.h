@@ -321,7 +321,6 @@ namespace pygmalion
 #include "include_dynamics.h"
 		private:
 			const stack* m_pParent;
-			movegenFeedback& m_Feedback;
 			mutable movelistType m_Moves;
 			mutable passlistType m_Passes;
 			mutable movelistType m_TacticalMoves;
@@ -343,7 +342,7 @@ namespace pygmalion
 			mutable bool m_HasLegalMoveValid;
 			mutable bool m_SignatureValid;
 			const bool m_IsNullmove;
-			bool computeHasLegalMove(const size_t depth) const
+			bool computeHasLegalMove(const size_t depth, movegenFeedback& feedback) const
 			{
 				bool allMovesGenerated{ false };
 				while (!allMovesGenerated)
@@ -355,7 +354,7 @@ namespace pygmalion
 							allMovesGenerated = true;
 							return false;
 						}
-						generatorType::generateMoves(*static_cast<const typename generatorType::stackType*>(this), m_Moves, m_Feedback.index(m_CurrentPass, depth));
+						generatorType::generateMoves(*static_cast<const typename generatorType::stackType*>(this), m_Moves, feedback.index(m_CurrentPass, depth));
 						while (m_Passes.length() < m_Moves.length())
 							m_Passes.add(m_CurrentPass);
 						m_CurrentPass++;
@@ -370,31 +369,27 @@ namespace pygmalion
 				return false;
 			}
 		public:
-			constexpr void allMove(const size_t depth, const scoreType score) const noexcept
+			constexpr void allMove(movegenFeedback& feedback, const size_t depth, const scoreType score) const noexcept
 			{
-				m_Feedback.allMove(m_LastPass, depth, score);
+				feedback.allMove(m_LastPass, depth, score);
 			}
-			constexpr void tacticalAllMove(const size_t depth, const scoreType score) const noexcept
+			constexpr void tacticalAllMove(movegenFeedback& feedback, const size_t depth, const scoreType score) const noexcept
 			{
-				m_Feedback.tacticalAllMove(m_LastTacticalPass, depth, score);
+				feedback.tacticalAllMove(m_LastTacticalPass, depth, score);
 			}
-			constexpr void cutMove(const size_t depth, const scoreType score) const noexcept
+			constexpr void cutMove(movegenFeedback& feedback, const size_t depth, const scoreType score) const noexcept
 			{
-				m_Feedback.cutMove(m_LastPass, depth, score);
+				feedback.cutMove(m_LastPass, depth, score);
 			}
-			constexpr void tacticalCutMove(const size_t depth, const scoreType score) const noexcept
+			constexpr void tacticalCutMove(movegenFeedback& feedback, const size_t depth, const scoreType score) const noexcept
 			{
-				m_Feedback.tacticalCutMove(m_LastTacticalPass, depth, score);
+				feedback.tacticalCutMove(m_LastTacticalPass, depth, score);
 			}
-			constexpr movegenFeedback& feedback() const noexcept
-			{
-				return m_Feedback;
-			}
-			bool hasLegalMove(const size_t depth) const
+			bool hasLegalMove(const size_t depth, movegenFeedback& feedback) const
 			{
 				if (!m_HasLegalMoveValid)
 				{
-					m_HasLegalMove = computeHasLegalMove(depth);
+					m_HasLegalMove = computeHasLegalMove(depth, feedback);
 					m_HasLegalMoveValid = true;
 				}
 				return m_HasLegalMove;
@@ -412,7 +407,7 @@ namespace pygmalion
 			{
 				return generatorType::isMoveLegal(*reinterpret_cast<const typename generatorType::stackType*>(this), moveBits);
 			}
-			bool nextMove(movebitsType& moveBits, const size_t depth) const noexcept
+			bool nextMove(movebitsType& moveBits, const size_t depth, movegenFeedback& feedback) const noexcept
 			{
 				bool allMovesGenerated{ false };
 				while (!allMovesGenerated)
@@ -424,7 +419,7 @@ namespace pygmalion
 							allMovesGenerated = true;
 							return false;
 						}
-						generatorType::generateMoves(*reinterpret_cast<const typename generatorType::stackType*>(this), m_Moves, m_Feedback.index(m_CurrentPass, depth));
+						generatorType::generateMoves(*reinterpret_cast<const typename generatorType::stackType*>(this), m_Moves, feedback.index(m_CurrentPass, depth));
 						while (m_Passes.length() < m_Moves.length())
 							m_Passes.add(m_CurrentPass);
 						m_CurrentPass++;
@@ -442,7 +437,7 @@ namespace pygmalion
 				}
 				return false;
 			}
-			bool nextTacticalMove(movebitsType& moveBits, const size_t depth) const noexcept
+			bool nextTacticalMove(movebitsType& moveBits, const size_t depth, movegenFeedback& feedback) const noexcept
 			{
 				bool allMovesGenerated{ false };
 				while (!allMovesGenerated)
@@ -454,7 +449,7 @@ namespace pygmalion
 							allMovesGenerated = true;
 							return false;
 						}
-						generatorType::generateTacticalMoves(*reinterpret_cast<const typename generatorType::stackType*>(this), m_TacticalMoves, m_Feedback.tacticalIndex(m_CurrentTacticalPass, depth));
+						generatorType::generateTacticalMoves(*reinterpret_cast<const typename generatorType::stackType*>(this), m_TacticalMoves, feedback.tacticalIndex(m_CurrentTacticalPass, depth));
 						while (m_TacticalPasses.length() < m_TacticalMoves.length())
 							m_TacticalPasses.add(m_CurrentTacticalPass);
 						m_CurrentTacticalPass++;
@@ -473,7 +468,6 @@ namespace pygmalion
 				return false;
 			}
 			stack(const stack& parent, const movebitsType moveBits) noexcept :
-				m_Feedback{ parent.m_Feedback },
 				m_pParent{ &parent },
 				m_Position{ parent.m_Position },
 				m_History{ parent.m_History },
@@ -494,8 +488,7 @@ namespace pygmalion
 				m_LastTacticalPass{ 0 }
 			{
 			}
-			stack(boardType& position, historyType& history, const playerType oldPlayer, movegenFeedback& feedback) noexcept :
-				m_Feedback{ feedback },
+			stack(boardType& position, historyType& history, const playerType oldPlayer) noexcept :
 				m_pParent{ nullptr },
 				m_Position{ position },
 				m_History{ history },
@@ -619,7 +612,7 @@ namespace pygmalion
 			return generatorType::isMoveLegal_Implementation(stack, moveBits);
 		}
 		template<typename stackType>
-		static std::uintmax_t perft(const stackType& stack, const size_t depthRemaining, const size_t depth, std::uintmax_t& nodes) noexcept
+		static std::uintmax_t perft(const stackType& stack, const size_t depthRemaining, const size_t depth, std::uintmax_t& nodes, movegenFeedback& feedback) noexcept
 		{
 			if (depthRemaining <= 0)
 				return 1;
@@ -627,11 +620,11 @@ namespace pygmalion
 			{
 				movebitsType mb;
 				std::uintmax_t count{ 0 };
-				while (stack.nextMove(mb, depth))
+				while (stack.nextMove(mb, depth, feedback))
 				{
 					nodes++;
 					stackType subStack(stack, mb);
-					count += generator::perft(subStack, depthRemaining - 1, depth + 1, nodes);
+					count += generator::perft(subStack, depthRemaining - 1, depth + 1, nodes, feedback);
 				}
 				return count;
 			}

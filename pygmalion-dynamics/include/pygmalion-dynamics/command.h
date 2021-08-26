@@ -23,6 +23,14 @@ namespace pygmalion::dynamics
 		{
 			return this->dynamicsEngine().history();
 		}
+		typename generatorType::movegenFeedback& feedback() noexcept
+		{
+			return this->dynamicsEngine().feedback();
+		}
+		const typename generatorType::movegenFeedback& feedback() const noexcept
+		{
+			return this->dynamicsEngine().feedback();
+		}
 		engine<generatorType>& dynamicsEngine() noexcept
 		{
 			return dynamic_cast<engine<generatorType>&>(this->mechanicsEngine());

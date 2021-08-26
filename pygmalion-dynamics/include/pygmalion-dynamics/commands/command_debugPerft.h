@@ -8,25 +8,26 @@ namespace pygmalion::dynamics
 		using generatorType = GENERATOR;
 		using stackType = typename generatorType::stackType;
 		using descriptorDynamics = DESCRIPTION_DYNAMICS;
+		using movegenFeedback = typename generatorType::movegenFeedback;
 #include "../include_dynamics.h"
 	private:
-		static std::uintmax_t perft(const stackType& stack, const size_t depth, const size_t maxDepth) noexcept
+		static std::uintmax_t perft(const stackType& stack, const size_t depth, const size_t maxDepth, movegenFeedback& feedback) noexcept
 		{
 			movebitsType moveBits;
 			std::uintmax_t counter{ 0 };
 			if (depth == maxDepth)
 			{
-				while (stack.nextMove(moveBits, depth))
+				while (stack.nextMove(moveBits, depth, feedback))
 				{
 					counter++;
 				}
 			}
 			else
 			{
-				while (stack.nextMove(moveBits, depth))
+				while (stack.nextMove(moveBits, depth, feedback))
 				{
 					const stackType substack{ stackType(stack,moveBits) };
-					counter += perft(substack, depth + 1, maxDepth);
+					counter += perft(substack, depth + 1, maxDepth, feedback);
 				}
 			}
 			return counter;
@@ -46,8 +47,8 @@ namespace pygmalion::dynamics
 				for (size_t i = 0; i < depth; i++)
 				{
 					p.start();
-					stackType stack{ stackType(this->position(),this->history(), this->position().movingPlayer(), this->dynamicsEngine().feedback()) };
-					nodes = perft(stack,this->history().length(), i);
+					stackType stack{ stackType(this->position(),this->history(), this->position().movingPlayer()) };
+					nodes = perft(stack,this->history().length(), i, this->feedback());
 					p.stop();
 					this->output() << "depth: " << std::setw(2) << static_cast<int>(i + 1) << " nodes: " << parser::valueToString(static_cast<double>(nodes), "N") << " time: " << parser::durationToString(p.duration()) << " speed: " << p.computeSpeed(nodes, "N") << std::endl;
 				}

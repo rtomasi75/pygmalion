@@ -16,7 +16,8 @@ namespace pygmalion
 		using instanceType = INSTANCE;
 		using descriptorSearch = DESCRIPTION_SEARCH;
 #include "include_search.h"
-
+		using movegenFeedback = typename generatorType::movegenFeedback;
+		using passType = typename generatorType::passType;
 	private:
 #if !defined(NDEBUG)
 		bool m_IsSearching;
@@ -24,6 +25,7 @@ namespace pygmalion
 		profiler m_SearchProfiler;
 		std::uintmax_t m_NodeCounter;
 		transpositiontable<descriptorSearch> m_TranspositionTable;
+		movegenFeedback& m_Feedback;
 	protected:
 		void onBeginSearch() noexcept
 		{
@@ -63,6 +65,14 @@ namespace pygmalion
 		{
 		}
 	public:
+		constexpr movegenFeedback& feedback() noexcept
+		{
+			return m_Feedback;
+		}
+		constexpr const movegenFeedback& feedback() const noexcept
+		{
+			return m_Feedback;
+		}
 		constexpr transpositiontable<descriptorSearch>& transpositionTable() noexcept
 		{
 			return m_TranspositionTable;
@@ -171,12 +181,13 @@ namespace pygmalion
 #endif
 			reinterpret_cast<instanceType*>(this)->onEndNodeLeaf(position);
 		}
-		heuristics() noexcept :
+		heuristics(movegenFeedback& feedback) noexcept :
 #if !defined(NDEBUG)
 			m_IsSearching{ false },
 #endif
 			m_NodeCounter{ 0 },
-			m_TranspositionTable{ transpositiontable<descriptorSearch>() }
+			m_TranspositionTable{ transpositiontable<descriptorSearch>() },
+			m_Feedback{ feedback }
 		{
 
 		}
@@ -253,7 +264,8 @@ namespace pygmalion
 			sstr << "leaf:  " << std::setw(9) << parser::nodesCountToString(leafNodeCount()) << std::endl;
 			return sstr.str();
 		}
-		heuristics() noexcept :
+		heuristics(movegenFeedback& feedback) noexcept :
+			baseclassType(feedback),
 			m_EarlyNodes{ 0 },
 			m_LateNodes{ 0 },
 			m_CutNodes{ 0 },
