@@ -240,7 +240,8 @@ namespace pygmalion
 		using baseclassType = heuristics<false, DESCRIPTION_SEARCH, INSTANCE>;
 		using descriptorSearch = DESCRIPTION_SEARCH;
 #include "include_search.h"
-
+		using stackType = typename generatorType::stackType;
+		using movegenFeedback = typename generatorType::movegenFeedback;
 	private:
 		std::uint64_t m_EarlyNodes;
 		std::uint64_t m_LateNodes;
