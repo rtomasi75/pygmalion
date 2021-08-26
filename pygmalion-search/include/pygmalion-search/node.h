@@ -16,11 +16,15 @@ namespace pygmalion
 		heuristicsType& m_Heuristics;
 		std::atomic_bool& m_IsRunning;
 		movelistType m_MovesTT;
+		movelistType m_Moves;
 		movelistType m_TacticalMovesTT;
+		movelistType m_TacticalMoves;
 		int m_MoveGeneratorStage;
 		int m_TacticalMoveGeneratorStage;
 		indexType m_MoveTT;
 		indexType m_TacticalMoveTT;
+		indexType m_Move;
+		indexType m_TacticalMove;
 		scoreType lateScore() const noexcept
 		{
 			const gamestateType lateState{ evaluatorType::lateResult(m_Stack) };
@@ -53,8 +57,19 @@ namespace pygmalion
 			return false;
 		}
 	protected:
+		constexpr void resetMoveGen()
+		{
+			m_Move = 0;
+			m_TacticalMove = 0;
+		}
 		constexpr bool nextMove(const depthType depthRemaining, const size_t depth, movebitsType& movebits) noexcept
 		{
+			if (m_Move < m_Moves.length())
+			{
+				movebits = m_Moves[m_Move];
+				m_Move++;
+				return true;
+			}
 			if (m_MoveGeneratorStage < 0)
 			{
 				m_MoveGeneratorStage = 0;
@@ -67,6 +82,8 @@ namespace pygmalion
 				{
 					movebits = m_MovesTT[m_MoveTT];
 					m_MoveTT++;
+					m_Moves.add(movebits);
+					m_Move++;
 					return true;
 				}
 				else
@@ -77,18 +94,12 @@ namespace pygmalion
 			movebitsType testBits{ movebitsType(0) };
 			while (m_Stack.nextMove(testBits, depth, m_Heuristics.feedback()))
 			{
-				bool bDouble{ false };
-				for (indexType i = 0; i < m_MovesTT.length(); i++)
-				{
-					if (m_MovesTT[i] == testBits)
-					{
-						bDouble = true;
-						break;
-					}
-				}
+				bool bDouble{ m_MovesTT.contains(testBits) };
 				if (!bDouble)
 				{
 					movebits = testBits;
+					m_Moves.add(movebits);
+					m_Move++;
 					return true;
 				}
 			}
@@ -96,6 +107,12 @@ namespace pygmalion
 		}
 		constexpr bool nextTacticalMove(const size_t depth, movebitsType& movebits) noexcept
 		{
+			if (m_TacticalMove < m_TacticalMoves.length())
+			{
+				movebits = m_TacticalMoves[m_TacticalMove];
+				m_TacticalMove++;
+				return true;
+			}
 			if (m_TacticalMoveGeneratorStage < 0)
 			{
 				m_TacticalMoveGeneratorStage = 0;
@@ -108,6 +125,8 @@ namespace pygmalion
 				{
 					movebits = m_TacticalMovesTT[m_TacticalMoveTT];
 					m_TacticalMoveTT++;
+					m_TacticalMoves.add(movebits);
+					m_TacticalMove++;
 					return true;
 				}
 				else
@@ -118,18 +137,12 @@ namespace pygmalion
 			movebitsType testBits{ movebitsType(0) };
 			while (m_Stack.nextTacticalMove(testBits, depth, m_Heuristics.feedback()))
 			{
-				bool bDouble{ false };
-				for (indexType i = 0; i < m_TacticalMovesTT.length(); i++)
-				{
-					if (m_TacticalMovesTT[i] == testBits)
-					{
-						bDouble = true;
-						break;
-					}
-				}
+				bool bDouble{ m_TacticalMovesTT.contains(testBits) };
 				if (!bDouble)
 				{
 					movebits = testBits;
+					m_TacticalMoves.add(testBits);
+					m_TacticalMove++;
 					return true;
 				}
 			}
@@ -141,9 +154,9 @@ namespace pygmalion
 			if constexpr (ID)
 			{
 				scoreType sc{ scoreType::zero() };
+				node subnode(*this, move);
 				for (depthType d = -1; d < depthRemaining; d++)
 				{
-					node subnode(*this, move);
 					if (d < depthRemaining - 1)
 						sc = -subnode.search<VERBOSE, false>(-beta.plyDown(), -alpha.plyDown(), d, depth + 1, principalVariation, str).plyUp();
 					else
@@ -163,9 +176,9 @@ namespace pygmalion
 			if constexpr (ID)
 			{
 				scoreType sc{ scoreType::zero() };
+				node subnode(*this, move);
 				for (depthType d = -1; d < depthRemaining; d++)
 				{
-					node subnode(*this, move);
 					sc = -subnode.zwsearch<VERBOSE>(-alpha.plyDown(), d, depth + 1, str).plyUp();
 				}
 				return sc;
@@ -776,12 +789,14 @@ namespace pygmalion
 					{
 						if constexpr (USE_TT)
 							m_Heuristics.transpositionTable().store(m_Stack, -1, best, transpositiontable<descriptorSearch>::flags_lower, movebitsType(0));
+						this->resetMoveGen();
 						return best;
 					}
 					else
 					{
 						if constexpr (USE_TT)
 							m_Heuristics.transpositionTable().store(m_Stack, -1, beta, transpositiontable<descriptorSearch>::flags_lower, movebitsType(0));
+						this->resetMoveGen();
 						return beta;
 					}
 				}
@@ -797,7 +812,10 @@ namespace pygmalion
 			{
 				hasLegalMove = true;
 				if (this->qsearchSubNode<VERBOSE, false, false>(move, alpha, beta, best, bestmove, depth, principalVariation, str))
+				{
+					this->resetMoveGen();
 					return best;
+				}
 			}
 			if (!hasLegalMove)
 			{
@@ -807,6 +825,7 @@ namespace pygmalion
 				{
 					if constexpr (USE_TT)
 						m_Heuristics.transpositionTable().store(m_Stack, -1, best, transpositiontable<descriptorSearch>::flags_upper, movebitsType(0));
+					this->resetMoveGen();
 					return best;
 				}
 				else
@@ -814,13 +833,17 @@ namespace pygmalion
 					const scoreType late{ lateScore() };
 					if constexpr (USE_TT)
 						m_Heuristics.transpositionTable().store(m_Stack, -1, late, transpositiontable<descriptorSearch>::flags_exact, movebitsType(0));
+					this->resetMoveGen();
 					return late;
 				}
 			}
 			while (nextTacticalMove(depth, move))
 			{
 				if (this->qsearchSubNode<VERBOSE, false, true>(move, alpha, beta, best, bestmove, depth, principalVariation, str))
+				{
+					this->resetMoveGen();
 					return best;
+				}
 			}
 			m_Heuristics.endNodeLate(m_Stack);
 			return alpha;
@@ -886,12 +909,14 @@ namespace pygmalion
 					{
 						if constexpr (USE_TT)
 							m_Heuristics.transpositionTable().store(m_Stack, -1, best, transpositiontable<descriptorSearch>::flags_lower, movebitsType(0));
+						this->resetMoveGen();
 						return best;
 					}
 					else
 					{
 						if constexpr (USE_TT)
 							m_Heuristics.transpositionTable().store(m_Stack, -1, beta, transpositiontable<descriptorSearch>::flags_lower, movebitsType(0));
+						this->resetMoveGen();
 						return beta;
 					}
 				}
@@ -907,7 +932,10 @@ namespace pygmalion
 			{
 				hasLegalMove = true;
 				if (this->qzwsearchSubNode<VERBOSE, false, false>(move, alpha, beta, best, bestmove, depth, str))
+				{
+					this->resetMoveGen();
 					return best;
+				}
 			}
 			if (!hasLegalMove)
 			{
@@ -917,6 +945,7 @@ namespace pygmalion
 				{
 					if constexpr (USE_TT)
 						m_Heuristics.transpositionTable().store(m_Stack, -1, best, transpositiontable<descriptorSearch>::flags_upper, movebitsType(0));
+					this->resetMoveGen();
 					return best;
 				}
 				else
@@ -924,6 +953,7 @@ namespace pygmalion
 					const scoreType late{ lateScore() };
 					if constexpr (USE_TT)
 						m_Heuristics.transpositionTable().store(m_Stack, -1, late, transpositiontable<descriptorSearch>::flags_exact, movebitsType(0));
+					this->resetMoveGen();
 					return late;
 				}
 			}
@@ -933,6 +963,7 @@ namespace pygmalion
 					return best;
 			}
 			m_Heuristics.endNodeLate(m_Stack);
+			this->resetMoveGen();
 			return alpha;
 		}
 		template<bool VERBOSE>
@@ -980,7 +1011,10 @@ namespace pygmalion
 				{
 					hasLegalMove = true;
 					if (this->zwsearchSubNode<VERBOSE, false>(move, alpha, beta, best, bestmove, depthRemaining, depth, str))
+					{
+						this->resetMoveGen();
 						return best;
+					}
 				}
 				if (!hasLegalMove)
 				{
@@ -988,14 +1022,19 @@ namespace pygmalion
 					const scoreType late{ lateScore() };
 					if constexpr (TT)
 						m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, late, transpositiontable<descriptorSearch>::flags_exact, movebitsType(0));
+					this->resetMoveGen();
 					return late;
 				}
 				while (nextMove(depthRemaining, depth, move))
 				{
 					if (this->zwsearchSubNode<VERBOSE, true>(move, alpha, beta, best, bestmove, depthRemaining, depth, str))
+					{
+						this->resetMoveGen();
 						return best;
+					}
 				}
 				m_Heuristics.endNodeLate(m_Stack);
+				this->resetMoveGen();
 				return alpha;
 			}
 			else
@@ -1061,7 +1100,10 @@ namespace pygmalion
 				{
 					hasLegalMove = true;
 					if (this->searchSubNode<VERBOSE, LONGPV, false>(move, alpha, beta, best, bestmove, depthRemaining, depth, principalVariation, str))
+					{
+						this->resetMoveGen();
 						return best;
+					}
 				}
 				if (!hasLegalMove)
 				{
@@ -1069,14 +1111,19 @@ namespace pygmalion
 					const scoreType late{ lateScore() };
 					if constexpr (TT)
 						m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, late, transpositiontable<descriptorSearch>::flags_exact, movebitsType(0));
+					this->resetMoveGen();
 					return late;
 				}
 				while (nextMove(depthRemaining, depth, move))
 				{
 					if (this->searchSubNode<VERBOSE, LONGPV, true>(move, alpha, beta, best, bestmove, depthRemaining, depth, principalVariation, str))
+					{
+						this->resetMoveGen();
 						return best;
+					}
 				}
 				m_Heuristics.endNodeLate(m_Stack);
+				this->resetMoveGen();
 				return alpha;
 			}
 			else
@@ -1096,7 +1143,9 @@ namespace pygmalion
 			m_MovesTT{ movelistType() },
 			m_TacticalMovesTT{ movelistType() },
 			m_TacticalMoveGeneratorStage{ -1 },
-			m_MoveGeneratorStage{ -1 }
+			m_MoveGeneratorStage{ -1 },
+			m_Move{ 0 },
+			m_TacticalMove{ 0 }
 		{
 
 		}
@@ -1107,7 +1156,9 @@ namespace pygmalion
 			m_MovesTT{ movelistType() },
 			m_TacticalMovesTT{ movelistType() },
 			m_TacticalMoveGeneratorStage{ -1 },
-			m_MoveGeneratorStage{ -1 }
+			m_MoveGeneratorStage{ -1 },
+			m_Move{ 0 },
+			m_TacticalMove{ 0 }
 		{
 		}
 		~node() noexcept = default;
