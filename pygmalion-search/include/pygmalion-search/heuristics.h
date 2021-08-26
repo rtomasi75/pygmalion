@@ -18,9 +18,12 @@ namespace pygmalion
 #include "include_search.h"
 		using movegenFeedback = typename generatorType::movegenFeedback;
 		using passType = typename generatorType::passType;
+		using stackType = typename generatorType::stackType;
 	private:
 #if !defined(NDEBUG)
 		bool m_IsSearching;
+		int m_NodeDepth;
+		int m_MoveDepth;
 #endif
 		profiler m_SearchProfiler;
 		std::uintmax_t m_NodeCounter;
@@ -36,32 +39,35 @@ namespace pygmalion
 		{
 			m_SearchProfiler.stop();
 		}
-		void onBeginNode(const boardType& position) noexcept
+		void onBeginNode(const stackType& stack) noexcept
 		{
 			m_NodeCounter++;
 		}
-		void onEndNodeEarly(const boardType& position) noexcept
+		void onEndNodeEarly(const stackType& stack) noexcept
 		{
 		}
-		void onEndNodeLate(const boardType& position) noexcept
+		void onEndNodeLate(const stackType& stack) noexcept
 		{
 		}
-		void onBeginMove(const boardType& position, const movebitsType moveBits) noexcept
+		void onBeginMove(const stackType& stack, const movebitsType moveBits, const bool isTactical, const size_t depth) noexcept
 		{
 		}
-		void onEndMoveRefuted(const boardType& position, const movebitsType moveBits) noexcept
+		void onEndMoveRefuted(const stackType& stack, const movebitsType moveBits, const bool isTactical, const size_t depth, const scoreType score) noexcept
 		{
 		}
-		void onEndMoveSilent(const boardType& position, const movebitsType moveBits) noexcept
+		void onEndMoveSilent(const stackType& stack, const movebitsType moveBits, const bool isTactical, const size_t depth) noexcept
 		{
 		}
-		void onEndMoveAccepted(const boardType& position, const movebitsType moveBits) noexcept
+		void onEndMoveAccepted(const stackType& stack, const movebitsType moveBits, const bool isTactical, const size_t depth, const scoreType score) noexcept
 		{
 		}
-		void onEndNodeCut(const boardType& position) noexcept
+		void onEndNodeCut(const stackType& stack) noexcept
 		{
 		}
-		void onEndNodeLeaf(const boardType& position) noexcept
+		void onEndNodeLeaf(const stackType& stack) noexcept
+		{
+		}
+		void onEndNodeTT(const stackType& stack) noexcept
 		{
 		}
 	public:
@@ -106,6 +112,8 @@ namespace pygmalion
 		{
 #if !defined(NDEBUG)
 			assert(!m_IsSearching);
+			assert(m_NodeDepth == 0);
+			assert(m_MoveDepth == 0);
 			m_IsSearching = true;
 #endif
 			reinterpret_cast<instanceType*>(this)->onBeginSearch();
@@ -114,76 +122,105 @@ namespace pygmalion
 		{
 #if !defined(NDEBUG)
 			assert(m_IsSearching);
+			assert(m_NodeDepth == 0);
+			assert(m_MoveDepth == 0);
 			m_IsSearching = false;
 #endif
 			reinterpret_cast<instanceType*>(this)->onEndSearch();
 		}
-		void beginNode(const boardType& position) noexcept
+		void beginNode(const stackType& stack) noexcept
 		{
 #if !defined(NDEBUG)
 			assert(m_IsSearching);
+			m_NodeDepth++;
 #endif
-			reinterpret_cast<instanceType*>(this)->onBeginNode(position);
+			reinterpret_cast<instanceType*>(this)->onBeginNode(stack);
 		}
-		void endNodeEarly(const boardType& position) noexcept
+		void endNodeEarly(const stackType& stack) noexcept
 		{
 #if !defined(NDEBUG)
 			assert(m_IsSearching);
+			m_NodeDepth--;
 #endif
-			reinterpret_cast<instanceType*>(this)->onEndNodeEarly(position);
+			reinterpret_cast<instanceType*>(this)->onEndNodeEarly(stack);
 		}
-		void endNodeLate(const boardType& position) noexcept
+		void endNodeLate(const stackType& stack) noexcept
 		{
 #if !defined(NDEBUG)
 			assert(m_IsSearching);
+			m_NodeDepth--;
 #endif
-			reinterpret_cast<instanceType*>(this)->onEndNodeLate(position);
+			reinterpret_cast<instanceType*>(this)->onEndNodeLate(stack);
 		}
-		void beginMove(const boardType& position, const movebitsType moveBits) noexcept
+		void endNodeTT(const stackType& stack) noexcept
 		{
 #if !defined(NDEBUG)
 			assert(m_IsSearching);
+			m_NodeDepth--;
 #endif
-			reinterpret_cast<instanceType*>(this)->onBeginMove(position, moveBits);
+			reinterpret_cast<instanceType*>(this)->onEndNodeTT(stack);
 		}
-		void endMoveAccepted(const boardType& position, const movebitsType moveBits) noexcept
+		void beginMove(const stackType& stack, const movebitsType moveBits, const bool isTactical, const size_t depth) noexcept
 		{
 #if !defined(NDEBUG)
 			assert(m_IsSearching);
+			m_MoveDepth++;
 #endif
-			reinterpret_cast<instanceType*>(this)->onEndMoveAccepted(position, moveBits);
+			reinterpret_cast<instanceType*>(this)->onBeginMove(stack, moveBits, isTactical, depth);
 		}
-		void endMoveRefuted(const boardType& position, const movebitsType moveBits) noexcept
+		void endMoveAccepted(const stackType& stack, const movebitsType moveBits, const bool isTactical, const size_t depth, const scoreType score) noexcept
 		{
 #if !defined(NDEBUG)
 			assert(m_IsSearching);
+			m_MoveDepth--;
 #endif
-			reinterpret_cast<instanceType*>(this)->onEndMoveRefuted(position, moveBits);
+			if (isTactical)
+				stack.tacticalAllMove(m_Feedback, depth, score);
+			else
+				stack.allMove(m_Feedback, depth, score);
+			reinterpret_cast<instanceType*>(this)->onEndMoveAccepted(stack, moveBits, isTactical, depth, score);
 		}
-		void endMoveSilent(const boardType& position, const movebitsType moveBits) noexcept
+		void endMoveRefuted(const stackType& stack, const movebitsType moveBits, const bool isTactical, const size_t depth, const scoreType score) noexcept
 		{
 #if !defined(NDEBUG)
 			assert(m_IsSearching);
+			m_MoveDepth--;
 #endif
-			reinterpret_cast<instanceType*>(this)->onEndMoveSilent(position, moveBits);
+			if (isTactical)
+				stack.tacticalCutMove(m_Feedback, depth, score);
+			else
+				stack.cutMove(m_Feedback, depth, score);
+			reinterpret_cast<instanceType*>(this)->onEndMoveRefuted(stack, moveBits, isTactical, depth, score);
 		}
-		void endNodeCut(const boardType& position) noexcept
+		void endMoveSilent(const stackType& stack, const movebitsType moveBits, const bool isTactical, const size_t depth) noexcept
 		{
 #if !defined(NDEBUG)
 			assert(m_IsSearching);
+			m_MoveDepth--;
 #endif
-			reinterpret_cast<instanceType*>(this)->onEndNodeCut(position);
+			reinterpret_cast<instanceType*>(this)->onEndMoveSilent(stack, moveBits, isTactical, depth);
 		}
-		void endNodeLeaf(const boardType& position) noexcept
+		void endNodeCut(const stackType& stack) noexcept
 		{
 #if !defined(NDEBUG)
 			assert(m_IsSearching);
+			m_NodeDepth--;
 #endif
-			reinterpret_cast<instanceType*>(this)->onEndNodeLeaf(position);
+			reinterpret_cast<instanceType*>(this)->onEndNodeCut(stack);
+		}
+		void endNodeLeaf(const stackType& stack) noexcept
+		{
+#if !defined(NDEBUG)
+			assert(m_IsSearching);
+			m_NodeDepth--;
+#endif
+			reinterpret_cast<instanceType*>(this)->onEndNodeLeaf(stack);
 		}
 		heuristics(movegenFeedback& feedback) noexcept :
 #if !defined(NDEBUG)
 			m_IsSearching{ false },
+			m_NodeDepth{ 0 },
+			m_MoveDepth{ 0 },
 #endif
 			m_NodeCounter{ 0 },
 			m_TranspositionTable{ transpositiontable<descriptorSearch>() },
@@ -217,26 +254,32 @@ namespace pygmalion
 			m_LateNodes = 0;
 			m_CutNodes = 0;
 			m_LeafNodes = 0;
+			m_TTNodes = 0;
 		}
-		void onEndNodeEarly(const boardType& position) noexcept
+		void onEndNodeEarly(const stackType& stack) noexcept
 		{
-			baseclassType::onEndNodeEarly(position);
+			baseclassType::onEndNodeEarly(stack);
 			m_EarlyNodes++;
 		}
-		void onEndNodeLate(const boardType& position) noexcept
+		void onEndNodeLate(const stackType& stack) noexcept
 		{
-			baseclassType::onEndNodeLate(position);
+			baseclassType::onEndNodeLate(stack);
 			m_LateNodes++;
 		}
-		void onEndNodeCut(const boardType& position) noexcept
+		void onEndNodeCut(const stackType& stack) noexcept
 		{
-			baseclassType::onEndNodeCut(position);
+			baseclassType::onEndNodeCut(stack);
 			m_CutNodes++;
 		}
-		void onEndNodeLeaf(const boardType& position) noexcept
+		void onEndNodeLeaf(const stackType& stack) noexcept
 		{
-			baseclassType::onEndNodeLeaf(position);
+			baseclassType::onEndNodeLeaf(stack);
 			m_LeafNodes++;
+		}
+		void onEndNodeTT(const stackType& stack) noexcept
+		{
+			baseclassType::onEndNodeLeaf(stack);
+			m_TTNodes++;
 		}
 	public:
 		constexpr std::uint64_t earlyNodeCount() const noexcept
@@ -255,6 +298,10 @@ namespace pygmalion
 		{
 			return m_LeafNodes;
 		}
+		constexpr std::uint64_t TTNodeCount() const noexcept
+		{
+			return m_LeafNodes;
+		}
 		std::string toString() const noexcept
 		{
 			std::stringstream sstr;
@@ -262,6 +309,7 @@ namespace pygmalion
 			sstr << "cut:   " << std::setw(9) << parser::nodesCountToString(cutNodeCount()) << std::endl;
 			sstr << "late:  " << std::setw(9) << parser::nodesCountToString(lateNodeCount()) << std::endl;
 			sstr << "leaf:  " << std::setw(9) << parser::nodesCountToString(leafNodeCount()) << std::endl;
+			sstr << "TT:    " << std::setw(9) << parser::nodesCountToString(TTNodeCount()) << std::endl;
 			return sstr.str();
 		}
 		heuristics(movegenFeedback& feedback) noexcept :
@@ -269,6 +317,7 @@ namespace pygmalion
 			m_EarlyNodes{ 0 },
 			m_LateNodes{ 0 },
 			m_CutNodes{ 0 },
+			m_TTNodes{ 0 },
 			m_LeafNodes{ 0 }
 		{
 
