@@ -59,4 +59,5 @@ namespace pygmalion
 #include "tests/score_subtraction.h"
 #include "tests/score_addition_inplace.h"
 #include "tests/score_subtraction_inplace.h"
+#include "tests/sort.h"
 }

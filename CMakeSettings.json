@@ -64,7 +64,7 @@
         },
         {
           "name": "OPTIMIZE_FOR_AVX512",
-          "value": "False",
+          "value": "True",
           "type": "BOOL"
         },
         {
@@ -253,8 +253,7 @@
       "cmakeCommandArgs": "",
       "buildCommandArgs": "-v",
       "ctestCommandArgs": "",
-      "inheritEnvironments": [ "msvc_x86" ],
-      "variables": []
+      "inheritEnvironments": [ "msvc_x86" ]
     },
     {
       "name": "x86-Release",

@@ -33,9 +33,12 @@ else()
 endif()
 
 if(MSVC)
-
+    CHECK_CXX_COMPILER_FLAG("/bigobj" COMPILER_SUPPORTS_BIGOBJ)
+    if(COMPILER_SUPPORTS_BIGOBJ )
+        add_compile_options("/bigobj")
+    endif()
     if(OPTIMIZE_FOR_BMI2)
-    add_definitions(-DPYGMALION_CPU_BMI2)
+        add_definitions(-DPYGMALION_CPU_BMI2)
     endif()
 
     if(OPTIMIZE_FOR_AVX512)

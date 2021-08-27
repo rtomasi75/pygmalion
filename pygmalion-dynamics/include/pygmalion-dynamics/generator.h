@@ -22,7 +22,7 @@ namespace pygmalion
 				std::array <scoreType, countTacticalPasses> m_TacticalScoreCounter;
 				std::array <passType, countPasses> m_Index;
 				std::array <passType, countTacticalPasses> m_TacticalIndex;
-				constexpr static bool USE_SCORE{ false };
+				constexpr static bool USE_SCORE{ true };
 			public:
 				constexpr void sortIndices() noexcept
 				{
@@ -33,8 +33,18 @@ namespace pygmalion
 					}
 					else
 					{
-						sort<passType, scoreType>::sortValues(m_Index.data(), m_ScoreCounter.data(), countPasses);
-						sort<passType, scoreType>::sortValues(m_TacticalIndex.data(), m_TacticalScoreCounter.data(), countTacticalPasses);
+						std::array <scoreType, countPasses> scores{ arrayhelper::generate<countPasses,scoreType>([this](const size_t pass)
+							{
+								return this->score(pass);
+							})
+						};
+						std::array <scoreType, countTacticalPasses> tacticalScores{ arrayhelper::generate<countTacticalPasses,scoreType>([this](const size_t pass)
+							{
+								return this->tacticalScore(pass);
+							})
+						};
+						sort<passType, scoreType>::sortValues(m_Index.data(), scores.data(), countPasses);
+						sort<passType, scoreType>::sortValues(m_TacticalIndex.data(), tacticalScores.data(), countTacticalPasses);
 					}
 				}
 				constexpr passType index(const passType pass) const noexcept
@@ -42,7 +52,33 @@ namespace pygmalion
 					assert(pass < countPasses);
 					return m_Index[static_cast<size_t>(pass)];
 				}
+				constexpr passType moveIndex(const passType pass) const noexcept
+				{
+					assert(pass < countPasses);
+					if constexpr (!USE_SCORE)
+						return static_cast<size_t>(pass);
+					else
+						return m_Index[static_cast<size_t>(pass)];
+				}
+				constexpr passType scoreIndex(const passType pass) const noexcept
+				{
+					assert(pass < countPasses);
+					return m_Index[static_cast<size_t>(pass)];
+				}
 				constexpr passType tacticalIndex(const passType pass) const noexcept
+				{
+					assert(pass < countTacticalPasses);
+					return m_TacticalIndex[static_cast<size_t>(pass)];
+				}
+				constexpr passType tacticalMoveIndex(const passType pass) const noexcept
+				{
+					assert(pass < countTacticalPasses);
+					if constexpr (!USE_SCORE)
+						return static_cast<size_t>(pass);
+					else
+						return m_TacticalIndex[static_cast<size_t>(pass)];
+				}
+				constexpr passType tacticalScoreIndex(const passType pass) const noexcept
 				{
 					assert(pass < countTacticalPasses);
 					return m_TacticalIndex[static_cast<size_t>(pass)];
@@ -59,133 +95,63 @@ namespace pygmalion
 				}
 				constexpr scoreType score(const passType pass) const noexcept
 				{
-					if constexpr (USE_SCORE)
-					{
-						const size_t indexMove{ static_cast<size_t>(index(pass)) };
-						const size_t indexScore{ static_cast<size_t>(pass) };
-						if (m_MoveCounter[indexMove] == 0)
-							return scoreType::minimum();
-						if (m_ScoreCounter[indexScore].isOpen())
-							return m_ScoreCounter[indexScore] / static_cast<typename scoreType::valueType>(m_MoveCounter[indexMove]);
-						else
-							return m_ScoreCounter[indexScore];
-					}
+					const size_t indexMove{ static_cast<size_t>(moveIndex(pass)) };
+					const size_t indexScore{ static_cast<size_t>(scoreIndex(pass)) };
+					if (m_MoveCounter[indexMove] == 0)
+						return scoreType::minimum();
+					if (m_ScoreCounter[indexScore].isOpen())
+						return m_ScoreCounter[indexScore] / static_cast<typename scoreType::valueType>(m_MoveCounter[indexMove]);
 					else
-					{
-						const size_t indexMove{ static_cast<size_t>(pass) };
-						const size_t indexScore{ static_cast<size_t>(index(pass)) };
-						if (m_MoveCounter[indexMove] == 0)
-							return scoreType::minimum();
-						if (m_ScoreCounter[indexScore].isOpen())
-							return m_ScoreCounter[indexScore] / static_cast<typename scoreType::valueType>(m_MoveCounter[indexMove]);
-						else
-							return m_ScoreCounter[indexScore];
-					}
+						return m_ScoreCounter[indexScore];
 				}
 				constexpr scoreType tacticalScore(const passType pass) const noexcept
 				{
-					if constexpr (USE_SCORE)
-					{
-						const size_t indexMove{ static_cast<size_t>(tacticalIndex(pass)) };
-						const size_t indexScore{ static_cast<size_t>(pass) };
-						if (m_TacticalMoveCounter[indexMove] == 0)
-							return scoreType::minimum();
-						if (m_TacticalScoreCounter[indexScore].isOpen())
-							return m_TacticalScoreCounter[indexScore] / static_cast<typename scoreType::valueType>(m_TacticalMoveCounter[indexMove]);
-						else
-							return m_TacticalScoreCounter[indexScore];
-					}
+					const size_t indexMove{ static_cast<size_t>(tacticalMoveIndex(pass)) };
+					const size_t indexScore{ static_cast<size_t>(tacticalScoreIndex(pass)) };
+					if (m_TacticalMoveCounter[indexMove] == 0)
+						return scoreType::minimum();
+					if (m_TacticalScoreCounter[indexScore].isOpen())
+						return m_TacticalScoreCounter[indexScore] / static_cast<typename scoreType::valueType>(m_TacticalMoveCounter[indexMove]);
 					else
-					{
-						const size_t indexMove{ static_cast<size_t>(pass) };
-						const size_t indexScore{ static_cast<size_t>(tacticalIndex(pass)) };
-						if (m_TacticalMoveCounter[indexMove] == 0)
-							return scoreType::minimum();
-						if (m_TacticalScoreCounter[indexScore].isOpen())
-							return m_TacticalScoreCounter[indexScore] / static_cast<typename scoreType::valueType>(m_TacticalMoveCounter[indexMove]);
-						else
-							return m_TacticalScoreCounter[indexScore];
-					}
+						return m_TacticalScoreCounter[indexScore];
 				}
 				constexpr const std::uint64_t& counter(const passType pass) const noexcept
 				{
-					if constexpr (USE_SCORE)
-						return m_MoveCounter[static_cast<size_t>(index(pass))];
-					else
-						return m_MoveCounter[static_cast<size_t>(pass)];
+					return m_MoveCounter[static_cast<size_t>(moveIndex(pass))];
 				}
 				constexpr const std::uint64_t& tacticalCounter(const passType pass) const noexcept
 				{
-					if constexpr (USE_SCORE)
-						return m_TacticalMoveCounter[static_cast<size_t>(tacticalIndex(pass))];
-					else
-						return m_TacticalMoveCounter[static_cast<size_t>(pass)];
+					return m_TacticalMoveCounter[static_cast<size_t>(tacticalMoveIndex(pass))];
 				}
 				constexpr void incrementMove(const passType pass, const scoreType score) noexcept
 				{
-					if constexpr (USE_SCORE)
+					const size_t indexMove{ static_cast<size_t>(moveIndex(pass)) };
+					const size_t indexScore{ static_cast<size_t>(scoreIndex(pass)) };
+					if (score.isOpen())
 					{
-						const size_t indexMove{ static_cast<size_t>(index(pass)) };
-						const size_t indexScore{ static_cast<size_t>(pass) };
-						if (score.isOpen())
-						{
-							if (m_ScoreCounter[indexScore].isOpen())
-								m_ScoreCounter[indexScore] += score;
-							else
-								m_ScoreCounter[indexScore] = scoreType::max(score, m_ScoreCounter[indexScore]);
-						}
+						if (m_ScoreCounter[indexScore].isOpen())
+							m_ScoreCounter[indexScore] += score;
 						else
 							m_ScoreCounter[indexScore] = scoreType::max(score, m_ScoreCounter[indexScore]);
-						m_MoveCounter[indexMove]++;
 					}
 					else
-					{
-						const size_t indexMove{ static_cast<size_t>(pass) };
-						const size_t indexScore{ static_cast<size_t>(index(pass)) };
-						if (score.isOpen())
-						{
-							if (m_ScoreCounter[indexScore].isOpen())
-								m_ScoreCounter[indexScore] += score;
-							else
-								m_ScoreCounter[indexScore] = scoreType::max(score, m_ScoreCounter[indexScore]);
-						}
-						else
-							m_ScoreCounter[indexScore] = scoreType::max(score, m_ScoreCounter[indexScore]);
-						m_MoveCounter[indexMove]++;
-					}
+						m_ScoreCounter[indexScore] = scoreType::max(score, m_ScoreCounter[indexScore]);
+					m_MoveCounter[indexMove]++;
 				}
 				constexpr void incrementTacticalMove(const passType pass, const scoreType score) noexcept
 				{
-					if constexpr (USE_SCORE)
+					const size_t indexMove{ static_cast<size_t>(tacticalMoveIndex(pass)) };
+					const size_t indexScore{ static_cast<size_t>(tacticalScoreIndex(pass)) };
+					if (score.isOpen())
 					{
-						const size_t indexMove{ static_cast<size_t>(tacticalIndex(pass)) };
-						const size_t indexScore{ static_cast<size_t>(pass) };
-						if (score.isOpen())
-						{
-							if (m_TacticalScoreCounter[indexScore].isOpen())
-								m_TacticalScoreCounter[indexScore] += score;
-							else
-								m_TacticalScoreCounter[indexScore] = scoreType::max(score, m_TacticalScoreCounter[indexScore]);
-						}
+						if (m_TacticalScoreCounter[indexScore].isOpen())
+							m_TacticalScoreCounter[indexScore] += score;
 						else
 							m_TacticalScoreCounter[indexScore] = scoreType::max(score, m_TacticalScoreCounter[indexScore]);
-						m_TacticalMoveCounter[indexMove]++;
 					}
 					else
-					{
-						const size_t indexMove{ static_cast<size_t>(pass) };
-						const size_t indexScore{ static_cast<size_t>(tacticalIndex(pass)) };
-						if (score.isOpen())
-						{
-							if (m_TacticalScoreCounter[indexScore].isOpen())
-								m_TacticalScoreCounter[indexScore] += score;
-							else
-								m_TacticalScoreCounter[indexScore] = scoreType::max(score, m_TacticalScoreCounter[indexScore]);
-						}
-						else
-							m_TacticalScoreCounter[indexScore] = scoreType::max(score, m_TacticalScoreCounter[indexScore]);
-						m_TacticalMoveCounter[indexMove]++;
-					}
+						m_TacticalScoreCounter[indexScore] = scoreType::max(score, m_TacticalScoreCounter[indexScore]);
+					m_TacticalMoveCounter[indexMove]++;
 				}
 				constexpr void reset() noexcept
 				{

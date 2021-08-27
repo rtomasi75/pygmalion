@@ -73,8 +73,11 @@ namespace pygmalion::intrinsics
 				result &= intrinsics::test::score_subtraction(this->output());
 				result &= intrinsics::test::score_addition_inplace(this->output());
 				result &= intrinsics::test::score_subtraction_inplace(this->output());
+				result &= intrinsics::test::sort(this->output());
 				output() << std::endl;
 			}
+			else if (token == "sort")
+				result &= intrinsics::test::sort(this->output());
 			else if (token == "assignment")
 				result &= intrinsics::test::assignment(this->output());
 			else if (token == "score_assignment")

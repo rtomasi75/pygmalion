@@ -4,34 +4,31 @@ namespace pygmalion
 	class sort
 	{
 	private:
-		constexpr static size_t partition(const size_t low, const size_t high, VALUE* pValues, SCORE* pScores)
+		constexpr static int pivot(const int low, const int high) noexcept
 		{
-			const SCORE pivot = pScores[low + ((high - low) >> 1)];
-			size_t i = (low - 1);
-			for (size_t j = low; j <= high - 1; j++)
+			return high;
+			//	return low + ((high - low) >> 1);
+		}
+		constexpr static int partition(const int low, const int high, VALUE* pValues, SCORE* pScores) noexcept
+		{
+			const SCORE pivotScore{ pScores[pivot(low,high)] };
+			int i{ low - 1 };
+			for (int j = low; j <= high - 1; j++)
 			{
-				if (pScores[j] >= pivot)
+				if (pScores[j] >= pivotScore)
 				{
 					i++;
-					if (i != j)
-					{
-						std::swap(pValues[i], pValues[j]);
-						std::swap(pScores[i], pScores[j]);
-					}
+					std::swap(pValues[i], pValues[j]);
+					std::swap(pScores[i], pScores[j]);
 				}
 			}
-			i++;
-			if (i != high)
-			{
-				std::swap(pValues[i], pValues[high]);
-				std::swap(pScores[i], pScores[high]);
-			}
-			return i;
+			std::swap(pValues[i + 1], pValues[high]);
+			std::swap(pScores[i + 1], pScores[high]);
+			return (i + 1);
 		}
-		constexpr static void quickSort(const size_t low, const size_t high, VALUE* pValues, SCORE* pScores)
+		constexpr static void quickSort(const int low, const int high, VALUE* pValues, SCORE* pScores) noexcept
 		{
-			assert(low < high);
-			const size_t pi = partition(low, high, pValues, pScores);
+			const int pi{ partition(low, high, pValues, pScores) };
 			sortValues(&pValues[low], &pScores[low], pi - low);
 			sortValues(&pValues[pi + 1], &pScores[pi + 1], high - pi);
 		}
@@ -76,9 +73,9 @@ namespace pygmalion
 			{
 				std::swap(pValues[IDX1], pValues[IDX2]);
 				std::swap(pScores[IDX1], pScores[IDX2]);
-			}
-#endif
 		}
+#endif
+	}
 		template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b>
 		constexpr static void comparator(VALUE* pValues, SCORE* pScores)
 		{
@@ -449,7 +446,7 @@ namespace pygmalion
 
 		constexpr static void sort_N2(VALUE* pValues, SCORE* pScores) noexcept
 		{
-			comparator<0, 1>(pValues, pScores);
+			comparator<0, 1>(pValues, pScores); // FIRST 1-Lane
 		}
 
 		constexpr static void sort_N3(VALUE* pValues, SCORE* pScores) noexcept
@@ -496,7 +493,7 @@ namespace pygmalion
 			IL16_Store4(values, (SCORE*)pValues);
 			IL16_Store4(scores, (SCORE*)pScores);
 #else
-			comparator<0, 1, 2, 3>(pValues, pScores);
+			comparator<0, 1, 2, 3>(pValues, pScores); // FIRST 2-Lane
 			comparator<0, 2, 1, 3>(pValues, pScores);
 			comparator<1, 2>(pValues, pScores);
 #endif
@@ -560,7 +557,7 @@ namespace pygmalion
 #else
 			comparator<0, 4, 1, 5>(pValues, pScores);
 			comparator<0, 2, 1, 3>(pValues, pScores);
-			comparator<2, 4, 3, 5, 0, 1>(pValues, pScores);
+			comparator<2, 4, 3, 5, 0, 1>(pValues, pScores); // FIRST 3-Lane
 			comparator<2, 3, 4, 5>(pValues, pScores);
 			comparator<1, 4>(pValues, pScores);
 			comparator<1, 2, 3, 4 >(pValues, pScores);
@@ -626,7 +623,7 @@ namespace pygmalion
 			IL16_Store8(values, (SCORE*)pValues);
 			IL16_Store8(scores, (SCORE*)pScores);
 #else
-			comparator<0, 4, 1, 5, 2, 6, 3, 7>(pValues, pScores);
+			comparator<0, 4, 1, 5, 2, 6, 3, 7>(pValues, pScores); // FIRST 4-Lane
 			comparator<0, 2, 1, 3, 4, 6, 5, 7>(pValues, pScores);
 			comparator<2, 4, 3, 5, 0, 1, 6, 7>(pValues, pScores);
 			comparator<2, 3, 4, 5>(pValues, pScores);
@@ -1077,14 +1074,7 @@ namespace pygmalion
 		};
 		constexpr static size_t sort_tail() noexcept
 		{
-#if defined(SORT_IL16)
-			const size_t SORT_MAXTAIL{ 3 };
-#elif defined(SORT_IL8)
-			const size_t SORT_MAXTAIL{ 2 };
-#else
-			const size_t SORT_MAXTAIL{ 1 };
-#endif
-			return size_t(1) << (SORT_MAXTAIL + 2);
+			return 32;
 		}
 	public:
 		constexpr static void sortValues(VALUE* pValues, SCORE* pScores, const size_t length) noexcept
@@ -1101,5 +1091,5 @@ namespace pygmalion
 				}
 			}
 		}
-	};
+};
 }
