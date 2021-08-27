@@ -564,6 +564,27 @@ namespace pygmalion::chess
 #endif
 		}
 	public:
+		constexpr static size_t countMoveBuckets_Implementation() noexcept
+		{
+			if constexpr (usePieceType)
+				return countSquares * countPieces;
+			else
+				return countSquares * countSquares;
+		}
+		constexpr static size_t moveBucket_Implementation(const boardType& position, const movebitsType& mv) noexcept
+		{
+			const squareType to{ motorType::move().toSquare(position, mv) };
+			const squareType from{ motorType::move().fromSquare(position,mv) };
+			if constexpr (usePieceType)
+			{
+				const pieceType pc{ position.getPiece(from) };
+				return static_cast<size_t>(pc) * countSquares + static_cast<size_t>(to);
+			}
+			else
+			{
+				return static_cast<size_t>(from) * countSquares + static_cast<size_t>(to);
+			}
+		}
 		static std::deque<std::shared_ptr<pygmalion::intrinsics::command>> commandsImplementation() noexcept;
 		static bool isMoveLegal_Implementation(const stackType& stack, const movebitsType& moveBits) noexcept;
 		static bool isMoveTactical_Implementation(const stackType& stack, const movebitsType& moveBits) noexcept;

@@ -64,7 +64,7 @@ namespace pygmalion
 						const size_t indexMove{ static_cast<size_t>(index(pass)) };
 						const size_t indexScore{ static_cast<size_t>(pass) };
 						if (m_MoveCounter[indexMove] == 0)
-							return scoreType::zero();
+							return scoreType::minimum();
 						if (m_ScoreCounter[indexScore].isOpen())
 							return m_ScoreCounter[indexScore] / static_cast<typename scoreType::valueType>(m_MoveCounter[indexMove]);
 						else
@@ -75,7 +75,7 @@ namespace pygmalion
 						const size_t indexMove{ static_cast<size_t>(pass) };
 						const size_t indexScore{ static_cast<size_t>(index(pass)) };
 						if (m_MoveCounter[indexMove] == 0)
-							return scoreType::zero();
+							return scoreType::minimum();
 						if (m_ScoreCounter[indexScore].isOpen())
 							return m_ScoreCounter[indexScore] / static_cast<typename scoreType::valueType>(m_MoveCounter[indexMove]);
 						else
@@ -89,7 +89,7 @@ namespace pygmalion
 						const size_t indexMove{ static_cast<size_t>(tacticalIndex(pass)) };
 						const size_t indexScore{ static_cast<size_t>(pass) };
 						if (m_TacticalMoveCounter[indexMove] == 0)
-							return scoreType::zero();
+							return scoreType::minimum();
 						if (m_TacticalScoreCounter[indexScore].isOpen())
 							return m_TacticalScoreCounter[indexScore] / static_cast<typename scoreType::valueType>(m_TacticalMoveCounter[indexMove]);
 						else
@@ -100,7 +100,7 @@ namespace pygmalion
 						const size_t indexMove{ static_cast<size_t>(pass) };
 						const size_t indexScore{ static_cast<size_t>(tacticalIndex(pass)) };
 						if (m_TacticalMoveCounter[indexMove] == 0)
-							return scoreType::zero();
+							return scoreType::minimum();
 						if (m_TacticalScoreCounter[indexScore].isOpen())
 							return m_TacticalScoreCounter[indexScore] / static_cast<typename scoreType::valueType>(m_TacticalMoveCounter[indexMove]);
 						else
@@ -135,7 +135,7 @@ namespace pygmalion
 								m_ScoreCounter[indexScore] = scoreType::max(score, m_ScoreCounter[indexScore]);
 						}
 						else
-							m_ScoreCounter[static_cast<size_t>(index(pass))] = scoreType::max(score, m_ScoreCounter[indexScore]);
+							m_ScoreCounter[indexScore] = scoreType::max(score, m_ScoreCounter[indexScore]);
 						m_MoveCounter[indexMove]++;
 					}
 					else
@@ -150,7 +150,7 @@ namespace pygmalion
 								m_ScoreCounter[indexScore] = scoreType::max(score, m_ScoreCounter[indexScore]);
 						}
 						else
-							m_ScoreCounter[static_cast<size_t>(index(pass))] = scoreType::max(score, m_ScoreCounter[indexScore]);
+							m_ScoreCounter[indexScore] = scoreType::max(score, m_ScoreCounter[indexScore]);
 						m_MoveCounter[indexMove]++;
 					}
 				}
@@ -233,7 +233,10 @@ namespace pygmalion
 				{
 					m_Feedback.emplace_back(feedback());
 				}
-				return m_Feedback[depth].score(pass);
+				if (depth >= 2)
+					return (m_Feedback[depth - 2].score(pass) + (3 * m_Feedback[depth].score(pass))) / 4;
+				else
+					return m_Feedback[depth].score(pass);
 			}
 			constexpr const std::uint64_t& tacticalCounter(const passType pass, const size_t depth) const noexcept
 			{
@@ -322,8 +325,10 @@ namespace pygmalion
 		private:
 			const stack* m_pParent;
 			mutable movelistType m_Moves;
+			mutable list<scoreType, countMaxGeneratedMoves> m_Scores;
 			mutable passlistType m_Passes;
 			mutable movelistType m_TacticalMoves;
+			mutable list<scoreType, countMaxGeneratedMoves> m_TacticalScores;
 			mutable passlistType m_TacticalPasses;
 			boardType& m_Position;
 			historyType& m_History;
@@ -437,6 +442,42 @@ namespace pygmalion
 				}
 				return false;
 			}
+			template<typename LAMBDA>
+			bool nextMove(movebitsType& moveBits, const size_t depth, movegenFeedback& feedback, const LAMBDA& lambda) const noexcept
+			{
+				bool allMovesGenerated{ false };
+				while (!allMovesGenerated)
+				{
+					if (m_CurrentMove >= m_Moves.length())
+					{
+						if (m_CurrentPass >= countPasses)
+						{
+							allMovesGenerated = true;
+							return false;
+						}
+						generatorType::generateMoves(*reinterpret_cast<const typename generatorType::stackType*>(this), m_Moves, feedback.index(m_CurrentPass, depth));
+						const auto start{ m_Passes.length() };
+						while (m_Passes.length() < m_Moves.length())
+						{
+							m_Scores.add(lambda(m_Moves[m_Passes.length()]));
+							m_Passes.add(m_CurrentPass);
+						}
+						sort<movebitsType, scoreType>::sortValues(m_Moves.ptr() + static_cast<size_t>(start), m_Scores.ptr() + static_cast<size_t>(start), static_cast<size_t>(m_Moves.length() - start));
+						m_CurrentPass++;
+					}
+					while (m_CurrentMove < m_Moves.length())
+					{
+						moveBits = m_Moves[m_CurrentMove];
+						m_CurrentMove++;
+						if (generatorType::isMoveLegal(*reinterpret_cast<const typename generatorType::stackType*>(this), moveBits))
+						{
+							m_LastPass = m_Passes[m_CurrentMove - 1];
+							return true;
+						}
+					}
+				}
+				return false;
+			}
 			bool nextTacticalMove(movebitsType& moveBits, const size_t depth, movegenFeedback& feedback) const noexcept
 			{
 				bool allMovesGenerated{ false };
@@ -450,8 +491,45 @@ namespace pygmalion
 							return false;
 						}
 						generatorType::generateTacticalMoves(*reinterpret_cast<const typename generatorType::stackType*>(this), m_TacticalMoves, feedback.tacticalIndex(m_CurrentTacticalPass, depth));
+						const auto start{ m_TacticalPasses.length() };
 						while (m_TacticalPasses.length() < m_TacticalMoves.length())
 							m_TacticalPasses.add(m_CurrentTacticalPass);
+						m_CurrentTacticalPass++;
+					}
+					while (m_CurrentTacticalMove < m_TacticalMoves.length())
+					{
+						moveBits = m_TacticalMoves[m_CurrentTacticalMove];
+						m_CurrentTacticalMove++;
+						if (generatorType::isMoveLegal(*reinterpret_cast<const typename generatorType::stackType*>(this), moveBits))
+						{
+							m_LastTacticalPass = m_TacticalPasses[m_CurrentTacticalMove - 1];
+							return true;
+						}
+					}
+				}
+				return false;
+			}
+			template<typename LAMBDA>
+			bool nextTacticalMove(movebitsType& moveBits, const size_t depth, movegenFeedback& feedback, const LAMBDA& lambda) const noexcept
+			{
+				bool allMovesGenerated{ false };
+				while (!allMovesGenerated)
+				{
+					if (m_CurrentTacticalMove >= m_TacticalMoves.length())
+					{
+						if (m_CurrentTacticalPass >= countTacticalPasses)
+						{
+							allMovesGenerated = true;
+							return false;
+						}
+						generatorType::generateTacticalMoves(*reinterpret_cast<const typename generatorType::stackType*>(this), m_TacticalMoves, feedback.tacticalIndex(m_CurrentTacticalPass, depth));
+						const auto start{ m_TacticalPasses.length() };
+						while (m_TacticalPasses.length() < m_TacticalMoves.length())
+						{
+							m_TacticalScores.add(lambda(m_TacticalMoves[m_TacticalPasses.length()]));
+							m_TacticalPasses.add(m_CurrentTacticalPass);
+						}
+						sort<movebitsType, scoreType>::sortValues(m_TacticalMoves.ptr() + static_cast<size_t>(start), m_TacticalScores.ptr() + static_cast<size_t>(start), static_cast<size_t>(m_TacticalMoves.length() - start));
 						m_CurrentTacticalPass++;
 					}
 					while (m_CurrentTacticalMove < m_TacticalMoves.length())
@@ -633,6 +711,14 @@ namespace pygmalion
 		constexpr static bool isMoveTactical(const stackType& stack, const movebitsType& mv) noexcept
 		{
 			return generatorType::isMoveTactical_Implementation(stack, mv);
+		}
+		constexpr static size_t countMoveBuckets() noexcept
+		{
+			return generatorType::countMoveBuckets_Implementation();
+		}
+		constexpr static size_t moveBucket(const boardType& position, const movebitsType& mv) noexcept
+		{
+			return generatorType::moveBucket_Implementation(position, mv);
 		}
 	};
 }

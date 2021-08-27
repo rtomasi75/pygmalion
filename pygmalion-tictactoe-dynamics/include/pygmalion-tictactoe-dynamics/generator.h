@@ -85,5 +85,14 @@ namespace pygmalion::tictactoe
 		{
 			return "standard tactical";
 		}
+		constexpr static size_t countMoveBuckets_Implementation() noexcept
+		{
+			return countSquares;
+		}
+		constexpr static size_t moveBucket_Implementation(const boardType& position, const movebitsType& mv) noexcept
+		{
+			const squareType sq{ moveType::extractSquare(mv) };
+			return static_cast<size_t>(sq);
+		}
 	};
 }

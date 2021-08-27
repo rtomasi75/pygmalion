@@ -17,6 +17,7 @@ namespace pygmalion::search
 				this->output() << "depth:              " << std::setw(4) << sizeof(depthType) << " = " << sizeof(depthType) * CHAR_BIT << "bit" << std::endl;
 				this->output() << "variation:          " << std::setw(4) << sizeof(variationType) << " = " << sizeof(variationType) * CHAR_BIT << "bit" << std::endl;
 				this->output() << "transposition:      " << std::setw(4) << sizeof(typename transpositiontable<descriptorSearch>::transposition) << " = " << sizeof(typename transpositiontable<descriptorSearch>::transposition) * CHAR_BIT << "bit" << std::endl;
+				this->output() << "movebucket:         " << std::setw(4) << sizeof(typename heuristicsType::movebucket) << " = " << sizeof(typename heuristicsType::movebucket) * CHAR_BIT << "bit" << std::endl;
 				this->output() << "heuristics:         " << std::setw(4) << sizeof(heuristicsType) << " = " << sizeof(heuristicsType) * CHAR_BIT << "bit" << std::endl;
 				this->output() << std::endl;
 				this->output() << "max. depth: " << std::setw(4) << countSearchPlies << std::endl;

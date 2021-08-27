@@ -17,6 +17,7 @@ namespace pygmalion::chess::frontend
 				this->stateEngine().currentGame().initialize();
 				this->mechanicsEngine().history().clear();
 				this->dynamicsEngine().feedback().reset();
+				this->searchEngine().heuristics().clear();
 				this->front().clearDepthLimit();
 				this->front().clearTimeLimit();
 				this->front().forceMode() = false;
