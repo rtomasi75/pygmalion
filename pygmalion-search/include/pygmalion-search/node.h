@@ -12,6 +12,7 @@ namespace pygmalion
 		constexpr static bool inline ZWS{ true };
 		constexpr static bool inline TT{ true };
 		constexpr static bool inline ID{ true };
+		constexpr static bool inline ASPIRE{ false };
 		stackType m_Stack;
 		heuristicsType& m_Heuristics;
 		movelistType m_MovesTT;
@@ -266,6 +267,13 @@ namespace pygmalion
 			}
 			return false;
 		}
+		constexpr static scoreType createAspiration(const scoreType sc, const scoreType window) noexcept
+		{
+			if (sc.isOpen())
+				return sc + window;
+			else
+				return sc;
+		}
 		template<bool VERBOSE, bool LONGPV>
 		constexpr scoreType searchMove(const movebitsType move, const scoreType alpha, const scoreType beta, const depthType depthRemaining, const size_t depth, variationType& principalVariation, std::ostream& str) const noexcept
 		{
@@ -273,13 +281,73 @@ namespace pygmalion
 			{
 				scoreType sc{ scoreType::zero() };
 				node subnode(*this, move);
-				for (depthType d = -1; d < depthRemaining; d++)
+				if (depthRemaining >= 0)
 				{
-					if (d < depthRemaining - 1)
-						sc = -subnode.search<VERBOSE, false>(-beta.plyDown(), -alpha.plyDown(), d, depth + 1, principalVariation, str).plyUp();
-					else
-						sc = -subnode.search<VERBOSE, LONGPV>(-beta.plyDown(), -alpha.plyDown(), d, depth + 1, principalVariation, str).plyUp();
+					sc = -subnode.search<VERBOSE, false>(-beta.plyDown(), -alpha.plyDown(), -1, depth + 1, principalVariation, str).plyUp();
+					for (depthType d = 0; d < depthRemaining; d++)
+					{
+						if constexpr (ASPIRE)
+						{
+							bool bExact{ false };
+							bool bLow{ true };
+							bool bHigh{ true };
+							scoreType lowAspiration{ sc };
+							scoreType highAspiration{ sc };
+							for (size_t i = 0; i < evaluatorType::countAspirationWindows(); i++)
+							{
+								lowAspiration = scoreType::max(alpha, bLow ? createAspiration(scoreType::min(sc, lowAspiration), -evaluatorType::aspirationWindowSize(i)) : lowAspiration);
+								highAspiration = scoreType::min(beta, bHigh ? createAspiration(scoreType::max(sc, highAspiration), evaluatorType::aspirationWindowSize(i)) : highAspiration);
+								if (lowAspiration.isLosing())
+									lowAspiration = scoreType::minimum();
+								if (highAspiration.isWinning())
+									highAspiration = scoreType::maximum();
+								if (d < depthRemaining - 1)
+									sc = -subnode.search<VERBOSE, false>(-highAspiration.plyDown(), -lowAspiration.plyDown(), d, depth + 1, principalVariation, str).plyUp();
+								else
+									sc = -subnode.search<VERBOSE, LONGPV>(-highAspiration.plyDown(), -lowAspiration.plyDown(), d, depth + 1, principalVariation, str).plyUp();
+								if ((sc > lowAspiration) && (sc < highAspiration))
+								{
+									bExact = true;
+									break;
+								}
+								if (sc <= alpha)
+								{
+									bExact = true;
+									break;
+								}
+								if (sc >= beta)
+								{
+									bExact = true;
+									break;
+								}
+								if (sc <= lowAspiration)
+									bLow = true;
+								else
+									bLow = false;
+								if (sc >= highAspiration)
+									bHigh = true;
+								else
+									bHigh = false;
+							}
+							if (!bExact)
+							{
+								if (d < depthRemaining - 1)
+									sc = -subnode.search<VERBOSE, false>(-beta.plyDown(), -alpha.plyDown(), d, depth + 1, principalVariation, str).plyUp();
+								else
+									sc = -subnode.search<VERBOSE, LONGPV>(-beta.plyDown(), -alpha.plyDown(), d, depth + 1, principalVariation, str).plyUp();
+							}
+						}
+						else
+						{
+							if (d < depthRemaining - 1)
+								sc = -subnode.search<VERBOSE, false>(-beta.plyDown(), -alpha.plyDown(), d, depth + 1, principalVariation, str).plyUp();
+							else
+								sc = -subnode.search<VERBOSE, LONGPV>(-beta.plyDown(), -alpha.plyDown(), d, depth + 1, principalVariation, str).plyUp();
+						}
+					}
 				}
+				else
+					sc = -subnode.search<VERBOSE, LONGPV>(-beta.plyDown(), -alpha.plyDown(), -1, depth + 1, principalVariation, str).plyUp();
 				return sc;
 			}
 			else

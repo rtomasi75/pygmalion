@@ -4,7 +4,7 @@ Type=0
 CurrSwissRound=0
 Rounds=150
 CurrentPair=1
-CurrentRound=3
+CurrentRound=23
 Level=5 -1\1/-1#1@-1|1
 [Options]
 QuitAfterTournament=0
@@ -56,9 +56,9 @@ SaveGamesFCH=0
 FCHdir=
 FCHnames=
 [Data]
-LastPGNEPDindex=2
+LastPGNEPDindex=12
 LastGameDate=2021.08.28
-LastGameTime=06:11:41
+LastGameTime=23:09:30
 Country=Germany
 Site=LIQUIDITY
 Hardware=Intel(R) Core(TM) i9-10920X CPU @ 3.50GHz with 31,7 GB Memory
@@ -67,9 +67,9 @@ Website=
 E-Mail=
 ArenaVersion=Arena 3.5.1
 FirstGameDate=2021.08.28
-FirstGameTime=06:06:36
+FirstGameTime=22:20:19
 [PairingResults]
-Pygmalion (Reference) ------ Pygmalion (Release)=0½½
+Pygmalion (Release) ------ Pygmalion (piece)=1½001100½00100½½0½00000?
 [Participants]
-Engine1=Pygmalion (Reference)
+Engine1=Pygmalion (piece)
 Engine2=Pygmalion (Release)

@@ -10,6 +10,15 @@ namespace pygmalion::tictactoe
 		public pygmalion::evaluator<descriptor_evaluation, evaluator>
 	{
 	public:
+		constexpr static scoreType aspirationWindowSize_Implementation(const size_t index) noexcept
+		{
+			assert(0);
+			return scoreType::zero();
+		}
+		constexpr static size_t countAspirationWindows_Implementation() noexcept
+		{
+			return 0;
+		}
 		static const inline patterns<descriptorEvaluation> m_Patterns;
 		static std::deque<std::shared_ptr<pygmalion::intrinsics::command>> commandsImplementation() noexcept
 		{

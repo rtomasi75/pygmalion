@@ -41,6 +41,22 @@ namespace pygmalion::chess
 			}
 		}
 	public:
+		constexpr static scoreType aspirationWindowSize_Implementation(const size_t index) noexcept
+		{
+			constexpr const scoreType windows[]
+			{
+				static_cast<scoreType>(0.25 * 0.015625),
+				static_cast<scoreType>(0.75 * 0.015625),
+				static_cast<scoreType>(1.75 * 0.015625),
+				static_cast<scoreType>(3.75 * 0.015625),
+				static_cast<scoreType>(7.75 * 0.015625),
+			};
+			return windows[index];
+		}
+		constexpr static size_t countAspirationWindows_Implementation() noexcept
+		{
+			return 5;
+		}
 		static std::deque<std::shared_ptr<pygmalion::intrinsics::command>> commandsImplementation() noexcept;
 		static gamestateType earlyResult_Implementation(const generatorType::stackType& stack) noexcept;
 		static gamestateType lateResult_Implementation(const typename generatorType::stackType& stack) noexcept;

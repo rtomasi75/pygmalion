@@ -51,5 +51,13 @@ namespace pygmalion
 		{
 			return evaluatorType::lateResult_Implementation(stack);
 		}
+		constexpr static scoreType aspirationWindowSize(const size_t index) noexcept
+		{
+			return evaluatorType::aspirationWindowSize_Implementation(index);
+		}
+		constexpr static size_t countAspirationWindows() noexcept
+		{
+			return evaluatorType::countAspirationWindows_Implementation();
+		}
 	};
 }
