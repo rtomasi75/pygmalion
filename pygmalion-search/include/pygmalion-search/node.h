@@ -15,8 +15,10 @@ namespace pygmalion
 		stackType m_Stack;
 		heuristicsType& m_Heuristics;
 		movelistType m_MovesTT;
+		movelistType m_MovesKiller;
 		movelistType m_Moves;
 		movelistType m_TacticalMovesTT;
+		movelistType m_TacticalMovesKiller;
 		movelistType m_TacticalMoves;
 		int m_MoveGeneratorStage;
 		int m_TacticalMoveGeneratorStage;
@@ -24,7 +26,9 @@ namespace pygmalion
 		bool m_NeedsTacticalSorting;
 		std::atomic_bool& m_IsRunning;
 		indexType m_MoveTT;
+		indexType m_MoveKiller;
 		indexType m_TacticalMoveTT;
+		indexType m_TacticalMoveKiller;
 		indexType m_Move;
 		indexType m_TacticalMove;
 		scoreType lateScore() const noexcept
@@ -65,8 +69,12 @@ namespace pygmalion
 			m_TacticalMove = 0;
 			m_MoveGeneratorStage = -1;
 			m_MovesTT.clear();
+			m_MovesKiller.clear();
 			m_TacticalMoveGeneratorStage = -1;
 			m_TacticalMovesTT.clear();
+			m_TacticalMovesKiller.clear();
+			m_NeedsSorting = true;
+			m_NeedsTacticalSorting = true;
 		}
 		constexpr bool nextMove(const depthType depthRemaining, const size_t depth, movebitsType& movebits, bool& fromStack) noexcept
 		{
@@ -83,24 +91,54 @@ namespace pygmalion
 				{
 					movebits = m_MovesTT[m_MoveTT];
 					m_MoveTT++;
-					m_Moves.add(movebits);
-					m_Move++;
 					return true;
 				}
 				m_MoveGeneratorStage = 1;
+				m_Heuristics.killers(m_Stack, depth, m_MovesKiller);
+				m_MoveKiller = 0;
+			}
+			if (m_MoveGeneratorStage == 1)
+			{
+				while (m_MoveKiller < m_MovesKiller.length())
+				{
+					movebits = m_MovesKiller[m_MoveKiller];
+					bool bDouble{ m_MovesTT.contains(movebits) };
+					m_MoveKiller++;
+					if (!bDouble)
+					{
+						return true;
+					}
+				}
+				m_MoveGeneratorStage = 2;
+				m_Heuristics.tacticalKillers(m_Stack, depth, m_TacticalMovesKiller);
+				m_TacticalMoveKiller = 0;
+			}
+			if (m_MoveGeneratorStage == 2)
+			{
+				while (m_TacticalMoveKiller < m_TacticalMovesKiller.length())
+				{
+					movebits = m_TacticalMovesKiller[m_TacticalMoveKiller];
+					bool bDouble{ m_MovesTT.contains(movebits) };
+					m_TacticalMoveKiller++;
+					if (!bDouble)
+					{
+						return true;
+					}
+				}
+				m_MoveGeneratorStage = 3;
 			}
 			if constexpr (heuristicMoves)
 			{
 				if (m_NeedsSorting)
 				{
 					m_Heuristics.sortMoves(m_Stack.position(), m_Moves, m_Move, depth);
-					m_NeedsSorting = true;
+					m_NeedsSorting = false;
 				}
 			}
 			while (m_Move < m_Moves.length())
 			{
 				movebits = m_Moves[m_Move];
-				bool bDouble{ m_MovesTT.contains(movebits) };
+				bool bDouble{ m_MovesTT.contains(movebits) || m_MovesKiller.contains(movebits) };
 				m_Move++;
 				if (!bDouble)
 				{
@@ -112,7 +150,7 @@ namespace pygmalion
 			{
 				while (m_Stack.nextMove(testBits, depth, m_Heuristics.feedback(), [this, depth](const movebitsType& bits) { return this->m_Heuristics.moveScore(this->m_Stack.position(), bits, depth); }))
 				{
-					bool bDouble{ m_MovesTT.contains(testBits) };
+					bool bDouble{ m_MovesTT.contains(testBits) || m_MovesKiller.contains(testBits) };
 					if (!bDouble)
 					{
 						fromStack = true;
@@ -127,7 +165,7 @@ namespace pygmalion
 			{
 				while (m_Stack.nextMove(testBits, depth, m_Heuristics.feedback()))
 				{
-					bool bDouble{ m_MovesTT.contains(testBits) };
+					bool bDouble{ m_MovesTT.contains(testBits) || m_MovesKiller.contains(testBits) };
 					if (!bDouble)
 					{
 						fromStack = true;
@@ -160,13 +198,29 @@ namespace pygmalion
 					return true;
 				}
 				m_TacticalMoveGeneratorStage = 1;
+				m_Heuristics.tacticalKillers(m_Stack, depth, m_TacticalMovesKiller);
+				m_TacticalMoveKiller = 0;
+			}
+			if (m_MoveGeneratorStage == 1)
+			{
+				while (m_TacticalMoveKiller < m_TacticalMovesKiller.length())
+				{
+					movebits = m_TacticalMovesKiller[m_TacticalMoveKiller];
+					bool bDouble{ m_MovesTT.contains(movebits) };
+					m_TacticalMoveKiller++;
+					if (!bDouble)
+					{
+						return true;
+					}
+				}
+				m_MoveGeneratorStage = 2;
 			}
 			if constexpr (heuristicMoves)
 			{
 				if (m_NeedsTacticalSorting)
 				{
 					m_Heuristics.sortMoves(m_Stack.position(), m_TacticalMoves, m_TacticalMove, depth);
-					m_NeedsTacticalSorting = true;
+					m_NeedsTacticalSorting = false;
 				}
 			}
 			while (m_TacticalMove < m_TacticalMoves.length())
@@ -258,9 +312,10 @@ namespace pygmalion
 		{
 			if constexpr (VERBOSE)
 			{
+				str << std::endl;
 				for (depthType d = 0; d < depth; d++)
-					str << "      ";
-				str << generatorType::moveToString(m_Stack, move, depth);
+					str << " ";
+				str << std::setw(6) << std::left << generatorType::moveToString(m_Stack, move, depth);
 			}
 			m_Heuristics.beginMove(m_Stack, move, false, depth);
 			variationType subVariation;
@@ -279,7 +334,6 @@ namespace pygmalion
 							alpha = sc;
 							if constexpr (TT)
 								m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, sc, transpositiontable<descriptorSearch>::flags_upper | transpositiontable<descriptorSearch>::flags_move, move);
-							m_Heuristics.endMoveAccepted(m_Stack, move, false, depth, sc, fromStack);
 							bEnded = true;
 						}
 					}
@@ -294,7 +348,6 @@ namespace pygmalion
 							alpha = sc;
 							if constexpr (TT)
 								m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, sc, transpositiontable<descriptorSearch>::flags_upper | transpositiontable<descriptorSearch>::flags_move, move);
-							m_Heuristics.endMoveAccepted(m_Stack, move, false, depth, sc, fromStack);
 							bEnded = true;
 						}
 					}
@@ -331,7 +384,7 @@ namespace pygmalion
 					}
 					if constexpr (VERBOSE)
 					{
-						str << " ACCEPTED";
+						str << " ACCEPTED" << std::endl;
 					}
 					best = sc;
 					principalVariation.combine(move, subVariation);
@@ -339,6 +392,8 @@ namespace pygmalion
 				}
 				if (!bEnded)
 					m_Heuristics.endMoveSilent(m_Stack, move, false, depth);
+				else
+					m_Heuristics.endMoveAccepted(m_Stack, move, false, depth, alpha, fromStack);
 				if constexpr (VERBOSE)
 				{
 					str << std::endl;
@@ -348,6 +403,12 @@ namespace pygmalion
 			else
 			{
 				const scoreType sc{ this->searchMove<VERBOSE,LONGPV>(move, alpha, beta, depthRemaining, depth, subVariation, str) };
+				if constexpr (VERBOSE)
+				{
+					for (depthType d = 0; d < depth; d++)
+						str << " ";
+					str << std::setw(6) << std::left << "->";
+				}
 				best = sc;
 				if constexpr (VERBOSE)
 				{
@@ -379,7 +440,7 @@ namespace pygmalion
 					}
 					if constexpr (VERBOSE)
 					{
-						str << " ACCEPTED";
+						str << " ACCEPTED" << std::endl;
 					}
 					principalVariation.combine(move, subVariation);
 					alpha = best;
@@ -403,8 +464,8 @@ namespace pygmalion
 			if constexpr (VERBOSE)
 			{
 				for (depthType d = 0; d < depth; d++)
-					str << "      ";
-				str << generatorType::moveToString(m_Stack, move, depth);
+					str << " ";
+				str << std::setw(6) << generatorType::moveToString(m_Stack, move, depth);
 			}
 			m_Heuristics.beginMove(m_Stack, move, false, depth);
 			if constexpr (SCOUT)
@@ -418,7 +479,6 @@ namespace pygmalion
 						alpha = sc;
 						if constexpr (TT)
 							m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, sc, transpositiontable<descriptorSearch>::flags_upper | transpositiontable<descriptorSearch>::flags_move, move);
-						m_Heuristics.endMoveAccepted(m_Stack, move, false, depth, sc, fromStack);
 						bEnded = true;
 					}
 				}
@@ -454,13 +514,15 @@ namespace pygmalion
 					}
 					if constexpr (VERBOSE)
 					{
-						str << " ACCEPTED";
+						str << " ACCEPTED" << std::endl;
 					}
 					best = sc;
 					bestmove = move;
 				}
 				if (!bEnded)
 					m_Heuristics.endMoveSilent(m_Stack, move, false, depth);
+				else
+					m_Heuristics.endMoveAccepted(m_Stack, move, false, depth, sc, fromStack);
 				if constexpr (VERBOSE)
 				{
 					str << std::endl;
@@ -502,7 +564,7 @@ namespace pygmalion
 					}
 					if constexpr (VERBOSE)
 					{
-						str << " ACCEPTED";
+						str << " ACCEPTED" << std::endl;
 					}
 					alpha = best;
 					bestmove = move;
@@ -524,9 +586,10 @@ namespace pygmalion
 		{
 			if constexpr (VERBOSE)
 			{
+				str << std::endl;
 				for (depthType d = 0; d < depth; d++)
-					str << "      ";
-				str << generatorType::moveToString(m_Stack, move, depth);
+					str << " ";
+				str << std::setw(6) << generatorType::moveToString(m_Stack, move, depth);
 			}
 			m_Heuristics.beginMove(m_Stack, move, true, depth);
 			variationType subVariation;
@@ -545,7 +608,6 @@ namespace pygmalion
 						alpha = sc;
 						if constexpr (USE_TT)
 							m_Heuristics.transpositionTable().store(m_Stack, -1, sc, transpositiontable<descriptorSearch>::flags_upper | transpositiontable<descriptorSearch>::flags_move, move);
-						m_Heuristics.endMoveAccepted(m_Stack, move, true, depth, sc, fromStack);
 						bEnded = true;
 					}
 				}
@@ -581,14 +643,16 @@ namespace pygmalion
 					}
 					if constexpr (VERBOSE)
 					{
-						str << " ACCEPTED";
+						str << " ACCEPTED" << std::endl;
 					}
 					best = sc;
 					principalVariation.combine(move, subVariation);
 					bestmove = move;
 				}
 				if (!bEnded)
-					m_Heuristics.endMoveSilent(m_Stack, move, true, depth);
+					m_Heuristics.endMoveSilent(m_Stack, move, false, depth);
+				else
+					m_Heuristics.endMoveAccepted(m_Stack, move, false, depth, alpha, fromStack);
 				if constexpr (VERBOSE)
 				{
 					str << std::endl;
@@ -633,7 +697,7 @@ namespace pygmalion
 					}
 					if constexpr (VERBOSE)
 					{
-						str << " ACCEPTED";
+						str << " ACCEPTED" << std::endl;
 					}
 					principalVariation.combine(move, subVariation);
 					bestmove = move;
@@ -657,8 +721,8 @@ namespace pygmalion
 			if constexpr (VERBOSE)
 			{
 				for (depthType d = 0; d < depth; d++)
-					str << "      ";
-				str << generatorType::moveToString(m_Stack, move, depth);
+					str << " ";
+				str << std::setw(6) << generatorType::moveToString(m_Stack, move, depth);
 			}
 			m_Heuristics.beginMove(m_Stack, move, true, depth);
 			if constexpr (SCOUT)
@@ -677,7 +741,6 @@ namespace pygmalion
 						if constexpr (USE_TT)
 							m_Heuristics.transpositionTable().store(m_Stack, -1, sc, transpositiontable<descriptorSearch>::flags_upper | transpositiontable<descriptorSearch>::flags_move, move);
 						bEnded = true;
-						m_Heuristics.endMoveAccepted(m_Stack, move, true, depth, sc, fromStack);
 					}
 				}
 				if constexpr (VERBOSE)
@@ -712,13 +775,15 @@ namespace pygmalion
 					}
 					if constexpr (VERBOSE)
 					{
-						str << " ACCEPTED";
+						str << " ACCEPTED" << std::endl;
 					}
 					best = sc;
 					bestmove = move;
 				}
 				if (!bEnded)
-					m_Heuristics.endMoveSilent(m_Stack, move, true, depth);
+					m_Heuristics.endMoveSilent(m_Stack, move, false, depth);
+				else
+					m_Heuristics.endMoveAccepted(m_Stack, move, false, depth, alpha, fromStack);
 				if constexpr (VERBOSE)
 				{
 					str << std::endl;
@@ -763,7 +828,7 @@ namespace pygmalion
 					}
 					if constexpr (VERBOSE)
 					{
-						str << " ACCEPTED";
+						str << " ACCEPTED" << std::endl;
 					}
 					alpha = best;
 					bestmove = move;
@@ -844,27 +909,46 @@ namespace pygmalion
 			{
 				if (best >= beta)
 				{
-					if constexpr (VERBOSE)
-					{
-						str << " LEAF";
-					}
 					m_Heuristics.endNodeLeaf(m_Stack);
 					if constexpr (failSoft)
 					{
 						if constexpr (USE_TT)
 							m_Heuristics.transpositionTable().store(m_Stack, -1, best, transpositiontable<descriptorSearch>::flags_lower, movebitsType(0));
+						if constexpr (VERBOSE)
+						{
+							str << std::endl;
+							for (depthType d = 0; d < depth; d++)
+								str << " ";
+							str << std::setw(6) << "<ev>";
+							str << "  " << best;
+							str << " LEAF" << std::endl;
+						}
 						return best;
 					}
 					else
 					{
 						if constexpr (USE_TT)
 							m_Heuristics.transpositionTable().store(m_Stack, -1, beta, transpositiontable<descriptorSearch>::flags_lower, movebitsType(0));
+						if constexpr (VERBOSE)
+						{
+							str << std::endl;
+							for (depthType d = 0; d < depth; d++)
+								str << " ";
+							str << std::setw(6) << "<ev>";
+							str << "  " << beta;
+							str << " LEAF" << std::endl;
+						}
 						return beta;
 					}
 				}
 				if constexpr (VERBOSE)
 				{
-					str << " ACCEPTED";
+					str << std::endl;
+					for (depthType d = 0; d < depth; d++)
+						str << " ";
+					str << std::setw(6) << "<ev>";
+					str << "  " << best;
+					str << " ACCEPTED" << std::endl;
 				}
 				alpha = best;
 				if constexpr (USE_TT)
@@ -965,7 +1049,7 @@ namespace pygmalion
 				{
 					if constexpr (VERBOSE)
 					{
-						str << " LEAF";
+						str << " LEAF" << std::endl;
 					}
 					m_Heuristics.endNodeLeaf(m_Stack);
 					if constexpr (failSoft)
@@ -983,7 +1067,7 @@ namespace pygmalion
 				}
 				if constexpr (VERBOSE)
 				{
-					str << " ACCEPTED";
+					str << " ACCEPTED" << std::endl;
 				}
 				alpha = best;
 				if constexpr (USE_TT)
@@ -1207,7 +1291,9 @@ namespace pygmalion
 			m_IsRunning{ isRunning },
 			m_Heuristics{ heuristics },
 			m_MovesTT{ movelistType() },
+			m_MovesKiller{ movelistType() },
 			m_TacticalMovesTT{ movelistType() },
+			m_TacticalMovesKiller{ movelistType() },
 			m_TacticalMoveGeneratorStage{ -1 },
 			m_MoveGeneratorStage{ -1 },
 			m_Move{ 0 },
@@ -1222,7 +1308,9 @@ namespace pygmalion
 			m_IsRunning{ parent.m_IsRunning },
 			m_Heuristics{ parent.m_Heuristics },
 			m_MovesTT{ movelistType() },
+			m_MovesKiller{ movelistType() },
 			m_TacticalMovesTT{ movelistType() },
+			m_TacticalMovesKiller{ movelistType() },
 			m_TacticalMoveGeneratorStage{ -1 },
 			m_MoveGeneratorStage{ -1 },
 			m_Move{ 0 },

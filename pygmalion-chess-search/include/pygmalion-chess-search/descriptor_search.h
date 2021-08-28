@@ -2,5 +2,5 @@ namespace pygmalion::chess
 {
 	class heuristics;
 
-	using descriptor_search = pygmalion::descriptor_search<evaluator, 64, true, false, heuristics>;
+	using descriptor_search = pygmalion::descriptor_search<evaluator, 64, true, true, 2, heuristics>;
 }

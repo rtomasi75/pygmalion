@@ -440,7 +440,7 @@ namespace pygmalion::chess
 		}
 	}
 
-	bool generator::isMoveLegal_Implementation(const stackType& stack, const movebitsType& moveBits) noexcept
+	bool generator::isGeneratedMoveLegal_Implementation(const stackType& stack, const movebitsType& moveBits) noexcept
 	{
 		const boardType& position{ stack.position() };
 		const playerType movingPlayer{ position.movingPlayer() };
@@ -511,6 +511,228 @@ namespace pygmalion::chess
 		// The move seems legal
 		return true;
 	}
+
+	bool generator::isMoveLegal_Implementation(const stackType& stack, const movebitsType& moveBits) noexcept
+	{
+		const boardType& position{ stack.position() };
+		const playerType movingPlayer{ position.movingPlayer() };
+		const playerType otherPlayer{ movingPlayer.next() };
+		const squareType from{ motorType::move().fromSquare(position, moveBits) };
+		const squareType to{ motorType::move().toSquare(position, moveBits) };
+		if (!from.isValid())
+			return false;
+		if (!to.isValid())
+			return false;
+
+		if (motorType::move().isDoublePush(moveBits))
+		{
+			// are we moving a pawn?
+			if (!position.pieceOccupancy(pawn)[from])
+				return false;
+
+			// is it our own pawn?
+			if (!position.playerOccupancy(movingPlayer)[from])
+				return false;
+
+			// is our destination square empty?
+			if (position.totalOccupancy()[to])
+				return false;
+
+			// is the pawn elegible for a double push?
+			if (!((movingPlayer == whitePlayer) ? pawnDoublePushFromSquaresWhite() : pawnDoublePushFromSquaresBlack())[from])
+				return false;
+
+			// is the destination rank correct?
+			const fileType rankTo{ to.rank() };
+			if (((movingPlayer == whitePlayer) ? rank4 : rank5) == rankTo)
+				return false;
+
+			// is our way free?
+			const fileType fileFrom{ from.file() };
+			const squareType interestSquare{ fileFrom & (movingPlayer == whitePlayer ? rank3 : rank6) };
+			if (position.totalOccupancy()[interestSquare])
+				return false;
+		}
+		else if (motorType::move().isEnPassant(moveBits))
+		{
+			// are we moving a pawn?
+			if (!position.pieceOccupancy(pawn)[from])
+				return false;
+
+			// is it our own pawn?
+			if (!position.playerOccupancy(movingPlayer)[from])
+				return false;
+
+			// is our destination square empty?
+			if (position.totalOccupancy()[to])
+				return false;
+
+			// do we have en Passant rights?
+			const fileType epFile{ to.file() };
+			if (!position.checkEnPassantFile(epFile))
+				return false;
+		}
+		else if (motorType::move().isPromotion(moveBits))
+		{
+			// are we moving a pawn?
+			if (!position.pieceOccupancy(pawn)[from])
+				return false;
+
+			// is it our own pawn?
+			if (!position.playerOccupancy(movingPlayer)[from])
+				return false;
+
+			// is the pawn elegible for a promotion?
+			const fileType rankFrom{ from.rank() };
+			if (((movingPlayer == whitePlayer) ? rank7 : rank2) == rankFrom)
+				return false;
+
+			// is the destination rank correct?
+			const fileType rankTo{ to.rank() };
+			if (((movingPlayer == whitePlayer) ? rank8 : rank1) == rankTo)
+				return false;
+
+			// is it a promotion capture?
+			if (motorType::move().isCapture(moveBits))
+			{
+				// is the capture square valid?
+				const squareType captureSquare{ motorType::move().captureSquare(position,moveBits) };
+				if (!captureSquare.isValid())
+					return false;
+
+				// is there a piece to capture?
+				if (!position.playerOccupancy(otherPlayer)[captureSquare])
+					return false;
+			}
+			else
+			{
+				// is our destination square empty?
+				if (position.totalOccupancy()[to])
+					return false;
+			}
+		}
+		else if (motorType::move().isKingsideCastle(moveBits))
+		{
+			// do we have kingside castling rights?
+			if (!position.checkCastleRightKingside(movingPlayer))
+				return false;
+
+			// are pieces obstructing the way?
+			const squaresType castleInterest{ (movingPlayer == whitePlayer) ? kingsideCastleInterestWhite : kingsideCastleInterestBlack };
+			if (position.totalOccupancy() & castleInterest)
+				return false;
+
+			// is the way for the king attacked?
+			const squaresType castleWalk{ (movingPlayer == whitePlayer) ? kingsideCastleWalkWhite : kingsideCastleWalkBlack };
+			if (stack.squaresAttackedByPlayer(otherPlayer) & castleWalk)
+				return false;
+		}
+		else if (motorType::move().isQueensideCastle(moveBits))
+		{
+			// do we have kingside castling rights?
+			if (!position.checkCastleRightQueenside(movingPlayer))
+				return false;
+
+			// are pieces obstructing the way?
+			const squaresType castleInterest{ (movingPlayer == whitePlayer) ? queensideCastleInterestWhite : queensideCastleInterestBlack };
+			if (position.totalOccupancy() & castleInterest)
+				return false;
+
+			// is the way for the king attacked?
+			const squaresType castleWalk{ (movingPlayer == whitePlayer) ? queensideCastleWalkWhite : queensideCastleWalkBlack };
+			if (stack.squaresAttackedByPlayer(otherPlayer) & castleWalk)
+				return false;
+		}
+		else if (motorType::move().isCapture(moveBits))
+		{
+			// is there a piece to move?
+			if (!position.playerOccupancy(movingPlayer)[from])
+				return false;
+
+			// is the capture square valid?
+			const squareType captureSquare{ motorType::move().captureSquare(position,moveBits) };
+			if (!captureSquare.isValid())
+				return false;
+
+			// is there a piece to capture?
+			if (!position.playerOccupancy(otherPlayer)[captureSquare])
+				return false;
+
+			// what piece are we moving?
+			const pieceType movingPiece{ position.getPiece(from) };
+
+			// are we doing a legal capture?
+			switch (movingPiece)
+			{
+			case pawn:
+				if (!pawnCaptureTargets(from, movingPlayer, ~position.playerOccupancy(movingPlayer))[to])
+					return false;
+				break;
+			case king:
+				if (!kingTargets(from, ~position.playerOccupancy(movingPlayer))[to])
+					return false;
+				break;
+			case knight:
+				if (!knightTargets(from, ~position.playerOccupancy(movingPlayer))[to])
+					return false;
+				break;
+			case rook:
+				if (!(sliderAttacksHV(from, ~position.totalOccupancy()) & position.playerOccupancy(otherPlayer))[to])
+					return false;
+				break;
+			case bishop:
+				if (!(sliderAttacksDiag(from, ~position.totalOccupancy()) & position.playerOccupancy(otherPlayer))[to])
+					return false;
+				break;
+			case queen:
+				if (!((sliderAttacksHV(from, ~position.totalOccupancy()) | sliderAttacksDiag(from, ~position.totalOccupancy())) & position.playerOccupancy(otherPlayer))[to])
+					return false;
+				break;
+			}
+		}
+		else
+		{
+			// is there a piece to move?
+			if (!position.playerOccupancy(movingPlayer)[from])
+				return false;
+
+			// is our destination square empty?
+			if (position.totalOccupancy()[to])
+				return false;
+
+			// what piece are we moving?
+			const pieceType movingPiece{ position.getPiece(from) };
+		
+			// are we doing a legal move?
+			switch (movingPiece)
+			{
+			case pawn:
+				return false;
+			case king:
+				if (!kingTargets(from, ~position.playerOccupancy(movingPlayer))[to])
+					return false;
+				break;
+			case knight:
+				if (!knightTargets(from, ~position.playerOccupancy(movingPlayer))[to])
+					return false;
+				break;
+			case rook:
+				if (!(sliderAttacksHV(from, ~position.totalOccupancy()) & ~position.totalOccupancy())[to])
+					return false;
+				break;
+			case bishop:
+				if (!(sliderAttacksDiag(from, ~position.totalOccupancy()) & ~position.totalOccupancy())[to])
+					return false;
+				break;
+			case queen:
+				if (!((sliderAttacksHV(from, ~position.totalOccupancy()) | sliderAttacksDiag(from, ~position.totalOccupancy())) & ~position.totalOccupancy())[to])
+					return false;
+				break;
+			}
+		}
+		return generatorType::isGeneratedMoveLegal(stack, moveBits);
+	}
+
 	bool generator::isMoveTactical_Implementation(const stackType& stack, const movebitsType& moveBits) noexcept
 	{
 		return motorType::move().isCapture(moveBits);
@@ -570,7 +792,6 @@ namespace pygmalion::chess
 			break;
 		}
 	}
-
 
 	void generator::generateTacticalMoves_Implementation(const stackType& stack, movelistType& moves, const passType currentPass) noexcept
 	{
@@ -911,7 +1132,7 @@ namespace pygmalion::chess
 			return "promotion captures";
 		}
 	}
-	
+
 	std::string generator::tacticalPassToString_Implementation(const passType tacticalPass) noexcept
 	{
 		switch (static_cast<size_t>(tacticalPass))

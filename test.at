@@ -3,8 +3,8 @@ TournamentName=test.at
 Type=0
 CurrSwissRound=0
 Rounds=150
-CurrentPair=2
-CurrentRound=7
+CurrentPair=1
+CurrentRound=3
 Level=5 -1\1/-1#1@-1|1
 [Options]
 QuitAfterTournament=0
@@ -56,9 +56,9 @@ SaveGamesFCH=0
 FCHdir=
 FCHnames=
 [Data]
-LastPGNEPDindex=4
-LastGameDate=2021.08.27
-LastGameTime=17:25:24
+LastPGNEPDindex=2
+LastGameDate=2021.08.28
+LastGameTime=06:11:41
 Country=Germany
 Site=LIQUIDITY
 Hardware=Intel(R) Core(TM) i9-10920X CPU @ 3.50GHz with 31,7 GB Memory
@@ -66,13 +66,10 @@ OS=Windows 10 Enterprise Professional (Build 9200) 64 bit
 Website=
 E-Mail=
 ArenaVersion=Arena 3.5.1
-FirstGameDate=2021.08.27
-FirstGameTime=16:42:59
+FirstGameDate=2021.08.28
+FirstGameTime=06:06:36
 [PairingResults]
-Pygmalion (Reference) ------ Pygmalion (piece)=1½10½½1
-Pygmalion (Reference) ------ Pygmalion (square)=0001111
-Pygmalion (piece) ------ Pygmalion (square)=½1101½
+Pygmalion (Reference) ------ Pygmalion (Release)=0½½
 [Participants]
 Engine1=Pygmalion (Reference)
-Engine2=Pygmalion (piece)
-Engine3=Pygmalion (square)
+Engine2=Pygmalion (Release)

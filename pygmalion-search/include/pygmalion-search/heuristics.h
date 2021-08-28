@@ -24,10 +24,18 @@ namespace pygmalion
 		private:
 			std::array<std::uint64_t, generatorType::countMoveBuckets()> m_Counter;
 			std::array<scoreType, generatorType::countMoveBuckets()> m_Score;
+			std::array<movebitsType, killerMoves> m_Killers;
+			std::array<movebitsType, killerMoves> m_TacticalKillers;
+			size_t m_KillerCount;
+			size_t m_TacticalKillerCount;
 		public:
 			constexpr movebucket() noexcept :
 				m_Counter{ arrayhelper::make<generatorType::countMoveBuckets(),std::uint64_t>(0) },
-				m_Score{ arrayhelper::make<generatorType::countMoveBuckets(),scoreType>(scoreType::zero()) }
+				m_Score{ arrayhelper::make<generatorType::countMoveBuckets(),scoreType>(scoreType::zero()) },
+				m_Killers{ arrayhelper::make<killerMoves,movebitsType>(movebitsType(0)) },
+				m_TacticalKillers{ arrayhelper::make<killerMoves,movebitsType>(movebitsType(0)) },
+				m_KillerCount{ 0 },
+				m_TacticalKillerCount{ 0 }
 			{
 
 			}
@@ -45,8 +53,25 @@ namespace pygmalion
 				else
 					return m_Score[bucket];
 			}
-			constexpr void refuted(const boardType& position, const movebitsType& moveBits, const scoreType score) noexcept
+			constexpr void killers(const stackType& stack, movelistType& killerMoves) const noexcept
 			{
+				for (size_t i = 0; i < m_KillerCount; i++)
+				{
+					if (generatorType::isMoveLegal(stack, m_Killers[i]))
+						killerMoves.add(m_Killers[i]);
+				}
+			}
+			constexpr void tacticalKillers(const stackType& stack, movelistType& killerMoves) const noexcept
+			{
+				for (size_t i = 0; i < m_TacticalKillerCount; i++)
+				{
+					if (generatorType::isMoveLegal(stack, m_TacticalKillers[i]))
+						killerMoves.add(m_TacticalKillers[i]);
+				}
+			}
+			constexpr void refuted(const stackType& stack, const movebitsType& moveBits, const scoreType score) noexcept
+			{
+				const boardType& position{ stack.position() };
 				const size_t index{ generatorType::moveBucket(position,moveBits) };
 				m_Counter[index]++;
 				if (score.isOpen())
@@ -58,9 +83,75 @@ namespace pygmalion
 				}
 				else
 					m_Score[index] = scoreType::max(score, m_Score[index]);
+				bool contains{ false };
+				if (generatorType::isMoveTactical(stack, moveBits))
+				{
+					for (size_t i = 0; i < m_TacticalKillerCount; i++)
+					{
+						if (m_TacticalKillers[i] == moveBits)
+						{
+							if (i != 0)
+							{
+								for (size_t k = 0; k < i; k++)
+								{
+									const size_t idx{ killerMoves - k - 1 };
+									m_TacticalKillers[idx] = m_TacticalKillers[idx - 1];
+								}
+								m_TacticalKillers[0] = moveBits;
+							}
+							contains = true;
+						}
+					}
+					if (!contains)
+					{
+						if constexpr (killerMoves > 0)
+						{
+							for (size_t k = 0; k < killerMoves - 1; k++)
+							{
+								const size_t idx{ killerMoves - k - 1 };
+								m_TacticalKillers[idx] = m_TacticalKillers[idx - 1];
+							}
+							m_TacticalKillers[0] = moveBits;
+							m_TacticalKillerCount = std::min(m_TacticalKillerCount + 1, killerMoves);
+						}
+					}
+				}
+				else
+				{
+					for (size_t i = 0; i < m_KillerCount; i++)
+					{
+						if (m_Killers[i] == moveBits)
+						{
+							if (i != 0)
+							{
+								for (size_t k = 0; k < i; k++)
+								{
+									const size_t idx{ killerMoves - k - 1 };
+									m_Killers[idx] = m_Killers[idx - 1];
+								}
+								m_Killers[0] = moveBits;
+							}
+							contains = true;
+						}
+					}
+					if (!contains)
+					{
+						if constexpr (killerMoves > 0)
+						{
+							for (size_t k = 0; k < killerMoves - 1; k++)
+							{
+								const size_t idx{ killerMoves - k - 1 };
+								m_Killers[idx] = m_Killers[idx - 1];
+							}
+							m_Killers[0] = moveBits;
+							m_KillerCount = std::min(m_KillerCount + 1, killerMoves);
+						}
+					}
+				}
 			}
-			constexpr void accepted(const boardType& position, const movebitsType& moveBits, const scoreType score) noexcept
+			constexpr void accepted(const stackType& stack, const movebitsType& moveBits, const scoreType score) noexcept
 			{
+				const boardType& position{ stack.position() };
 				const size_t index{ generatorType::moveBucket(position,moveBits) };
 				m_Counter[index]++;
 				if (score.isOpen())
@@ -139,6 +230,22 @@ namespace pygmalion
 				m_MoveBuckets.emplace_back(movebucket());
 			}
 			return m_MoveBuckets[depth].score(position, movebits);
+		}
+		constexpr void killers(const stackType& stack, const size_t depth, movelistType& killermoves) noexcept
+		{
+			while (depth >= m_MoveBuckets.size())
+			{
+				m_MoveBuckets.emplace_back(movebucket());
+			}
+			return m_MoveBuckets[depth].killers(stack, killermoves);
+		}
+		constexpr void tacticalKillers(const stackType& stack, const size_t depth, movelistType& killermoves) noexcept
+		{
+			while (depth >= m_MoveBuckets.size())
+			{
+				m_MoveBuckets.emplace_back(movebucket());
+			}
+			return m_MoveBuckets[depth].tacticalKillers(stack, killermoves);
 		}
 		void sortMoves(const boardType& position, movelistType& moves, const indexType fromMoveIndex, const size_t depth) noexcept
 		{
@@ -273,7 +380,7 @@ namespace pygmalion
 				{
 					m_MoveBuckets.emplace_back(movebucket());
 				}
-				m_MoveBuckets[depth].accepted(stack.position(), moveBits, score);
+				m_MoveBuckets[depth].accepted(stack, moveBits, score);
 			}
 			reinterpret_cast<instanceType*>(this)->onEndMoveAccepted(stack, moveBits, isTactical, depth, score);
 		}
@@ -296,7 +403,7 @@ namespace pygmalion
 				{
 					m_MoveBuckets.emplace_back(movebucket());
 				}
-				m_MoveBuckets[depth].refuted(stack.position(), moveBits, score);
+				m_MoveBuckets[depth].refuted(stack, moveBits, score);
 			}
 			reinterpret_cast<instanceType*>(this)->onEndMoveRefuted(stack, moveBits, isTactical, depth, score);
 		}

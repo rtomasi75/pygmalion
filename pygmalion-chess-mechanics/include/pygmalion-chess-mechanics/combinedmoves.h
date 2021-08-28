@@ -75,6 +75,19 @@ namespace pygmalion::chess
 			const muxbitsType mux{ combinedmoves::muxbits(movebits) };
 			return (mux == muxCapture) || (mux == muxQueenPromoCapture) || (mux == muxKnightPromoCapture) || (mux == muxRookPromoCapture) || (mux == muxBishopPromoCapture) || (mux == muxEnPassant);
 		}
+		constexpr squareType captureSquare(const boardType& position, const movebitsType& movebits) const noexcept
+		{
+			const muxbitsType mux{ combinedmoves::muxbits(movebits) };
+			if ((mux == muxCapture) || (mux == muxQueenPromoCapture) || (mux == muxKnightPromoCapture) || (mux == muxRookPromoCapture) || (mux == muxBishopPromoCapture))
+				return this->toSquare(position, movebits);
+			else if (mux == muxEnPassant)
+			{
+				const fileType toFile{ this->toSquare(position, movebits).file() };
+				const rankType fromRank{ this->fromSquare(position, movebits).rank() };
+				return toFile & fromRank;
+			}
+			return squareType::invalid;
+		}
 		constexpr static bool isEnPassant(const movebitsType& movebits) noexcept
 		{
 			const muxbitsType mux{ combinedmoves::muxbits(movebits) };

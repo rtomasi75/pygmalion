@@ -588,6 +588,7 @@ namespace pygmalion::chess
 		static std::deque<std::shared_ptr<pygmalion::intrinsics::command>> commandsImplementation() noexcept;
 		static bool isMoveLegal_Implementation(const stackType& stack, const movebitsType& moveBits) noexcept;
 		static bool isMoveTactical_Implementation(const stackType& stack, const movebitsType& moveBits) noexcept;
+		static bool isGeneratedMoveLegal_Implementation(const stackType& stack, const movebitsType& moveBits) noexcept;
 		static void generateMoves_Implementation(const stackType& stack, movelistType& moves, const passType currentPass) noexcept;
 		static void generateTacticalMoves_Implementation(const stackType& stack, movelistType& moves, const passType currentPass) noexcept;
 		static void movesFromSquare(const stackType& stack, const squareType square, squaresType& moves, squaresType& captures, const size_t depth) noexcept;

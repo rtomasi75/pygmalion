@@ -16,6 +16,10 @@ namespace pygmalion::tictactoe
 		{
 			return !stack.position().isOccupied(moveType::extractSquare(mv));
 		}
+		static bool isGeneratedMoveLegal_Implementation(const stackType& stack, const movebitsType& mv) noexcept
+		{
+			return !stack.position().isOccupied(moveType::extractSquare(mv));
+		}
 		static bool isMoveTactical_Implementation(const stackType& stack, const movebitsType& mv) noexcept
 		{
 			return false;

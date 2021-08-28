@@ -399,7 +399,7 @@ namespace pygmalion
 					{
 						moveBits = m_Moves[m_CurrentMove];
 						m_CurrentMove++;
-						if (generatorType::isMoveLegal(*reinterpret_cast<const typename generatorType::stackType*>(this), moveBits))
+						if (generatorType::isGeneratedMoveLegal(*reinterpret_cast<const typename generatorType::stackType*>(this), moveBits))
 						{
 							m_LastPass = m_Passes[m_CurrentMove - 1];
 							return true;
@@ -435,7 +435,7 @@ namespace pygmalion
 					{
 						moveBits = m_Moves[m_CurrentMove];
 						m_CurrentMove++;
-						if (generatorType::isMoveLegal(*reinterpret_cast<const typename generatorType::stackType*>(this), moveBits))
+						if (generatorType::isGeneratedMoveLegal(*reinterpret_cast<const typename generatorType::stackType*>(this), moveBits))
 						{
 							m_LastPass = m_Passes[m_CurrentMove - 1];
 							return true;
@@ -466,7 +466,7 @@ namespace pygmalion
 					{
 						moveBits = m_TacticalMoves[m_CurrentTacticalMove];
 						m_CurrentTacticalMove++;
-						if (generatorType::isMoveLegal(*reinterpret_cast<const typename generatorType::stackType*>(this), moveBits))
+						if (generatorType::isGeneratedMoveLegal(*reinterpret_cast<const typename generatorType::stackType*>(this), moveBits))
 						{
 							m_LastTacticalPass = m_TacticalPasses[m_CurrentTacticalMove - 1];
 							return true;
@@ -502,7 +502,7 @@ namespace pygmalion
 					{
 						moveBits = m_TacticalMoves[m_CurrentTacticalMove];
 						m_CurrentTacticalMove++;
-						if (generatorType::isMoveLegal(*reinterpret_cast<const typename generatorType::stackType*>(this), moveBits))
+						if (generatorType::isGeneratedMoveLegal(*reinterpret_cast<const typename generatorType::stackType*>(this), moveBits))
 						{
 							m_LastTacticalPass = m_TacticalPasses[m_CurrentTacticalMove - 1];
 							return true;
@@ -654,6 +654,11 @@ namespace pygmalion
 		static bool isMoveLegal(const stackType& stack, const movebitsType& moveBits) noexcept
 		{
 			return generatorType::isMoveLegal_Implementation(stack, moveBits);
+		}
+		template<typename stackType>
+		static bool isGeneratedMoveLegal(const stackType& stack, const movebitsType& moveBits) noexcept
+		{
+			return generatorType::isGeneratedMoveLegal_Implementation(stack, moveBits);
 		}
 		template<typename stackType>
 		static std::uintmax_t perft(const stackType& stack, const size_t depthRemaining, const size_t depth, std::uintmax_t& nodes, movegenFeedback& feedback) noexcept

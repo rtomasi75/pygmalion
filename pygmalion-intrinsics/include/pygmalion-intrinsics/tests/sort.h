@@ -12,7 +12,7 @@ namespace intrinsics::test
 		VALUE* m_Value = new VALUE[reps * LENGTH];
 		for (size_t i = 0; i < reps * LENGTH; i++)
 			m_Value[i] = distributionV(generator);
-		str << "    generating " << reps * LENGTH << " std::int" << CHAR_BIT * sizeof(VALUE) << "_t" << std::endl;
+		str << "    generating " << reps * LENGTH << " std::int" << CHAR_BIT * sizeof(SCORE) << "_t" << std::endl;
 		std::uniform_int_distribution<long long> distributionS(-(SCORE(1) << (sizeof(SCORE) * CHAR_BIT - 2)), SCORE(1) << (sizeof(SCORE) * CHAR_BIT - 2));
 		SCORE* m_Score = new SCORE[reps * LENGTH];
 		for (size_t i = 0; i < reps * LENGTH; i++)
@@ -24,7 +24,7 @@ namespace intrinsics::test
 			pygmalion::sort<VALUE, SCORE>::sortValues(m_Value + i * LENGTH, m_Score + i * LENGTH, LENGTH);
 		profileImplementation.stop();
 		const auto durationImplementation{ profileImplementation.duration() };
-		const auto speedImplementation{ profileImplementation.computeSpeed(LENGTH, "op") };
+		const auto speedImplementation{ profileImplementation.computeSpeed(reps * LENGTH, "op") };
 		str << "      duration: " << parser::durationToString(durationImplementation) << std::endl;
 		str << "      speed:    " << speedImplementation << std::endl;
 		str << "    verifying..." << std::endl;
