@@ -105,6 +105,521 @@ namespace pygmalion
 		public:
 			constexpr static const bool inline isGeneric{ false };
 		};
+
+
+		template<typename VALUE, typename SCORE>
+		class compare
+		{
+		public:
+			template<size_t IDX1, size_t IDX2>
+			constexpr static void scalar(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				if (pScores[IDX1] < pScores[IDX2])
+				{
+					std::swap(pValues[IDX1], pValues[IDX2]);
+					std::swap(pScores[IDX1], pScores[IDX2]);
+				}
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b>
+			constexpr static void vector2(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				scalar<IDX1a, IDX2a>(pValues, pScores);
+				scalar<IDX1b, IDX2b>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c>
+			constexpr static void vector3(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				vector2<IDX1a, IDX2a, IDX1b, IDX2b>(pValues, pScores);
+				scalar<IDX1c, IDX2c>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d>
+			constexpr static void vector4(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				vector2<IDX1a, IDX2a, IDX1b, IDX2b>(pValues, pScores);
+				vector2<IDX1c, IDX2c, IDX1d, IDX2d>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e>
+			constexpr static void vector5(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				vector4<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d>(pValues, pScores);
+				scalar<IDX1e, IDX2e>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f>
+			constexpr static void vector6(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				vector4<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d>(pValues, pScores);
+				vector2<IDX1e, IDX2e, IDX1f, IDX2f>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g>
+			constexpr static void vector7(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				vector4<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d>(pValues, pScores);
+				vector3<IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h>
+			constexpr static void vector8(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				vector4<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d>(pValues, pScores);
+				vector4<IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h>(pValues, pScores);
+			}
+		};
+
+		template<>
+		class compare<std::uint16_t, std::int32_t>
+		{
+		public:
+			using VALUE = std::uint16_t;
+			using SCORE = std::int32_t;
+		private:
+			template<size_t IDX1, size_t IDX2>
+			constexpr static void scalar_Vanilla(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				if (pScores[IDX1] < pScores[IDX2])
+				{
+					std::swap(pValues[IDX1], pValues[IDX2]);
+					std::swap(pScores[IDX1], pScores[IDX2]);
+				}
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b>
+			constexpr static void vector2_Vanilla(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				scalar<IDX1a, IDX2a>(pValues, pScores);
+				scalar<IDX1b, IDX2b>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c>
+			constexpr static void vector3_Vanilla(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				vector2<IDX1a, IDX2a, IDX1b, IDX2b>(pValues, pScores);
+				scalar<IDX1c, IDX2c>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d>
+			constexpr static void vector4_Vanilla(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				vector2<IDX1a, IDX2a, IDX1b, IDX2b>(pValues, pScores);
+				vector2<IDX1c, IDX2c, IDX1d, IDX2d>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e>
+			constexpr static void vector5_Vanilla(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				vector3<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c>(pValues, pScores);
+				vector2<IDX1d, IDX2d, IDX1e, IDX2e>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f>
+			constexpr static void vector6_Vanilla(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				vector3<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c>(pValues, pScores);
+				vector3<IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g>
+			constexpr static void vector7_Vanilla(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				vector4<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d>(pValues, pScores);
+				vector3<IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h>
+			constexpr static void vector8_Vanilla(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				vector4<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d>(pValues, pScores);
+				vector4<IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h>(pValues, pScores);
+			}
+#if defined(PYGMALION_CPU_SSE2)
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d>
+			constexpr static void vector4_SSE2(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				const __m128i score1{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_loadu_si32(pScores + IDX1a), pScores[IDX1b], 1), pScores[IDX1c], 2), pScores[IDX1d], 3) };
+				const __m128i score2{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_loadu_si32(pScores + IDX2a), pScores[IDX2b], 1), pScores[IDX2c], 2), pScores[IDX2d], 3) };
+				const __m128i value1{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_loadu_si16(pValues + IDX1a), pValues[IDX1b], 1), pValues[IDX1c], 6), pValues[IDX1d], 7) };
+				const __m128i value2{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_loadu_si16(pValues + IDX2a), pValues[IDX2b], 1), pValues[IDX2c], 6), pValues[IDX2d], 7) };
+				const __m128i comparision{ _mm_cmpgt_epi32(score2, score1) };
+				const __m128i maskValue{ _mm_shufflehi_epi16(_mm_shufflelo_epi16(comparision, 0b00001000), 0b00001000) };
+				const __m128i deltaScore{ _mm_and_si128(_mm_xor_si128(score1, score2), comparision) };
+				const __m128i resultScore1{ _mm_xor_si128(score1, deltaScore) };
+				const __m128i resultScore2{ _mm_xor_si128(score2, deltaScore) };
+				const __m128i deltaValue{ _mm_and_si128(_mm_xor_si128(value1, value2), maskValue) };
+				const __m128i resultValue1{ _mm_xor_si128(value1, deltaValue) };
+				const __m128i resultValue2{ _mm_xor_si128(value2, deltaValue) };
+				_mm_storeu_si32(pScores + IDX1a, resultScore1);
+				pScores[IDX1b] = _mm_extract_epi32(resultScore1, 1);
+				pScores[IDX1c] = _mm_extract_epi32(resultScore1, 2);
+				pScores[IDX1d] = _mm_extract_epi32(resultScore1, 3);
+				_mm_storeu_si32(pScores + IDX2a, resultScore2);
+				pScores[IDX2b] = _mm_extract_epi32(resultScore2, 1);
+				pScores[IDX2c] = _mm_extract_epi32(resultScore2, 2);
+				pScores[IDX2d] = _mm_extract_epi32(resultScore2, 3);
+				_mm_storeu_si16(pValues + IDX1a, resultValue1);
+				pValues[IDX1b] = _mm_extract_epi16(resultValue1, 1);
+				pValues[IDX1c] = _mm_extract_epi16(resultValue1, 6);
+				pValues[IDX1d] = _mm_extract_epi16(resultValue1, 7);
+				_mm_storeu_si16(pValues + IDX2a, resultValue2);
+				pValues[IDX2b] = _mm_extract_epi16(resultValue2, 1);
+				pValues[IDX2c] = _mm_extract_epi16(resultValue2, 6);
+				pValues[IDX2d] = _mm_extract_epi16(resultValue2, 7);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c>
+			constexpr static void vector3_SSE2(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				const __m128i score1{ _mm_insert_epi32(_mm_insert_epi32(_mm_loadu_si32(pScores + IDX1a), pScores[IDX1b], 1), pScores[IDX1c], 2) };
+				const __m128i score2{ _mm_insert_epi32(_mm_insert_epi32(_mm_loadu_si32(pScores + IDX2a), pScores[IDX2b], 1), pScores[IDX2c], 2) };
+				const __m128i value1{ _mm_insert_epi16(_mm_insert_epi16(_mm_loadu_si16(pValues + IDX1a), pValues[IDX1b], 1), pValues[IDX1c], 6) };
+				const __m128i value2{ _mm_insert_epi16(_mm_insert_epi16(_mm_loadu_si16(pValues + IDX2a), pValues[IDX2b], 1), pValues[IDX2c], 6) };
+				const __m128i comparision{ _mm_cmpgt_epi32(score2, score1) };
+				const __m128i maskValue{ _mm_shufflehi_epi16(_mm_shufflelo_epi16(comparision, 0b00001000), 0b00001000) };
+				const __m128i deltaScore{ _mm_and_si128(_mm_xor_si128(score1, score2), comparision) };
+				const __m128i resultScore1{ _mm_xor_si128(score1, deltaScore) };
+				const __m128i resultScore2{ _mm_xor_si128(score2, deltaScore) };
+				const __m128i deltaValue{ _mm_and_si128(_mm_xor_si128(value1, value2), maskValue) };
+				const __m128i resultValue1{ _mm_xor_si128(value1, deltaValue) };
+				const __m128i resultValue2{ _mm_xor_si128(value2, deltaValue) };
+				_mm_storeu_si32(pScores + IDX1a, resultScore1);
+				pScores[IDX1b] = _mm_extract_epi32(resultScore1, 1);
+				pScores[IDX1c] = _mm_extract_epi32(resultScore1, 2);
+				_mm_storeu_si32(pScores + IDX2a, resultScore2);
+				pScores[IDX2b] = _mm_extract_epi32(resultScore2, 1);
+				pScores[IDX2c] = _mm_extract_epi32(resultScore2, 2);
+				_mm_storeu_si16(pValues + IDX1a, resultValue1);
+				pValues[IDX1b] = _mm_extract_epi16(resultValue1, 1);
+				pValues[IDX1c] = _mm_extract_epi16(resultValue1, 6);
+				_mm_storeu_si16(pValues + IDX2a, resultValue2);
+				pValues[IDX2b] = _mm_extract_epi16(resultValue2, 1);
+				pValues[IDX2c] = _mm_extract_epi16(resultValue2, 6);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b>
+			constexpr static void vector2_SSE2(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				const __m128i score1{ _mm_insert_epi32(_mm_loadu_si32(pScores + IDX1a), pScores[IDX1b], 1) };
+				const __m128i score2{ _mm_insert_epi32(_mm_loadu_si32(pScores + IDX2a), pScores[IDX2b], 1) };
+				const __m128i value1{ _mm_insert_epi16(_mm_loadu_si16(pValues + IDX1a), pValues[IDX1b], 1) };
+				const __m128i value2{ _mm_insert_epi16(_mm_loadu_si16(pValues + IDX2a), pValues[IDX2b], 1) };
+				const __m128i comparision{ _mm_cmpgt_epi32(score2, score1) };
+				const __m128i maskValue{ _mm_shufflelo_epi16(comparision, 0b00001000) };
+				const __m128i deltaScore{ _mm_and_si128(_mm_xor_si128(score1, score2), comparision) };
+				const __m128i resultScore1{ _mm_xor_si128(score1, deltaScore) };
+				const __m128i resultScore2{ _mm_xor_si128(score2, deltaScore) };
+				const __m128i deltaValue{ _mm_and_si128(_mm_xor_si128(value1, value2), maskValue) };
+				const __m128i resultValue1{ _mm_xor_si128(value1, deltaValue) };
+				const __m128i resultValue2{ _mm_xor_si128(value2, deltaValue) };
+				_mm_storeu_si32(pScores + IDX1a, resultScore1);
+				pScores[IDX1b] = _mm_extract_epi32(resultScore1, 1);
+				_mm_storeu_si32(pScores + IDX2a, resultScore2);
+				pScores[IDX2b] = _mm_extract_epi32(resultScore2, 1);
+				_mm_storeu_si16(pValues + IDX1a, resultValue1);
+				pValues[IDX1b] = _mm_extract_epi16(resultValue1, 1);
+				_mm_storeu_si16(pValues + IDX2a, resultValue2);
+				pValues[IDX2b] = _mm_extract_epi16(resultValue2, 1);
+			}
+#endif
+#if defined PYGMALION_CPU_AVX2
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e>
+			constexpr static void vector5_AVX2(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				const __m128i score1low{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_loadu_si32(pScores + IDX1a), pScores[IDX1b], 1), pScores[IDX1c], 2), pScores[IDX1d], 3) };
+				const __m128i score2low{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_loadu_si32(pScores + IDX2a), pScores[IDX2b], 1), pScores[IDX2c], 2), pScores[IDX2d], 3) };
+				const __m128i score1high{ _mm_loadu_si32(pScores + IDX1e) };
+				const __m128i score2high{ _mm_loadu_si32(pScores + IDX2e) };
+				const __m256i score1{ _mm256_inserti128_si256(_mm256_castsi128_si256(score1low),score1high, 1) };
+				const __m256i score2{ _mm256_inserti128_si256(_mm256_castsi128_si256(score2low),score2high, 1) };
+				const __m128i value1low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_loadu_si16(pValues + IDX1a), pValues[IDX1b], 1), pValues[IDX1c], 6), pValues[IDX1d], 7) };
+				const __m128i value1high{ _mm_loadu_si16(pValues + IDX1e) };
+				const __m256i value1{ _mm256_inserti128_si256(_mm256_castsi128_si256(value1low),value1high, 1) };
+				const __m128i value2low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_loadu_si16(pValues + IDX2a), pValues[IDX2b], 1), pValues[IDX2c], 6), pValues[IDX2d], 7) };
+				const __m128i value2high{ _mm_loadu_si16(pValues + IDX2e) };
+				const __m256i value2{ _mm256_inserti128_si256(_mm256_castsi128_si256(value2low),value2high, 1) };
+				const __m256i comparision{ _mm256_cmpgt_epi32(score2, score1) };
+				const __m256i maskValue{ _mm256_shufflehi_epi16(_mm256_shufflelo_epi16(comparision, 0b00001000), 0b00001000) };
+				const __m256i deltaScore{ _mm256_and_si256(_mm256_xor_si256(score1, score2), comparision) };
+				const __m256i resultScore1{ _mm256_xor_si256(score1, deltaScore) };
+				const __m256i resultScore2{ _mm256_xor_si256(score2, deltaScore) };
+				const __m256i deltaValue{ _mm256_and_si256(_mm256_xor_si256(value1, value2), maskValue) };
+				const __m256i resultValue1{ _mm256_xor_si256(value1, deltaValue) };
+				const __m256i resultValue2{ _mm256_xor_si256(value2, deltaValue) };
+				const __m128i resultScore1low{ _mm256_extracti128_si256(resultScore1, 0) };
+				const __m128i resultScore1high{ _mm256_extracti128_si256(resultScore1, 1) };
+				const __m128i resultScore2low{ _mm256_extracti128_si256(resultScore2, 0) };
+				const __m128i resultScore2high{ _mm256_extracti128_si256(resultScore2, 1) };
+				const __m128i resultValue1low{ _mm256_extracti128_si256(resultValue1, 0) };
+				const __m128i resultValue1high{ _mm256_extracti128_si256(resultValue1, 1) };
+				const __m128i resultValue2low{ _mm256_extracti128_si256(resultValue2, 0) };
+				const __m128i resultValue2high{ _mm256_extracti128_si256(resultValue2, 1) };
+				_mm_storeu_si32(pScores + IDX1a, resultScore1low);
+				pScores[IDX1b] = _mm_extract_epi32(resultScore1low, 1);
+				pScores[IDX1c] = _mm_extract_epi32(resultScore1low, 2);
+				pScores[IDX1d] = _mm_extract_epi32(resultScore1low, 3);
+				_mm_storeu_si32(pScores + IDX1e, resultScore1high);
+				_mm_storeu_si32(pScores + IDX2a, resultScore2low);
+				pScores[IDX2b] = _mm_extract_epi32(resultScore2low, 1);
+				pScores[IDX2c] = _mm_extract_epi32(resultScore2low, 2);
+				pScores[IDX2d] = _mm_extract_epi32(resultScore2low, 3);
+				_mm_storeu_si32(pScores + IDX2e, resultScore2high);
+				_mm_storeu_si16(pValues + IDX1a, resultValue1low);
+				pValues[IDX1b] = _mm_extract_epi16(resultValue1low, 1);
+				pValues[IDX1c] = _mm_extract_epi16(resultValue1low, 6);
+				pValues[IDX1d] = _mm_extract_epi16(resultValue1low, 7);
+				_mm_storeu_si16(pValues + IDX1e, resultValue1high);
+				_mm_storeu_si16(pValues + IDX2a, resultValue2low);
+				pValues[IDX2b] = _mm_extract_epi16(resultValue2low, 1);
+				pValues[IDX2c] = _mm_extract_epi16(resultValue2low, 6);
+				pValues[IDX2d] = _mm_extract_epi16(resultValue2low, 7);
+				_mm_storeu_si16(pValues + IDX2e, resultValue2high);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f>
+			constexpr static void vector6_AVX2(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				const __m128i score1low{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_loadu_si32(pScores + IDX1a), pScores[IDX1b], 1), pScores[IDX1c], 2), pScores[IDX1d], 3) };
+				const __m128i score2low{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_loadu_si32(pScores + IDX2a), pScores[IDX2b], 1), pScores[IDX2c], 2), pScores[IDX2d], 3) };
+				const __m128i score1high{ _mm_insert_epi32(_mm_loadu_si32(pScores + IDX1e), pScores[IDX1f], 1) };
+				const __m128i score2high{ _mm_insert_epi32(_mm_loadu_si32(pScores + IDX2e), pScores[IDX2f], 1) };
+				const __m256i score1{ _mm256_inserti128_si256(_mm256_castsi128_si256(score1low),score1high, 1) };
+				const __m256i score2{ _mm256_inserti128_si256(_mm256_castsi128_si256(score2low),score2high, 1) };
+				const __m128i value1low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_loadu_si16(pValues + IDX1a), pValues[IDX1b], 1), pValues[IDX1c], 6), pValues[IDX1d], 7) };
+				const __m128i value1high{ _mm_insert_epi16(_mm_loadu_si16(pValues + IDX1e), pValues[IDX1f], 1) };
+				const __m256i value1{ _mm256_inserti128_si256(_mm256_castsi128_si256(value1low),value1high, 1) };
+				const __m128i value2low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_loadu_si16(pValues + IDX2a), pValues[IDX2b], 1), pValues[IDX2c], 6), pValues[IDX2d], 7) };
+				const __m128i value2high{ _mm_insert_epi16(_mm_loadu_si16(pValues + IDX2e), pValues[IDX2f], 1) };
+				const __m256i value2{ _mm256_inserti128_si256(_mm256_castsi128_si256(value2low),value2high, 1) };
+				const __m256i comparision{ _mm256_cmpgt_epi32(score2, score1) };
+				const __m256i maskValue{ _mm256_shufflehi_epi16(_mm256_shufflelo_epi16(comparision, 0b00001000), 0b00001000) };
+				const __m256i deltaScore{ _mm256_and_si256(_mm256_xor_si256(score1, score2), comparision) };
+				const __m256i resultScore1{ _mm256_xor_si256(score1, deltaScore) };
+				const __m256i resultScore2{ _mm256_xor_si256(score2, deltaScore) };
+				const __m256i deltaValue{ _mm256_and_si256(_mm256_xor_si256(value1, value2), maskValue) };
+				const __m256i resultValue1{ _mm256_xor_si256(value1, deltaValue) };
+				const __m256i resultValue2{ _mm256_xor_si256(value2, deltaValue) };
+				const __m128i resultScore1low{ _mm256_extracti128_si256(resultScore1, 0) };
+				const __m128i resultScore1high{ _mm256_extracti128_si256(resultScore1, 1) };
+				const __m128i resultScore2low{ _mm256_extracti128_si256(resultScore2, 0) };
+				const __m128i resultScore2high{ _mm256_extracti128_si256(resultScore2, 1) };
+				const __m128i resultValue1low{ _mm256_extracti128_si256(resultValue1, 0) };
+				const __m128i resultValue1high{ _mm256_extracti128_si256(resultValue1, 1) };
+				const __m128i resultValue2low{ _mm256_extracti128_si256(resultValue2, 0) };
+				const __m128i resultValue2high{ _mm256_extracti128_si256(resultValue2, 1) };
+				_mm_storeu_si32(pScores + IDX1a, resultScore1low);
+				pScores[IDX1b] = _mm_extract_epi32(resultScore1low, 1);
+				pScores[IDX1c] = _mm_extract_epi32(resultScore1low, 2);
+				pScores[IDX1d] = _mm_extract_epi32(resultScore1low, 3);
+				_mm_storeu_si32(pScores + IDX1e, resultScore1high);
+				pScores[IDX1f] = _mm_extract_epi32(resultScore1high, 1);
+				_mm_storeu_si32(pScores + IDX2a, resultScore2low);
+				pScores[IDX2b] = _mm_extract_epi32(resultScore2low, 1);
+				pScores[IDX2c] = _mm_extract_epi32(resultScore2low, 2);
+				pScores[IDX2d] = _mm_extract_epi32(resultScore2low, 3);
+				_mm_storeu_si32(pScores + IDX2e, resultScore2high);
+				pScores[IDX2f] = _mm_extract_epi32(resultScore2high, 1);
+				_mm_storeu_si16(pValues + IDX1a, resultValue1low);
+				pValues[IDX1b] = _mm_extract_epi16(resultValue1low, 1);
+				pValues[IDX1c] = _mm_extract_epi16(resultValue1low, 6);
+				pValues[IDX1d] = _mm_extract_epi16(resultValue1low, 7);
+				_mm_storeu_si16(pValues + IDX1e, resultValue1high);
+				pValues[IDX1f] = _mm_extract_epi16(resultValue1high, 1);
+				_mm_storeu_si16(pValues + IDX2a, resultValue2low);
+				pValues[IDX2b] = _mm_extract_epi16(resultValue2low, 1);
+				pValues[IDX2c] = _mm_extract_epi16(resultValue2low, 6);
+				pValues[IDX2d] = _mm_extract_epi16(resultValue2low, 7);
+				_mm_storeu_si16(pValues + IDX2e, resultValue2high);
+				pValues[IDX2f] = _mm_extract_epi16(resultValue2high, 1);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g>
+			constexpr static void vector7_AVX2(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				const __m128i score1low{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_loadu_si32(pScores + IDX1a), pScores[IDX1b], 1), pScores[IDX1c], 2), pScores[IDX1d], 3) };
+				const __m128i score2low{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_loadu_si32(pScores + IDX2a), pScores[IDX2b], 1), pScores[IDX2c], 2), pScores[IDX2d], 3) };
+				const __m128i score1high{ _mm_insert_epi32(_mm_insert_epi32(_mm_loadu_si32(pScores + IDX1e), pScores[IDX1f], 1), pScores[IDX1g], 2) };
+				const __m128i score2high{ _mm_insert_epi32(_mm_insert_epi32(_mm_loadu_si32(pScores + IDX2e), pScores[IDX2f], 1), pScores[IDX2g], 2) };
+				const __m256i score1{ _mm256_inserti128_si256(_mm256_castsi128_si256(score1low),score1high, 1) };
+				const __m256i score2{ _mm256_inserti128_si256(_mm256_castsi128_si256(score2low),score2high, 1) };
+				const __m128i value1low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_loadu_si16(pValues + IDX1a), pValues[IDX1b], 1), pValues[IDX1c], 6), pValues[IDX1d], 7) };
+				const __m128i value1high{_mm_insert_epi16(_mm_insert_epi16(_mm_loadu_si16(pValues + IDX1e), pValues[IDX1f], 1), pValues[IDX1g], 6) };
+				const __m256i value1{ _mm256_inserti128_si256(_mm256_castsi128_si256(value1low),value1high, 1) };
+				const __m128i value2low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_loadu_si16(pValues + IDX2a), pValues[IDX2b], 1), pValues[IDX2c], 6), pValues[IDX2d], 7) };
+				const __m128i value2high{ _mm_insert_epi16(_mm_insert_epi16(_mm_loadu_si16(pValues + IDX2e), pValues[IDX2f], 1), pValues[IDX2g], 6) };
+				const __m256i value2{ _mm256_inserti128_si256(_mm256_castsi128_si256(value2low),value2high, 1) };
+				const __m256i comparision{ _mm256_cmpgt_epi32(score2, score1) };
+				const __m256i maskValue{ _mm256_shufflehi_epi16(_mm256_shufflelo_epi16(comparision, 0b00001000), 0b00001000) };
+				const __m256i deltaScore{ _mm256_and_si256(_mm256_xor_si256(score1, score2), comparision) };
+				const __m256i resultScore1{ _mm256_xor_si256(score1, deltaScore) };
+				const __m256i resultScore2{ _mm256_xor_si256(score2, deltaScore) };
+				const __m256i deltaValue{ _mm256_and_si256(_mm256_xor_si256(value1, value2), maskValue) };
+				const __m256i resultValue1{ _mm256_xor_si256(value1, deltaValue) };
+				const __m256i resultValue2{ _mm256_xor_si256(value2, deltaValue) };
+				const __m128i resultScore1low{ _mm256_extracti128_si256(resultScore1, 0) };
+				const __m128i resultScore1high{ _mm256_extracti128_si256(resultScore1, 1) };
+				const __m128i resultScore2low{ _mm256_extracti128_si256(resultScore2, 0) };
+				const __m128i resultScore2high{ _mm256_extracti128_si256(resultScore2, 1) };
+				const __m128i resultValue1low{ _mm256_extracti128_si256(resultValue1, 0) };
+				const __m128i resultValue1high{ _mm256_extracti128_si256(resultValue1, 1) };
+				const __m128i resultValue2low{ _mm256_extracti128_si256(resultValue2, 0) };
+				const __m128i resultValue2high{ _mm256_extracti128_si256(resultValue2, 1) };
+				_mm_storeu_si32(pScores + IDX1a, resultScore1low);
+				pScores[IDX1b] = _mm_extract_epi32(resultScore1low, 1);
+				pScores[IDX1c] = _mm_extract_epi32(resultScore1low, 2);
+				pScores[IDX1d] = _mm_extract_epi32(resultScore1low, 3);
+				_mm_storeu_si32(pScores + IDX1e, resultScore1high);
+				pScores[IDX1f] = _mm_extract_epi32(resultScore1high, 1);
+				pScores[IDX1g] = _mm_extract_epi32(resultScore1high, 2);
+				_mm_storeu_si32(pScores + IDX2a, resultScore2low);
+				pScores[IDX2b] = _mm_extract_epi32(resultScore2low, 1);
+				pScores[IDX2c] = _mm_extract_epi32(resultScore2low, 2);
+				pScores[IDX2d] = _mm_extract_epi32(resultScore2low, 3);
+				_mm_storeu_si32(pScores + IDX2e, resultScore2high);
+				pScores[IDX2f] = _mm_extract_epi32(resultScore2high, 1);
+				pScores[IDX2g] = _mm_extract_epi32(resultScore2high, 2);
+				_mm_storeu_si16(pValues + IDX1a, resultValue1low);
+				pValues[IDX1b] = _mm_extract_epi16(resultValue1low, 1);
+				pValues[IDX1c] = _mm_extract_epi16(resultValue1low, 6);
+				pValues[IDX1d] = _mm_extract_epi16(resultValue1low, 7);
+				_mm_storeu_si16(pValues + IDX1e, resultValue1high);
+				pValues[IDX1f] = _mm_extract_epi16(resultValue1high, 1);
+				pValues[IDX1g] = _mm_extract_epi16(resultValue1high, 6);
+				_mm_storeu_si16(pValues + IDX2a, resultValue2low);
+				pValues[IDX2b] = _mm_extract_epi16(resultValue2low, 1);
+				pValues[IDX2c] = _mm_extract_epi16(resultValue2low, 6);
+				pValues[IDX2d] = _mm_extract_epi16(resultValue2low, 7);
+				_mm_storeu_si16(pValues + IDX2e, resultValue2high);
+				pValues[IDX2f] = _mm_extract_epi16(resultValue2high, 1);
+				pValues[IDX2g] = _mm_extract_epi16(resultValue2high, 6);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h>
+			constexpr static void vector8_AVX2(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				const __m128i score1low{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_loadu_si32(pScores + IDX1a), pScores[IDX1b], 1), pScores[IDX1c], 2), pScores[IDX1d], 3) };
+				const __m128i score2low{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_loadu_si32(pScores + IDX2a), pScores[IDX2b], 1), pScores[IDX2c], 2), pScores[IDX2d], 3) };
+				const __m128i score1high{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_loadu_si32(pScores + IDX1e), pScores[IDX1f], 1), pScores[IDX1g], 2), pScores[IDX1h], 3) };
+				const __m128i score2high{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_loadu_si32(pScores + IDX2e), pScores[IDX2f], 1), pScores[IDX2g], 2), pScores[IDX2h], 3) };
+				const __m256i score1{ _mm256_inserti128_si256(_mm256_castsi128_si256(score1low),score1high, 1) };
+				const __m256i score2{ _mm256_inserti128_si256(_mm256_castsi128_si256(score2low),score2high, 1) };
+				const __m128i value1low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_loadu_si16(pValues + IDX1a), pValues[IDX1b], 1), pValues[IDX1c], 6), pValues[IDX1d], 7) };
+				const __m128i value1high{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_loadu_si16(pValues + IDX1e), pValues[IDX1f], 1), pValues[IDX1g], 6), pValues[IDX1h], 7) };
+				const __m256i value1{ _mm256_inserti128_si256(_mm256_castsi128_si256(value1low),value1high, 1) };
+				const __m128i value2low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_loadu_si16(pValues + IDX2a), pValues[IDX2b], 1), pValues[IDX2c], 6), pValues[IDX2d], 7) };
+				const __m128i value2high{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_loadu_si16(pValues + IDX2e), pValues[IDX2f], 1), pValues[IDX2g], 6), pValues[IDX2h], 7) };
+				const __m256i value2{ _mm256_inserti128_si256(_mm256_castsi128_si256(value2low),value2high, 1) };
+				const __m256i comparision{ _mm256_cmpgt_epi32(score2, score1) };
+				const __m256i maskValue{ _mm256_shufflehi_epi16(_mm256_shufflelo_epi16(comparision, 0b00001000), 0b00001000) };
+				const __m256i deltaScore{ _mm256_and_si256(_mm256_xor_si256(score1, score2), comparision) };
+				const __m256i resultScore1{ _mm256_xor_si256(score1, deltaScore) };
+				const __m256i resultScore2{ _mm256_xor_si256(score2, deltaScore) };
+				const __m256i deltaValue{ _mm256_and_si256(_mm256_xor_si256(value1, value2), maskValue) };
+				const __m256i resultValue1{ _mm256_xor_si256(value1, deltaValue) };
+				const __m256i resultValue2{ _mm256_xor_si256(value2, deltaValue) };
+				const __m128i resultScore1low{ _mm256_extracti128_si256(resultScore1, 0) };
+				const __m128i resultScore1high{ _mm256_extracti128_si256(resultScore1, 1) };
+				const __m128i resultScore2low{ _mm256_extracti128_si256(resultScore2, 0) };
+				const __m128i resultScore2high{ _mm256_extracti128_si256(resultScore2, 1) };
+				const __m128i resultValue1low{ _mm256_extracti128_si256(resultValue1, 0) };
+				const __m128i resultValue1high{ _mm256_extracti128_si256(resultValue1, 1) };
+				const __m128i resultValue2low{ _mm256_extracti128_si256(resultValue2, 0) };
+				const __m128i resultValue2high{ _mm256_extracti128_si256(resultValue2, 1) };
+				_mm_storeu_si32(pScores + IDX1a, resultScore1low);
+				pScores[IDX1b] = _mm_extract_epi32(resultScore1low, 1);
+				pScores[IDX1c] = _mm_extract_epi32(resultScore1low, 2);
+				pScores[IDX1d] = _mm_extract_epi32(resultScore1low, 3);
+				_mm_storeu_si32(pScores + IDX1e, resultScore1high);
+				pScores[IDX1f] = _mm_extract_epi32(resultScore1high, 1);
+				pScores[IDX1g] = _mm_extract_epi32(resultScore1high, 2);
+				pScores[IDX1h] = _mm_extract_epi32(resultScore1high, 3);
+				_mm_storeu_si32(pScores + IDX2a, resultScore2low);
+				pScores[IDX2b] = _mm_extract_epi32(resultScore2low, 1);
+				pScores[IDX2c] = _mm_extract_epi32(resultScore2low, 2);
+				pScores[IDX2d] = _mm_extract_epi32(resultScore2low, 3);
+				_mm_storeu_si32(pScores + IDX2e, resultScore2high);
+				pScores[IDX2f] = _mm_extract_epi32(resultScore2high, 1);
+				pScores[IDX2g] = _mm_extract_epi32(resultScore2high, 2);
+				pScores[IDX2h] = _mm_extract_epi32(resultScore2high, 3);
+				_mm_storeu_si16(pValues + IDX1a, resultValue1low);
+				pValues[IDX1b] = _mm_extract_epi16(resultValue1low, 1);
+				pValues[IDX1c] = _mm_extract_epi16(resultValue1low, 6);
+				pValues[IDX1d] = _mm_extract_epi16(resultValue1low, 7);
+				_mm_storeu_si16(pValues + IDX1e, resultValue1high);
+				pValues[IDX1f] = _mm_extract_epi16(resultValue1high, 1);
+				pValues[IDX1g] = _mm_extract_epi16(resultValue1high, 6);
+				pValues[IDX1h] = _mm_extract_epi16(resultValue1high, 7);
+				_mm_storeu_si16(pValues + IDX2a, resultValue2low);
+				pValues[IDX2b] = _mm_extract_epi16(resultValue2low, 1);
+				pValues[IDX2c] = _mm_extract_epi16(resultValue2low, 6);
+				pValues[IDX2d] = _mm_extract_epi16(resultValue2low, 7);
+				_mm_storeu_si16(pValues + IDX2e, resultValue2high);
+				pValues[IDX2f] = _mm_extract_epi16(resultValue2high, 1);
+				pValues[IDX2g] = _mm_extract_epi16(resultValue2high, 6);
+				pValues[IDX2h] = _mm_extract_epi16(resultValue2high, 7);
+			}
+#endif
+		public:
+			template<size_t IDX1, size_t IDX2>
+			constexpr static void scalar(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				scalar_Vanilla<IDX1, IDX2>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b>
+			constexpr static void vector2(VALUE* pValues, SCORE* pScores) noexcept
+			{
+#if defined(PYGMALION_CPU_SSE2)
+				if constexpr (cpu::supports(cpu::SSE2))
+					vector2_SSE2<IDX1a, IDX2a, IDX1b, IDX2b>(pValues, pScores);
+				else
+#endif
+					vector2_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c>
+			constexpr static void vector3(VALUE* pValues, SCORE* pScores) noexcept
+			{
+#if defined(PYGMALION_CPU_SSE2)
+				if constexpr (cpu::supports(cpu::SSE2))
+					vector3_SSE2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c>(pValues, pScores);
+				else
+#endif
+					vector3_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d>
+			constexpr static void vector4(VALUE* pValues, SCORE* pScores) noexcept
+			{
+#if defined(PYGMALION_CPU_SSE2)
+				if constexpr (cpu::supports(cpu::SSE2))
+					vector4_SSE2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d>(pValues, pScores);
+				else
+#endif
+					vector4_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e>
+			constexpr static void vector5(VALUE* pValues, SCORE* pScores) noexcept
+			{
+#if defined(PYGMALION_CPU_AVX2)
+				if constexpr (cpu::supports(cpu::AVX2))
+					vector5_AVX2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e>(pValues, pScores);
+				else
+#endif
+					vector5_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f>
+			constexpr static void vector6(VALUE* pValues, SCORE* pScores) noexcept
+			{
+#if defined(PYGMALION_CPU_AVX2)
+				if constexpr (cpu::supports(cpu::AVX2))
+					vector6_AVX2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f>(pValues, pScores);
+				else
+#endif
+					vector6_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g>
+			constexpr static void vector7(VALUE* pValues, SCORE* pScores) noexcept
+			{
+#if defined(PYGMALION_CPU_AVX2)
+				if constexpr (cpu::supports(cpu::AVX2))
+					vector7_AVX2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g>(pValues, pScores);
+				else
+#endif
+					vector7_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h>
+			constexpr static void vector8(VALUE* pValues, SCORE* pScores) noexcept
+			{
+#if defined(PYGMALION_CPU_AVX2)
+				if constexpr (cpu::supports(cpu::AVX2))
+					vector8_AVX2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h>(pValues, pScores);
+				else
+#endif
+					vector8_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h>(pValues, pScores);
+			}
+		};
+
 		template<typename VALUE, typename SCORE>
 		class sortAlgorithm
 		{
@@ -115,33 +630,6 @@ namespace pygmalion
 				const int pi{ partition(low, high, pValues, pScores) };
 				sortValues(&pValues[low], &pScores[low], pi - low);
 				sortValues(&pValues[pi + 1], &pScores[pi + 1], high - pi);
-			}
-			template<size_t IDX1, size_t IDX2>
-			constexpr static void comparator(VALUE* pValues, SCORE* pScores)
-			{
-#if defined(SORT_IL8)
-				const IL8 operand1 = _mm_insert_epi16(_mm_loadu_si16(pValues + IDX1), pScores[IDX1], 1);
-				const IL8 operand2 = _mm_insert_epi16(_mm_loadu_si16(pValues + IDX2), pScores[IDX2], 1);
-				const IL8 mask = _mm_shufflelo_epi16(_mm_cmpgt_epi16(operand2, operand1), 0b00001010);
-#if defined(__SSE41__)
-				const IL8 result1 = _mm_blendv_epi8(operand1, operand2, mask);
-				const IL8 result2 = _mm_blendv_epi8(operand2, operand1, mask);
-#else
-				const IL8 delta = _mm_and_si128(_mm_xor_si128(operand1, operand2), mask);
-				const IL8 result1 = _mm_xor_si128(operand1, delta);
-				const IL8 result2 = _mm_xor_si128(operand2, delta);
-#endif
-				_mm_storeu_si16(pValues + IDX1, result1);
-				pScores[IDX1] = _mm_extract_epi16(result1, 1);
-				_mm_storeu_si16(pValues + IDX2, result2);
-				pScores[IDX2] = _mm_extract_epi16(result2, 1);
-#else
-				if (pScores[IDX1] < pScores[IDX2])
-				{
-					std::swap(pValues[IDX1], pValues[IDX2]);
-					std::swap(pScores[IDX1], pScores[IDX2]);
-				}
-#endif
 			}
 			constexpr static int partition(const int low, const int high, VALUE* pValues, SCORE* pScores) noexcept
 			{
@@ -160,562 +648,148 @@ namespace pygmalion
 				std::swap(pScores[i + 1], pScores[high]);
 				return (i + 1);
 			}
-			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b>
-			constexpr static void comparator(VALUE* pValues, SCORE* pScores)
+			template<size_t IDX1, size_t IDX2>
+			constexpr static void comparator(VALUE* pValues, SCORE* pScores) noexcept
 			{
-#if defined(SORT_IL8)
-				const IL8 score1 = _mm_insert_epi16(_mm_loadu_si16(pScores + IDX1a), pScores[IDX2a], 1);
-				const IL8 score2 = _mm_insert_epi16(_mm_loadu_si16(pScores + IDX1b), pScores[IDX2b], 1);
-				const IL8 operand1 = _mm_insert_epi16(_mm_insert_epi16(score1, pValues[IDX1a], 2), pValues[IDX2a], 3);
-				const IL8 operand2 = _mm_insert_epi16(_mm_insert_epi16(score2, pValues[IDX1b], 2), pValues[IDX2b], 3);
-				const IL8 mask = _mm_shufflelo_epi16(_mm_cmpgt_epi16(operand2, operand1), 0b01000100);
-#if defined(__SSE41__)
-				const IL8 result1 = _mm_blendv_epi8(operand1, operand2, mask);
-				const IL8 result2 = _mm_blendv_epi8(operand2, operand1, mask);
-#else
-				const IL8 delta = _mm_and_si128(_mm_xor_si128(operand1, operand2), mask);
-				const IL8 result1 = _mm_xor_si128(operand1, delta);
-				const IL8 result2 = _mm_xor_si128(operand2, delta);
-#endif
-				_mm_storeu_si16(pScores + IDX1a, result1);
-				pScores[IDX2a] = _mm_extract_epi16(result1, 1);
-				pValues[IDX1a] = _mm_extract_epi16(result1, 2);
-				pValues[IDX2a] = _mm_extract_epi16(result1, 3);
-				_mm_storeu_si16(pScores + IDX1b, result2);
-				pScores[IDX2b] = _mm_extract_epi16(result2, 1);
-				pValues[IDX1b] = _mm_extract_epi16(result2, 2);
-				pValues[IDX2b] = _mm_extract_epi16(result2, 3);
-#elif defined(SORT_IL16)
-				const IL16 score1 = _mm256_insert_epi16(_mm256_castsi128_si256(_mm_loadu_si16(pScores + IDX1a)), pScores[IDX2a], 1);
-				const IL16 score2 = _mm256_insert_epi16(_mm256_castsi128_si256(_mm_loadu_si16(pScores + IDX1b)), pScores[IDX2b], 1);
-				const IL16 operand1 = _mm256_insert_epi16(_mm256_insert_epi16(score1, pValues[IDX1a], 2), pValues[IDX2a], 3);
-				const IL16 operand2 = _mm256_insert_epi16(_mm256_insert_epi16(score2, pValues[IDX1b], 2), pValues[IDX2b], 3);
-				const IL16 mask = _mm256_shufflelo_epi16(_mm256_cmpgt_epi16(operand2, operand1), 0b01000100);
-#if defined(__AVX2__)
-				const IL16 result1 = _mm256_blendv_epi8(operand1, operand2, mask);
-				const IL16 result2 = _mm256_blendv_epi8(operand2, operand1, mask);
-#else
-				const IL16 delta = _mm256_and_si256(_mm256_xor_si256(operand1, operand2), mask);
-				const IL16 result1 = _mm256_xor_si256(operand1, delta);
-				const IL16 result2 = _mm256_xor_si256(operand2, delta);
-#endif
-				_mm_storeu_si16(pScores + IDX1a, _mm256_castsi256_si128(result1));
-				pScores[IDX2a] = _mm256_extract_epi16(result1, 1);
-				pValues[IDX1a] = _mm256_extract_epi16(result1, 2);
-				pValues[IDX2a] = _mm256_extract_epi16(result1, 3);
-				_mm_storeu_si16(pScores + IDX1b, _mm256_castsi256_si128(result2));
-				pScores[IDX2b] = _mm256_extract_epi16(result2, 1);
-				pValues[IDX1b] = _mm256_extract_epi16(result2, 2);
-				pValues[IDX2b] = _mm256_extract_epi16(result2, 3);
-#else
-				comparator<IDX1a, IDX2a>(pValues, pScores);
-				comparator<IDX1b, IDX2b>(pValues, pScores);
-#endif
+				compare<VALUE, SCORE>::template scalar<IDX1, IDX2>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b>
+			constexpr static void comparator(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				compare<VALUE, SCORE>::template vector2<IDX1a, IDX2a, IDX1b, IDX2b>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c>
-			constexpr static void comparator(VALUE* pValues, SCORE* pScores)
+			constexpr static void comparator(VALUE* pValues, SCORE* pScores) noexcept
 			{
-#if defined(SORT_IL8)
-				IL8 values1 = IL8_Load<IDX1a, IDX1b, IDX1c>(reinterpret_cast<SCORE*>(pValues));
-				IL8 values2 = IL8_Load<IDX2a, IDX2b, IDX2c>(reinterpret_cast<SCORE*>(pValues));
-				IL8 scores1 = IL8_Load<IDX1a, IDX1b, IDX1c>(pScores);
-				IL8 scores2 = IL8_Load<IDX2a, IDX2b, IDX2c>(pScores);
-				IL8_Compare(values1, values2, scores1, scores2);
-				IL8_Store<IDX1a, IDX1b, IDX1c>(values1, reinterpret_cast<SCORE*>(pValues));
-				IL8_Store<IDX2a, IDX2b, IDX2c>(values2, reinterpret_cast<SCORE*>(pValues));
-				IL8_Store<IDX1a, IDX1b, IDX1c>(scores1, pScores);
-				IL8_Store<IDX2a, IDX2b, IDX2c>(scores2, pScores);
-#elif defined(SORT_IL16)
-				IL16 values1 = IL16_Load<IDX1a, IDX1b, IDX1c>(reinterpret_cast<SCORE*>(pValues));
-				IL16 values2 = IL16_Load<IDX2a, IDX2b, IDX2c>(reinterpret_cast<SCORE*>(pValues));
-				IL16 scores1 = IL16_Load<IDX1a, IDX1b, IDX1c>(pScores);
-				IL16 scores2 = IL16_Load<IDX2a, IDX2b, IDX2c>(pScores);
-				IL16_Compare(values1, values2, scores1, scores2);
-				IL16_Store<IDX1a, IDX1b, IDX1c>(values1, reinterpret_cast<SCORE*>(pValues));
-				IL16_Store<IDX2a, IDX2b, IDX2c>(values2, reinterpret_cast<SCORE*>(pValues));
-				IL16_Store<IDX1a, IDX1b, IDX1c>(scores1, pScores);
-				IL16_Store<IDX2a, IDX2b, IDX2c>(scores2, pScores);
-#else
-				comparator<IDX1a, IDX2a, IDX1b, IDX2b>(pValues, pScores);
-				comparator<IDX1c, IDX2c>(pValues, pScores);
-#endif
+				compare<VALUE, SCORE>::template vector3<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d>
-			constexpr static void comparator(VALUE* pValues, SCORE* pScores)
+			constexpr static void comparator(VALUE* pValues, SCORE* pScores) noexcept
 			{
-#if defined(SORT_IL8)
-				IL8 values1 = IL8_Load<IDX1a, IDX1b, IDX1c, IDX1d>(reinterpret_cast<SCORE*>(pValues));
-				IL8 values2 = IL8_Load<IDX2a, IDX2b, IDX2c, IDX2d>(reinterpret_cast<SCORE*>(pValues));
-				IL8 scores1 = IL8_Load<IDX1a, IDX1b, IDX1c, IDX1d>(pScores);
-				IL8 scores2 = IL8_Load<IDX2a, IDX2b, IDX2c, IDX2d>(pScores);
-				IL8_Compare(values1, values2, scores1, scores2);
-				IL8_Store<IDX1a, IDX1b, IDX1c, IDX1d>(values1, reinterpret_cast<SCORE*>(pValues));
-				IL8_Store<IDX2a, IDX2b, IDX2c, IDX2d>(values2, reinterpret_cast<SCORE*>(pValues));
-				IL8_Store<IDX1a, IDX1b, IDX1c, IDX1d>(scores1, pScores);
-				IL8_Store<IDX2a, IDX2b, IDX2c, IDX2d>(scores2, pScores);
-#elif defined(SORT_IL16)
-				IL16 values1 = IL16_Load<IDX1a, IDX1b, IDX1c, IDX1d>(reinterpret_cast<SCORE*>(pValues));
-				IL16 values2 = IL16_Load<IDX2a, IDX2b, IDX2c, IDX2d>(reinterpret_cast<SCORE*>(pValues));
-				IL16 scores1 = IL16_Load<IDX1a, IDX1b, IDX1c, IDX1d>(pScores);
-				IL16 scores2 = IL16_Load<IDX2a, IDX2b, IDX2c, IDX2d>(pScores);
-				IL16_Compare(values1, values2, scores1, scores2);
-				IL16_Store<IDX1a, IDX1b, IDX1c, IDX1d>(values1, reinterpret_cast<SCORE*>(pValues));
-				IL16_Store<IDX2a, IDX2b, IDX2c, IDX2d>(values2, reinterpret_cast<SCORE*>(pValues));
-				IL16_Store<IDX1a, IDX1b, IDX1c, IDX1d>(scores1, pScores);
-				IL16_Store<IDX2a, IDX2b, IDX2c, IDX2d>(scores2, pScores);
-#else
-				comparator<IDX1a, IDX2a, IDX1b, IDX2b>(pValues, pScores);
-				comparator<IDX1c, IDX2c, IDX1d, IDX2d>(pValues, pScores);
-#endif
+				compare<VALUE, SCORE>::template vector4<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e>
-			constexpr static void comparator(VALUE* pValues, SCORE* pScores)
+			constexpr static void comparator(VALUE* pValues, SCORE* pScores) noexcept
 			{
-#if defined(SORT_IL8)
-				IL8 values1 = IL8_Load<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e>(reinterpret_cast<SCORE*>(pValues));
-				IL8 values2 = IL8_Load<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e>(reinterpret_cast<SCORE*>(pValues));
-				IL8 scores1 = IL8_Load<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e>(pScores);
-				IL8 scores2 = IL8_Load<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e>(pScores);
-				IL8_Compare(values1, values2, scores1, scores2);
-				IL8_Store<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e>(values1, reinterpret_cast<SCORE*>(pValues));
-				IL8_Store<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e>(values2, reinterpret_cast<SCORE*>(pValues));
-				IL8_Store<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e>(scores1, pScores);
-				IL8_Store<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e>(scores2, pScores);
-#elif defined(SORT_IL16)
-				IL16 values1 = IL16_Load<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e>(reinterpret_cast<SCORE*>(pValues));
-				IL16 values2 = IL16_Load<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e>(reinterpret_cast<SCORE*>(pValues));
-				IL16 scores1 = IL16_Load<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e>(pScores);
-				IL16 scores2 = IL16_Load<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e>(pScores);
-				IL16_Compare(values1, values2, scores1, scores2);
-				IL16_Store<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e>(values1, reinterpret_cast<SCORE*>(pValues));
-				IL16_Store<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e>(values2, reinterpret_cast<SCORE*>(pValues));
-				IL16_Store<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e>(scores1, pScores);
-				IL16_Store<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e>(scores2, pScores);
-#else
-				comparator<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c>(pValues, pScores);
-				comparator<IDX1d, IDX2d, IDX1e, IDX2e>(pValues, pScores);
-#endif
+				compare<VALUE, SCORE>::template vector5<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f>
-			constexpr static void comparator(VALUE* pValues, SCORE* pScores)
+			constexpr static void comparator(VALUE* pValues, SCORE* pScores) noexcept
 			{
-#if defined(SORT_IL8)
-				IL8 values1 = IL8_Load<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f>(reinterpret_cast<SCORE*>(pValues));
-				IL8 values2 = IL8_Load<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f>(reinterpret_cast<SCORE*>(pValues));
-				IL8 scores1 = IL8_Load<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f>(pScores);
-				IL8 scores2 = IL8_Load<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f>(pScores);
-				IL8_Compare(values1, values2, scores1, scores2);
-				IL8_Store<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f>(values1, reinterpret_cast<SCORE*>(pValues));
-				IL8_Store<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f>(values2, reinterpret_cast<SCORE*>(pValues));
-				IL8_Store<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f>(scores1, pScores);
-				IL8_Store<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f>(scores2, pScores);
-#elif defined(SORT_IL16)
-				IL16 values1 = IL16_Load<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f>(reinterpret_cast<SCORE*>(pValues));
-				IL16 values2 = IL16_Load<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f>(reinterpret_cast<SCORE*>(pValues));
-				IL16 scores1 = IL16_Load<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f>(pScores);
-				IL16 scores2 = IL16_Load<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f>(pScores);
-				IL16_Compare(values1, values2, scores1, scores2);
-				IL16_Store<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f>(values1, reinterpret_cast<SCORE*>(pValues));
-				IL16_Store<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f>(values2, reinterpret_cast<SCORE*>(pValues));
-				IL16_Store<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f>(scores1, pScores);
-				IL16_Store<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f>(scores2, pScores);
-#else
-				comparator<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c>(pValues, pScores);
-				comparator<IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f>(pValues, pScores);
-#endif
+				compare<VALUE, SCORE>::template vector6<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g>
-			constexpr static void comparator(VALUE* pValues, SCORE* pScores)
+			constexpr static void comparator(VALUE* pValues, SCORE* pScores) noexcept
 			{
-#if defined(SORT_IL8)
-				IL8 values1 = IL8_Load<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f, IDX1g>(reinterpret_cast<SCORE*>(pValues));
-				IL8 values2 = IL8_Load<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f, IDX2g>(reinterpret_cast<SCORE*>(pValues));
-				IL8 scores1 = IL8_Load<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f, IDX1g>(pScores);
-				IL8 scores2 = IL8_Load<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f, IDX2g>(pScores);
-				IL8_Compare(values1, values2, scores1, scores2);
-				IL8_Store<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f, IDX1g>(values1, reinterpret_cast<SCORE*>(pValues));
-				IL8_Store<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f, IDX2g>(values2, reinterpret_cast<SCORE*>(pValues));
-				IL8_Store<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f, IDX1g>(scores1, pScores);
-				IL8_Store<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f, IDX2g>(scores2, pScores);
-#elif defined(SORT_IL16)
-				IL16 values1 = IL16_Load<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f, IDX1g>(reinterpret_cast<SCORE*>(pValues));
-				IL16 values2 = IL16_Load<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f, IDX2g>(reinterpret_cast<SCORE*>(pValues));
-				IL16 scores1 = IL16_Load<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f, IDX1g>(pScores);
-				IL16 scores2 = IL16_Load<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f, IDX2g>(pScores);
-				IL16_Compare(values1, values2, scores1, scores2);
-				IL16_Store<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f, IDX1g>(values1, reinterpret_cast<SCORE*>(pValues));
-				IL16_Store<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f, IDX2g>(values2, reinterpret_cast<SCORE*>(pValues));
-				IL16_Store<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f, IDX1g>(scores1, pScores);
-				IL16_Store<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f, IDX2g>(scores2, pScores);
-#else
-				comparator<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d>(pValues, pScores);
-				comparator<IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g>(pValues, pScores);
-#endif
+				compare<VALUE, SCORE>::template vector7<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h>
-			constexpr static void comparator(VALUE* pValues, SCORE* pScores)
+			constexpr static void comparator(VALUE* pValues, SCORE* pScores) noexcept
 			{
-#if defined(SORT_IL8)
-				IL8 values1 = IL8_Load<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f, IDX1g, IDX1h>(reinterpret_cast<SCORE*>(pValues));
-				IL8 values2 = IL8_Load<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f, IDX2g, IDX2h>(reinterpret_cast<SCORE*>(pValues));
-				IL8 scores1 = IL8_Load<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f, IDX1g, IDX1h>(pScores);
-				IL8 scores2 = IL8_Load<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f, IDX2g, IDX2h>(pScores);
-				IL8_Compare(values1, values2, scores1, scores2);
-				IL8_Store<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f, IDX1g, IDX1h>(values1, reinterpret_cast<SCORE*>(pValues));
-				IL8_Store<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f, IDX2g, IDX2h>(values2, reinterpret_cast<SCORE*>(pValues));
-				IL8_Store<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f, IDX1g, IDX1h>(scores1, pScores);
-				IL8_Store<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f, IDX2g, IDX2h>(scores2, pScores);
-#elif defined(SORT_IL16)
-				IL16 values1 = IL16_Load<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f, IDX1g, IDX1h>(reinterpret_cast<SCORE*>(pValues));
-				IL16 values2 = IL16_Load<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f, IDX2g, IDX2h>(reinterpret_cast<SCORE*>(pValues));
-				IL16 scores1 = IL16_Load<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f, IDX1g, IDX1h>(pScores);
-				IL16 scores2 = IL16_Load<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f, IDX2g, IDX2h>(pScores);
-				IL16_Compare(values1, values2, scores1, scores2);
-				IL16_Store<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f, IDX1g, IDX1h>(values1, reinterpret_cast<SCORE*>(pValues));
-				IL16_Store<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f, IDX2g, IDX2h>(values2, reinterpret_cast<SCORE*>(pValues));
-				IL16_Store<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f, IDX1g, IDX1h>(scores1, pScores);
-				IL16_Store<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f, IDX2g, IDX2h>(scores2, pScores);
-#else
-				comparator<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d>(pValues, pScores);
-				comparator<IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h>(pValues, pScores);
-#endif
+				compare<VALUE, SCORE>::template vector8<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j>
-			constexpr static void comparator(VALUE* pValues, SCORE* pScores)
+			constexpr static void comparator(VALUE* pValues, SCORE* pScores) noexcept
 			{
-#if defined(SORT_IL16)
-				IL16 values1 = IL16_Load<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f, IDX1g, IDX1h, IDX1j>(reinterpret_cast<SCORE*>(pValues));
-				IL16 values2 = IL16_Load<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f, IDX2g, IDX2h, IDX2j>(reinterpret_cast<SCORE*>(pValues));
-				IL16 scores1 = IL16_Load<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f, IDX1g, IDX1h, IDX1j>(pScores);
-				IL16 scores2 = IL16_Load<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f, IDX2g, IDX2h, IDX2j>(pScores);
-				IL16_Compare(values1, values2, scores1, scores2);
-				IL16_Store<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f, IDX1g, IDX1h, IDX1j>(values1, reinterpret_cast<SCORE*>(pValues));
-				IL16_Store<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f, IDX2g, IDX2h, IDX2j>(values2, reinterpret_cast<SCORE*>(pValues));
-				IL16_Store<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f, IDX1g, IDX1h, IDX1j>(scores1, pScores);
-				IL16_Store<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f, IDX2g, IDX2h, IDX2j>(scores2, pScores);
-#else
 				comparator<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e>(pValues, pScores);
 				comparator<IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j>(pValues, pScores);
-#endif
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k>
-			constexpr static void comparator(VALUE* pValues, SCORE* pScores)
+			constexpr static void comparator(VALUE* pValues, SCORE* pScores) noexcept
 			{
-				/*#if defined(SORT_IL16)
-						IL16 values1 = IL16_Load<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f, IDX1g, IDX1h, IDX1j, IDX1k>(reinterpret_cast<SCORE*>(pValues));
-						IL16 values2 = IL16_Load<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f, IDX2g, IDX2h, IDX2j, IDX2k>(reinterpret_cast<SCORE*>(pValues));
-						IL16 scores1 = IL16_Load<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f, IDX1g, IDX1h, IDX1j, IDX1k>(pScores);
-						IL16 scores2 = IL16_Load<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f, IDX2g, IDX2h, IDX2j, IDX2k>(pScores);
-						IL16_Compare(values1, values2, scores1, scores2);
-						IL16_Store<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f, IDX1g, IDX1h, IDX1j, IDX1k>(values1, reinterpret_cast<SCORE*>(pValues));
-						IL16_Store<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f, IDX2g, IDX2h, IDX2j, IDX2k>(values2, reinterpret_cast<SCORE*>(pValues));
-						IL16_Store<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f, IDX1g, IDX1h, IDX1j, IDX1k>(scores1, pScores);
-						IL16_Store<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f, IDX2g, IDX2h, IDX2j, IDX2k>(scores2, pScores);
-				#else*/
 				comparator<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e>(pValues, pScores);
 				comparator<IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k>(pValues, pScores);
-				//#endif
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l>
-			constexpr static void comparator(VALUE* pValues, SCORE* pScores)
+			constexpr static void comparator(VALUE* pValues, SCORE* pScores) noexcept
 			{
-				/*#if defined(SORT_IL16)
-						IL16 values1 = IL16_Load<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f, IDX1g, IDX1h, IDX1j, IDX1k, IDX1l>(reinterpret_cast<SCORE*>(pValues));
-						IL16 values2 = IL16_Load<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f, IDX2g, IDX2h, IDX2j, IDX2k, IDX2l>(reinterpret_cast<SCORE*>(pValues));
-						IL16 scores1 = IL16_Load<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f, IDX1g, IDX1h, IDX1j, IDX1k, IDX1l>(pScores);
-						IL16 scores2 = IL16_Load<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f, IDX2g, IDX2h, IDX2j, IDX2k, IDX2l>(pScores);
-						IL16_Compare(values1, values2, scores1, scores2);
-						IL16_Store<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f, IDX1g, IDX1h, IDX1j, IDX1k, IDX1l>(values1, reinterpret_cast<SCORE*>(pValues));
-						IL16_Store<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f, IDX2g, IDX2h, IDX2j, IDX2k, IDX2l>(values2, reinterpret_cast<SCORE*>(pValues));
-						IL16_Store<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f, IDX1g, IDX1h, IDX1j, IDX1k, IDX1l>(scores1, pScores);
-						IL16_Store<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f, IDX2g, IDX2h, IDX2j, IDX2k, IDX2l>(scores2, pScores);
-				#else*/
 				comparator<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f>(pValues, pScores);
 				comparator<IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l>(pValues, pScores);
-				//#endif
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l, size_t IDX1m, size_t IDX2m>
-			constexpr static void comparator(VALUE* pValues, SCORE* pScores)
+			constexpr static void comparator(VALUE* pValues, SCORE* pScores) noexcept
 			{
-				/*#if defined(SORT_IL16)
-						IL16 values1 = IL16_Load<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f, IDX1g, IDX1h, IDX1j, IDX1k, IDX1l, IDX1m>(reinterpret_cast<SCORE*>(pValues));
-						IL16 values2 = IL16_Load<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f, IDX2g, IDX2h, IDX2j, IDX2k, IDX2l, IDX2m>(reinterpret_cast<SCORE*>(pValues));
-						IL16 scores1 = IL16_Load<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f, IDX1g, IDX1h, IDX1j, IDX1k, IDX1l, IDX1m>(pScores);
-						IL16 scores2 = IL16_Load<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f, IDX2g, IDX2h, IDX2j, IDX2k, IDX2l, IDX2m>(pScores);
-						IL16_Compare(values1, values2, scores1, scores2);
-						IL16_Store<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f, IDX1g, IDX1h, IDX1j, IDX1k, IDX1l, IDX1m>(values1, reinterpret_cast<SCORE*>(pValues));
-						IL16_Store<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f, IDX2g, IDX2h, IDX2j, IDX2k, IDX2l, IDX2m>(values2, reinterpret_cast<SCORE*>(pValues));
-						IL16_Store<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f, IDX1g, IDX1h, IDX1j, IDX1k, IDX1l, IDX1m>(scores1, pScores);
-						IL16_Store<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f, IDX2g, IDX2h, IDX2j, IDX2k, IDX2l, IDX2m>(scores2, pScores);
-				#else*/
 				comparator<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f>(pValues, pScores);
 				comparator<IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m>(pValues, pScores);
-				//#endif
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l, size_t IDX1m, size_t IDX2m, size_t IDX1n, size_t IDX2n>
-			constexpr static void comparator(VALUE* pValues, SCORE* pScores)
+			constexpr static void comparator(VALUE* pValues, SCORE* pScores) noexcept
 			{
-				/*#if defined(SORT_IL16)
-						IL16 values1 = IL16_Load<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f, IDX1g, IDX1h, IDX1j, IDX1k, IDX1l, IDX1m, IDX1n>(reinterpret_cast<SCORE*>(pValues));
-						IL16 values2 = IL16_Load<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f, IDX2g, IDX2h, IDX2j, IDX2k, IDX2l, IDX2m, IDX2n>(reinterpret_cast<SCORE*>(pValues));
-						IL16 scores1 = IL16_Load<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f, IDX1g, IDX1h, IDX1j, IDX1k, IDX1l, IDX1m, IDX1n>(pScores);
-						IL16 scores2 = IL16_Load<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f, IDX2g, IDX2h, IDX2j, IDX2k, IDX2l, IDX2m, IDX2n>(pScores);
-						IL16_Compare(values1, values2, scores1, scores2);
-						IL16_Store<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f, IDX1g, IDX1h, IDX1j, IDX1k, IDX1l, IDX1m, IDX1n>(values1, reinterpret_cast<SCORE*>(pValues));
-						IL16_Store<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f, IDX2g, IDX2h, IDX2j, IDX2k, IDX2l, IDX2m, IDX2n>(values2, reinterpret_cast<SCORE*>(pValues));
-						IL16_Store<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f, IDX1g, IDX1h, IDX1j, IDX1k, IDX1l, IDX1m, IDX1n>(scores1, pScores);
-						IL16_Store<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f, IDX2g, IDX2h, IDX2j, IDX2k, IDX2l, IDX2m, IDX2n>(scores2, pScores);
-				#else*/
 				comparator<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g>(pValues, pScores);
 				comparator<IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n>(pValues, pScores);
-				//#endif
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l, size_t IDX1m, size_t IDX2m, size_t IDX1n, size_t IDX2n, size_t IDX1o, size_t IDX2o>
-			constexpr static void comparator(VALUE* pValues, SCORE* pScores)
+			constexpr static void comparator(VALUE* pValues, SCORE* pScores) noexcept
 			{
-				/*#if defined(SORT_IL16)
-						IL16 values1 = IL16_Load<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f, IDX1g, IDX1h, IDX1j, IDX1k, IDX1l, IDX1m, IDX1n, IDX1o>(reinterpret_cast<SCORE*>(pValues));
-						IL16 values2 = IL16_Load<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f, IDX2g, IDX2h, IDX2j, IDX2k, IDX2l, IDX2m, IDX2n, IDX2o>(reinterpret_cast<SCORE*>(pValues));
-						IL16 scores1 = IL16_Load<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f, IDX1g, IDX1h, IDX1j, IDX1k, IDX1l, IDX1m, IDX1n, IDX1o>(pScores);
-						IL16 scores2 = IL16_Load<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f, IDX2g, IDX2h, IDX2j, IDX2k, IDX2l, IDX2m, IDX2n, IDX2o>(pScores);
-						IL16_Compare(values1, values2, scores1, scores2);
-						IL16_Store<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f, IDX1g, IDX1h, IDX1j, IDX1k, IDX1l, IDX1m, IDX1n, IDX1o>(values1, reinterpret_cast<SCORE*>(pValues));
-						IL16_Store<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f, IDX2g, IDX2h, IDX2j, IDX2k, IDX2l, IDX2m, IDX2n, IDX2o>(values2, reinterpret_cast<SCORE*>(pValues));
-						IL16_Store<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f, IDX1g, IDX1h, IDX1j, IDX1k, IDX1l, IDX1m, IDX1n, IDX1o>(scores1, pScores);
-						IL16_Store<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f, IDX2g, IDX2h, IDX2j, IDX2k, IDX2l, IDX2m, IDX2n, IDX2o>(scores2, pScores);
-				#else*/
 				comparator<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g>(pValues, pScores);
 				comparator<IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n, IDX1o, IDX2o>(pValues, pScores);
-				//#endif
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l, size_t IDX1m, size_t IDX2m, size_t IDX1n, size_t IDX2n, size_t IDX1o, size_t IDX2o, size_t IDX1p, size_t IDX2p>
-			constexpr static void comparator(VALUE* pValues, SCORE* pScores)
+			constexpr static void comparator(VALUE* pValues, SCORE* pScores) noexcept
 			{
-				/*#if defined(SORT_IL16)
-						IL16 values1 = IL16_Load<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f, IDX1g, IDX1h, IDX1j, IDX1k, IDX1l, IDX1m, IDX1n, IDX1o, IDX1p>(reinterpret_cast<SCORE*>(pValues));
-						IL16 values2 = IL16_Load<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f, IDX2g, IDX2h, IDX2j, IDX2k, IDX2l, IDX2m, IDX2n, IDX2o, IDX2p>(reinterpret_cast<SCORE*>(pValues));
-						IL16 scores1 = IL16_Load<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f, IDX1g, IDX1h, IDX1j, IDX1k, IDX1l, IDX1m, IDX1n, IDX1o, IDX1p>(pScores);
-						IL16 scores2 = IL16_Load<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f, IDX2g, IDX2h, IDX2j, IDX2k, IDX2l, IDX2m, IDX2n, IDX2o, IDX2p>(pScores);
-						IL16_Compare(values1, values2, scores1, scores2);
-						IL16_Store<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f, IDX1g, IDX1h, IDX1j, IDX1k, IDX1l, IDX1m, IDX1n, IDX1o, IDX1p>(values1, reinterpret_cast<SCORE*>(pValues));
-						IL16_Store<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f, IDX2g, IDX2h, IDX2j, IDX2k, IDX2l, IDX2m, IDX2n, IDX2o, IDX2p>(values2, reinterpret_cast<SCORE*>(pValues));
-						IL16_Store<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f, IDX1g, IDX1h, IDX1j, IDX1k, IDX1l, IDX1m, IDX1n, IDX1o, IDX1p>(scores1, pScores);
-						IL16_Store<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f, IDX2g, IDX2h, IDX2j, IDX2k, IDX2l, IDX2m, IDX2n, IDX2o, IDX2p>(scores2, pScores);
-				#else*/
 				comparator<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h>(pValues, pScores);
 				comparator<IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n, IDX1o, IDX2o, IDX1p, IDX2p>(pValues, pScores);
-				//#endif
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l, size_t IDX1m, size_t IDX2m, size_t IDX1n, size_t IDX2n, size_t IDX1o, size_t IDX2o, size_t IDX1p, size_t IDX2p, size_t IDX1q, size_t IDX2q>
-			constexpr static void comparator(VALUE* pValues, SCORE* pScores)
+			constexpr static void comparator(VALUE* pValues, SCORE* pScores) noexcept
 			{
-#if defined(SORT_IL16)
-				IL16 values1 = IL16_Load<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f, IDX1g, IDX1h, IDX1j, IDX1k, IDX1l, IDX1m, IDX1n, IDX1o, IDX1p, IDX1q>(reinterpret_cast<SCORE*>(pValues));
-				IL16 values2 = IL16_Load<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f, IDX2g, IDX2h, IDX2j, IDX2k, IDX2l, IDX2m, IDX2n, IDX2o, IDX2p, IDX2q>(reinterpret_cast<SCORE*>(pValues));
-				IL16 scores1 = IL16_Load<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f, IDX1g, IDX1h, IDX1j, IDX1k, IDX1l, IDX1m, IDX1n, IDX1o, IDX1p, IDX1q>(pScores);
-				IL16 scores2 = IL16_Load<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f, IDX2g, IDX2h, IDX2j, IDX2k, IDX2l, IDX2m, IDX2n, IDX2o, IDX2p, IDX2q>(pScores);
-				IL16_Compare(values1, values2, scores1, scores2);
-				IL16_Store<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f, IDX1g, IDX1h, IDX1j, IDX1k, IDX1l, IDX1m, IDX1n, IDX1o, IDX1p, IDX1q>(values1, reinterpret_cast<SCORE*>(pValues));
-				IL16_Store<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f, IDX2g, IDX2h, IDX2j, IDX2k, IDX2l, IDX2m, IDX2n, IDX2o, IDX2p, IDX2q>(values2, reinterpret_cast<SCORE*>(pValues));
-				IL16_Store<IDX1a, IDX1b, IDX1c, IDX1d, IDX1e, IDX1f, IDX1g, IDX1h, IDX1j, IDX1k, IDX1l, IDX1m, IDX1n, IDX1o, IDX1p, IDX1q>(scores1, pScores);
-				IL16_Store<IDX2a, IDX2b, IDX2c, IDX2d, IDX2e, IDX2f, IDX2g, IDX2h, IDX2j, IDX2k, IDX2l, IDX2m, IDX2n, IDX2o, IDX2p, IDX2q>(scores2, pScores);
-#else
 				comparator<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h>(pValues, pScores);
 				comparator<IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n, IDX1o, IDX2o, IDX1p, IDX2p, IDX1q, IDX2q>(pValues, pScores);
-#endif
 			}
 			constexpr static void sort_N1(VALUE* pValues, SCORE* pScores) noexcept
 			{
 			}
-
 			constexpr static void sort_N2(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<0, 1>(pValues, pScores); // FIRST 1-Lane
 			}
-
 			constexpr static void sort_N3(VALUE* pValues, SCORE* pScores) noexcept
 			{
-#if defined(SORT_IL8) && defined(SORT_ILX)
-				IL8 values = IL8_Load3((SCORE*)pValues);
-				IL8 scores = IL8_Load3((SCORE*)pScores);
-				IL8_Compare<1, 2>(values, scores);
-				IL8_Compare<0, 2>(values, scores);
-				IL8_Compare<0, 1>(values, scores);
-				IL8_Store3(values, (SCORE*)pValues);
-				IL8_Store3(scores, (SCORE*)pScores);
-#elif defined(SORT_IL16) && defined(SORT_ILX)
-				IL16 values = IL16_Load3((SCORE*)pValues);
-				IL16 scores = IL16_Load3((SCORE*)pScores);
-				IL16_Compare<1, 2>(values, scores);
-				IL16_Compare<0, 2>(values, scores);
-				IL16_Compare<0, 1>(values, scores);
-				IL16_Store3(values, (SCORE*)pValues);
-				IL16_Store3(scores, (SCORE*)pScores);
-#else
 				comparator<1, 2>(pValues, pScores);
 				comparator<0, 2>(pValues, pScores);
 				comparator<0, 1>(pValues, pScores);
-#endif
 			}
-
 			constexpr static void sort_N4(VALUE* pValues, SCORE* pScores) noexcept
 			{
-#if defined(SORT_IL8) && defined(SORT_ILX)
-				IL8 values = IL8_Load4((SCORE*)pValues);
-				IL8 scores = IL8_Load4((SCORE*)pScores);
-				IL8_Compare<0, 1, 2, 3>(values, scores);
-				IL8_Compare<0, 2, 1, 3>(values, scores);
-				IL8_Compare<1, 2>(values, scores);
-				IL8_Store4(values, (SCORE*)pValues);
-				IL8_Store4(scores, (SCORE*)pScores);
-#elif defined(SORT_IL16) && defined(SORT_ILX)
-				IL16 values = IL16_Load4((SCORE*)pValues);
-				IL16 scores = IL16_Load4((SCORE*)pScores);
-				IL16_Compare<0, 1, 2, 3>(values, scores);
-				IL16_Compare<0, 2, 1, 3>(values, scores);
-				IL16_Compare<1, 2>(values, scores);
-				IL16_Store4(values, (SCORE*)pValues);
-				IL16_Store4(scores, (SCORE*)pScores);
-#else
 				comparator<0, 1, 2, 3>(pValues, pScores); // FIRST 2-Lane
 				comparator<0, 2, 1, 3>(pValues, pScores);
 				comparator<1, 2>(pValues, pScores);
-#endif
 			}
-
 			constexpr static void sort_N5(VALUE* pValues, SCORE* pScores) noexcept
 			{
-#if defined(SORT_IL8) && defined(SORT_ILX)
-				IL8 values = IL8_Load5((SCORE*)pValues);
-				IL8 scores = IL8_Load5((SCORE*)pScores);
-				IL8_Compare<0, 4, 1, 3>(values, scores);
-				IL8_Compare<0, 2>(values, scores);
-				IL8_Compare<2, 4, 0, 1>(values, scores);
-				IL8_Compare<2, 3, 1, 4>(values, scores);
-				IL8_Compare<1, 2, 3, 4>(values, scores);
-				IL8_Store5(values, (SCORE*)pValues);
-				IL8_Store5(scores, (SCORE*)pScores);
-#elif defined(SORT_IL16) && defined(SORT_ILX)
-				IL16 values = IL16_Load5((SCORE*)pValues);
-				IL16 scores = IL16_Load5((SCORE*)pScores);
-				IL16_Compare<0, 4, 1, 3>(values, scores);
-				IL16_Compare<0, 2>(values, scores);
-				IL16_Compare<2, 4, 0, 1>(values, scores);
-				IL16_Compare<2, 3, 1, 4>(values, scores);
-				IL16_Compare<1, 2, 3, 4>(values, scores);
-				IL16_Store5(values, (SCORE*)pValues);
-				IL16_Store5(scores, (SCORE*)pScores);
-#else
 				comparator<0, 4, 1, 3>(pValues, pScores);
 				comparator<0, 2>(pValues, pScores);
 				comparator<2, 4, 0, 1>(pValues, pScores);
 				comparator<2, 3, 1, 4>(pValues, pScores);
 				comparator<1, 2, 3, 4>(pValues, pScores);
-#endif
 			}
-
 			constexpr static void sort_N6(VALUE* pValues, SCORE* pScores) noexcept
 			{
-#if defined(SORT_IL8) && defined(SORT_ILX)
-				IL8 values = IL8_Load6((SCORE*)pValues);
-				IL8 scores = IL8_Load6((SCORE*)pScores);
-				IL8_Compare<0, 4, 1, 5>(values, scores);
-				IL8_Compare<0, 2, 1, 3>(values, scores);
-				IL8_Compare<2, 4, 3, 5, 0, 1>(values, scores);
-				IL8_Compare<2, 3, 4, 5>(values, scores);
-				IL8_Compare<1, 4>(values, scores);
-				IL8_Compare<1, 2, 3, 4>(values, scores);
-				IL8_Store6(values, (SCORE*)pValues);
-				IL8_Store6(scores, (SCORE*)pScores);
-#elif defined(SORT_IL16) && defined(SORT_ILX)
-				IL16 values = IL16_Load6((SCORE*)pValues);
-				IL16 scores = IL16_Load6((SCORE*)pScores);
-				IL16_Compare<0, 4, 1, 5>(values, scores);
-				IL16_Compare<0, 2, 1, 3>(values, scores);
-				IL16_Compare<2, 4, 3, 5, 0, 1>(values, scores);
-				IL16_Compare<2, 3, 4, 5>(values, scores);
-				IL16_Compare<1, 4>(values, scores);
-				IL16_Compare<1, 2, 3, 4>(values, scores);
-				IL16_Store6(values, (SCORE*)pValues);
-				IL16_Store6(scores, (SCORE*)pScores);
-#else
 				comparator<0, 4, 1, 5>(pValues, pScores);
 				comparator<0, 2, 1, 3>(pValues, pScores);
 				comparator<2, 4, 3, 5, 0, 1>(pValues, pScores); // FIRST 3-Lane
 				comparator<2, 3, 4, 5>(pValues, pScores);
 				comparator<1, 4>(pValues, pScores);
 				comparator<1, 2, 3, 4 >(pValues, pScores);
-#endif
 			}
-
 			constexpr static void sort_N7(VALUE* pValues, SCORE* pScores) noexcept
 			{
-#if defined(SORT_IL8) && defined(SORT_ILX)
-				IL8 values = IL8_Load7((SCORE*)pValues);
-				IL8 scores = IL8_Load7((SCORE*)pScores);
-				IL8_Compare<0, 4, 1, 5, 2, 6>(values, scores);
-				IL8_Compare<0, 2, 1, 3, 4, 6>(values, scores);
-				IL8_Compare<2, 4, 3, 5, 0, 1>(values, scores);
-				IL8_Compare<2, 3, 4, 5>(values, scores);
-				IL8_Compare<1, 4, 3, 6>(values, scores);
-				IL8_Compare<1, 2, 3, 4, 5, 6>(values, scores);
-				IL8_Store7(values, (SCORE*)pValues);
-				IL8_Store7(scores, (SCORE*)pScores);
-#elif defined(SORT_IL16) && defined(SORT_ILX)
-				IL16 values = IL16_Load7((SCORE*)pValues);
-				IL16 scores = IL16_Load7((SCORE*)pScores);
-				IL16_Compare<0, 4, 1, 5, 2, 6>(values, scores);
-				IL16_Compare<0, 2, 1, 3, 4, 6>(values, scores);
-				IL16_Compare<2, 4, 3, 5, 0, 1>(values, scores);
-				IL16_Compare<2, 3, 4, 5>(values, scores);
-				IL16_Compare<1, 4, 3, 6>(values, scores);
-				IL16_Compare<1, 2, 3, 4, 5, 6>(values, scores);
-				IL16_Store7(values, (SCORE*)pValues);
-				IL16_Store7(scores, (SCORE*)pScores);
-#else
 				comparator<0, 4, 1, 5, 2, 6>(pValues, pScores);
 				comparator<0, 2, 1, 3, 4, 6>(pValues, pScores);
 				comparator<2, 4, 3, 5, 0, 1>(pValues, pScores);
 				comparator<2, 3, 4, 5>(pValues, pScores);
 				comparator<1, 4, 3, 6>(pValues, pScores);
 				comparator<1, 2, 3, 4, 5, 6>(pValues, pScores);
-#endif
 			}
-
 			constexpr static void sort_N8(VALUE* pValues, SCORE* pScores) noexcept
 			{
-#if defined(SORT_IL8) && defined(SORT_ILX)
-				IL8 values = IL8_Load8((SCORE*)pValues);
-				IL8 scores = IL8_Load8((SCORE*)pScores);
-				IL8_Compare<0, 4, 1, 5, 2, 6, 3, 7>(values, scores);
-				IL8_Compare<0, 2, 1, 3, 4, 6, 5, 7>(values, scores);
-				IL8_Compare<2, 4, 3, 5, 0, 1, 6, 7>(values, scores);
-				IL8_Compare<2, 3, 4, 5>(values, scores);
-				IL8_Compare<1, 4, 3, 6>(values, scores);
-				IL8_Compare<1, 2, 3, 4, 5, 6>(values, scores);
-				IL8_Store8(values, (SCORE*)pValues);
-				IL8_Store8(scores, (SCORE*)pScores);
-#elif defined(SORT_IL16) && defined(SORT_ILX)
-				IL16 values = IL16_Load8((SCORE*)pValues);
-				IL16 scores = IL16_Load8((SCORE*)pScores);
-				IL16_Compare<0, 4, 1, 5, 2, 6, 3, 7>(values, scores);
-				IL16_Compare<0, 2, 1, 3, 4, 6, 5, 7>(values, scores);
-				IL16_Compare<2, 4, 3, 5, 0, 1, 6, 7>(values, scores);
-				IL16_Compare<2, 3, 4, 5>(values, scores);
-				IL16_Compare<1, 4, 3, 6>(values, scores);
-				IL16_Compare<1, 2, 3, 4, 5, 6>(values, scores);
-				IL16_Store8(values, (SCORE*)pValues);
-				IL16_Store8(scores, (SCORE*)pScores);
-#else
 				comparator<0, 4, 1, 5, 2, 6, 3, 7>(pValues, pScores); // FIRST 4-Lane
 				comparator<0, 2, 1, 3, 4, 6, 5, 7>(pValues, pScores);
 				comparator<2, 4, 3, 5, 0, 1, 6, 7>(pValues, pScores);
 				comparator<2, 3, 4, 5>(pValues, pScores);
 				comparator<1, 4, 3, 6>(pValues, pScores);
 				comparator<1, 2, 3, 4, 5, 6>(pValues, pScores);
-#endif
 			}
-
 			constexpr static void sort_N9(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<0, 8, 1, 5, 2, 6, 3, 7>(pValues, pScores);
@@ -727,7 +801,6 @@ namespace pygmalion
 				comparator<1, 4, 3, 6, 5, 8>(pValues, pScores);
 				comparator<1, 2, 3, 4, 5, 6, 7, 8>(pValues, pScores);
 			}
-
 			constexpr static void sort_N10(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<4, 9, 3, 8, 2, 7, 1, 6, 0, 5>(pValues, pScores);
@@ -740,7 +813,6 @@ namespace pygmalion
 				comparator<3, 4, 5, 6>(pValues, pScores);
 				comparator<4, 5>(pValues, pScores);
 			}
-
 			constexpr static void sort_N11(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<0, 1, 2, 3, 4, 5, 6, 7, 8, 9>(pValues, pScores);
@@ -753,7 +825,6 @@ namespace pygmalion
 				comparator<2, 4, 7, 9, 5, 6>(pValues, pScores);
 				comparator<3, 4, 7, 8>(pValues, pScores);
 			}
-
 			constexpr static void sort_N12(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11>(pValues, pScores);
@@ -766,7 +837,6 @@ namespace pygmalion
 				comparator<2, 4, 7, 9, 5, 6>(pValues, pScores);
 				comparator<3, 4, 7, 8>(pValues, pScores);
 			}
-
 			constexpr static void sort_N13(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<1, 7, 9, 11, 3, 4, 5, 8, 0, 12, 2, 6>(pValues, pScores);
@@ -780,7 +850,6 @@ namespace pygmalion
 				comparator<2, 3, 4, 5, 6, 7, 8, 9>(pValues, pScores);
 				comparator<3, 4, 5, 6>(pValues, pScores);
 			}
-
 			constexpr static void sort_N14(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13>(pValues, pScores);
@@ -794,7 +863,6 @@ namespace pygmalion
 				comparator<3, 4, 5, 6, 7, 8, 9, 10, 11, 12>(pValues, pScores);
 				comparator<6, 7, 8, 9>(pValues, pScores);
 			}
-
 			constexpr static void sort_N15(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13>(pValues, pScores);
@@ -808,7 +876,6 @@ namespace pygmalion
 				comparator<3, 4, 5, 6, 7, 8, 9, 10, 11, 12>(pValues, pScores);
 				comparator<6, 7, 8, 9>(pValues, pScores);
 			}
-
 			constexpr static void sort_N16(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15>(pValues, pScores);
@@ -822,7 +889,6 @@ namespace pygmalion
 				comparator<3, 4, 5, 6, 7, 8, 9, 10, 11, 12>(pValues, pScores);
 				comparator<6, 7, 8, 9>(pValues, pScores);
 			}
-
 			constexpr static void sort_N17(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<0, 16, 1, 9, 2, 10, 3, 11, 4, 12, 5, 13, 6, 14, 7, 15>(pValues, pScores);
@@ -838,7 +904,6 @@ namespace pygmalion
 				comparator<1, 4, 3, 6, 5, 8, 7, 10, 9, 12, 11, 14, 13, 16>(pValues, pScores);
 				comparator<1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16>(pValues, pScores);
 			}
-
 			constexpr static void sort_N18(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<0, 16, 1, 17, 2, 10, 3, 11, 4, 12, 5, 13, 6, 14, 7, 15>(pValues, pScores);
@@ -855,7 +920,6 @@ namespace pygmalion
 				comparator<1, 4, 5, 8, 9, 12, 13, 16>(pValues, pScores);
 				comparator<1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16>(pValues, pScores);
 			}
-
 			constexpr static void sort_N19(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<0, 16, 1, 17, 2, 18, 3, 11, 4, 12, 5, 13, 6, 14, 7, 15>(pValues, pScores);
@@ -873,7 +937,6 @@ namespace pygmalion
 				comparator<1, 4, 3, 6, 5, 8, 7, 10, 9, 12, 11, 14, 13, 16, 15, 18>(pValues, pScores);
 				comparator<1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18>(pValues, pScores);
 			}
-
 			constexpr static void sort_N20(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<0, 16, 1, 17, 2, 18, 3, 19, 4, 12, 5, 13, 6, 14, 7, 15>(pValues, pScores);
@@ -891,7 +954,6 @@ namespace pygmalion
 				comparator<1, 4, 3, 6, 5, 8, 7, 10, 9, 12, 11, 14, 13, 16, 15, 18>(pValues, pScores);
 				comparator<1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18>(pValues, pScores);
 			}
-
 			constexpr static void sort_N21(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<0, 16, 1, 17, 2, 18, 3, 19, 4, 20, 5, 13, 6, 14, 7, 15>(pValues, pScores);
@@ -910,7 +972,6 @@ namespace pygmalion
 				comparator<1, 4, 3, 6, 5, 8, 7, 10, 9, 12, 11, 14, 13, 16, 15, 18, 17, 20>(pValues, pScores);
 				comparator<1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20>(pValues, pScores);
 			}
-
 			constexpr static void sort_N22(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<0, 16, 1, 17, 2, 18, 3, 19, 4, 20, 5, 21, 6, 14, 7, 15>(pValues, pScores);
@@ -929,7 +990,6 @@ namespace pygmalion
 				comparator<1, 4, 3, 6, 5, 8, 7, 10, 9, 12, 11, 14, 13, 16, 15, 18, 17, 20>(pValues, pScores);
 				comparator<1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20>(pValues, pScores);
 			}
-
 			constexpr static void sort_N23(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<0, 16, 1, 17, 2, 18, 3, 19, 4, 20, 5, 21, 6, 22, 7, 15>(pValues, pScores);
@@ -948,7 +1008,6 @@ namespace pygmalion
 				comparator<1, 4, 3, 6, 5, 8, 7, 10, 9, 12, 11, 14, 13, 16, 15, 18, 17, 20, 19, 22>(pValues, pScores);
 				comparator<1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22>(pValues, pScores);
 			}
-
 			constexpr static void sort_N24(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<0, 16, 1, 17, 2, 18, 3, 19, 4, 20, 5, 21, 6, 22, 7, 23>(pValues, pScores);
@@ -967,7 +1026,6 @@ namespace pygmalion
 				comparator<1, 4, 3, 6, 5, 8, 7, 10, 9, 12, 11, 14, 13, 16, 15, 18, 17, 20, 19, 22>(pValues, pScores);
 				comparator<1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22>(pValues, pScores);
 			}
-
 			constexpr static void sort_N25(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<0, 16, 1, 17, 2, 18, 3, 19, 4, 20, 5, 21, 6, 22, 7, 23, 8, 24>(pValues, pScores);
@@ -986,7 +1044,6 @@ namespace pygmalion
 				comparator<1, 4, 3, 6, 5, 8, 7, 10, 9, 12, 11, 14, 13, 16, 15, 18, 17, 20, 19, 22, 21, 24>(pValues, pScores);
 				comparator<1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24>(pValues, pScores);
 			}
-
 			constexpr static void sort_N26(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<0, 16, 1, 17, 2, 18, 3, 19, 4, 20, 5, 21, 6, 22, 7, 23, 8, 24, 9, 25>(pValues, pScores);
@@ -1005,7 +1062,6 @@ namespace pygmalion
 				comparator<1, 4, 3, 6, 5, 8, 7, 10, 9, 12, 11, 14, 13, 16, 15, 18, 17, 20, 19, 22, 21, 24>(pValues, pScores);
 				comparator<1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24>(pValues, pScores);
 			}
-
 			constexpr static void sort_N27(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<0, 16, 1, 17, 2, 18, 3, 19, 4, 20, 5, 21, 6, 22, 7, 23, 8, 24, 9, 25, 10, 26>(pValues, pScores);
@@ -1024,7 +1080,6 @@ namespace pygmalion
 				comparator<1, 4, 3, 6, 5, 8, 7, 10, 9, 12, 11, 14, 13, 16, 15, 18, 17, 20, 19, 22, 21, 24, 23, 26>(pValues, pScores);
 				comparator<1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26>(pValues, pScores);
 			}
-
 			constexpr static void sort_N28(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<0, 16, 1, 17, 2, 18, 3, 19, 4, 20, 5, 21, 6, 22, 7, 23, 8, 24, 9, 25, 10, 26, 11, 27>(pValues, pScores);
@@ -1043,7 +1098,6 @@ namespace pygmalion
 				comparator<1, 4, 3, 6, 5, 8, 7, 10, 9, 12, 11, 14, 13, 16, 15, 18, 17, 20, 19, 22, 21, 24, 23, 26>(pValues, pScores);
 				comparator<1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26>(pValues, pScores);
 			}
-
 			constexpr static void sort_N29(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<0, 16, 1, 17, 2, 18, 3, 19, 4, 20, 5, 21, 6, 22, 7, 23, 8, 24, 9, 25, 10, 26, 11, 27, 12, 28>(pValues, pScores);
@@ -1062,7 +1116,6 @@ namespace pygmalion
 				comparator<1, 4, 3, 6, 5, 8, 7, 10, 9, 12, 11, 14, 13, 16, 15, 18, 17, 20, 19, 22, 21, 24, 23, 26, 25, 28>(pValues, pScores);
 				comparator<1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28>(pValues, pScores);
 			}
-
 			constexpr static void sort_N30(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<0, 16, 1, 17, 2, 18, 3, 19, 4, 20, 5, 21, 6, 22, 7, 23, 8, 24, 9, 25, 10, 26, 11, 27, 12, 28, 13, 29>(pValues, pScores);
@@ -1081,7 +1134,6 @@ namespace pygmalion
 				comparator<1, 4, 3, 6, 5, 8, 7, 10, 9, 12, 11, 14, 13, 16, 15, 18, 17, 20, 19, 22, 21, 24, 23, 26, 25, 28>(pValues, pScores);
 				comparator<1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28>(pValues, pScores);
 			}
-
 			constexpr static void sort_N31(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<0, 16, 1, 17, 2, 18, 3, 19, 4, 20, 5, 21, 6, 22, 7, 23, 8, 24, 9, 25, 10, 26, 11, 27, 12, 28, 13, 29, 14, 30>(pValues, pScores);
@@ -1100,7 +1152,6 @@ namespace pygmalion
 				comparator<1, 4, 3, 6, 5, 8, 7, 10, 9, 12, 11, 14, 13, 16, 15, 18, 17, 20, 19, 22, 21, 24, 23, 26, 25, 28, 27, 30>(pValues, pScores);
 				comparator<1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30>(pValues, pScores);
 			}
-
 			constexpr static void sort_N32(VALUE* pValues, SCORE* pScores) noexcept
 			{
 
@@ -1120,7 +1171,6 @@ namespace pygmalion
 				comparator<1, 4, 3, 6, 5, 8, 7, 10, 9, 12, 11, 14, 13, 16, 15, 18, 17, 20, 19, 22, 21, 24, 23, 26, 25, 28, 27, 30>(pValues, pScores);
 				comparator<1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30>(pValues, pScores);
 			}
-
 			typedef void SORTFUNCTION(VALUE* pValues, SCORE* pScores);
 			constexpr static inline SORTFUNCTION* m_Sort[31]
 			{
@@ -1218,8 +1268,7 @@ namespace pygmalion
 			else if constexpr (sizeof(VALUE) == sizeof(std::uint64_t) && sizeof(SCORE) == sizeof(std::int64_t))
 				detail::sortAlgorithm<std::uint64_t, std::int64_t>::sortValues(reinterpret_cast<std::uint64_t*>(pValues), reinterpret_cast<std::int64_t*>(pScores), length);
 			else
-				detail::sortAlgorithm<VALUE,SCORE>::sortValues(pValues, pScores, length);
+				detail::sortAlgorithm<VALUE, SCORE>::sortValues(pValues, pScores, length);
 		}
-
 	};
 }

@@ -3,10 +3,6 @@
 
 #define _USE_MATH_DEFINES
 
-
-
-//#define PYGMALION_NOSHIFTS 
-
 #include <cstdint>
 #include <cassert>
 #include <cmath>
@@ -41,6 +37,7 @@ using timeType = typename chronographType::time_point;
 #include "pygmalion-intrinsics/popcnt.h"
 #include "pygmalion-intrinsics/bsf.h"
 #include "pygmalion-intrinsics/bsr.h"
+#include "pygmalion-intrinsics/simd.h"
 #include "pygmalion-intrinsics/hashprovider.h"
 #include "pygmalion-intrinsics/enumeration.h"
 #include "pygmalion-intrinsics/bit.h"

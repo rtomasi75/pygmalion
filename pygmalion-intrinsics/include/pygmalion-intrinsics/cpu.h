@@ -4,7 +4,13 @@
 #endif
 #if (defined(_M_X64)||defined(__x86_64__)||defined(__amd64__))
 #define PYGMALION_CPU_X64
+#if defined(_MSC_VER)
+#define PYGMALION_CPU_MMX
+#define PYGMALION_CPU_SSE
+#define PYGMALION_CPU_SSE2
 #endif
+#endif
+
 #if (defined(_M_ARM)||defined(__arm__))
 #define PYGMALION_CPU_ARM
 #endif
@@ -13,6 +19,21 @@
 #endif
 #if (defined(__aarch64__))
 #define PYGMALION_CPU_ARM64
+#endif
+#if defined(__AVX512__)
+#if !defined(PYGMALION_CPU_AVX512)
+#define PYGMALION_CPU_AVX512
+#endif
+#endif
+#if defined(__AVX2__)
+#if !defined(PYGMALION_CPU_AVX2)
+#define PYGMALION_CPU_AVX2
+#endif
+#endif
+#if defined(__AVX__)
+#if !defined(PYGMALION_CPU_AVX)
+#define PYGMALION_CPU_AVX
+#endif
 #endif
 #if defined(__BMI2__)
 #if !defined(PYGMALION_CPU_BMI2)
@@ -24,44 +45,19 @@
 #define PYGMALION_CPU_BMI
 #endif
 #endif
-#if defined(__SSE41__)
-#if !defined(PYGMALION_CPU_SSE41)
-#define PYGMALION_CPU_SSE41
-#endif
-#endif
 #if defined(__SSE42__)
 #if !defined(PYGMALION_CPU_SSE42)
 #define PYGMALION_CPU_SSE42
 #endif
 #endif
-#if defined(__AVX__)
-#if !defined(PYGMALION_CPU_AVX)
-#define PYGMALION_CPU_AVX
+#if defined(__SSE41__)
+#if !defined(PYGMALION_CPU_SSE41)
+#define PYGMALION_CPU_SSE41
 #endif
 #endif
-#if defined(__AVX2__)
-#if !defined(PYGMALION_CPU_AVX2)
-#define PYGMALION_CPU_AVX2
-#endif
-#endif
-#if defined(__AVX512__)
-#if !defined(PYGMALION_CPU_AVX512)
-#define PYGMALION_CPU_AVX512
-#endif
-#endif
-#if defined(__MMX__)
-#if !defined(PYGMALION_CPU_MMX)
-#define PYGMALION_CPU_MMX
-#endif
-#endif
-#if defined(__SSE__)
-#if !defined(PYGMALION_CPU_SSE)
-#define PYGMALION_CPU_SSE
-#endif
-#endif
-#if defined(__SSE2__)
-#if !defined(PYGMALION_CPU_SSE2)
-#define PYGMALION_CPU_SSE2
+#if defined(__SSSE3__)
+#if !defined(PYGMALION_CPU_SSSE3)
+#define PYGMALION_CPU_SSSE3
 #endif
 #endif
 #if defined(__SSE3__)
@@ -69,9 +65,19 @@
 #define PYGMALION_CPU_SSE3
 #endif
 #endif
-#if defined(__SSSE3__)
-#if !defined(PYGMALION_CPU_SSSE3)
-#define PYGMALION_CPU_SSSE3
+#if defined(__SSE2__)
+#if !defined(PYGMALION_CPU_SSE2)
+#define PYGMALION_CPU_SSE2
+#endif
+#endif
+#if defined(__SSE__)
+#if !defined(PYGMALION_CPU_SSE)
+#define PYGMALION_CPU_SSE
+#endif
+#endif
+#if defined(__MMX__)
+#if !defined(PYGMALION_CPU_MMX)
+#define PYGMALION_CPU_MMX
 #endif
 #endif
 
