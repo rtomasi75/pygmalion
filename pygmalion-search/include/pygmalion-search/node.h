@@ -359,21 +359,8 @@ namespace pygmalion
 		template<bool VERBOSE>
 		constexpr scoreType zwsearchMove(const movebitsType move, const scoreType alpha, const depthType depthRemaining, const size_t depth, std::ostream& str) const noexcept
 		{
-			if constexpr (ID)
-			{
-				scoreType sc{ scoreType::zero() };
-				node subnode(*this, move);
-				for (depthType d = -1; d < depthRemaining; d++)
-				{
-					sc = -subnode.zwsearch<VERBOSE>(-alpha.plyDown(), d, depth + 1, str).plyUp();
-				}
-				return sc;
-			}
-			else
-			{
-				node subnode(*this, move);
-				return -subnode.zwsearch<VERBOSE>(-alpha.plyDown(), depthRemaining - 1, depth + 1, str).plyUp();
-			}
+			node subnode(*this, move);
+			return -subnode.zwsearch<VERBOSE>(-alpha.plyDown(), depthRemaining - 1, depth + 1, str).plyUp();
 		}
 		template<bool VERBOSE, bool LONGPV, bool SCOUT>
 		constexpr bool searchSubNode(const movebitsType move, scoreType& alpha, scoreType& beta, scoreType& best, movebitsType& bestmove, const depthType depthRemaining, const size_t depth, variationType& principalVariation, std::ostream& str, const bool fromStack) const noexcept
@@ -1223,6 +1210,11 @@ namespace pygmalion
 							best = ttScore;
 					}
 				}
+				if constexpr (true)
+				{
+					//			const depthType reduction{ 1 + 4 / (depthRemaining + 1) };
+					//			const depthType remainingNullMoveDepth{ depthRemaining - reduction };
+				}
 				bool fromStack;
 				const playerType movingPlayer{ m_Stack.movingPlayer() };
 				if ((!hasLegalMove) && nextMove(depthRemaining, depth, move, fromStack))
@@ -1346,7 +1338,7 @@ namespace pygmalion
 			}
 			else
 			{
-				const scoreType exact{ this->template eval<VERBOSE, false>(alpha, beta, depth, principalVariation, str) };
+				const scoreType exact{ this->template eval<VERBOSE, TT>(alpha, beta, depth, principalVariation, str) };
 				return exact;
 			}
 		}
