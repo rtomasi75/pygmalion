@@ -578,9 +578,10 @@ namespace pygmalion
 			{
 				return generatorType::moveToString(*static_cast<const typename generatorType::stackType*>(this), moveBits, depth);
 			}
-			constexpr bool occurs(const boardType& position, const int times, const int start = 3, const int frequency = 4) const noexcept
+			constexpr bool occurs(const boardType& position, const int times, const int start, const int frequency, const int reversibleMoves) const noexcept
 			{
-				int n{ 0 };
+				if (reversibleMoves == 0)
+					return false;
 				if (m_pParent != nullptr)
 				{
 					if (start == 0)
@@ -590,13 +591,13 @@ namespace pygmalion
 							if (times == 1)
 								return true;
 							else
-								return m_pParent->occurs(position, times - 1, frequency, frequency);
+								return m_pParent->occurs(position, times - 1, frequency, frequency, reversibleMoves - 1);
 						}
 						else
-							return m_pParent->occurs(position, times, start - 1, frequency);
+							return m_pParent->occurs(position, times, start - 1, frequency, reversibleMoves - 1);
 					}
 					else
-						return m_pParent->occurs(position, times, start - 1, frequency);
+						return m_pParent->occurs(position, times, start - 1, frequency, reversibleMoves - 1);
 				}
 				else
 				{
@@ -690,6 +691,14 @@ namespace pygmalion
 		constexpr static size_t moveBucket(const boardType& position, const movebitsType& mv) noexcept
 		{
 			return generatorType::moveBucket_Implementation(position, mv);
+		}
+		constexpr static bool hasNullMove() noexcept
+		{
+			return generatorType::hasNullMove_Implementation();
+		}
+		constexpr static movebitsType nullMove() noexcept
+		{
+			return generatorType::nullMove_Implementation();
 		}
 	};
 }

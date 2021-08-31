@@ -73,7 +73,7 @@ namespace pygmalion::chess
 				position.removePiece(rook, rookFrom, whitePlayer);
 				position.addPiece(king, kingTo, whitePlayer);
 				position.addPiece(rook, rookTo, whitePlayer);
-				position.cumulation().reversiblePlies() = 0;
+				position.cumulation().reversiblePlies()++;
 				return typename queensidecastlemove::movedataType(oldFlags, reversiblePlies);
 			}
 			else
@@ -87,7 +87,7 @@ namespace pygmalion::chess
 				position.removePiece(rook, rookFrom, blackPlayer);
 				position.addPiece(king, kingTo, blackPlayer);
 				position.addPiece(rook, rookTo, blackPlayer);
-				position.cumulation().reversiblePlies() = 0;
+				position.cumulation().reversiblePlies()++;
 				return typename queensidecastlemove::movedataType(oldFlags, reversiblePlies);
 			}
 		}

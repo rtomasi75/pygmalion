@@ -217,6 +217,9 @@ namespace pygmalion
 		void onEndNodeTT(const stackType& stack) noexcept
 		{
 		}
+		void onEndNodeNull(const stackType& stack) noexcept
+		{
+		}
 		void sortMoves(movelistType& moves, list<scoreType, countMaxGeneratedMoves>& scores, const indexType fromMoveIndex, const indexType fromScoreIndex) noexcept
 		{
 			const indexType length{ static_cast<indexType>(moves.length() - fromMoveIndex) };
@@ -353,6 +356,14 @@ namespace pygmalion
 #endif
 			reinterpret_cast<instanceType*>(this)->onEndNodeTT(stack);
 		}
+		void endNodeNull(const stackType& stack) noexcept
+		{
+#if !defined(NDEBUG)
+			assert(m_IsSearching);
+			m_NodeDepth--;
+#endif
+			reinterpret_cast<instanceType*>(this)->onEndNodeNull(stack);
+		}
 		void beginMove(const stackType& stack, const movebitsType moveBits, const bool isTactical, const size_t depth) noexcept
 		{
 #if !defined(NDEBUG)
@@ -463,6 +474,8 @@ namespace pygmalion
 		std::uint64_t m_LateNodes;
 		std::uint64_t m_CutNodes;
 		std::uint64_t m_LeafNodes;
+		std::uint64_t m_TTNodes;
+		std::uint64_t m_NullNodes;
 	protected:
 		void onBeginSearch() noexcept
 		{
@@ -495,8 +508,13 @@ namespace pygmalion
 		}
 		void onEndNodeTT(const stackType& stack) noexcept
 		{
-			baseclassType::onEndNodeLeaf(stack);
+			baseclassType::onEndNodeTT(stack);
 			m_TTNodes++;
+		}
+		void onEndNodeNull(const stackType& stack) noexcept
+		{
+			baseclassType::onEndNodeNull(stack);
+			m_NullNodes++;
 		}
 	public:
 		constexpr std::uint64_t earlyNodeCount() const noexcept
@@ -517,7 +535,11 @@ namespace pygmalion
 		}
 		constexpr std::uint64_t TTNodeCount() const noexcept
 		{
-			return m_LeafNodes;
+			return m_TTNodes;
+		}
+		constexpr std::uint64_t NullNodeCount() const noexcept
+		{
+			return m_NullNodes;
 		}
 		std::string toString() const noexcept
 		{
@@ -535,6 +557,7 @@ namespace pygmalion
 			m_LateNodes{ 0 },
 			m_CutNodes{ 0 },
 			m_TTNodes{ 0 },
+			m_NullNodes{ 0 },
 			m_LeafNodes{ 0 }
 		{
 

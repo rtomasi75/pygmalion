@@ -63,7 +63,7 @@ namespace pygmalion::chess
 			const std::uint16_t reversiblePlies{ position.cumulation().reversiblePlies() };
 			position.clearEnPassantFiles();
 			position.setMovingPlayer(++position.movingPlayer());
-			position.cumulation().reversiblePlies()++;
+			position.cumulation().reversiblePlies() = 0;
 			return typename nullmove::movedataType(oldFlags, reversiblePlies);
 		}
 		constexpr void undoMove_Implementation(boardType& position, const typename nullmove::movedataType& data) const noexcept

@@ -20,7 +20,7 @@ namespace pygmalion::chess
 		constexpr static const inline movegen_sliders_hv movegenSlidersHV{ movegen_sliders_hv() };
 		constexpr static const inline movegen_sliders_diag movegenSlidersDiag{ movegen_sliders_diag() };
 		constexpr static const inline movegen_king movegenKing{ movegen_king() };
-
+		
 		class stack :
 			public pygmalion::generator<descriptor_dynamics, generator>::stack
 		{
@@ -159,6 +159,7 @@ namespace pygmalion::chess
 			squares |= static_cast<squaresType>(static_cast<rankType>(1));
 			return squares;
 		}
+		constexpr static const movebitsType m_NullMove{ motorType::move().createNull() };
 	public:
 		constexpr static squaresType pawnPushTargets(const squareType sq, const playerType p, const squaresType& allowed) noexcept
 		{
@@ -595,5 +596,13 @@ namespace pygmalion::chess
 		static std::string moveToString_Implementation(const stackType& stack, const movebitsType mv, const size_t depth) noexcept;
 		static std::string passToString_Implementation(const passType pass) noexcept;
 		static std::string tacticalPassToString_Implementation(const passType tacticalPass) noexcept;
+		constexpr static bool hasNullMove_Implementation() noexcept
+		{
+			return true;
+		}
+		constexpr static movebitsType nullMove_Implementation() noexcept
+		{
+			return m_NullMove;
+		}
 	};
 }

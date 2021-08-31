@@ -98,5 +98,14 @@ namespace pygmalion::tictactoe
 			const squareType sq{ moveType::extractSquare(mv) };
 			return static_cast<size_t>(sq);
 		}
+		constexpr static bool hasNullMove_Implementation() noexcept
+		{
+			return false;
+		}
+		constexpr static movebitsType nullMove_Implementation() noexcept
+		{
+			assert(0);
+			return movebitsType(0);
+		}
 	};
 }

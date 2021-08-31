@@ -25,12 +25,12 @@ namespace pygmalion
 		{
 			delete[] m_Boards;
 		}
-		constexpr bool occurs(const boardType& position, const int times, const int start = 3, const int frequency = 4) const noexcept
+		constexpr bool occurs(const boardType& position, const int times, const int start, const int frequency, const int reversibleMoves) const noexcept
 		{
 			if (m_Bloomfilter[position.hash()] >= times)
 			{
 				int nCount{ 0 };
-				for (int i = m_CountEntries - start; i >= 0; i -= frequency)
+				for (int i = std::max(reversibleMoves, m_CountEntries - start); i >= 0; i -= frequency)
 				{
 					if (m_Boards[i] == position)
 					{
