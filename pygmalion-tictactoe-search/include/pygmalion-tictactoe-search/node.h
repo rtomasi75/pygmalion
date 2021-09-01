@@ -16,12 +16,10 @@ namespace pygmalion::tictactoe
 		}
 		constexpr static depthType nullMoveReduction_Implementation(const size_t depthRemaining) noexcept
 		{
-			assert(false);
 			return 0;
 		}
 		constexpr static bool nullMoveAllowed_Implementation(const stackType& stack) noexcept
 		{
-			assert(0);
 			return false;
 		}
 	};

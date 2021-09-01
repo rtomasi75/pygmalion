@@ -104,7 +104,6 @@ namespace pygmalion::tictactoe
 		}
 		constexpr static movebitsType nullMove_Implementation() noexcept
 		{
-			assert(0);
 			return movebitsType(0);
 		}
 	};

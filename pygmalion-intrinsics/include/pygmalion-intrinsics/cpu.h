@@ -4,11 +4,6 @@
 #endif
 #if (defined(_M_X64)||defined(__x86_64__)||defined(__amd64__))
 #define PYGMALION_CPU_X64
-#if defined(_MSC_VER)
-#define PYGMALION_CPU_MMX
-#define PYGMALION_CPU_SSE
-#define PYGMALION_CPU_SSE2
-#endif
 #endif
 
 #if (defined(_M_ARM)||defined(__arm__))

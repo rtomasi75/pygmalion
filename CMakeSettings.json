@@ -36,7 +36,7 @@
         },
         {
           "name": "OPTIMIZE_FOR_NATIVE",
-          "value": "False",
+          "value": "True",
           "type": "BOOL"
         }
       ]

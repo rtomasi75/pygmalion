@@ -12,7 +12,6 @@ namespace pygmalion::tictactoe
 	public:
 		constexpr static scoreType aspirationWindowSize_Implementation(const size_t index) noexcept
 		{
-			assert(0);
 			return scoreType::zero();
 		}
 		constexpr static size_t countAspirationWindows_Implementation() noexcept
