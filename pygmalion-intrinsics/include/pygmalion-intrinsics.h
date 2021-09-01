@@ -46,7 +46,6 @@ using timeType = typename chronographType::time_point;
 #include "pygmalion-intrinsics/uint_t_detail.h"
 #include "pygmalion-intrinsics/uint_t.h"
 #include "pygmalion-intrinsics/sort.h"
-#include "pygmalion-intrinsics/timer.h"
 #include "pygmalion-intrinsics/clock.h"
 #include "pygmalion-intrinsics/list.h"
 #include "pygmalion-intrinsics/magic.h"

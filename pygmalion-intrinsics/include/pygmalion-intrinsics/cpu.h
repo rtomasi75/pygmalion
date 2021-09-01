@@ -176,3 +176,4 @@ namespace pygmalion
 
 	std::ostream& operator<<(std::ostream& str, const cpu::flags f) noexcept;
 }
+

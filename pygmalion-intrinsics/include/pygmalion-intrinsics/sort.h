@@ -226,10 +226,10 @@ namespace pygmalion
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d>
 			constexpr static void vector4_SSE2(VALUE* pValues, SCORE* pScores) noexcept
 			{
-				const __m128i score1{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_loadu_si32(pScores + IDX1a), pScores[IDX1b], 1), pScores[IDX1c], 2), pScores[IDX1d], 3) };
-				const __m128i score2{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_loadu_si32(pScores + IDX2a), pScores[IDX2b], 1), pScores[IDX2c], 2), pScores[IDX2d], 3) };
-				const __m128i value1{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_loadu_si16(pValues + IDX1a), pValues[IDX1b], 1), pValues[IDX1c], 6), pValues[IDX1d], 7) };
-				const __m128i value2{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_loadu_si16(pValues + IDX2a), pValues[IDX2b], 1), pValues[IDX2c], 6), pValues[IDX2d], 7) };
+				const __m128i score1{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_undefined_si128(), pScores[IDX1a],0), pScores[IDX1b], 1), pScores[IDX1c], 2), pScores[IDX1d], 3) };
+				const __m128i score2{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_undefined_si128(), pScores[IDX2a],0), pScores[IDX2b], 1), pScores[IDX2c], 2), pScores[IDX2d], 3) };
+				const __m128i value1{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1a],0), pValues[IDX1b], 1), pValues[IDX1c], 6), pValues[IDX1d], 7) };
+				const __m128i value2{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2a],0), pValues[IDX2b], 1), pValues[IDX2c], 6), pValues[IDX2d], 7) };
 				const __m128i comparision{ _mm_cmpgt_epi32(score2, score1) };
 				const __m128i maskValue{ _mm_shufflehi_epi16(_mm_shufflelo_epi16(comparision, 0b00001000), 0b00001000) };
 				const __m128i deltaScore{ _mm_and_si128(_mm_xor_si128(score1, score2), comparision) };
@@ -238,19 +238,19 @@ namespace pygmalion
 				const __m128i deltaValue{ _mm_and_si128(_mm_xor_si128(value1, value2), maskValue) };
 				const __m128i resultValue1{ _mm_xor_si128(value1, deltaValue) };
 				const __m128i resultValue2{ _mm_xor_si128(value2, deltaValue) };
-				_mm_storeu_si32(pScores + IDX1a, resultScore1);
+				pScores[IDX1a] = _mm_extract_epi32(resultScore1, 0);
 				pScores[IDX1b] = _mm_extract_epi32(resultScore1, 1);
 				pScores[IDX1c] = _mm_extract_epi32(resultScore1, 2);
 				pScores[IDX1d] = _mm_extract_epi32(resultScore1, 3);
-				_mm_storeu_si32(pScores + IDX2a, resultScore2);
+				pScores[IDX2a] = _mm_extract_epi32(resultScore2, 0);
 				pScores[IDX2b] = _mm_extract_epi32(resultScore2, 1);
 				pScores[IDX2c] = _mm_extract_epi32(resultScore2, 2);
 				pScores[IDX2d] = _mm_extract_epi32(resultScore2, 3);
-				_mm_storeu_si16(pValues + IDX1a, resultValue1);
+				pValues[IDX1a] = _mm_extract_epi16(resultValue1, 0);
 				pValues[IDX1b] = _mm_extract_epi16(resultValue1, 1);
 				pValues[IDX1c] = _mm_extract_epi16(resultValue1, 6);
 				pValues[IDX1d] = _mm_extract_epi16(resultValue1, 7);
-				_mm_storeu_si16(pValues + IDX2a, resultValue2);
+				pValues[IDX2a] = _mm_extract_epi16(resultValue2, 0);
 				pValues[IDX2b] = _mm_extract_epi16(resultValue2, 1);
 				pValues[IDX2c] = _mm_extract_epi16(resultValue2, 6);
 				pValues[IDX2d] = _mm_extract_epi16(resultValue2, 7);
@@ -258,10 +258,10 @@ namespace pygmalion
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c>
 			constexpr static void vector3_SSE2(VALUE* pValues, SCORE* pScores) noexcept
 			{
-				const __m128i score1{ _mm_insert_epi32(_mm_insert_epi32(_mm_loadu_si32(pScores + IDX1a), pScores[IDX1b], 1), pScores[IDX1c], 2) };
-				const __m128i score2{ _mm_insert_epi32(_mm_insert_epi32(_mm_loadu_si32(pScores + IDX2a), pScores[IDX2b], 1), pScores[IDX2c], 2) };
-				const __m128i value1{ _mm_insert_epi16(_mm_insert_epi16(_mm_loadu_si16(pValues + IDX1a), pValues[IDX1b], 1), pValues[IDX1c], 6) };
-				const __m128i value2{ _mm_insert_epi16(_mm_insert_epi16(_mm_loadu_si16(pValues + IDX2a), pValues[IDX2b], 1), pValues[IDX2c], 6) };
+				const __m128i score1{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_undefined_si128(), pScores[IDX1a],0), pScores[IDX1b], 1), pScores[IDX1c], 2) };
+				const __m128i score2{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_undefined_si128(), pScores[IDX2a],0), pScores[IDX2b], 1), pScores[IDX2c], 2) };
+				const __m128i value1{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1a],0), pValues[IDX1b], 1), pValues[IDX1c], 6) };
+				const __m128i value2{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2a],0), pValues[IDX2b], 1), pValues[IDX2c], 6) };
 				const __m128i comparision{ _mm_cmpgt_epi32(score2, score1) };
 				const __m128i maskValue{ _mm_shufflehi_epi16(_mm_shufflelo_epi16(comparision, 0b00001000), 0b00001000) };
 				const __m128i deltaScore{ _mm_and_si128(_mm_xor_si128(score1, score2), comparision) };
@@ -270,26 +270,26 @@ namespace pygmalion
 				const __m128i deltaValue{ _mm_and_si128(_mm_xor_si128(value1, value2), maskValue) };
 				const __m128i resultValue1{ _mm_xor_si128(value1, deltaValue) };
 				const __m128i resultValue2{ _mm_xor_si128(value2, deltaValue) };
-				_mm_storeu_si32(pScores + IDX1a, resultScore1);
+				pScores[IDX1a] = _mm_extract_epi32(resultScore1, 0);
 				pScores[IDX1b] = _mm_extract_epi32(resultScore1, 1);
 				pScores[IDX1c] = _mm_extract_epi32(resultScore1, 2);
-				_mm_storeu_si32(pScores + IDX2a, resultScore2);
+				pScores[IDX2a] = _mm_extract_epi32(resultScore2, 0);
 				pScores[IDX2b] = _mm_extract_epi32(resultScore2, 1);
 				pScores[IDX2c] = _mm_extract_epi32(resultScore2, 2);
-				_mm_storeu_si16(pValues + IDX1a, resultValue1);
+				pValues[IDX1a] = _mm_extract_epi16(resultValue1, 0);
 				pValues[IDX1b] = _mm_extract_epi16(resultValue1, 1);
 				pValues[IDX1c] = _mm_extract_epi16(resultValue1, 6);
-				_mm_storeu_si16(pValues + IDX2a, resultValue2);
+				pValues[IDX2a] = _mm_extract_epi16(resultValue2, 0);
 				pValues[IDX2b] = _mm_extract_epi16(resultValue2, 1);
 				pValues[IDX2c] = _mm_extract_epi16(resultValue2, 6);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b>
 			constexpr static void vector2_SSE2(VALUE* pValues, SCORE* pScores) noexcept
 			{
-				const __m128i score1{ _mm_insert_epi32(_mm_loadu_si32(pScores + IDX1a), pScores[IDX1b], 1) };
-				const __m128i score2{ _mm_insert_epi32(_mm_loadu_si32(pScores + IDX2a), pScores[IDX2b], 1) };
-				const __m128i value1{ _mm_insert_epi16(_mm_loadu_si16(pValues + IDX1a), pValues[IDX1b], 1) };
-				const __m128i value2{ _mm_insert_epi16(_mm_loadu_si16(pValues + IDX2a), pValues[IDX2b], 1) };
+				const __m128i score1{ _mm_insert_epi32(_mm_insert_epi32(_mm_undefined_si128(), pScores[IDX1a],0), pScores[IDX1b], 1) };
+				const __m128i score2{ _mm_insert_epi32(_mm_insert_epi32(_mm_undefined_si128(), pScores[IDX2a],0), pScores[IDX2b], 1) };
+				const __m128i value1{ _mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1a],0), pValues[IDX1b], 1) };
+				const __m128i value2{ _mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2a],0), pValues[IDX2b], 1) };
 				const __m128i comparision{ _mm_cmpgt_epi32(score2, score1) };
 				const __m128i maskValue{ _mm_shufflelo_epi16(comparision, 0b00001000) };
 				const __m128i deltaScore{ _mm_and_si128(_mm_xor_si128(score1, score2), comparision) };
@@ -298,13 +298,13 @@ namespace pygmalion
 				const __m128i deltaValue{ _mm_and_si128(_mm_xor_si128(value1, value2), maskValue) };
 				const __m128i resultValue1{ _mm_xor_si128(value1, deltaValue) };
 				const __m128i resultValue2{ _mm_xor_si128(value2, deltaValue) };
-				_mm_storeu_si32(pScores + IDX1a, resultScore1);
+				pScores[IDX1a] = _mm_extract_epi32(resultScore1, 0);
 				pScores[IDX1b] = _mm_extract_epi32(resultScore1, 1);
-				_mm_storeu_si32(pScores + IDX2a, resultScore2);
+				pScores[IDX2a] = _mm_extract_epi32(resultScore2, 0);
 				pScores[IDX2b] = _mm_extract_epi32(resultScore2, 1);
-				_mm_storeu_si16(pValues + IDX1a, resultValue1);
+				pValues[IDX1a] = _mm_extract_epi16(resultValue1, 0);
 				pValues[IDX1b] = _mm_extract_epi16(resultValue1, 1);
-				_mm_storeu_si16(pValues + IDX2a, resultValue2);
+				pValues[IDX2a] = _mm_extract_epi16(resultValue2, 0);
 				pValues[IDX2b] = _mm_extract_epi16(resultValue2, 1);
 			}
 #endif
@@ -312,17 +312,17 @@ namespace pygmalion
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e>
 			constexpr static void vector5_AVX2(VALUE* pValues, SCORE* pScores) noexcept
 			{
-				const __m128i score1low{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_loadu_si32(pScores + IDX1a), pScores[IDX1b], 1), pScores[IDX1c], 2), pScores[IDX1d], 3) };
-				const __m128i score2low{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_loadu_si32(pScores + IDX2a), pScores[IDX2b], 1), pScores[IDX2c], 2), pScores[IDX2d], 3) };
-				const __m128i score1high{ _mm_loadu_si32(pScores + IDX1e) };
-				const __m128i score2high{ _mm_loadu_si32(pScores + IDX2e) };
+				const __m128i score1low{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_undefined_si128(), pScores[IDX1a],0), pScores[IDX1b], 1), pScores[IDX1c], 2), pScores[IDX1d], 3) };
+				const __m128i score2low{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_undefined_si128(), pScores[IDX2a],0), pScores[IDX2b], 1), pScores[IDX2c], 2), pScores[IDX2d], 3) };
+				const __m128i score1high{ _mm_insert_epi32(_mm_undefined_si128(), pScores[IDX1e],0) };
+				const __m128i score2high{ _mm_insert_epi32(_mm_undefined_si128(), pScores[IDX2e],0) };
 				const __m256i score1{ _mm256_inserti128_si256(_mm256_castsi128_si256(score1low),score1high, 1) };
 				const __m256i score2{ _mm256_inserti128_si256(_mm256_castsi128_si256(score2low),score2high, 1) };
-				const __m128i value1low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_loadu_si16(pValues + IDX1a), pValues[IDX1b], 1), pValues[IDX1c], 6), pValues[IDX1d], 7) };
-				const __m128i value1high{ _mm_loadu_si16(pValues + IDX1e) };
+				const __m128i value1low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1a],0), pValues[IDX1b], 1), pValues[IDX1c], 6), pValues[IDX1d], 7) };
+				const __m128i value1high{ _mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1e],0) };
 				const __m256i value1{ _mm256_inserti128_si256(_mm256_castsi128_si256(value1low),value1high, 1) };
-				const __m128i value2low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_loadu_si16(pValues + IDX2a), pValues[IDX2b], 1), pValues[IDX2c], 6), pValues[IDX2d], 7) };
-				const __m128i value2high{ _mm_loadu_si16(pValues + IDX2e) };
+				const __m128i value2low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2a],0), pValues[IDX2b], 1), pValues[IDX2c], 6), pValues[IDX2d], 7) };
+				const __m128i value2high{ _mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2e],0) };
 				const __m256i value2{ _mm256_inserti128_si256(_mm256_castsi128_si256(value2low),value2high, 1) };
 				const __m256i comparision{ _mm256_cmpgt_epi32(score2, score1) };
 				const __m256i maskValue{ _mm256_shufflehi_epi16(_mm256_shufflelo_epi16(comparision, 0b00001000), 0b00001000) };
@@ -340,41 +340,41 @@ namespace pygmalion
 				const __m128i resultValue1high{ _mm256_extracti128_si256(resultValue1, 1) };
 				const __m128i resultValue2low{ _mm256_extracti128_si256(resultValue2, 0) };
 				const __m128i resultValue2high{ _mm256_extracti128_si256(resultValue2, 1) };
-				_mm_storeu_si32(pScores + IDX1a, resultScore1low);
+				pScores[IDX1a] = _mm_extract_epi32(resultScore1low, 0);
 				pScores[IDX1b] = _mm_extract_epi32(resultScore1low, 1);
 				pScores[IDX1c] = _mm_extract_epi32(resultScore1low, 2);
 				pScores[IDX1d] = _mm_extract_epi32(resultScore1low, 3);
-				_mm_storeu_si32(pScores + IDX1e, resultScore1high);
-				_mm_storeu_si32(pScores + IDX2a, resultScore2low);
+				pScores[IDX1e] = _mm_extract_epi32(resultScore1high, 0);
+				pScores[IDX2a] = _mm_extract_epi32(resultScore2low, 0);
 				pScores[IDX2b] = _mm_extract_epi32(resultScore2low, 1);
 				pScores[IDX2c] = _mm_extract_epi32(resultScore2low, 2);
 				pScores[IDX2d] = _mm_extract_epi32(resultScore2low, 3);
-				_mm_storeu_si32(pScores + IDX2e, resultScore2high);
-				_mm_storeu_si16(pValues + IDX1a, resultValue1low);
+				pScores[IDX2e] = _mm_extract_epi32(resultScore2high, 0);
+				pValues[IDX1a] = _mm_extract_epi16(resultValue1low, 0);
 				pValues[IDX1b] = _mm_extract_epi16(resultValue1low, 1);
 				pValues[IDX1c] = _mm_extract_epi16(resultValue1low, 6);
 				pValues[IDX1d] = _mm_extract_epi16(resultValue1low, 7);
-				_mm_storeu_si16(pValues + IDX1e, resultValue1high);
-				_mm_storeu_si16(pValues + IDX2a, resultValue2low);
+				pValues[IDX1e] = _mm_extract_epi16(resultValue1high, 0);
+				pValues[IDX2a] = _mm_extract_epi16(resultValue2low, 1);
 				pValues[IDX2b] = _mm_extract_epi16(resultValue2low, 1);
 				pValues[IDX2c] = _mm_extract_epi16(resultValue2low, 6);
 				pValues[IDX2d] = _mm_extract_epi16(resultValue2low, 7);
-				_mm_storeu_si16(pValues + IDX2e, resultValue2high);
+				pValues[IDX2e] = _mm_extract_epi16(resultValue2high, 1);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f>
 			constexpr static void vector6_AVX2(VALUE* pValues, SCORE* pScores) noexcept
 			{
-				const __m128i score1low{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_loadu_si32(pScores + IDX1a), pScores[IDX1b], 1), pScores[IDX1c], 2), pScores[IDX1d], 3) };
-				const __m128i score2low{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_loadu_si32(pScores + IDX2a), pScores[IDX2b], 1), pScores[IDX2c], 2), pScores[IDX2d], 3) };
-				const __m128i score1high{ _mm_insert_epi32(_mm_loadu_si32(pScores + IDX1e), pScores[IDX1f], 1) };
-				const __m128i score2high{ _mm_insert_epi32(_mm_loadu_si32(pScores + IDX2e), pScores[IDX2f], 1) };
+				const __m128i score1low{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_undefined_si128(), pScores[IDX1a],0), pScores[IDX1b], 1), pScores[IDX1c], 2), pScores[IDX1d], 3) };
+				const __m128i score2low{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_undefined_si128(), pScores[IDX2a],0), pScores[IDX2b], 1), pScores[IDX2c], 2), pScores[IDX2d], 3) };
+				const __m128i score1high{ _mm_insert_epi32(_mm_insert_epi32(_mm_undefined_si128(), pScores[IDX1e],0), pScores[IDX1f], 1) };
+				const __m128i score2high{ _mm_insert_epi32(_mm_insert_epi32(_mm_undefined_si128(), pScores[IDX2e],0), pScores[IDX2f], 1) };
 				const __m256i score1{ _mm256_inserti128_si256(_mm256_castsi128_si256(score1low),score1high, 1) };
 				const __m256i score2{ _mm256_inserti128_si256(_mm256_castsi128_si256(score2low),score2high, 1) };
-				const __m128i value1low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_loadu_si16(pValues + IDX1a), pValues[IDX1b], 1), pValues[IDX1c], 6), pValues[IDX1d], 7) };
-				const __m128i value1high{ _mm_insert_epi16(_mm_loadu_si16(pValues + IDX1e), pValues[IDX1f], 1) };
+				const __m128i value1low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1a],0), pValues[IDX1b], 1), pValues[IDX1c], 6), pValues[IDX1d], 7) };
+				const __m128i value1high{ _mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1e],0), pValues[IDX1f], 1) };
 				const __m256i value1{ _mm256_inserti128_si256(_mm256_castsi128_si256(value1low),value1high, 1) };
-				const __m128i value2low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_loadu_si16(pValues + IDX2a), pValues[IDX2b], 1), pValues[IDX2c], 6), pValues[IDX2d], 7) };
-				const __m128i value2high{ _mm_insert_epi16(_mm_loadu_si16(pValues + IDX2e), pValues[IDX2f], 1) };
+				const __m128i value2low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2a],0), pValues[IDX2b], 1), pValues[IDX2c], 6), pValues[IDX2d], 7) };
+				const __m128i value2high{ _mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2e],0), pValues[IDX2f], 1) };
 				const __m256i value2{ _mm256_inserti128_si256(_mm256_castsi128_si256(value2low),value2high, 1) };
 				const __m256i comparision{ _mm256_cmpgt_epi32(score2, score1) };
 				const __m256i maskValue{ _mm256_shufflehi_epi16(_mm256_shufflelo_epi16(comparision, 0b00001000), 0b00001000) };
@@ -392,45 +392,45 @@ namespace pygmalion
 				const __m128i resultValue1high{ _mm256_extracti128_si256(resultValue1, 1) };
 				const __m128i resultValue2low{ _mm256_extracti128_si256(resultValue2, 0) };
 				const __m128i resultValue2high{ _mm256_extracti128_si256(resultValue2, 1) };
-				_mm_storeu_si32(pScores + IDX1a, resultScore1low);
+				pScores[IDX1a] = _mm_extract_epi32(resultScore1low, 0);
 				pScores[IDX1b] = _mm_extract_epi32(resultScore1low, 1);
 				pScores[IDX1c] = _mm_extract_epi32(resultScore1low, 2);
 				pScores[IDX1d] = _mm_extract_epi32(resultScore1low, 3);
-				_mm_storeu_si32(pScores + IDX1e, resultScore1high);
+				pScores[IDX1e] = _mm_extract_epi32(resultScore1high, 0);
 				pScores[IDX1f] = _mm_extract_epi32(resultScore1high, 1);
-				_mm_storeu_si32(pScores + IDX2a, resultScore2low);
+				pScores[IDX2a] = _mm_extract_epi32(resultScore2low, 0);
 				pScores[IDX2b] = _mm_extract_epi32(resultScore2low, 1);
 				pScores[IDX2c] = _mm_extract_epi32(resultScore2low, 2);
 				pScores[IDX2d] = _mm_extract_epi32(resultScore2low, 3);
-				_mm_storeu_si32(pScores + IDX2e, resultScore2high);
+				pScores[IDX2e] = _mm_extract_epi32(resultScore2high, 0);
 				pScores[IDX2f] = _mm_extract_epi32(resultScore2high, 1);
-				_mm_storeu_si16(pValues + IDX1a, resultValue1low);
+				pValues[IDX1a] = _mm_extract_epi16(resultValue1low, 0);
 				pValues[IDX1b] = _mm_extract_epi16(resultValue1low, 1);
 				pValues[IDX1c] = _mm_extract_epi16(resultValue1low, 6);
 				pValues[IDX1d] = _mm_extract_epi16(resultValue1low, 7);
-				_mm_storeu_si16(pValues + IDX1e, resultValue1high);
+				pValues[IDX1e] = _mm_extract_epi16(resultValue1high, 0);
 				pValues[IDX1f] = _mm_extract_epi16(resultValue1high, 1);
-				_mm_storeu_si16(pValues + IDX2a, resultValue2low);
+				pValues[IDX2a] = _mm_extract_epi16(resultValue2low, 0);
 				pValues[IDX2b] = _mm_extract_epi16(resultValue2low, 1);
 				pValues[IDX2c] = _mm_extract_epi16(resultValue2low, 6);
 				pValues[IDX2d] = _mm_extract_epi16(resultValue2low, 7);
-				_mm_storeu_si16(pValues + IDX2e, resultValue2high);
+				pValues[IDX2e] = _mm_extract_epi16(resultValue2high, 0);
 				pValues[IDX2f] = _mm_extract_epi16(resultValue2high, 1);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g>
 			constexpr static void vector7_AVX2(VALUE* pValues, SCORE* pScores) noexcept
 			{
-				const __m128i score1low{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_loadu_si32(pScores + IDX1a), pScores[IDX1b], 1), pScores[IDX1c], 2), pScores[IDX1d], 3) };
-				const __m128i score2low{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_loadu_si32(pScores + IDX2a), pScores[IDX2b], 1), pScores[IDX2c], 2), pScores[IDX2d], 3) };
-				const __m128i score1high{ _mm_insert_epi32(_mm_insert_epi32(_mm_loadu_si32(pScores + IDX1e), pScores[IDX1f], 1), pScores[IDX1g], 2) };
-				const __m128i score2high{ _mm_insert_epi32(_mm_insert_epi32(_mm_loadu_si32(pScores + IDX2e), pScores[IDX2f], 1), pScores[IDX2g], 2) };
+				const __m128i score1low{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_undefined_si128(), pScores[IDX1a],0), pScores[IDX1b], 1), pScores[IDX1c], 2), pScores[IDX1d], 3) };
+				const __m128i score2low{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_undefined_si128(), pScores[IDX2a],0), pScores[IDX2b], 1), pScores[IDX2c], 2), pScores[IDX2d], 3) };
+				const __m128i score1high{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_undefined_si128(), pScores[IDX1e],0), pScores[IDX1f], 1), pScores[IDX1g], 2) };
+				const __m128i score2high{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_undefined_si128(), pScores[IDX2e],0), pScores[IDX2f], 1), pScores[IDX2g], 2) };
 				const __m256i score1{ _mm256_inserti128_si256(_mm256_castsi128_si256(score1low),score1high, 1) };
 				const __m256i score2{ _mm256_inserti128_si256(_mm256_castsi128_si256(score2low),score2high, 1) };
-				const __m128i value1low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_loadu_si16(pValues + IDX1a), pValues[IDX1b], 1), pValues[IDX1c], 6), pValues[IDX1d], 7) };
-				const __m128i value1high{_mm_insert_epi16(_mm_insert_epi16(_mm_loadu_si16(pValues + IDX1e), pValues[IDX1f], 1), pValues[IDX1g], 6) };
+				const __m128i value1low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1a],0), pValues[IDX1b], 1), pValues[IDX1c], 6), pValues[IDX1d], 7) };
+				const __m128i value1high{_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1e],0), pValues[IDX1f], 1), pValues[IDX1g], 6) };
 				const __m256i value1{ _mm256_inserti128_si256(_mm256_castsi128_si256(value1low),value1high, 1) };
-				const __m128i value2low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_loadu_si16(pValues + IDX2a), pValues[IDX2b], 1), pValues[IDX2c], 6), pValues[IDX2d], 7) };
-				const __m128i value2high{ _mm_insert_epi16(_mm_insert_epi16(_mm_loadu_si16(pValues + IDX2e), pValues[IDX2f], 1), pValues[IDX2g], 6) };
+				const __m128i value2low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2a],0), pValues[IDX2b], 1), pValues[IDX2c], 6), pValues[IDX2d], 7) };
+				const __m128i value2high{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2e],0), pValues[IDX2f], 1), pValues[IDX2g], 6) };
 				const __m256i value2{ _mm256_inserti128_si256(_mm256_castsi128_si256(value2low),value2high, 1) };
 				const __m256i comparision{ _mm256_cmpgt_epi32(score2, score1) };
 				const __m256i maskValue{ _mm256_shufflehi_epi16(_mm256_shufflelo_epi16(comparision, 0b00001000), 0b00001000) };
@@ -448,49 +448,49 @@ namespace pygmalion
 				const __m128i resultValue1high{ _mm256_extracti128_si256(resultValue1, 1) };
 				const __m128i resultValue2low{ _mm256_extracti128_si256(resultValue2, 0) };
 				const __m128i resultValue2high{ _mm256_extracti128_si256(resultValue2, 1) };
-				_mm_storeu_si32(pScores + IDX1a, resultScore1low);
+				pScores[IDX1a] = _mm_extract_epi32(resultScore1low, 0);
 				pScores[IDX1b] = _mm_extract_epi32(resultScore1low, 1);
 				pScores[IDX1c] = _mm_extract_epi32(resultScore1low, 2);
 				pScores[IDX1d] = _mm_extract_epi32(resultScore1low, 3);
-				_mm_storeu_si32(pScores + IDX1e, resultScore1high);
+				pScores[IDX1e] = _mm_extract_epi32(resultScore1high, 0);
 				pScores[IDX1f] = _mm_extract_epi32(resultScore1high, 1);
 				pScores[IDX1g] = _mm_extract_epi32(resultScore1high, 2);
-				_mm_storeu_si32(pScores + IDX2a, resultScore2low);
+				pScores[IDX2a] = _mm_extract_epi32(resultScore2low, 0);
 				pScores[IDX2b] = _mm_extract_epi32(resultScore2low, 1);
 				pScores[IDX2c] = _mm_extract_epi32(resultScore2low, 2);
 				pScores[IDX2d] = _mm_extract_epi32(resultScore2low, 3);
-				_mm_storeu_si32(pScores + IDX2e, resultScore2high);
+				pScores[IDX2e] = _mm_extract_epi32(resultScore2high, 0);
 				pScores[IDX2f] = _mm_extract_epi32(resultScore2high, 1);
 				pScores[IDX2g] = _mm_extract_epi32(resultScore2high, 2);
-				_mm_storeu_si16(pValues + IDX1a, resultValue1low);
+				pValues[IDX1a] = _mm_extract_epi16(resultValue1low, 0);
 				pValues[IDX1b] = _mm_extract_epi16(resultValue1low, 1);
 				pValues[IDX1c] = _mm_extract_epi16(resultValue1low, 6);
 				pValues[IDX1d] = _mm_extract_epi16(resultValue1low, 7);
-				_mm_storeu_si16(pValues + IDX1e, resultValue1high);
+				pValues[IDX1e] = _mm_extract_epi16(resultValue1high, 0);
 				pValues[IDX1f] = _mm_extract_epi16(resultValue1high, 1);
 				pValues[IDX1g] = _mm_extract_epi16(resultValue1high, 6);
-				_mm_storeu_si16(pValues + IDX2a, resultValue2low);
+				pValues[IDX2a] = _mm_extract_epi16(resultValue2low, 0);
 				pValues[IDX2b] = _mm_extract_epi16(resultValue2low, 1);
 				pValues[IDX2c] = _mm_extract_epi16(resultValue2low, 6);
 				pValues[IDX2d] = _mm_extract_epi16(resultValue2low, 7);
-				_mm_storeu_si16(pValues + IDX2e, resultValue2high);
+				pValues[IDX2e] = _mm_extract_epi16(resultValue2high, 0);
 				pValues[IDX2f] = _mm_extract_epi16(resultValue2high, 1);
 				pValues[IDX2g] = _mm_extract_epi16(resultValue2high, 6);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h>
 			constexpr static void vector8_AVX2(VALUE* pValues, SCORE* pScores) noexcept
 			{
-				const __m128i score1low{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_loadu_si32(pScores + IDX1a), pScores[IDX1b], 1), pScores[IDX1c], 2), pScores[IDX1d], 3) };
-				const __m128i score2low{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_loadu_si32(pScores + IDX2a), pScores[IDX2b], 1), pScores[IDX2c], 2), pScores[IDX2d], 3) };
-				const __m128i score1high{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_loadu_si32(pScores + IDX1e), pScores[IDX1f], 1), pScores[IDX1g], 2), pScores[IDX1h], 3) };
-				const __m128i score2high{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_loadu_si32(pScores + IDX2e), pScores[IDX2f], 1), pScores[IDX2g], 2), pScores[IDX2h], 3) };
+				const __m128i score1low{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_undefined_si128(), pScores[IDX1a],0), pScores[IDX1b], 1), pScores[IDX1c], 2), pScores[IDX1d], 3) };
+				const __m128i score2low{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_undefined_si128(), pScores[IDX2a],0), pScores[IDX2b], 1), pScores[IDX2c], 2), pScores[IDX2d], 3) };
+				const __m128i score1high{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_undefined_si128(), pScores[IDX1e],0), pScores[IDX1f], 1), pScores[IDX1g], 2), pScores[IDX1h], 3) };
+				const __m128i score2high{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_undefined_si128(), pScores[IDX2e],0), pScores[IDX2f], 1), pScores[IDX2g], 2), pScores[IDX2h], 3) };
 				const __m256i score1{ _mm256_inserti128_si256(_mm256_castsi128_si256(score1low),score1high, 1) };
 				const __m256i score2{ _mm256_inserti128_si256(_mm256_castsi128_si256(score2low),score2high, 1) };
-				const __m128i value1low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_loadu_si16(pValues + IDX1a), pValues[IDX1b], 1), pValues[IDX1c], 6), pValues[IDX1d], 7) };
-				const __m128i value1high{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_loadu_si16(pValues + IDX1e), pValues[IDX1f], 1), pValues[IDX1g], 6), pValues[IDX1h], 7) };
+				const __m128i value1low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1a],0), pValues[IDX1b], 1), pValues[IDX1c], 6), pValues[IDX1d], 7) };
+				const __m128i value1high{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1e],0), pValues[IDX1f], 1), pValues[IDX1g], 6), pValues[IDX1h], 7) };
 				const __m256i value1{ _mm256_inserti128_si256(_mm256_castsi128_si256(value1low),value1high, 1) };
-				const __m128i value2low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_loadu_si16(pValues + IDX2a), pValues[IDX2b], 1), pValues[IDX2c], 6), pValues[IDX2d], 7) };
-				const __m128i value2high{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_loadu_si16(pValues + IDX2e), pValues[IDX2f], 1), pValues[IDX2g], 6), pValues[IDX2h], 7) };
+				const __m128i value2low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2a],0), pValues[IDX2b], 1), pValues[IDX2c], 6), pValues[IDX2d], 7) };
+				const __m128i value2high{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2e],0), pValues[IDX2f], 1), pValues[IDX2g], 6), pValues[IDX2h], 7) };
 				const __m256i value2{ _mm256_inserti128_si256(_mm256_castsi128_si256(value2low),value2high, 1) };
 				const __m256i comparision{ _mm256_cmpgt_epi32(score2, score1) };
 				const __m256i maskValue{ _mm256_shufflehi_epi16(_mm256_shufflelo_epi16(comparision, 0b00001000), 0b00001000) };
@@ -508,35 +508,35 @@ namespace pygmalion
 				const __m128i resultValue1high{ _mm256_extracti128_si256(resultValue1, 1) };
 				const __m128i resultValue2low{ _mm256_extracti128_si256(resultValue2, 0) };
 				const __m128i resultValue2high{ _mm256_extracti128_si256(resultValue2, 1) };
-				_mm_storeu_si32(pScores + IDX1a, resultScore1low);
+				pScores[IDX1a] = _mm_extract_epi32(resultScore1low, 0);
 				pScores[IDX1b] = _mm_extract_epi32(resultScore1low, 1);
 				pScores[IDX1c] = _mm_extract_epi32(resultScore1low, 2);
 				pScores[IDX1d] = _mm_extract_epi32(resultScore1low, 3);
-				_mm_storeu_si32(pScores + IDX1e, resultScore1high);
+				pScores[IDX1e] = _mm_extract_epi32(resultScore1high, 0);
 				pScores[IDX1f] = _mm_extract_epi32(resultScore1high, 1);
 				pScores[IDX1g] = _mm_extract_epi32(resultScore1high, 2);
 				pScores[IDX1h] = _mm_extract_epi32(resultScore1high, 3);
-				_mm_storeu_si32(pScores + IDX2a, resultScore2low);
+				pScores[IDX2a] = _mm_extract_epi32(resultScore2low, 0);
 				pScores[IDX2b] = _mm_extract_epi32(resultScore2low, 1);
 				pScores[IDX2c] = _mm_extract_epi32(resultScore2low, 2);
 				pScores[IDX2d] = _mm_extract_epi32(resultScore2low, 3);
-				_mm_storeu_si32(pScores + IDX2e, resultScore2high);
+				pScores[IDX2e] = _mm_extract_epi32(resultScore2high, 0);
 				pScores[IDX2f] = _mm_extract_epi32(resultScore2high, 1);
 				pScores[IDX2g] = _mm_extract_epi32(resultScore2high, 2);
 				pScores[IDX2h] = _mm_extract_epi32(resultScore2high, 3);
-				_mm_storeu_si16(pValues + IDX1a, resultValue1low);
+				pValues[IDX1a] = _mm_extract_epi16(resultValue1low, 0);
 				pValues[IDX1b] = _mm_extract_epi16(resultValue1low, 1);
 				pValues[IDX1c] = _mm_extract_epi16(resultValue1low, 6);
 				pValues[IDX1d] = _mm_extract_epi16(resultValue1low, 7);
-				_mm_storeu_si16(pValues + IDX1e, resultValue1high);
+				pValues[IDX1e] = _mm_extract_epi16(resultValue1high, 0);
 				pValues[IDX1f] = _mm_extract_epi16(resultValue1high, 1);
 				pValues[IDX1g] = _mm_extract_epi16(resultValue1high, 6);
 				pValues[IDX1h] = _mm_extract_epi16(resultValue1high, 7);
-				_mm_storeu_si16(pValues + IDX2a, resultValue2low);
+				pValues[IDX2a] = _mm_extract_epi16(resultValue2low, 0);
 				pValues[IDX2b] = _mm_extract_epi16(resultValue2low, 1);
 				pValues[IDX2c] = _mm_extract_epi16(resultValue2low, 6);
 				pValues[IDX2d] = _mm_extract_epi16(resultValue2low, 7);
-				_mm_storeu_si16(pValues + IDX2e, resultValue2high);
+				pValues[IDX2e] = _mm_extract_epi16(resultValue2high, 0);
 				pValues[IDX2f] = _mm_extract_epi16(resultValue2high, 1);
 				pValues[IDX2g] = _mm_extract_epi16(resultValue2high, 6);
 				pValues[IDX2h] = _mm_extract_epi16(resultValue2high, 7);

@@ -15,6 +15,7 @@ file(GLOB HEADERS include/pygmalion-intrinsics/*.h)
 
 add_library(pygmalion-intrinsics ${SOURCES} ${HEADERS} "include/pygmalion-intrinsics.h")
 target_include_directories(pygmalion-intrinsics PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include> PRIVATE src)
+target_link_libraries(pygmalion-intrinsics PUBLIC Threads::Threads)
 
 add_executable(pygmalion-intrinsics-engine "test/engine.cpp")
 target_link_libraries(pygmalion-intrinsics-engine pygmalion-intrinsics)
