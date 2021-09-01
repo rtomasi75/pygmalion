@@ -15,5 +15,6 @@ constexpr static const bool searchScout{ descriptorSearch::searchScout };
 constexpr static const bool searchIterativeDeepening{ descriptorSearch::searchIterativeDeepening };
 constexpr static const bool searchTranspositionTable{ descriptorSearch::searchTranspositionTable };
 constexpr static const bool searchAspiration{ descriptorSearch::searchAspiration };
+constexpr static const size_t searchTranspositionTableBucketCount{ descriptorSearch::searchTranspositionTableBucketCount };
 
 #include <pygmalion-evaluation/include_evaluation.h>

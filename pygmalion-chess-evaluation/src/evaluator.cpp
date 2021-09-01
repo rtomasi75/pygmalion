@@ -84,7 +84,7 @@ namespace pygmalion::chess
 					return gamestateType::draw();
 			}
 		}
-		if (stack.occurs(stack.position(), 2, 4, 4, stack.position().cumulation().reversiblePlies()))
+		if (stack.occurs(stack.position(), 2, 4, 4))
 			return gamestateType::draw();
 		return gamestateType::open();
 	}

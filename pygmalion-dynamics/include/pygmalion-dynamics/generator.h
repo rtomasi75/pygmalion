@@ -578,10 +578,8 @@ namespace pygmalion
 			{
 				return generatorType::moveToString(*static_cast<const typename generatorType::stackType*>(this), moveBits, depth);
 			}
-			constexpr bool occurs(const boardType& position, const int times, const int start, const int frequency, const int reversibleMoves) const noexcept
+			constexpr bool occurs(const boardType& position, const int times, const int start, const int frequency) const noexcept
 			{
-				if (reversibleMoves == 0)
-					return false;
 				if (m_pParent != nullptr)
 				{
 					if (start == 0)
@@ -591,13 +589,13 @@ namespace pygmalion
 							if (times == 1)
 								return true;
 							else
-								return m_pParent->occurs(position, times - 1, frequency, frequency, reversibleMoves - 1);
+								return m_pParent->occurs(position, times - 1, frequency, frequency);
 						}
 						else
-							return m_pParent->occurs(position, times, start - 1, frequency, reversibleMoves - 1);
+							return m_pParent->occurs(position, times, start - 1, frequency);
 					}
 					else
-						return m_pParent->occurs(position, times, start - 1, frequency, reversibleMoves - 1);
+						return m_pParent->occurs(position, times, start - 1, frequency);
 				}
 				else
 				{

@@ -1303,7 +1303,7 @@ namespace pygmalion
 				movebitsType move;
 				scoreType best{ scoreType::zero() };
 				movebitsType bestmove;
-				if constexpr (searchTranspositionTable)
+/*				if constexpr (searchTranspositionTable)
 				{
 					scoreType ttScore{ scoreType::zero() };
 					movebitsType ttMove;
@@ -1336,7 +1336,7 @@ namespace pygmalion
 						else
 							best = ttScore;
 					}
-				}
+				}*/
 				bool fromStack;
 				const playerType movingPlayer{ m_Stack.movingPlayer() };
 				if ((!hasLegalMove) && nextMove(depthRemaining, depth, move, fromStack))
@@ -1394,7 +1394,7 @@ namespace pygmalion
 			m_NeedsSorting{ false },
 			m_NeedsTacticalSorting{ false }
 		{
-
+			m_Heuristics.transpositionTable().prefetch(m_Stack);
 		}
 		constexpr node(const node& parent, const movebitsType moveBits) noexcept :
 			m_Stack(parent.m_Stack, moveBits),
@@ -1411,6 +1411,7 @@ namespace pygmalion
 			m_NeedsSorting{ false },
 			m_NeedsTacticalSorting{ false }
 		{
+			m_Heuristics.transpositionTable().prefetch(m_Stack);
 		}
 		~node() noexcept = default;
 	};
