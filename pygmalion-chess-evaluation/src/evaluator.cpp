@@ -36,10 +36,13 @@ namespace pygmalion::chess
 		return scoreControl;
 	}
 
-	evaluator::gamestateType evaluator::earlyResult_Implementation(const generatorType::stackType& stack) noexcept
+	evaluator::gamestateType evaluator::earlyResult_Implementation(const generatorType::stackType& stack, bool& allowStoreTT) noexcept
 	{
 		if (stack.position().cumulation().reversiblePlies() >= 100)
+		{
+			allowStoreTT = false;
 			return gamestateType::draw();
+		}
 		if (stack.position().playerOccupancy(whitePlayer) == squaresType(stack.kingSquare(whitePlayer)))
 		{
 			if (stack.position().playerOccupancy(blackPlayer) == squaresType(stack.kingSquare(blackPlayer)))
@@ -49,12 +52,18 @@ namespace pygmalion::chess
 				if ((stack.position().playerOccupancy(blackPlayer) & stack.position().pieceOccupancy(bishop)) == squaresType::none())
 				{
 					if ((stack.position().playerOccupancy(blackPlayer) & stack.position().pieceOccupancy(knight)).count() == 1)
+					{
+						allowStoreTT = true;
 						return gamestateType::draw();
+					}
 				}
 				if ((stack.position().playerOccupancy(blackPlayer) & stack.position().pieceOccupancy(knight)) == squaresType::none())
 				{
 					if ((stack.position().playerOccupancy(blackPlayer) & stack.position().pieceOccupancy(bishop)).count() == 1)
+					{
+						allowStoreTT = true;
 						return gamestateType::draw();
+					}
 				}
 			}
 		}
@@ -65,12 +74,18 @@ namespace pygmalion::chess
 				if ((stack.position().playerOccupancy(whitePlayer) & stack.position().pieceOccupancy(bishop)) == squaresType::none())
 				{
 					if ((stack.position().playerOccupancy(whitePlayer) & stack.position().pieceOccupancy(knight)).count() == 1)
+					{
+						allowStoreTT = true;
 						return gamestateType::draw();
+					}
 				}
 				if ((stack.position().playerOccupancy(whitePlayer) & stack.position().pieceOccupancy(knight)) == squaresType::none())
 				{
 					if ((stack.position().playerOccupancy(whitePlayer) & stack.position().pieceOccupancy(bishop)).count() == 1)
+					{
+						allowStoreTT = true;
 						return gamestateType::draw();
+					}
 				}
 			}
 		}
@@ -81,11 +96,17 @@ namespace pygmalion::chess
 				const squareType whiteBishop{ *(stack.position().playerOccupancy(whitePlayer) & stack.position().pieceOccupancy(bishop)).begin() };
 				const squareType blackBishop{ *(stack.position().playerOccupancy(blackPlayer) & stack.position().pieceOccupancy(bishop)).begin() };
 				if (whiteBishop.isDark() == blackBishop.isDark())
+				{
+					allowStoreTT = true;
 					return gamestateType::draw();
+				}
 			}
 		}
 		if (stack.occurs(stack.position(), 2, 4, 4))
+		{
+			allowStoreTT = false;
 			return gamestateType::draw();
+		}
 		return gamestateType::open();
 	}
 

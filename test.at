@@ -3,8 +3,8 @@ TournamentName=test.at
 Type=0
 CurrSwissRound=0
 Rounds=150
-CurrentPair=3
-CurrentRound=64
+CurrentPair=2
+CurrentRound=68
 Level=5 -1\1/-1#1@-1|1
 [Options]
 QuitAfterTournament=0
@@ -56,9 +56,9 @@ SaveGamesFCH=0
 FCHdir=
 FCHnames=
 [Data]
-LastPGNEPDindex=32
+LastPGNEPDindex=34
 LastGameDate=2021.09.01
-LastGameTime=11:36:48
+LastGameTime=16:54:17
 Country=Germany
 Site=LIQUIDITY
 Hardware=Intel(R) Core(TM) i9-10920X CPU @ 3.50GHz with 31,7 GB Memory
@@ -69,12 +69,12 @@ ArenaVersion=Arena 3.5.1
 FirstGameDate=2021.08.31
 FirstGameTime=21:03:50
 [PairingResults]
-Pygmalion K1T1 ------ Pygmalion K2T2=½1010½10011½11100½1001010110½½½0111½½½1½1½½101½0100001111½110000
-Pygmalion K1T2 ------ Pygmalion K2T1=110½½1½0½0100½00½0001½11010½110011½½01½10011½0½½100000½00½½01011
-Pygmalion K1T1 ------ Pygmalion K2T1=½1110100½11000100110110½10100½½½01½½1½0001½001110101001010½111½0
-Pygmalion K1T2 ------ Pygmalion K2T2=11½111½00½½½01½½½0½00½0½0010½00111½½½00001½0½1½10½1½0001½010½1½
-Pygmalion K1T1 ------ Pygmalion K1T2=1½½100110½0½1½10½0000½001½½010100½1½11010½111½½010111000½1½100½
-Pygmalion K2T1 ------ Pygmalion K2T2=½01001½½000½0110½1½11½½00½001½10½0½½0001½½½½1011½0½10½½½01½½0½0
+Pygmalion K1T1 ------ Pygmalion K2T2=½1010½10011½11100½1001010110½½½0111½½½1½1½½101½0100001111½1100001010
+Pygmalion K1T2 ------ Pygmalion K2T1=110½½1½0½0100½00½0001½11010½110011½½01½10011½0½½100000½00½½010110½01
+Pygmalion K1T1 ------ Pygmalion K2T1=½1110100½11000100110110½10100½½½01½½1½0001½001110101001010½111½01½1
+Pygmalion K1T2 ------ Pygmalion K2T2=11½111½00½½½01½½½0½00½0½0010½00111½½½00001½0½1½10½1½0001½010½1½½111
+Pygmalion K1T1 ------ Pygmalion K1T2=1½½100110½0½1½10½0000½001½½010100½1½11010½111½½010111000½1½100½0100
+Pygmalion K2T1 ------ Pygmalion K2T2=½01001½½000½0110½1½11½½00½001½10½0½½0001½½½½1011½0½10½½½01½½0½0½100
 [Participants]
 Engine1=Pygmalion K1T1
 Engine2=Pygmalion K1T2

@@ -40,25 +40,27 @@ namespace pygmalion::search
 		}
 		scoreType pvs(variationType& principalVariation, const depthType depthRemaining, std::ostream& str) noexcept
 		{
+			bool allowStoreTT;
 			this->feedback().sortIndices(this->history().length());
 			stackType stack{ stackType(this->position(), this->history(),  this->position().movingPlayer()) };
 			std::atomic_bool isRunning{ true };
 			m_Heuristics.beginSearch();
 			nodeType node(stack, isRunning, m_Heuristics);
 			principalVariation.clear();
-			const scoreType score{ node.template search<false,true>(scoreType::minimum(),scoreType::maximum(), depthRemaining, this->history().length(), principalVariation, str) };
+			const scoreType score{ node.template search<false,true>(scoreType::minimum(),scoreType::maximum(), depthRemaining, this->history().length(), principalVariation, str, allowStoreTT) };
 			m_Heuristics.endSearch();
 			return score;
 		}
 		scoreType vpvs(variationType& principalVariation, const depthType depthRemaining, std::ostream& str) noexcept
 		{
+			bool allowStoreTT;
 			this->feedback().sortIndices(this->history().length());
 			stackType stack{ stackType(this->position(), this->history(),  this->position().movingPlayer()) };
 			std::atomic_bool isRunning{ true };
 			m_Heuristics.beginSearch();
 			nodeType node(stack, isRunning, m_Heuristics);
 			principalVariation.clear();
-			const scoreType score{ node.template search<true,true>(scoreType::minimum(),scoreType::maximum(), depthRemaining, this->history().length(), principalVariation, str) };
+			const scoreType score{ node.template search<true,true>(scoreType::minimum(),scoreType::maximum(), depthRemaining, this->history().length(), principalVariation, str, allowStoreTT) };
 			m_Heuristics.endSearch();
 			return score;
 		}

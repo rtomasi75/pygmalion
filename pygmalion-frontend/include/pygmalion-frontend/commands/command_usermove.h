@@ -20,7 +20,8 @@ namespace pygmalion::frontend
 				this->frontendEngine().doMove(movebits);
 				this->output() << std::endl;
 				const typename descriptorFrontend::stackType stack{ typename descriptorFrontend::stackType(this->position(), this->history(),  this->position().movingPlayer()) };
-				const gamestateType result{ evaluatorType::earlyResult(stack) };
+				bool allowStoreTT;
+				const gamestateType result{ evaluatorType::earlyResult(stack, allowStoreTT) };
 				if (!gamestateType::isOpen(result))
 				{
 					this->output() << "result " << frontType::gamestateToString(this->frontendEngine().currentGame().position(), result) << std::endl;

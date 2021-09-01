@@ -39,13 +39,14 @@ namespace pygmalion
 		{
 			return evaluatorType::evaluate_Implementation(alpha, beta, stack);
 		}
-		static gamestateType earlyResult(const typename generatorType::stackType& stack) noexcept
+		static gamestateType earlyResult(const typename generatorType::stackType& stack, bool& allowStoreTT) noexcept
 		{
 			if (!gamestateType::isOpen(stack.position().arbitration()))
 			{
+				allowStoreTT = false;
 				return stack.position().arbitration();
 			}
-			return evaluatorType::earlyResult_Implementation(stack);
+			return evaluatorType::earlyResult_Implementation(stack, allowStoreTT);
 		}
 		static gamestateType lateResult(const typename generatorType::stackType& stack) noexcept
 		{

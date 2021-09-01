@@ -29,7 +29,7 @@ namespace pygmalion::tictactoe
 		{
 			return gamestateType::draw();
 		}
-		static gamestateType earlyResult_Implementation(const generatorType::stackType& stack) noexcept
+		static gamestateType earlyResult_Implementation(const generatorType::stackType& stack, bool& allowStoreTT) noexcept
 		{
 			const boardType& position{ stack.position() };
 			const playerType movingPlayer{ stack.position().movingPlayer() };
@@ -40,15 +40,18 @@ namespace pygmalion::tictactoe
 				const auto ctr1{ (position.playerOccupancy(static_cast<playerType>(0)) & m_Patterns.line(line)).count() };
 				if (ctr1 >= winLength)
 				{
+					allowStoreTT = true;
 					return gamestateType::win(0);
 				}
 				const auto ctr2{ (position.playerOccupancy(static_cast<playerType>(1)) & m_Patterns.line(line)).count() };
 				if (ctr2 >= winLength)
 				{
+					allowStoreTT = true;
 					return gamestateType::win(1);
 				}
 				canDecide |= (ctr1 == 0) | (ctr2 == 0);
 			}
+			allowStoreTT = true;
 			return (canDecide && (position.totalOccupancy().count() < 9)) ? gamestateType::open() : gamestateType::draw();
 		}
 		static scoreType evaluate_Implementation(const scoreType alpha, const scoreType beta, const generatorType::stackType& stack) noexcept

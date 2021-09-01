@@ -38,7 +38,8 @@ namespace pygmalion::frontend
 			variationType principalVariation{ variationType() };
 			this->feedback().sortIndices(this->history().length());
 			this->heuristics().beginSearch();
-			const scoreType score{ node.template search<false,true>(scoreType::minimum(), scoreType::maximum(), depthRemaining, this->history().length(), principalVariation, this->outputStream()) };
+			bool allowStoreTT;
+			const scoreType score{ node.template search<false,true>(scoreType::minimum(), scoreType::maximum(), depthRemaining, this->history().length(), principalVariation, this->outputStream(),allowStoreTT) };
 			this->heuristics().endSearch();
 			if (isRunning)
 			{
@@ -94,7 +95,8 @@ namespace pygmalion::frontend
 					this->doMove(finalVariation[0]);
 					this->currentGame().playerClock(this->currentGame().position().movingPlayer()).start();
 					this->outputStream() << "move " << moveString << std::endl;
-					const gamestateType result{ evaluatorType::earlyResult(stack) };
+					bool allowStoreTT;
+					const gamestateType result{ evaluatorType::earlyResult(stack, allowStoreTT) };
 					if (!gamestateType::isOpen(result))
 					{
 						this->outputStream() << "result " << frontType::gamestateToString(this->currentGame().position(), result) << std::endl;

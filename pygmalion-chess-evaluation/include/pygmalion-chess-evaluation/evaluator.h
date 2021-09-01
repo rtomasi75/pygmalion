@@ -57,7 +57,7 @@ namespace pygmalion::chess
 			return 4;
 		}
 		static std::deque<std::shared_ptr<pygmalion::intrinsics::command>> commandsImplementation() noexcept;
-		static gamestateType earlyResult_Implementation(const generatorType::stackType& stack) noexcept;
+		static gamestateType earlyResult_Implementation(const generatorType::stackType& stack, bool& allowStoreTT) noexcept;
 		static gamestateType lateResult_Implementation(const typename generatorType::stackType& stack) noexcept;
 		static scoreType evaluate_Implementation(const scoreType alpha, const scoreType beta, const generatorType::stackType& stack) noexcept;
 	};
