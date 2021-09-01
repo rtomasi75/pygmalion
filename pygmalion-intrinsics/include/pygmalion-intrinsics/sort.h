@@ -359,7 +359,7 @@ namespace pygmalion
 				pValues[IDX2b] = _mm_extract_epi16(resultValue2low, 1);
 				pValues[IDX2c] = _mm_extract_epi16(resultValue2low, 6);
 				pValues[IDX2d] = _mm_extract_epi16(resultValue2low, 7);
-				pValues[IDX2e] = _mm_extract_epi16(resultValue2high, 1);
+				pValues[IDX2e] = _mm_extract_epi16(resultValue2high, 0);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f>
 			constexpr static void vector6_AVX2(VALUE* pValues, SCORE* pScores) noexcept
