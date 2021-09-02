@@ -116,7 +116,8 @@ namespace pygmalion::state
 		}
 		constexpr squares operator|(const squares other) const noexcept
 		{
-			return squares(m_Bits | other.m_Bits);
+			const bitsType bits{ m_Bits | other.m_Bits };
+			return squares(std::move(bits));
 		}
 		constexpr squares operator-(const squares other) const noexcept
 		{
@@ -221,6 +222,11 @@ namespace pygmalion::state
 		{
 			m_Bits ^= squares(rank);
 			return *this;
+		}
+		constexpr squares singlePiece() const noexcept
+		{
+			assert((*this) != squares::none());
+			return squares(m_Bits & m_Bits.twosComplement());
 		}
 		constexpr bool operator[](const squareType square) const noexcept
 		{

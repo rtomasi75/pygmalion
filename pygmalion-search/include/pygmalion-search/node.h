@@ -218,7 +218,7 @@ namespace pygmalion
 			{
 				if (m_NeedsTacticalSorting)
 				{
-					m_Heuristics.sortMoves(m_Stack.position(), m_TacticalMoves, m_TacticalMove, depth);
+					m_Heuristics.sortTacticalMoves(m_Stack.position(), m_TacticalMoves, m_TacticalMove, depth);
 					m_NeedsTacticalSorting = false;
 				}
 			}

@@ -1549,6 +1549,10 @@ namespace pygmalion
 				), false);
 			}
 		}
+		constexpr uint_t twosComplement() const noexcept
+		{
+			return (~(*this))++;
+		}
 	};
 
 	template<size_t COUNT_BITS, bool IS_COMPACT>
@@ -2295,6 +2299,10 @@ namespace pygmalion
 				), false);
 			}
 		}
+		constexpr uint_t twosComplement() const noexcept
+		{
+			return uint_t(static_cast<wordType>(-m_Word), false);
+		}
 	};
 
 	template<size_t COUNT_BITS, bool IS_COMPACT>
@@ -2702,6 +2710,10 @@ namespace pygmalion
 			sstr << "]";
 			return sstr.str();
 		}
+		constexpr uint_t twosComplement() const noexcept
+		{
+			return *this;
+		}
 	};
 
 	template<size_t COUNT_BITS, bool IS_COMPACT>
@@ -3064,6 +3076,10 @@ namespace pygmalion
 		template<size_t COUNT_BITS2, bool IS_COMPACT2>
 		constexpr uint_t(const uint_t<COUNT_BITS2, IS_COMPACT2>& other) noexcept
 		{}
+		constexpr uint_t twosComplement() const noexcept
+		{
+			return *this;
+		}
 	};
 
 	template<size_t COUNT_BITS>

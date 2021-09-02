@@ -139,5 +139,92 @@ namespace pygmalion::chess
 		}
 		static gamestateType lateResult_Implementation(const typename generatorType::stackType& stack) noexcept;
 		static scoreType evaluate_Implementation(const scoreType alpha, const scoreType beta, const generatorType::stackType& stack) noexcept;
+		static squaresType leastValuablePiece(const boardType& position, const squaresType mask, const playerType side) noexcept
+		{
+			const squaresType occ{ position.playerOccupancy(side) & mask };
+			squaresType subset{ position.pieceOccupancy(pawn) & occ };
+			if (subset != squaresType::none())
+				return subset.singlePiece();
+			subset = (position.pieceOccupancy(knight) | position.pieceOccupancy(bishop)) & occ;
+			if (subset != squaresType::none())
+				return subset.singlePiece();
+			subset = position.pieceOccupancy(rook) & occ;
+			if (subset != squaresType::none())
+				return subset.singlePiece();
+			subset = position.pieceOccupancy(queen) & occ;
+			if (subset != squaresType::none())
+				return subset.singlePiece();
+			subset = position.pieceOccupancy(king) & occ;
+			return subset;
+		}
+		static materialScore staticExchange(const movebitsType move, const boardType& position) noexcept
+		{
+			const squareType to{ motorType::move().toSquare(position, move) };
+			const squareType from{ motorType::move().fromSquare(position, move) };
+			pieceType attackingPiece{ position.getPiece(from) };
+			playerType attackingSide{ position.getPlayer(from) };
+			assert(attackingPiece.isValid());
+			materialScore gain[32];
+			if (motorType::move().isCapture(move))
+			{
+				const squaresType captureSquare{ motorType::move().captureSquare(position, move) };
+				const pieceType capPiece = position.getPiece(to);
+				gain[0] = boardType::materialValue(capPiece, whitePlayer);
+			}
+			else
+			{
+				gain[0] = materialScore::zero();
+			}
+			if (motorType::move().isPromotion(move))
+			{
+				const pieceType promotedPiece{ motorType::move().promotedPiece(move) };
+				gain[0] += boardType::materialValue(promotedPiece, whitePlayer);
+				gain[0] -= boardType::materialValue(pawn, whitePlayer);
+			}
+			squaresType mayXrayHV{ position.pieceOccupancy(queen) | position.pieceOccupancy(rook) };
+			squaresType mayXrayDiag{ position.pieceOccupancy(queen) | position.pieceOccupancy(bishop) };
+			int d{ 0 };
+			squaresType occBB{ position.totalOccupancy() };
+			squaresType attackBB{ generatorType::attackers(position,to) };
+			squaresType fromBB{ squaresType(from) };
+			while (true)
+			{
+				d++;
+				assert(d < 32);
+				gain[d] = boardType::materialValue(attackingPiece, whitePlayer) - gain[d - 1];
+				if (materialScore::max(gain[d - 1], gain[d]) < materialScore::zero())
+					break;
+				attackBB ^= fromBB;
+				occBB ^= fromBB;
+				mayXrayHV &= ~fromBB;
+				mayXrayDiag &= ~fromBB;
+				attackBB |= generatorType::attacksXrayHV(to, occBB, mayXrayHV);
+				attackBB |= generatorType::attacksXrayDiag(to, occBB, mayXrayDiag);
+				attackingSide = attackingSide.next();
+				fromBB = leastValuablePiece(position, attackBB, attackingSide);
+				if (fromBB != squaresType::none())
+				{
+					const squareType attackersquare{ *fromBB.begin() };
+					if (attackingPiece == king)
+					{
+						d--;
+						break;
+					}
+					attackingPiece = position.getPiece(attackersquare);
+				}
+				else
+					break;
+			}
+			if (d > 0)
+			{
+				while (--d)
+					gain[d - 1] = -materialScore::max(-gain[d - 1], gain[d]);
+			}
+			return gain[0];
+		}
+	    static scoreType staticTacticalMoveScore_Implementation(const boardType& position, const movebitsType move) noexcept
+		{
+			return static_cast<scoreType>(staticExchange(move, position));
+		}
 	};
 }

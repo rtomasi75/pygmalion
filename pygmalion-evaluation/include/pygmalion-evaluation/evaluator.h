@@ -61,5 +61,9 @@ namespace pygmalion
 		{
 			return evaluatorType::countAspirationWindows_Implementation();
 		}
+		constexpr static scoreType staticTacticalMoveScore(const boardType& position, const movebitsType move) noexcept
+		{
+			return evaluatorType::staticTacticalMoveScore_Implementation(position, move);
+		}
 	};
 }

@@ -269,6 +269,15 @@ namespace pygmalion
 			}
 			this->sortMoves(moves, scores, fromMoveIndex, 0);
 		}
+		void sortTacticalMoves(const boardType& position, movelistType& moves, const indexType fromMoveIndex, const size_t depth) noexcept
+		{
+			list<scoreType, countMaxGeneratedMoves> scores{ list<scoreType, countMaxGeneratedMoves>() };
+			for (indexType i = fromMoveIndex; i < moves.length(); i++)
+			{
+				scores.add(evaluatorType::staticTacticalMoveScore(position, moves[i]));
+			}
+			this->sortMoves(moves, scores, fromMoveIndex, 0);
+		}
 		constexpr movegenFeedback& feedback() noexcept
 		{
 			return m_Feedback;

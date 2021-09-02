@@ -70,5 +70,10 @@ namespace pygmalion::tictactoe
 			}
 			return stack.movingPlayer() == playerType(0) ? sc : -sc;
 		}
+		static scoreType staticTacticalMoveScore_Implementation(const boardType& position, const movebitsType move) noexcept
+		{
+			assert(false);
+			return scoreType::zero();
+		}
 	};
 }

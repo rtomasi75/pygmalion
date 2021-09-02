@@ -7,6 +7,10 @@ namespace pygmalion::chess
 	private:
 		static state::materialTables<state::descriptor_state> m_Material;
 	public:
+		constexpr static materialScore materialValue(const pieceType pc, const playerType pl) noexcept
+		{
+			return m_Material.material(pl, pc);
+		}
 		constexpr void clearCastleRightQueensideBlack() noexcept
 		{
 			clearFlag(castleRightQueensideBlack);

@@ -1,6 +1,6 @@
 namespace pygmalion
 {
-	template< size_t COUNT_MAXPATTERNBITS, size_t COUNT_BITS, typename VALUE, typename INFO, typename INSTANCE>
+	template<size_t COUNT_MAXPATTERNBITS, size_t COUNT_BITS, typename VALUE, typename INFO, typename INSTANCE>
 	class magictable
 	{
 	public:

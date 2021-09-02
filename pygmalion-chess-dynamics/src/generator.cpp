@@ -538,20 +538,41 @@ namespace pygmalion::chess
 			if (position.totalOccupancy()[to])
 				return false;
 
-			// is the pawn elegible for a double push?
-			if (!((movingPlayer == whitePlayer) ? pawnDoublePushFromSquaresWhite() : pawnDoublePushFromSquaresBlack())[from])
-				return false;
+			if (movingPlayer == whitePlayer)
+			{
+				// is the pawn elegible for a double push?
+				if (!pawnDoublePushFromSquaresWhite()[from])
+					return false;
 
-			// is the destination rank correct?
-			const fileType rankTo{ to.rank() };
-			if (((movingPlayer == whitePlayer) ? rank4 : rank5) == rankTo)
-				return false;
+				// is the destination rank correct?
+				const fileType rankTo{ to.rank() };
+				if (rankTo != rank4)
+					return false;
 
-			// is our way free?
-			const fileType fileFrom{ from.file() };
-			const squareType interestSquare{ fileFrom & (movingPlayer == whitePlayer ? rank3 : rank6) };
-			if (position.totalOccupancy()[interestSquare])
-				return false;
+				// is our way free?
+				const fileType fileFrom{ from.file() };
+				const squareType interestSquare{ fileFrom & rank3 };
+				if (position.totalOccupancy()[interestSquare])
+					return false;
+			}
+
+			else
+			{
+				// is the pawn elegible for a double push?
+				if (!pawnDoublePushFromSquaresBlack()[from])
+					return false;
+
+				// is the destination rank correct?
+				const fileType rankTo{ to.rank() };
+				if (rankTo != rank5)
+					return false;
+
+				// is our way free?
+				const fileType fileFrom{ from.file() };
+				const squareType interestSquare{ fileFrom & rank6 };
+				if (position.totalOccupancy()[interestSquare])
+					return false;
+			}
 		}
 		else if (motorType::move().isEnPassant(moveBits))
 		{
@@ -702,7 +723,7 @@ namespace pygmalion::chess
 
 			// what piece are we moving?
 			const pieceType movingPiece{ position.getPiece(from) };
-		
+
 			// are we doing a legal move?
 			switch (movingPiece)
 			{

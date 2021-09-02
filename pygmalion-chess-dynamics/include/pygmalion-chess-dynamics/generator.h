@@ -20,7 +20,7 @@ namespace pygmalion::chess
 		constexpr static const inline movegen_sliders_hv movegenSlidersHV{ movegen_sliders_hv() };
 		constexpr static const inline movegen_sliders_diag movegenSlidersDiag{ movegen_sliders_diag() };
 		constexpr static const inline movegen_king movegenKing{ movegen_king() };
-		
+
 		class stack :
 			public pygmalion::generator<descriptor_dynamics, generator>::stack
 		{
@@ -180,8 +180,6 @@ namespace pygmalion::chess
 		friend class stack;
 	private:
 		static void control(const generatorType::stackType& stack, squaresType& white, squaresType& black) noexcept;
-		static squaresType attackers(const boardType& position, const squareType square) noexcept;
-		static squaresType attackers(const boardType& position, const squareType square, const playerType attacker) noexcept;
 		static bool isAttacked(const boardType& position, const squareType square, const playerType attacker) noexcept;
 		static squaresType squaresAttackedByPlayer(const stackType& stack, const playerType attackingPlayer) noexcept;
 		static squaresType squaresTargetedByPlayer(const stackType& stack, const playerType attackingPlayer) noexcept;
@@ -565,6 +563,8 @@ namespace pygmalion::chess
 #endif
 		}
 	public:
+		static squaresType attackers(const boardType& position, const squareType square) noexcept;
+		static squaresType attackers(const boardType& position, const squareType square, const playerType attacker) noexcept;
 		constexpr static size_t countMoveBuckets_Implementation() noexcept
 		{
 			if constexpr (usePieceType)
@@ -596,6 +596,18 @@ namespace pygmalion::chess
 		static std::string moveToString_Implementation(const stackType& stack, const movebitsType mv, const size_t depth) noexcept;
 		static std::string passToString_Implementation(const passType pass) noexcept;
 		static std::string tacticalPassToString_Implementation(const passType tacticalPass) noexcept;
+		static squaresType attacksXrayDiag(const squareType square, const squaresType& occ, const squaresType& xrays) noexcept
+		{
+			assert(square.isValid());
+			const squaresType attmask{ movegenSlidersDiag.attacks(square, ~occ) };
+			return attmask & xrays;
+		}
+		static squaresType attacksXrayHV(const squareType square, const squaresType& occ, const squaresType& xrays) noexcept
+		{
+			assert(square.isValid());
+			const squaresType attmask{ movegenSlidersHV.attacks(square, ~occ) };
+			return attmask & xrays;
+		}
 		constexpr static bool hasNullMove_Implementation() noexcept
 		{
 			return true;
