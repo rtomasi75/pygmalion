@@ -43,9 +43,10 @@ namespace pygmalion
 				return gamestateType::isWin(lateState, m_Stack.movingPlayer()) ? scoreType::win() : scoreType::loss();
 			}
 		}
+		template<bool LAZY>
 		bool earlyScore(scoreType& score, bool& allowStoreTT) const noexcept
 		{
-			const gamestateType earlyState{ evaluatorType::earlyResult(m_Stack,allowStoreTT) };
+			const gamestateType earlyState{ evaluatorType::template earlyResult<LAZY>(m_Stack,allowStoreTT) };
 			if (!gamestateType::isOpen(earlyState))
 			{
 				if (gamestateType::isDraw(earlyState))
@@ -915,7 +916,7 @@ namespace pygmalion
 			}
 			m_Heuristics.beginNode(m_Stack);
 			scoreType early{ scoreType::zero() };
-			if (earlyScore(early, allowStoreTT))
+			if (earlyScore<true>(early, allowStoreTT))
 			{
 				m_Heuristics.endNodeEarly(m_Stack);
 				return early;
@@ -1037,7 +1038,7 @@ namespace pygmalion
 			m_Heuristics.beginNode(m_Stack);
 			scoreType alpha{ beta.zeroWindow() };
 			scoreType early{ scoreType::zero() };
-			if (earlyScore(early, allowStoreTT))
+			if (earlyScore<true>(early, allowStoreTT))
 			{
 				m_Heuristics.endNodeEarly(m_Stack);
 				return early;
@@ -1164,7 +1165,7 @@ namespace pygmalion
 			{
 				m_Heuristics.beginNode(m_Stack);
 				scoreType early{ scoreType::zero() };
-				if (earlyScore(early, allowStoreTT))
+				if (earlyScore<false>(early, allowStoreTT))
 				{
 					m_Heuristics.endNodeEarly(m_Stack);
 					return early;
@@ -1268,7 +1269,7 @@ namespace pygmalion
 			{
 				m_Heuristics.beginNode(m_Stack);
 				scoreType early{ scoreType::zero() };
-				if (earlyScore(early, allowStoreTT))
+				if (earlyScore<false>(early, allowStoreTT))
 				{
 					m_Heuristics.endNodeEarly(m_Stack);
 					return early;

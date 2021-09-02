@@ -39,6 +39,7 @@ namespace pygmalion
 		{
 			return evaluatorType::evaluate_Implementation(alpha, beta, stack);
 		}
+		template<bool LAZY>
 		static gamestateType earlyResult(const typename generatorType::stackType& stack, bool& allowStoreTT) noexcept
 		{
 			if (!gamestateType::isOpen(stack.position().arbitration()))
@@ -46,7 +47,7 @@ namespace pygmalion
 				allowStoreTT = false;
 				return stack.position().arbitration();
 			}
-			return evaluatorType::earlyResult_Implementation(stack, allowStoreTT);
+			return evaluatorType::template earlyResult_Implementation<LAZY>(stack, allowStoreTT);
 		}
 		static gamestateType lateResult(const typename generatorType::stackType& stack) noexcept
 		{

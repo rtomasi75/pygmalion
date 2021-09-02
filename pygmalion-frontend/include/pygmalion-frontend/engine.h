@@ -96,7 +96,7 @@ namespace pygmalion::frontend
 					this->currentGame().playerClock(this->currentGame().position().movingPlayer()).start();
 					this->outputStream() << "move " << moveString << std::endl;
 					bool allowStoreTT;
-					const gamestateType result{ evaluatorType::earlyResult(stack, allowStoreTT) };
+					const gamestateType result{ evaluatorType::template earlyResult<false>(stack, allowStoreTT) };
 					if (!gamestateType::isOpen(result))
 					{
 						this->outputStream() << "result " << frontType::gamestateToString(this->currentGame().position(), result) << std::endl;

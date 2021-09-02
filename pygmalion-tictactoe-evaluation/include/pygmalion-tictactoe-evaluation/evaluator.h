@@ -28,6 +28,7 @@ namespace pygmalion::tictactoe
 		{
 			return gamestateType::draw();
 		}
+		template<bool LAZY>
 		static gamestateType earlyResult_Implementation(const generatorType::stackType& stack, bool& allowStoreTT) noexcept
 		{
 			const boardType& position{ stack.position() };

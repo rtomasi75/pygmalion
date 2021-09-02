@@ -57,7 +57,86 @@ namespace pygmalion::chess
 			return 4;
 		}
 		static std::deque<std::shared_ptr<pygmalion::intrinsics::command>> commandsImplementation() noexcept;
-		static gamestateType earlyResult_Implementation(const generatorType::stackType& stack, bool& allowStoreTT) noexcept;
+		template<bool LAZY>
+		static gamestateType earlyResult_Implementation(const generatorType::stackType& stack, bool& allowStoreTT) noexcept
+		{
+			if constexpr (!LAZY)
+			{
+				if (stack.position().cumulation().reversiblePlies() >= 100)
+				{
+					allowStoreTT = false;
+					return gamestateType::draw();
+				}
+			}
+			if (stack.position().playerOccupancy(whitePlayer) == squaresType(stack.kingSquare(whitePlayer)))
+			{
+				if (stack.position().playerOccupancy(blackPlayer) == squaresType(stack.kingSquare(blackPlayer)))
+					return gamestateType::draw();
+				if (stack.position().playerOccupancy(blackPlayer) & (stack.position().pieceOccupancy(rook) | stack.position().pieceOccupancy(queen) | stack.position().pieceOccupancy(pawn)) == squaresType::none())
+				{
+					if ((stack.position().playerOccupancy(blackPlayer) & stack.position().pieceOccupancy(bishop)) == squaresType::none())
+					{
+						if ((stack.position().playerOccupancy(blackPlayer) & stack.position().pieceOccupancy(knight)).count() == 1)
+						{
+							allowStoreTT = true;
+							return gamestateType::draw();
+						}
+					}
+					if ((stack.position().playerOccupancy(blackPlayer) & stack.position().pieceOccupancy(knight)) == squaresType::none())
+					{
+						if ((stack.position().playerOccupancy(blackPlayer) & stack.position().pieceOccupancy(bishop)).count() == 1)
+						{
+							allowStoreTT = true;
+							return gamestateType::draw();
+						}
+					}
+				}
+			}
+			else if (stack.position().playerOccupancy(blackPlayer) == squaresType(stack.kingSquare(blackPlayer)))
+			{
+				if (stack.position().playerOccupancy(whitePlayer) & (stack.position().pieceOccupancy(rook) | stack.position().pieceOccupancy(queen) | stack.position().pieceOccupancy(pawn)) == squaresType::none())
+				{
+					if ((stack.position().playerOccupancy(whitePlayer) & stack.position().pieceOccupancy(bishop)) == squaresType::none())
+					{
+						if ((stack.position().playerOccupancy(whitePlayer) & stack.position().pieceOccupancy(knight)).count() == 1)
+						{
+							allowStoreTT = true;
+							return gamestateType::draw();
+						}
+					}
+					if ((stack.position().playerOccupancy(whitePlayer) & stack.position().pieceOccupancy(knight)) == squaresType::none())
+					{
+						if ((stack.position().playerOccupancy(whitePlayer) & stack.position().pieceOccupancy(bishop)).count() == 1)
+						{
+							allowStoreTT = true;
+							return gamestateType::draw();
+						}
+					}
+				}
+			}
+			else if ((stack.position().pieceOccupancy(queen) | stack.position().pieceOccupancy(rook) | stack.position().pieceOccupancy(knight) | stack.position().pieceOccupancy(pawn)) == squaresType::none())
+			{
+				if (((stack.position().playerOccupancy(whitePlayer) & stack.position().pieceOccupancy(bishop)).count() == 1) && ((stack.position().playerOccupancy(whitePlayer) & stack.position().pieceOccupancy(bishop)).count() == 1))
+				{
+					const squareType whiteBishop{ *(stack.position().playerOccupancy(whitePlayer) & stack.position().pieceOccupancy(bishop)).begin() };
+					const squareType blackBishop{ *(stack.position().playerOccupancy(blackPlayer) & stack.position().pieceOccupancy(bishop)).begin() };
+					if (whiteBishop.isDark() == blackBishop.isDark())
+					{
+						allowStoreTT = true;
+						return gamestateType::draw();
+					}
+				}
+			}
+			if constexpr (!LAZY)
+			{
+				if (stack.occurs(stack.position(), 2, 4, 4))
+				{
+					allowStoreTT = false;
+					return gamestateType::draw();
+				}
+			}
+			return gamestateType::open();
+		}
 		static gamestateType lateResult_Implementation(const typename generatorType::stackType& stack) noexcept;
 		static scoreType evaluate_Implementation(const scoreType alpha, const scoreType beta, const generatorType::stackType& stack) noexcept;
 	};
