@@ -14,7 +14,7 @@ namespace pygmalion::intrinsics
 		{
 			using refType = std::uint64_t;
 			using intType = refType;
-			static size_t reference(const refType bits) noexcept
+			static size_t reference(const refType& bits) noexcept
 			{
 				size_t count{ 0 };
 				for (size_t i = 0; i < COUNT_BITS; i++)
@@ -24,7 +24,7 @@ namespace pygmalion::intrinsics
 				}
 				return count;
 			}
-			static size_t baseline(const refType bits) noexcept
+			static size_t baseline(const refType& bits) noexcept
 			{
 #if defined(PYGMALION_INTRINSICS_MSC) && defined(PYGMALION_CPU_X64)
 				if constexpr (compiler::supports(compiler::flags::MSC) && cpu::supports(cpu::flags::X86))
@@ -43,11 +43,11 @@ namespace pygmalion::intrinsics
 #endif
 #if defined(PYGMALION_INTRINSICS_MSC) && defined(PYGMALION_CPU_X86)
 				if constexpr (compiler::supports(compiler::flags::MSC) && cpu::supports(cpu::flags::X86))
-					return __popcnt(*(reinterpret_cast<const unsigned int*>(&bits) + 1)) + __popcnt(*reinterpret_cast<const unsigned int*>(&bits));
+					return __popcnt(*(static_cast<const unsigned int*>(&bits) + 1)) + __popcnt(*static_cast<const unsigned int*>(&bits));
 #endif
 				return popcnt_reference<COUNT_BITS, refType>(bits);
 			}
-			static size_t generic(const refType bits)
+			static size_t generic(const refType& bits)
 			{
 				return popcnt_reference<COUNT_BITS, refType>(bits);
 			}
@@ -58,7 +58,7 @@ namespace pygmalion::intrinsics
 		{
 			using refType = std::uint32_t;
 			using intType = refType;
-			static size_t reference(const refType bits) noexcept
+			static size_t reference(const refType& bits) noexcept
 			{
 				size_t count{ 0 };
 				for (size_t i = 0; i < COUNT_BITS; i++)
@@ -68,7 +68,7 @@ namespace pygmalion::intrinsics
 				}
 				return count;
 			}
-			static size_t baseline(const refType bits) noexcept
+			static size_t baseline(const refType& bits) noexcept
 			{
 #if defined(PYGMALION_INTRINSICS_MSC) && (defined(PYGMALION_CPU_X86)||defined(PYGMALION_CPU_X64))
 				if constexpr (compiler::supports(compiler::flags::MSC) && cpu::supports(cpu::flags::X86))
@@ -87,7 +87,7 @@ namespace pygmalion::intrinsics
 #endif
 				return popcnt_reference<COUNT_BITS, refType>(bits);
 			}
-			static size_t generic(const refType bits)
+			static size_t generic(const refType& bits)
 			{
 				return popcnt_reference<COUNT_BITS, refType>(bits);
 			}
@@ -98,7 +98,7 @@ namespace pygmalion::intrinsics
 		{
 			using refType = std::uint16_t;
 			using intType = refType;
-			static size_t reference(const refType bits) noexcept
+			static size_t reference(const refType& bits) noexcept
 			{
 				size_t count{ 0 };
 				for (size_t i = 0; i < COUNT_BITS; i++)
@@ -108,7 +108,7 @@ namespace pygmalion::intrinsics
 				}
 				return count;
 			}
-			static size_t baseline(const refType bits) noexcept
+			static size_t baseline(const refType& bits) noexcept
 			{
 #if defined(PYGMALION_INTRINSICS_MSC) && (defined(PYGMALION_CPU_X86)||defined(PYGMALION_CPU_X64))
 				if constexpr (compiler::supports(compiler::flags::MSC) && cpu::supports(cpu::flags::X86))
@@ -127,7 +127,7 @@ namespace pygmalion::intrinsics
 #endif
 				return popcnt_reference<COUNT_BITS, refType>(bits);
 			}
-			static size_t generic(const refType bits)
+			static size_t generic(const refType& bits)
 			{
 				return popcnt_reference<COUNT_BITS, refType>(bits);
 			}
@@ -138,7 +138,7 @@ namespace pygmalion::intrinsics
 		{
 			using refType = std::uint8_t;
 			using intType = refType;
-			static size_t reference(const refType bits) noexcept
+			static size_t reference(const refType& bits) noexcept
 			{
 				size_t count{ 0 };
 				for (size_t i = 0; i < COUNT_BITS; i++)
@@ -148,7 +148,7 @@ namespace pygmalion::intrinsics
 				}
 				return count;
 			}
-			static size_t baseline(const refType bits) noexcept
+			static size_t baseline(const refType& bits) noexcept
 			{
 #if defined(PYGMALION_INTRINSICS_MSC) && (defined(PYGMALION_CPU_X86)||defined(PYGMALION_CPU_X64))
 				if constexpr (compiler::supports(compiler::flags::MSC) && cpu::supports(cpu::flags::X86))
@@ -167,7 +167,7 @@ namespace pygmalion::intrinsics
 #endif
 				return popcnt_reference<COUNT_BITS, refType>(bits);
 			}
-			static size_t generic(const refType bits)
+			static size_t generic(const refType& bits)
 			{
 				return popcnt_reference<COUNT_BITS, refType>(bits);
 			}
@@ -178,15 +178,15 @@ namespace pygmalion::intrinsics
 		{
 			using refType = bool;
 			using intType = std::uint8_t;
-			static size_t reference(const refType bits) noexcept
+			static size_t reference(const refType& bits) noexcept
 			{
 				return bits ? 1 : 0;
 			}
-			static size_t baseline(const refType bits) noexcept
+			static size_t baseline(const refType& bits) noexcept
 			{
 				return bits;
 			}
-			static size_t generic(const refType bits)
+			static size_t generic(const refType& bits)
 			{
 				return popcnt_reference<COUNT_BITS, refType>(bits);
 			}
@@ -197,15 +197,15 @@ namespace pygmalion::intrinsics
 		{
 			using refType = std::uint8_t;
 			using intType = std::uint8_t;
-			static size_t reference(const refType bits) noexcept
+			static size_t reference(const refType& bits) noexcept
 			{
 				return 0;
 			}
-			static size_t baseline(const refType bits) noexcept
+			static size_t baseline(const refType& bits) noexcept
 			{
 				return 0;
 			}
-			static size_t generic(const refType bits)
+			static size_t generic(const refType& bits)
 			{
 				return popcnt_reference<COUNT_BITS, refType>(bits);
 			}
@@ -216,7 +216,7 @@ namespace pygmalion::intrinsics
 		{
 			using refType = std::uintmax_t;
 			using intType = refType;
-			static size_t reference(const refType bits) noexcept
+			static size_t reference(const refType& bits) noexcept
 			{
 				size_t count{ 0 };
 				for (size_t i = 0; i < COUNT_BITS; i++)
@@ -226,7 +226,7 @@ namespace pygmalion::intrinsics
 				}
 				return count;
 			}
-			static size_t baseline(const refType bits) noexcept
+			static size_t baseline(const refType& bits) noexcept
 			{
 #if defined(PYGMALION_INTRINSICS_GNU)
 				if constexpr (compiler::supports(compiler::flags::GNU))
@@ -241,7 +241,7 @@ namespace pygmalion::intrinsics
 #endif
 				return popcnt_reference<COUNT_BITS, refType>(bits);
 			}
-			static size_t generic(const refType bits)
+			static size_t generic(const refType& bits)
 			{
 				return popcnt_reference<COUNT_BITS, refType>(bits);
 			}
@@ -636,7 +636,7 @@ namespace pygmalion::intrinsics
 #endif
 #if defined(PYGMALION_INTRINSICS_MSC) && defined(PYGMALION_CPU_X86)
 				if constexpr (compiler::supports(compiler::flags::MSC) && cpu::supports(cpu::flags::X86))
-					return __popcnt(*(reinterpret_cast<const unsigned int*>(&bits) + 1)) + __popcnt(*reinterpret_cast<const unsigned int*>(&bits));
+					return __popcnt(*(static_cast<const unsigned int*>(&bits) + 1)) + __popcnt(*static_cast<const unsigned int*>(&bits));
 #endif
 				return popcount_ref<SLICE, 0>(bits);
 			};

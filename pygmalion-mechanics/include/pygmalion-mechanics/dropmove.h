@@ -27,7 +27,7 @@ namespace pygmalion::mechanics
 				return m_Piece;
 			}
 			constexpr dropMovedata() noexcept = default;
-			constexpr dropMovedata(const pieceType pc, const squareType sq, const playerType p) noexcept :
+			constexpr dropMovedata(const pieceType& pc, const squareType& sq, const playerType& p) noexcept :
 				m_Square{ sq },
 				m_Piece{ pc },
 				m_Owner{ p }
@@ -73,15 +73,15 @@ namespace pygmalion::mechanics
 			return sq;
 		}
 	private:
-		constexpr static void encodeOwner(typename dropmove::movebitsType& movebits, const playerType p) noexcept
+		constexpr static void encodeOwner(typename dropmove::movebitsType& movebits, const playerType& p) noexcept
 		{
 			movebits.template storeBits<countSquareBits + countPieceBits, countOwnerBits>(static_cast<typename std::make_unsigned<typename playerType::baseType>::type>(p));
 		}
-		constexpr static void encodePiece(typename dropmove::movebitsType& movebits, const pieceType pc) noexcept
+		constexpr static void encodePiece(typename dropmove::movebitsType& movebits, const pieceType& pc) noexcept
 		{
 			movebits.template storeBits<countSquareBits, countPieceBits>(static_cast<typename std::make_unsigned<typename pieceType::baseType>::type>(pc));
 		}
-		constexpr static void encodeSquare(typename dropmove::movebitsType& movebits, const squareType sq) noexcept
+		constexpr static void encodeSquare(typename dropmove::movebitsType& movebits, const squareType& sq) noexcept
 		{
 			movebits.template storeBits<0, countSquareBits>(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(sq));
 		}
@@ -104,7 +104,7 @@ namespace pygmalion::mechanics
 		{
 			position.removePiece(data.piece(), data.square(), data.owner());
 		}
-		constexpr typename dropmove::movebitsType create(const pieceType piece, const squareType square, const playerType owner) const noexcept
+		constexpr typename dropmove::movebitsType create(const pieceType& piece, const squareType& square, const playerType& owner) const noexcept
 		{
 			typename dropmove::movebitsType bits{ dropmove::movebitsType::zero() };
 			dropmove::encodeSquare(bits, square);

@@ -90,7 +90,7 @@ namespace pygmalion::mechanics
 		constexpr void doMovePack(boardType& position, const typename conjunctivemove::movebitsType& moveBits, typename conjunctivemove::movedataType& combinedData) const noexcept
 		{
 			typename MOVE::movebitsType bits{ moveBits.template extractBits<BITSPOS,MOVE::countBits>() };
-			typename MOVE::movedataType& data{ *reinterpret_cast<typename MOVE::movedataType*>(combinedData.dataPtr() + DATAPOS) };
+			typename MOVE::movedataType& data{ *static_cast<typename MOVE::movedataType*>(combinedData.dataPtr() + DATAPOS) };
 			data = std::get<INDEX>(this->m_Moves).doMove(position, bits);
 			if constexpr (sizeof...(MOVES2) > 0)
 				this->template doMovePack<BITSPOS + MOVE::countBits, DATAPOS + sizeof(typename MOVE::movedataType), INDEX + 1, MOVES2...>(position, moveBits, combinedData);
@@ -107,7 +107,7 @@ namespace pygmalion::mechanics
 		template<size_t DATAPOS, size_t INDEX, typename MOVE, typename... MOVES2>
 		constexpr void undoMovePack(boardType& position, const typename conjunctivemove::movedataType& combinedData) const noexcept
 		{
-			const typename MOVE::movedataType& data{ *reinterpret_cast<const typename MOVE::movedataType*>(combinedData.dataPtr() + DATAPOS) };
+			const typename MOVE::movedataType& data{ *static_cast<const typename MOVE::movedataType*>(combinedData.dataPtr() + DATAPOS) };
 			if constexpr (sizeof...(MOVES2) > 0)
 				this->template undoMovePack<DATAPOS + sizeof(typename MOVE::movedataType), INDEX + 1, MOVES2...>(position, combinedData);
 			std::get<INDEX>(this->m_Moves).undoMove(position, data);

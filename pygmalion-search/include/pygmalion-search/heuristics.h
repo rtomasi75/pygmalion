@@ -69,7 +69,7 @@ namespace pygmalion
 						killerMoves.add(m_TacticalKillers[i]);
 				}
 			}
-			constexpr void refuted(const stackType& stack, const movebitsType& moveBits, const scoreType score, const bool isTactical) noexcept
+			constexpr void refuted(const stackType& stack, const movebitsType& moveBits, const scoreType& score) noexcept
 			{
 				const boardType& position{ stack.position() };
 				const size_t index{ generatorType::moveBucket(position,moveBits) };
@@ -86,76 +86,70 @@ namespace pygmalion
 				bool contains{ false };
 				if (generatorType::isMoveTactical(stack, moveBits))
 				{
-					if (isTactical)
+					for (size_t i = 0; i < m_TacticalKillerCount; i++)
 					{
-						for (size_t i = 0; i < m_TacticalKillerCount; i++)
+						if (m_TacticalKillers[i] == moveBits)
 						{
-							if (m_TacticalKillers[i] == moveBits)
+							if (i != 0)
 							{
-								if (i != 0)
-								{
-									for (size_t k = 0; k < i; k++)
-									{
-										const size_t idx{ killerMoves - k - 1 };
-										m_TacticalKillers[idx] = m_TacticalKillers[idx - 1];
-									}
-									m_TacticalKillers[0] = moveBits;
-								}
-								contains = true;
-							}
-						}
-						if (!contains)
-						{
-							if constexpr (killerMoves > 0)
-							{
-								for (size_t k = 0; k < killerMoves - 1; k++)
+								for (size_t k = 0; k < i; k++)
 								{
 									const size_t idx{ killerMoves - k - 1 };
 									m_TacticalKillers[idx] = m_TacticalKillers[idx - 1];
 								}
 								m_TacticalKillers[0] = moveBits;
-								m_TacticalKillerCount = std::min(m_TacticalKillerCount + 1, killerMoves);
 							}
+							contains = true;
+						}
+					}
+					if (!contains)
+					{
+						if constexpr (killerMoves > 0)
+						{
+							for (size_t k = 0; k < killerMoves - 1; k++)
+							{
+								const size_t idx{ killerMoves - k - 1 };
+								m_TacticalKillers[idx] = m_TacticalKillers[idx - 1];
+							}
+							m_TacticalKillers[0] = moveBits;
+							m_TacticalKillerCount = std::min(m_TacticalKillerCount + 1, killerMoves);
 						}
 					}
 				}
 				else
 				{
-					if (!isTactical)
+					for (size_t i = 0; i < m_KillerCount; i++)
 					{
-						for (size_t i = 0; i < m_KillerCount; i++)
+						if (m_Killers[i] == moveBits)
 						{
-							if (m_Killers[i] == moveBits)
+							if (i != 0)
 							{
-								if (i != 0)
-								{
-									for (size_t k = 0; k < i; k++)
-									{
-										const size_t idx{ killerMoves - k - 1 };
-										m_Killers[idx] = m_Killers[idx - 1];
-									}
-									m_Killers[0] = moveBits;
-								}
-								contains = true;
-							}
-						}
-						if (!contains)
-						{
-							if constexpr (killerMoves > 0)
-							{
-								for (size_t k = 0; k < killerMoves - 1; k++)
+								for (size_t k = 0; k < i; k++)
 								{
 									const size_t idx{ killerMoves - k - 1 };
 									m_Killers[idx] = m_Killers[idx - 1];
 								}
 								m_Killers[0] = moveBits;
-								m_KillerCount = std::min(m_KillerCount + 1, killerMoves);
 							}
+							contains = true;
+						}
+					}
+					if (!contains)
+					{
+						if constexpr (killerMoves > 0)
+						{
+							for (size_t k = 0; k < killerMoves - 1; k++)
+							{
+								const size_t idx{ killerMoves - k - 1 };
+								m_Killers[idx] = m_Killers[idx - 1];
+							}
+							m_Killers[0] = moveBits;
+							m_KillerCount = std::min(m_KillerCount + 1, killerMoves);
 						}
 					}
 				}
 			}
-			constexpr void accepted(const stackType& stack, const movebitsType& moveBits, const scoreType score, const bool isTactical) noexcept
+			constexpr void accepted(const stackType& stack, const movebitsType& moveBits, const scoreType& score) noexcept
 			{
 				const boardType& position{ stack.position() };
 				const size_t index{ generatorType::moveBucket(position,moveBits) };
@@ -202,16 +196,16 @@ namespace pygmalion
 		void onEndNodeLate(const stackType& stack) noexcept
 		{
 		}
-		void onBeginMove(const stackType& stack, const movebitsType moveBits, const bool isTactical, const size_t depth) noexcept
+		void onBeginMove(const stackType& stack, const movebitsType& moveBits, const bool isTactical, const size_t depth) noexcept
 		{
 		}
-		void onEndMoveRefuted(const stackType& stack, const movebitsType moveBits, const bool isTactical, const size_t depth, const scoreType score) noexcept
+		void onEndMoveRefuted(const stackType& stack, const movebitsType& moveBits, const bool isTactical, const size_t depth, const scoreType& score) noexcept
 		{
 		}
-		void onEndMoveSilent(const stackType& stack, const movebitsType moveBits, const bool isTactical, const size_t depth) noexcept
+		void onEndMoveSilent(const stackType& stack, const movebitsType& moveBits, const bool isTactical, const size_t depth) noexcept
 		{
 		}
-		void onEndMoveAccepted(const stackType& stack, const movebitsType moveBits, const bool isTactical, const size_t depth, const scoreType score) noexcept
+		void onEndMoveAccepted(const stackType& stack, const movebitsType& moveBits, const bool isTactical, const size_t depth, const scoreType& score) noexcept
 		{
 		}
 		void onEndNodeCut(const stackType& stack) noexcept
@@ -226,7 +220,7 @@ namespace pygmalion
 		void onEndNodeNull(const stackType& stack) noexcept
 		{
 		}
-		void sortMoves(movelistType& moves, list<scoreType, countMaxGeneratedMoves>& scores, const indexType fromMoveIndex, const indexType fromScoreIndex) noexcept
+		void sortMoves(movelistType& moves, list<scoreType, countMaxGeneratedMoves>& scores, const indexType& fromMoveIndex, const indexType& fromScoreIndex) noexcept
 		{
 			const indexType length{ static_cast<indexType>(moves.length() - fromMoveIndex) };
 			sort<movebitsType, scoreType>::sortValues(moves.ptr() + static_cast<size_t>(fromMoveIndex), scores.ptr() + static_cast<size_t>(fromScoreIndex), length);
@@ -256,23 +250,23 @@ namespace pygmalion
 			}
 			return m_MoveBuckets[depth].tacticalKillers(stack, killermoves);
 		}
-		void sortMoves(const boardType& position, movelistType& moves, const indexType fromMoveIndex, const size_t depth) noexcept
+		void sortMoves(const boardType& position, movelistType& moves, const indexType& fromMoveIndex, const size_t depth) noexcept
 		{
 			list<scoreType, countMaxGeneratedMoves> scores{ list<scoreType, countMaxGeneratedMoves>() };
 			while (depth >= m_MoveBuckets.size())
 			{
 				m_MoveBuckets.emplace_back(movebucket());
 			}
-			for (indexType i = fromMoveIndex; i < moves.length(); i++)
+			for (indexType i = fromMoveIndex; i < moves.length(); ++i)
 			{
 				scores.add(m_MoveBuckets[depth].score(position, moves[i]));
 			}
 			this->sortMoves(moves, scores, fromMoveIndex, 0);
 		}
-		void sortTacticalMoves(const boardType& position, movelistType& moves, const indexType fromMoveIndex, const size_t depth) noexcept
+		void sortTacticalMoves(const boardType& position, movelistType& moves, const indexType& fromMoveIndex, const size_t depth) noexcept
 		{
 			list<scoreType, countMaxGeneratedMoves> scores{ list<scoreType, countMaxGeneratedMoves>() };
-			for (indexType i = fromMoveIndex; i < moves.length(); i++)
+			for (indexType i = fromMoveIndex; i < moves.length(); ++i)
 			{
 				scores.add(evaluatorType::staticTacticalMoveScore(position, moves[i]));
 			}
@@ -327,7 +321,7 @@ namespace pygmalion
 			assert(m_MoveDepth == 0);
 			m_IsSearching = true;
 #endif
-			reinterpret_cast<instanceType*>(this)->onBeginSearch();
+			static_cast<instanceType*>(this)->onBeginSearch();
 		}
 		void endSearch() noexcept
 		{
@@ -337,7 +331,7 @@ namespace pygmalion
 			assert(m_MoveDepth == 0);
 			m_IsSearching = false;
 #endif
-			reinterpret_cast<instanceType*>(this)->onEndSearch();
+			static_cast<instanceType*>(this)->onEndSearch();
 		}
 		void beginNode(const stackType& stack) noexcept
 		{
@@ -345,7 +339,7 @@ namespace pygmalion
 			assert(m_IsSearching);
 			m_NodeDepth++;
 #endif
-			reinterpret_cast<instanceType*>(this)->onBeginNode(stack);
+			static_cast<instanceType*>(this)->onBeginNode(stack);
 		}
 		void endNodeEarly(const stackType& stack) noexcept
 		{
@@ -353,7 +347,7 @@ namespace pygmalion
 			assert(m_IsSearching);
 			m_NodeDepth--;
 #endif
-			reinterpret_cast<instanceType*>(this)->onEndNodeEarly(stack);
+			static_cast<instanceType*>(this)->onEndNodeEarly(stack);
 		}
 		void endNodeLate(const stackType& stack) noexcept
 		{
@@ -361,7 +355,7 @@ namespace pygmalion
 			assert(m_IsSearching);
 			m_NodeDepth--;
 #endif
-			reinterpret_cast<instanceType*>(this)->onEndNodeLate(stack);
+			static_cast<instanceType*>(this)->onEndNodeLate(stack);
 		}
 		void endNodeTT(const stackType& stack) noexcept
 		{
@@ -369,7 +363,7 @@ namespace pygmalion
 			assert(m_IsSearching);
 			m_NodeDepth--;
 #endif
-			reinterpret_cast<instanceType*>(this)->onEndNodeTT(stack);
+			static_cast<instanceType*>(this)->onEndNodeTT(stack);
 		}
 		void endNodeNull(const stackType& stack) noexcept
 		{
@@ -377,17 +371,17 @@ namespace pygmalion
 			assert(m_IsSearching);
 			m_NodeDepth--;
 #endif
-			reinterpret_cast<instanceType*>(this)->onEndNodeNull(stack);
+			static_cast<instanceType*>(this)->onEndNodeNull(stack);
 		}
-		void beginMove(const stackType& stack, const movebitsType moveBits, const bool isTactical, const size_t depth) noexcept
+		void beginMove(const stackType& stack, const movebitsType& moveBits, const bool isTactical, const size_t depth) noexcept
 		{
 #if !defined(NDEBUG)
 			assert(m_IsSearching);
 			m_MoveDepth++;
 #endif
-			reinterpret_cast<instanceType*>(this)->onBeginMove(stack, moveBits, isTactical, depth);
+			static_cast<instanceType*>(this)->onBeginMove(stack, moveBits, isTactical, depth);
 		}
-		void endMoveAccepted(const stackType& stack, const movebitsType moveBits, const bool isTactical, const size_t depth, const scoreType score, const bool fromStack) noexcept
+		void endMoveAccepted(const stackType& stack, const movebitsType& moveBits, const bool isTactical, const size_t depth, const scoreType& score, const bool fromStack) noexcept
 		{
 #if !defined(NDEBUG)
 			assert(m_IsSearching);
@@ -406,11 +400,11 @@ namespace pygmalion
 				{
 					m_MoveBuckets.emplace_back(movebucket());
 				}
-				m_MoveBuckets[depth].accepted(stack, moveBits, score, isTactical);
+				m_MoveBuckets[depth].accepted(stack, moveBits, score);
 			}
-			reinterpret_cast<instanceType*>(this)->onEndMoveAccepted(stack, moveBits, isTactical, depth, score);
+			static_cast<instanceType*>(this)->onEndMoveAccepted(stack, moveBits, isTactical, depth, score);
 		}
-		void endMoveRefuted(const stackType& stack, const movebitsType moveBits, const bool isTactical, const size_t depth, const scoreType score, const bool fromStack) noexcept
+		void endMoveRefuted(const stackType& stack, const movebitsType& moveBits, const bool isTactical, const size_t depth, const scoreType& score, const bool fromStack) noexcept
 		{
 #if !defined(NDEBUG)
 			assert(m_IsSearching);
@@ -429,17 +423,17 @@ namespace pygmalion
 				{
 					m_MoveBuckets.emplace_back(movebucket());
 				}
-				m_MoveBuckets[depth].refuted(stack, moveBits, score, isTactical);
+				m_MoveBuckets[depth].refuted(stack, moveBits, score);
 			}
-			reinterpret_cast<instanceType*>(this)->onEndMoveRefuted(stack, moveBits, isTactical, depth, score);
+			static_cast<instanceType*>(this)->onEndMoveRefuted(stack, moveBits, isTactical, depth, score);
 		}
-		void endMoveSilent(const stackType& stack, const movebitsType moveBits, const bool isTactical, const size_t depth) noexcept
+		void endMoveSilent(const stackType& stack, const movebitsType& moveBits, const bool isTactical, const size_t depth) noexcept
 		{
 #if !defined(NDEBUG)
 			assert(m_IsSearching);
 			m_MoveDepth--;
 #endif
-			reinterpret_cast<instanceType*>(this)->onEndMoveSilent(stack, moveBits, isTactical, depth);
+			static_cast<instanceType*>(this)->onEndMoveSilent(stack, moveBits, isTactical, depth);
 		}
 		void endNodeCut(const stackType& stack) noexcept
 		{
@@ -447,7 +441,7 @@ namespace pygmalion
 			assert(m_IsSearching);
 			m_NodeDepth--;
 #endif
-			reinterpret_cast<instanceType*>(this)->onEndNodeCut(stack);
+			static_cast<instanceType*>(this)->onEndNodeCut(stack);
 		}
 		void endNodeLeaf(const stackType& stack) noexcept
 		{
@@ -455,7 +449,7 @@ namespace pygmalion
 			assert(m_IsSearching);
 			m_NodeDepth--;
 #endif
-			reinterpret_cast<instanceType*>(this)->onEndNodeLeaf(stack);
+			static_cast<instanceType*>(this)->onEndNodeLeaf(stack);
 		}
 		heuristics(movegenFeedback& feedback) noexcept :
 #if !defined(NDEBUG)

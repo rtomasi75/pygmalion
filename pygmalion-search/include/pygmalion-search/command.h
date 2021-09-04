@@ -16,11 +16,11 @@ namespace pygmalion::search
 	public:
 		engine<nodeType>& searchEngine() noexcept
 		{
-			return dynamic_cast<engine<nodeType>&>(this->evaluationEngine());
+			return *dynamic_cast<engine<nodeType>*>(&(this->evaluationEngine()));
 		}
 		const engine<nodeType>& searchEngine() const noexcept
 		{
-			return dynamic_cast<const engine<nodeType>&>(this->evaluationEngine());
+			return *dynamic_cast<const engine<nodeType>*>(&(this->evaluationEngine()));
 		}
 	protected:
 	};

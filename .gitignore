@@ -25,3 +25,4 @@ mono_crash.*
 # Files built by linux
 linux/
 
+/cppcheck

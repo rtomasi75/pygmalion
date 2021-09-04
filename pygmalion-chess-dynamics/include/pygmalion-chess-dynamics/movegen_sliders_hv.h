@@ -73,6 +73,8 @@ namespace pygmalion::chess
 	public:
 		constexpr static typename squaresType::bitsType magicFactor(const size_t index) noexcept
 		{
+			assert(index >= 0);
+			assert(index < 64);
 			return m_MagicFactors[index];
 		}
 	};

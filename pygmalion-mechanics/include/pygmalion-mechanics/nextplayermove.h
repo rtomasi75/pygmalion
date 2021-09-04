@@ -16,7 +16,7 @@ namespace pygmalion::mechanics
 			{
 				return m_MovingPlayer;
 			}
-			constexpr nextplayermoveMovedata(const playerType p) noexcept :
+			constexpr nextplayermoveMovedata(const playerType& p) noexcept :
 				m_MovingPlayer{ p }
 			{}
 			constexpr nextplayermoveMovedata() noexcept = default;

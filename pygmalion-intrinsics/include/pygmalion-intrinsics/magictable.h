@@ -17,7 +17,7 @@ namespace pygmalion
 		valueType* m_pValues;
 		void initializeValue(valueType& value, const bitsType& bitboard, void* pData) const noexcept
 		{
-			reinterpret_cast<const instanceType*>(this)->initializeValue_Implementation(value, m_Info, bitboard, m_Magic.premask(), pData);
+			static_cast<const instanceType*>(this)->initializeValue_Implementation(value, m_Info, bitboard, m_Magic.premask(), pData);
 		}
 	protected:
 		constexpr const infoType& info() const noexcept
@@ -29,7 +29,7 @@ namespace pygmalion
 			m_Magic(instanceType::calculatePremask(info), factor, shift),
 			m_pValues{ new valueType[m_Magic.countValues()] }
 		{
-			void* pData{ reinterpret_cast<instanceType*>(this)->preInitialize_Implementation(info) };
+			void* pData{ static_cast<instanceType*>(this)->preInitialize_Implementation(info) };
 			const size_t N{ m_Magic.countValues() };
 			for (size_t k = 0; k < N; k++)
 			{
@@ -38,14 +38,14 @@ namespace pygmalion
 				assert(idx < N);
 				initializeValue(m_pValues[idx], bb, pData);
 			}
-			reinterpret_cast<instanceType*>(this)->postInitialize_Implementation(info, pData);
+			static_cast<instanceType*>(this)->postInitialize_Implementation(info, pData);
 		}
 		magictable(const infoType& info) noexcept :
 			m_Info{ info },
 			m_Magic(instanceType::calculatePremask(info)),
 			m_pValues{ new valueType[m_Magic.countValues()] }
 		{
-			void* pData{ reinterpret_cast<instanceType*>(this)->preInitialize_Implementation(info) };
+			void* pData{ static_cast<instanceType*>(this)->preInitialize_Implementation(info) };
 			const size_t N{ m_Magic.countValues() };
 			for (size_t k = 0; k < N; k++)
 			{
@@ -54,7 +54,7 @@ namespace pygmalion
 				assert(idx < N);
 				initializeValue(m_pValues[idx], bb, pData);
 			}
-			reinterpret_cast<instanceType*>(this)->postInitialize_Implementation(info, pData);
+			static_cast<instanceType*>(this)->postInitialize_Implementation(info, pData);
 		}
 		magictable() noexcept :
 			m_pValues{ nullptr }
@@ -98,6 +98,8 @@ namespace pygmalion
 		}
 		magictable& operator=(const magictable& other) noexcept
 		{
+			if (this == &other)
+				return *this;
 			m_Info = other.m_Info;
 			m_Magic = other.m_Magic;
 			if (other.m_pValues != nullptr)

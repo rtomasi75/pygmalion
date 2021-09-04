@@ -42,13 +42,12 @@ namespace pygmalion::dynamics
 			{
 				size_t depth{ static_cast<size_t>(parser::parseInt(remainder)) };
 				profiler p;
-				std::uintmax_t nodes;
 				this->output() << std::endl;
 				for (size_t i = 0; i < depth; i++)
 				{
 					p.start();
 					stackType stack{ stackType(this->position(),this->history(), this->position().movingPlayer()) };
-					nodes = perft(stack,this->history().length(), i, this->feedback());
+					const std::uintmax_t nodes{ perft(stack,this->history().length(), i, this->feedback()) };
 					p.stop();
 					this->output() << "depth: " << std::setw(2) << static_cast<int>(i + 1) << " nodes: " << parser::valueToString(static_cast<double>(nodes), "N") << " time: " << parser::durationToString(p.duration()) << " speed: " << p.computeSpeed(nodes, "N") << std::endl;
 				}

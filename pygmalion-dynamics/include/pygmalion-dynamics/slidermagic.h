@@ -16,7 +16,7 @@ namespace pygmalion::dynamics
 			m_Square{ squareType::invalid }
 		{
 		}
-		constexpr slidermagicinfo(const squareType square) noexcept :
+		constexpr slidermagicinfo(const squareType& square) noexcept :
 			m_Square{ square }
 		{
 
@@ -206,14 +206,16 @@ namespace pygmalion::dynamics
 			return static_cast<bitsType>(propagatorType::relevant(info.square()));
 		}
 		slidermagic(const slidermagicinfo<descriptorDynamics>& info) noexcept :
-			parentType(info)
+			parentType(info),
+			m_Table{ nullptr }
 		{
 #if defined(PYGMALION_SLIDERMAGIC_COMPACT)&&defined(PYGMALION_CPU_BMI2)
 			m_Mask = static_cast<bitsType>(propagatorType::attacks(squaresType(info.square()), squaresType::all()));
 #endif
 		}
 		slidermagic(const slidermagicinfo<descriptorDynamics>& info, const bitsType& factor, const size_t shift) noexcept :
-			parentType(info, factor, shift)
+			parentType(info, factor, shift),
+			m_Table{ nullptr }
 		{
 #if defined(PYGMALION_SLIDERMAGIC_COMPACT)&&defined(PYGMALION_CPU_BMI2)
 			m_Mask = static_cast<bitsType>(propagatorType::attacks(squaresType(info.square()), squaresType::all()));

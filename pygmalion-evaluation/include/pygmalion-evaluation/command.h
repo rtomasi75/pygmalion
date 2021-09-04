@@ -16,11 +16,11 @@ namespace pygmalion::evaluation
 	public:
 		engine<evaluatorType>& evaluationEngine() noexcept
 		{
-			return dynamic_cast<engine<evaluatorType>&>(this->dynamicsEngine());
+			return *dynamic_cast<engine<evaluatorType>*>(&(this->dynamicsEngine()));
 		}
 		const engine<evaluatorType>& evaluationEngine() const noexcept
 		{
-			return dynamic_cast<const engine<evaluatorType>&>(this->dynamicsEngine());
+			return *dynamic_cast<const engine<evaluatorType>*>(&(this->dynamicsEngine()));
 		}
 	protected:
 	};

@@ -72,7 +72,7 @@ namespace pygmalion
 		static constexpr valueType LOSINGVALUE{ valueType(MINVALUE + 1 + MAXDIST) };
 	private:
 		valueType m_Value;
-		constexpr score(const valueType value, const int) noexcept :
+		constexpr score(const valueType& value, const int) noexcept :
 			m_Value(value)
 		{
 
@@ -94,11 +94,11 @@ namespace pygmalion
 		{
 			return m_Value < 0;
 		}
-		static constexpr score win(const valueType distance) noexcept
+		static constexpr score win(const valueType& distance) noexcept
 		{
 			return score(WINVALUE - distance, 0);
 		}
-		static constexpr score loss(const valueType distance) noexcept
+		static constexpr score loss(const valueType& distance) noexcept
 		{
 			return score(LOSSVALUE + distance, 0);
 		}
@@ -152,7 +152,7 @@ namespace pygmalion
 		{
 
 		}
-		explicit constexpr score(const valueType value) noexcept :
+		explicit constexpr score(const valueType& value) noexcept :
 			m_Value(static_cast<valueType>(value* granularity))
 		{
 
@@ -310,12 +310,12 @@ namespace pygmalion
 		{
 			return score(-m_Value, 0);
 		}
-		constexpr auto operator*(const valueType i) const noexcept
+		constexpr auto operator*(const valueType& i) const noexcept
 		{
 			assert(isOpen());
 			return score(static_cast<valueType>(m_Value * i), 0);
 		}
-		constexpr auto operator/(const valueType i) const noexcept
+		constexpr auto operator/(const valueType& i) const noexcept
 		{
 			assert(isOpen());
 			return score(static_cast<valueType>(m_Value / i), 0);
@@ -343,12 +343,12 @@ namespace pygmalion
 			assert(sc.isOpen());
 			m_Value = static_cast<valueType>((static_cast<longType>(m_Value) * static_cast<longType>(sc.m_Value)) / granularity);
 		}
-		constexpr auto operator*=(const valueType i) noexcept
+		constexpr auto operator*=(const valueType& i) noexcept
 		{
 			assert(isOpen());
 			m_Value *= i;
 		}
-		constexpr auto operator/=(const valueType i) noexcept
+		constexpr auto operator/=(const valueType& i) noexcept
 		{
 			assert(isOpen());
 			m_Value /= i;

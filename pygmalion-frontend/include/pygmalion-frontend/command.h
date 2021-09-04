@@ -24,11 +24,11 @@ namespace pygmalion::frontend
 		}
 		engine<frontType>& frontendEngine() noexcept
 		{
-			return dynamic_cast<engine<frontType>&>(this->searchEngine());
+			return *dynamic_cast<engine<frontType>*>(&this->searchEngine());
 		}
 		const engine<frontType>& frontendEngine() const noexcept
 		{
-			return dynamic_cast<const engine<frontType>&>(this->searchEngine());
+			return *dynamic_cast<const engine<frontType>*>(&this->searchEngine());
 		}
 	protected:
 	};

@@ -31,7 +31,7 @@ namespace pygmalion::mechanics
 			{
 				return m_To;
 			}
-			constexpr transportMovedata(const pieceType transportedPiece, const squareType fromSquare, const squareType toSquare, const playerType owner) noexcept :
+			constexpr transportMovedata(const pieceType& transportedPiece, const squareType& fromSquare, const squareType& toSquare, const playerType& owner) noexcept :
 				m_Piece{ transportedPiece },
 				m_From{ fromSquare },
 				m_To{ toSquare },
@@ -68,7 +68,7 @@ namespace pygmalion::mechanics
 			const squareType sq{ squareType(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(movebits.template extractBits<countFromBits,countToBits>())) };
 			return sq;
 		}
-		constexpr static void encodeTo(typename transportmove::movebitsType& movebits, const squareType sq) noexcept
+		constexpr static void encodeTo(typename transportmove::movebitsType& movebits, const squareType& sq) noexcept
 		{
 			movebits.template storeBits<countFromBits, countToBits>(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(sq));
 		}
@@ -77,7 +77,7 @@ namespace pygmalion::mechanics
 			const squareType sq{ squareType(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(movebits.template extractBits<0,countFromBits>())) };
 			return sq;
 		}
-		constexpr static void encodeFrom(typename transportmove::movebitsType& movebits, const squareType sq) noexcept
+		constexpr static void encodeFrom(typename transportmove::movebitsType& movebits, const squareType& sq) noexcept
 		{
 			movebits.template storeBits<0, countFromBits>(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(sq));
 		}
@@ -103,7 +103,7 @@ namespace pygmalion::mechanics
 			position.removePiece(data.piece(), data.to(), data.player());
 			position.addPiece(data.piece(), data.from(), data.player());
 		}
-		constexpr typename transportmove::movebitsType create(const squareType from, const squareType to) const noexcept
+		constexpr typename transportmove::movebitsType create(const squareType& from, const squareType& to) const noexcept
 		{
 			typename transportmove::movebitsType bits{ transportmove::movebitsType::zero() };
 			transportmove::encodeFrom(bits, from);

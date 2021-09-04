@@ -1,11 +1,11 @@
 
-constexpr static const int countPlayers{ descriptorState::countPlayers };
-constexpr static const int countPieces{ descriptorState::countPieces };
-constexpr static const int countRanks{ descriptorState::countRanks };
-constexpr static const int countFiles{ descriptorState::countFiles };
-constexpr static const int countSquares{ descriptorState::countSquares };
-constexpr static const int countFlags{ descriptorState::countFlags };
-constexpr static const int countHashBits{ descriptorState::countHashBits };
+constexpr static const size_t countPlayers{ descriptorState::countPlayers };
+constexpr static const size_t countPieces{ descriptorState::countPieces };
+constexpr static const size_t countRanks{ descriptorState::countRanks };
+constexpr static const size_t countFiles{ descriptorState::countFiles };
+constexpr static const size_t countSquares{ descriptorState::countSquares };
+constexpr static const size_t countFlags{ descriptorState::countFlags };
+constexpr static const size_t countHashBits{ descriptorState::countHashBits };
 using playerType = typename descriptorState::playerType;
 using pieceType = typename descriptorState::pieceType;
 using rankType = typename descriptorState::rankType;

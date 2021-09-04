@@ -12,7 +12,7 @@ namespace pygmalion::state
 		using descriptorState = DESCRIPTION_STATE;
 #include "include_state.h"
 	private:
-		constexpr static square fromRankFile(const rankType r, const fileType f) noexcept
+		constexpr static square fromRankFile(const rankType& r, const fileType& f) noexcept
 		{
 			assert(r.isValid());
 			assert(f.isValid());

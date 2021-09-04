@@ -128,7 +128,7 @@ namespace pygmalion::intrinsics
 		constexpr static const std::array<C, base::countCastChannels<T, C, COUNT_CHANNELS>()>& castChannels(const std::array<T, COUNT_CHANNELS>& old) noexcept
 		{
 			constexpr const size_t countCastChannels{ base::countCastChannels<T,C, COUNT_CHANNELS>() };
-			return std::move(*reinterpret_cast<const std::array<C, countCastChannels>*>(&old));
+			return std::move(*static_cast<const std::array<C, countCastChannels>*>(&old));
 		}
 		struct tag_generic {};
 		struct tag_bool :

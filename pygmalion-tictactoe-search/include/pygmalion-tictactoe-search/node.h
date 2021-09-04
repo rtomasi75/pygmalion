@@ -1,6 +1,5 @@
 namespace pygmalion::tictactoe
 {
-
 	class node :
 		public pygmalion::node<descriptor_search, node>
 	{

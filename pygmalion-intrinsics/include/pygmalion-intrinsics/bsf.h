@@ -13,7 +13,7 @@ namespace pygmalion::intrinsics
 		{
 			using refType = std::uint64_t;
 			using intType = refType;
-			static bool reference(const refType bits, size_t& bit) noexcept
+			static bool reference(const refType& bits, size_t& bit) noexcept
 			{
 				for (size_t i = 0; i < COUNT_BITS; i++)
 				{
@@ -25,7 +25,7 @@ namespace pygmalion::intrinsics
 				}
 				return false;
 			}
-			static bool baseline(const refType bits, size_t& bit) noexcept
+			static bool baseline(const refType& bits, size_t& bit) noexcept
 			{
 #if defined(PYGMALION_INTRINSICS_MSC)  &&defined(PYGMALION_CPU_X64)
 				if constexpr (compiler::supports(compiler::flags::MSC) && cpu::supports(cpu::flags::X64))
@@ -82,7 +82,7 @@ namespace pygmalion::intrinsics
 #endif
 							return bsf_reference<COUNT_BITS, refType>(bits, bit);
 			}
-			static bool generic(const refType bits, size_t& bit)
+			static bool generic(const refType& bits, size_t& bit)
 			{
 				return bsf_reference<COUNT_BITS, refType>(bits, bit);
 			}
@@ -93,7 +93,7 @@ namespace pygmalion::intrinsics
 		{
 			using refType = std::uint32_t;
 			using intType = refType;
-			static bool reference(const refType bits, size_t& bit) noexcept
+			static bool reference(const refType& bits, size_t& bit) noexcept
 			{
 				for (size_t i = 0; i < COUNT_BITS; i++)
 				{
@@ -105,7 +105,7 @@ namespace pygmalion::intrinsics
 				}
 				return false;
 			}
-			static bool baseline(const refType bits, size_t& bit) noexcept
+			static bool baseline(const refType& bits, size_t& bit) noexcept
 			{
 #if defined(PYGMALION_INTRINSICS_MSC)  && (defined(PYGMALION_CPU_X86)||defined(PYGMALION_CPU_X64))
 				if constexpr (compiler::supports(compiler::flags::MSC) && cpu::supports(cpu::flags::X86))
@@ -141,7 +141,7 @@ namespace pygmalion::intrinsics
 #endif
 						return bsf_reference<COUNT_BITS, refType>(bits, bit);
 			}
-			static bool generic(const refType bits, size_t& bit)
+			static bool generic(const refType& bits, size_t& bit)
 			{
 				return bsf_reference<COUNT_BITS, refType>(bits, bit);
 			}
@@ -152,7 +152,7 @@ namespace pygmalion::intrinsics
 		{
 			using refType = std::uint16_t;
 			using intType = refType;
-			static bool reference(const refType bits, size_t& bit) noexcept
+			static bool reference(const refType& bits, size_t& bit) noexcept
 			{
 				for (size_t i = 0; i < COUNT_BITS; i++)
 				{
@@ -164,7 +164,7 @@ namespace pygmalion::intrinsics
 				}
 				return false;
 			}
-			static bool baseline(const refType bits, size_t& bit) noexcept
+			static bool baseline(const refType& bits, size_t& bit) noexcept
 			{
 #if defined(PYGMALION_INTRINSICS_MSC)  && (defined(PYGMALION_CPU_X86)||defined(PYGMALION_CPU_X64))
 				if constexpr (compiler::supports(compiler::flags::MSC) && cpu::supports(cpu::flags::X86))
@@ -200,7 +200,7 @@ namespace pygmalion::intrinsics
 #endif
 						return bsf_reference<COUNT_BITS, refType>(bits, bit);
 			}
-			static bool generic(const refType bits, size_t& bit)
+			static bool generic(const refType& bits, size_t& bit)
 			{
 				return bsf_reference<COUNT_BITS, refType>(bits, bit);
 			}
@@ -211,7 +211,7 @@ namespace pygmalion::intrinsics
 		{
 			using refType = std::uint8_t;
 			using intType = refType;
-			static bool reference(const refType bits, size_t& bit) noexcept
+			static bool reference(const refType& bits, size_t& bit) noexcept
 			{
 				for (size_t i = 0; i < COUNT_BITS; i++)
 				{
@@ -223,7 +223,7 @@ namespace pygmalion::intrinsics
 				}
 				return false;
 			}
-			static bool baseline(const refType bits, size_t& bit) noexcept
+			static bool baseline(const refType& bits, size_t& bit) noexcept
 			{
 #if defined(PYGMALION_INTRINSICS_MSC)  && (defined(PYGMALION_CPU_X86)||defined(PYGMALION_CPU_X64))
 				if constexpr (compiler::supports(compiler::flags::MSC) && cpu::supports(cpu::flags::X86))
@@ -254,7 +254,7 @@ namespace pygmalion::intrinsics
 #endif
 						return bsf_reference<COUNT_BITS, refType>(bits, bit);
 			}
-			static bool generic(const refType bits, size_t& bit)
+			static bool generic(const refType& bits, size_t& bit)
 			{
 				return bsf_reference<COUNT_BITS, refType>(bits, bit);
 			}
@@ -265,7 +265,7 @@ namespace pygmalion::intrinsics
 		{
 			using refType = bool;
 			using intType = std::uint8_t;
-			static bool reference(const refType bits, size_t& bit) noexcept
+			static bool reference(const refType& bits, size_t& bit) noexcept
 			{
 				if (bits)
 				{
@@ -275,11 +275,11 @@ namespace pygmalion::intrinsics
 				else
 					return false;
 			}
-			static bool baseline(const refType bits, size_t& bit) noexcept
+			static bool baseline(const refType& bits, size_t& bit) noexcept
 			{
 				return bsf_reference<COUNT_BITS, refType>(bits, bit);
 			}
-			static bool generic(const refType bits, size_t& bit)
+			static bool generic(const refType& bits, size_t& bit)
 			{
 				return bsf_reference<COUNT_BITS, refType>(bits, bit);
 			}
@@ -290,15 +290,15 @@ namespace pygmalion::intrinsics
 		{
 			using refType = std::uint8_t;
 			using intType = std::uint8_t;
-			static bool reference(const refType bits, size_t& bit) noexcept
+			static bool reference(const refType& bits, size_t& bit) noexcept
 			{
 				return false;
 			}
-			static bool baseline(const refType bits, size_t& bit) noexcept
+			static bool baseline(const refType& bits, size_t& bit) noexcept
 			{
 				return false;
 			}
-			static bool generic(const refType bits, size_t& bit)
+			static bool generic(const refType& bits, size_t& bit)
 			{
 				return bsf_reference<COUNT_BITS, refType>(bits, bit);
 			}
@@ -310,7 +310,7 @@ namespace pygmalion::intrinsics
 		{
 			using refType = std::uintmax_t;
 			using intType = refType;
-			static bool reference(const refType bits, size_t& bit) noexcept
+			static bool reference(const refType& bits, size_t& bit) noexcept
 			{
 				for (size_t i = 0; i < COUNT_BITS; i++)
 				{
@@ -322,7 +322,7 @@ namespace pygmalion::intrinsics
 				}
 				return false;
 			}
-			static bool baseline(const refType bits, size_t& bit) noexcept
+			static bool baseline(const refType& bits, size_t& bit) noexcept
 			{
 #if defined(PYGMALION_INTRINSICS_GNU)
 				if constexpr (compiler::supports(compiler::flags::GNU))
@@ -356,7 +356,7 @@ namespace pygmalion::intrinsics
 #endif
 					return bsf_reference<COUNT_BITS, refType>(bits, bit);
 			}
-			static bool generic(const refType bits, size_t& bit)
+			static bool generic(const refType& bits, size_t& bit)
 			{
 				return bsf_reference<COUNT_BITS, refType>(bits, bit);
 			}

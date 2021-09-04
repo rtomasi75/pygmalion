@@ -46,7 +46,7 @@ namespace pygmalion::mechanics
 			{
 				return m_To;
 			}
-			constexpr promocaptureMovedata(const pieceType initialPiece_, const squareType fromSquare, const squareType toSquare, const playerType ownerPromoted_, const pieceType promotedPiece_, const pieceType capturedPiece_, const playerType ownerCaptured_) noexcept :
+			constexpr promocaptureMovedata(const pieceType& initialPiece_, const squareType& fromSquare, const squareType& toSquare, const playerType& ownerPromoted_, const pieceType& promotedPiece_, const pieceType& capturedPiece_, const playerType& ownerCaptured_) noexcept :
 				m_InitialPiece{ initialPiece_ },
 				m_From{ fromSquare },
 				m_To{ toSquare },
@@ -88,7 +88,7 @@ namespace pygmalion::mechanics
 			const pieceType pc{ pieceType(static_cast<typename std::make_unsigned<typename pieceType::baseType>::type>(movebits.template extractBits<countFromBits + countToBits,countPieceBits>())) };
 			return pc;
 		}
-		constexpr static void encodePiece(typename promocapturemove::movebitsType& movebits, const pieceType pc) noexcept
+		constexpr static void encodePiece(typename promocapturemove::movebitsType& movebits, const pieceType& pc) noexcept
 		{
 			movebits.template storeBits<countFromBits + countToBits, countPieceBits>(static_cast<typename std::make_unsigned<typename pieceType::baseType>::type>(pc));
 		}
@@ -97,7 +97,7 @@ namespace pygmalion::mechanics
 			const squareType sq{ squareType(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(movebits.template extractBits<countFromBits,countToBits>())) };
 			return sq;
 		}
-		constexpr static void encodeTo(typename promocapturemove::movebitsType& movebits, const squareType sq) noexcept
+		constexpr static void encodeTo(typename promocapturemove::movebitsType& movebits, const squareType& sq) noexcept
 		{
 			movebits.template storeBits<countFromBits, countToBits>(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(sq));
 		}
@@ -106,7 +106,7 @@ namespace pygmalion::mechanics
 			const squareType sq{ squareType(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(movebits.template extractBits<0,countFromBits>())) };
 			return sq;
 		}
-		constexpr static void encodeFrom(typename promocapturemove::movebitsType& movebits, const squareType sq) noexcept
+		constexpr static void encodeFrom(typename promocapturemove::movebitsType& movebits, const squareType& sq) noexcept
 		{
 			movebits.template storeBits<0, countFromBits>(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(sq));
 		}
@@ -137,7 +137,7 @@ namespace pygmalion::mechanics
 			position.addPiece(data.promotedPiece(), data.to(), data.ownerCaptured());
 			position.addPiece(data.initialPiece(), data.from(), data.ownerPromoted());
 		}
-		constexpr typename promocapturemove::movebitsType create(const squareType from, const squareType to, const pieceType piece) const noexcept
+		constexpr typename promocapturemove::movebitsType create(const squareType& from, const squareType& to, const pieceType& piece) const noexcept
 		{
 			typename promocapturemove::movebitsType bits{ promocapturemove::movebitsType::zero() };
 			promocapturemove::encodeFrom(bits, from);
@@ -161,7 +161,7 @@ namespace pygmalion::mechanics
 					{
 						if (position.totalOccupancy()[from])
 						{
-							if (temp.length() >= 0 && temp[0] == 'x')
+							if (temp.length() > 0 && temp[0] == 'x')
 							{
 								temp = temp.substr(1, temp.length() - 1);
 								if (boardType::parseSquare(temp, to))

@@ -27,7 +27,7 @@ namespace pygmalion
 			list.emplace_back(std::move(pCommand));
 		}
 	public:
-		constexpr static bool isFutile(const scoreType alpha, const scoreType beta, const scoreType approx, const scoreType delta) noexcept
+		constexpr static bool isFutile(const scoreType& alpha, const scoreType& beta, const scoreType& approx, const scoreType& delta) noexcept
 		{
 			return (approx + delta <= alpha) && (approx + delta < beta);
 		}
@@ -35,7 +35,7 @@ namespace pygmalion
 		{
 			return evaluatorType::commandsImplementation();
 		}
-		static scoreType evaluate(const scoreType alpha, const scoreType beta, const typename generatorType::stackType& stack) noexcept
+		static scoreType evaluate(const scoreType& alpha, const scoreType& beta, const typename generatorType::stackType& stack) noexcept
 		{
 			return evaluatorType::evaluate_Implementation(alpha, beta, stack);
 		}
@@ -61,7 +61,7 @@ namespace pygmalion
 		{
 			return evaluatorType::countAspirationWindows_Implementation();
 		}
-		constexpr static scoreType staticTacticalMoveScore(const boardType& position, const movebitsType move) noexcept
+		constexpr static scoreType staticTacticalMoveScore(const boardType& position, const movebitsType& move) noexcept
 		{
 			return evaluatorType::staticTacticalMoveScore_Implementation(position, move);
 		}

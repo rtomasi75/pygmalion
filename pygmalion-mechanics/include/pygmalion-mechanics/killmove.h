@@ -27,7 +27,7 @@ namespace pygmalion::mechanics
 				return m_Piece;
 			}
 			constexpr killMovedata() noexcept = default;
-			constexpr killMovedata(const pieceType pc, const squareType sq, const playerType p) noexcept :
+			constexpr killMovedata(const pieceType& pc, const squareType& sq, const playerType& p) noexcept :
 				m_Square{ sq },
 				m_Piece{ pc },
 				m_Owner{ p }
@@ -61,7 +61,7 @@ namespace pygmalion::mechanics
 			const squareType sq{ squareType(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(movebits.template extractBits<0,countSquareBits>())) };
 			return sq;
 		}
-		constexpr static void encodeSquare(typename killmove::movebitsType& movebits, const squareType sq) noexcept
+		constexpr static void encodeSquare(typename killmove::movebitsType& movebits, const squareType& sq) noexcept
 		{
 			movebits.template storeBits<0, countSquareBits>(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(sq));
 		}
@@ -84,7 +84,7 @@ namespace pygmalion::mechanics
 		{
 			position.addPiece(data.piece(), data.square(), data.owner());
 		}
-		constexpr typename killmove::movebitsType create(const squareType square) const noexcept
+		constexpr typename killmove::movebitsType create(const squareType& square) const noexcept
 		{
 			typename killmove::movebitsType bits{ killmove::movebitsType::zero() };
 			killmove::encodeSquare(bits, square);

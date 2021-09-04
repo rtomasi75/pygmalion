@@ -40,14 +40,14 @@
 #define PYGMALION_CPU_BMI
 #endif
 #endif
-#if defined(__SSE42__)
-#if !defined(PYGMALION_CPU_SSE42)
-#define PYGMALION_CPU_SSE42
-#endif
-#endif
-#if defined(__SSE41__)
+#if defined(__SSE4_1__)
 #if !defined(PYGMALION_CPU_SSE41)
 #define PYGMALION_CPU_SSE41
+#endif
+#endif
+#if defined(__SSE4_2__ )
+#if !defined(PYGMALION_CPU_SSE42)
+#define PYGMALION_CPU_SSE42
 #endif
 #endif
 #if defined(__SSSE3__)
@@ -75,6 +75,54 @@
 #define PYGMALION_CPU_MMX
 #endif
 #endif
+
+/*#if defined(PYGMALION_CPU_MMX) 
+#undef PYGMALION_CPU_MMX
+#endif
+
+#if defined(PYGMALION_CPU_SSE) 
+#undef PYGMALION_CPU_SSE
+#endif
+
+#if defined(PYGMALION_CPU_SSE2) 
+#undef PYGMALION_CPU_SSE2
+#endif
+
+#if defined(PYGMALION_CPU_SSE3) 
+#undef PYGMALION_CPU_SSE3
+#endif
+
+#if defined(PYGMALION_CPU_SSSE3) 
+#undef PYGMALION_CPU_SSSE3
+#endif
+
+#if defined(PYGMALION_CPU_SSE42) 
+#undef PYGMALION_CPU_SSE42
+#endif
+
+#if defined(PYGMALION_CPU_SSE41) 
+#undef PYGMALION_CPU_SSE41
+#endif
+
+#if defined(PYGMALION_CPU_BMI) 
+#undef PYGMALION_CPU_BMI
+#endif
+
+#if defined(PYGMALION_CPU_BMI2) 
+#undef PYGMALION_CPU_BMI2
+#endif
+
+#if defined(PYGMALION_CPU_AVX) 
+#undef PYGMALION_CPU_AVX
+#endif
+
+#if defined(PYGMALION_CPU_AVX2) 
+#undef PYGMALION_CPU_AVX2
+#endif
+
+#if defined(PYGMALION_CPU_AVX512) 
+#undef PYGMALION_CPU_AVX512
+#endif*/
 
 namespace pygmalion
 {

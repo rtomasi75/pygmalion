@@ -23,7 +23,7 @@ namespace pygmalion
 			s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](char c) {return !std::isspace(c); }));
 			return s;
 		}
-		static auto trimString(std::string s) noexcept
+		static auto trimString(const std::string& s) noexcept
 		{
 			return leftTrimString(rightTrimString(s));
 		}

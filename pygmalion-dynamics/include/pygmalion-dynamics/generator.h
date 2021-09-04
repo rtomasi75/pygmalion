@@ -47,12 +47,12 @@ namespace pygmalion
 						sort<passType, scoreType>::sortValues(m_TacticalIndex.data(), tacticalScores.data(), countTacticalPasses);
 					}
 				}
-				constexpr passType index(const passType pass) const noexcept
+				constexpr passType index(const passType& pass) const noexcept
 				{
 					assert(pass < countPasses);
 					return m_Index[static_cast<size_t>(pass)];
 				}
-				constexpr passType moveIndex(const passType pass) const noexcept
+				constexpr passType moveIndex(const passType& pass) const noexcept
 				{
 					assert(pass < countPasses);
 					if constexpr (!USE_SCORE)
@@ -60,17 +60,17 @@ namespace pygmalion
 					else
 						return m_Index[static_cast<size_t>(pass)];
 				}
-				constexpr passType scoreIndex(const passType pass) const noexcept
+				constexpr passType scoreIndex(const passType& pass) const noexcept
 				{
 					assert(pass < countPasses);
 					return m_Index[static_cast<size_t>(pass)];
 				}
-				constexpr passType tacticalIndex(const passType pass) const noexcept
+				constexpr passType tacticalIndex(const passType& pass) const noexcept
 				{
 					assert(pass < countTacticalPasses);
 					return m_TacticalIndex[static_cast<size_t>(pass)];
 				}
-				constexpr passType tacticalMoveIndex(const passType pass) const noexcept
+				constexpr passType tacticalMoveIndex(const passType& pass) const noexcept
 				{
 					assert(pass < countTacticalPasses);
 					if constexpr (!USE_SCORE)
@@ -78,7 +78,7 @@ namespace pygmalion
 					else
 						return m_TacticalIndex[static_cast<size_t>(pass)];
 				}
-				constexpr passType tacticalScoreIndex(const passType pass) const noexcept
+				constexpr passType tacticalScoreIndex(const passType& pass) const noexcept
 				{
 					assert(pass < countTacticalPasses);
 					return m_TacticalIndex[static_cast<size_t>(pass)];
@@ -93,7 +93,7 @@ namespace pygmalion
 				{
 
 				}
-				constexpr scoreType score(const passType pass) const noexcept
+				constexpr scoreType score(const passType& pass) const noexcept
 				{
 					const size_t indexMove{ static_cast<size_t>(moveIndex(pass)) };
 					const size_t indexScore{ static_cast<size_t>(scoreIndex(pass)) };
@@ -104,7 +104,7 @@ namespace pygmalion
 					else
 						return m_ScoreCounter[indexScore];
 				}
-				constexpr scoreType tacticalScore(const passType pass) const noexcept
+				constexpr scoreType tacticalScore(const passType& pass) const noexcept
 				{
 					const size_t indexMove{ static_cast<size_t>(tacticalMoveIndex(pass)) };
 					const size_t indexScore{ static_cast<size_t>(tacticalScoreIndex(pass)) };
@@ -115,15 +115,15 @@ namespace pygmalion
 					else
 						return m_TacticalScoreCounter[indexScore];
 				}
-				constexpr const std::uint64_t& counter(const passType pass) const noexcept
+				constexpr const std::uint64_t& counter(const passType& pass) const noexcept
 				{
 					return m_MoveCounter[static_cast<size_t>(moveIndex(pass))];
 				}
-				constexpr const std::uint64_t& tacticalCounter(const passType pass) const noexcept
+				constexpr const std::uint64_t& tacticalCounter(const passType& pass) const noexcept
 				{
 					return m_TacticalMoveCounter[static_cast<size_t>(tacticalMoveIndex(pass))];
 				}
-				constexpr void incrementMove(const passType pass, const scoreType score) noexcept
+				constexpr void incrementMove(const passType& pass, const scoreType& score) noexcept
 				{
 					const size_t indexMove{ static_cast<size_t>(moveIndex(pass)) };
 					const size_t indexScore{ static_cast<size_t>(scoreIndex(pass)) };
@@ -138,7 +138,7 @@ namespace pygmalion
 						m_ScoreCounter[indexScore] = scoreType::max(score, m_ScoreCounter[indexScore]);
 					m_MoveCounter[indexMove]++;
 				}
-				constexpr void incrementTacticalMove(const passType pass, const scoreType score) noexcept
+				constexpr void incrementTacticalMove(const passType& pass, const scoreType& score) noexcept
 				{
 					const size_t indexMove{ static_cast<size_t>(tacticalMoveIndex(pass)) };
 					const size_t indexScore{ static_cast<size_t>(tacticalScoreIndex(pass)) };
@@ -183,7 +183,7 @@ namespace pygmalion
 					m_Feedback[d].sortIndices();
 				}
 			}
-			constexpr const std::uint64_t& counter(const passType pass, const size_t depth) const noexcept
+			constexpr const std::uint64_t& counter(const passType& pass, const size_t depth) const noexcept
 			{
 				assert(pass < countPasses);
 				while (m_Feedback.size() <= depth)
@@ -192,7 +192,7 @@ namespace pygmalion
 				}
 				return m_Feedback[depth].counter(pass);
 			}
-			constexpr scoreType score(const passType pass, const size_t depth) const noexcept
+			constexpr scoreType score(const passType& pass, const size_t depth) const noexcept
 			{
 				assert(pass < countPasses);
 				while (m_Feedback.size() <= depth)
@@ -204,7 +204,7 @@ namespace pygmalion
 				else
 					return m_Feedback[depth].score(pass);
 			}
-			constexpr const std::uint64_t& tacticalCounter(const passType pass, const size_t depth) const noexcept
+			constexpr const std::uint64_t& tacticalCounter(const passType& pass, const size_t depth) const noexcept
 			{
 				assert(pass < countTacticalPasses);
 				while (m_Feedback.size() <= depth)
@@ -213,7 +213,7 @@ namespace pygmalion
 				}
 				return m_Feedback[depth].tacticalCounter(pass);
 			}
-			constexpr scoreType tacticalScore(const passType pass, const size_t depth) const noexcept
+			constexpr scoreType tacticalScore(const passType& pass, const size_t depth) const noexcept
 			{
 				assert(pass < countTacticalPasses);
 				while (m_Feedback.size() <= depth)
@@ -222,7 +222,7 @@ namespace pygmalion
 				}
 				return m_Feedback[depth].tacticalScore(pass);
 			}
-			constexpr void cutMove(const passType pass, const size_t depth, const scoreType score) noexcept
+			constexpr void cutMove(const passType& pass, const size_t depth, const scoreType& score) noexcept
 			{
 				assert(pass < countPasses);
 				while (m_Feedback.size() <= depth)
@@ -231,7 +231,7 @@ namespace pygmalion
 				}
 				m_Feedback[depth].incrementMove(pass, score);
 			}
-			constexpr void allMove(const passType pass, const size_t depth, const scoreType score) noexcept
+			constexpr void allMove(const passType& pass, const size_t depth, const scoreType& score) noexcept
 			{
 				assert(pass < countPasses);
 				while (m_Feedback.size() <= depth)
@@ -240,7 +240,7 @@ namespace pygmalion
 				}
 				m_Feedback[depth].incrementMove(pass, score);
 			}
-			constexpr void tacticalCutMove(const passType tacticalPass, const size_t depth, const scoreType score) noexcept
+			constexpr void tacticalCutMove(const passType& tacticalPass, const size_t depth, const scoreType& score) noexcept
 			{
 				assert(tacticalPass < countTacticalPasses);
 				while (m_Feedback.size() <= depth)
@@ -249,7 +249,7 @@ namespace pygmalion
 				}
 				m_Feedback[depth].incrementTacticalMove(tacticalPass, score);
 			}
-			constexpr void tacticalAllMove(const passType tacticalPass, const size_t depth, const scoreType score) noexcept
+			constexpr void tacticalAllMove(const passType& tacticalPass, const size_t depth, const scoreType& score) noexcept
 			{
 				assert(tacticalPass < countTacticalPasses);
 				while (m_Feedback.size() <= depth)
@@ -262,7 +262,7 @@ namespace pygmalion
 			{
 				m_Feedback.clear();
 			}
-			constexpr passType index(const passType pass, const size_t depth) const noexcept
+			constexpr passType index(const passType& pass, const size_t depth) const noexcept
 			{
 				assert(pass < countPasses);
 				while (m_Feedback.size() <= depth)
@@ -271,7 +271,7 @@ namespace pygmalion
 				}
 				return m_Feedback[depth].index(pass);
 			}
-			constexpr passType tacticalIndex(const passType pass, const size_t depth) const noexcept
+			constexpr passType tacticalIndex(const passType& pass, const size_t depth) const noexcept
 			{
 				assert(pass < countTacticalPasses);
 				while (m_Feedback.size() <= depth)
@@ -328,31 +328,31 @@ namespace pygmalion
 						generatorType::generateMoves(*static_cast<const typename generatorType::stackType*>(this), m_Moves, feedback.index(m_CurrentPass, depth));
 						while (m_Passes.length() < m_Moves.length())
 							m_Passes.add(m_CurrentPass);
-						m_CurrentPass++;
+						++m_CurrentPass;
 					}
 					while (m_CurrentLegalMove < m_Moves.length())
 					{
 						if (generatorType::isMoveLegal(*static_cast<const typename generatorType::stackType*>(this), m_Moves[m_CurrentLegalMove]))
 							return true;
-						m_CurrentLegalMove++;
+						++m_CurrentLegalMove;
 					}
 				}
 				return false;
 			}
 		public:
-			constexpr void allMove(movegenFeedback& feedback, const size_t depth, const scoreType score) const noexcept
+			constexpr void allMove(movegenFeedback& feedback, const size_t depth, const scoreType& score) const noexcept
 			{
 				feedback.allMove(m_LastPass, depth, score);
 			}
-			constexpr void tacticalAllMove(movegenFeedback& feedback, const size_t depth, const scoreType score) const noexcept
+			constexpr void tacticalAllMove(movegenFeedback& feedback, const size_t depth, const scoreType& score) const noexcept
 			{
 				feedback.tacticalAllMove(m_LastTacticalPass, depth, score);
 			}
-			constexpr void cutMove(movegenFeedback& feedback, const size_t depth, const scoreType score) const noexcept
+			constexpr void cutMove(movegenFeedback& feedback, const size_t depth, const scoreType& score) const noexcept
 			{
 				feedback.cutMove(m_LastPass, depth, score);
 			}
-			constexpr void tacticalCutMove(movegenFeedback& feedback, const size_t depth, const scoreType score) const noexcept
+			constexpr void tacticalCutMove(movegenFeedback& feedback, const size_t depth, const scoreType& score) const noexcept
 			{
 				feedback.tacticalCutMove(m_LastTacticalPass, depth, score);
 			}
@@ -376,7 +376,7 @@ namespace pygmalion
 			}
 			bool isMoveLegal(const movebitsType& moveBits) const noexcept
 			{
-				return generatorType::isMoveLegal(*reinterpret_cast<const typename generatorType::stackType*>(this), moveBits);
+				return generatorType::isMoveLegal(*static_cast<const typename generatorType::stackType*>(this), moveBits);
 			}
 			bool nextMove(movebitsType& moveBits, const size_t depth, movegenFeedback& feedback) const noexcept
 			{
@@ -390,16 +390,16 @@ namespace pygmalion
 							allMovesGenerated = true;
 							return false;
 						}
-						generatorType::generateMoves(*reinterpret_cast<const typename generatorType::stackType*>(this), m_Moves, feedback.index(m_CurrentPass, depth));
+						generatorType::generateMoves(*static_cast<const typename generatorType::stackType*>(this), m_Moves, feedback.index(m_CurrentPass, depth));
 						while (m_Passes.length() < m_Moves.length())
 							m_Passes.add(m_CurrentPass);
-						m_CurrentPass++;
+						++m_CurrentPass;
 					}
 					while (m_CurrentMove < m_Moves.length())
 					{
 						moveBits = m_Moves[m_CurrentMove];
-						m_CurrentMove++;
-						if (generatorType::isGeneratedMoveLegal(*reinterpret_cast<const typename generatorType::stackType*>(this), moveBits))
+						++m_CurrentMove;
+						if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::stackType*>(this), moveBits))
 						{
 							m_LastPass = m_Passes[m_CurrentMove - 1];
 							return true;
@@ -421,7 +421,7 @@ namespace pygmalion
 							allMovesGenerated = true;
 							return false;
 						}
-						generatorType::generateMoves(*reinterpret_cast<const typename generatorType::stackType*>(this), m_Moves, feedback.index(m_CurrentPass, depth));
+						generatorType::generateMoves(*static_cast<const typename generatorType::stackType*>(this), m_Moves, feedback.index(m_CurrentPass, depth));
 						const auto start{ m_Passes.length() };
 						while (m_Passes.length() < m_Moves.length())
 						{
@@ -429,13 +429,13 @@ namespace pygmalion
 							m_Passes.add(m_CurrentPass);
 						}
 						sort<movebitsType, scoreType>::sortValues(m_Moves.ptr() + static_cast<size_t>(start), m_Scores.ptr() + static_cast<size_t>(start), static_cast<size_t>(m_Moves.length() - start));
-						m_CurrentPass++;
+						++m_CurrentPass;
 					}
 					while (m_CurrentMove < m_Moves.length())
 					{
 						moveBits = m_Moves[m_CurrentMove];
-						m_CurrentMove++;
-						if (generatorType::isGeneratedMoveLegal(*reinterpret_cast<const typename generatorType::stackType*>(this), moveBits))
+						++m_CurrentMove;
+						if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::stackType*>(this), moveBits))
 						{
 							m_LastPass = m_Passes[m_CurrentMove - 1];
 							return true;
@@ -456,17 +456,17 @@ namespace pygmalion
 							allMovesGenerated = true;
 							return false;
 						}
-						generatorType::generateTacticalMoves(*reinterpret_cast<const typename generatorType::stackType*>(this), m_TacticalMoves, feedback.tacticalIndex(m_CurrentTacticalPass, depth));
+						generatorType::generateTacticalMoves(*static_cast<const typename generatorType::stackType*>(this), m_TacticalMoves, feedback.tacticalIndex(m_CurrentTacticalPass, depth));
 						const auto start{ m_TacticalPasses.length() };
 						while (m_TacticalPasses.length() < m_TacticalMoves.length())
 							m_TacticalPasses.add(m_CurrentTacticalPass);
-						m_CurrentTacticalPass++;
+						++m_CurrentTacticalPass;
 					}
 					while (m_CurrentTacticalMove < m_TacticalMoves.length())
 					{
 						moveBits = m_TacticalMoves[m_CurrentTacticalMove];
-						m_CurrentTacticalMove++;
-						if (generatorType::isGeneratedMoveLegal(*reinterpret_cast<const typename generatorType::stackType*>(this), moveBits))
+						++m_CurrentTacticalMove;
+						if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::stackType*>(this), moveBits))
 						{
 							m_LastTacticalPass = m_TacticalPasses[m_CurrentTacticalMove - 1];
 							return true;
@@ -488,7 +488,7 @@ namespace pygmalion
 							allMovesGenerated = true;
 							return false;
 						}
-						generatorType::generateTacticalMoves(*reinterpret_cast<const typename generatorType::stackType*>(this), m_TacticalMoves, feedback.tacticalIndex(m_CurrentTacticalPass, depth));
+						generatorType::generateTacticalMoves(*static_cast<const typename generatorType::stackType*>(this), m_TacticalMoves, feedback.tacticalIndex(m_CurrentTacticalPass, depth));
 						const auto start{ m_TacticalPasses.length() };
 						while (m_TacticalPasses.length() < m_TacticalMoves.length())
 						{
@@ -496,13 +496,13 @@ namespace pygmalion
 							m_TacticalPasses.add(m_CurrentTacticalPass);
 						}
 						sort<movebitsType, scoreType>::sortValues(m_TacticalMoves.ptr() + static_cast<size_t>(start), m_TacticalScores.ptr() + static_cast<size_t>(start), static_cast<size_t>(m_TacticalMoves.length() - start));
-						m_CurrentTacticalPass++;
+						++m_CurrentTacticalPass;
 					}
 					while (m_CurrentTacticalMove < m_TacticalMoves.length())
 					{
 						moveBits = m_TacticalMoves[m_CurrentTacticalMove];
-						m_CurrentTacticalMove++;
-						if (generatorType::isGeneratedMoveLegal(*reinterpret_cast<const typename generatorType::stackType*>(this), moveBits))
+						++m_CurrentTacticalMove;
+						if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::stackType*>(this), moveBits))
 						{
 							m_LastTacticalPass = m_TacticalPasses[m_CurrentTacticalMove - 1];
 							return true;
@@ -511,7 +511,7 @@ namespace pygmalion
 				}
 				return false;
 			}
-			stack(const stack& parent, const movebitsType moveBits) noexcept :
+			stack(const stack& parent, const movebitsType& moveBits) noexcept :
 				m_pParent{ &parent },
 				m_Position{ parent.m_Position },
 				m_History{ parent.m_History },
@@ -532,7 +532,7 @@ namespace pygmalion
 				m_LastTacticalPass{ 0 }
 			{
 			}
-			stack(boardType& position, historyType& history, const playerType oldPlayer) noexcept :
+			stack(boardType& position, historyType& history, const playerType& oldPlayer) noexcept :
 				m_pParent{ nullptr },
 				m_Position{ position },
 				m_History{ history },
@@ -574,7 +574,7 @@ namespace pygmalion
 				if (!m_IsNullmove)
 					motorType::move().undoMove(m_Position, m_MoveData);
 			}
-			std::string moveToString(const movebitsType moveBits, const size_t depth) const
+			std::string moveToString(const movebitsType& moveBits, const size_t depth) const
 			{
 				return generatorType::moveToString(*static_cast<const typename generatorType::stackType*>(this), moveBits, depth);
 			}
@@ -627,25 +627,25 @@ namespace pygmalion
 			return generatorType::commandsImplementation();
 		}
 		template<typename stackType>
-		static std::string moveToString(const stackType& stack, const movebitsType moveBits, const size_t depth) noexcept
+		static std::string moveToString(const stackType& stack, const movebitsType& moveBits, const size_t depth) noexcept
 		{
 			return generatorType::moveToString_Implementation(stack, moveBits, depth);
 		}
-		static std::string passToString(const passType pass) noexcept
+		static std::string passToString(const passType& pass) noexcept
 		{
 			return generatorType::passToString_Implementation(pass);
 		}
-		static std::string tacticalPassToString(const passType tacticalPass) noexcept
+		static std::string tacticalPassToString(const passType& tacticalPass) noexcept
 		{
 			return generatorType::tacticalPassToString_Implementation(tacticalPass);
 		}
 		template<typename stackType>
-		static void generateMoves(const stackType& stack, movelistType& moves, const passType currentPass) noexcept
+		static void generateMoves(const stackType& stack, movelistType& moves, const passType& currentPass) noexcept
 		{
 			generatorType::generateMoves_Implementation(stack, moves, currentPass);
 		}
 		template<typename stackType>
-		static void generateTacticalMoves(const stackType& stack, movelistType& moves, const passType currentPass) noexcept
+		static void generateTacticalMoves(const stackType& stack, movelistType& moves, const passType& currentPass) noexcept
 		{
 			generatorType::generateTacticalMoves_Implementation(stack, moves, currentPass);
 		}

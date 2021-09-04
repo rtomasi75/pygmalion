@@ -115,7 +115,7 @@ namespace pygmalion
 		{
 
 		}
-		constexpr enumeration(const baseType value) noexcept :
+		constexpr enumeration(const baseType& value) noexcept :
 			m_Value(static_cast<valueType>(value))
 		{
 		}
@@ -126,7 +126,7 @@ namespace pygmalion
 		constexpr enumeration& operator=(enumeration&&) noexcept = default;
 		constexpr enumeration& operator=(const enumeration&) noexcept = default;
 	public:
-		constexpr static const hashValue& hash(const instanceType instance) noexcept
+		constexpr static const hashValue& hash(const instanceType& instance) noexcept
 		{
 			return m_HashTable[instance];
 		}
@@ -153,7 +153,7 @@ namespace pygmalion
 		constexpr instanceType& operator++() noexcept
 		{
 			m_Value = static_cast<valueType>((static_cast<baseType>(m_Value) + 1) % countValues);
-			return *reinterpret_cast<instanceType*>(this);
+			return *static_cast<instanceType*>(this);
 		}
 		constexpr instanceType operator--(int) noexcept
 		{
@@ -166,7 +166,7 @@ namespace pygmalion
 			m_Value = static_cast<valueType>((static_cast<baseType>(m_Value) + countValues - 1) % countValues);
 			return *static_cast<instanceType*>(this);
 		}
-		constexpr instanceType& operator|=(const instanceType other) noexcept
+		constexpr instanceType& operator|=(const instanceType& other) noexcept
 		{
 			m_Value = static_cast<valueType>(static_cast<baseType>(m_Value) | other);
 			return *static_cast<instanceType*>(this);
@@ -181,7 +181,7 @@ namespace pygmalion
 			typedef value_type* pointer;
 			typedef value_type& reference;
 			typedef std::input_iterator_tag iterator_category;
-			constexpr iterator(const baseType start) noexcept :
+			constexpr iterator(const baseType& start) noexcept :
 				m_Current{ start }
 			{
 
@@ -196,7 +196,7 @@ namespace pygmalion
 			constexpr iterator& operator++() noexcept
 			{
 				assert(m_Current < COUNT);
-				m_Current++;
+				++m_Current;
 				return *this;
 			}
 			constexpr value_type operator*() const noexcept

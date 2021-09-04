@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.16)
 
-project (pygmalion-core)
+project (pygmalion)
 
 set (pygmalion_VERSION_MAJOR 1)
 set (pygmalion_VERSION_MINOR 0)

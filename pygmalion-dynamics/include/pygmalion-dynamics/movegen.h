@@ -29,35 +29,35 @@ namespace pygmalion::dynamics
 		constexpr movegen(movegen&&) noexcept = default;
 		constexpr movegen& operator=(const movegen&) noexcept = default;
 		constexpr movegen& operator=(movegen&&) noexcept = default;
-		constexpr squaresType propagate(const squareType seed) const noexcept
+		constexpr squaresType propagate(const squareType& seed) const noexcept
 		{
 			if (m_AllowedFromSquares[seed])
 				return propagatorType::propagate(seed) & m_AllowedToSquares;
 			else
 				return squaresType::none();
 		}
-		constexpr squaresType targets(const squareType seed, const squaresType& allowed) const noexcept
+		constexpr squaresType targets(const squareType& seed, const squaresType& allowed) const noexcept
 		{
 			if (m_AllowedFromSquares[seed])
 				return propagatorType::targets(seed, allowed) & m_AllowedToSquares;
 			else
 				return squaresType::none();
 		}
-		constexpr squaresType untabled_targets(const squareType seed, const squaresType& allowed) const noexcept
+		constexpr squaresType untabled_targets(const squareType& seed, const squaresType& allowed) const noexcept
 		{
 			if (m_AllowedFromSquares[seed])
 				return propagatorType::targets(squaresType(seed), allowed) & m_AllowedToSquares;
 			else
 				return squaresType::none();
 		}
-		constexpr squaresType attacks(const squareType seed, const squaresType& allowed) const noexcept
+		constexpr squaresType attacks(const squareType& seed, const squaresType& allowed) const noexcept
 		{
 			if (m_AllowedFromSquares[seed])
 				return propagatorType::attacks(seed, allowed) & m_AllowedToSquares;
 			else
 				return squaresType::none();
 		}
-		constexpr squaresType untabled_attacks(const squareType seed, const squaresType& allowed) const noexcept
+		constexpr squaresType untabled_attacks(const squareType& seed, const squaresType& allowed) const noexcept
 		{
 			if (m_AllowedFromSquares[seed])
 				return propagatorType::attacks(squaresType(seed), allowed) & m_AllowedToSquares;

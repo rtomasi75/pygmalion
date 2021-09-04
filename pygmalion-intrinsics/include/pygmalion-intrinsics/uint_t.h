@@ -23,7 +23,7 @@ namespace pygmalion
 		{
 			return std::rand() % std::numeric_limits<unsigned char>::max();
 		}
-		constexpr static wordType normalizeHighestWord(const wordType word) noexcept
+		constexpr static wordType normalizeHighestWord(const wordType& word) noexcept
 		{
 			constexpr const size_t shift{ countBitsPerWord - (countStorageBits - countBits) };
 			if constexpr (shift < countBitsPerWord)
@@ -35,7 +35,7 @@ namespace pygmalion
 				return word;
 		}
 		template<size_t INDEX>
-		constexpr static wordType normalizeWords(const wordType word) noexcept
+		constexpr static wordType normalizeWords(const wordType& word) noexcept
 		{
 			if constexpr (INDEX == (countWords - 1))
 			{
@@ -129,7 +129,7 @@ namespace pygmalion
 				return uint_t::nullaryTransformWords<countWords, true>(lambda);
 			}
 		}
-		constexpr static wordType sumWords(wordType& accumulator, const wordType operand, const wordType carry) noexcept
+		constexpr static wordType sumWords(wordType& accumulator, const wordType& operand, const wordType& carry) noexcept
 		{
 			if constexpr (std::is_same<wordType, doubleType>::value)
 			{
@@ -147,7 +147,7 @@ namespace pygmalion
 				return (sum & static_cast<doubleType>(mask << countBitsPerWord)) >> countBitsPerWord;
 			}
 		}
-		constexpr static wordType subtractWords(wordType& accumulator, const wordType operand, const wordType carry) noexcept
+		constexpr static wordType subtractWords(wordType& accumulator, const wordType& operand, const wordType& carry) noexcept
 		{
 			if constexpr (std::is_same<wordType, doubleType>::value)
 			{
@@ -167,7 +167,7 @@ namespace pygmalion
 				return -static_cast<wordType>((difference & static_cast<doubleType>(mask << countBitsPerWord)) >> countBitsPerWord);
 			}
 		}
-		constexpr static const void multiplyWords(const wordType A, const wordType B, wordType& R_low, wordType& R_high) noexcept
+		constexpr static const void multiplyWords(const wordType& A, const wordType& B, wordType& R_low, wordType& R_high) noexcept
 		{
 			if constexpr (std::is_same<wordType, doubleType>::value)
 			{
@@ -814,7 +814,7 @@ namespace pygmalion
 		}
 		constexpr uint_t operator~() const noexcept
 		{
-			constexpr const auto lambda = [](const wordType a, const size_t)->wordType { return ~a; };
+			constexpr const auto lambda = [](const wordType& a, const size_t)->wordType { return ~a; };
 			return uint_t(uint_t::unaryTransformWords<countWords, true>(m_Words, lambda), false);
 		}
 		constexpr uint_t& operator&=(const uint_t& other) noexcept
@@ -837,17 +837,17 @@ namespace pygmalion
 		}
 		constexpr uint_t operator&(const uint_t& other) const noexcept
 		{
-			constexpr const auto lambda = [](const wordType a, const wordType b, const size_t)->wordType { return a & b; };
+			constexpr const auto lambda = [](const wordType& a, const wordType& b, const size_t)->wordType { return a & b; };
 			return uint_t(uint_t::binaryTransformWords<countWords, false>(m_Words, other.m_Words, lambda), false);
 		}
 		constexpr uint_t operator|(const uint_t& other) const noexcept
 		{
-			constexpr const auto lambda = [](const wordType a, const wordType b, const size_t)->wordType { return a | b; };
+			constexpr const auto lambda = [](const wordType& a, const wordType& b, const size_t)->wordType { return a | b; };
 			return uint_t(uint_t::binaryTransformWords<countWords, false>(m_Words, other.m_Words, lambda), false);
 		}
 		constexpr uint_t operator^(const uint_t& other) const noexcept
 		{
-			constexpr const auto lambda = [](const wordType a, const wordType b, const size_t)->wordType { return a ^ b; };
+			constexpr const auto lambda = [](const wordType& a, const wordType& b, const size_t)->wordType { return a ^ b; };
 			return uint_t(uint_t::binaryTransformWords<countWords, false>(m_Words, other.m_Words, lambda), false);
 		}
 		constexpr uint_t operator+(const uint_t& other) const noexcept
@@ -1568,7 +1568,7 @@ namespace pygmalion
 		constexpr static const size_t countStorageBits{ countBitsPerWord };
 	private:
 		wordType m_Word;
-		constexpr static wordType normalizeWord(const wordType word) noexcept
+		constexpr static wordType normalizeWord(const wordType& word) noexcept
 		{
 			constexpr const size_t shift{ countBitsPerWord - (countStorageBits - countBits) };
 			if constexpr (shift < countBitsPerWord)
@@ -1592,7 +1592,7 @@ namespace pygmalion
 			return (start + length) <= countBits;
 		}
 	public:
-		constexpr uint_t(const wordType word, bool) noexcept :
+		constexpr uint_t(const wordType& word, bool) noexcept :
 			m_Word{ word }
 		{	}
 		template<size_t START, size_t LEN, typename = typename std::enable_if<enableExtract(START, LEN)>::type>
@@ -2337,7 +2337,7 @@ namespace pygmalion
 			else
 				m_Word = static_cast<wordType>(bits[0]);
 		}
-		constexpr uint_t(const wordType word, bool) noexcept :
+		constexpr uint_t(const wordType& word, bool) noexcept :
 			m_Word{ word }
 		{	}
 		template<size_t START, size_t LEN, typename = typename std::enable_if<enableExtract(START, LEN)>::type>

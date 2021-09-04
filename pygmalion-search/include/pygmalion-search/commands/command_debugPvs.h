@@ -20,7 +20,7 @@ namespace pygmalion::search
 			{
 				this->output() << std::endl;
 				depthType depth = parser::parseInt(remainder);
-				for (depthType i = -1; i <= depth - 1; i++)
+				for (depthType i = -1; i <= depth - 1; ++i)
 				{
 					variationType principalVariation;
 					scoreType score{ this->searchEngine().vpvs(principalVariation, i, this->output()) };
@@ -36,7 +36,7 @@ namespace pygmalion::search
 			{
 				this->output() << std::endl;
 				depthType depth = parser::parseInt(remainder);
-				for (depthType i = - 1; i <= depth - 1; i++)
+				for (depthType i = - 1; i <= depth - 1; ++i)
 				{
 					variationType principalVariation;
 					scoreType score{ this->searchEngine().pvs(principalVariation, i, this->output()) };

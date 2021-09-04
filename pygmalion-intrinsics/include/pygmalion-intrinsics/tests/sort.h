@@ -10,13 +10,21 @@ namespace intrinsics::test
 		str << "    generating " << reps * LENGTH << " std::uint" << CHAR_BIT * sizeof(VALUE) << "_t" << std::endl;
 		std::uniform_int_distribution<unsigned long long> distributionV(0, VALUE(1) << (sizeof(VALUE) * CHAR_BIT - 1));
 		VALUE* m_Value = new VALUE[reps * LENGTH];
+		VALUE* m_ValueRef = new VALUE[reps * LENGTH];
 		for (size_t i = 0; i < reps * LENGTH; i++)
+		{
 			m_Value[i] = distributionV(generator);
+			m_ValueRef[i] = m_Value[i];
+		}
 		str << "    generating " << reps * LENGTH << " std::int" << CHAR_BIT * sizeof(SCORE) << "_t" << std::endl;
 		std::uniform_int_distribution<long long> distributionS(-(SCORE(1) << (sizeof(SCORE) * CHAR_BIT - 2)), SCORE(1) << (sizeof(SCORE) * CHAR_BIT - 2));
 		SCORE* m_Score = new SCORE[reps * LENGTH];
+		SCORE* m_ScoreRef = new SCORE[reps * LENGTH];
 		for (size_t i = 0; i < reps * LENGTH; i++)
+		{
 			m_Score[i] = distributionS(generator);
+			m_ScoreRef[i] = m_Score[i];
+		}
 		profiler profileImplementation;
 		str << "    sorting..." << std::endl;
 		profileImplementation.start();
@@ -38,6 +46,44 @@ namespace intrinsics::test
 					str << "    FAILED" << std::endl;
 					delete[] m_Value;
 					delete[] m_Score;
+					delete[] m_ValueRef;
+					delete[] m_ScoreRef;
+					return false;
+				}
+			}
+			for (size_t i = 0; i < LENGTH; i++)
+			{
+				size_t countV{ 0 };
+				size_t countVRef{ 0 };
+				size_t countS{ 0 };
+				size_t countSRef{ 0 };
+				for (size_t k = 0; k < LENGTH; k++)
+				{
+					if (m_Value[i + j * LENGTH] == m_Value[k + j * LENGTH])
+						countV++;
+					if (m_Value[i + j * LENGTH] == m_ValueRef[k + j * LENGTH])
+						countVRef++;
+					if (m_Score[i + j * LENGTH] == m_Score[k + j * LENGTH])
+						countS++;
+					if (m_Score[i + j * LENGTH] == m_ScoreRef[k + j * LENGTH])
+						countSRef++;
+				}
+				if (countV != countVRef)
+				{
+					str << "    FAILED" << std::endl;
+					delete[] m_Value;
+					delete[] m_Score;
+					delete[] m_ValueRef;
+					delete[] m_ScoreRef;
+					return false;
+				}
+				if (countS != countSRef)
+				{
+					str << "    FAILED" << std::endl;
+					delete[] m_Value;
+					delete[] m_Score;
+					delete[] m_ValueRef;
+					delete[] m_ScoreRef;
 					return false;
 				}
 			}
@@ -48,6 +94,8 @@ namespace intrinsics::test
 		str << std::endl;
 		delete[] m_Value;
 		delete[] m_Score;
+		delete[] m_ValueRef;
+		delete[] m_ScoreRef;
 		return true;
 	}
 	template<typename VALUE, typename SCORE>

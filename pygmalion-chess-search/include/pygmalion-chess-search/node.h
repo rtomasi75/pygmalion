@@ -1,6 +1,5 @@
 namespace pygmalion::chess
 {
-
 	class node :
 		public pygmalion::node<descriptor_search, node>
 	{

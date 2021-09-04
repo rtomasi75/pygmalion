@@ -103,15 +103,19 @@ namespace pygmalion
 		{
 			return &m_Items[0];
 		}
-		void replace(const counterType idx, const itemType& item) noexcept
+		void replace(const counterType& idx, const itemType& item) noexcept
 		{
+			assert(idx >= 0);
+			assert(idx < maxLength);
 			assert(idx <= (m_Length + 1));
 			assert(m_Length < (maxLength - 1));
 			m_Items[idx] = item;
 			m_Length = std::max(m_Length, static_cast<counterType>(idx + 1));
 		}
-		void replace(const counterType idx, itemType&& item) noexcept
+		void replace(const counterType& idx, itemType&& item) noexcept
 		{
+			assert(idx >= 0);
+			assert(idx < maxLength);
 			assert(idx <= (m_Length + 1));
 			assert(m_Length < (maxLength - 1));
 			m_Items[idx] = item;
@@ -121,7 +125,7 @@ namespace pygmalion
 		{
 			assert(tail.m_Length < maxLength);
 			m_Items[0] = item;
-			for (counterType i = 0; i < tail.m_Length; i++)
+			for (counterType i = 0; i < tail.m_Length; ++i)
 			{
 				m_Items[i + 1] = tail.m_Items[i];
 			}
@@ -130,11 +134,11 @@ namespace pygmalion
 		void combine(const list& head, const list& tail) noexcept
 		{
 			assert(tail.m_Length + head.m_Length <= maxLength);
-			for (counterType i = 0; i < tail.m_Length; i++)
+			for (counterType i = 0; i < tail.m_Length; ++i)
 			{
 				m_Items[i] = head.m_Items[i];
 			}
-			for (counterType i = 0; i < tail.m_Length; i++)
+			for (counterType i = 0; i < tail.m_Length; ++i)
 			{
 				m_Items[i + head.m_Length] = tail.m_Items[i];
 			}
@@ -142,7 +146,7 @@ namespace pygmalion
 		}
 		bool contains(const itemType& item) const noexcept
 		{
-			for (counterType i = 0; i < m_Length; i++)
+			for (counterType i = 0; i < m_Length; ++i)
 			{
 				if (m_Items[i] == item)
 					return true;
@@ -153,7 +157,7 @@ namespace pygmalion
 		{
 			assert(tail.m_Length < maxLength);
 			m_Items[0] = item;
-			for (counterType i = 0; i < tail.m_Length; i++)
+			for (counterType i = 0; i < tail.m_Length; ++i)
 			{
 				m_Items[i + 1] = std::move(tail.m_Items[i]);
 			}
@@ -162,27 +166,27 @@ namespace pygmalion
 		list& operator=(const list& other) noexcept
 		{
 			m_Length = other.m_Length;
-			for (counterType i = 0; i < m_Length; i++)
+			for (counterType i = 0; i < m_Length; ++i)
 				m_Items[i] = other.m_Items[i];
 			return *this;
 		}
 		list& operator=(list&& other) noexcept
 		{
 			m_Length = std::move(other.m_Length);
-			for (counterType i = 0; i < m_Length; i++)
+			for (counterType i = 0; i < m_Length; ++i)
 				m_Items[i] = std::move(other.m_Items[i]);
 			return *this;
 		}
 		list(list&& other) noexcept :
 			m_Length(std::move(other.m_Length))
 		{
-			for (counterType i = 0; i < m_Length; i++)
+			for (counterType i = 0; i < m_Length; ++i)
 				m_Items[i] = std::move(other.m_Items[i]);
 		}
 		list(const list& other) noexcept :
 			m_Length(other.m_Length)
 		{
-			for (counterType i = 0; i < m_Length; i++)
+			for (counterType i = 0; i < m_Length; ++i)
 				m_Items[i] = other.m_Items[i];
 		}
 		list() noexcept :
@@ -200,8 +204,10 @@ namespace pygmalion
 		{
 			return m_Length;
 		}
-		const itemType& operator[](const counterType idx) const noexcept
+		const itemType& operator[](const counterType& idx) const noexcept
 		{
+			assert(idx >= 0);
+			assert(idx < maxLength);
 			assert(idx < m_Length);
 			return m_Items[idx];
 		}

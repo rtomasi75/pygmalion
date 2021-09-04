@@ -15,7 +15,7 @@ namespace pygmalion::frontend
 		bool m_MoveThreadAborted;
 		std::mutex m_Mutex;
 		std::thread* m_pMoveThread;
-		std::string scoreToString(const scoreType score)
+		std::string scoreToString(const scoreType& score)
 		{
 			std::stringstream str{ std::stringstream() };
 			if (score.isWinning())
@@ -32,14 +32,14 @@ namespace pygmalion::frontend
 				str << static_cast<int>(100 * score);
 			return str.str();
 		}
-		bool principalVariationSearch(const typename descriptorFrontend::stackType& stack, const depthType depthRemaining, variationType& finalVariation, std::atomic_bool& isRunning)
+		bool principalVariationSearch(const typename descriptorFrontend::stackType& stack, const depthType& depthRemaining, variationType& finalVariation, std::atomic_bool& isRunning)
 		{
 			nodeType node(stack, isRunning, this->heuristics());
 			variationType principalVariation{ variationType() };
 			this->feedback().sortIndices(this->history().length());
 			this->heuristics().beginSearch();
 			bool allowStoreTT;
-			const scoreType score{ node.template search<false,true>(scoreType::minimum(), scoreType::maximum(), depthRemaining, this->history().length(), principalVariation, this->outputStream(),allowStoreTT) };
+			const scoreType score{ node.template search<false>(scoreType::minimum(), scoreType::maximum(), depthRemaining, this->history().length(), principalVariation, this->outputStream(),allowStoreTT) };
 			this->heuristics().endSearch();
 			if (isRunning)
 			{
@@ -68,7 +68,7 @@ namespace pygmalion::frontend
 			double factor[]{ 0.0,0.0 };
 			while (principalVariationSearch(stack, depthRemaining, finalVariation, m_MoveThreadIsRunning))
 			{
-				depthRemaining++;
+				++depthRemaining;
 				if (this->front().exceedsDepthLimit(depthRemaining))
 					break;
 				const durationType plyTime{ timeRemaining - this->currentGame().playerClock(this->position().movingPlayer()).timeRemaining() };
@@ -168,7 +168,7 @@ namespace pygmalion::frontend
 		{
 			return 10;
 		}
-		constexpr durationType allocateTime(const playerType pl) const noexcept
+		constexpr durationType allocateTime(const playerType& pl) const noexcept
 		{
 			const int movesPerTimeControl{ this->currentGame().movesPerTimeControl() };
 			if (movesPerTimeControl == 0)

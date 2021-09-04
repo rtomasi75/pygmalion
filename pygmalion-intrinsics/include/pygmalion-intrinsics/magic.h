@@ -135,7 +135,7 @@ namespace pygmalion::intrinsics
 		}
 		constexpr magic(const magic&) = default;
 		constexpr magic(magic&&) = default;
-		constexpr magic(const bitsType& premask, const bitsType&, const sizeType bits) noexcept :
+		constexpr magic(const bitsType& premask, const bitsType&, const sizeType& bits) noexcept :
 			magic<countMaxPatternBits, VALUE, true>(premask, bits)
 		{
 		}
@@ -186,7 +186,7 @@ namespace pygmalion::intrinsics
 					pUsed[i] = false;
 				}
 				const bitsType N2{ bitsType(static_cast<typename std::make_unsigned<size_t>::type>(N)) };
-				for (bitsType k = 0; k < N; k++)
+				for (bitsType k = 0; k < N; ++k)
 				{
 					const bitsType pattern{ k.deposePattern(premask) };
 					const size_t idx{ magic::castMagic(pattern,premask,factor,countIndexBits) };

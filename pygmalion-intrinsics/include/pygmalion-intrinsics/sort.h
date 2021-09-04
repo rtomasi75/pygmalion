@@ -355,7 +355,7 @@ namespace pygmalion
 				pValues[IDX1c] = _mm_extract_epi16(resultValue1low, 6);
 				pValues[IDX1d] = _mm_extract_epi16(resultValue1low, 7);
 				pValues[IDX1e] = _mm_extract_epi16(resultValue1high, 0);
-				pValues[IDX2a] = _mm_extract_epi16(resultValue2low, 1);
+				pValues[IDX2a] = _mm_extract_epi16(resultValue2low, 0);
 				pValues[IDX2b] = _mm_extract_epi16(resultValue2low, 1);
 				pValues[IDX2c] = _mm_extract_epi16(resultValue2low, 6);
 				pValues[IDX2d] = _mm_extract_epi16(resultValue2low, 7);

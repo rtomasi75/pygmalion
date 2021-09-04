@@ -12,7 +12,7 @@ namespace pygmalion::search
 	private:
 		heuristicsType m_Heuristics;
 		using stackType = typename NODE::stackType;
-		static std::string variationToStringFromDepth(const stackType& stack, const variationType& variation, const depthType depth) noexcept
+		static std::string variationToStringFromDepth(const stackType& stack, const variationType& variation, const depthType& depth) noexcept
 		{
 			if (variation.length() > depth)
 			{
@@ -38,7 +38,7 @@ namespace pygmalion::search
 			stackType stack{ stackType(this->position(), this->history(),  this->position().movingPlayer()) };
 			return variationToStringFromDepth(stack, variation, 0);
 		}
-		scoreType pvs(variationType& principalVariation, const depthType depthRemaining, std::ostream& str) noexcept
+		scoreType pvs(variationType& principalVariation, const depthType& depthRemaining, std::ostream& str) noexcept
 		{
 			bool allowStoreTT;
 			this->feedback().sortIndices(this->history().length());
@@ -47,11 +47,11 @@ namespace pygmalion::search
 			m_Heuristics.beginSearch();
 			nodeType node(stack, isRunning, m_Heuristics);
 			principalVariation.clear();
-			const scoreType score{ node.template search<false,true>(scoreType::minimum(),scoreType::maximum(), depthRemaining, this->history().length(), principalVariation, str, allowStoreTT) };
+			const scoreType score{ node.template search<false>(scoreType::minimum(),scoreType::maximum(), depthRemaining, this->history().length(), principalVariation, str, allowStoreTT) };
 			m_Heuristics.endSearch();
 			return score;
 		}
-		scoreType vpvs(variationType& principalVariation, const depthType depthRemaining, std::ostream& str) noexcept
+		scoreType vpvs(variationType& principalVariation, const depthType& depthRemaining, std::ostream& str) noexcept
 		{
 			bool allowStoreTT;
 			this->feedback().sortIndices(this->history().length());
@@ -60,7 +60,7 @@ namespace pygmalion::search
 			m_Heuristics.beginSearch();
 			nodeType node(stack, isRunning, m_Heuristics);
 			principalVariation.clear();
-			const scoreType score{ node.template search<true,true>(scoreType::minimum(),scoreType::maximum(), depthRemaining, this->history().length(), principalVariation, str, allowStoreTT) };
+			const scoreType score{ node.template search<true>(scoreType::minimum(),scoreType::maximum(), depthRemaining, this->history().length(), principalVariation, str, allowStoreTT) };
 			m_Heuristics.endSearch();
 			return score;
 		}

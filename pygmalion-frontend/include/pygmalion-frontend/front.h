@@ -22,7 +22,7 @@ namespace pygmalion
 		bool m_PonderMode;
 		std::string m_OpponentName;
 	public:
-		static std::string gamestateToString(const boardType& position, const gamestateType gs) noexcept
+		static std::string gamestateToString(const boardType& position, const gamestateType& gs) noexcept
 		{
 			return frontType::gamestateToString_Implementation(position, gs);
 		}
@@ -34,11 +34,11 @@ namespace pygmalion
 		{
 			return m_OpponentName;
 		}
-		constexpr std::uint16_t playerRating(const playerType pl) const noexcept
+		constexpr std::uint16_t playerRating(const playerType& pl) const noexcept
 		{
 			return m_Rating[pl];
 		}
-		constexpr std::uint16_t& playerRating(const playerType pl) noexcept
+		constexpr std::uint16_t& playerRating(const playerType& pl) noexcept
 		{
 			return m_Rating[pl];
 		}
@@ -58,7 +58,7 @@ namespace pygmalion
 		{
 			return m_MaxTime >= std::chrono::seconds(0);
 		}
-		constexpr bool exceedsDepthLimit(const depthType depth) const noexcept
+		constexpr bool exceedsDepthLimit(const depthType& depth) const noexcept
 		{
 			return isDepthLimited() && (depth > m_MaxDepth);
 		}
@@ -66,7 +66,7 @@ namespace pygmalion
 		{
 			return isTimeLimited() && (duration > timeLimit());
 		}
-		constexpr void setDepthLimit(const depthType limit) noexcept
+		constexpr void setDepthLimit(const depthType& limit) noexcept
 		{
 			m_MaxDepth = limit;
 		}
@@ -150,6 +150,7 @@ namespace pygmalion
 			m_IsXBoard{ false },
 			m_IsRandom{ false },
 			m_ForceMode{ false },
+			m_PostMode{ false },
 			m_PonderMode{ false },
 			m_PlayingComputer{ false },
 			m_ProtocolVersion{ 1 },

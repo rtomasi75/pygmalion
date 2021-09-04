@@ -80,7 +80,7 @@ namespace pygmalion
 			{
 				return m_Flags;
 			}
-			constexpr void update(const stackType& stack, const std::uint8_t flags, const scoreType value, const movebitsType move)
+			constexpr void update(const stackType& stack, const std::uint8_t flags, const scoreType& value, const movebitsType& move)
 			{
 				if (flags & transpositiontable::flags_lower)
 				{
@@ -103,7 +103,7 @@ namespace pygmalion
 					m_Flags |= transpositiontable::flags_move;
 				}
 			}
-			void reset(const stackType& stack, const scoreType value, const depthType draft, const std::uint8_t flags, const movebitsType move)
+			void reset(const stackType& stack, const scoreType& value, const depthType& draft, const std::uint8_t flags, const movebitsType& move)
 			{
 				m_Hash = stack.position().hash();
 				m_MovingPlayer = stack.position().movingPlayer();
@@ -148,7 +148,7 @@ namespace pygmalion
 		mutable std::uint64_t m_BetaHits;
 		mutable std::uint64_t m_ExactHits;
 		std::vector<transposition> m_Entry;
-		constexpr hashType computeKey(const hashType hash) const noexcept
+		constexpr hashType computeKey(const hashType& hash) const noexcept
 		{
 			const hashType mask{ (hashType(1) << m_BitCount) - hashType(1) };
 			return hash & mask;
@@ -289,52 +289,58 @@ namespace pygmalion
 		{
 			return m_Entry.size() * sizeof(transposition);
 		}
-		constexpr void probeMoves(const stackType& stack, const depthType depthRemaining, movelistType& moves) const noexcept
+		constexpr void probeMoves(const stackType& stack, const depthType& depthRemaining, movelistType& moves) const noexcept
 		{
-			const hashType i = { computeKey(stack.position().hash()) };
-			depthType score[countBuckets];
-			for (size_t j = 0; j < countBuckets; j++)
+			if constexpr (countBuckets > 0)
 			{
-				const size_t index = static_cast<std::uint64_t>(i) * countBuckets + j;
-				if (m_Entry[index].isValid(stack))
+				const hashType i = { computeKey(stack.position().hash()) };
+				depthType score[countBuckets];
+				for (size_t j = 0; j < countBuckets; j++)
 				{
-					if (m_Entry[index].flags() & flags_move)
+					const size_t index = static_cast<std::uint64_t>(i) * countBuckets + j;
+					if (m_Entry[index].isValid(stack))
 					{
-						if (!moves.contains(m_Entry[index].move()))
-						{
-							score[moves.length()] = -std::abs(m_Entry[index].draft() - depthRemaining);
-							moves.add(m_Entry[index].move());
-						}
-					}
-				}
-			}
-			sort<movebitsType, depthType>::sortValues(moves.ptr(), &score[0], moves.length());
-		}
-		constexpr void probeTacticalMoves(const stackType& stack, movelistType& moves) const noexcept
-		{
-			const hashType i = { computeKey(stack.position().hash()) };
-			depthType score[countBuckets];
-			for (size_t j = 0; j < countBuckets; j++)
-			{
-				const size_t index = static_cast<std::uint64_t>(i) * countBuckets + j;
-				if (m_Entry[index].isValid(stack))
-				{
-					if (m_Entry[index].flags() & flags_move)
-					{
-						if (generatorType::isMoveTactical(stack, m_Entry[index].move()))
+						if (m_Entry[index].flags() & flags_move)
 						{
 							if (!moves.contains(m_Entry[index].move()))
 							{
-								score[moves.length()] = -std::abs(m_Entry[index].draft() + 1);
+								score[moves.length()] = -std::abs(m_Entry[index].draft() - depthRemaining);
 								moves.add(m_Entry[index].move());
 							}
 						}
 					}
 				}
+				sort<movebitsType, depthType>::sortValues(moves.ptr(), &score[0], moves.length());
 			}
-			sort<movebitsType, depthType>::sortValues(moves.ptr(), &score[0], moves.length());
 		}
-		constexpr std::uint8_t probe(const stackType& stack, const depthType depth, scoreType& alpha, scoreType& beta, scoreType& score, movebitsType& move) const noexcept
+		constexpr void probeTacticalMoves(const stackType& stack, movelistType& moves) const noexcept
+		{
+			if constexpr (countBuckets > 0)
+			{
+				const hashType i = { computeKey(stack.position().hash()) };
+				depthType score[countBuckets];
+				for (size_t j = 0; j < countBuckets; j++)
+				{
+					const size_t index = static_cast<std::uint64_t>(i) * countBuckets + j;
+					if (m_Entry[index].isValid(stack))
+					{
+						if (m_Entry[index].flags() & flags_move)
+						{
+							if (generatorType::isMoveTactical(stack, m_Entry[index].move()))
+							{
+								if (!moves.contains(m_Entry[index].move()))
+								{
+									score[moves.length()] = -std::abs(m_Entry[index].draft() + 1);
+									moves.add(m_Entry[index].move());
+								}
+							}
+						}
+					}
+				}
+				sort<movebitsType, depthType>::sortValues(moves.ptr(), &score[0], moves.length());
+			}
+		}
+		constexpr std::uint8_t probe(const stackType& stack, const depthType& depth, scoreType& alpha, scoreType& beta, scoreType& score, movebitsType& move) const noexcept
 		{
 			m_Probes++;
 			if constexpr (UseDeepHits)
@@ -460,7 +466,7 @@ namespace pygmalion
 				return flags_unused;
 			}
 		}
-		constexpr void store(const stackType& stack, const depthType depth, const scoreType score, const std::uint8_t flags, const movebitsType move) noexcept
+		constexpr void store(const stackType& stack, const depthType& depth, const scoreType& score, const std::uint8_t flags, const movebitsType& move) noexcept
 		{
 			const hashType i = { computeKey(stack.position().hash()) };
 			depthType best{ countSearchPlies + 1 };

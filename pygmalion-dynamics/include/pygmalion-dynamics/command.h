@@ -33,11 +33,11 @@ namespace pygmalion::dynamics
 		}
 		engine<generatorType>& dynamicsEngine() noexcept
 		{
-			return dynamic_cast<engine<generatorType>&>(this->mechanicsEngine());
+			return *dynamic_cast<engine<generatorType>*>(&(this->mechanicsEngine()));
 		}
 		const engine<generatorType>& dynamicsEngine() const noexcept
 		{
-			return dynamic_cast<const engine<generatorType>&>(this->mechanicsEngine());
+			return *dynamic_cast<const engine<generatorType>*>(&(this->mechanicsEngine()));
 		}
 	protected:
 	};

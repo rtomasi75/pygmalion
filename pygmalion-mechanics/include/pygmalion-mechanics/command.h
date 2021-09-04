@@ -16,11 +16,11 @@ namespace pygmalion::mechanics
 	public:
 		engine<motorType>& mechanicsEngine() noexcept
 		{
-			return dynamic_cast<engine<motorType>&>(this->stateEngine());
+			return *dynamic_cast<engine<motorType>*>(&(this->stateEngine()));
 		}
 		const engine<motorType>& mechanicsEngine() const noexcept
 		{
-			return dynamic_cast<const engine<motorType>&>(this->stateEngine());
+			return *dynamic_cast<const engine<motorType>*>(&(this->stateEngine()));
 		}
 	};
 }

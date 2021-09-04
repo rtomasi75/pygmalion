@@ -123,7 +123,7 @@ namespace pygmalion::mechanics
 	public:
 		std::string name_Implementation() const noexcept
 		{
-			size_t N = pygmalion::detail::requiredUnsignedBits(sizeof...(MOVES));
+			constexpr size_t N{ pygmalion::detail::requiredUnsignedBits(sizeof...(MOVES)) };
 			std::stringstream sstr;
 			sstr << sizeof(typename disjunctivemove::movedataType) << ":" << disjunctivemove::countBits << "@[";
 			sstr << "" << sizeof(muxbitsType) << ":" << disjunctivemove::countMuxBits << "@mux&" << disjunctivemove::movedataType::payloadSize << ":" << disjunctivemove::countDataBits << "@[";

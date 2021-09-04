@@ -21,39 +21,39 @@ namespace pygmalion::mechanics
 	public:
 		std::string name() const noexcept
 		{
-			return reinterpret_cast<const instanceType*>(this)->name_Implementation();
+			return static_cast<const instanceType*>(this)->name_Implementation();
 		}
 		constexpr movedataType doMove(boardType& position, const movebitsType& moveBits) const noexcept
 		{
-			return reinterpret_cast<const instanceType*>(this)->doMove_Implementation(position, moveBits);
+			return static_cast<const instanceType*>(this)->doMove_Implementation(position, moveBits);
 		}
 		constexpr void undoMove(boardType& position, const movedataType& data) const noexcept
 		{
-			reinterpret_cast<const instanceType*>(this)->undoMove_Implementation(position, data);
+			static_cast<const instanceType*>(this)->undoMove_Implementation(position, data);
 		}
 		bool parse(const boardType& position, std::string& text, movebitsType& moveBits) const noexcept
 		{
-			return reinterpret_cast<const instanceType*>(this)->parse_Implementation(position, text, moveBits);
+			return static_cast<const instanceType*>(this)->parse_Implementation(position, text, moveBits);
 		}
 		std::string toString(const boardType& position, const movebitsType& moveBits) const noexcept
 		{
-			return reinterpret_cast<const instanceType*>(this)->toString_Implementation(position, moveBits);
+			return static_cast<const instanceType*>(this)->toString_Implementation(position, moveBits);
 		}
 		constexpr squaresType otherOccupancyDelta(const boardType& position, const movebitsType& moveBits) const noexcept
 		{
-			return reinterpret_cast<const instanceType*>(this)->otherOccupancyDelta_Implementation(position, moveBits);
+			return static_cast<const instanceType*>(this)->otherOccupancyDelta_Implementation(position, moveBits);
 		}
 		constexpr squaresType ownOccupancyDelta(const boardType& position, const movebitsType& moveBits) const noexcept
 		{
-			return reinterpret_cast<const instanceType*>(this)->ownOccupancyDelta_Implementation(position, moveBits);
+			return static_cast<const instanceType*>(this)->ownOccupancyDelta_Implementation(position, moveBits);
 		}
 		constexpr squareType fromSquare(const boardType& position, const movebitsType& moveBits) const noexcept
 		{
-			return reinterpret_cast<const instanceType*>(this)->fromSquare_Implementation(position, moveBits);
+			return static_cast<const instanceType*>(this)->fromSquare_Implementation(position, moveBits);
 		}
 		constexpr squareType toSquare(const boardType& position, const movebitsType& moveBits) const noexcept
 		{
-			return reinterpret_cast<const instanceType*>(this)->toSquare_Implementation(position, moveBits);
+			return static_cast<const instanceType*>(this)->toSquare_Implementation(position, moveBits);
 		}
 	};
 }
