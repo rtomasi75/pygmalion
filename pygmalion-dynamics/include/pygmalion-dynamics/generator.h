@@ -313,6 +313,7 @@ namespace pygmalion
 			mutable bool m_HasLegalMoveValid;
 			mutable bool m_SignatureValid;
 			const bool m_IsNullmove;
+			const hashType m_Hash;
 			bool computeHasLegalMove(const size_t depth, movegenFeedback& feedback) const
 			{
 				bool allMovesGenerated{ false };
@@ -529,7 +530,8 @@ namespace pygmalion
 				m_NextPlayer{ m_MovingPlayer.next() },
 				m_IsNullmove{ false },
 				m_LastPass{ 0 },
-				m_LastTacticalPass{ 0 }
+				m_LastTacticalPass{ 0 },
+				m_Hash{ m_Position.hash() }
 			{
 			}
 			stack(boardType& position, historyType& history, const playerType& oldPlayer) noexcept :
@@ -550,7 +552,8 @@ namespace pygmalion
 				m_NextPlayer{ m_MovingPlayer.next() },
 				m_IsNullmove{ true },
 				m_LastPass{ 0 },
-				m_LastTacticalPass{ 0 }
+				m_LastTacticalPass{ 0 },
+				m_Hash{ m_Position.hash() }
 			{
 			}
 			constexpr const boardType& position() const noexcept
@@ -584,15 +587,15 @@ namespace pygmalion
 				{
 					if (start == 0)
 					{
-						if (m_Position == position)
+						if (m_Hash == position.hash())
 						{
 							if (times == 1)
 								return true;
 							else
-								return m_pParent->occurs(position, times - 1, frequency, frequency);
+								return m_pParent->occurs(position, times - 1, frequency - 1, frequency);
 						}
 						else
-							return m_pParent->occurs(position, times, start - 1, frequency);
+							return m_pParent->occurs(position, times, frequency - 1, frequency);
 					}
 					else
 						return m_pParent->occurs(position, times, start - 1, frequency);

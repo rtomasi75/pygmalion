@@ -82,6 +82,7 @@ namespace pygmalion::search
 			this->template addCommand<command_debugSearch<descriptorSearch, nodeType>>();
 			this->template addCommand<command_debugPvs<descriptorSearch, nodeType>>();
 			this->template addCommand<command_debugTT<descriptorSearch, nodeType>>();
+			this->template addCommand<command_debugNode<descriptorSearch, nodeType>>();
 		}
 		virtual ~engine() noexcept = default;
 		virtual std::string version() const noexcept override
