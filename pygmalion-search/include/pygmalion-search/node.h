@@ -372,8 +372,10 @@ namespace pygmalion
 							alpha = sc;
 							allowStoreTT &= allowStoreTTsubnode;
 							if constexpr (searchTranspositionTable)
+							{
 								if (allowStoreTT)
 									m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, sc, transpositiontable<descriptorSearch>::flags_upper | transpositiontable<descriptorSearch>::flags_move, move);
+							}
 							bEnded = true;
 						}
 					}
@@ -386,8 +388,10 @@ namespace pygmalion
 						alpha = sc;
 						allowStoreTT &= allowStoreTTsubnode;
 						if constexpr (searchTranspositionTable)
+						{
 							if (allowStoreTT)
 								m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, sc, transpositiontable<descriptorSearch>::flags_upper | transpositiontable<descriptorSearch>::flags_move, move);
+						}
 						bEnded = true;
 					}
 				}
@@ -397,24 +401,14 @@ namespace pygmalion
 					best = sc;
 					if (sc >= beta)
 					{
-						if constexpr (failSoft)
+						if constexpr (searchTranspositionTable)
 						{
-							if constexpr (searchTranspositionTable)
-								if (allowStoreTT)
-									m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, best, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
-							m_Heuristics.endMoveRefuted(m_Stack, move, false, depth, best, fromStack);
-							m_Heuristics.endNodeCut(m_Stack);
-							return true;
+							if (allowStoreTT)
+								m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, best, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
 						}
-						else
-						{
-							if constexpr (searchTranspositionTable)
-								if (allowStoreTT)
-									m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, beta, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
-							m_Heuristics.endMoveRefuted(m_Stack, move, false, depth, beta, fromStack);
-							m_Heuristics.endNodeCut(m_Stack);
-							return true;
-						}
+						m_Heuristics.endMoveRefuted(m_Stack, move, false, depth, best, fromStack);
+						m_Heuristics.endNodeCut(m_Stack);
+						return true;
 					}
 					principalVariation.combine(move, subVariation);
 					bestmove = move;
@@ -436,29 +430,22 @@ namespace pygmalion
 					if (best >= beta)
 					{
 						m_Heuristics.endNodeCut(m_Stack);
-						if constexpr (failSoft)
+						if constexpr (searchTranspositionTable)
 						{
-							if constexpr (searchTranspositionTable)
-								if (allowStoreTT)
-									m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, best, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
-							m_Heuristics.endMoveRefuted(m_Stack, move, false, depth, best, fromStack);
-							return true;
+							if (allowStoreTT)
+								m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, best, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
 						}
-						else
-						{
-							if constexpr (searchTranspositionTable)
-								if (allowStoreTT)
-									m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, beta, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
-							m_Heuristics.endMoveRefuted(m_Stack, move, false, depth, beta, fromStack);
-							return true;
-						}
+						m_Heuristics.endMoveRefuted(m_Stack, move, false, depth, best, fromStack);
+						return true;
 					}
 					principalVariation.combine(move, subVariation);
 					alpha = best;
 					bestmove = move;
 					if constexpr (searchTranspositionTable)
+					{
 						if (allowStoreTT)
 							m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, best, transpositiontable<descriptorSearch>::flags_upper | transpositiontable<descriptorSearch>::flags_move, move);
+					}
 					m_Heuristics.endMoveAccepted(m_Stack, move, false, depth, best, fromStack);
 				}
 				else
@@ -481,24 +468,14 @@ namespace pygmalion
 					best = sc;
 					if (sc >= beta)
 					{
-						if constexpr (failSoft)
+						if constexpr (searchTranspositionTable)
 						{
-							if constexpr (searchTranspositionTable)
-								if (allowStoreTT)
-									m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, best, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
-							m_Heuristics.endMoveRefuted(m_Stack, move, false, depth, best, fromStack);
-							m_Heuristics.endNodeCut(m_Stack);
-							return true;
+							if (allowStoreTT)
+								m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, best, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
 						}
-						else
-						{
-							if constexpr (searchTranspositionTable)
-								if (allowStoreTT)
-									m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, beta, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
-							m_Heuristics.endMoveRefuted(m_Stack, move, false, depth, beta, fromStack);
-							m_Heuristics.endNodeCut(m_Stack);
-							return true;
-						}
+						m_Heuristics.endMoveRefuted(m_Stack, move, false, depth, best, fromStack);
+						m_Heuristics.endNodeCut(m_Stack);
+						return true;
 					}
 					bestmove = move;
 				}
@@ -516,28 +493,21 @@ namespace pygmalion
 					if (best >= beta)
 					{
 						m_Heuristics.endNodeCut(m_Stack);
-						if constexpr (failSoft)
+						if constexpr (searchTranspositionTable)
 						{
-							if constexpr (searchTranspositionTable)
-								if (allowStoreTT)
-									m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, best, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
-							m_Heuristics.endMoveRefuted(m_Stack, move, false, depth, best, fromStack);
-							return true;
+							if (allowStoreTT)
+								m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, best, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
 						}
-						else
-						{
-							if constexpr (searchTranspositionTable)
-								if (allowStoreTT)
-									m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, beta, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
-							m_Heuristics.endMoveRefuted(m_Stack, move, false, depth, beta, fromStack);
-							return true;
-						}
+						m_Heuristics.endMoveRefuted(m_Stack, move, false, depth, best, fromStack);
+						return true;
 					}
 					alpha = best;
 					bestmove = move;
 					if constexpr (searchTranspositionTable)
+					{
 						if (allowStoreTT)
 							m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, best, transpositiontable<descriptorSearch>::flags_upper | transpositiontable<descriptorSearch>::flags_move, move);
+					}
 					m_Heuristics.endMoveAccepted(m_Stack, move, false, depth, best, fromStack);
 				}
 				else
@@ -562,8 +532,10 @@ namespace pygmalion
 				alpha = sc;
 				allowStoreTT &= allowStoreTTsubnode;
 				if constexpr (USE_TT)
+				{
 					if (allowStoreTT)
 						m_Heuristics.transpositionTable().store(m_Stack, -1, sc, transpositiontable<descriptorSearch>::flags_upper | transpositiontable<descriptorSearch>::flags_move, move);
+				}
 				bEnded = true;
 			}
 			if (sc > best)
@@ -572,24 +544,14 @@ namespace pygmalion
 				best = sc;
 				if (sc >= beta)
 				{
-					if constexpr (failSoft)
+					if constexpr (USE_TT)
 					{
-						if constexpr (USE_TT)
-							if (allowStoreTT)
-								m_Heuristics.transpositionTable().store(m_Stack, -1, best, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
-						m_Heuristics.endMoveRefuted(m_Stack, move, true, depth, best, fromStack);
-						m_Heuristics.endNodeCut(m_Stack);
-						return true;
+						if (allowStoreTT)
+							m_Heuristics.transpositionTable().store(m_Stack, -1, best, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
 					}
-					else
-					{
-						if constexpr (USE_TT)
-							if (allowStoreTT)
-								m_Heuristics.transpositionTable().store(m_Stack, -1, beta, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
-						m_Heuristics.endMoveRefuted(m_Stack, move, true, depth, beta, fromStack);
-						m_Heuristics.endNodeCut(m_Stack);
-						return true;
-					}
+					m_Heuristics.endMoveRefuted(m_Stack, move, true, depth, best, fromStack);
+					m_Heuristics.endNodeCut(m_Stack);
+					return true;
 				}
 				principalVariation.combine(move, subVariation);
 				bestmove = move;
@@ -614,24 +576,14 @@ namespace pygmalion
 			{
 				allowStoreTT &= allowStoreTTsubnode;
 				best = sc;
-				if constexpr (failSoft)
+				if constexpr (USE_TT)
 				{
-					if constexpr (USE_TT)
-						if (allowStoreTT)
-							m_Heuristics.transpositionTable().store(m_Stack, -1, best, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
-					m_Heuristics.endMoveRefuted(m_Stack, move, true, depth, best, fromStack);
-					m_Heuristics.endNodeCut(m_Stack);
-					return true;
+					if (allowStoreTT)
+						m_Heuristics.transpositionTable().store(m_Stack, -1, best, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
 				}
-				else
-				{
-					if constexpr (USE_TT)
-						if (allowStoreTT)
-							m_Heuristics.transpositionTable().store(m_Stack, -1, beta, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
-					m_Heuristics.endMoveRefuted(m_Stack, move, true, depth, beta, fromStack);
-					m_Heuristics.endNodeCut(m_Stack);
-					return true;
-				}
+				m_Heuristics.endMoveRefuted(m_Stack, move, true, depth, best, fromStack);
+				m_Heuristics.endNodeCut(m_Stack);
+				return true;
 			}
 			m_Heuristics.endMoveSilent(m_Stack, move, false, depth);
 			return false;
@@ -657,13 +609,17 @@ namespace pygmalion
 				str << "    ";
 		}
 	public:
+		constexpr bool pruningAllowed() const noexcept
+		{
+			return static_cast<const nodeType*>(this)->pruningAllowed_Implementation();
+		}
 		constexpr static depthType nullMoveReduction(const size_t depthRemaining) noexcept
 		{
 			return nodeType::nullMoveReduction_Implementation(depthRemaining);
 		}
-		constexpr static bool nullMoveAllowed(const stackType& stack) noexcept
+		constexpr bool nullMoveAllowed() const noexcept
 		{
-			return nodeType::nullMoveAllowed_Implementation(stack);
+			return static_cast<const nodeType*>(this)->nullMoveAllowed_Implementation();
 		}
 		constexpr const stackType& stack() const noexcept
 		{
@@ -695,18 +651,9 @@ namespace pygmalion
 				if (best >= beta)
 				{
 					m_Heuristics.endNodeLeaf(m_Stack);
-					if constexpr (failSoft)
-					{
-						if constexpr (USE_TT)
-							m_Heuristics.transpositionTable().store(m_Stack, depthType(-1), best, transpositiontable<descriptorSearch>::flags_lower, movebitsType(0));
-						return best;
-					}
-					else
-					{
-						if constexpr (USE_TT)
-							m_Heuristics.transpositionTable().store(m_Stack, depthType(-1), beta, transpositiontable<descriptorSearch>::flags_lower, movebitsType(0));
-						return beta;
-					}
+					if constexpr (USE_TT)
+						m_Heuristics.transpositionTable().store(m_Stack, depthType(-1), best, transpositiontable<descriptorSearch>::flags_lower, movebitsType(0));
+					return best;
 				}
 				alpha = best;
 				if constexpr (USE_TT)
@@ -798,27 +745,15 @@ namespace pygmalion
 			}
 			const playerType movingPlayer{ m_Stack.movingPlayer() };
 			const scoreType stand_pat{ evaluatorType::evaluate(alpha, beta, m_Stack) };
-			if constexpr (failSoft)
-				best = scoreType::max(stand_pat, best);
-			else
-				best = scoreType::max(scoreType::min(stand_pat, beta), best);
+			best = scoreType::max(stand_pat, best);
 			if (best > alpha)
 			{
 				if (best >= beta)
 				{
 					m_Heuristics.endNodeLeaf(m_Stack);
-					if constexpr (failSoft)
-					{
-						if constexpr (USE_TT)
-							m_Heuristics.transpositionTable().store(m_Stack, depthType(-1), best, transpositiontable<descriptorSearch>::flags_lower, movebitsType(0));
-						return best;
-					}
-					else
-					{
-						if constexpr (USE_TT)
-							m_Heuristics.transpositionTable().store(m_Stack, depthType(-1), beta, transpositiontable<descriptorSearch>::flags_lower, movebitsType(0));
-						return beta;
-					}
+					if constexpr (USE_TT)
+						m_Heuristics.transpositionTable().store(m_Stack, depthType(-1), best, transpositiontable<descriptorSearch>::flags_lower, movebitsType(0));
+					return best;
 				}
 				alpha = best;
 				if constexpr (USE_TT)
@@ -887,6 +822,7 @@ namespace pygmalion
 					return early;
 				}
 				bool hasLegalMove{ false };
+				bool allowNMP{ true };
 				movebitsType move;
 				scoreType best{ scoreType::minimum() };
 				movebitsType bestmove;
@@ -895,7 +831,7 @@ namespace pygmalion
 					scoreType ttScore{ scoreType::zero() };
 					movebitsType ttMove;
 					const std::uint8_t lookUp{ m_Heuristics.transpositionTable().probe(m_Stack, depthRemaining, alpha, beta, ttScore, ttMove) };
-					if (lookUp != transpositiontable<descriptorSearch>::flags_unused)
+					if ((lookUp & transpositiontable<descriptorSearch>::flags_hit) != transpositiontable<descriptorSearch>::flags_unused)
 					{
 						if (lookUp & transpositiontable<descriptorSearch>::flags_move)
 						{
@@ -908,13 +844,19 @@ namespace pygmalion
 							return ttScore;
 						}
 						else
+						{
 							best = ttScore;
+						}
+					}
+					else if ((lookUp & transpositiontable<descriptorSearch>::flags_noNMP) != transpositiontable<descriptorSearch>::flags_unused)
+					{
+						allowNMP = false;
 					}
 				}
 				allowStoreTT = true;
 				if constexpr (pruneNullmove)
 				{
-					if (checkNullMove(nullMoveHistory) && nullMoveAllowed(m_Stack))
+					if (allowNMP && checkNullMove(nullMoveHistory) && this->nullMoveAllowed())
 					{
 						bool allowStoreTTsubnode;
 						scoreType nmsc{ scoreType::zero() };

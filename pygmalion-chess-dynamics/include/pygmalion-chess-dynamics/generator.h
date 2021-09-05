@@ -616,5 +616,6 @@ namespace pygmalion::chess
 		{
 			return m_NullMove;
 		}
+		static bool isGivingCheck(const stackType& stack, const movebitsType& moveBits) noexcept;
 	};
 }

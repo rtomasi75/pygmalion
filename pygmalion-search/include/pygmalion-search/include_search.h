@@ -7,7 +7,6 @@ using depthType = typename descriptorSearch::depthType;
 using heuristicsType = typename descriptorSearch::heuristicsType;
 
 constexpr static const size_t countSearchPlies{ descriptorSearch::countSearchPlies };
-constexpr static const bool failSoft{ descriptorSearch::failSoft };
 constexpr static const bool heuristicMoves{ descriptorSearch::heuristicMoves };
 constexpr static const size_t killerMoves{ descriptorSearch::killerMoves };
 constexpr static const bool pruneNullmove{ descriptorSearch::pruneNullmove };

@@ -139,6 +139,8 @@ namespace pygmalion
 		constexpr static inline std::uint8_t flags_exact{ 4 };
 		constexpr static inline std::uint8_t flags_move{ 8 };
 		constexpr static inline std::uint8_t flags_return{ 16 };
+		constexpr static inline std::uint8_t flags_noNMP{ 32 };
+		constexpr static inline std::uint8_t flags_hit{ flags_upper | flags_lower | flags_exact };
 		constexpr static inline size_t countBuckets{ searchTranspositionTableBucketCount };
 	private:
 		size_t m_BitCount;
@@ -342,6 +344,7 @@ namespace pygmalion
 		}
 		constexpr std::uint8_t probe(const stackType& stack, const depthType& depth, scoreType& alpha, scoreType& beta, scoreType& score, movebitsType& move) const noexcept
 		{
+			bool doNMP{ true };
 			m_Probes++;
 			if constexpr (UseDeepHits)
 			{
@@ -374,10 +377,7 @@ namespace pygmalion
 							{
 								if (m_Entry[index].value() >= beta)
 								{
-									if constexpr (failSoft)
-										score = m_Entry[index].value();
-									else
-										score = beta;
+									score = m_Entry[index].value();
 									hitBeta();
 									if (m_Entry[index].flags() & flags_move)
 									{
@@ -408,8 +408,12 @@ namespace pygmalion
 							}
 						}
 					}
+					else
+					{
+						if (m_Entry[index].value() > alpha)
+							doNMP = false;
+					}
 				}
-				return flags_unused;
 			}
 			else
 			{
@@ -427,10 +431,7 @@ namespace pygmalion
 								{
 									if (m_Entry[index].value() >= beta)
 									{
-										if constexpr (failSoft)
-											score = m_Entry[index].value();
-										else
-											score = beta;
+										score = m_Entry[index].value();
 										hitBeta();
 										if (m_Entry[index].flags() & flags_move)
 										{
@@ -461,10 +462,15 @@ namespace pygmalion
 								}
 							}
 						}
+						else
+						{
+							if (m_Entry[index].value() < beta)
+								doNMP = false;
+						}
 					}
 				}
-				return flags_unused;
 			}
+			return doNMP ? flags_unused : flags_noNMP;
 		}
 		constexpr void store(const stackType& stack, const depthType& depth, const scoreType& score, const std::uint8_t flags, const movebitsType& move) noexcept
 		{

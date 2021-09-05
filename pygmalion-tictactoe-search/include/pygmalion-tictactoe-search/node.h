@@ -17,7 +17,11 @@ namespace pygmalion::tictactoe
 		{
 			return 0;
 		}
-		constexpr static bool nullMoveAllowed_Implementation(const stackType& stack) noexcept
+		constexpr bool nullMoveAllowed_Implementation() const noexcept
+		{
+			return false;
+		}
+		constexpr bool pruningAllowed_Implementation() const noexcept
 		{
 			return false;
 		}

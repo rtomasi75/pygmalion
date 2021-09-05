@@ -37,8 +37,6 @@ namespace pygmalion::intrinsics
 				output() << "  AVX" << std::endl;
 			if constexpr (cpu::supports(cpu::AVX2))
 				output() << "  AVX2" << std::endl;
-			if constexpr (cpu::supports(cpu::AVX512))
-				output() << "  AVX512" << std::endl;
 			output() << std::endl;
 			return true;
 		}

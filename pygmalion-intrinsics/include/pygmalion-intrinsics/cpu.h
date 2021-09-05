@@ -15,11 +15,6 @@
 #if (defined(__aarch64__))
 #define PYGMALION_CPU_ARM64
 #endif
-#if defined(__AVX512__)
-#if !defined(PYGMALION_CPU_AVX512)
-#define PYGMALION_CPU_AVX512
-#endif
-#endif
 #if defined(__AVX2__)
 #if !defined(PYGMALION_CPU_AVX2)
 #define PYGMALION_CPU_AVX2
@@ -120,9 +115,32 @@
 #undef PYGMALION_CPU_AVX2
 #endif
 
-#if defined(PYGMALION_CPU_AVX512) 
-#undef PYGMALION_CPU_AVX512
-#endif*/
+*/
+
+#if defined(_MSC_VER)
+#if defined(PYGMALION_CPU_AVX2)&&!defined(PYGMALION_CPU_AVX)
+#define PYGMALION_CPU_AVX
+#endif
+#if defined(PYGMALION_CPU_AVX)&&!defined(PYGMALION_CPU_SSE42)
+#define PYGMALION_CPU_SSE42
+#endif
+#if defined(PYGMALION_CPU_SSE42)&&!defined(PYGMALION_CPU_SSE41)
+#define PYGMALION_CPU_SSE41
+#endif
+#if defined(PYGMALION_CPU_SSE41)&&!defined(PYGMALION_CPU_SSE3)
+#define PYGMALION_CPU_SSE3
+#endif
+#if defined(PYGMALION_CPU_SSE3)&&!defined(PYGMALION_CPU_SSE2)
+#define PYGMALION_CPU_SSE2
+#endif
+#if defined(PYGMALION_CPU_SSE2)&&!defined(PYGMALION_CPU_SSE)
+#define PYGMALION_CPU_SSE
+#endif
+#if defined(PYGMALION_CPU_SSE)&&!defined(PYGMALION_CPU_MMX)
+#define PYGMALION_CPU_MMX
+#endif
+#endif
+
 
 namespace pygmalion
 {
@@ -144,8 +162,7 @@ namespace pygmalion
 			SSSE3 = 0b0000001000000000,
 			MMX = 0b0000010000000000,
 			AVX = 0b0000100000000000,
-			AVX2 = 0b0001000000000000,
-			AVX512 = 0b0010000000000000,
+			AVX2 = 0b0001000000000000
 		};
 		constexpr static flags computeFlags() noexcept
 		{
@@ -189,9 +206,6 @@ namespace pygmalion
 #endif
 #if defined(PYGMALION_CPU_AVX2)
 			f |= flags::AVX2;
-#endif
-#if defined(PYGMALION_CPU_AVX512)
-			f |= flags::AVX512;
 #endif
 			return static_cast<flags>(f);
 		}

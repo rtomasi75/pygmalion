@@ -754,6 +754,67 @@ namespace pygmalion::chess
 		return generatorType::isGeneratedMoveLegal(stack, moveBits);
 	}
 
+	bool generator::isGivingCheck(const stackType& stack, const movebitsType& moveBits) noexcept
+	{
+		const boardType& position{ stack.position() };
+		const playerType movingPlayer{ position.movingPlayer() };
+		const playerType otherPlayer{ movingPlayer.next() };
+		const squareType to{ motorType::move().toSquare(position, moveBits) };
+
+		// We need to know where the enemy king lives
+		const squareType otherking{ stack.kingSquare(otherPlayer) };
+
+		// We need our own occupancy bitboard as it would be after the move...
+		const squaresType ownOccupancy{ position.playerOccupancy(movingPlayer) };
+		const squaresType ownDelta{ motorType::move().ownOccupancyDelta(position, moveBits) };
+		const squaresType occOwn{ ownOccupancy ^ ownDelta };
+
+		// Does he live on a square that is attacked by one of our knights?
+		const squaresType ownKnights{ ((position.pieceOccupancy(knight) & ownOccupancy) ^ ownDelta) & occOwn };
+		const squaresType attackedByOwnKnights{ movegenKnight.attacks(ownKnights,squaresType::all()) };
+		if (attackedByOwnKnights[otherking])
+			return true;
+
+		// Does he live on a square that is attacked by one of our pawns?
+		const squaresType ownPawns{ ((position.pieceOccupancy(pawn) & ownOccupancy) ^ ownDelta) & occOwn };
+		if (movingPlayer == whitePlayer)
+		{
+			const squaresType pawnsTemp{ ownPawns.up() };
+			const squaresType attackedByOwnPawns{ pawnsTemp.right() | pawnsTemp.left() };
+			if (attackedByOwnPawns[otherking])
+				return true;
+		}
+		else
+		{
+			const squaresType pawnsTemp{ ownPawns.down() };
+			const squaresType attackedByOwnPawns{ pawnsTemp.right() | pawnsTemp.left() };
+			if (attackedByOwnPawns[otherking])
+				return true;
+		}
+
+		// We need the total occupancy bitboard as it would be after the move...
+		const squaresType otherOccupancy{ position.playerOccupancy(otherPlayer) };
+		const squaresType otherDelta{ motorType::move().otherOccupancyDelta(position, moveBits) };
+		const squaresType occOther{ otherOccupancy ^ otherDelta };
+		const squaresType occTotal{ occOther | occOwn };
+
+		// Is he attacked horizontally by sliding pieces?
+		const squaresType queens{ (position.pieceOccupancy(queen) & otherOccupancy) ^ ownDelta };
+		const squaresType rooks{ (position.pieceOccupancy(rook) & otherOccupancy) ^ ownDelta };
+		const squaresType ownSlidersHV = occOwn & (rooks | queens);
+		if (movegenSlidersHV.attacks(ownSlidersHV, ~occTotal)[otherking])
+			return true;
+
+		// Is he attacked diagonally by sliding pieces?
+		const squaresType bishops{ (position.pieceOccupancy(bishop) & otherOccupancy) ^ ownDelta };
+		const squaresType ownSlidersDiag = occOwn & (bishops | queens);
+		if (movegenSlidersDiag.attacks(ownSlidersDiag, ~occTotal)[otherking])
+			return true;
+
+		// The move seems not to be giving check
+		return false;
+	}
+
 	bool generator::isMoveTactical_Implementation(const stackType& stack, const movebitsType& moveBits) noexcept
 	{
 		return motorType::move().isCapture(moveBits);
