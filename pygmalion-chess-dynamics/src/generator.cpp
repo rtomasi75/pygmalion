@@ -456,39 +456,44 @@ namespace pygmalion::chess
 		// No. Let's see where our king lives after the move as been made then...
 		const squareType from{ motorType::move().fromSquare(position, moveBits) };
 		const squareType kingsquareOld{ stack.kingSquare(movingPlayer) };
-		const squareType kingsquare{ (from == kingsquareOld) ? to : kingsquareOld };
-
-		// Does he live on a square that is guarded by the other king?
-		const squaresType attackedByOtherKing{ movegenKing.attacks(otherking,squaresType::all()) };
-		if (attackedByOtherKing[kingsquare])
-			return false;
+		const bool isKingMove{ from == kingsquareOld };
+		const squareType kingsquare{ isKingMove ? to : kingsquareOld };
 
 		// We need the enemy occupancy bitboard as it would be after the move...
 		const squaresType otherOccupancy{ position.playerOccupancy(otherPlayer) };
 		const squaresType otherDelta{ motorType::move().otherOccupancyDelta(position, moveBits) };
 		const squaresType occOther{ otherOccupancy ^ otherDelta };
 
-		// Does he live on a square that is guarded by an enemy knight?
-		const squaresType otherKnights{ ((position.pieceOccupancy(knight) & otherOccupancy) ^ otherDelta) & occOther };
-		const squaresType attackedByOtherKnights{ movegenKnight.attacks(otherKnights,squaresType::all()) };
-		if (attackedByOtherKnights[kingsquare])
-			return false;
+		// if we're moving the king, we need to do some extra work
+		if (isKingMove || stack.isCheck())
+		{
+			// Does our king live on a square that is guarded by the other king?
+			const squaresType attackedByOtherKing{ movegenKing.attacks(otherking,squaresType::all()) };
+			if (attackedByOtherKing[kingsquare])
+				return false;
 
-		// Does he live on a square that is guarded by an enemy pawn?
-		const squaresType otherPawns{ ((position.pieceOccupancy(pawn) & otherOccupancy) ^ otherDelta) & occOther };
-		if (otherPlayer == whitePlayer)
-		{
-			const squaresType pawnsTemp{ otherPawns.up() };
-			const squaresType attackedByOtherPawns{ pawnsTemp.right() | pawnsTemp.left() };
-			if (attackedByOtherPawns[kingsquare])
+			// Does he live on a square that is guarded by an enemy knight?
+			const squaresType otherKnights{ ((position.pieceOccupancy(knight) & otherOccupancy) ^ otherDelta) & occOther };
+			const squaresType attackedByOtherKnights{ movegenKnight.attacks(otherKnights,squaresType::all()) };
+			if (attackedByOtherKnights[kingsquare])
 				return false;
-		}
-		else
-		{
-			const squaresType pawnsTemp{ otherPawns.down() };
-			const squaresType attackedByOtherPawns{ pawnsTemp.right() | pawnsTemp.left() };
-			if (attackedByOtherPawns[kingsquare])
-				return false;
+
+			// Does he live on a square that is guarded by an enemy pawn?
+			const squaresType otherPawns{ ((position.pieceOccupancy(pawn) & otherOccupancy) ^ otherDelta) & occOther };
+			if (otherPlayer == whitePlayer)
+			{
+				const squaresType pawnsTemp{ otherPawns.up() };
+				const squaresType attackedByOtherPawns{ pawnsTemp.right() | pawnsTemp.left() };
+				if (attackedByOtherPawns[kingsquare])
+					return false;
+			}
+			else
+			{
+				const squaresType pawnsTemp{ otherPawns.down() };
+				const squaresType attackedByOtherPawns{ pawnsTemp.right() | pawnsTemp.left() };
+				if (attackedByOtherPawns[kingsquare])
+					return false;
+			}
 		}
 
 		// We need the total occupancy bitboard as it would be after the move...
@@ -499,12 +504,14 @@ namespace pygmalion::chess
 
 		// Is he attacked horizontally by sliding pieces?
 		const squaresType queens{ position.pieceOccupancy(queen) };
-		const squaresType otherSlidersHV = occOther & (position.pieceOccupancy(rook) | queens);
+		const squaresType rooks{ position.pieceOccupancy(rook) };
+		const squaresType otherSlidersHV = occOther & (rooks | queens);
 		if (movegenSlidersHV.attacks(otherSlidersHV, ~occTotal)[kingsquare])
 			return false;
 
 		// Is he attacked diagonally by sliding pieces?
-		const squaresType otherSlidersDiag = occOther & (position.pieceOccupancy(bishop) | queens);
+		const squaresType bishops{ position.pieceOccupancy(bishop) };
+		const squaresType otherSlidersDiag = occOther & (bishops | queens);
 		if (movegenSlidersDiag.attacks(otherSlidersDiag, ~occTotal)[kingsquare])
 			return false;
 
