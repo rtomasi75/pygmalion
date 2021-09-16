@@ -25,20 +25,17 @@ namespace pygmalion::chess
 		static scoreType attack(const generatorType::stackType& stack) noexcept;
 		static scoreType mobility(const generatorType::stackType& stack) noexcept;
 		static scoreType control(const generatorType::stackType& stack) noexcept;
+		typedef scoreType EVALUATIONFUNCTION(const generatorType::stackType& stack);
+		constexpr static inline EVALUATIONFUNCTION* m_EvalFunc[]
+		{
+			&attack,
+			&mobility,
+			&control
+		};
 		constexpr static scoreType evaluationFunction(int i, const generatorType::stackType& stack) noexcept
 		{
-			switch (i)
-			{
-			default:
-				assert(0);
-				return scoreType::zero();
-			case 0:
-				return attack(stack);
-			case 1:
-				return mobility(stack);
-			case 2:
-				return control(stack);
-			}
+			assert(i >= 0 && i < CountStages);
+			return (*(m_EvalFunc + i))(stack);
 		}
 	public:
 		constexpr static scoreType aspirationWindowSize_Implementation(const size_t index) noexcept
@@ -222,7 +219,7 @@ namespace pygmalion::chess
 			}
 			return gain[0];
 		}
-	    static scoreType staticTacticalMoveScore_Implementation(const boardType& position, const movebitsType move) noexcept
+		static scoreType staticTacticalMoveScore_Implementation(const boardType& position, const movebitsType move) noexcept
 		{
 			return static_cast<scoreType>(staticExchange(move, position));
 		}
