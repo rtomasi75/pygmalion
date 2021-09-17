@@ -13,6 +13,15 @@ namespace pygmalion::tictactoe
 			pygmalion::node<descriptor_search, node>(parent, moveBits)
 		{
 		}
+		constexpr static bool futilityPruningEnabled_Implementation(const size_t depthRemaining) noexcept
+		{
+			return false;
+		}
+		constexpr static scoreType futilityMargin_Implementation(const size_t depthRemaining, const stackType& stack) noexcept
+		{
+			assert(false);
+			return scoreType::zero();
+		}
 		constexpr static depthType nullMoveReduction_Implementation(const size_t depthRemaining) noexcept
 		{
 			return 0;
@@ -21,7 +30,11 @@ namespace pygmalion::tictactoe
 		{
 			return false;
 		}
-		constexpr bool pruningAllowed_Implementation() const noexcept
+		constexpr bool pruningAllowed_Implementation(const scoreType alpha, const scoreType beta) const noexcept
+		{
+			return false;
+		}
+		constexpr bool canPruneMove_Implementation(const movebitsType& move) const noexcept
 		{
 			return false;
 		}

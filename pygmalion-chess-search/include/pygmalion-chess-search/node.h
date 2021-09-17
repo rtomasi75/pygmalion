@@ -9,6 +9,10 @@ namespace pygmalion::chess
 		{
 
 		}
+		constexpr static bool futilityPruningEnabled_Implementation(const size_t depthRemaining) noexcept
+		{
+			return depthRemaining <= 1;
+		}
 		constexpr node(const node& parent, const movebitsType moveBits) noexcept :
 			pygmalion::node<descriptor_search, node>(parent, moveBits)
 		{
@@ -23,9 +27,18 @@ namespace pygmalion::chess
 			const squaresType playerPieces{ pieces & this->stack().position().playerOccupancy(this->stack().position().movingPlayer()) };
 			return (playerPieces != squaresType::none()) && !this->stack().isCheck();
 		}
-		bool pruningAllowed_Implementation() const noexcept
+		constexpr static scoreType futilityMargin_Implementation(const size_t depthRemaining, const stackType& stack) noexcept
 		{
-			return !this->stack().isCheck();
+			assert(depthRemaining <= 1);
+			return evaluatorType::MaxPositionChange;
+		}
+		bool pruningAllowed_Implementation(const scoreType alpha, const scoreType beta) const noexcept
+		{
+			return alpha.isOpen() && beta.isOpen() && !this->stack().isCheck();
+		}
+		bool canPruneMove_Implementation(const movebitsType& move) const noexcept
+		{
+			return !(generatorType::isMoveTactical(this->stack(), move) || generatorType::isGivingCheck(this->stack(), move));
 		}
 	};
 }

@@ -273,7 +273,7 @@ namespace pygmalion
 		{
 			return m_BitCount;
 		}
-		constexpr transpositiontable(const size_t countBits = 27) noexcept :
+		constexpr transpositiontable(const size_t countBits = 20) noexcept :
 			m_BitCount{ countBits },
 			m_Entry{ (size_t(1) << m_BitCount) * countBuckets },
 			m_Probes{ 0 },

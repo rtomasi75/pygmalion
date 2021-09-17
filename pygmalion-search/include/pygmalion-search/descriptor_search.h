@@ -1,6 +1,6 @@
 namespace pygmalion
 {
-	template<typename EVALUATOR, size_t COUNT_SEARCH_PLIES, bool SEARCH_SCOUT, bool SEARCH_ITERATIVEDEEPENING, size_t COUNT_TT_BUCKETS, bool SEARCH_ASPIRATION, bool HEURISTIC_MOVES, size_t KILLER_MOVES, bool PRUNE_NULLMOVE, typename HEURISTICS>
+	template<typename EVALUATOR, size_t COUNT_SEARCH_PLIES, bool SEARCH_SCOUT, bool SEARCH_ITERATIVEDEEPENING, size_t COUNT_TT_BUCKETS, bool SEARCH_ASPIRATION, bool HEURISTIC_MOVES, size_t KILLER_MOVES, bool PRUNE_NULLMOVE,bool PRUNE_FUTILITY, typename HEURISTICS>
 	class descriptor_search :
 		public EVALUATOR::descriptorEvaluation
 	{
@@ -11,6 +11,7 @@ namespace pygmalion
 		constexpr static const bool heuristicMoves{ HEURISTIC_MOVES };
 		constexpr static const size_t killerMoves{ KILLER_MOVES };
 		constexpr static const bool pruneNullmove{ PRUNE_NULLMOVE && evaluatorType::generatorType::hasNullMove() };
+		constexpr static const bool pruneFutility{ PRUNE_FUTILITY };
 		constexpr static const bool searchScout{ SEARCH_SCOUT };
 		constexpr static const bool searchIterativeDeepening{ SEARCH_ITERATIVEDEEPENING };
 		constexpr static const bool searchTranspositionTable{ COUNT_TT_BUCKETS > 0 };

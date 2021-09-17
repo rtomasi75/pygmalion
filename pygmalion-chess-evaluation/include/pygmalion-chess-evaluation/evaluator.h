@@ -21,7 +21,7 @@ namespace pygmalion::chess
 		constexpr static inline scoreType DeltaAttack{ static_cast<scoreType>(Attack) };
 		constexpr static inline scoreType DeltaControl{ static_cast<scoreType>(Control) };
 		constexpr static inline size_t CountStages{ 3 };
-		static inline scoreType Delta[]{ DeltaMobility + DeltaAttack + DeltaControl,DeltaAttack + DeltaControl,DeltaControl };
+		constexpr static inline scoreType Delta[]{ static_cast<scoreType>(Mobility + Attack + Control),static_cast<scoreType>(Attack + Control),static_cast<scoreType>(Control) };
 		static scoreType attack(const generatorType::stackType& stack) noexcept;
 		static scoreType mobility(const generatorType::stackType& stack) noexcept;
 		static scoreType control(const generatorType::stackType& stack) noexcept;
@@ -38,6 +38,7 @@ namespace pygmalion::chess
 			return (*(m_EvalFunc + i))(stack);
 		}
 	public:
+		constexpr static inline scoreType MaxPositionChange{ static_cast<scoreType>(Mobility) };
 		constexpr static scoreType aspirationWindowSize_Implementation(const size_t index) noexcept
 		{
 			constexpr const scoreType windows[]

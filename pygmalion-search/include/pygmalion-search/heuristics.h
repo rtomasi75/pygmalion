@@ -205,6 +205,9 @@ namespace pygmalion
 		void onEndMoveSilent(const stackType& stack, const movebitsType& moveBits, const bool isTactical, const size_t depth) noexcept
 		{
 		}
+		void onEndMoveFutile(const stackType& stack, const movebitsType& moveBits, const bool isTactical, const size_t depth) noexcept
+		{
+		}
 		void onEndMoveAccepted(const stackType& stack, const movebitsType& moveBits, const bool isTactical, const size_t depth, const scoreType& score) noexcept
 		{
 		}
@@ -435,6 +438,14 @@ namespace pygmalion
 #endif
 			static_cast<instanceType*>(this)->onEndMoveSilent(stack, moveBits, isTactical, depth);
 		}
+		void endMoveFutile(const stackType& stack, const movebitsType& moveBits, const bool isTactical, const size_t depth) noexcept
+		{
+#if !defined(NDEBUG)
+			assert(m_IsSearching);
+			m_MoveDepth--;
+#endif
+			static_cast<instanceType*>(this)->onEndMoveFutile(stack, moveBits, isTactical, depth);
+		}
 		void endNodeCut(const stackType& stack) noexcept
 		{
 #if !defined(NDEBUG)
@@ -494,6 +505,8 @@ namespace pygmalion
 			m_CutNodes = 0;
 			m_LeafNodes = 0;
 			m_TTNodes = 0;
+			m_NullNodes = 0;
+			m_FutileNodes = 0;
 		}
 		void onEndNodeEarly(const stackType& stack) noexcept
 		{
@@ -553,11 +566,12 @@ namespace pygmalion
 		std::string toString() const noexcept
 		{
 			std::stringstream sstr;
-			sstr << "early: " << std::setw(9) << parser::nodesCountToString(earlyNodeCount()) << std::endl;
-			sstr << "cut:   " << std::setw(9) << parser::nodesCountToString(cutNodeCount()) << std::endl;
-			sstr << "late:  " << std::setw(9) << parser::nodesCountToString(lateNodeCount()) << std::endl;
-			sstr << "leaf:  " << std::setw(9) << parser::nodesCountToString(leafNodeCount()) << std::endl;
-			sstr << "TT:    " << std::setw(9) << parser::nodesCountToString(TTNodeCount()) << std::endl;
+			sstr << "early:  " << std::setw(9) << parser::nodesCountToString(earlyNodeCount()) << std::endl;
+			sstr << "cut:    " << std::setw(9) << parser::nodesCountToString(cutNodeCount()) << std::endl;
+			sstr << "late:   " << std::setw(9) << parser::nodesCountToString(lateNodeCount()) << std::endl;
+			sstr << "leaf:   " << std::setw(9) << parser::nodesCountToString(leafNodeCount()) << std::endl;
+			sstr << "TT:     " << std::setw(9) << parser::nodesCountToString(TTNodeCount()) << std::endl;
+			sstr << "null:   " << std::setw(9) << parser::nodesCountToString(NullNodeCount()) << std::endl;
 			return sstr.str();
 		}
 		heuristics(movegenFeedback& feedback) noexcept :

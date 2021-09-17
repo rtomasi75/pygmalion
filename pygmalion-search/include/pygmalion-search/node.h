@@ -23,6 +23,7 @@ namespace pygmalion
 		int m_TacticalMoveGeneratorStage;
 		bool m_NeedsSorting;
 		bool m_NeedsTacticalSorting;
+		bool m_FutilityPruningAllowed;
 		std::atomic_bool& m_IsRunning;
 		indexType m_MoveTT;
 		indexType m_MoveKiller;
@@ -459,6 +460,15 @@ namespace pygmalion
 			m_Heuristics.beginMove(m_Stack, move, false, depth);
 			if constexpr (SCOUT)
 			{
+				if constexpr (pruneFutility)
+				{
+					if (m_FutilityPruningAllowed && this->canPruneMove(move))
+					{
+						m_Heuristics.endMoveFutile(m_Stack, move, false, depth);
+						return false;
+					}
+				}
+
 				scoreType sc{ scoreType::zero() };
 				bool allowStoreTTsubnode{ true };
 				sc = this->zwsearchMove<VERBOSE>(move, alpha, depthRemaining, depth, nullMoveHistory, str, allowStoreTTsubnode);
@@ -609,9 +619,21 @@ namespace pygmalion
 				str << "    ";
 		}
 	public:
-		constexpr bool pruningAllowed() const noexcept
+		constexpr bool canPruneMove(const movebitsType& move) const noexcept
 		{
-			return static_cast<const nodeType*>(this)->pruningAllowed_Implementation();
+			return static_cast<const nodeType*>(this)->canPruneMove_Implementation(move);
+		}
+		constexpr static bool futilityPruningEnabled(const size_t depthRemaining) noexcept
+		{
+			return nodeType::futilityPruningEnabled_Implementation(depthRemaining);
+		}
+		constexpr static scoreType futilityMargin(const size_t depthRemaining, const stackType& stack) noexcept
+		{
+			return nodeType::futilityMargin_Implementation(depthRemaining, stack);
+		}
+		constexpr bool pruningAllowed(const scoreType alpha, const scoreType beta) const noexcept
+		{
+			return static_cast<const nodeType*>(this)->pruningAllowed_Implementation(alpha, beta);
 		}
 		constexpr static depthType nullMoveReduction(const size_t depthRemaining) noexcept
 		{
@@ -876,6 +898,18 @@ namespace pygmalion
 						}
 					}
 				}
+				if constexpr (pruneFutility)
+				{
+					if (nodeType::futilityPruningEnabled(depthRemaining))
+					{
+						const scoreType futileScore{ alpha - nodeType::futilityMargin(depthRemaining, m_Stack) };
+						const scoreType eval{ evaluatorType::evaluate(futileScore, scoreType::maximum(), m_Stack) };
+						if (eval <= futileScore)
+						{
+							m_FutilityPruningAllowed = this->pruningAllowed(alpha, beta);
+						}
+					}
+				}
 				bool fromStack;
 				const playerType movingPlayer{ m_Stack.movingPlayer() };
 				if ((!hasLegalMove) && nextMove(depthRemaining, depth, move, fromStack))
@@ -993,6 +1027,7 @@ namespace pygmalion
 			m_TacticalMove{ 0 },
 			m_NeedsSorting{ false },
 			m_NeedsTacticalSorting{ false },
+			m_FutilityPruningAllowed{ false },
 			m_DistanceFromRoot{ 0 }
 		{
 			if constexpr (searchTranspositionTable)
@@ -1012,6 +1047,7 @@ namespace pygmalion
 			m_TacticalMove{ 0 },
 			m_NeedsSorting{ false },
 			m_NeedsTacticalSorting{ false },
+			m_FutilityPruningAllowed{ false },
 			m_DistanceFromRoot{ parent.m_DistanceFromRoot + 1 }
 		{
 			if constexpr (searchTranspositionTable)
