@@ -25,6 +25,10 @@ namespace pygmalion
 		bool m_NeedsTacticalSorting;
 		bool m_FutilityPruningAllowed;
 		std::atomic_bool& m_IsRunning;
+		scoreType m_EvalAlpha;
+		scoreType m_EvalBeta;
+		scoreType m_Eval;
+		scoreType m_FutileGap;
 		indexType m_MoveTT;
 		indexType m_MoveKiller;
 		indexType m_TacticalMoveTT;
@@ -468,7 +472,6 @@ namespace pygmalion
 						return false;
 					}
 				}
-
 				scoreType sc{ scoreType::zero() };
 				bool allowStoreTTsubnode{ true };
 				sc = this->zwsearchMove<VERBOSE>(move, alpha, depthRemaining, depth, nullMoveHistory, str, allowStoreTTsubnode);
@@ -618,7 +621,21 @@ namespace pygmalion
 			for (int i = 0; i < m_DistanceFromRoot; i++)
 				str << "    ";
 		}
+		constexpr scoreType evaluate(const scoreType alpha, const scoreType beta) noexcept
+		{
+			if ((alpha < m_EvalAlpha) || (beta > m_EvalBeta))
+			{
+				m_Eval = evaluatorType::evaluate(alpha, beta, m_Stack);
+				m_EvalAlpha = alpha;
+				m_EvalBeta = beta;
+			}
+			return m_Eval;
+		}
 	public:
+		constexpr scoreType futileGap() const noexcept
+		{
+			return m_FutileGap;
+		}
 		constexpr bool canPruneMove(const movebitsType& move) const noexcept
 		{
 			return static_cast<const nodeType*>(this)->canPruneMove_Implementation(move);
@@ -630,6 +647,10 @@ namespace pygmalion
 		constexpr static scoreType futilityMargin(const size_t depthRemaining, const stackType& stack) noexcept
 		{
 			return nodeType::futilityMargin_Implementation(depthRemaining, stack);
+		}
+		constexpr static scoreType futilityGlobalMargin(const size_t depthRemaining, const stackType& stack) noexcept
+		{
+			return nodeType::futilityGlobalMargin_Implementation(depthRemaining, stack);
 		}
 		constexpr bool pruningAllowed(const scoreType alpha, const scoreType beta) const noexcept
 		{
@@ -666,7 +687,7 @@ namespace pygmalion
 			bool hasLegalMove{ false };
 			movebitsType move;
 			const playerType movingPlayer{ m_Stack.movingPlayer() };
-			const scoreType stand_pat{ evaluatorType::evaluate(alpha, beta, m_Stack) };
+			const scoreType stand_pat{ evaluate(alpha, beta) };
 			scoreType best{ stand_pat };
 			if (best > alpha)
 			{
@@ -766,7 +787,7 @@ namespace pygmalion
 				}
 			}
 			const playerType movingPlayer{ m_Stack.movingPlayer() };
-			const scoreType stand_pat{ evaluatorType::evaluate(alpha, beta, m_Stack) };
+			const scoreType stand_pat{ evaluate(alpha, beta) };
 			best = scoreType::max(stand_pat, best);
 			if (best > alpha)
 			{
@@ -902,11 +923,12 @@ namespace pygmalion
 				{
 					if (nodeType::futilityPruningEnabled(depthRemaining))
 					{
-						const scoreType futileScore{ alpha - nodeType::futilityMargin(depthRemaining, m_Stack) };
-						const scoreType eval{ evaluatorType::evaluate(futileScore, scoreType::maximum(), m_Stack) };
-						if (eval <= futileScore)
+						if (this->pruningAllowed(alpha, beta))
 						{
-							m_FutilityPruningAllowed = this->pruningAllowed(alpha, beta);
+							const scoreType futileGlobalScore{ alpha - nodeType::futilityGlobalMargin(depthRemaining, m_Stack) };
+							const scoreType eval{ evaluate(futileGlobalScore, scoreType::maximum()) };
+							m_FutileGap = alpha - eval - nodeType::futilityMargin(depthRemaining, m_Stack);
+							m_FutilityPruningAllowed = m_FutileGap >= scoreType::zero();
 						}
 					}
 				}
@@ -1028,7 +1050,11 @@ namespace pygmalion
 			m_NeedsSorting{ false },
 			m_NeedsTacticalSorting{ false },
 			m_FutilityPruningAllowed{ false },
-			m_DistanceFromRoot{ 0 }
+			m_DistanceFromRoot{ 0 },
+			m_EvalAlpha{ scoreType::maximum() },
+			m_EvalBeta{ scoreType::minimum() },
+			m_Eval{ scoreType::zero() },
+			m_FutileGap{ scoreType::zero() }
 		{
 			if constexpr (searchTranspositionTable)
 				m_Heuristics.transpositionTable().prefetch(m_Stack);
@@ -1048,7 +1074,11 @@ namespace pygmalion
 			m_NeedsSorting{ false },
 			m_NeedsTacticalSorting{ false },
 			m_FutilityPruningAllowed{ false },
-			m_DistanceFromRoot{ parent.m_DistanceFromRoot + 1 }
+			m_DistanceFromRoot{ parent.m_DistanceFromRoot + 1 },
+			m_EvalAlpha{ scoreType::maximum() },
+			m_EvalBeta{ scoreType::minimum() },
+			m_Eval{ scoreType::zero() },
+			m_FutileGap{ scoreType::zero() }
 		{
 			if constexpr (searchTranspositionTable)
 				m_Heuristics.transpositionTable().prefetch(m_Stack);

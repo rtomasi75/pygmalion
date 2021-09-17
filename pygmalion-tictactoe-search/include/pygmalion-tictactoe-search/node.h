@@ -22,6 +22,11 @@ namespace pygmalion::tictactoe
 			assert(false);
 			return scoreType::zero();
 		}
+		constexpr static scoreType futilityGlobalMargin_Implementation(const size_t depthRemaining, const stackType& stack) noexcept
+		{
+			assert(false);
+			return scoreType::zero();
+		}
 		constexpr static depthType nullMoveReduction_Implementation(const size_t depthRemaining) noexcept
 		{
 			return 0;
