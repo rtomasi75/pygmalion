@@ -21,8 +21,10 @@ namespace pygmalion::chess
 		{
 			return depthType(2) + depthRemaining / depthType(4);
 		}
-		bool nullMoveAllowed_Implementation() const noexcept
+		bool nullMoveAllowed_Implementation(const scoreType alpha, const scoreType beta) const noexcept
 		{
+			if (!(alpha.isOpen() && beta.isOpen()))
+				return false;
 			const squaresType pieces{ this->stack().position().pieceOccupancy(knight) | this->stack().position().pieceOccupancy(bishop) | this->stack().position().pieceOccupancy(rook) | this->stack().position().pieceOccupancy(queen) };
 			const squaresType playerPieces{ pieces & this->stack().position().playerOccupancy(this->stack().position().movingPlayer()) };
 			return (playerPieces != squaresType::none()) && !this->stack().isCheck();

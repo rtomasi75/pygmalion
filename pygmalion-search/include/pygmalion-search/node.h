@@ -639,9 +639,9 @@ namespace pygmalion
 		{
 			return nodeType::nullMoveReduction_Implementation(depthRemaining);
 		}
-		constexpr bool nullMoveAllowed() const noexcept
+		constexpr bool nullMoveAllowed(const scoreType alpha, const scoreType beta) const noexcept
 		{
-			return static_cast<const nodeType*>(this)->nullMoveAllowed_Implementation();
+			return static_cast<const nodeType*>(this)->nullMoveAllowed_Implementation(alpha, beta);
 		}
 		constexpr const stackType& stack() const noexcept
 		{
@@ -878,7 +878,7 @@ namespace pygmalion
 				allowStoreTT = true;
 				if constexpr (pruneNullmove)
 				{
-					if (allowNMP && checkNullMove(nullMoveHistory) && this->nullMoveAllowed())
+					if (allowNMP && checkNullMove(nullMoveHistory) && this->nullMoveAllowed(alpha, beta))
 					{
 						bool allowStoreTTsubnode;
 						scoreType nmsc{ scoreType::zero() };

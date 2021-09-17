@@ -26,7 +26,7 @@ namespace pygmalion::tictactoe
 		{
 			return 0;
 		}
-		constexpr bool nullMoveAllowed_Implementation() const noexcept
+		constexpr bool nullMoveAllowed_Implementation(const scoreType alpha, const scoreType beta) const noexcept
 		{
 			return false;
 		}
