@@ -345,23 +345,20 @@ namespace pygmalion::chess
 	{
 		const squaresType forbidden{ stack.squaresAttackedByPlayer(stack.nextPlayer()) };
 		const squaresType allowed{ ~forbidden };
-		for (const squareType from : stack.position().pieceOccupancy(king)& stack.position().playerOccupancy(stack.position().movingPlayer()))
-		{
-			const squaresType destinations{ allowed & kingTargets(from, ~stack.position().totalOccupancy()) };
-			for (const squareType to : destinations)
-				moves.add(motorType::move().createQuiet(from, to));
-		}
+		const squareType from{ stack.kingSquare(stack.movingPlayer()) };
+		const squaresType destinations{ allowed & kingTargets(from, ~stack.position().totalOccupancy()) };
+		for (const squareType to : destinations)
+			moves.add(motorType::move().createQuiet(from, to));
 	}
 
 	void generator::generateKingCaptures(const stackType& stack, movelistType& moves) noexcept
 	{
 		const squaresType forbidden{ stack.squaresAttackedByPlayer(stack.nextPlayer()) };
 		const squaresType allowed{ ~forbidden };
-		for (const squareType from : stack.position().pieceOccupancy(king)& stack.position().playerOccupancy(stack.position().movingPlayer()))
-		{
-			for (const squareType to : allowed & kingAttacks(from, ~stack.position().totalOccupancy())& stack.position().playerOccupancy(stack.nextPlayer()))
-				moves.add(motorType::move().createCapture(from, to));
-		}
+		const squareType from{ stack.kingSquare(stack.movingPlayer()) };
+		const squaresType destinations{ allowed & kingAttacks(from, ~stack.position().totalOccupancy()) & stack.position().playerOccupancy(stack.nextPlayer()) };
+		for (const squareType to : destinations)
+			moves.add(motorType::move().createCapture(from, to));
 	}
 
 	void generator::generateCastles(const stackType& stack, movelistType& moves) noexcept
