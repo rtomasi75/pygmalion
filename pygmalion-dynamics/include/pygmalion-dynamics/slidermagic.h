@@ -206,28 +206,41 @@ namespace pygmalion::dynamics
 			return static_cast<bitsType>(propagatorType::relevant(info.square()));
 		}
 		slidermagic(const slidermagicinfo<descriptorDynamics>& info) noexcept :
-			parentType(info),
-			m_Table{ nullptr }
+			parentType(info)
 		{
 #if defined(PYGMALION_SLIDERMAGIC_COMPACT)&&defined(PYGMALION_CPU_BMI2)
 			m_Mask = static_cast<bitsType>(propagatorType::attacks(squaresType(info.square()), squaresType::all()));
 #endif
 		}
 		slidermagic(const slidermagicinfo<descriptorDynamics>& info, const bitsType& factor, const size_t shift) noexcept :
-			parentType(info, factor, shift),
-			m_Table{ nullptr }
+			parentType(info, factor, shift)
 		{
 #if defined(PYGMALION_SLIDERMAGIC_COMPACT)&&defined(PYGMALION_CPU_BMI2)
 			m_Mask = static_cast<bitsType>(propagatorType::attacks(squaresType(info.square()), squaresType::all()));
 #endif
 		}
 		slidermagic() noexcept = default;
-		slidermagic(const slidermagic&) noexcept = default;
-		constexpr slidermagic(slidermagic&&) noexcept = default;
+		slidermagic(const slidermagic& other) noexcept
+		{
+#if defined(PYGMALION_SLIDERMAGIC_INDIRECT)
+			const size_t count{ propagatorType::possibilities(sq) };
+			m_Table = new valueType[count];
+			for (size_t i = 0; i < count; i++)
+				m_Table[i] = other.m_Table[i];
+#endif
+		}
+		constexpr slidermagic(slidermagic&& other) noexcept
+		{
+#if defined(PYGMALION_SLIDERMAGIC_INDIRECT)
+			m_Table = other.m_Table;
+			other.m_Table = nullptr;
+#endif
+		}
 		~slidermagic() noexcept
 		{
 #if defined(PYGMALION_SLIDERMAGIC_INDIRECT)
-			delete[] m_Table;
+			if (m_Table != nullptr)
+				delete[] m_Table;
 #endif
 		}
 		const squaresType operator[](const squaresType& blockers) const
@@ -239,8 +252,24 @@ namespace pygmalion::dynamics
 			return slidermagic::decodeSquares(slidermagic::value(static_cast<bitsType>(blockers)));
 #endif
 		}
-		slidermagic& operator=(const slidermagic&) noexcept = default;
-		slidermagic& operator=(slidermagic&&) noexcept = default;
+		slidermagic& operator=(const slidermagic&) noexcept
+		{
+#if defined(PYGMALION_SLIDERMAGIC_INDIRECT)
+			const size_t count{ propagatorType::possibilities(sq) };
+			m_Table = new valueType[count];
+			for (size_t i = 0; i < count; i++)
+				m_Table[i] = other.m_Table[i];
+#endif
+			return *this;
+		}
+		slidermagic& operator=(slidermagic&&) noexcept
+		{
+#if defined(PYGMALION_SLIDERMAGIC_INDIRECT)
+			m_Table = other.m_Table;
+			other.m_Table = nullptr;
+#endif
+			return *this;
+		}
 	};
 
 }

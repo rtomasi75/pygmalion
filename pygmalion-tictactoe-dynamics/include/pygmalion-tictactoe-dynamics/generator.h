@@ -106,5 +106,9 @@ namespace pygmalion::tictactoe
 		{
 			return movebitsType(0);
 		}
+		constexpr static bool isMoveCritical_Implementation(const stackType& stack, const movebitsType& moveBits) noexcept
+		{
+			return false;
+		}
 	};
 }

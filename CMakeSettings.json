@@ -15,6 +15,16 @@
           "name": "OPTIMIZE_FOR_BMI2",
           "value": "True",
           "type": "BOOL"
+        },
+        {
+          "name": "USE_INDIRECT_SLIDERS",
+          "value": "True",
+          "type": "BOOL"
+        },
+        {
+          "name": "USE_COMPACT_SLIDERS",
+          "value": "True",
+          "type": "BOOL"
         }
       ]
     },

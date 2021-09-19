@@ -636,9 +636,18 @@ namespace pygmalion
 		{
 			return m_FutileGap;
 		}
+		constexpr scoreType tacticalMoveValue(const movebitsType& move) const noexcept
+		{
+			return static_cast<const nodeType*>(this)->tacticalMoveValue_Implementation(move);
+		}
 		constexpr bool canPruneMove(const movebitsType& move) const noexcept
 		{
-			return static_cast<const nodeType*>(this)->canPruneMove_Implementation(move);
+			if (generatorType::isMoveCritical(this->stack(), move))
+				return false;
+			if (generatorType::isMoveTactical(this->stack(), move))
+				return tacticalMoveValue(move) < this->futileGap();
+			else
+				return true;
 		}
 		constexpr static bool futilityPruningEnabled(const size_t depthRemaining) noexcept
 		{

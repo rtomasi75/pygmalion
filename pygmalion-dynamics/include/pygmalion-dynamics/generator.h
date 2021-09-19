@@ -701,5 +701,10 @@ namespace pygmalion
 		{
 			return generatorType::nullMove_Implementation();
 		}
+		template<typename stackType>
+		constexpr static bool isMoveCritical(const stackType& stack, const movebitsType& moveBits) noexcept
+		{
+			return generatorType::isMoveCritical_Implementation(stack, moveBits);
+		}
 	};
 }

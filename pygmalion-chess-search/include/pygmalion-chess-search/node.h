@@ -53,20 +53,13 @@ namespace pygmalion::chess
 		{
 			return alpha.isOpen() && beta.isOpen() && !this->stack().isCheck();
 		}
-		bool canPruneMove_Implementation(const movebitsType& move) const noexcept
+		scoreType tacticalMoveValue_Implementation(const movebitsType& move) const noexcept
 		{
-			if (generatorType::isGivingCheck(this->stack(), move))
-				return false;
-			if (motorType::move().isCapture(move))
-			{
-				const squareType captureSquare{ motorType::move().captureSquare(this->stack().position(),move) };
-				const pieceType capturedPiece{ this->stack().position().getPiece(captureSquare) };
-				const scoreType victimValue{ static_cast<scoreType>(boardType::materialValue(capturedPiece, whitePlayer)) };
-				return victimValue < this->futileGap();
-			}
-			else
-				return true;
-			return !(generatorType::isMoveTactical(this->stack(), move) || generatorType::isGivingCheck(this->stack(), move));
+			assert(motorType::move().isCapture(move));
+			const squareType captureSquare{ motorType::move().captureSquare(this->stack().position(),move) };
+			const pieceType capturedPiece{ this->stack().position().getPiece(captureSquare) };
+			const scoreType victimValue{ static_cast<scoreType>(boardType::materialValue(capturedPiece, whitePlayer)) };
+			return victimValue;
 		}
 	};
 }

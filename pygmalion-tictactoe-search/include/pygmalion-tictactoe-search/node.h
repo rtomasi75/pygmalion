@@ -39,9 +39,10 @@ namespace pygmalion::tictactoe
 		{
 			return false;
 		}
-		constexpr bool canPruneMove_Implementation(const movebitsType& move) const noexcept
+		constexpr scoreType tacticalMoveValue_Implementation(const movebitsType& move) const noexcept
 		{
-			return false;
+			assert(false);
+			return scoreType::zero();
 		}
 	};
 }

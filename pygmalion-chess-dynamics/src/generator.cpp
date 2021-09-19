@@ -761,7 +761,7 @@ namespace pygmalion::chess
 		return generatorType::isGeneratedMoveLegal(stack, moveBits);
 	}
 
-	bool generator::isGivingCheck(const stackType& stack, const movebitsType& moveBits) noexcept
+	bool generator::isMoveCritical_Implementation(const stackType& stack, const movebitsType& moveBits) noexcept
 	{
 		const boardType& position{ stack.position() };
 		const playerType movingPlayer{ position.movingPlayer() };

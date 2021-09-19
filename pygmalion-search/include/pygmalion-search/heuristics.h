@@ -223,6 +223,9 @@ namespace pygmalion
 		void onEndNodeNull(const stackType& stack) noexcept
 		{
 		}
+		void onEndNodeFutile(const stackType& stack) noexcept
+		{
+		}
 		void sortMoves(movelistType& moves, list<scoreType, countMaxGeneratedMoves>& scores, const indexType& fromMoveIndex, const indexType& fromScoreIndex) noexcept
 		{
 			const indexType length{ static_cast<indexType>(moves.length() - fromMoveIndex) };
@@ -376,6 +379,14 @@ namespace pygmalion
 #endif
 			static_cast<instanceType*>(this)->onEndNodeNull(stack);
 		}
+		void endNodeFutile(const stackType& stack) noexcept
+		{
+#if !defined(NDEBUG)
+			assert(m_IsSearching);
+			m_NodeDepth--;
+#endif
+			static_cast<instanceType*>(this)->onEndNodeFutile(stack);
+		}
 		void beginMove(const stackType& stack, const movebitsType& moveBits, const bool isTactical, const size_t depth) noexcept
 		{
 #if !defined(NDEBUG)
@@ -496,6 +507,7 @@ namespace pygmalion
 		std::uint64_t m_LeafNodes;
 		std::uint64_t m_TTNodes;
 		std::uint64_t m_NullNodes;
+		std::uint64_t m_FutileNodes;
 	protected:
 		void onBeginSearch() noexcept
 		{
@@ -538,6 +550,11 @@ namespace pygmalion
 			baseclassType::onEndNodeNull(stack);
 			m_NullNodes++;
 		}
+		void onEndNodeFutile(const stackType& stack) noexcept
+		{
+			baseclassType::onEndNodeFutile(stack);
+			m_FutileNodes++;
+		}
 	public:
 		constexpr std::uint64_t earlyNodeCount() const noexcept
 		{
@@ -563,6 +580,10 @@ namespace pygmalion
 		{
 			return m_NullNodes;
 		}
+		constexpr std::uint64_t futileNodeCount() const noexcept
+		{
+			return m_FutileNodes;
+		}
 		std::string toString() const noexcept
 		{
 			std::stringstream sstr;
@@ -572,6 +593,7 @@ namespace pygmalion
 			sstr << "leaf:   " << std::setw(9) << parser::nodesCountToString(leafNodeCount()) << std::endl;
 			sstr << "TT:     " << std::setw(9) << parser::nodesCountToString(TTNodeCount()) << std::endl;
 			sstr << "null:   " << std::setw(9) << parser::nodesCountToString(NullNodeCount()) << std::endl;
+			sstr << "futile: " << std::setw(9) << parser::nodesCountToString(futileNodeCount()) << std::endl;
 			return sstr.str();
 		}
 		heuristics(movegenFeedback& feedback) noexcept :
@@ -581,6 +603,7 @@ namespace pygmalion
 			m_CutNodes{ 0 },
 			m_TTNodes{ 0 },
 			m_NullNodes{ 0 },
+			m_FutileNodes{ 0 },
 			m_LeafNodes{ 0 }
 		{
 
