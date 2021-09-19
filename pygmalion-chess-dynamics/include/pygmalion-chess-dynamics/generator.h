@@ -1,6 +1,6 @@
 namespace pygmalion::chess
 {
-#define FASTPAWNS
+	//#define FASTPAWNS
 
 	class generator :
 		public pygmalion::generator<descriptor_dynamics, generator>
@@ -187,6 +187,7 @@ namespace pygmalion::chess
 		static void generateKingCaptures(const stackType& stack, movelistType& moves) noexcept;
 		static void generateCastles(const stackType& stack, movelistType& moves) noexcept;
 		static void generatePawnEnPassant(const stackType& stack, movelistType& moves) noexcept;
+		typedef void moveGenFunction(const stackType& stack, movelistType& moves);
 		constexpr static void generateKnightMoves(const stackType& stack, movelistType& moves) noexcept
 		{
 			for (const squareType from : stack.position().pieceOccupancy(knight)& stack.position().playerOccupancy(stack.position().movingPlayer()))
@@ -235,332 +236,174 @@ namespace pygmalion::chess
 					moves.add(motorType::move().createCapture(from, to));
 			}
 		}
+		constexpr static void generatePawnPushesWhite(const stackType& stack, movelistType& moves) noexcept
+		{
+			const squaresType whitePawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(whitePlayer) };
+			for (const squareType to : movegenPawnPushWhite.targets(whitePawns, ~stack.position().totalOccupancy()))
+				moves.add(motorType::move().createQuiet(to.down(), to));
+		}
+		constexpr static void generatePawnPushesBlack(const stackType& stack, movelistType& moves) noexcept
+		{
+			const squaresType blackPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(blackPlayer) };
+			for (const squareType to : movegenPawnPushBlack.targets(blackPawns, ~stack.position().totalOccupancy()))
+				moves.add(motorType::move().createQuiet(to.up(), to));
+		}
+		constexpr static inline moveGenFunction* m_PawnPushes[]{ &generatePawnPushesWhite, &generatePawnPushesBlack };
 		constexpr static void generatePawnPushes(const stackType& stack, movelistType& moves) noexcept
 		{
-#if defined(FASTPAWNS)
-			const squaresType allowed{ ~stack.position().totalOccupancy() };
-			if (stack.position().movingPlayer() == whitePlayer)
-			{
-				constexpr const squaresType fromSquares{ pawnFromSquaresWhite() };
-				const squaresType pawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(whitePlayer) };
-				const squaresType allowedPawns{ pawns & fromSquares };
-				if (allowedPawns)
-				{
-					const squaresType pushedPawns{ allowedPawns.up() };
-					const squaresType allowedPushes{ pushedPawns & allowed };
-					for (const auto sq : allowedPushes)
-						moves.add(motorType::move().createQuiet(sq.down(), sq));
-				}
-			}
-			else
-			{
-				constexpr const squaresType fromSquares{ pawnFromSquaresBlack() };
-				const squaresType pawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(blackPlayer) };
-				const squaresType allowedPawns{ pawns & fromSquares };
-				if (allowedPawns)
-				{
-					const squaresType pushedPawns{ allowedPawns.down() };
-					const squaresType allowedPushes{ pushedPawns & allowed };
-					for (const auto sq : allowedPushes)
-						moves.add(motorType::move().createQuiet(sq.up(), sq));
-				}
-			}
-#else
-			if (stack.position().movingPlayer() == whitePlayer)
-			{
-				for (const squareType from : stack.position().pieceOccupancy(pawn)& stack.position().playerOccupancy(whitePlayer))
-				{
-					for (const squareType to : movegenPawnPushWhite.targets(from, ~stack.position().totalOccupancy()))
-						moves.add(motorType::move().createQuiet(from, to));
-				}
-			}
-			else
-			{
-				for (const squareType from : stack.position().pieceOccupancy(pawn)& stack.position().playerOccupancy(blackPlayer))
-				{
-					for (const squareType to : movegenPawnPushBlack.targets(from, ~stack.position().totalOccupancy()))
-						moves.add(motorType::move().createQuiet(from, to));
-				}
-			}
-#endif
+			(*(m_PawnPushes[stack.position().movingPlayer()]))(stack, moves);
 		}
+		constexpr static void generatePawnPromotionsWhite(const stackType& stack, movelistType& moves) noexcept
+		{
+			const squaresType whitePawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(whitePlayer) };
+			for (const squareType to : movegenPawnPromotionWhite.targets(whitePawns, ~stack.position().totalOccupancy()))
+			{
+				const squareType from{ to.down() };
+				moves.add(motorType::move().createPromotionQueen(from, to));
+				moves.add(motorType::move().createPromotionKnight(from, to));
+				moves.add(motorType::move().createPromotionRook(from, to));
+				moves.add(motorType::move().createPromotionBishop(from, to));
+			}
+		}
+		constexpr static void generatePawnPromotionsBlack(const stackType& stack, movelistType& moves) noexcept
+		{
+			const squaresType blackPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(blackPlayer) };
+			for (const squareType to : movegenPawnPromotionBlack.targets(blackPawns, ~stack.position().totalOccupancy()))
+			{
+				const squareType from{ to.up() };
+				moves.add(motorType::move().createPromotionQueen(from, to));
+				moves.add(motorType::move().createPromotionKnight(from, to));
+				moves.add(motorType::move().createPromotionRook(from, to));
+				moves.add(motorType::move().createPromotionBishop(from, to));
+			}
+		}
+		constexpr static inline moveGenFunction* m_PawnPromotions[]{ &generatePawnPromotionsWhite, &generatePawnPromotionsBlack };
 		constexpr static void generatePawnPromotions(const stackType& stack, movelistType& moves) noexcept
 		{
-#if defined(FASTPAWNS)
-			const squaresType allowed{ ~stack.position().totalOccupancy() };
-			if (stack.position().movingPlayer() == whitePlayer)
-			{
-				constexpr const squaresType fromSquares{ pawnPromotionFromSquaresWhite() };
-				const squaresType pawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(whitePlayer) };
-				const squaresType allowedPawns{ pawns & fromSquares };
-				if (allowedPawns)
-				{
-					const squaresType pushedPawns{ allowedPawns.up() };
-					const squaresType allowedPushes{ pushedPawns & allowed };
-					for (const auto sq : allowedPushes)
-					{
-						const squareType sq1{ sq.down() };
-						moves.add(motorType::move().createPromotionQueen(sq1, sq));
-						moves.add(motorType::move().createPromotionKnight(sq1, sq));
-						moves.add(motorType::move().createPromotionRook(sq1, sq));
-						moves.add(motorType::move().createPromotionBishop(sq1, sq));
-					}
-				}
-			}
-			else
-			{
-				constexpr const squaresType fromSquares{ pawnPromotionFromSquaresBlack() };
-				const squaresType pawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(blackPlayer) };
-				const squaresType allowedPawns{ pawns & fromSquares };
-				if (allowedPawns)
-				{
-					const squaresType pushedPawns{ allowedPawns.down() };
-					const squaresType allowedPushes{ pushedPawns & allowed };
-					for (const auto sq : allowedPushes)
-					{
-						const squareType sq1{ sq.up() };
-						moves.add(motorType::move().createPromotionQueen(sq1, sq));
-						moves.add(motorType::move().createPromotionKnight(sq1, sq));
-						moves.add(motorType::move().createPromotionRook(sq1, sq));
-						moves.add(motorType::move().createPromotionBishop(sq1, sq));
-					}
-				}
-			}
-#else
-			if (stack.position().movingPlayer() == whitePlayer)
-			{
-				for (const squareType from : stack.position().pieceOccupancy(pawn)& stack.position().playerOccupancy(whitePlayer))
-				{
-					for (const squareType to : movegenPawnPromotionWhite.targets(from, ~stack.position().totalOccupancy()))
-					{
-						moves.add(motorType::move().createPromotionQueen(from, to));
-						moves.add(motorType::move().createPromotionKnight(from, to));
-						moves.add(motorType::move().createPromotionRook(from, to));
-						moves.add(motorType::move().createPromotionBishop(from, to));
-					}
-				}
-			}
-			else
-			{
-				for (const squareType from : stack.position().pieceOccupancy(pawn)& stack.position().playerOccupancy(blackPlayer))
-				{
-					for (const squareType to : movegenPawnPromotionBlack.targets(from, ~stack.position().totalOccupancy()))
-					{
-						moves.add(motorType::move().createPromotionQueen(from, to));
-						moves.add(motorType::move().createPromotionKnight(from, to));
-						moves.add(motorType::move().createPromotionRook(from, to));
-						moves.add(motorType::move().createPromotionBishop(from, to));
-					}
-				}
-			}
-#endif
+			(*(m_PawnPromotions[stack.position().movingPlayer()]))(stack, moves);
 		}
+		constexpr static void generatePawnCapturesWhite(const stackType& stack, movelistType& moves) noexcept
+		{
+			const squaresType whitePawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(whitePlayer) };
+			for (const squareType to : movegenPawnCaptureWhite.attacks(whitePawns, ~stack.position().totalOccupancy())& stack.position().playerOccupancy(blackPlayer))
+			{
+				if (to.file() > fileA)
+				{
+					const squareType fromLeft{ to.downLeft() };
+					if (whitePawns[fromLeft])
+						moves.add(motorType::move().createCapture(fromLeft, to));
+				}
+				if (to.file() < fileH)
+				{
+					const squareType fromRight{ to.downRight() };
+					if (whitePawns[fromRight])
+						moves.add(motorType::move().createCapture(fromRight, to));
+				}
+			}
+		}
+		constexpr static void generatePawnCapturesBlack(const stackType& stack, movelistType& moves) noexcept
+		{
+			const squaresType blackPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(blackPlayer) };
+			for (const squareType to : movegenPawnCaptureBlack.attacks(blackPawns, ~stack.position().totalOccupancy())& stack.position().playerOccupancy(whitePlayer))
+			{
+				if (to.file() > fileA)
+				{
+					const squareType fromLeft{ to.upLeft() };
+					if (blackPawns[fromLeft])
+						moves.add(motorType::move().createCapture(fromLeft, to));
+				}
+				if (to.file() < fileH)
+				{
+					const squareType fromRight{ to.upRight() };
+					if (blackPawns[fromRight])
+						moves.add(motorType::move().createCapture(fromRight, to));
+				}
+			}
+		}
+		constexpr static inline moveGenFunction* m_PawnCaptures[]{ &generatePawnCapturesWhite, &generatePawnCapturesBlack };
 		constexpr static void generatePawnCaptures(const stackType& stack, movelistType& moves) noexcept
 		{
-#if defined(FASTPAWNS)
-			if (stack.position().movingPlayer() == whitePlayer)
-			{
-				const squaresType allowed{ stack.position().playerOccupancy(blackPlayer) };
-				constexpr const squaresType fromSquares{ pawnFromSquaresWhite() };
-				const squaresType pawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(whitePlayer) };
-				const squaresType allowedPawns{ pawns & fromSquares };
-				if (allowedPawns)
-				{
-					const squaresType temp{ allowedPawns.up() };
-					const squaresType leftCaptures{ temp.left() };
-					const squaresType rightCaptures{ temp.right() };
-					const squaresType allowedLeftCaptures{ leftCaptures & allowed };
-					const squaresType allowedRightCaptures{ rightCaptures & allowed };
-					for (const auto sq : allowedLeftCaptures)
-						moves.add(motorType::move().createCapture(sq.downRight(), sq));
-					for (const auto sq : allowedRightCaptures)
-						moves.add(motorType::move().createCapture(sq.downLeft(), sq));
-				}
-			}
-			else
-			{
-				const squaresType allowed{ stack.position().playerOccupancy(whitePlayer) };
-				constexpr const squaresType fromSquares{ pawnFromSquaresBlack() };
-				const squaresType pawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(blackPlayer) };
-				const squaresType allowedPawns{ pawns & fromSquares };
-				if (allowedPawns)
-				{
-					const squaresType temp{ allowedPawns.down() };
-					const squaresType leftCaptures{ temp.left() };
-					const squaresType rightCaptures{ temp.right() };
-					const squaresType allowedLeftCaptures{ leftCaptures & allowed };
-					const squaresType allowedRightCaptures{ rightCaptures & allowed };
-					for (const auto sq : allowedLeftCaptures)
-						moves.add(motorType::move().createCapture(sq.upRight(), sq));
-					for (const auto sq : allowedRightCaptures)
-						moves.add(motorType::move().createCapture(sq.upLeft(), sq));
-				}
-			}
-#else
-			if (stack.position().movingPlayer() == whitePlayer)
-			{
-				for (const squareType from : stack.position().pieceOccupancy(pawn)& stack.position().playerOccupancy(whitePlayer))
-				{
-					for (const squareType to : movegenPawnCaptureWhite.attacks(from, ~stack.position().totalOccupancy())& stack.position().playerOccupancy(blackPlayer))
-						moves.add(motorType::move().createCapture(from, to));
-				}
-			}
-			else
-			{
-				for (const squareType from : stack.position().pieceOccupancy(pawn)& stack.position().playerOccupancy(blackPlayer))
-				{
-					for (const squareType to : movegenPawnCaptureBlack.attacks(from, ~stack.position().totalOccupancy())& stack.position().playerOccupancy(whitePlayer))
-						moves.add(motorType::move().createCapture(from, to));
-				}
-			}
-#endif
+			(*(m_PawnCaptures[stack.position().movingPlayer()]))(stack, moves);
 		}
+		constexpr static void generatePawnPromoCapturesWhite(const stackType& stack, movelistType& moves) noexcept
+		{
+			const squaresType whitePawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(whitePlayer) };
+			for (const squareType to : movegenPawnPromoCaptureWhite.attacks(whitePawns, ~stack.position().totalOccupancy())& stack.position().playerOccupancy(blackPlayer))
+			{
+				if (to.file() > fileA)
+				{
+					const squareType fromLeft{ to.downLeft() };
+					if (whitePawns[fromLeft])
+					{
+						moves.add(motorType::move().createPromoCaptureQueen(fromLeft, to));
+						moves.add(motorType::move().createPromoCaptureKnight(fromLeft, to));
+						moves.add(motorType::move().createPromoCaptureRook(fromLeft, to));
+						moves.add(motorType::move().createPromoCaptureBishop(fromLeft, to));
+					}
+				}
+				if (to.file() < fileH)
+				{
+					const squareType fromRight{ to.downRight() };
+					if (whitePawns[fromRight])
+					{
+						moves.add(motorType::move().createPromoCaptureQueen(fromRight, to));
+						moves.add(motorType::move().createPromoCaptureKnight(fromRight, to));
+						moves.add(motorType::move().createPromoCaptureRook(fromRight, to));
+						moves.add(motorType::move().createPromoCaptureBishop(fromRight, to));
+					}
+				}
+			}
+		}
+		constexpr static void generatePawnPromoCapturesBlack(const stackType& stack, movelistType& moves) noexcept
+		{
+			const squaresType blackPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(blackPlayer) };
+			for (const squareType to : movegenPawnPromoCaptureBlack.attacks(blackPawns, ~stack.position().totalOccupancy())& stack.position().playerOccupancy(whitePlayer))
+			{
+				if (to.file() > fileA)
+				{
+					const squareType fromLeft{ to.upLeft() };
+					if (blackPawns[fromLeft])
+					{
+						moves.add(motorType::move().createPromoCaptureQueen(fromLeft, to));
+						moves.add(motorType::move().createPromoCaptureKnight(fromLeft, to));
+						moves.add(motorType::move().createPromoCaptureRook(fromLeft, to));
+						moves.add(motorType::move().createPromoCaptureBishop(fromLeft, to));
+					}
+				}
+				if (to.file() < fileH)
+				{
+					const squareType fromRight{ to.upRight() };
+					if (blackPawns[fromRight])
+					{
+						moves.add(motorType::move().createPromoCaptureQueen(fromRight, to));
+						moves.add(motorType::move().createPromoCaptureKnight(fromRight, to));
+						moves.add(motorType::move().createPromoCaptureRook(fromRight, to));
+						moves.add(motorType::move().createPromoCaptureBishop(fromRight, to));
+					}
+				}
+			}
+		}
+		constexpr static inline moveGenFunction* m_PawnPromoCaptures[]{ &generatePawnPromoCapturesWhite, &generatePawnPromoCapturesBlack };
 		constexpr static void generatePawnPromoCaptures(const stackType& stack, movelistType& moves) noexcept
 		{
-#if defined(FASTPAWNS)
-			if (stack.position().movingPlayer() == whitePlayer)
-			{
-				const squaresType allowed{ stack.position().playerOccupancy(blackPlayer) };
-				constexpr const squaresType fromSquares{ pawnPromotionFromSquaresWhite() };
-				const squaresType pawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(whitePlayer) };
-				const squaresType allowedPawns{ pawns & fromSquares };
-				if (allowedPawns)
-				{
-					const squaresType temp{ allowedPawns.up() };
-					const squaresType leftCaptures{ temp.left() };
-					const squaresType rightCaptures{ temp.right() };
-					const squaresType allowedLeftCaptures{ leftCaptures & allowed };
-					const squaresType allowedRightCaptures{ rightCaptures & allowed };
-					for (const auto sq : allowedLeftCaptures)
-					{
-						const squareType sq1{ sq.downRight() };
-						moves.add(motorType::move().createPromoCaptureQueen(sq1, sq));
-						moves.add(motorType::move().createPromoCaptureKnight(sq1, sq));
-						moves.add(motorType::move().createPromoCaptureRook(sq1, sq));
-						moves.add(motorType::move().createPromoCaptureBishop(sq1, sq));
-					}
-					for (const auto sq : allowedRightCaptures)
-					{
-						const squareType sq1{ sq.downLeft() };
-						moves.add(motorType::move().createPromoCaptureQueen(sq1, sq));
-						moves.add(motorType::move().createPromoCaptureKnight(sq1, sq));
-						moves.add(motorType::move().createPromoCaptureRook(sq1, sq));
-						moves.add(motorType::move().createPromoCaptureBishop(sq1, sq));
-					}
-				}
-			}
-			else
-			{
-				const squaresType allowed{ stack.position().playerOccupancy(whitePlayer) };
-				constexpr const squaresType fromSquares{ pawnPromotionFromSquaresBlack() };
-				const squaresType pawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(blackPlayer) };
-				const squaresType allowedPawns{ pawns & fromSquares };
-				if (allowedPawns)
-				{
-					const squaresType temp{ allowedPawns.down() };
-					const squaresType leftCaptures{ temp.left() };
-					const squaresType rightCaptures{ temp.right() };
-					const squaresType allowedLeftCaptures{ leftCaptures & allowed };
-					const squaresType allowedRightCaptures{ rightCaptures & allowed };
-					for (const auto sq : allowedLeftCaptures)
-					{
-						const squareType sq1{ sq.upRight() };
-						moves.add(motorType::move().createPromoCaptureQueen(sq1, sq));
-						moves.add(motorType::move().createPromoCaptureKnight(sq1, sq));
-						moves.add(motorType::move().createPromoCaptureRook(sq1, sq));
-						moves.add(motorType::move().createPromoCaptureBishop(sq1, sq));
-					}
-					for (const auto sq : allowedRightCaptures)
-					{
-						const squareType sq1{ sq.upLeft() };
-						moves.add(motorType::move().createPromoCaptureQueen(sq1, sq));
-						moves.add(motorType::move().createPromoCaptureKnight(sq1, sq));
-						moves.add(motorType::move().createPromoCaptureRook(sq1, sq));
-						moves.add(motorType::move().createPromoCaptureBishop(sq1, sq));
-					}
-				}
-			}
-#else
-			if (stack.position().movingPlayer() == whitePlayer)
-			{
-				for (const squareType from : stack.position().pieceOccupancy(pawn)& stack.position().playerOccupancy(whitePlayer))
-				{
-					for (const squareType to : movegenPawnPromoCaptureWhite.attacks(from, ~stack.position().totalOccupancy())& stack.position().playerOccupancy(blackPlayer))
-					{
-						moves.add(motorType::move().createPromoCaptureQueen(from, to));
-						moves.add(motorType::move().createPromoCaptureKnight(from, to));
-						moves.add(motorType::move().createPromoCaptureRook(from, to));
-						moves.add(motorType::move().createPromoCaptureBishop(from, to));
-					}
-				}
-			}
-			else
-			{
-				for (const squareType from : stack.position().pieceOccupancy(pawn)& stack.position().playerOccupancy(blackPlayer))
-				{
-					for (const squareType to : movegenPawnPromoCaptureBlack.attacks(from, ~stack.position().totalOccupancy())& stack.position().playerOccupancy(whitePlayer))
-					{
-						moves.add(motorType::move().createPromoCaptureQueen(from, to));
-						moves.add(motorType::move().createPromoCaptureKnight(from, to));
-						moves.add(motorType::move().createPromoCaptureRook(from, to));
-						moves.add(motorType::move().createPromoCaptureBishop(from, to));
-					}
-				}
-			}
-#endif
+			(*(m_PawnPromoCaptures[stack.position().movingPlayer()]))(stack, moves);
 		}
+		constexpr static void generatePawnDoublePushesWhite(const stackType& stack, movelistType& moves) noexcept
+		{
+			const squaresType whitePawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(whitePlayer) };
+			for (const squareType to : movegenPawnDoublePushWhite.targets(whitePawns, ~stack.position().totalOccupancy()))
+				moves.add(motorType::move().createDoublePush(to.file()));
+		}
+		constexpr static void generatePawnDoublePushesBlack(const stackType& stack, movelistType& moves) noexcept
+		{
+			const squaresType blackPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(blackPlayer) };
+			for (const squareType to : movegenPawnDoublePushBlack.targets(blackPawns, ~stack.position().totalOccupancy()))
+				moves.add(motorType::move().createDoublePush(to.file()));
+		}
+		constexpr static inline moveGenFunction* m_PawnDoublePushes[]{ &generatePawnDoublePushesWhite, &generatePawnDoublePushesBlack };
 		constexpr static void generatePawnDoublePushes(const stackType& stack, movelistType& moves) noexcept
 		{
-#if defined(FASTPAWNS)
-			const squaresType allowed{ ~stack.position().totalOccupancy() };
-			if (stack.position().movingPlayer() == whitePlayer)
-			{
-				constexpr const squaresType fromSquares{ pawnDoublePushFromSquaresWhite() };
-				const squaresType pawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(whitePlayer) };
-				const squaresType allowedPawns{ pawns & fromSquares };
-				if (allowedPawns)
-				{
-					const squaresType pushedPawns{ allowedPawns.up() };
-					const squaresType allowedPushes{ pushedPawns & allowed };
-					const squaresType doublePushedPawns{ allowedPushes.up() };
-					const squaresType allowedDoublePushes{ doublePushedPawns & allowed };
-					for (const auto sq : allowedDoublePushes)
-						moves.add(motorType::move().createDoublePush(sq.file()));
-				}
-			}
-			else
-			{
-				constexpr const squaresType fromSquares{ pawnDoublePushFromSquaresBlack() };
-				const squaresType pawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(blackPlayer) };
-				const squaresType allowedPawns{ pawns & fromSquares };
-				if (allowedPawns)
-				{
-					const squaresType pushedPawns{ allowedPawns.down() };
-					const squaresType allowedPushes{ pushedPawns & allowed };
-					const squaresType doublePushedPawns{ allowedPushes.down() };
-					const squaresType allowedDoublePushes{ doublePushedPawns & allowed };
-					for (const auto sq : allowedDoublePushes)
-						moves.add(motorType::move().createDoublePush(sq.file()));
-				}
-			}
-#else
-			if (stack.position().movingPlayer() == whitePlayer)
-			{
-				for (const squareType from : stack.position().pieceOccupancy(pawn)& stack.position().playerOccupancy(whitePlayer))
-				{
-					for (const squareType to : movegenPawnDoublePushWhite.targets(from, ~stack.position().totalOccupancy()))
-						moves.add(motorType::move().createDoublePush(from.file()));
-				}
-			}
-			else
-			{
-				for (const squareType from : stack.position().pieceOccupancy(pawn)& stack.position().playerOccupancy(blackPlayer))
-				{
-					for (const squareType to : movegenPawnDoublePushBlack.targets(from, ~stack.position().totalOccupancy()))
-						moves.add(motorType::move().createDoublePush(from.file()));
-				}
-			}
-#endif
+			(*(m_PawnDoublePushes[stack.position().movingPlayer()]))(stack, moves);
 		}
 	public:
 		static squaresType attackers(const boardType& position, const squareType square) noexcept;
