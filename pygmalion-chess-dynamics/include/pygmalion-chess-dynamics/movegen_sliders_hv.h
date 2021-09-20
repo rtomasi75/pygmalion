@@ -70,12 +70,85 @@ namespace pygmalion::chess
 			static_cast<typename squaresType::bitsType>(UINT64_C(0x1821110210080584)),
 			static_cast<typename squaresType::bitsType>(UINT64_C(0x5040020910846))
 		};
+		constexpr static const typename squaresType::bitsType m_InverseMagicFactors[64]
+		{
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x80008363400090)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x4400020011004c0)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x9000c2001014010)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x2480045000822800)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x80080080024400)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x200104408220003)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x400084112100084)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x100004481000122)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x100080018024c002)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x1080200080c000)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x41002002410410)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x1a0803000800802)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x2000600210810)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x502000200241028)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0xc001004890802)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x8010800841800100)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x140008001804129)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x88838020004005)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x94062004081b200)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x8008009801001)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0xb01000d080011)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x824008022001480)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x100040008100102)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x220120001008044)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x806308080004008)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x41000c040042000)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x20802200401200)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0xa040082100100100)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x9480100100500)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x10000c0080800200)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0xa9400080d50)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x8403288200025514)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x304008800280)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x8432004401000)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x820022004012)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x4aa101001002)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x17000431001800)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x200040080800200)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x300100104000802)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x400a2000043)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x410800040008020)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x30024220004000)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x810048020048012)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x922512842020020)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x1009008010004)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x8082002890020005)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x1008420108040010)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x2008886891020004)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x180056000400840)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x481020040842200)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x40128440220200)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x65080280100080)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x1004009801048080)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x400100460402801)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x6000804630200)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x1810808044110200)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x680019120804103)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x400300241281)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x4120820a0032)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x1030100100080421)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x86004805502002)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x1001400022829)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x22200080400c10a)),
+			static_cast<typename squaresType::bitsType>(UINT64_C(0x424208024050042))
+		};
 	public:
 		constexpr static typename squaresType::bitsType magicFactor(const size_t index) noexcept
 		{
 			assert(index >= 0);
 			assert(index < 64);
 			return m_MagicFactors[index];
+		}
+		constexpr static typename squaresType::bitsType inverseMagicFactor(const size_t index) noexcept
+		{
+			assert(index >= 0);
+			assert(index < 64);
+			return m_InverseMagicFactors[index];
 		}
 	};
 

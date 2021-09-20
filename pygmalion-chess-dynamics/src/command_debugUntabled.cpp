@@ -36,6 +36,16 @@ namespace pygmalion::chess::dynamics
 							this->output() << "black ";
 						this->output() << "king untabled capture moves from " << boardType::squareToString(sq) << ":" << std::endl;
 						dumpSquares(generatorType::movegenKing.untabled_attacks(sq, ~position().totalOccupancy()) & position().playerOccupancy(p.next()));
+						this->output() << std::endl;
+						this->output() << "king untabled inverse quiet moves from " << boardType::squareToString(sq) << ":" << std::endl;
+						dumpSquares(generatorType::movegenKing.untabled_inverseTargets(sq, ~position().totalOccupancy()));
+						this->output() << std::endl;
+						if (p == whitePlayer)
+							this->output() << "white ";
+						else
+							this->output() << "black ";
+						this->output() << "king untabled inverse capture moves from " << boardType::squareToString(sq) << ":" << std::endl;
+						dumpSquares(generatorType::movegenKing.untabled_inverseAttacks(sq, ~position().totalOccupancy()) & position().playerOccupancy(p.next()));
 						break;
 					case knight:
 						if (p == whitePlayer)
@@ -51,6 +61,20 @@ namespace pygmalion::chess::dynamics
 							this->output() << "black ";
 						this->output() << "knight untabled capture moves from " << boardType::squareToString(sq) << ":" << std::endl;
 						dumpSquares(generatorType::movegenKnight.untabled_attacks(sq, ~position().totalOccupancy()) & position().playerOccupancy(p.next()));
+						this->output() << std::endl;
+						if (p == whitePlayer)
+							this->output() << "white ";
+						else
+							this->output() << "black ";
+						this->output() << "knight untabled inverse quiet moves from " << boardType::squareToString(sq) << ":" << std::endl;
+						dumpSquares(generatorType::movegenKnight.untabled_inverseTargets(sq, ~position().totalOccupancy()));
+						this->output() << std::endl;
+						if (p == whitePlayer)
+							this->output() << "white ";
+						else
+							this->output() << "black ";
+						this->output() << "knight untabled inverse capture moves from " << boardType::squareToString(sq) << ":" << std::endl;
+						dumpSquares(generatorType::movegenKnight.untabled_inverseAttacks(sq, ~position().totalOccupancy()) & position().playerOccupancy(p.next()));
 						break;
 					case rook:
 						if (p == whitePlayer)
@@ -73,6 +97,27 @@ namespace pygmalion::chess::dynamics
 							this->output() << "black ";
 						this->output() << "rook capture moves from " << boardType::squareToString(sq) << ":" << std::endl;
 						dumpSquares((generatorType::movegenSlidersHV.untabled_attacks(sq, ~position().totalOccupancy())) & position().playerOccupancy(p.next()));
+						this->output() << std::endl;
+						if (p == whitePlayer)
+							this->output() << "white ";
+						else
+							this->output() << "black ";
+						this->output() << "rook inverse relevant squares from " << boardType::squareToString(sq) << ":" << std::endl;
+						dumpSquares(propagator_sliders_hv::inverseRelevant(sq));
+						this->output() << std::endl;
+						if (p == whitePlayer)
+							this->output() << "white ";
+						else
+							this->output() << "black ";
+						this->output() << "rook inverse quiet moves from " << boardType::squareToString(sq) << ":" << std::endl;
+						dumpSquares(generatorType::movegenSlidersHV.untabled_inverseTargets(sq, ~position().totalOccupancy()));
+						this->output() << std::endl;
+						if (p == whitePlayer)
+							this->output() << "white ";
+						else
+							this->output() << "black ";
+						this->output() << "rook inverse capture moves from " << boardType::squareToString(sq) << ":" << std::endl;
+						dumpSquares((generatorType::movegenSlidersHV.untabled_inverseAttacks(sq, ~position().totalOccupancy())) & position().playerOccupancy(p.next()));
 						break;
 					case bishop:
 						if (p == whitePlayer)
@@ -95,6 +140,27 @@ namespace pygmalion::chess::dynamics
 							this->output() << "black ";
 						this->output() << "bishop capture moves from " << boardType::squareToString(sq) << ":" << std::endl;
 						dumpSquares((generatorType::movegenSlidersDiag.untabled_attacks(sq, ~position().totalOccupancy())) & position().playerOccupancy(p.next()));
+						this->output() << std::endl;
+						if (p == whitePlayer)
+							this->output() << "white ";
+						else
+							this->output() << "black ";
+						this->output() << "bishop inverse relevant squares from " << boardType::squareToString(sq) << ":" << std::endl;
+						dumpSquares(propagator_sliders_diag::inverseRelevant(sq));
+						this->output() << std::endl;
+						if (p == whitePlayer)
+							this->output() << "white ";
+						else
+							this->output() << "black ";
+						this->output() << "bishop inverse quiet moves from " << boardType::squareToString(sq) << ":" << std::endl;
+						dumpSquares(generatorType::movegenSlidersDiag.untabled_inverseTargets(sq, ~position().totalOccupancy()));
+						this->output() << std::endl;
+						if (p == whitePlayer)
+							this->output() << "white ";
+						else
+							this->output() << "black ";
+						this->output() << "bishop inverse capture moves from " << boardType::squareToString(sq) << ":" << std::endl;
+						dumpSquares((generatorType::movegenSlidersDiag.untabled_inverseAttacks(sq, ~position().totalOccupancy())) & position().playerOccupancy(p.next()));
 						break;
 					case queen:
 						if (p == whitePlayer)
@@ -117,6 +183,27 @@ namespace pygmalion::chess::dynamics
 							this->output() << "black ";
 						this->output() << "queen capture moves from " << boardType::squareToString(sq) << ":" << std::endl;
 						dumpSquares((generatorType::movegenSlidersHV.untabled_attacks(sq, ~position().totalOccupancy()) | generatorType::movegenSlidersDiag.untabled_attacks(sq, ~position().totalOccupancy())) & position().playerOccupancy(p.next()));
+						this->output() << std::endl;
+						if (p == whitePlayer)
+							this->output() << "white ";
+						else
+							this->output() << "black ";
+						this->output() << "queen inverse relevant squares from " << boardType::squareToString(sq) << ":" << std::endl;
+						dumpSquares(propagator_sliders_hv::inverseRelevant(sq) | propagator_sliders_diag::relevant(sq));
+						this->output() << std::endl;
+						if (p == whitePlayer)
+							this->output() << "white ";
+						else
+							this->output() << "black ";
+						this->output() << "queen inverse quiet moves from " << boardType::squareToString(sq) << ":" << std::endl;
+						dumpSquares(generatorType::movegenSlidersHV.untabled_inverseTargets(sq, ~position().totalOccupancy()) | generatorType::movegenSlidersDiag.untabled_targets(sq, ~position().totalOccupancy()));
+						this->output() << std::endl;
+						if (p == whitePlayer)
+							this->output() << "white ";
+						else
+							this->output() << "black ";
+						this->output() << "queen inverse capture moves from " << boardType::squareToString(sq) << ":" << std::endl;
+						dumpSquares((generatorType::movegenSlidersHV.untabled_inverseAttacks(sq, ~position().totalOccupancy()) | generatorType::movegenSlidersDiag.untabled_attacks(sq, ~position().totalOccupancy())) & position().playerOccupancy(p.next()));
 						break;
 					case pawn:
 						if (p == whitePlayer)
@@ -126,6 +213,30 @@ namespace pygmalion::chess::dynamics
 							this->output() << std::endl;
 							this->output() << "white pawn untabled double push from " << boardType::squareToString(sq) << ":" << std::endl;
 							dumpSquares(generatorType::movegenPawnDoublePushWhite.untabled_targets(sq, ~position().totalOccupancy()));
+							this->output() << std::endl;
+							this->output() << "white pawn untabled capture from " << boardType::squareToString(sq) << ":" << std::endl;
+							dumpSquares(generatorType::movegenPawnCaptureWhite.untabled_targets(sq, ~position().totalOccupancy()));
+							this->output() << std::endl;
+							this->output() << "white pawn untabled promotion from " << boardType::squareToString(sq) << ":" << std::endl;
+							dumpSquares(generatorType::movegenPawnPromotionWhite.untabled_targets(sq, ~position().totalOccupancy()));
+							this->output() << std::endl;
+							this->output() << "white pawn untabled promocapture from " << boardType::squareToString(sq) << ":" << std::endl;
+							dumpSquares(generatorType::movegenPawnPromoCaptureWhite.untabled_targets(sq, ~position().totalOccupancy()));
+							this->output() << std::endl;
+							this->output() << "white pawn untabled inverse push from " << boardType::squareToString(sq) << ":" << std::endl;
+							dumpSquares(generatorType::movegenPawnPushWhite.untabled_inverseTargets(sq, ~position().totalOccupancy()));
+							this->output() << std::endl;
+							this->output() << "white pawn untabled inverse double push from " << boardType::squareToString(sq) << ":" << std::endl;
+							dumpSquares(generatorType::movegenPawnDoublePushWhite.untabled_inverseTargets(sq, ~position().totalOccupancy()));
+							this->output() << std::endl;
+							this->output() << "white pawn untabled inverse capture from " << boardType::squareToString(sq) << ":" << std::endl;
+							dumpSquares(generatorType::movegenPawnCaptureWhite.untabled_inverseTargets(sq, ~position().totalOccupancy()));
+							this->output() << std::endl;
+							this->output() << "white pawn untabled inverse promotion from " << boardType::squareToString(sq) << ":" << std::endl;
+							dumpSquares(generatorType::movegenPawnPromotionWhite.untabled_inverseTargets(sq, ~position().totalOccupancy()));
+							this->output() << std::endl;
+							this->output() << "white pawn untabled inverse promocapture from " << boardType::squareToString(sq) << ":" << std::endl;
+							dumpSquares(generatorType::movegenPawnPromoCaptureWhite.untabled_inverseTargets(sq, ~position().totalOccupancy()));
 						}
 						else
 						{
@@ -134,6 +245,30 @@ namespace pygmalion::chess::dynamics
 							this->output() << std::endl;
 							this->output() << "black pawn untabled double push from " << boardType::squareToString(sq) << ":" << std::endl;
 							dumpSquares(generatorType::movegenPawnDoublePushBlack.untabled_targets(sq, ~position().totalOccupancy()));
+							this->output() << std::endl;
+							this->output() << "black pawn untabled capture from " << boardType::squareToString(sq) << ":" << std::endl;
+							dumpSquares(generatorType::movegenPawnCaptureBlack.untabled_targets(sq, ~position().totalOccupancy()));
+							this->output() << std::endl;
+							this->output() << "black pawn untabled promotion from " << boardType::squareToString(sq) << ":" << std::endl;
+							dumpSquares(generatorType::movegenPawnPromotionBlack.untabled_targets(sq, ~position().totalOccupancy()));
+							this->output() << std::endl;
+							this->output() << "black pawn untabled promocapture from " << boardType::squareToString(sq) << ":" << std::endl;
+							dumpSquares(generatorType::movegenPawnPromoCaptureBlack.untabled_targets(sq, ~position().totalOccupancy()));
+							this->output() << std::endl;
+							this->output() << "black pawn untabled inverse push from " << boardType::squareToString(sq) << ":" << std::endl;
+							dumpSquares(generatorType::movegenPawnPushBlack.untabled_inverseTargets(sq, ~position().totalOccupancy()));
+							this->output() << std::endl;
+							this->output() << "black pawn untabled inverse double push from " << boardType::squareToString(sq) << ":" << std::endl;
+							dumpSquares(generatorType::movegenPawnDoublePushBlack.untabled_inverseTargets(sq, ~position().totalOccupancy()));
+							this->output() << std::endl;
+							this->output() << "black pawn untabled inverse capture from " << boardType::squareToString(sq) << ":" << std::endl;
+							dumpSquares(generatorType::movegenPawnCaptureBlack.untabled_inverseTargets(sq, ~position().totalOccupancy()));
+							this->output() << std::endl;
+							this->output() << "black pawn untabled inverse promotion from " << boardType::squareToString(sq) << ":" << std::endl;
+							dumpSquares(generatorType::movegenPawnPromotionBlack.untabled_inverseTargets(sq, ~position().totalOccupancy()));
+							this->output() << std::endl;
+							this->output() << "black pawn untabled inverse promocapture from " << boardType::squareToString(sq) << ":" << std::endl;
+							dumpSquares(generatorType::movegenPawnPromoCaptureBlack.untabled_inverseTargets(sq, ~position().totalOccupancy()));
 						}
 						break;
 					}
