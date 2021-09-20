@@ -247,8 +247,10 @@ namespace pygmalion::chess
 		const squaresType whitepawns{ position.pieceOccupancy(pawn) & position.playerOccupancy(whitePlayer) };
 		const squaresType blackpawns{ position.pieceOccupancy(pawn) & position.playerOccupancy(blackPlayer) };
 		const squaresType piecemap{ squaresType(square) };
-		attackers |= (piecemap.upLeft() | piecemap.upRight()) & blackpawns;
-		attackers |= (piecemap.downLeft() | piecemap.downRight()) & whitepawns;
+		const squaresType temppiecemap1{ piecemap.up() };
+		const squaresType temppiecemap2{ piecemap.down() };
+		attackers |= (temppiecemap1.left() | temppiecemap1.right()) & blackpawns;
+		attackers |= (temppiecemap2.left() | temppiecemap2.right()) & whitepawns;
 		const squaresType slidersHV{ position.pieceOccupancy(queen) | position.pieceOccupancy(rook) };
 		const squaresType slidersDiag{ position.pieceOccupancy(queen) | position.pieceOccupancy(bishop) };
 		attackers |= sliderAttacksHV(square, allowed) & slidersHV;
@@ -265,7 +267,16 @@ namespace pygmalion::chess
 		attackers |= kingAttacks(square, allowed) & position.pieceOccupancy(king);
 		const squaresType pawns{ position.pieceOccupancy(pawn) };
 		const squaresType piecemap{ squaresType(square) };
-		attackers |= ((attacker == whitePlayer) ? (piecemap.downLeft() | piecemap.downRight()) : (piecemap.upLeft() | piecemap.upRight())) & pawns;
+		if (attacker == whitePlayer)
+		{
+			const squaresType temppiecemap{ piecemap.down() };
+			attackers |= (temppiecemap.left() | temppiecemap.right()) & pawns;
+		}
+		else
+		{
+			const squaresType temppiecemap{ piecemap.up() };
+			attackers |= (temppiecemap.left() | temppiecemap.right()) & pawns;
+		}
 		const squaresType slidersHV{ (position.pieceOccupancy(queen) | position.pieceOccupancy(rook)) };
 		const squaresType slidersDiag{ (position.pieceOccupancy(queen) | position.pieceOccupancy(bishop)) };
 		attackers |= sliderAttacksHV(square, allowed) & slidersHV;
@@ -281,11 +292,23 @@ namespace pygmalion::chess
 			return true;
 		if (kingAttacks(square, allowed) & position.pieceOccupancy(king) & position.playerOccupancy(attacker))
 			return true;
-		const squaresType pawns{ position.pieceOccupancy(pawn) & position.playerOccupancy(attacker) };
 		const squaresType piecemap{ squaresType(square) };
-		const squaresType pawnAttacks{ (attacker == whitePlayer) ? (pawns.upLeft() | pawns.upRight()) : (pawns.downLeft() | pawns.downRight()) };
-		if (pawnAttacks & piecemap)
-			return true;
+		if (attacker == whitePlayer)
+		{
+			const squaresType pawns{ position.pieceOccupancy(pawn) & position.playerOccupancy(whitePlayer) };
+			const squaresType temppawns{ pawns.up() };
+			const squaresType pawnAttacks{ temppawns.left() | temppawns.right() };
+			if (pawnAttacks & piecemap)
+				return true;
+		}
+		else
+		{
+			const squaresType pawns{ position.pieceOccupancy(pawn) & position.playerOccupancy(blackPlayer) };
+			const squaresType temppawns{ pawns.down() };
+			const squaresType pawnAttacks{ temppawns.left() | temppawns.right() };
+			if (pawnAttacks & piecemap)
+				return true;
+		}
 		const squaresType slidersDiag{ (position.pieceOccupancy(queen) | position.pieceOccupancy(bishop)) & position.playerOccupancy(attacker) };
 		if (sliderAttacksDiag(square, allowed) & slidersDiag)
 			return true;
