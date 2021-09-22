@@ -26,7 +26,7 @@ namespace pygmalion::chess::dynamics
 					data.Promotions++;
 				{
 					const stackType substack{ stackType(stack,moveBits) };
-					if (substack.isCheck())
+					if (substack.isPositionCritical())
 					{
 						data.Checks++;
 						movebitsType moveBits2;
@@ -84,7 +84,7 @@ namespace pygmalion::chess::dynamics
 							data.Promotions++;
 						{
 							const stackType substack{ stackType(stack,moveBits) };
-							if (substack.isCheck())
+							if (substack.isPositionCritical())
 							{
 								data.Checks++;
 								movebitsType moveBits2;

@@ -312,6 +312,8 @@ namespace pygmalion
 			mutable bool m_HasLegalMove;
 			mutable bool m_HasLegalMoveValid;
 			mutable bool m_SignatureValid;
+			mutable bool m_IsPositionCriticalValid{ false };
+			mutable bool m_IsPositionCritical{ false };
 			const bool m_IsNullmove;
 			const hashType m_Hash;
 			bool computeHasLegalMove(const size_t depth, movegenFeedback& feedback) const
@@ -341,6 +343,15 @@ namespace pygmalion
 				return false;
 			}
 		public:
+			constexpr bool isPositionCritical() const noexcept
+			{
+				if (!m_IsPositionCriticalValid)
+				{
+					m_IsPositionCritical = generatorType::isPositionCritical(*static_cast<const typename generatorType::stackType*>(this));
+					m_IsPositionCriticalValid = true;
+				}
+				return m_IsPositionCritical;
+			}
 			constexpr void allMove(movegenFeedback& feedback, const size_t depth, const scoreType& score) const noexcept
 			{
 				feedback.allMove(m_LastPass, depth, score);
@@ -684,6 +695,11 @@ namespace pygmalion
 		constexpr static bool isMoveTactical(const stackType& stack, const movebitsType& mv) noexcept
 		{
 			return generatorType::isMoveTactical_Implementation(stack, mv);
+		}
+		template<typename stackType>
+		constexpr static bool isPositionCritical(const stackType& stack) noexcept
+		{
+			return generatorType::isPositionCritical_Implementation(stack);
 		}
 		constexpr static size_t countMoveBuckets() noexcept
 		{

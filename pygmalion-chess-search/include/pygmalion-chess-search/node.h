@@ -21,13 +21,11 @@ namespace pygmalion::chess
 		{
 			return depthType(2) + depthRemaining / depthType(4);
 		}
-		bool nullMoveAllowed_Implementation(const scoreType alpha, const scoreType beta) const noexcept
+		bool nullMoveAllowed_Implementation() const noexcept
 		{
-			if (!(alpha.isOpen() && beta.isOpen()))
-				return false;
 			const squaresType pieces{ this->stack().position().pieceOccupancy(knight) | this->stack().position().pieceOccupancy(bishop) | this->stack().position().pieceOccupancy(rook) | this->stack().position().pieceOccupancy(queen) };
 			const squaresType playerPieces{ pieces & this->stack().position().playerOccupancy(this->stack().position().movingPlayer()) };
-			return (playerPieces != squaresType::none()) && !this->stack().isCheck();
+			return playerPieces != squaresType::none();
 		}
 		constexpr static scoreType futilityMargin_Implementation(const size_t depthRemaining, const stackType& stack) noexcept
 		{
@@ -48,10 +46,6 @@ namespace pygmalion::chess
 			if (stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(stack.nextPlayer()))
 				return static_cast<scoreType>(boardType::materialValue(pawn, whitePlayer)) + evaluatorType::MaxPositionChange;
 			return evaluatorType::MaxPositionChange;
-		}
-		bool pruningAllowed_Implementation(const scoreType alpha, const scoreType beta) const noexcept
-		{
-			return alpha.isOpen() && beta.isOpen() && !this->stack().isCheck();
 		}
 		scoreType tacticalMoveValue_Implementation(const movebitsType& move) const noexcept
 		{

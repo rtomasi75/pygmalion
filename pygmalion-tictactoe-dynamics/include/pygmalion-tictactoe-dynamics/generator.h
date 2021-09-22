@@ -110,5 +110,9 @@ namespace pygmalion::tictactoe
 		{
 			return false;
 		}
+		constexpr static bool isPositionCritical_Implementation(const stackType& stack) noexcept
+		{
+			return false;
+		}
 	};
 }

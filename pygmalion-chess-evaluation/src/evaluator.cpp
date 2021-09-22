@@ -39,7 +39,7 @@ namespace pygmalion::chess
 
 	evaluator::gamestateType evaluator::lateResult_Implementation(const typename generatorType::stackType& stack) noexcept
 	{
-		if (stack.isCheck())
+		if (stack.isPositionCritical())
 			return gamestateType::loss(stack.position().movingPlayer());
 		else
 			return gamestateType::draw();

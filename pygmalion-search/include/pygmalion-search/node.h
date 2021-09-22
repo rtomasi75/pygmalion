@@ -466,7 +466,7 @@ namespace pygmalion
 			{
 				if constexpr (pruneFutility)
 				{
-					if (m_FutilityPruningAllowed && this->canPruneMove(move))
+					if (m_FutilityPruningAllowed && this->canPruneMove(move) && this->canFutilityPruneMove(move))
 					{
 						m_Heuristics.endMoveFutile(m_Stack, move, false, depth);
 						return false;
@@ -642,12 +642,11 @@ namespace pygmalion
 		}
 		constexpr bool canPruneMove(const movebitsType& move) const noexcept
 		{
-			if (generatorType::isMoveCritical(this->stack(), move))
-				return false;
-			if (generatorType::isMoveTactical(this->stack(), move))
-				return tacticalMoveValue(move) < this->futileGap();
-			else
-				return true;
+			return !generatorType::isMoveCritical(this->stack(), move);
+		}
+		constexpr bool canFutilityPruneMove(const movebitsType& move) const noexcept
+		{
+			return (!generatorType::isMoveTactical(this->stack(), move)) || (tacticalMoveValue(move) < this->futileGap());
 		}
 		constexpr static bool futilityPruningEnabled(const size_t depthRemaining) noexcept
 		{
@@ -663,15 +662,15 @@ namespace pygmalion
 		}
 		constexpr bool pruningAllowed(const scoreType alpha, const scoreType beta) const noexcept
 		{
-			return static_cast<const nodeType*>(this)->pruningAllowed_Implementation(alpha, beta);
+			return alpha.isOpen() && beta.isOpen() && !this->stack().isPositionCritical();
 		}
 		constexpr static depthType nullMoveReduction(const size_t depthRemaining) noexcept
 		{
 			return nodeType::nullMoveReduction_Implementation(depthRemaining);
 		}
-		constexpr bool nullMoveAllowed(const scoreType alpha, const scoreType beta) const noexcept
+		constexpr bool nullMoveAllowed() const noexcept
 		{
-			return static_cast<const nodeType*>(this)->nullMoveAllowed_Implementation(alpha, beta);
+			return static_cast<const nodeType*>(this)->nullMoveAllowed_Implementation();
 		}
 		constexpr const stackType& stack() const noexcept
 		{
@@ -906,38 +905,41 @@ namespace pygmalion
 					}
 				}
 				allowStoreTT = true;
-				if constexpr (pruneNullmove)
+				if constexpr (pruneNullmove || pruneFutility)
 				{
-					if (allowNMP && checkNullMove(nullMoveHistory) && this->nullMoveAllowed(alpha, beta))
+					if (this->pruningAllowed(alpha, beta))
 					{
-						bool allowStoreTTsubnode;
-						scoreType nmsc{ scoreType::zero() };
-						const depthType remainingNullMoveDepth{ static_cast<depthType>(depthRemaining - nullMoveReduction(depthRemaining) - 1) };
+						if constexpr (pruneNullmove)
 						{
-							node subnode(*this, generatorType::nullMove());
-							nmsc = -subnode.zwsearch<VERBOSE>((scoreType::atom() - beta).plyDown(), remainingNullMoveDepth, depth + 1, doNullMove(nullMoveHistory), str, allowStoreTTsubnode).plyUp();
+							if (allowNMP && checkNullMove(nullMoveHistory) && this->nullMoveAllowed())
+							{
+								bool allowStoreTTsubnode;
+								scoreType nmsc{ scoreType::zero() };
+								const depthType remainingNullMoveDepth{ static_cast<depthType>(depthRemaining - nullMoveReduction(depthRemaining) - 1) };
+								{
+									node subnode(*this, generatorType::nullMove());
+									nmsc = -subnode.zwsearch<VERBOSE>((scoreType::atom() - beta).plyDown(), remainingNullMoveDepth, depth + 1, doNullMove(nullMoveHistory), str, allowStoreTTsubnode).plyUp();
+								}
+								if (nmsc >= beta)
+								{
+									allowStoreTT &= allowStoreTTsubnode;
+									if constexpr (searchTranspositionTable)
+										if (allowStoreTTsubnode)
+											m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, beta, transpositiontable<descriptorSearch>::flags_lower, movebitsType(0));
+									m_Heuristics.endNodeNull(m_Stack);
+									return beta;
+								}
+							}
 						}
-						if (nmsc >= beta)
+						if constexpr (pruneFutility)
 						{
-							allowStoreTT &= allowStoreTTsubnode;
-							if constexpr (searchTranspositionTable)
-								if (allowStoreTTsubnode)
-									m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, beta, transpositiontable<descriptorSearch>::flags_lower, movebitsType(0));
-							m_Heuristics.endNodeNull(m_Stack);
-							return beta;
-						}
-					}
-				}
-				if constexpr (pruneFutility)
-				{
-					if (nodeType::futilityPruningEnabled(depthRemaining))
-					{
-						if (this->pruningAllowed(alpha, beta))
-						{
-							const scoreType futileGlobalScore{ alpha - nodeType::futilityGlobalMargin(depthRemaining, m_Stack) };
-							const scoreType eval{ evaluate(futileGlobalScore, scoreType::maximum()) };
-							m_FutileGap = alpha - eval - nodeType::futilityMargin(depthRemaining, m_Stack);
-							m_FutilityPruningAllowed = m_FutileGap >= scoreType::zero();
+							if (nodeType::futilityPruningEnabled(depthRemaining))
+							{
+								const scoreType futileGlobalScore{ alpha - nodeType::futilityGlobalMargin(depthRemaining, m_Stack) };
+								const scoreType eval{ evaluate(futileGlobalScore, scoreType::maximum()) };
+								m_FutileGap = alpha - eval - nodeType::futilityMargin(depthRemaining, m_Stack);
+								m_FutilityPruningAllowed = m_FutileGap >= scoreType::zero();
+							}
 						}
 					}
 				}
