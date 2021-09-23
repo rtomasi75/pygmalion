@@ -24,7 +24,13 @@ namespace pygmalion::dynamics
 				this->output() << "tactical passes:" << std::endl;
 				for (size_t i = 0; i < countTacticalPasses; i++)
 				{
-					this->output() << "    " << std::setw(3) << i << std::setw(8) << this->dynamicsEngine().feedback().tacticalCounter(i, this->history().length()) << std::setw(12) << this->dynamicsEngine().feedback().tacticalScore(i, this->history().length()) << " " << generatorType::passToString(this->dynamicsEngine().feedback().tacticalIndex(i, this->history().length())) << std::endl;
+					this->output() << "    " << std::setw(3) << i << std::setw(8) << this->dynamicsEngine().feedback().tacticalCounter(i, this->history().length()) << std::setw(12) << this->dynamicsEngine().feedback().tacticalScore(i, this->history().length()) << " " << generatorType::tacticalPassToString(this->dynamicsEngine().feedback().tacticalIndex(i, this->history().length())) << std::endl;
+				}
+				this->output() << std::endl;
+				this->output() << "critical passes:" << std::endl;
+				for (size_t i = 0; i < countCriticalPasses; i++)
+				{
+					this->output() << "    " << std::setw(3) << i << std::setw(8) << this->dynamicsEngine().feedback().counter(i, this->history().length()) << std::setw(12) << this->dynamicsEngine().feedback().score(i, this->history().length()) << " " << generatorType::criticalPassToString(this->dynamicsEngine().feedback().index(i, this->history().length())) << std::endl;
 				}
 				this->output() << std::endl;
 				return true;

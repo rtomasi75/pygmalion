@@ -47,7 +47,7 @@ namespace pygmalion::dynamics
 				{
 					p.start();
 					stackType stack{ stackType(this->position(),this->history(), this->position().movingPlayer()) };
-					const std::uintmax_t nodes{ perft(stack,this->history().length(), i, this->feedback()) };
+					const std::uintmax_t nodes{ perft(stack,0, i, this->feedback()) };
 					p.stop();
 					this->output() << "depth: " << std::setw(2) << static_cast<int>(i + 1) << " nodes: " << parser::valueToString(static_cast<double>(nodes), "N") << " time: " << parser::durationToString(p.duration()) << " speed: " << p.computeSpeed(nodes, "N") << std::endl;
 				}

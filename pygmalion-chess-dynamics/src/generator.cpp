@@ -268,4 +268,22 @@ namespace pygmalion::chess
 			return "promotion captures";
 		}
 	}
+
+	std::string generator::criticalPassToString_Implementation(const passType criticalPass) noexcept
+	{
+		switch (static_cast<size_t>(criticalPass))
+		{
+		default:
+			assert(0);
+			return "???";
+		case 0:
+			return "critical knight moves";
+		case 1:
+			return "critical pawn moves";
+		case 2:
+			return "critical slider moves h./v.";
+		case 3:
+			return "critical slider moves diag.";
+		}
+	}
 }

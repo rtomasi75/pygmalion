@@ -28,14 +28,14 @@ namespace pygmalion::chess::dynamics
 						else
 							this->output() << "black ";
 						this->output() << "knight quiet moves from " << boardType::squareToString(sq) << ":" << std::endl;
-						dumpSquares(generatorType::knightTargets(sq, ~position().totalOccupancy()));
+						dumpSquares(generatorType::movegenKnight.targets(sq, ~position().totalOccupancy()));
 						this->output() << std::endl;
 						if (p == whitePlayer)
 							this->output() << "white ";
 						else
 							this->output() << "black ";
 						this->output() << "knight capture moves from " << boardType::squareToString(sq) << ":" << std::endl;
-						dumpSquares(generatorType::knightAttacks(sq, ~position().totalOccupancy()) & position().playerOccupancy(p.next()));
+						dumpSquares(generatorType::movegenKnight.attacks(sq, ~position().totalOccupancy()) & position().playerOccupancy(p.next()));
 						break;
 					case king:
 						if (p == whitePlayer)
@@ -43,14 +43,14 @@ namespace pygmalion::chess::dynamics
 						else
 							this->output() << "black ";
 						this->output() << "king quiet moves from " << boardType::squareToString(sq) << ":" << std::endl;
-						dumpSquares(generatorType::kingTargets(sq, ~position().totalOccupancy()));
+						dumpSquares(generatorType::movegenKing.targets(sq, ~position().totalOccupancy()));
 						this->output() << std::endl;
 						if (p == whitePlayer)
 							this->output() << "white ";
 						else
 							this->output() << "black ";
 						this->output() << "king capture moves from " << boardType::squareToString(sq) << ":" << std::endl;
-						dumpSquares(generatorType::kingAttacks(sq, ~position().totalOccupancy()) & position().playerOccupancy(p.next()));
+						dumpSquares(generatorType::movegenKing.attacks(sq, ~position().totalOccupancy()) & position().playerOccupancy(p.next()));
 						break;
 					case rook:
 						if (p == whitePlayer)
@@ -58,14 +58,14 @@ namespace pygmalion::chess::dynamics
 						else
 							this->output() << "black ";
 						this->output() << "rook quiet moves from " << boardType::squareToString(sq) << ":" << std::endl;
-						dumpSquares(generatorType::sliderTargetsHV(sq, ~position().totalOccupancy()));
+						dumpSquares(generatorType::movegenSlidersHV.targets(sq, ~position().totalOccupancy()));
 						this->output() << std::endl;
 						if (p == whitePlayer)
 							this->output() << "white ";
 						else
 							this->output() << "black ";
 						this->output() << "rook capture moves from " << boardType::squareToString(sq) << ":" << std::endl;
-						dumpSquares(generatorType::sliderAttacksHV(sq, ~position().totalOccupancy()) & position().playerOccupancy(p.next()));
+						dumpSquares(generatorType::movegenSlidersHV.attacks(sq, ~position().totalOccupancy()) & position().playerOccupancy(p.next()));
 						break;
 					case bishop:
 						if (p == whitePlayer)
@@ -73,14 +73,14 @@ namespace pygmalion::chess::dynamics
 						else
 							this->output() << "black ";
 						this->output() << "bishop quiet moves from " << boardType::squareToString(sq) << ":" << std::endl;
-						dumpSquares(generatorType::sliderTargetsDiag(sq, ~position().totalOccupancy()));
+						dumpSquares(generatorType::movegenSlidersDiag.targets(sq, ~position().totalOccupancy()));
 						this->output() << std::endl;
 						if (p == whitePlayer)
 							this->output() << "white ";
 						else
 							this->output() << "black ";
 						this->output() << "bishop capture moves from " << boardType::squareToString(sq) << ":" << std::endl;
-						dumpSquares(generatorType::sliderAttacksDiag(sq, ~position().totalOccupancy()) & position().playerOccupancy(p.next()));
+						dumpSquares(generatorType::movegenSlidersDiag.attacks(sq, ~position().totalOccupancy()) & position().playerOccupancy(p.next()));
 						break;
 					case queen:
 						if (p == whitePlayer)
@@ -88,14 +88,14 @@ namespace pygmalion::chess::dynamics
 						else
 							this->output() << "black ";
 						this->output() << "queen quiet moves from " << boardType::squareToString(sq) << ":" << std::endl;
-						dumpSquares(generatorType::sliderTargetsHV(sq, ~position().totalOccupancy()) | generatorType::sliderTargetsDiag(sq, ~position().totalOccupancy()));
+						dumpSquares(generatorType::movegenSlidersHV.targets(sq, ~position().totalOccupancy()) | generatorType::movegenSlidersDiag.targets(sq, ~position().totalOccupancy()));
 						this->output() << std::endl;
 						if (p == whitePlayer)
 							this->output() << "white ";
 						else
 							this->output() << "black ";
 						this->output() << "queen capture moves from " << boardType::squareToString(sq) << ":" << std::endl;
-						dumpSquares((generatorType::sliderAttacksHV(sq, ~position().totalOccupancy()) | generatorType::sliderAttacksDiag(sq, ~position().totalOccupancy())) & position().playerOccupancy(p.next()));
+						dumpSquares((generatorType::movegenSlidersHV.attacks(sq, ~position().totalOccupancy()) | generatorType::movegenSlidersDiag.attacks(sq, ~position().totalOccupancy())) & position().playerOccupancy(p.next()));
 						break;
 					case pawn:
 						if (p == whitePlayer)

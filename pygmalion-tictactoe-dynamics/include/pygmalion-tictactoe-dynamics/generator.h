@@ -1,7 +1,7 @@
 namespace pygmalion::tictactoe
 {
 	class descriptor_dynamics :
-		public pygmalion::descriptor_dynamics<motor, 9, 7, 0, 10, 1, 0>
+		public pygmalion::descriptor_dynamics<motor, 9, 7, 0, 10, 1, 0, 0>
 	{
 	public:
 		static inline movetable<descriptor_dynamics> moveTable{ movetable<descriptor_dynamics>(0x0095,9) };
@@ -40,6 +40,10 @@ namespace pygmalion::tictactoe
 				assert(0);
 		}
 		static void generateTacticalMoves_Implementation(const stackType& stack, movelistType& moves, const passType currentPass) noexcept
+		{
+			assert(0);
+		}
+		static void generateCriticalMoves_Implementation(const stackType& stack, movelistType& moves, const passType currentPass) noexcept
 		{
 			assert(0);
 		}
@@ -88,6 +92,10 @@ namespace pygmalion::tictactoe
 		static std::string tacticalPassToString_Implementation(const passType tacticalPass) noexcept
 		{
 			return "standard tactical";
+		}
+		static std::string criticalPassToString_Implementation(const passType criticalPass) noexcept
+		{
+			return "standard critical";
 		}
 		constexpr static size_t countMoveBuckets_Implementation() noexcept
 		{

@@ -1,11 +1,12 @@
 namespace pygmalion
 {
-	template<typename MOTOR, size_t COUNT_MAX_GENERATED_MOVES, size_t MANTISSA, size_t SHIFT, size_t MAXDIST, size_t COUNT_PASSES,size_t COUNT_TACTICALPASSES>
+	template<typename MOTOR, size_t COUNT_MAX_GENERATED_MOVES, size_t MANTISSA, size_t SHIFT, size_t MAXDIST, size_t COUNT_PASSES,size_t COUNT_TACTICALPASSES, size_t COUNT_CRITICALPASSES>
 	class descriptor_dynamics :
 		public MOTOR::descriptorMechanics
 	{
 	public:
 		constexpr static const size_t countPasses{ COUNT_PASSES };
+		constexpr static const size_t countCriticalPasses{ COUNT_CRITICALPASSES };
 		constexpr static const size_t countTacticalPasses{ COUNT_TACTICALPASSES };
 		constexpr static const size_t countMaxGeneratedMoves{ COUNT_MAX_GENERATED_MOVES };
 		using motorType = MOTOR;

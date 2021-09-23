@@ -9,6 +9,7 @@ constexpr static const size_t evaluationMantissa{ descriptorDynamics::evaluation
 constexpr static const size_t evaluationShift{ descriptorDynamics::evaluationShift };
 constexpr static const size_t evaluationMaxDistance{ descriptorDynamics::evaluationMaxDistance };
 constexpr static const size_t countPasses{ descriptorDynamics::countPasses };
+constexpr static const size_t countCriticalPasses{ descriptorDynamics::countCriticalPasses };
 constexpr static const size_t countTacticalPasses{ descriptorDynamics::countTacticalPasses };
 
 using descriptorMechanics = typename motorType::descriptorMechanics;
