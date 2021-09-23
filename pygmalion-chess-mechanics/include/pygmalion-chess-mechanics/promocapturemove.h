@@ -247,6 +247,18 @@ namespace pygmalion::chess
 		{
 			return squaresType(promocapturemove::extractFrom(moveBits)) ^ squaresType(promocapturemove::extractTo(moveBits));
 		}
+		constexpr squaresType pieceOccupancyDelta_Implementation(const boardType& position, const pieceType& piece, const movebitsType& moveBits) const noexcept
+		{
+			const squareType to{ promocapturemove::extractTo(moveBits) };
+			squaresType delta{ squaresType::none() };
+			if (piece == pawn)
+				delta ^= promocapturemove::extractFrom(moveBits);
+			if (piece == m_PromotedPiece)
+				delta ^= to;
+			if (position.pieceOccupancy(piece)[to])
+				delta ^= to;
+			return delta;
+		}
 		constexpr squareType fromSquare_Implementation(const boardType& position, const movebitsType& moveBits) const noexcept
 		{
 			return promocapturemove::extractFrom(moveBits);

@@ -99,6 +99,10 @@ namespace pygmalion::chess
 		{
 			return squaresType::none();
 		}
+		constexpr squaresType pieceOccupancyDelta_Implementation(const boardType& position, const pieceType& piece, const movebitsType& moveBits) const noexcept
+		{
+			return squaresType::none();
+		}
 		constexpr squareType fromSquare_Implementation(const boardType& position, const movebitsType& moveBits) const noexcept
 		{
 			return squareType(0);

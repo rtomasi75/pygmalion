@@ -223,6 +223,32 @@ namespace pygmalion::chess
 				return squaresType(from) ^ squaresType(to);
 			}
 		}
+		constexpr squaresType pieceOccupancyDelta_Implementation(const boardType& position, const pieceType& piece, const movebitsType& moveBits) const noexcept
+		{
+			if (piece == pawn)
+			{
+				const playerType p{ position.movingPlayer() };
+				const fileType f{ doublepushmove::extractFile(moveBits) };
+				if (p == whitePlayer)
+				{
+					constexpr const rankType r1{ rank2 };
+					constexpr const rankType r2{ rank4 };
+					const squareType from{ f & r1 };
+					const squareType to{ f & r2 };
+					return squaresType(from) ^ squaresType(to);
+				}
+				else
+				{
+					constexpr const rankType r1{ rank7 };
+					constexpr const rankType r2{ rank5 };
+					const squareType from{ f & r1 };
+					const squareType to{ f & r2 };
+					return squaresType(from) ^ squaresType(to);
+				}
+			}
+			else
+				return squaresType::none();
+		}
 		constexpr squareType fromSquare_Implementation(const boardType& position, const movebitsType& moveBits) const noexcept
 		{
 			const playerType p{ position.movingPlayer() };

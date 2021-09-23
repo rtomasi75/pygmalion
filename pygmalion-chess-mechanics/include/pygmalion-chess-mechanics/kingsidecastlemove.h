@@ -208,6 +208,24 @@ namespace pygmalion::chess
 			else
 				return squaresType(squareE8) ^ squaresType(squareG8) ^ squaresType(squareH8) ^ squaresType(squareF8);
 		}
+		constexpr squaresType pieceOccupancyDelta_Implementation(const boardType& position, const pieceType& piece, const movebitsType& moveBits) const noexcept
+		{
+			switch (piece)
+			{
+			default:
+				return squaresType::none();
+			case king:
+				if (position.movingPlayer() == whitePlayer)
+					return squaresType(squareE1) ^ squaresType(squareG1);
+				else
+					return squaresType(squareE8) ^ squaresType(squareG8);
+			case rook:
+				if (position.movingPlayer() == whitePlayer)
+					return squaresType(squareH1) ^ squaresType(squareF1);
+				else
+					return squaresType(squareH8) ^ squaresType(squareF8);
+			}
+		}
 		constexpr squareType fromSquare_Implementation(const boardType& position, const movebitsType& moveBits) const noexcept
 		{
 			if (position.movingPlayer() == whitePlayer)

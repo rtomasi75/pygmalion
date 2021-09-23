@@ -47,6 +47,10 @@ namespace pygmalion::mechanics
 		{
 			return static_cast<const instanceType*>(this)->ownOccupancyDelta_Implementation(position, moveBits);
 		}
+		constexpr squaresType pieceOccupancyDelta(const boardType& position, const pieceType& piece, const movebitsType& moveBits) const noexcept
+		{
+			return static_cast<const instanceType*>(this)->pieceOccupancyDelta_Implementation(position, piece, moveBits);
+		}
 		constexpr squareType fromSquare(const boardType& position, const movebitsType& moveBits) const noexcept
 		{
 			return static_cast<const instanceType*>(this)->fromSquare_Implementation(position, moveBits);

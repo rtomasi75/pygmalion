@@ -1312,7 +1312,7 @@ namespace pygmalion::chess
 			&generateCriticalSliderMovesHV,
 			&generateCriticalSliderMovesDiag
 		};
-public:
+	public:
 		static squaresType attackers(const boardType& position, const squareType square) noexcept
 		{
 			assert(square.isValid());
@@ -1648,13 +1648,15 @@ public:
 					return false;
 
 				// Does he live on a square that is guarded by an enemy knight?
-				const squaresType otherKnights{ ((position.pieceOccupancy(knight) & otherOccupancy) ^ otherDelta) & occOther };
+				const squaresType knightsDelta{ motorType::move().pieceOccupancyDelta(position, knight, moveBits) };
+				const squaresType otherKnights{ (position.pieceOccupancy(knight) ^ knightsDelta) & occOther };
 				const squaresType attackedByOtherKnights{ movegenKnight.attacks(otherKnights,squaresType::all()) };
 				if (attackedByOtherKnights[kingsquare])
 					return false;
 
 				// Does he live on a square that is guarded by an enemy pawn?
-				const squaresType otherPawns{ ((position.pieceOccupancy(pawn) & otherOccupancy) ^ otherDelta) & occOther };
+				const squaresType pawnsDelta{ motorType::move().pieceOccupancyDelta(position, pawn, moveBits) };
+				const squaresType otherPawns{ (position.pieceOccupancy(pawn) ^ pawnsDelta) & occOther };
 				if (otherPlayer == whitePlayer)
 				{
 					const squaresType pawnsTemp{ otherPawns.up() };
@@ -1696,26 +1698,22 @@ public:
 			const squaresType unoccupied{ ~occTotal };
 
 			// Is he attacked horizontally by sliding pieces?
-			const squaresType queens{ position.pieceOccupancy(queen) };
-			const squaresType rooks{ position.pieceOccupancy(rook) };
+			const squaresType queensDelta{ motorType::move().pieceOccupancyDelta(position, queen, moveBits) };
+			const squaresType queens{ position.pieceOccupancy(queen) ^ queensDelta };
+			const squaresType rooksDelta{ motorType::move().pieceOccupancyDelta(position, rook, moveBits) };
+			const squaresType rooks{ position.pieceOccupancy(rook) ^ rooksDelta };
 			const squaresType otherSlidersHV = occOther & (rooks | queens);
 			const squaresType criticalSquaresHV{ movegenSlidersHV.inverseAttacks(kingsquare, unoccupied) };
 			if ((criticalSquaresHV & otherSlidersHV) != squaresType::none())
 				return false;
-			
-			/*if (movegenSlidersHV.attacks(otherSlidersHV, ~occTotal)[kingsquare])
-				return false;*/
 
 			// Is he attacked diagonally by sliding pieces?
-			const squaresType bishops{ position.pieceOccupancy(bishop) };
+			const squaresType bishopsDelta{ motorType::move().pieceOccupancyDelta(position, bishop, moveBits) };
+			const squaresType bishops{ position.pieceOccupancy(bishop) ^ bishopsDelta };
 			const squaresType otherSlidersDiag = occOther & (bishops | queens);
 			const squaresType criticalSquaresDiag{ movegenSlidersDiag.inverseAttacks(kingsquare, unoccupied) };
 			if ((criticalSquaresDiag & otherSlidersDiag) != squaresType::none())
 				return false;
-
-
-			/*if (movegenSlidersDiag.attacks(otherSlidersDiag, ~occTotal)[kingsquare])
-				return false;*/
 
 			// The move seems legal
 			return true;
@@ -1798,13 +1796,15 @@ public:
 			const squaresType occOwn{ ownOccupancy ^ ownDelta };
 
 			// Does he live on a square that is attacked by one of our knights?
-			const squaresType ownKnights{ ((position.pieceOccupancy(knight) & ownOccupancy) ^ ownDelta) & occOwn };
+			const squaresType knightsDelta{ motorType::move().pieceOccupancyDelta(position, knight, moveBits) };
+			const squaresType ownKnights{ (position.pieceOccupancy(knight) ^ knightsDelta) & occOwn };
 			const squaresType attackedByOwnKnights{ movegenKnight.attacks(ownKnights,squaresType::all()) };
 			if (attackedByOwnKnights[otherking])
 				return true;
 
 			// Does he live on a square that is attacked by one of our pawns?
-			const squaresType ownPawns{ ((position.pieceOccupancy(pawn) & ownOccupancy) ^ ownDelta) & occOwn };
+			const squaresType pawnsDelta{ motorType::move().pieceOccupancyDelta(position, pawn, moveBits) };
+			const squaresType ownPawns{ (position.pieceOccupancy(pawn) ^ pawnsDelta) & occOwn };
 			if (movingPlayer == whitePlayer)
 			{
 				const squaresType pawnsTemp{ ownPawns.up() };
@@ -1825,27 +1825,24 @@ public:
 			const squaresType otherDelta{ motorType::move().otherOccupancyDelta(position, moveBits) };
 			const squaresType occOther{ otherOccupancy ^ otherDelta };
 			const squaresType occTotal{ occOther | occOwn };
-
-/*			std::cout << "occOther:" << std::endl;
-			dumpSquares(occOther);
-			std::cout << "occOwn:" << std::endl;
-			dumpSquares(occOwn);*/
+			const squaresType unoccupied{ ~occTotal };
 
 			// Is he attacked horizontally by sliding pieces?
-			const squaresType queens{ (position.pieceOccupancy(queen) & ownOccupancy) ^ ownDelta };
-			const squaresType rooks{ (position.pieceOccupancy(rook) & ownOccupancy) ^ ownDelta };
+			const squaresType queensDelta{ motorType::move().pieceOccupancyDelta(position, queen, moveBits) };
+			const squaresType queens{ position.pieceOccupancy(queen) ^ queensDelta };
+			const squaresType rooksDelta{ motorType::move().pieceOccupancyDelta(position, rook, moveBits) };
+			const squaresType rooks{ position.pieceOccupancy(rook) ^ rooksDelta };
 			const squaresType ownSlidersHV = occOwn & (rooks | queens);
-		//	std::cout << "ownSlidersHV:" << std::endl;
-		//	dumpSquares(ownSlidersHV);
-			if (movegenSlidersHV.attacks(ownSlidersHV, ~occTotal)[otherking])
+			const squaresType criticalSquaresHV{ movegenSlidersHV.inverseAttacks(otherking, unoccupied) };
+			if ((criticalSquaresHV & ownSlidersHV) != squaresType::none())
 				return true;
 
 			// Is he attacked diagonally by sliding pieces?
-			const squaresType bishops{ (position.pieceOccupancy(bishop) & ownOccupancy) ^ ownDelta };
+			const squaresType bishopsDelta{ motorType::move().pieceOccupancyDelta(position, bishop, moveBits) };
+			const squaresType bishops{ position.pieceOccupancy(bishop) ^ bishopsDelta };
 			const squaresType ownSlidersDiag = occOwn & (bishops | queens);
-		//	std::cout << "ownSlidersDiag:" << std::endl;
-		//	dumpSquares(ownSlidersDiag);
-			if (movegenSlidersDiag.attacks(ownSlidersDiag, ~occTotal)[otherking])
+			const squaresType criticalSquaresDiag{ movegenSlidersDiag.inverseAttacks(otherking, unoccupied) };
+			if ((criticalSquaresDiag & ownSlidersDiag) != squaresType::none())
 				return true;
 
 			// The move seems not to be giving check
