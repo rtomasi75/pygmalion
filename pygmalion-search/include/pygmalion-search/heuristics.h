@@ -395,6 +395,7 @@ namespace pygmalion
 #endif
 			static_cast<instanceType*>(this)->onBeginMove(stack, moveBits, isTactical, depth);
 		}
+		template<bool PRUNED>
 		void endMoveAccepted(const stackType& stack, const movebitsType& moveBits, const bool isTactical, const size_t depth, const scoreType& score, const bool fromStack) noexcept
 		{
 #if !defined(NDEBUG)
@@ -403,10 +404,15 @@ namespace pygmalion
 #endif
 			if (fromStack)
 			{
-				if (isTactical)
-					stack.tacticalAllMove(m_Feedback, depth, score);
+				if constexpr (!PRUNED)
+				{
+					if (isTactical)
+						stack.tacticalAllMove(m_Feedback, depth, score);
+					else
+						stack.allMove(m_Feedback, depth, score);
+				}
 				else
-					stack.allMove(m_Feedback, depth, score);
+					stack.criticalAllMove(m_Feedback, depth, score);
 			}
 			if constexpr (heuristicMoves)
 			{
@@ -418,6 +424,7 @@ namespace pygmalion
 			}
 			static_cast<instanceType*>(this)->onEndMoveAccepted(stack, moveBits, isTactical, depth, score);
 		}
+		template<bool PRUNED>
 		void endMoveRefuted(const stackType& stack, const movebitsType& moveBits, const bool isTactical, const size_t depth, const scoreType& score, const bool fromStack) noexcept
 		{
 #if !defined(NDEBUG)
@@ -426,10 +433,15 @@ namespace pygmalion
 #endif
 			if (fromStack)
 			{
-				if (isTactical)
-					stack.tacticalCutMove(m_Feedback, depth, score);
+				if constexpr (!PRUNED)
+				{
+					if (isTactical)
+						stack.tacticalCutMove(m_Feedback, depth, score);
+					else
+						stack.cutMove(m_Feedback, depth, score);
+				}
 				else
-					stack.cutMove(m_Feedback, depth, score);
+					stack.criticalCutMove(m_Feedback, depth, score);
 			}
 			if constexpr (heuristicMoves)
 			{

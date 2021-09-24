@@ -467,6 +467,10 @@ namespace pygmalion
 			{
 				feedback.allMove(m_LastPass, depth, score);
 			}
+			constexpr void criticalAllMove(movegenFeedback& feedback, const size_t depth, const scoreType& score) const noexcept
+			{
+				feedback.criticalAllMove(m_LastPass, depth, score);
+			}
 			constexpr void tacticalAllMove(movegenFeedback& feedback, const size_t depth, const scoreType& score) const noexcept
 			{
 				feedback.tacticalAllMove(m_LastTacticalPass, depth, score);
@@ -474,6 +478,10 @@ namespace pygmalion
 			constexpr void cutMove(movegenFeedback& feedback, const size_t depth, const scoreType& score) const noexcept
 			{
 				feedback.cutMove(m_LastPass, depth, score);
+			}
+			constexpr void criticalCutMove(movegenFeedback& feedback, const size_t depth, const scoreType& score) const noexcept
+			{
+				feedback.criticalCutMove(m_LastPass, depth, score);
 			}
 			constexpr void tacticalCutMove(movegenFeedback& feedback, const size_t depth, const scoreType& score) const noexcept
 			{

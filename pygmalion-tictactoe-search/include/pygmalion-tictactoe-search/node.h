@@ -19,12 +19,10 @@ namespace pygmalion::tictactoe
 		}
 		constexpr static scoreType futilityMargin_Implementation(const size_t depthRemaining, const stackType& stack) noexcept
 		{
-			assert(false);
 			return scoreType::zero();
 		}
 		constexpr static scoreType futilityGlobalMargin_Implementation(const size_t depthRemaining, const stackType& stack) noexcept
 		{
-			assert(false);
 			return scoreType::zero();
 		}
 		constexpr static depthType nullMoveReduction_Implementation(const size_t depthRemaining) noexcept
@@ -37,7 +35,6 @@ namespace pygmalion::tictactoe
 		}
 		constexpr scoreType tacticalMoveValue_Implementation(const movebitsType& move) const noexcept
 		{
-			assert(false);
 			return scoreType::zero();
 		}
 	};
