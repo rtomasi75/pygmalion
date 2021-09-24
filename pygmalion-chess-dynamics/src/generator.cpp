@@ -169,10 +169,18 @@ namespace pygmalion::chess
 			}
 		}
 		if (motorType::move().isCapture(mv))
+		{
 			ret += "x";
-		ret = ret + boardType::squareToString(to);
-		if (motorType::move().isEnPassant(mv))
-			ret += "ep";
+			if (motorType::move().isEnPassant(mv))
+			{
+				ret = ret + boardType::squareToString(motorType::move().captureSquare(position, mv));
+				ret += "ep";
+			}
+			else
+				ret = ret + boardType::squareToString(to);
+		}
+		else
+			ret = ret + boardType::squareToString(to);
 		if (motorType::move().isPromotion(mv))
 		{
 			switch (motorType::move().promotedPiece(mv))

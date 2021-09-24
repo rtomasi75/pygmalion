@@ -495,33 +495,36 @@ namespace pygmalion::chess
 		static void generatePawnEnPassant(const stackType& stack, movelistType& moves) noexcept
 		{
 			const uint_t<8, false> epFlags{ stack.position().flags().extractRange<4,11>() };
-			size_t bit;
-			if (stack.position().movingPlayer() == whitePlayer)
+			if (epFlags)
 			{
-				if (epFlags.bitscanForward(bit))
+				size_t bit;
+				if (stack.position().movingPlayer() == whitePlayer)
 				{
-					const fileType epFile{ static_cast<typename fileType::baseType>(bit) };
-					const squaresType leftFile{ static_cast<squaresType>(epFile).left() };
-					const squaresType rightFile{ static_cast<squaresType>(epFile).right() };
-					const squaresType rank{ static_cast<squaresType>(rank5) };
-					const squaresType fromSquares = (leftFile | rightFile) & rank;
-					const squareType toSquare{ epFile & rank6 };
-					for (const squareType from : fromSquares & (stack.position().playerOccupancy(whitePlayer)& stack.position().pieceOccupancy(pawn)))
-						moves.add(motorType::move().createEnPassant(from.file(), epFile));
+					if (epFlags.bitscanForward(bit))
+					{
+						const fileType epFile{ static_cast<typename fileType::baseType>(bit) };
+						const squaresType leftFile{ static_cast<squaresType>(epFile).left() };
+						const squaresType rightFile{ static_cast<squaresType>(epFile).right() };
+						const squaresType rank{ static_cast<squaresType>(rank5) };
+						const squaresType fromSquares = (leftFile | rightFile) & rank;
+						const squareType toSquare{ epFile & rank6 };
+						for (const squareType from : fromSquares & (stack.position().playerOccupancy(whitePlayer)& stack.position().pieceOccupancy(pawn)))
+							moves.add(motorType::move().createEnPassant(from.file(), epFile));
+					}
 				}
-			}
-			else
-			{
-				if (epFlags.bitscanForward(bit))
+				else
 				{
-					const fileType epFile{ static_cast<typename fileType::baseType>(bit) };
-					const squaresType leftFile{ static_cast<squaresType>(epFile).left() };
-					const squaresType rightFile{ static_cast<squaresType>(epFile).right() };
-					const squaresType rank{ static_cast<squaresType>(rank4) };
-					const squaresType fromSquares = (leftFile | rightFile) & rank;
-					const squareType toSquare{ epFile & rank3 };
-					for (const squareType from : fromSquares & (stack.position().playerOccupancy(blackPlayer)& stack.position().pieceOccupancy(pawn)))
-						moves.add(motorType::move().createEnPassant(from.file(), epFile));
+					if (epFlags.bitscanForward(bit))
+					{
+						const fileType epFile{ static_cast<typename fileType::baseType>(bit) };
+						const squaresType leftFile{ static_cast<squaresType>(epFile).left() };
+						const squaresType rightFile{ static_cast<squaresType>(epFile).right() };
+						const squaresType rank{ static_cast<squaresType>(rank4) };
+						const squaresType fromSquares = (leftFile | rightFile) & rank;
+						const squareType toSquare{ epFile & rank3 };
+						for (const squareType from : fromSquares & (stack.position().playerOccupancy(blackPlayer)& stack.position().pieceOccupancy(pawn)))
+							moves.add(motorType::move().createEnPassant(from.file(), epFile));
+					}
 				}
 			}
 		}
@@ -802,7 +805,6 @@ namespace pygmalion::chess
 				for (const auto from : movers)
 					moves.add(motorType::move().createCapture(from, to));
 			}
-			const rankType otherKingRank{ otherKing.rank() };
 			if (stack.movingPlayer() == whitePlayer)
 			{
 				const squaresType criticalPromotionSquares{ criticalSquares & rank8 };
@@ -818,7 +820,7 @@ namespace pygmalion::chess
 				}
 				for (const auto to : criticalPromoCaptures)
 				{
-					const squaresType origins{ movegenPawnPromotionWhite.inverseAttacks(to,squaresType::all()) };
+					const squaresType origins{ movegenPawnPromoCaptureWhite.inverseAttacks(to,squaresType::all()) };
 					const squaresType movers{ origins & ownPawns };
 					for (const auto from : movers)
 						moves.add(motorType::move().createPromoCaptureKnight(from, to));
@@ -839,7 +841,7 @@ namespace pygmalion::chess
 				}
 				for (const auto to : criticalPromoCaptures)
 				{
-					const squaresType origins{ movegenPawnPromotionWhite.inverseAttacks(to,squaresType::all()) };
+					const squaresType origins{ movegenPawnPromoCaptureWhite.inverseAttacks(to,squaresType::all()) };
 					const squaresType movers{ origins & ownPawns };
 					for (const auto from : movers)
 						moves.add(motorType::move().createPromoCaptureKnight(from, to));
@@ -852,21 +854,23 @@ namespace pygmalion::chess
 			const rankType otherKingRank{ otherKing.rank() };
 			const squaresType unoccupied{ ~stack.position().totalOccupancy() };
 			const squaresType ownPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(whitePlayer) };
-			const squaresType criticalSquares{ movegenPawnCaptureWhite.inverseAttacks(otherKing, squaresType::all()) };
+			constexpr const squaresType notRank1{ ~rank1 };
+			const squaresType tempSquare{ squaresType(otherKing).down() & notRank1 };
+			const squaresType criticalSquares{ tempSquare.left() | tempSquare.right() };
 			const squaresType criticalTargets{ criticalSquares & unoccupied };
 			const squaresType criticalCaptures{ criticalSquares & stack.position().playerOccupancy(blackPlayer) };
 			for (const auto to : criticalTargets)
 			{
-				const squaresType origins{ movegenPawnPushWhite.inverseTargets(to,squaresType::all()) };
+				const squaresType origins{ squaresType(to).down() & notRank1 };
 				const squaresType movers{ origins & ownPawns };
 				for (const auto from : movers)
 					moves.add(motorType::move().createQuiet(from, to));
-				const squaresType pushovers{ origins & unoccupied };
+				const squaresType pushovers{ origins & unoccupied & rank3 };
 				for (const auto pushover : pushovers)
 				{
-					const squaresType doubePushOrigins{ movegenPawnPushWhite.inverseTargets(pushover,squaresType::all()) };
-					const squaresType doubePushers{ doubePushOrigins & ownPawns };
-					for (const auto from : doubePushers)
+					const squaresType doublePushOrigins{ squaresType(pushover.down()) };
+					const squaresType doublePushers{ doublePushOrigins & ownPawns };
+					for (const auto from : doublePushers)
 						moves.add(motorType::move().createDoublePush(to.file()));
 				}
 				const rankType toRank{ to.rank() };
@@ -894,7 +898,8 @@ namespace pygmalion::chess
 			}
 			for (const auto to : criticalCaptures)
 			{
-				const squaresType origins{ movegenPawnCaptureWhite.inverseAttacks(to,squaresType::all()) };
+				const squaresType tempOrigin{ squaresType(to).down() & notRank1 };
+				const squaresType origins{ tempOrigin.left() | tempOrigin.right() };
 				const squaresType movers{ origins & ownPawns };
 				for (const auto from : movers)
 					moves.add(motorType::move().createCapture(from, to));
@@ -902,25 +907,27 @@ namespace pygmalion::chess
 		}
 		static void generateCriticalPawnMovesBlack(const stackType& stack, movelistType& moves) noexcept
 		{
-			const squareType otherKing{ stack.kingSquare(blackPlayer) };
+			const squareType otherKing{ stack.kingSquare(whitePlayer) };
 			const rankType otherKingRank{ otherKing.rank() };
 			const squaresType unoccupied{ ~stack.position().totalOccupancy() };
 			const squaresType ownPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(blackPlayer) };
-			const squaresType criticalSquares{ movegenPawnCaptureBlack.inverseAttacks(otherKing, squaresType::all()) };
+			constexpr const squaresType notRank8{ ~rank8 };
+			const squaresType tempSquare{ squaresType(otherKing).up() & notRank8 };
+			const squaresType criticalSquares{ tempSquare.left() | tempSquare.right() };
 			const squaresType criticalTargets{ criticalSquares & unoccupied };
 			const squaresType criticalCaptures{ criticalSquares & stack.position().playerOccupancy(whitePlayer) };
 			for (const auto to : criticalTargets)
 			{
-				const squaresType origins{ movegenPawnPushBlack.inverseTargets(to,squaresType::all()) };
+				const squaresType origins{ squaresType(to).up() & notRank8 };
 				const squaresType movers{ origins & ownPawns };
 				for (const auto from : movers)
 					moves.add(motorType::move().createQuiet(from, to));
-				const squaresType pushovers{ origins & unoccupied };
+				const squaresType pushovers{ origins & unoccupied & rank6 };
 				for (const auto pushover : pushovers)
 				{
-					const squaresType doubePushOrigins{ movegenPawnPushBlack.inverseTargets(pushover,squaresType::all()) };
-					const squaresType doubePushers{ doubePushOrigins & ownPawns };
-					for (const auto from : doubePushers)
+					const squaresType doublePushOrigins{ squaresType(pushover.up()) };
+					const squaresType doublePushers{ doublePushOrigins & ownPawns };
+					for (const auto from : doublePushers)
 						moves.add(motorType::move().createDoublePush(to.file()));
 				}
 				const rankType toRank{ to.rank() };
@@ -948,7 +955,8 @@ namespace pygmalion::chess
 			}
 			for (const auto to : criticalCaptures)
 			{
-				const squaresType origins{ movegenPawnCaptureBlack.inverseAttacks(to,squaresType::all()) };
+				const squaresType tempOrigin{ squaresType(to).up() & notRank8 };
+				const squaresType origins{ tempOrigin.left() | tempOrigin.right() };
 				const squaresType movers{ origins & ownPawns };
 				for (const auto from : movers)
 					moves.add(motorType::move().createCapture(from, to));
@@ -963,9 +971,12 @@ namespace pygmalion::chess
 		}
 		static void generateCriticalSliderMovesHV(const stackType& stack, movelistType& moves) noexcept
 		{
-			const squaresType ownSlidersHV{ (stack.position().pieceOccupancy(rook) | stack.position().pieceOccupancy(queen)) & stack.position().playerOccupancy(stack.movingPlayer()) };
+			const squaresType ownQueens{ stack.position().pieceOccupancy(queen) & stack.position().playerOccupancy(stack.movingPlayer()) };
+			const squaresType ownRooks{ stack.position().pieceOccupancy(rook) & stack.position().playerOccupancy(stack.movingPlayer()) };
+			const squaresType ownSlidersHV{ ownQueens | ownRooks };
 			const squareType otherKing{ stack.kingSquare(stack.nextPlayer()) };
-			const squaresType unoccupied{ ~stack.position().totalOccupancy() };
+			const squaresType occupied{ stack.position().totalOccupancy() };
+			const squaresType unoccupied{ ~occupied };
 			const squaresType criticalSquares{ movegenSlidersHV.inverseAttacks(otherKing, unoccupied) };
 			const squaresType criticalTargets{ criticalSquares & unoccupied };
 			const squaresType criticalCaptures{ criticalSquares & stack.position().playerOccupancy(stack.nextPlayer()) };
@@ -976,12 +987,20 @@ namespace pygmalion::chess
 				const squaresType movers{ origins & ownSlidersHV };
 				for (const auto from : movers)
 					moves.add(motorType::move().createQuiet(from, to));
+				const squaresType origins2{ movegenSlidersDiag.inverseAttacks(to,unoccupied) };
+				const squaresType movers2{ origins2 & ownQueens };
+				for (const auto from : movers2)
+					moves.add(motorType::move().createQuiet(from, to));
 			}
 			for (const auto to : criticalCaptures)
 			{
 				const squaresType origins{ movegenSlidersHV.inverseAttacks(to,unoccupied) };
 				const squaresType movers{ origins & ownSlidersHV };
 				for (const auto from : movers)
+					moves.add(motorType::move().createCapture(from, to));
+				const squaresType origins2{ movegenSlidersDiag.inverseAttacks(to,unoccupied) };
+				const squaresType movers2{ origins2 & ownQueens };
+				for (const auto from : movers2)
 					moves.add(motorType::move().createCapture(from, to));
 			}
 			for (const auto from : discoveryCandidates)
@@ -1009,7 +1028,9 @@ namespace pygmalion::chess
 					}
 					case knight:
 					{
-						const squaresType discoveryTargets{ movegenKnight.targets(from,squaresType::all()) & allowedDestinations };
+						const squaresType criticalSquares2{ movegenKnight.inverseAttacks(otherKing, squaresType::all()) };
+						const squaresType allowedDestinations2{ allowedDestinations & ~criticalSquares2 };
+						const squaresType discoveryTargets{ movegenKnight.targets(from,squaresType::all()) & allowedDestinations2 };
 						const squaresType discoveryMoves{ discoveryTargets & unoccupied };
 						const squaresType discoveryCaptures{ discoveryTargets & stack.position().playerOccupancy(stack.nextPlayer()) };
 						for (const auto to : discoveryMoves)
@@ -1020,7 +1041,8 @@ namespace pygmalion::chess
 					}
 					case rook:
 					{
-						const squaresType discoveryTargets{ movegenSlidersHV.attacks(from,discovered) & allowedDestinations };
+						const squaresType allowedDestinations2{ allowedDestinations & ~criticalSquares };
+						const squaresType discoveryTargets{ movegenSlidersHV.attacks(from,discovered) & allowedDestinations2 };
 						const squaresType discoveryMoves{ discoveryTargets & unoccupied };
 						const squaresType discoveryCaptures{ discoveryTargets & stack.position().playerOccupancy(stack.nextPlayer()) };
 						for (const auto to : discoveryMoves)
@@ -1031,7 +1053,9 @@ namespace pygmalion::chess
 					}
 					case bishop:
 					{
-						const squaresType discoveryTargets{ movegenSlidersDiag.attacks(from,discovered) & allowedDestinations };
+						const squaresType criticalSquares2{ movegenSlidersDiag.inverseAttacks(otherKing, unoccupied) };
+						const squaresType allowedDestinations2{ allowedDestinations & ~criticalSquares2 };
+						const squaresType discoveryTargets{ movegenSlidersDiag.attacks(from,discovered) & allowedDestinations2 };
 						const squaresType discoveryMoves{ discoveryTargets & unoccupied };
 						const squaresType discoveryCaptures{ discoveryTargets & stack.position().playerOccupancy(stack.nextPlayer()) };
 						for (const auto to : discoveryMoves)
@@ -1042,7 +1066,9 @@ namespace pygmalion::chess
 					}
 					case queen:
 					{
-						const squaresType discoveryTargets{ (movegenSlidersHV.attacks(from,discovered) | movegenSlidersDiag.attacks(from,discovered)) & allowedDestinations };
+						const squaresType criticalSquares2{ criticalSquares | movegenSlidersDiag.inverseAttacks(otherKing, unoccupied) };
+						const squaresType allowedDestinations2{ allowedDestinations & ~criticalSquares2 };
+						const squaresType discoveryTargets{ (movegenSlidersHV.attacks(from,discovered) | movegenSlidersDiag.attacks(from,discovered)) & allowedDestinations2 };
 						const squaresType discoveryMoves{ discoveryTargets & unoccupied };
 						const squaresType discoveryCaptures{ discoveryTargets & stack.position().playerOccupancy(stack.nextPlayer()) };
 						for (const auto to : discoveryMoves)
@@ -1055,9 +1081,13 @@ namespace pygmalion::chess
 					{
 						if (stack.movingPlayer() == whitePlayer)
 						{
-							const squaresType discoveryMoves{ movegenPawnPushWhite.targets(from,squaresType::all()) & allowedDestinations & unoccupied };
-							const squaresType discoveryCaptures{ movegenPawnCaptureWhite.targets(from,squaresType::all()) & allowedDestinations & stack.position().playerOccupancy(stack.nextPlayer()) };
-							const squaresType discoveryDoublePushes{ movegenPawnDoublePushWhite.targets(from,discovered) & allowedDestinations };
+							constexpr const squaresType notRank1{ ~rank1 };
+							const squaresType tempSquare{ squaresType(otherKing).down() & notRank1 };
+							const squaresType criticalSquares2{ tempSquare.left() | tempSquare.right() };
+							const squaresType allowedDestinations2{ allowedDestinations & ~criticalSquares2 };
+							const squaresType discoveryMoves{ movegenPawnPushWhite.targets(from,squaresType::all()) & allowedDestinations2 & unoccupied };
+							const squaresType discoveryCaptures{ movegenPawnCaptureWhite.targets(from,squaresType::all()) & allowedDestinations2 & stack.position().playerOccupancy(stack.nextPlayer()) };
+							const squaresType discoveryDoublePushes{ movegenPawnDoublePushWhite.targets(from,discovered) & allowedDestinations2 };
 							for (const auto to : discoveryMoves)
 								moves.add(motorType::move().createQuiet(from, to));
 							for (const auto to : discoveryCaptures)
@@ -1065,36 +1095,16 @@ namespace pygmalion::chess
 							const fileType fromFile{ from.file() };
 							for (const auto to : discoveryDoublePushes)
 								moves.add(motorType::move().createDoublePush(fromFile));
-							const rankType fromRank{ from.rank() };
-							if (fromRank == rank5)
-							{
-								if (fromFile > fileA)
-								{
-									const fileType toFile{ static_cast<fileType>(fromFile - 1) };
-									if (stack.position().checkEnPassantFile(toFile))
-									{
-										const squareType to{ rank6 & toFile };
-										if (allowedDestinations[to])
-											motorType::move().createEnPassant(fromFile, toFile);
-									}
-								}
-								if (fromFile < fileH)
-								{
-									const fileType toFile{ static_cast<fileType>(fromFile + 1) };
-									if (stack.position().checkEnPassantFile(toFile))
-									{
-										const squareType to{ rank6 & toFile };
-										if (allowedDestinations[to])
-											motorType::move().createEnPassant(fromFile, toFile);
-									}
-								}
-							}
 						}
 						else
 						{
-							const squaresType discoveryMoves{ movegenPawnPushBlack.targets(from,squaresType::all()) & allowedDestinations & unoccupied };
-							const squaresType discoveryCaptures{ movegenPawnCaptureBlack.targets(from,squaresType::all()) & allowedDestinations & stack.position().playerOccupancy(stack.nextPlayer()) };
-							const squaresType discoveryDoublePushes{ movegenPawnDoublePushBlack.targets(from,discovered) & allowedDestinations };
+							constexpr const squaresType notRank8{ ~rank8 };
+							const squaresType tempSquare{ squaresType(otherKing).up() & notRank8 };
+							const squaresType criticalSquares2{ tempSquare.left() | tempSquare.right() };
+							const squaresType allowedDestinations2{ allowedDestinations & ~criticalSquares2 };
+							const squaresType discoveryMoves{ movegenPawnPushBlack.targets(from,squaresType::all()) & allowedDestinations2 & unoccupied };
+							const squaresType discoveryCaptures{ movegenPawnCaptureBlack.targets(from,squaresType::all()) & allowedDestinations2 & stack.position().playerOccupancy(stack.nextPlayer()) };
+							const squaresType discoveryDoublePushes{ movegenPawnDoublePushBlack.targets(from,discovered) & allowedDestinations2 };
 							for (const auto to : discoveryMoves)
 								moves.add(motorType::move().createQuiet(from, to));
 							for (const auto to : discoveryCaptures)
@@ -1102,40 +1112,239 @@ namespace pygmalion::chess
 							const fileType fromFile{ from.file() };
 							for (const auto to : discoveryDoublePushes)
 								moves.add(motorType::move().createDoublePush(fromFile));
-							const rankType fromRank{ from.rank() };
-							if (fromRank == rank4)
-							{
-								if (fromFile > fileA)
-								{
-									const fileType toFile{ static_cast<fileType>(fromFile - 1) };
-									if (stack.position().checkEnPassantFile(toFile))
-									{
-										const squareType to{ rank3 & toFile };
-										if (allowedDestinations[to])
-											motorType::move().createEnPassant(fromFile, toFile);
-									}
-								}
-								if (fromFile < fileH)
-								{
-									const fileType toFile{ static_cast<fileType>(fromFile + 1) };
-									if (stack.position().checkEnPassantFile(toFile))
-									{
-										const squareType to{ rank3 & toFile };
-										if (allowedDestinations[to])
-											motorType::move().createEnPassant(fromFile, toFile);
-									}
-								}
-							}
 						}
 						break;
 					}
 					}
 				}
 			}
+			const uint_t<8, false> epFlags{ stack.position().flags().extractRange<4,11>() };
+			if (epFlags)
+			{
+				size_t bit;
+				if (stack.position().movingPlayer() == whitePlayer)
+				{
+					if (epFlags.bitscanForward(bit))
+					{
+						constexpr const squaresType notRank1{ ~rank1 };
+						const squaresType tempSquare{ squaresType(otherKing).down() & notRank1 };
+						const squaresType criticalSquares2{ tempSquare.left() | tempSquare.right() };
+						const fileType epFile{ static_cast<typename fileType::baseType>(bit) };
+						const squareType toSquare{ epFile & rank6 };
+						const squaresType allowedDestinations2{ ~criticalSquares2 };
+						const squaresType leftFile{ static_cast<squaresType>(epFile).left() };
+						const squaresType rightFile{ static_cast<squaresType>(epFile).right() };
+						const squaresType rank{ static_cast<squaresType>(rank5) };
+						const squaresType fromSquares = (leftFile | rightFile) & rank;
+						for (const squareType from : fromSquares & (stack.position().playerOccupancy(whitePlayer)& stack.position().pieceOccupancy(pawn)))
+						{
+							const movebitsType mv{ motorType::move().createEnPassant(from.file(), epFile) };
+							const squareType to{ motorType::move().toSquare(stack.position(),mv) };
+							if (allowedDestinations2[to])
+							{
+								const squaresType ownDelta{ motorType::move().ownOccupancyDelta(stack.position(),mv) };
+								const squaresType otherDelta{ motorType::move().otherOccupancyDelta(stack.position(),mv) };
+								const squaresType ownOcc{ ownDelta ^ stack.position().playerOccupancy(whitePlayer) };
+								const squaresType otherOcc{ otherDelta ^ stack.position().playerOccupancy(blackPlayer) };
+								const squaresType unoccupied2{ ~(ownOcc | otherOcc) };
+								const squaresType criticalSquares3{ movegenSlidersHV.inverseAttacks(otherKing, unoccupied2) };
+								if ((criticalSquares3 & ownSlidersHV) != squaresType::none())
+									moves.add(mv);
+							}
+						}
+					}
+				}
+				else
+				{
+					if (epFlags.bitscanForward(bit))
+					{
+						constexpr const squaresType notRank8{ ~rank8 };
+						const squaresType tempSquare{ squaresType(otherKing).up() & notRank8 };
+						const squaresType criticalSquares2{ tempSquare.left() | tempSquare.right() };
+						const fileType epFile{ static_cast<typename fileType::baseType>(bit) };
+						const squareType toSquare{ epFile & rank3 };
+						const squaresType allowedDestinations2{ ~criticalSquares2 };
+						const squaresType leftFile{ static_cast<squaresType>(epFile).left() };
+						const squaresType rightFile{ static_cast<squaresType>(epFile).right() };
+						const squaresType rank{ static_cast<squaresType>(rank4) };
+						const squaresType fromSquares = (leftFile | rightFile) & rank;
+						for (const squareType from : fromSquares & (stack.position().playerOccupancy(blackPlayer)& stack.position().pieceOccupancy(pawn)))
+						{
+							const movebitsType mv{ motorType::move().createEnPassant(from.file(), epFile) };
+							const squareType to{ motorType::move().toSquare(stack.position(),mv) };
+							if (allowedDestinations2[to])
+							{
+								const squaresType ownDelta{ motorType::move().ownOccupancyDelta(stack.position(),mv) };
+								const squaresType otherDelta{ motorType::move().otherOccupancyDelta(stack.position(),mv) };
+								const squaresType ownOcc{ ownDelta ^ stack.position().playerOccupancy(blackPlayer) };
+								const squaresType otherOcc{ otherDelta ^ stack.position().playerOccupancy(whitePlayer) };
+								const squaresType unoccupied2{ ~(ownOcc | otherOcc) };
+								const squaresType criticalSquares3{ movegenSlidersHV.inverseAttacks(otherKing, unoccupied2) };
+								if ((criticalSquares3 & ownSlidersHV) != squaresType::none())
+									moves.add(mv);
+							}
+						}
+					}
+				}
+			}
+			if (stack.movingPlayer() == whitePlayer)
+			{
+				const squaresType criticalPromotionSquares{ rank8 };
+				const squaresType criticalPromotions{ criticalPromotionSquares & ~stack.position().totalOccupancy() };
+				const squaresType criticalPromoCaptures{ criticalPromotionSquares & stack.position().playerOccupancy(blackPlayer) };
+				const squaresType ownPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(whitePlayer) };
+				for (const auto to : criticalPromotions)
+				{
+					const squaresType origins{ movegenPawnPromotionWhite.inverseTargets(to,squaresType::all()) };
+					const squaresType movers{ origins & ownPawns };
+					const squaresType toBB{ squaresType(to) };
+					const squaresType promotedSliders{ ownSlidersHV ^ toBB };
+					for (const auto from : movers)
+					{
+						const squaresType fromBB{ squaresType(from) };
+						const squaresType newUnoccupied{ unoccupied ^ fromBB ^ toBB };
+						const squaresType criticalSquares2{ movegenSlidersHV.inverseAttacks(otherKing, newUnoccupied) };
+						if (criticalSquares2[to])
+						{
+							moves.add(motorType::move().createPromotionQueen(from, to));
+							moves.add(motorType::move().createPromotionRook(from, to));
+						}
+					}
+				}
+				for (const auto to : criticalPromoCaptures)
+				{
+					const squaresType origins{ movegenPawnPromoCaptureWhite.inverseAttacks(to,squaresType::all()) };
+					const squaresType movers{ origins & ownPawns };
+					const squaresType toBB{ squaresType(to) };
+					const squaresType promotedSliders{ ownSlidersHV ^ toBB };
+					for (const auto from : movers)
+					{
+						const squaresType fromBB{ squaresType(from) };
+						const squaresType newUnoccupied{ unoccupied ^ fromBB };
+						const squaresType criticalSquares2{ movegenSlidersHV.inverseAttacks(otherKing, newUnoccupied) };
+						if (criticalSquares2[to])
+						{
+							moves.add(motorType::move().createPromoCaptureQueen(from, to));
+							moves.add(motorType::move().createPromoCaptureRook(from, to));
+						}
+					}
+				}
+			}
+			else
+			{
+				const squaresType criticalPromotionSquares{ rank1 };
+				const squaresType criticalPromotions{ criticalPromotionSquares & ~stack.position().totalOccupancy() };
+				const squaresType criticalPromoCaptures{ criticalPromotionSquares & stack.position().playerOccupancy(whitePlayer) };
+				const squaresType ownPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(blackPlayer) };
+				for (const auto to : criticalPromotions)
+				{
+					const squaresType origins{ movegenPawnPromotionBlack.inverseTargets(to,squaresType::all()) };
+					const squaresType movers{ origins & ownPawns };
+					const squaresType toBB{ squaresType(to) };
+					const squaresType promotedSliders{ ownSlidersHV ^ toBB };
+					for (const auto from : movers)
+					{
+						const squaresType fromBB{ squaresType(from) };
+						const squaresType newUnoccupied{ unoccupied ^ fromBB ^ toBB };
+						const squaresType criticalSquares2{ movegenSlidersHV.inverseAttacks(otherKing, newUnoccupied) };
+						if (criticalSquares2[to])
+						{
+							moves.add(motorType::move().createPromotionQueen(from, to));
+							moves.add(motorType::move().createPromotionRook(from, to));
+						}
+					}
+				}
+				for (const auto to : criticalPromoCaptures)
+				{
+					const squaresType origins{ movegenPawnPromoCaptureWhite.inverseAttacks(to,squaresType::all()) };
+					const squaresType movers{ origins & ownPawns };
+					const squaresType toBB{ squaresType(to) };
+					const squaresType promotedSliders{ ownSlidersHV ^ toBB };
+					for (const auto from : movers)
+					{
+						const squaresType fromBB{ squaresType(from) };
+						const squaresType newUnoccupied{ unoccupied ^ fromBB };
+						const squaresType criticalSquares2{ movegenSlidersHV.inverseAttacks(otherKing, newUnoccupied) };
+						if (criticalSquares2[to])
+						{
+							moves.add(motorType::move().createPromoCaptureQueen(from, to));
+							moves.add(motorType::move().createPromoCaptureRook(from, to));
+						}
+					}
+				}
+			}
+			if (stack.position().movingPlayer() == whitePlayer)
+			{
+				if (stack.position().checkCastleRightKingsideWhite())
+				{
+					if (!(occupied & kingsideCastleInterestWhite))
+					{
+						const movebitsType mv{ motorType::move().createKingsideCastle() };
+						const squaresType ownDelta{ motorType::move().ownOccupancyDelta(stack.position(),mv) };
+						const squaresType otherDelta{ motorType::move().otherOccupancyDelta(stack.position(),mv) };
+						const squaresType ownOcc{ ownDelta ^ stack.position().playerOccupancy(whitePlayer) };
+						const squaresType otherOcc{ otherDelta ^ stack.position().playerOccupancy(blackPlayer) };
+						const squaresType unoccupied2{ ~(ownOcc | otherOcc) };
+						const squaresType criticalSquares3{ movegenSlidersHV.inverseAttacks(otherKing, unoccupied2) };
+						if (criticalSquares3[squareF1])
+							moves.add(mv);
+					}
+				}
+				if (stack.position().checkCastleRightQueensideWhite())
+				{
+					if (!(occupied & queensideCastleInterestWhite))
+					{
+						const movebitsType mv{ motorType::move().createQueensideCastle() };
+						const squaresType ownDelta{ motorType::move().ownOccupancyDelta(stack.position(),mv) };
+						const squaresType otherDelta{ motorType::move().otherOccupancyDelta(stack.position(),mv) };
+						const squaresType ownOcc{ ownDelta ^ stack.position().playerOccupancy(whitePlayer) };
+						const squaresType otherOcc{ otherDelta ^ stack.position().playerOccupancy(blackPlayer) };
+						const squaresType unoccupied2{ ~(ownOcc | otherOcc) };
+						const squaresType criticalSquares3{ movegenSlidersHV.inverseAttacks(otherKing, unoccupied2) };
+						if (criticalSquares3[squareD1])
+							moves.add(mv);
+					}
+				}
+			}
+			else
+			{
+				if (stack.position().checkCastleRightKingsideBlack())
+				{
+					if (!(occupied & kingsideCastleInterestBlack))
+					{
+						const movebitsType mv{ motorType::move().createKingsideCastle() };
+						const squaresType ownDelta{ motorType::move().ownOccupancyDelta(stack.position(),mv) };
+						const squaresType otherDelta{ motorType::move().otherOccupancyDelta(stack.position(),mv) };
+						const squaresType ownOcc{ ownDelta ^ stack.position().playerOccupancy(blackPlayer) };
+						const squaresType otherOcc{ otherDelta ^ stack.position().playerOccupancy(whitePlayer) };
+						const squaresType unoccupied2{ ~(ownOcc | otherOcc) };
+						const squaresType criticalSquares3{ movegenSlidersHV.inverseAttacks(otherKing, unoccupied2) };
+						if (criticalSquares3[squareF8])
+							moves.add(mv);
+					}
+				}
+				if (stack.position().checkCastleRightQueensideBlack())
+				{
+					if (!(occupied & queensideCastleInterestBlack))
+					{
+						const movebitsType mv{ motorType::move().createQueensideCastle() };
+						const squaresType ownDelta{ motorType::move().ownOccupancyDelta(stack.position(),mv) };
+						const squaresType otherDelta{ motorType::move().otherOccupancyDelta(stack.position(),mv) };
+						const squaresType ownOcc{ ownDelta ^ stack.position().playerOccupancy(blackPlayer) };
+						const squaresType otherOcc{ otherDelta ^ stack.position().playerOccupancy(whitePlayer) };
+						const squaresType unoccupied2{ ~(ownOcc | otherOcc) };
+						const squaresType criticalSquares3{ movegenSlidersHV.inverseAttacks(otherKing, unoccupied2) };
+						if (criticalSquares3[squareD8])
+							moves.add(mv);
+					}
+				}
+			}
 		}
 		static void generateCriticalSliderMovesDiag(const stackType& stack, movelistType& moves) noexcept
 		{
-			const squaresType ownSlidersDiag{ (stack.position().pieceOccupancy(bishop) | stack.position().pieceOccupancy(queen)) & stack.position().playerOccupancy(stack.movingPlayer()) };
+			const squaresType ownQueens{ stack.position().pieceOccupancy(queen) & stack.position().playerOccupancy(stack.movingPlayer()) };
+			const squaresType ownBishops{ stack.position().pieceOccupancy(bishop) & stack.position().playerOccupancy(stack.movingPlayer()) };
+			const squaresType ownSlidersDiag{ ownQueens | ownBishops };
 			const squareType otherKing{ stack.kingSquare(stack.nextPlayer()) };
 			const squaresType unoccupied{ ~stack.position().totalOccupancy() };
 			const squaresType criticalSquares{ movegenSlidersDiag.inverseAttacks(otherKing, unoccupied) };
@@ -1148,12 +1357,20 @@ namespace pygmalion::chess
 				const squaresType movers{ origins & ownSlidersDiag };
 				for (const auto from : movers)
 					moves.add(motorType::move().createQuiet(from, to));
+				const squaresType origins2{ movegenSlidersHV.inverseAttacks(to,unoccupied) };
+				const squaresType movers2{ origins2 & ownQueens };
+				for (const auto from : movers2)
+					moves.add(motorType::move().createQuiet(from, to));
 			}
 			for (const auto to : criticalCaptures)
 			{
 				const squaresType origins{ movegenSlidersDiag.inverseAttacks(to,unoccupied) };
 				const squaresType movers{ origins & ownSlidersDiag };
 				for (const auto from : movers)
+					moves.add(motorType::move().createCapture(from, to));
+				const squaresType origins2{ movegenSlidersHV.inverseAttacks(to,unoccupied) };
+				const squaresType movers2{ origins2 & ownQueens };
+				for (const auto from : movers2)
 					moves.add(motorType::move().createCapture(from, to));
 			}
 			for (const auto from : discoveryCandidates)
@@ -1181,7 +1398,9 @@ namespace pygmalion::chess
 					}
 					case knight:
 					{
-						const squaresType discoveryTargets{ movegenKnight.targets(from,squaresType::all()) & allowedDestinations };
+						const squaresType criticalSquares2{ movegenKnight.inverseAttacks(otherKing, squaresType::all()) };
+						const squaresType allowedDestinations2{ allowedDestinations & ~criticalSquares2 };
+						const squaresType discoveryTargets{ movegenKnight.targets(from,squaresType::all()) & allowedDestinations2 };
 						const squaresType discoveryMoves{ discoveryTargets & unoccupied };
 						const squaresType discoveryCaptures{ discoveryTargets & stack.position().playerOccupancy(stack.nextPlayer()) };
 						for (const auto to : discoveryMoves)
@@ -1192,7 +1411,9 @@ namespace pygmalion::chess
 					}
 					case rook:
 					{
-						const squaresType discoveryTargets{ movegenSlidersHV.attacks(from,discovered) & allowedDestinations };
+						const squaresType criticalSquares2{ movegenSlidersHV.inverseAttacks(otherKing, unoccupied) };
+						const squaresType allowedDestinations2{ allowedDestinations & ~criticalSquares2 };
+						const squaresType discoveryTargets{ movegenSlidersHV.attacks(from,discovered) & allowedDestinations2 };
 						const squaresType discoveryMoves{ discoveryTargets & unoccupied };
 						const squaresType discoveryCaptures{ discoveryTargets & stack.position().playerOccupancy(stack.nextPlayer()) };
 						for (const auto to : discoveryMoves)
@@ -1203,7 +1424,8 @@ namespace pygmalion::chess
 					}
 					case bishop:
 					{
-						const squaresType discoveryTargets{ movegenSlidersDiag.attacks(from,discovered) & allowedDestinations };
+						const squaresType allowedDestinations2{ allowedDestinations & ~criticalSquares };
+						const squaresType discoveryTargets{ movegenSlidersDiag.attacks(from,discovered) & allowedDestinations2 };
 						const squaresType discoveryMoves{ discoveryTargets & unoccupied };
 						const squaresType discoveryCaptures{ discoveryTargets & stack.position().playerOccupancy(stack.nextPlayer()) };
 						for (const auto to : discoveryMoves)
@@ -1214,7 +1436,9 @@ namespace pygmalion::chess
 					}
 					case queen:
 					{
-						const squaresType discoveryTargets{ (movegenSlidersHV.attacks(from,discovered) | movegenSlidersDiag.attacks(from,discovered)) & allowedDestinations };
+						const squaresType criticalSquares2{ criticalSquares | movegenSlidersHV.inverseAttacks(otherKing, unoccupied) };
+						const squaresType allowedDestinations2{ allowedDestinations & ~criticalSquares2 };
+						const squaresType discoveryTargets{ (movegenSlidersHV.attacks(from,discovered) | movegenSlidersDiag.attacks(from,discovered)) & allowedDestinations2 };
 						const squaresType discoveryMoves{ discoveryTargets & unoccupied };
 						const squaresType discoveryCaptures{ discoveryTargets & stack.position().playerOccupancy(stack.nextPlayer()) };
 						for (const auto to : discoveryMoves)
@@ -1227,9 +1451,13 @@ namespace pygmalion::chess
 					{
 						if (stack.movingPlayer() == whitePlayer)
 						{
-							const squaresType discoveryMoves{ movegenPawnPushWhite.targets(from,squaresType::all()) & allowedDestinations & unoccupied };
-							const squaresType discoveryCaptures{ movegenPawnCaptureWhite.targets(from,squaresType::all()) & allowedDestinations & stack.position().playerOccupancy(stack.nextPlayer()) };
-							const squaresType discoveryDoublePushes{ movegenPawnDoublePushWhite.targets(from,discovered) & allowedDestinations };
+							constexpr const squaresType notRank1{ ~rank1 };
+							const squaresType tempSquare{ squaresType(otherKing).down() & notRank1 };
+							const squaresType criticalSquares2{ tempSquare.left() | tempSquare.right() };
+							const squaresType allowedDestinations2{ allowedDestinations & ~criticalSquares2 };
+							const squaresType discoveryMoves{ movegenPawnPushWhite.targets(from,squaresType::all()) & allowedDestinations2 & unoccupied };
+							const squaresType discoveryCaptures{ movegenPawnCaptureWhite.targets(from,squaresType::all()) & allowedDestinations2 & stack.position().playerOccupancy(stack.nextPlayer()) };
+							const squaresType discoveryDoublePushes{ movegenPawnDoublePushWhite.targets(from,discovered) & allowedDestinations2 };
 							for (const auto to : discoveryMoves)
 								moves.add(motorType::move().createQuiet(from, to));
 							for (const auto to : discoveryCaptures)
@@ -1237,36 +1465,16 @@ namespace pygmalion::chess
 							const fileType fromFile{ from.file() };
 							for (const auto to : discoveryDoublePushes)
 								moves.add(motorType::move().createDoublePush(fromFile));
-							const rankType fromRank{ from.rank() };
-							if (fromRank == rank5)
-							{
-								if (fromFile > fileA)
-								{
-									const fileType toFile{ static_cast<fileType>(fromFile - 1) };
-									if (stack.position().checkEnPassantFile(toFile))
-									{
-										const squareType to{ rank6 & toFile };
-										if (allowedDestinations[to])
-											motorType::move().createEnPassant(fromFile, toFile);
-									}
-								}
-								if (fromFile < fileH)
-								{
-									const fileType toFile{ static_cast<fileType>(fromFile + 1) };
-									if (stack.position().checkEnPassantFile(toFile))
-									{
-										const squareType to{ rank6 & toFile };
-										if (allowedDestinations[to])
-											motorType::move().createEnPassant(fromFile, toFile);
-									}
-								}
-							}
 						}
 						else
 						{
-							const squaresType discoveryMoves{ movegenPawnPushBlack.targets(from,squaresType::all()) & allowedDestinations & unoccupied };
-							const squaresType discoveryCaptures{ movegenPawnCaptureBlack.targets(from,squaresType::all()) & allowedDestinations & stack.position().playerOccupancy(stack.nextPlayer()) };
-							const squaresType discoveryDoublePushes{ movegenPawnDoublePushBlack.targets(from,discovered) & allowedDestinations };
+							constexpr const squaresType notRank8{ ~rank8 };
+							const squaresType tempSquare{ squaresType(otherKing).up() & notRank8 };
+							const squaresType criticalSquares2{ tempSquare.left() | tempSquare.right() };
+							const squaresType allowedDestinations2{ allowedDestinations & ~criticalSquares2 };
+							const squaresType discoveryMoves{ movegenPawnPushBlack.targets(from,squaresType::all()) & allowedDestinations2 & unoccupied };
+							const squaresType discoveryCaptures{ movegenPawnCaptureBlack.targets(from,squaresType::all()) & allowedDestinations2 & stack.position().playerOccupancy(stack.nextPlayer()) };
+							const squaresType discoveryDoublePushes{ movegenPawnDoublePushBlack.targets(from,discovered) & allowedDestinations2 };
 							for (const auto to : discoveryMoves)
 								moves.add(motorType::move().createQuiet(from, to));
 							for (const auto to : discoveryCaptures)
@@ -1274,33 +1482,164 @@ namespace pygmalion::chess
 							const fileType fromFile{ from.file() };
 							for (const auto to : discoveryDoublePushes)
 								moves.add(motorType::move().createDoublePush(fromFile));
-							const rankType fromRank{ from.rank() };
-							if (fromRank == rank4)
-							{
-								if (fromFile > fileA)
-								{
-									const fileType toFile{ static_cast<fileType>(fromFile - 1) };
-									if (stack.position().checkEnPassantFile(toFile))
-									{
-										const squareType to{ rank3 & toFile };
-										if (allowedDestinations[to])
-											motorType::move().createEnPassant(fromFile, toFile);
-									}
-								}
-								if (fromFile < fileH)
-								{
-									const fileType toFile{ static_cast<fileType>(fromFile + 1) };
-									if (stack.position().checkEnPassantFile(toFile))
-									{
-										const squareType to{ rank3 & toFile };
-										if (allowedDestinations[to])
-											motorType::move().createEnPassant(fromFile, toFile);
-									}
-								}
-							}
 						}
 						break;
 					}
+					}
+				}
+			}
+			const uint_t<8, false> epFlags{ stack.position().flags().extractRange<4,11>() };
+			if (epFlags)
+			{
+				size_t bit;
+				if (stack.position().movingPlayer() == whitePlayer)
+				{
+					if (epFlags.bitscanForward(bit))
+					{
+						constexpr const squaresType notRank1{ ~rank1 };
+						const squaresType tempSquare{ squaresType(otherKing).down() & notRank1 };
+						const squaresType criticalSquares2{ tempSquare.left() | tempSquare.right() };
+						const fileType epFile{ static_cast<typename fileType::baseType>(bit) };
+						const squareType toSquare{ epFile & rank6 };
+						const squaresType allowedDestinations2{ ~criticalSquares2 };
+						const squaresType leftFile{ static_cast<squaresType>(epFile).left() };
+						const squaresType rightFile{ static_cast<squaresType>(epFile).right() };
+						const squaresType rank{ static_cast<squaresType>(rank5) };
+						const squaresType fromSquares = (leftFile | rightFile) & rank;
+						for (const squareType from : fromSquares & (stack.position().playerOccupancy(whitePlayer)& stack.position().pieceOccupancy(pawn)))
+						{
+							const movebitsType mv{ motorType::move().createEnPassant(from.file(), epFile) };
+							const squareType to{ motorType::move().toSquare(stack.position(),mv) };
+							if (allowedDestinations2[to])
+							{
+								const squaresType ownDelta{ motorType::move().ownOccupancyDelta(stack.position(),mv) };
+								const squaresType otherDelta{ motorType::move().otherOccupancyDelta(stack.position(),mv) };
+								const squaresType ownOcc{ ownDelta ^ stack.position().playerOccupancy(whitePlayer) };
+								const squaresType otherOcc{ otherDelta ^ stack.position().playerOccupancy(blackPlayer) };
+								const squaresType unoccupied2{ ~(ownOcc | otherOcc) };
+								const squaresType criticalSquares3{ movegenSlidersDiag.inverseAttacks(otherKing, unoccupied2) };
+								if ((criticalSquares3 & ownSlidersDiag) != squaresType::none())
+									moves.add(mv);
+							}
+						}
+					}
+				}
+				else
+				{
+					if (epFlags.bitscanForward(bit))
+					{
+						constexpr const squaresType notRank8{ ~rank8 };
+						const squaresType tempSquare{ squaresType(otherKing).up() & notRank8 };
+						const squaresType criticalSquares2{ tempSquare.left() | tempSquare.right() };
+						const fileType epFile{ static_cast<typename fileType::baseType>(bit) };
+						const squareType toSquare{ epFile & rank3 };
+						const squaresType allowedDestinations2{ ~criticalSquares2 };
+						const squaresType leftFile{ static_cast<squaresType>(epFile).left() };
+						const squaresType rightFile{ static_cast<squaresType>(epFile).right() };
+						const squaresType rank{ static_cast<squaresType>(rank4) };
+						const squaresType fromSquares = (leftFile | rightFile) & rank;
+						for (const squareType from : fromSquares & (stack.position().playerOccupancy(blackPlayer)& stack.position().pieceOccupancy(pawn)))
+						{
+							const movebitsType mv{ motorType::move().createEnPassant(from.file(), epFile) };
+							const squareType to{ motorType::move().toSquare(stack.position(),mv) };
+							if (allowedDestinations2[to])
+							{
+								const squaresType ownDelta{ motorType::move().ownOccupancyDelta(stack.position(),mv) };
+								const squaresType otherDelta{ motorType::move().otherOccupancyDelta(stack.position(),mv) };
+								const squaresType ownOcc{ ownDelta ^ stack.position().playerOccupancy(blackPlayer) };
+								const squaresType otherOcc{ otherDelta ^ stack.position().playerOccupancy(whitePlayer) };
+								const squaresType unoccupied2{ ~(ownOcc | otherOcc) };
+								const squaresType criticalSquares3{ movegenSlidersDiag.inverseAttacks(otherKing, unoccupied2) };
+								if ((criticalSquares3 & ownSlidersDiag) != squaresType::none())
+									moves.add(mv);
+							}
+						}
+					}
+				}
+			}
+			if (stack.movingPlayer() == whitePlayer)
+			{
+				const squaresType criticalPromotionSquares{ rank8 };
+				const squaresType criticalPromotions{ criticalPromotionSquares & ~stack.position().totalOccupancy() };
+				const squaresType criticalPromoCaptures{ criticalPromotionSquares & stack.position().playerOccupancy(blackPlayer) };
+				const squaresType ownPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(whitePlayer) };
+				for (const auto to : criticalPromotions)
+				{
+					const squaresType origins{ movegenPawnPromotionWhite.inverseTargets(to,squaresType::all()) };
+					const squaresType movers{ origins & ownPawns };
+					const squaresType toBB{ squaresType(to) };
+					const squaresType promotedSliders{ ownSlidersDiag ^ toBB };
+					for (const auto from : movers)
+					{
+						const squaresType fromBB{ squaresType(from) };
+						const squaresType newUnoccupied{ unoccupied ^ fromBB ^ toBB };
+						const squaresType criticalSquares2{ movegenSlidersDiag.inverseAttacks(otherKing, newUnoccupied) };
+						if (criticalSquares2[to])
+						{
+							moves.add(motorType::move().createPromotionQueen(from, to));
+							moves.add(motorType::move().createPromotionBishop(from, to));
+						}
+					}
+				}
+				for (const auto to : criticalPromoCaptures)
+				{
+					const squaresType origins{ movegenPawnPromoCaptureWhite.inverseAttacks(to,squaresType::all()) };
+					const squaresType movers{ origins & ownPawns };
+					const squaresType toBB{ squaresType(to) };
+					const squaresType promotedSliders{ ownSlidersDiag ^ toBB };
+					for (const auto from : movers)
+					{
+						const squaresType fromBB{ squaresType(from) };
+						const squaresType newUnoccupied{ unoccupied ^ fromBB  };
+						const squaresType criticalSquares2{ movegenSlidersDiag.inverseAttacks(otherKing, newUnoccupied) };
+						if (criticalSquares2[to])
+						{
+							moves.add(motorType::move().createPromoCaptureQueen(from, to));
+							moves.add(motorType::move().createPromoCaptureBishop(from, to));
+						}
+					}
+				}
+			}
+			else
+			{
+				const squaresType criticalPromotionSquares{ rank1 };
+				const squaresType criticalPromotions{ criticalPromotionSquares & ~stack.position().totalOccupancy() };
+				const squaresType criticalPromoCaptures{ criticalPromotionSquares & stack.position().playerOccupancy(whitePlayer) };
+				const squaresType ownPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(blackPlayer) };
+				for (const auto to : criticalPromotions)
+				{
+					const squaresType origins{ movegenPawnPromotionBlack.inverseTargets(to,squaresType::all()) };
+					const squaresType movers{ origins & ownPawns };
+					const squaresType toBB{ squaresType(to) };
+					const squaresType promotedSliders{ ownSlidersDiag ^ toBB };
+					for (const auto from : movers)
+					{
+						const squaresType fromBB{ squaresType(from) };
+						const squaresType newUnoccupied{ unoccupied ^ fromBB ^ toBB };
+						const squaresType criticalSquares2{ movegenSlidersDiag.inverseAttacks(otherKing, newUnoccupied) };
+						if (criticalSquares2[to])
+						{
+							moves.add(motorType::move().createPromotionQueen(from, to));
+							moves.add(motorType::move().createPromotionBishop(from, to));
+						}
+					}
+				}
+				for (const auto to : criticalPromoCaptures)
+				{
+					const squaresType origins{ movegenPawnPromoCaptureWhite.inverseAttacks(to,squaresType::all()) };
+					const squaresType movers{ origins & ownPawns };
+					const squaresType toBB{ squaresType(to) };
+					const squaresType promotedSliders{ ownSlidersDiag ^ toBB };
+					for (const auto from : movers)
+					{
+						const squaresType fromBB{ squaresType(from) };
+						const squaresType newUnoccupied{ unoccupied ^ fromBB };
+						const squaresType criticalSquares2{ movegenSlidersDiag.inverseAttacks(otherKing, newUnoccupied) };
+						if (criticalSquares2[to])
+						{
+							moves.add(motorType::move().createPromoCaptureQueen(from, to));
+							moves.add(motorType::move().createPromoCaptureBishop(from, to));
+						}
 					}
 				}
 			}

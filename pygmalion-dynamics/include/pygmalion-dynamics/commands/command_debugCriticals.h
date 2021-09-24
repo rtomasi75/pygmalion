@@ -55,6 +55,44 @@ namespace pygmalion::dynamics
 						}
 					}
 				}
+				for (indexType i = 0; i < criticalMoves.length(); i++)
+				{
+					bool bBreak{ false };
+					for (indexType j = 0; j < criticalMoves.length(); j++)
+					{
+						if (i != j)
+						{
+							if (criticalMoves[i] == criticalMoves[j])
+							{
+								bOk = false;
+								this->output() << generatorType::moveToString(stack, criticalMoves[i], this->history().length() + depth) << " twice in criticals" << std::endl;
+								bBreak = true;
+								break;
+							}
+						}
+					}
+					if (bBreak)
+						break;
+				}
+				for (indexType i = 0; i < moves.length(); i++)
+				{
+					bool bBreak{ false };
+					for (indexType j = 0; j < moves.length(); j++)
+					{
+						if (i != j)
+						{
+							if (moves[i] == moves[j])
+							{
+								bOk = false;
+								this->output() << generatorType::moveToString(stack, moves[i], this->history().length() + depth) << " twice in moves" << std::endl;
+								bBreak = true;
+								break;
+							}
+						}
+					}
+					if (bBreak)
+						break;
+				}
 			}
 			else
 			{
@@ -102,6 +140,44 @@ namespace pygmalion::dynamics
 								this->output() << generatorType::moveToString(stack, moves[i], this->history().length() + depth) << " missing in criticals" << std::endl;
 							}
 						}
+					}
+					for (indexType i = 0; i < criticalMoves.length(); i++)
+					{
+						bool bBreak{ false };
+						for (indexType j = 0; j < criticalMoves.length(); j++)
+						{
+							if (i != j)
+							{
+								if (criticalMoves[i] == criticalMoves[j])
+								{
+									bOk = false;
+									this->output() << generatorType::moveToString(stack, criticalMoves[i], this->history().length() + depth) << " twice in criticals" << std::endl;
+									bBreak = true;
+									break;
+								}
+							}
+						}
+						if (bBreak)
+							break;
+					}
+					for (indexType i = 0; i < moves.length(); i++)
+					{
+						bool bBreak{ false };
+						for (indexType j = 0; j < moves.length(); j++)
+						{
+							if (i != j)
+							{
+								if (moves[i] == moves[j])
+								{
+									bOk = false;
+									this->output() << generatorType::moveToString(stack, moves[i], this->history().length() + depth) << " twice in moves" << std::endl;
+									bBreak = true;
+									break;
+								}
+							}
+						}
+						if (bBreak)
+							break;
 					}
 				}
 			}

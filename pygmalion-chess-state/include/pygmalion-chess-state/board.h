@@ -79,6 +79,18 @@ namespace pygmalion::chess
 		{
 			setFlag(enPassantFlag(file));
 		}
+		bool getEnPassantFile(fileType& file) noexcept
+		{
+			const auto epFlags{ extractFlagRange<4, 8>() };
+			size_t epBit;
+			if (epFlags.bitscanForward(epBit))
+			{
+				file = fileType(epBit);
+				return true;
+			}
+			else
+				return false;
+		}
 		constexpr void clearEnPassantFile(const fileType file) noexcept
 		{
 			clearFlag(enPassantFlag(file));

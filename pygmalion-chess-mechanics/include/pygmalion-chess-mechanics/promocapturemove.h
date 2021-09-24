@@ -185,7 +185,7 @@ namespace pygmalion::chess
 							{
 								if (to.rank() == rank8)
 								{
-									if ((position.pieceOccupancy(pawn) & position.playerOccupancy(p2))[to])
+									if (position.playerOccupancy(p2)[to])
 									{
 										playerType p3;
 										pieceType pc;
