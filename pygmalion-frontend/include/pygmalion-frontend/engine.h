@@ -38,8 +38,7 @@ namespace pygmalion::frontend
 			variationType principalVariation{ variationType() };
 			this->feedback().sortIndices(this->history().length());
 			this->heuristics().beginSearch();
-			bool allowStoreTT;
-			const scoreType score{ node.template search<false>(scoreType::minimum(), scoreType::maximum(), depthRemaining, this->history().length(), principalVariation, this->outputStream(),allowStoreTT) };
+			const scoreType score{ node.template searchRoot<false>(depthRemaining, this->history().length(), principalVariation, this->outputStream()) };
 			this->heuristics().endSearch();
 			if (isRunning)
 			{

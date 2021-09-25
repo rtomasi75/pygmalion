@@ -53,8 +53,7 @@ namespace pygmalion::search
 					if (bOk)
 					{
 						variationType principalVariation;
-						bool allowStoreTT{ false };
-						const scoreType score{ nodes[i - 1]->template search<false>(scoreType::minimum(),scoreType::maximum(), depth, this->history().length() + i - 1, principalVariation, this->output(), allowStoreTT) };
+						const scoreType score{ nodes[i - 1]->template searchRoot<false>(depth, this->history().length() + i - 1, principalVariation, this->output()) };
 						uint64_t nodeCount{ this->searchEngine().heuristics().nodeCount() };
 						this->output() << static_cast<int>(depth) << ": " << std::setw(12) << score << " - " << this->searchEngine().variationToString(principalVariation) << std::endl;
 						this->output() << std::endl;

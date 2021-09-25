@@ -680,14 +680,13 @@ namespace pygmalion
 			}
 			return m_Eval;
 		}
-	public:
 		constexpr scoreType futileGap() const noexcept
 		{
 			return m_FutileGap;
 		}
-		constexpr scoreType tacticalMoveValue(const movebitsType& move) const noexcept
+		constexpr scoreType moveFutilityValue(const movebitsType& move) const noexcept
 		{
-			return static_cast<const nodeType*>(this)->tacticalMoveValue_Implementation(move);
+			return static_cast<const nodeType*>(this)->moveFutilityValue_Implementation(move);
 		}
 		constexpr bool canPruneMove(const movebitsType& move) const noexcept
 		{
@@ -695,7 +694,7 @@ namespace pygmalion
 		}
 		constexpr bool canFutilityPruneMove(const movebitsType& move) const noexcept
 		{
-			return (!generatorType::isMoveTactical(this->stack(), move)) || (tacticalMoveValue(move) < this->futileGap());
+			return moveFutilityValue(move) < this->futileGap();
 		}
 		constexpr static bool futilityPruningEnabled(const size_t depthRemaining) noexcept
 		{
@@ -720,10 +719,6 @@ namespace pygmalion
 		constexpr bool nullMoveAllowed() const noexcept
 		{
 			return static_cast<const nodeType*>(this)->nullMoveAllowed_Implementation();
-		}
-		constexpr const stackType& stack() const noexcept
-		{
-			return m_Stack;
 		}
 		template<bool VERBOSE, bool USE_TT>
 		scoreType eval(scoreType alpha, scoreType beta, const size_t depth, variationType& principalVariation, std::ostream& str, bool& allowStoreTT) noexcept
@@ -1122,6 +1117,7 @@ namespace pygmalion
 			this->resetMoveGen();
 			return alpha;
 		}
+	public:
 		node() = delete;
 		constexpr node(const node&) = default;
 		constexpr node(node&&) = default;
@@ -1183,5 +1179,15 @@ namespace pygmalion
 				m_Heuristics.transpositionTable().prefetch(m_Stack);
 		}
 		~node() noexcept = default;
+		template<bool VERBOSE>
+		scoreType searchRoot(const depthType& depthRemaining, const size_t depth, variationType& principalVariation, std::ostream& str) noexcept
+		{
+			bool allowStoreTT;
+			return this->template search<VERBOSE>(scoreType::minimum(), scoreType::maximum(), depthRemaining, depth, principalVariation, str, allowStoreTT);
+		}
+		constexpr const stackType& stack() const noexcept
+		{
+			return m_Stack;
+		}
 	};
 }
