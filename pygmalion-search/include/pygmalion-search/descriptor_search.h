@@ -20,6 +20,9 @@ namespace pygmalion
 		using variationType = list<typename descriptorEvaluation::movebitsType, countSearchPlies>;
 		using depthType = typename variationType::counterType;
 		using heuristicsType = HEURISTICS;
+		using moveinfoType = moveinfo<descriptorEvaluation>;
+		using ttmovesType = list<typename descriptorEvaluation::movebitsType, searchTranspositionTableBucketCount>;
+		using killermovesType = list<typename descriptorEvaluation::movebitsType, killerMoves>;
 	};
 
 }

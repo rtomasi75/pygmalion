@@ -13,13 +13,13 @@ namespace pygmalion
 		stackType m_Stack;
 		heuristicsType& m_Heuristics;
 		const int m_DistanceFromRoot;
-		movelistType m_MovesTT;
-		movelistType m_MovesKiller;
 		movelistType m_Moves;
 		movelistType m_CriticalMoves;
-		movelistType m_TacticalMovesTT;
-		movelistType m_TacticalMovesKiller;
 		movelistType m_TacticalMoves;
+		killermovesType m_MovesKiller;
+		killermovesType m_TacticalMovesKiller;
+		ttmovesType m_MovesTT;
+		ttmovesType m_TacticalMovesTT;
 		int m_MoveGeneratorStage;
 		int m_TacticalMoveGeneratorStage;
 		bool m_NeedsSorting;
@@ -1130,10 +1130,13 @@ namespace pygmalion
 			m_Stack{ stack },
 			m_IsRunning{ isRunning },
 			m_Heuristics{ heuristics },
-			m_MovesTT{ movelistType() },
-			m_MovesKiller{ movelistType() },
-			m_TacticalMovesTT{ movelistType() },
-			m_TacticalMovesKiller{ movelistType() },
+			m_MovesTT{ ttmovesType() },
+			m_MovesKiller{ killermovesType() },
+			m_TacticalMovesTT{ ttmovesType() },
+			m_TacticalMovesKiller{ killermovesType() },
+			m_Moves{ movelistType() },
+			m_CriticalMoves{ movelistType() },
+			m_TacticalMoves{ movelistType() },
 			m_TacticalMoveGeneratorStage{ -1 },
 			m_MoveGeneratorStage{ -1 },
 			m_Move{ 0 },
@@ -1155,10 +1158,13 @@ namespace pygmalion
 			m_Stack(parent.m_Stack, moveBits),
 			m_IsRunning{ parent.m_IsRunning },
 			m_Heuristics{ parent.m_Heuristics },
-			m_MovesTT{ movelistType() },
-			m_MovesKiller{ movelistType() },
-			m_TacticalMovesTT{ movelistType() },
-			m_TacticalMovesKiller{ movelistType() },
+			m_MovesTT{ ttmovesType() },
+			m_MovesKiller{ killermovesType() },
+			m_TacticalMovesTT{ ttmovesType() },
+			m_TacticalMovesKiller{ killermovesType() },
+			m_Moves{ movelistType() },
+			m_CriticalMoves{ movelistType() },
+			m_TacticalMoves{ movelistType() },
 			m_TacticalMoveGeneratorStage{ -1 },
 			m_MoveGeneratorStage{ -1 },
 			m_Move{ 0 },

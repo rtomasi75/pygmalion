@@ -4,12 +4,12 @@ namespace pygmalion::tictactoe
 		public pygmalion::node<descriptor_search, node>
 	{
 	public:
-		constexpr node(const stackType& stack, std::atomic_bool& isRunning, heuristicsType& heuristics) noexcept :
+		node(const stackType& stack, std::atomic_bool& isRunning, heuristicsType& heuristics) noexcept :
 			pygmalion::node<descriptor_search, node>(stack, isRunning, heuristics)
 		{
 
 		}
-		constexpr node(const node& parent, const movebitsType moveBits) noexcept :
+		node(const node& parent, const movebitsType moveBits) noexcept :
 			pygmalion::node<descriptor_search, node>(parent, moveBits)
 		{
 		}

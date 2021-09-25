@@ -5,6 +5,7 @@
 
 #include <pygmalion-evaluation.h>
 
+#include "pygmalion-search/moveinfo.h"
 #include "pygmalion-search/descriptor_search.h"
 #include "pygmalion-search/transpositiontable.h"
 #include "pygmalion-search/heuristics.h"

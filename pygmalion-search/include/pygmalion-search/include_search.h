@@ -5,6 +5,9 @@ using descriptorEvaluation = typename descriptorSearch::descriptorEvaluation;
 using variationType = typename descriptorSearch::variationType;
 using depthType = typename descriptorSearch::depthType;
 using heuristicsType = typename descriptorSearch::heuristicsType;
+using moveinfoType = typename descriptorSearch::moveinfoType;
+using ttmovesType = typename descriptorSearch::ttmovesType;
+using killermovesType = typename descriptorSearch::killermovesType;
 
 constexpr static const size_t countSearchPlies{ descriptorSearch::countSearchPlies };
 constexpr static const bool heuristicMoves{ descriptorSearch::heuristicMoves };

@@ -291,7 +291,7 @@ namespace pygmalion
 		{
 			return m_Entry.size() * sizeof(transposition);
 		}
-		constexpr void probeMoves(const stackType& stack, const depthType& depthRemaining, movelistType& moves) const noexcept
+		constexpr void probeMoves(const stackType& stack, const depthType& depthRemaining, ttmovesType& moves) const noexcept
 		{
 			if constexpr (countBuckets > 0)
 			{
@@ -315,7 +315,7 @@ namespace pygmalion
 				sort<movebitsType, depthType>::sortValues(moves.ptr(), &score[0], moves.length());
 			}
 		}
-		constexpr void probeTacticalMoves(const stackType& stack, movelistType& moves) const noexcept
+		constexpr void probeTacticalMoves(const stackType& stack, ttmovesType& moves) const noexcept
 		{
 			if constexpr (countBuckets > 0)
 			{

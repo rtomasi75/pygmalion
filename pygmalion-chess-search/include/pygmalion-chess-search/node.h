@@ -4,7 +4,7 @@ namespace pygmalion::chess
 		public pygmalion::node<descriptor_search, node>
 	{
 	public:
-		constexpr node(const stackType& stack, std::atomic_bool& isRunning, heuristicsType& heuristics) noexcept :
+		node(const stackType& stack, std::atomic_bool& isRunning, heuristicsType& heuristics) noexcept :
 			pygmalion::node<descriptor_search, node>(stack, isRunning, heuristics)
 		{
 
@@ -13,7 +13,7 @@ namespace pygmalion::chess
 		{
 			return depthRemaining <= 1;
 		}
-		constexpr node(const node& parent, const movebitsType moveBits) noexcept :
+		node(const node& parent, const movebitsType moveBits) noexcept :
 			pygmalion::node<descriptor_search, node>(parent, moveBits)
 		{
 		}

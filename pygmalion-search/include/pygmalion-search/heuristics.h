@@ -53,7 +53,7 @@ namespace pygmalion
 				else
 					return m_Score[bucket];
 			}
-			constexpr void killers(const stackType& stack, movelistType& killerMoves) const noexcept
+			constexpr void killers(const stackType& stack, killermovesType& killerMoves) const noexcept
 			{
 				for (size_t i = 0; i < m_KillerCount; i++)
 				{
@@ -61,7 +61,7 @@ namespace pygmalion
 						killerMoves.add(m_Killers[i]);
 				}
 			}
-			constexpr void tacticalKillers(const stackType& stack, movelistType& killerMoves) const noexcept
+			constexpr void tacticalKillers(const stackType& stack, killermovesType& killerMoves) const noexcept
 			{
 				for (size_t i = 0; i < m_TacticalKillerCount; i++)
 				{
@@ -240,7 +240,7 @@ namespace pygmalion
 			}
 			return m_MoveBuckets[depth].score(position, movebits);
 		}
-		constexpr void killers(const stackType& stack, const size_t depth, movelistType& killermoves) noexcept
+		constexpr void killers(const stackType& stack, const size_t depth, killermovesType& killermoves) noexcept
 		{
 			while (depth >= m_MoveBuckets.size())
 			{
@@ -248,7 +248,7 @@ namespace pygmalion
 			}
 			return m_MoveBuckets[depth].killers(stack, killermoves);
 		}
-		constexpr void tacticalKillers(const stackType& stack, const size_t depth, movelistType& killermoves) noexcept
+		constexpr void tacticalKillers(const stackType& stack, const size_t depth, killermovesType& killermoves) noexcept
 		{
 			while (depth >= m_MoveBuckets.size())
 			{
