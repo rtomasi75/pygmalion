@@ -25,11 +25,11 @@ namespace pygmalion::chess::frontend
 		}
 		virtual int expectedGameLength() const noexcept override
 		{
-			return 40;
+			return 60;
 		}
 		virtual int minimumExpectedGameLength() const noexcept override
 		{
-			return 10;
+			return 20;
 		}
 		virtual ~engine() noexcept = default;
 		virtual std::string version() const noexcept override
