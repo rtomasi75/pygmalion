@@ -75,11 +75,7 @@ namespace pygmalion
 			m_CriticalMove = 0;
 			m_TacticalMove = 0;
 			m_MoveGeneratorStage = -1;
-			m_MovesTT.clear();
-			m_MovesKiller.clear();
 			m_TacticalMoveGeneratorStage = -1;
-			m_TacticalMovesTT.clear();
-			m_TacticalMovesKiller.clear();
 			m_NeedsSorting = true;
 			m_NeedsTacticalSorting = true;
 		}
@@ -90,6 +86,7 @@ namespace pygmalion
 			if (m_MoveGeneratorStage < 0)
 			{
 				m_MoveGeneratorStage = 0;
+				m_MovesTT.clear();
 				m_Heuristics.transpositionTable().probeMoves(m_Stack, depthRemaining, m_MovesTT);
 				m_MoveTT = 0;
 			}
@@ -108,6 +105,7 @@ namespace pygmalion
 						return true;
 				}
 				m_MoveGeneratorStage = 1;
+				m_MovesKiller.clear();
 				m_Heuristics.killers(m_Stack, depth, m_MovesKiller);
 				m_MoveKiller = 0;
 			}
@@ -138,6 +136,7 @@ namespace pygmalion
 					}
 				}
 				m_MoveGeneratorStage = 2;
+				m_TacticalMovesKiller.clear();
 				m_Heuristics.tacticalKillers(m_Stack, depth, m_TacticalMovesKiller);
 				m_TacticalMoveKiller = 0;
 			}
@@ -262,6 +261,7 @@ namespace pygmalion
 			if (m_TacticalMoveGeneratorStage < 0)
 			{
 				m_TacticalMoveGeneratorStage = 0;
+				m_TacticalMovesTT.clear();
 				m_Heuristics.transpositionTable().probeTacticalMoves(m_Stack, m_TacticalMovesTT);
 				m_TacticalMoveTT = 0;
 			}
@@ -276,6 +276,7 @@ namespace pygmalion
 					return true;
 				}
 				m_TacticalMoveGeneratorStage = 1;
+				m_TacticalMovesKiller.clear();
 				m_Heuristics.tacticalKillers(m_Stack, depth, m_TacticalMovesKiller);
 				m_TacticalMoveKiller = 0;
 			}
