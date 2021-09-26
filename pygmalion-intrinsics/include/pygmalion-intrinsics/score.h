@@ -78,7 +78,7 @@ namespace pygmalion
 
 		}
 	public:
-		valueType get_Value() const noexcept
+		constexpr valueType get_Value() const noexcept
 		{
 			return m_Value;
 		}
@@ -292,18 +292,10 @@ namespace pygmalion
 		}
 		constexpr auto operator+(const score sc) const noexcept
 		{
-			assert(isOpen());
-			assert(sc.isOpen());
-			assert((static_cast<std::intmax_t>(m_Value) + static_cast<std::intmax_t>(sc.m_Value)) < static_cast<std::intmax_t>(WINNINGVALUE));
-			assert((static_cast<std::intmax_t>(m_Value) + static_cast<std::intmax_t>(sc.m_Value)) > static_cast<std::intmax_t>(LOSINGVALUE));
 			return score(m_Value + sc.m_Value, 0);
 		}
 		constexpr auto operator-(const score sc) const noexcept
 		{
-			assert(isOpen());
-			assert(sc.isOpen());
-			assert((static_cast<std::intmax_t>(m_Value) - static_cast<std::intmax_t>(sc.m_Value)) < static_cast<std::intmax_t>(WINNINGVALUE));
-			assert((static_cast<std::intmax_t>(m_Value) - static_cast<std::intmax_t>(sc.m_Value)) > static_cast<std::intmax_t>(LOSINGVALUE));
 			return score(m_Value - sc.m_Value, 0);
 		}
 		constexpr auto operator-() const noexcept

@@ -11,7 +11,7 @@ namespace pygmalion::chess
 		}
 		constexpr static bool futilityPruningEnabled_Implementation(const size_t depthRemaining) noexcept
 		{
-			return depthRemaining <= 1;
+			return depthRemaining <= 3;
 		}
 		node(const node& parent, const movebitsType moveBits) noexcept :
 			pygmalion::node<descriptor_search, node>(parent, moveBits)
@@ -32,15 +32,141 @@ namespace pygmalion::chess
 			switch (depthRemaining)
 			{
 			case 0:
-				if ((stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(stack.movingPlayer())) & (stack.movingPlayer() == whitePlayer ? rank7 : rank2))
-					return static_cast<scoreType>(boardType::materialValue(queen, whitePlayer)) - static_cast<scoreType>(boardType::materialValue(pawn, whitePlayer)) + evaluatorType::MaxPositionChange;
-				else
-					return evaluatorType::MaxPositionChange;
+			{
+				constexpr const scoreType positionalValue{ evaluatorType::MaxPositionChange };
+				return positionalValue;
+			}
 			case 1:
-				if ((stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(stack.movingPlayer())) & (stack.movingPlayer() == whitePlayer ? rank7 : rank2))
-					return static_cast<scoreType>(boardType::materialValue(queen, whitePlayer)) - static_cast<scoreType>(boardType::materialValue(pawn, whitePlayer)) + evaluatorType::MaxPositionChange + evaluatorType::MaxPositionChange;
-				else
-					return evaluatorType::MaxPositionChange + evaluatorType::MaxPositionChange;
+			{
+				constexpr const scoreType positionalValue{ evaluatorType::MaxPositionChange + evaluatorType::MaxPositionChange };
+				return positionalValue;
+			}
+			case 2:
+			{
+				const squaresType ownPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(stack.movingPlayer()) };
+				const squaresType promotionPawns{ ownPawns & (stack.movingPlayer() == whitePlayer ? rank7 : rank2) };
+				size_t countPossiblePromotions{ promotionPawns.count() };
+				scoreType promotionValue{ scoreType::zero() };
+				if (countPossiblePromotions >= 1)
+				{
+					constexpr const scoreType singlePromotionsValue{ static_cast<scoreType>(boardType::materialValue(queen, whitePlayer)) - static_cast<scoreType>(boardType::materialValue(pawn, whitePlayer)) };
+					promotionValue += singlePromotionsValue;
+				}
+				constexpr const scoreType positionalValue{ evaluatorType::MaxPositionChange + evaluatorType::MaxPositionChange + evaluatorType::MaxPositionChange };
+				bool noCapture{ true };
+				const squaresType queens{ stack.position().pieceOccupancy(queen) & stack.position().playerOccupancy(stack.nextPlayer()) };
+				scoreType captureValue{ scoreType::zero() };
+				if (queens != squaresType::none())
+				{
+					constexpr const scoreType queenValue{ static_cast<scoreType>(boardType::materialValue(queen, whitePlayer)) };
+					captureValue += queenValue;
+					noCapture = false;
+				}
+				if (noCapture)
+				{
+					const squaresType rooks{ stack.position().pieceOccupancy(rook) & stack.position().playerOccupancy(stack.nextPlayer()) };
+					if (rooks != squaresType::none())
+					{
+						constexpr const scoreType rookValue{ static_cast<scoreType>(boardType::materialValue(rook, whitePlayer)) };
+						captureValue += rookValue;
+						noCapture = false;
+					}
+					if (noCapture)
+					{
+						const squaresType bishops{ stack.position().pieceOccupancy(bishop) & stack.position().playerOccupancy(stack.nextPlayer()) };
+						if (bishops)
+						{
+							constexpr const scoreType bishopValue{ static_cast<scoreType>(boardType::materialValue(bishop, whitePlayer)) };
+							captureValue += bishopValue;
+							noCapture = false;
+						}
+						if (noCapture)
+						{
+							const squaresType knights{ stack.position().pieceOccupancy(knight) & stack.position().playerOccupancy(stack.nextPlayer()) };
+							if (knights)
+							{
+								constexpr const scoreType knightValue{ static_cast<scoreType>(boardType::materialValue(knight, whitePlayer)) };
+								captureValue += knightValue;
+								noCapture = false;
+							}
+							if (noCapture)
+							{
+								const squaresType pawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(stack.nextPlayer()) };
+								if (pawns)
+								{
+									constexpr const scoreType pawnValue{ static_cast<scoreType>(boardType::materialValue(pawn, whitePlayer)) };
+									captureValue += pawnValue;
+									noCapture = false;
+								}
+							}
+						}
+					}
+				}
+				return positionalValue + captureValue + promotionValue;
+			}
+			case 3:
+			{
+				const squaresType ownPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(stack.movingPlayer()) };
+				const squaresType promotionPawns{ ownPawns & (stack.movingPlayer() == whitePlayer ? rank7 : rank2) };
+				size_t countPossiblePromotions{ promotionPawns.count() };
+				scoreType promotionValue{ scoreType::zero() };
+				if (countPossiblePromotions >= 1)
+				{
+					constexpr const scoreType singlePromotionsValue{ static_cast<scoreType>(boardType::materialValue(queen, whitePlayer)) - static_cast<scoreType>(boardType::materialValue(pawn, whitePlayer)) };
+					promotionValue += singlePromotionsValue;
+				}
+				constexpr const scoreType positionalValue{ evaluatorType::MaxPositionChange + evaluatorType::MaxPositionChange + evaluatorType::MaxPositionChange + evaluatorType::MaxPositionChange };
+				bool noCapture{ true };
+				const squaresType queens{ stack.position().pieceOccupancy(queen) & stack.position().playerOccupancy(stack.nextPlayer()) };
+				scoreType captureValue{ scoreType::zero() };
+				if (queens != squaresType::none())
+				{
+					constexpr const scoreType queenValue{ static_cast<scoreType>(boardType::materialValue(queen, whitePlayer)) };
+					captureValue += queenValue;
+					noCapture = false;
+				}
+				if (noCapture)
+				{
+					const squaresType rooks{ stack.position().pieceOccupancy(rook) & stack.position().playerOccupancy(stack.nextPlayer()) };
+					if (rooks != squaresType::none())
+					{
+						constexpr const scoreType rookValue{ static_cast<scoreType>(boardType::materialValue(rook, whitePlayer)) };
+						captureValue += rookValue;
+						noCapture = false;
+					}
+					if (noCapture)
+					{
+						const squaresType bishops{ stack.position().pieceOccupancy(bishop) & stack.position().playerOccupancy(stack.nextPlayer()) };
+						if (bishops)
+						{
+							constexpr const scoreType bishopValue{ static_cast<scoreType>(boardType::materialValue(bishop, whitePlayer)) };
+							captureValue += bishopValue;
+							noCapture = false;
+						}
+						if (noCapture)
+						{
+							const squaresType knights{ stack.position().pieceOccupancy(knight) & stack.position().playerOccupancy(stack.nextPlayer()) };
+							if (knights)
+							{
+								constexpr const scoreType knightValue{ static_cast<scoreType>(boardType::materialValue(knight, whitePlayer)) };
+								captureValue += knightValue;
+								noCapture = false;
+							}
+							if (noCapture)
+							{
+								const squaresType pawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(stack.nextPlayer()) };
+								if (pawns)
+								{
+									constexpr const scoreType pawnValue{ static_cast<scoreType>(boardType::materialValue(pawn, whitePlayer)) };
+									captureValue += pawnValue;
+									noCapture = false;
+								}
+							}
+						}
+					}
+				}
+				return positionalValue + captureValue + promotionValue;
+			}
 			default:
 				assert(false);
 				return scoreType::zero();
@@ -51,63 +177,291 @@ namespace pygmalion::chess
 			switch (depthRemaining)
 			{
 			case 0:
-				if ((stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(stack.movingPlayer())) & (stack.movingPlayer() == whitePlayer ? rank7 : rank2))
+			{
+				const squaresType ownPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(stack.movingPlayer()) };
+				const squaresType promotionPawns{ ownPawns & (stack.movingPlayer() == whitePlayer ? rank7 : rank2) };
+				size_t countPossiblePromotions{ promotionPawns.count() };
+				scoreType promotionValue{ scoreType::zero() };
+				if (countPossiblePromotions >= 1)
 				{
-					if (stack.position().pieceOccupancy(queen) & stack.position().playerOccupancy(stack.nextPlayer()))
-						return static_cast<scoreType>(boardType::materialValue(queen, whitePlayer)) + static_cast<scoreType>(boardType::materialValue(queen, whitePlayer)) - static_cast<scoreType>(boardType::materialValue(pawn, whitePlayer)) + evaluatorType::MaxPositionChange;
-					if (stack.position().pieceOccupancy(rook) & stack.position().playerOccupancy(stack.nextPlayer()))
-						return static_cast<scoreType>(boardType::materialValue(rook, whitePlayer)) + static_cast<scoreType>(boardType::materialValue(queen, whitePlayer)) - static_cast<scoreType>(boardType::materialValue(pawn, whitePlayer)) + evaluatorType::MaxPositionChange;
-					if (stack.position().pieceOccupancy(bishop) & stack.position().playerOccupancy(stack.nextPlayer()))
-						return static_cast<scoreType>(boardType::materialValue(bishop, whitePlayer)) + static_cast<scoreType>(boardType::materialValue(queen, whitePlayer)) - static_cast<scoreType>(boardType::materialValue(pawn, whitePlayer)) + evaluatorType::MaxPositionChange;
-					if (stack.position().pieceOccupancy(knight) & stack.position().playerOccupancy(stack.nextPlayer()))
-						return static_cast<scoreType>(boardType::materialValue(knight, whitePlayer)) + static_cast<scoreType>(boardType::materialValue(queen, whitePlayer)) - static_cast<scoreType>(boardType::materialValue(pawn, whitePlayer)) + evaluatorType::MaxPositionChange;
-					if (stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(stack.nextPlayer()))
-						return static_cast<scoreType>(boardType::materialValue(pawn, whitePlayer)) + static_cast<scoreType>(boardType::materialValue(queen, whitePlayer)) - static_cast<scoreType>(boardType::materialValue(pawn, whitePlayer)) + evaluatorType::MaxPositionChange;
-					return static_cast<scoreType>(boardType::materialValue(queen, whitePlayer)) - static_cast<scoreType>(boardType::materialValue(pawn, whitePlayer)) + evaluatorType::MaxPositionChange;
+					constexpr const scoreType singlePromotionsValue{ static_cast<scoreType>(boardType::materialValue(queen, whitePlayer)) - static_cast<scoreType>(boardType::materialValue(pawn, whitePlayer)) };
+					promotionValue += singlePromotionsValue;
 				}
-				else
+				constexpr const scoreType positionalValue{ evaluatorType::MaxPositionChange };
+				bool noCapture{ true };
+				const squaresType queens{ stack.position().pieceOccupancy(queen) & stack.position().playerOccupancy(stack.nextPlayer()) };
+				scoreType captureValue{ scoreType::zero() };
+				if (queens != squaresType::none())
 				{
-					if (stack.position().pieceOccupancy(queen) & stack.position().playerOccupancy(stack.nextPlayer()))
-						return static_cast<scoreType>(boardType::materialValue(queen, whitePlayer)) + evaluatorType::MaxPositionChange;
-					if (stack.position().pieceOccupancy(rook) & stack.position().playerOccupancy(stack.nextPlayer()))
-						return static_cast<scoreType>(boardType::materialValue(rook, whitePlayer)) + evaluatorType::MaxPositionChange;
-					if (stack.position().pieceOccupancy(bishop) & stack.position().playerOccupancy(stack.nextPlayer()))
-						return static_cast<scoreType>(boardType::materialValue(bishop, whitePlayer)) + evaluatorType::MaxPositionChange;
-					if (stack.position().pieceOccupancy(knight) & stack.position().playerOccupancy(stack.nextPlayer()))
-						return static_cast<scoreType>(boardType::materialValue(knight, whitePlayer)) + evaluatorType::MaxPositionChange;
-					if (stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(stack.nextPlayer()))
-						return static_cast<scoreType>(boardType::materialValue(pawn, whitePlayer)) + evaluatorType::MaxPositionChange;
-					return evaluatorType::MaxPositionChange;
+					constexpr const scoreType queenValue{ static_cast<scoreType>(boardType::materialValue(queen, whitePlayer)) };
+					captureValue += queenValue;
+					noCapture = false;
 				}
+				if (noCapture)
+				{
+					const squaresType rooks{ stack.position().pieceOccupancy(rook) & stack.position().playerOccupancy(stack.nextPlayer()) };
+					if (rooks != squaresType::none())
+					{
+						constexpr const scoreType rookValue{ static_cast<scoreType>(boardType::materialValue(rook, whitePlayer)) };
+						captureValue += rookValue;
+						noCapture = false;
+					}
+					if (noCapture)
+					{
+						const squaresType bishops{ stack.position().pieceOccupancy(bishop) & stack.position().playerOccupancy(stack.nextPlayer()) };
+						if (bishops)
+						{
+							constexpr const scoreType bishopValue{ static_cast<scoreType>(boardType::materialValue(bishop, whitePlayer)) };
+							captureValue += bishopValue;
+							noCapture = false;
+						}
+						if (noCapture)
+						{
+							const squaresType knights{ stack.position().pieceOccupancy(knight) & stack.position().playerOccupancy(stack.nextPlayer()) };
+							if (knights)
+							{
+								constexpr const scoreType knightValue{ static_cast<scoreType>(boardType::materialValue(knight, whitePlayer)) };
+								captureValue += knightValue;
+								noCapture = false;
+							}
+							if (noCapture)
+							{
+								const squaresType pawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(stack.nextPlayer()) };
+								if (pawns)
+								{
+									constexpr const scoreType pawnValue{ static_cast<scoreType>(boardType::materialValue(pawn, whitePlayer)) };
+									captureValue += pawnValue;
+									noCapture = false;
+								}
+							}
+						}
+					}
+				}
+				return positionalValue + captureValue + promotionValue;
+			}
 			case 1:
-				if ((stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(stack.movingPlayer())) & (stack.movingPlayer() == whitePlayer ? rank7 : rank2))
+			{
+				const squaresType ownPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(stack.movingPlayer()) };
+				const squaresType promotionPawns{ ownPawns & (stack.movingPlayer() == whitePlayer ? rank7 : rank2) };
+				size_t countPossiblePromotions{ promotionPawns.count() };
+				scoreType promotionValue{ scoreType::zero() };
+				if (countPossiblePromotions >= 1)
 				{
-					if (stack.position().pieceOccupancy(queen) & stack.position().playerOccupancy(stack.nextPlayer()))
-						return static_cast<scoreType>(boardType::materialValue(queen, whitePlayer)) + static_cast<scoreType>(boardType::materialValue(queen, whitePlayer)) - static_cast<scoreType>(boardType::materialValue(pawn, whitePlayer)) + evaluatorType::MaxPositionChange + evaluatorType::MaxPositionChange;
-					if (stack.position().pieceOccupancy(rook) & stack.position().playerOccupancy(stack.nextPlayer()))
-						return static_cast<scoreType>(boardType::materialValue(rook, whitePlayer)) + static_cast<scoreType>(boardType::materialValue(queen, whitePlayer)) - static_cast<scoreType>(boardType::materialValue(pawn, whitePlayer)) + evaluatorType::MaxPositionChange + evaluatorType::MaxPositionChange;
-					if (stack.position().pieceOccupancy(bishop) & stack.position().playerOccupancy(stack.nextPlayer()))
-						return static_cast<scoreType>(boardType::materialValue(bishop, whitePlayer)) + static_cast<scoreType>(boardType::materialValue(queen, whitePlayer)) - static_cast<scoreType>(boardType::materialValue(pawn, whitePlayer)) + evaluatorType::MaxPositionChange + evaluatorType::MaxPositionChange;
-					if (stack.position().pieceOccupancy(knight) & stack.position().playerOccupancy(stack.nextPlayer()))
-						return static_cast<scoreType>(boardType::materialValue(knight, whitePlayer)) + static_cast<scoreType>(boardType::materialValue(queen, whitePlayer)) - static_cast<scoreType>(boardType::materialValue(pawn, whitePlayer)) + evaluatorType::MaxPositionChange + evaluatorType::MaxPositionChange;
-					if (stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(stack.nextPlayer()))
-						return static_cast<scoreType>(boardType::materialValue(pawn, whitePlayer)) + static_cast<scoreType>(boardType::materialValue(queen, whitePlayer)) - static_cast<scoreType>(boardType::materialValue(pawn, whitePlayer)) + evaluatorType::MaxPositionChange + evaluatorType::MaxPositionChange;
-					return static_cast<scoreType>(boardType::materialValue(queen, whitePlayer)) - static_cast<scoreType>(boardType::materialValue(pawn, whitePlayer)) + evaluatorType::MaxPositionChange + evaluatorType::MaxPositionChange;
+					constexpr const scoreType singlePromotionsValue{ static_cast<scoreType>(boardType::materialValue(queen, whitePlayer)) - static_cast<scoreType>(boardType::materialValue(pawn, whitePlayer)) };
+					promotionValue += singlePromotionsValue;
 				}
-				else
+				constexpr const scoreType positionalValue{ evaluatorType::MaxPositionChange + evaluatorType::MaxPositionChange };
+				bool noCapture{ true };
+				const squaresType queens{ stack.position().pieceOccupancy(queen) & stack.position().playerOccupancy(stack.nextPlayer()) };
+				scoreType captureValue{ scoreType::zero() };
+				if (queens != squaresType::none())
 				{
-					if (stack.position().pieceOccupancy(queen) & stack.position().playerOccupancy(stack.nextPlayer()))
-						return static_cast<scoreType>(boardType::materialValue(queen, whitePlayer)) + evaluatorType::MaxPositionChange + evaluatorType::MaxPositionChange;
-					if (stack.position().pieceOccupancy(rook) & stack.position().playerOccupancy(stack.nextPlayer()))
-						return static_cast<scoreType>(boardType::materialValue(rook, whitePlayer)) + evaluatorType::MaxPositionChange + evaluatorType::MaxPositionChange;
-					if (stack.position().pieceOccupancy(bishop) & stack.position().playerOccupancy(stack.nextPlayer()))
-						return static_cast<scoreType>(boardType::materialValue(bishop, whitePlayer)) + evaluatorType::MaxPositionChange + evaluatorType::MaxPositionChange;
-					if (stack.position().pieceOccupancy(knight) & stack.position().playerOccupancy(stack.nextPlayer()))
-						return static_cast<scoreType>(boardType::materialValue(knight, whitePlayer)) + evaluatorType::MaxPositionChange + evaluatorType::MaxPositionChange;
-					if (stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(stack.nextPlayer()))
-						return static_cast<scoreType>(boardType::materialValue(pawn, whitePlayer)) + evaluatorType::MaxPositionChange + evaluatorType::MaxPositionChange;
-					return evaluatorType::MaxPositionChange + evaluatorType::MaxPositionChange;
+					constexpr const scoreType queenValue{ static_cast<scoreType>(boardType::materialValue(queen, whitePlayer)) };
+					captureValue += queenValue;
+					noCapture = false;
 				}
+				if (noCapture)
+				{
+					const squaresType rooks{ stack.position().pieceOccupancy(rook) & stack.position().playerOccupancy(stack.nextPlayer()) };
+					if (rooks != squaresType::none())
+					{
+						constexpr const scoreType rookValue{ static_cast<scoreType>(boardType::materialValue(rook, whitePlayer)) };
+						captureValue += rookValue;
+						noCapture = false;
+					}
+					if (noCapture)
+					{
+						const squaresType bishops{ stack.position().pieceOccupancy(bishop) & stack.position().playerOccupancy(stack.nextPlayer()) };
+						if (bishops)
+						{
+							constexpr const scoreType bishopValue{ static_cast<scoreType>(boardType::materialValue(bishop, whitePlayer)) };
+							captureValue += bishopValue;
+							noCapture = false;
+						}
+						if (noCapture)
+						{
+							const squaresType knights{ stack.position().pieceOccupancy(knight) & stack.position().playerOccupancy(stack.nextPlayer()) };
+							if (knights)
+							{
+								constexpr const scoreType knightValue{ static_cast<scoreType>(boardType::materialValue(knight, whitePlayer)) };
+								captureValue += knightValue;
+								noCapture = false;
+							}
+							if (noCapture)
+							{
+								const squaresType pawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(stack.nextPlayer()) };
+								if (pawns)
+								{
+									constexpr const scoreType pawnValue{ static_cast<scoreType>(boardType::materialValue(pawn, whitePlayer)) };
+									captureValue += pawnValue;
+									noCapture = false;
+								}
+							}
+						}
+					}
+				}
+				return positionalValue + captureValue + promotionValue;
+			}
+			case 2:
+			{
+				const squaresType ownPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(stack.movingPlayer()) };
+				const squaresType promotionPawns{ ownPawns & (stack.movingPlayer() == whitePlayer ? rank7 : rank2) };
+				size_t countPossiblePromotions{ promotionPawns.count() };
+				if (countPossiblePromotions < 2)
+				{
+					const squaresType prePromotionPawns{ ownPawns & (stack.movingPlayer() == whitePlayer ? (rank7 | rank6) : (rank2 | rank3)) };
+					countPossiblePromotions += prePromotionPawns != squaresType::none();
+				}
+				scoreType promotionValue{ scoreType::zero() };
+				if (countPossiblePromotions >= 1)
+				{
+					constexpr const scoreType singlePromotionsValue{ static_cast<scoreType>(boardType::materialValue(queen, whitePlayer)) - static_cast<scoreType>(boardType::materialValue(pawn, whitePlayer)) };
+					promotionValue += singlePromotionsValue;
+					if (countPossiblePromotions > 1)
+						promotionValue += singlePromotionsValue;
+				}
+				constexpr const scoreType positionalValue{ evaluatorType::MaxPositionChange + evaluatorType::MaxPositionChange + evaluatorType::MaxPositionChange };
+				size_t countCaptures{ 0 };
+				const squaresType queens{ stack.position().pieceOccupancy(queen) & stack.position().playerOccupancy(stack.nextPlayer()) };
+				scoreType captureValue{ scoreType::zero() };
+				for (const auto sq : queens)
+				{
+					constexpr const scoreType queenValue{ static_cast<scoreType>(boardType::materialValue(queen, whitePlayer)) };
+					captureValue += queenValue;
+					countCaptures++;
+					if (countCaptures >= 2)
+						break;
+				}
+				if (countCaptures < 2)
+				{
+					const squaresType rooks{ stack.position().pieceOccupancy(rook) & stack.position().playerOccupancy(stack.nextPlayer()) };
+					for (const auto sq : rooks)
+					{
+						constexpr const scoreType rookValue{ static_cast<scoreType>(boardType::materialValue(rook, whitePlayer)) };
+						captureValue += rookValue;
+						countCaptures++;
+						if (countCaptures >= 2)
+							break;
+					}
+					if (countCaptures < 2)
+					{
+						const squaresType bishops{ stack.position().pieceOccupancy(bishop) & stack.position().playerOccupancy(stack.nextPlayer()) };
+						for (const auto sq : bishops)
+						{
+							constexpr const scoreType bishopValue{ static_cast<scoreType>(boardType::materialValue(bishop, whitePlayer)) };
+							captureValue += bishopValue;
+							countCaptures++;
+							if (countCaptures >= 2)
+								break;
+						}
+						if (countCaptures < 2)
+						{
+							const squaresType knights{ stack.position().pieceOccupancy(knight) & stack.position().playerOccupancy(stack.nextPlayer()) };
+							for (const auto sq : knights)
+							{
+								constexpr const scoreType knightValue{ static_cast<scoreType>(boardType::materialValue(knight, whitePlayer)) };
+								captureValue += knightValue;
+								countCaptures++;
+								if (countCaptures >= 2)
+									break;
+							}
+							if (countCaptures < 2)
+							{
+								const squaresType pawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(stack.nextPlayer()) };
+								for (const auto sq : pawns)
+								{
+									constexpr const scoreType pawnValue{ static_cast<scoreType>(boardType::materialValue(pawn, whitePlayer)) };
+									captureValue += pawnValue;
+									countCaptures++;
+									if (countCaptures >= 2)
+										break;
+								}
+							}
+						}
+					}
+				}
+				return positionalValue + captureValue + promotionValue;
+			}
+			case 3:
+			{
+				const squaresType ownPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(stack.movingPlayer()) };
+				const squaresType promotionPawns{ ownPawns & (stack.movingPlayer() == whitePlayer ? rank7 : rank2) };
+				size_t countPossiblePromotions{ promotionPawns.count() };
+				if (countPossiblePromotions < 2)
+				{
+					const squaresType prePromotionPawns{ ownPawns & (stack.movingPlayer() == whitePlayer ? (rank7 | rank6) : (rank2 | rank3)) };
+					countPossiblePromotions += prePromotionPawns != squaresType::none();
+				}
+				scoreType promotionValue{ scoreType::zero() };
+				if (countPossiblePromotions >= 1)
+				{
+					constexpr const scoreType singlePromotionsValue{ static_cast<scoreType>(boardType::materialValue(queen, whitePlayer)) - static_cast<scoreType>(boardType::materialValue(pawn, whitePlayer)) };
+					promotionValue += singlePromotionsValue;
+					if (countPossiblePromotions > 1)
+						promotionValue += singlePromotionsValue;
+				}
+				constexpr const scoreType positionalValue{ evaluatorType::MaxPositionChange + evaluatorType::MaxPositionChange + evaluatorType::MaxPositionChange + evaluatorType::MaxPositionChange };
+				size_t countCaptures{ 0 };
+				const squaresType queens{ stack.position().pieceOccupancy(queen) & stack.position().playerOccupancy(stack.nextPlayer()) };
+				scoreType captureValue{ scoreType::zero() };
+				for (const auto sq : queens)
+				{
+					constexpr const scoreType queenValue{ static_cast<scoreType>(boardType::materialValue(queen, whitePlayer)) };
+					captureValue += queenValue;
+					countCaptures++;
+					if (countCaptures >= 2)
+						break;
+				}
+				if (countCaptures < 2)
+				{
+					const squaresType rooks{ stack.position().pieceOccupancy(rook) & stack.position().playerOccupancy(stack.nextPlayer()) };
+					for (const auto sq : rooks)
+					{
+						constexpr const scoreType rookValue{ static_cast<scoreType>(boardType::materialValue(rook, whitePlayer)) };
+						captureValue += rookValue;
+						countCaptures++;
+						if (countCaptures >= 2)
+							break;
+					}
+					if (countCaptures < 2)
+					{
+						const squaresType bishops{ stack.position().pieceOccupancy(bishop) & stack.position().playerOccupancy(stack.nextPlayer()) };
+						for (const auto sq : bishops)
+						{
+							constexpr const scoreType bishopValue{ static_cast<scoreType>(boardType::materialValue(bishop, whitePlayer)) };
+							captureValue += bishopValue;
+							countCaptures++;
+							if (countCaptures >= 2)
+								break;
+						}
+						if (countCaptures < 2)
+						{
+							const squaresType knights{ stack.position().pieceOccupancy(knight) & stack.position().playerOccupancy(stack.nextPlayer()) };
+							for (const auto sq : knights)
+							{
+								constexpr const scoreType knightValue{ static_cast<scoreType>(boardType::materialValue(knight, whitePlayer)) };
+								captureValue += knightValue;
+								countCaptures++;
+								if (countCaptures >= 2)
+									break;
+							}
+							if (countCaptures < 2)
+							{
+								const squaresType pawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(stack.nextPlayer()) };
+								for (const auto sq : pawns)
+								{
+									constexpr const scoreType pawnValue{ static_cast<scoreType>(boardType::materialValue(pawn, whitePlayer)) };
+									captureValue += pawnValue;
+									countCaptures++;
+									if (countCaptures >= 2)
+										break;
+								}
+							}
+						}
+					}
+				}
+				return positionalValue + captureValue + promotionValue;
+			}
 			default:
 				assert(false);
 				return scoreType::zero();
