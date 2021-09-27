@@ -183,10 +183,14 @@ namespace pygmalion
 		constexpr score& operator=(const score&) noexcept = default;
 		static constexpr score max(const score sc1, const score sc2) noexcept
 		{
+			//return score(sc1.m_Value > sc2.m_Value ? sc1.m_Value : sc2.m_Value, 0);
+			//return score(sc1.m_Value ^ ((sc1.m_Value ^ sc2.m_Value) & -(sc1.m_Value < sc2.m_Value)), 0);
 			return score(std::max(sc1.m_Value, sc2.m_Value), 0);
 		}
 		static constexpr score min(const score sc1, const score sc2) noexcept
 		{
+			//return score(sc1.m_Value < sc2.m_Value ? sc1.m_Value : sc2.m_Value, 0);
+			//return score(sc1.m_Value ^ ((sc2.m_Value ^ sc1.m_Value) & -(sc2.m_Value < sc1.m_Value)), 0);
 			return score(std::min(sc1.m_Value, sc2.m_Value), 0);
 		}
 		static constexpr score atom() noexcept

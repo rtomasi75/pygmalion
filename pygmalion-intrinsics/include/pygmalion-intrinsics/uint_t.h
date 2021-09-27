@@ -419,6 +419,10 @@ namespace pygmalion
 		{
 			return ~uint_t(0);
 		}
+		constexpr uint_t twosComplement() const noexcept
+		{
+			return (~(*this))++;
+		}
 		constexpr bool test(const size_t bit) const noexcept
 		{
 			assert(bit < countBits);
@@ -1549,10 +1553,6 @@ namespace pygmalion
 				), false);
 			}
 		}
-		constexpr uint_t twosComplement() const noexcept
-		{
-			return (~(*this))++;
-		}
 	};
 
 	template<size_t COUNT_BITS, bool IS_COMPACT>
@@ -1592,6 +1592,10 @@ namespace pygmalion
 			return (start + length) <= countBits;
 		}
 	public:
+		constexpr uint_t twosComplement() const noexcept
+		{
+			return uint_t(normalizeWord(static_cast<const wordType>(-static_cast<std::make_signed_t<const wordType>>(m_Word))), false);
+		}
 		constexpr uint_t(const wordType& word, bool) noexcept :
 			m_Word{ word }
 		{	}
@@ -2299,10 +2303,6 @@ namespace pygmalion
 				), false);
 			}
 		}
-		constexpr uint_t twosComplement() const noexcept
-		{
-			return uint_t(static_cast<wordType>(-m_Word), false);
-		}
 	};
 
 	template<size_t COUNT_BITS, bool IS_COMPACT>
@@ -2327,6 +2327,10 @@ namespace pygmalion
 			return (start + length) <= countBits;
 		}
 	public:
+		constexpr uint_t twosComplement() const noexcept
+		{
+			return *this;
+		}
 		template<size_t START, size_t LEN, typename = typename std::enable_if<enableExtract(START, LEN)>::type>
 		constexpr void storeBits(const uint_t<LEN, isCompact>& bits) noexcept
 		{
@@ -2709,10 +2713,6 @@ namespace pygmalion
 			sstr << (m_Word ? '1' : '0');
 			sstr << "]";
 			return sstr.str();
-		}
-		constexpr uint_t twosComplement() const noexcept
-		{
-			return *this;
 		}
 	};
 

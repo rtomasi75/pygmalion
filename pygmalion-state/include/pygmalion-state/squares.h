@@ -309,6 +309,29 @@ namespace pygmalion::state
 				return m_Iterator != other.m_Iterator;
 			}
 		};
+		class counterType
+		{
+			friend class squares;
+		private:
+			bitsType m_Iterator;
+			constexpr counterType(const bitsType& it) noexcept :
+				m_Iterator{ it }
+			{
+			}
+		public:
+			constexpr counterType(const counterType&) noexcept = default;
+			~counterType() noexcept = default;
+			constexpr bool next() noexcept
+			{
+				if (m_Iterator)
+				{
+					m_Iterator &= m_Iterator - bitsType::one();
+					return true;
+				}
+				else
+					return false;
+			}
+		};
 		constexpr auto begin() const noexcept
 		{
 			return iterator(m_Bits.begin());
@@ -316,6 +339,10 @@ namespace pygmalion::state
 		constexpr auto end() const noexcept
 		{
 			return iterator(m_Bits.end());
+		}
+		constexpr auto counter() const noexcept
+		{
+			return counterType(m_Bits);
 		}
 	};
 
