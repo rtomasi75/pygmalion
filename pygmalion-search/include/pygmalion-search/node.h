@@ -172,18 +172,37 @@ namespace pygmalion
 			{
 				if (m_NeedsSorting)
 				{
-					m_Heuristics.sortMoves(m_Stack.position(), m_Moves, m_Move, depth);
+					if constexpr (PRUNED)
+						m_Heuristics.sortMoves(m_Stack.position(), m_Moves, m_Move, depth);
+					else
+						m_Heuristics.sortMoves(m_Stack.position(), m_CriticalMoves, m_Move, depth);
 					m_NeedsSorting = false;
 				}
 			}
-			while (m_Move < m_Moves.length())
+			if constexpr (PRUNED)
 			{
-				movebits = m_Moves[m_Move];
-				bool bDouble{ m_MovesTT.contains(movebits) || m_MovesKiller.contains(movebits) };
-				++m_Move;
-				if (!bDouble)
+				while (m_CriticalMove < m_CriticalMoves.length())
 				{
-					return true;
+					movebits = m_CriticalMoves[m_CriticalMove];
+					const bool bDouble{ m_MovesTT.contains(movebits) || m_MovesKiller.contains(movebits) };
+					++m_CriticalMove;
+					if (!bDouble)
+					{
+						return true;
+					}
+				}
+			}
+			else
+			{
+				while (m_Move < m_Moves.length())
+				{
+					movebits = m_Moves[m_Move];
+					const bool bDouble{ m_MovesTT.contains(movebits) || m_MovesKiller.contains(movebits) };
+					++m_Move;
+					if (!bDouble)
+					{
+						return true;
+					}
 				}
 			}
 			movebitsType testBits{ movebitsType(0) };
@@ -193,7 +212,7 @@ namespace pygmalion
 				{
 					while (m_Stack.nextCriticalMove(testBits, depth, m_Heuristics.feedback(), [this, depth](const movebitsType& bits) { return this->m_Heuristics.moveScore(this->m_Stack.position(), bits, depth); }))
 					{
-						bool bDouble{ m_MovesTT.contains(testBits) || m_MovesKiller.contains(testBits) };
+						const bool bDouble{ m_MovesTT.contains(testBits) || m_MovesKiller.contains(testBits) };
 						if (!bDouble)
 						{
 							fromStack = true;
@@ -208,7 +227,7 @@ namespace pygmalion
 				{
 					while (m_Stack.nextCriticalMove(testBits, depth, m_Heuristics.feedback()))
 					{
-						bool bDouble{ m_MovesTT.contains(testBits) || m_MovesKiller.contains(testBits) };
+						const bool bDouble{ m_MovesTT.contains(testBits) || m_MovesKiller.contains(testBits) };
 						if (!bDouble)
 						{
 							fromStack = true;
@@ -226,7 +245,7 @@ namespace pygmalion
 				{
 					while (m_Stack.nextMove(testBits, depth, m_Heuristics.feedback(), [this, depth](const movebitsType& bits) { return this->m_Heuristics.moveScore(this->m_Stack.position(), bits, depth); }))
 					{
-						bool bDouble{ m_MovesTT.contains(testBits) || m_MovesKiller.contains(testBits) };
+						const bool bDouble{ m_MovesTT.contains(testBits) || m_MovesKiller.contains(testBits) };
 						if (!bDouble)
 						{
 							fromStack = true;
@@ -241,7 +260,7 @@ namespace pygmalion
 				{
 					while (m_Stack.nextMove(testBits, depth, m_Heuristics.feedback()))
 					{
-						bool bDouble{ m_MovesTT.contains(testBits) || m_MovesKiller.contains(testBits) };
+						const bool bDouble{ m_MovesTT.contains(testBits) || m_MovesKiller.contains(testBits) };
 						if (!bDouble)
 						{
 							fromStack = true;
@@ -271,8 +290,6 @@ namespace pygmalion
 				{
 					movebits = m_TacticalMovesTT[m_TacticalMoveTT];
 					++m_TacticalMoveTT;
-					m_TacticalMoves.add(movebits);
-					++m_TacticalMove;
 					return true;
 				}
 				m_TacticalMoveGeneratorStage = 1;
@@ -280,19 +297,17 @@ namespace pygmalion
 				m_Heuristics.tacticalKillers(m_Stack, depth, m_TacticalMovesKiller);
 				m_TacticalMoveKiller = 0;
 			}
-			if (m_MoveGeneratorStage == 1)
+			if (m_TacticalMoveGeneratorStage == 1)
 			{
 				while (m_TacticalMoveKiller < m_TacticalMovesKiller.length())
 				{
 					movebits = m_TacticalMovesKiller[m_TacticalMoveKiller];
-					bool bDouble{ m_MovesTT.contains(movebits) };
+					const bool bDouble{ m_TacticalMovesTT.contains(movebits) };
 					++m_TacticalMoveKiller;
 					if (!bDouble)
-					{
 						return true;
-					}
 				}
-				m_MoveGeneratorStage = 2;
+				m_TacticalMoveGeneratorStage = 2;
 			}
 			if constexpr (heuristicMoves)
 			{
@@ -305,7 +320,7 @@ namespace pygmalion
 			while (m_TacticalMove < m_TacticalMoves.length())
 			{
 				movebits = m_TacticalMoves[m_TacticalMove];
-				bool bDouble{ m_TacticalMovesTT.contains(movebits) };
+				const bool bDouble{ m_TacticalMovesTT.contains(movebits) || m_TacticalMovesKiller.contains(movebits) };
 				++m_TacticalMove;
 				if (!bDouble)
 				{
@@ -317,7 +332,7 @@ namespace pygmalion
 			{
 				while (m_Stack.nextTacticalMove(testBits, depth, m_Heuristics.feedback(), [this, depth](const movebitsType& bits) { return this->m_Heuristics.moveScore(this->m_Stack.position(), bits, depth); }))
 				{
-					bool bDouble{ m_TacticalMovesTT.contains(testBits) };
+					const bool bDouble{ m_TacticalMovesTT.contains(testBits) || m_TacticalMovesKiller.contains(testBits) };
 					if (!bDouble)
 					{
 						fromStack = true;
@@ -332,7 +347,7 @@ namespace pygmalion
 			{
 				while (m_Stack.nextTacticalMove(testBits, depth, m_Heuristics.feedback()))
 				{
-					bool bDouble{ m_TacticalMovesTT.contains(testBits) };
+					const bool bDouble{ m_TacticalMovesTT.contains(testBits) || m_TacticalMovesKiller.contains(testBits) };
 					if (!bDouble)
 					{
 						fromStack = true;
