@@ -1553,6 +1553,35 @@ namespace pygmalion
 				), false);
 			}
 		}
+		class counterType
+		{
+			friend class uint_t;
+		private:
+			const size_t m_Max;
+			size_t m_Current;
+			constexpr counterType(const uint_t& it) noexcept :
+				m_Max{ it.populationCount() },
+				m_Current{ 0 }
+			{
+			}
+		public:
+			constexpr counterType(const counterType&) noexcept = default;
+			~counterType() noexcept = default;
+			constexpr bool next() noexcept
+			{
+				if (m_Current < m_Max)
+				{
+					m_Current++;
+					return true;
+				}
+				else
+					return false;
+			}
+		};
+		constexpr auto counter() const noexcept
+		{
+			return counterType(*this);
+		}
 	};
 
 	template<size_t COUNT_BITS, bool IS_COMPACT>
@@ -2170,6 +2199,40 @@ namespace pygmalion
 				return m_State != other.m_State;
 			}
 		};
+		class counterType
+		{
+			friend class uint_t;
+		private:
+			wordType m_Iterator;
+			constexpr counterType(const wordType& it) noexcept :
+				m_Iterator{ it }
+			{
+			}
+		public:
+			constexpr counterType(const counterType&) noexcept = default;
+			~counterType() noexcept = default;
+			constexpr bool next() noexcept
+			{
+				if (m_Iterator)
+				{
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI) && cpu::supports(cpu::flags::X64) && (sizeof(typename uint_t::wordType) == 8))
+						m_Iterator = _blsr_u64(m_Iterator);
+					else if constexpr (cpu::supports(cpu::flags::BMI) && cpu::supports(cpu::flags::X86) && (sizeof(typename uint_t::wordType) <= 4))
+						m_Iterator = _blsr_u32(m_Iterator);
+					else
+#endif
+						m_Iterator &= m_Iterator - 1;
+					return true;
+				}
+				else
+					return false;
+			}
+		};
+		constexpr auto counter() const noexcept
+		{
+			return counterType(m_Word);
+		}
 		constexpr auto begin() const noexcept
 		{
 			return iterator(*this);
@@ -2736,6 +2799,33 @@ namespace pygmalion
 			sstr << "]";
 			return sstr.str();
 		}
+		class counterType
+		{
+			friend class uint_t;
+		private:
+			wordType m_Current;
+			constexpr counterType(const wordType& it) noexcept :
+				m_Current{ it }
+			{
+			}
+		public:
+			constexpr counterType(const counterType&) noexcept = default;
+			~counterType() noexcept = default;
+			constexpr bool next() noexcept
+			{
+				if (m_Current)
+				{
+					m_Current = false;
+					return true;
+				}
+				else
+					return false;
+			}
+		};
+		constexpr auto counter() const noexcept
+		{
+			return counterType(m_Word);
+		}
 	};
 
 	template<size_t COUNT_BITS, bool IS_COMPACT>
@@ -3101,6 +3191,25 @@ namespace pygmalion
 		constexpr uint_t twosComplement() const noexcept
 		{
 			return *this;
+		}
+		class counterType
+		{
+			friend class uint_t;
+		private:
+			constexpr counterType() noexcept
+			{
+			}
+		public:
+			constexpr counterType(const counterType&) noexcept = default;
+			~counterType() noexcept = default;
+			constexpr bool next() noexcept
+			{
+				return false;
+			}
+		};
+		constexpr auto counter() const noexcept
+		{
+			return counterType();
 		}
 	};
 

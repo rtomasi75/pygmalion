@@ -38,7 +38,7 @@ namespace pygmalion::tictactoe
 			}
 		}
 		~patterns() noexcept = default;
-		constexpr const squaresType& line(const int idx) const noexcept
+		constexpr const squaresType line(const int idx) const noexcept
 		{
 			assert(idx >= 0);
 			assert(idx < countLines);

@@ -17,11 +17,11 @@ namespace pygmalion::chess
 		constexpr static inline scoreType MobilityFactor{ static_cast<scoreType>(Mobility / 64.0) };
 		constexpr static inline scoreType AttackFactor{ static_cast<scoreType>(Attack / 64.0) };
 		constexpr static inline scoreType ControlFactor{ static_cast<scoreType>(Control / 64.0) };
-		constexpr static inline scoreType DeltaMobility{ static_cast<scoreType>(Mobility) };
-		constexpr static inline scoreType DeltaAttack{ static_cast<scoreType>(Attack) };
-		constexpr static inline scoreType DeltaControl{ static_cast<scoreType>(Control) };
+		constexpr static inline scoreType DeltaMobility{ static_cast<scoreType>(48.0 * Mobility / 64.0) };
+		constexpr static inline scoreType DeltaAttack{ static_cast<scoreType>(48.0 * Attack / 64.0) };
+		constexpr static inline scoreType DeltaControl{ static_cast<scoreType>(48.0 * Control / 64.0) };
 		constexpr static inline size_t CountStages{ 3 };
-		constexpr static inline scoreType Delta[]{ static_cast<scoreType>(Mobility + Attack + Control),static_cast<scoreType>(Attack + Control),static_cast<scoreType>(Control) };
+		constexpr static inline scoreType Delta[]{ DeltaMobility + DeltaAttack + DeltaControl, DeltaAttack + DeltaControl , DeltaControl };
 		static scoreType attack(const generatorType::stackType& stack) noexcept;
 		static scoreType mobility(const generatorType::stackType& stack) noexcept;
 		static scoreType control(const generatorType::stackType& stack) noexcept;

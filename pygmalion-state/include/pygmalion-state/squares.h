@@ -313,9 +313,9 @@ namespace pygmalion::state
 		{
 			friend class squares;
 		private:
-			bitsType m_Iterator;
-			constexpr counterType(const bitsType& it) noexcept :
-				m_Iterator{ it }
+			typename bitsType::counterType m_Counter;
+			constexpr counterType(const squares& it) noexcept :
+				m_Counter{ it.counter() }
 			{
 			}
 		public:
@@ -323,13 +323,7 @@ namespace pygmalion::state
 			~counterType() noexcept = default;
 			constexpr bool next() noexcept
 			{
-				if (m_Iterator)
-				{
-					m_Iterator &= m_Iterator - bitsType::one();
-					return true;
-				}
-				else
-					return false;
+				return m_Counter.next();
 			}
 		};
 		constexpr auto begin() const noexcept
@@ -342,7 +336,7 @@ namespace pygmalion::state
 		}
 		constexpr auto counter() const noexcept
 		{
-			return counterType(m_Bits);
+			return counterType(*this);
 		}
 	};
 

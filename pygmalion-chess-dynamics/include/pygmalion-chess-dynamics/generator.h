@@ -72,14 +72,14 @@ namespace pygmalion::chess
 			~stack() noexcept = default;
 		};
 		using stackType = stack;
-		constexpr static squaresType pawnAttacks(const squareType sq, const playerType p, const squaresType& allowed) noexcept
+		constexpr static squaresType pawnAttacks(const squareType& sq, const playerType p, const squaresType& allowed) noexcept
 		{
 			if (p == whitePlayer)
 				return movegenPawnCaptureWhite.attacks(sq, allowed);
 			else
 				return movegenPawnCaptureBlack.attacks(sq, allowed);
 		}
-		constexpr static squaresType pawnAttacks(const squaresType squares, const playerType p, const squaresType& allowed) noexcept
+		constexpr static squaresType pawnAttacks(const squaresType& squares, const playerType p, const squaresType& allowed) noexcept
 		{
 			if (p == whitePlayer)
 				return movegenPawnCaptureWhite.attacks(squares, allowed);
@@ -124,28 +124,28 @@ namespace pygmalion::chess
 		}
 		constexpr static const movebitsType m_NullMove{ motorType::move().createNull() };
 	public:
-		constexpr static squaresType pawnPushTargets(const squareType sq, const playerType p, const squaresType& allowed) noexcept
+		constexpr static squaresType pawnPushTargets(const squareType& sq, const playerType p, const squaresType& allowed) noexcept
 		{
 			if (p == whitePlayer)
 				return movegenPawnPushWhite.targets(sq, allowed);
 			else
 				return movegenPawnPushBlack.targets(sq, allowed);
 		}
-		constexpr static squaresType pawnCaptureTargets(const squareType sq, const playerType p, const squaresType& allowed) noexcept
+		constexpr static squaresType pawnCaptureTargets(const squareType& sq, const playerType p, const squaresType& allowed) noexcept
 		{
 			if (p == whitePlayer)
 				return movegenPawnCaptureWhite.attacks(sq, allowed);
 			else
 				return movegenPawnCaptureBlack.attacks(sq, allowed);
 		}
-		constexpr static squaresType pawnCaptureTargets(const squaresType squares, const playerType p, const squaresType& allowed) noexcept
+		constexpr static squaresType pawnCaptureTargets(const squaresType& squares, const playerType p, const squaresType& allowed) noexcept
 		{
 			if (p == whitePlayer)
 				return movegenPawnCaptureWhite.attacks(squares, allowed);
 			else
 				return movegenPawnCaptureBlack.attacks(squares, allowed);
 		}
-		constexpr static squaresType pawnDoublePushTargets(const squareType sq, const playerType p, const squaresType& allowed) noexcept
+		constexpr static squaresType pawnDoublePushTargets(const squareType& sq, const playerType p, const squaresType& allowed) noexcept
 		{
 			if (p == whitePlayer)
 				return movegenPawnDoublePushWhite.targets(sq, allowed);
