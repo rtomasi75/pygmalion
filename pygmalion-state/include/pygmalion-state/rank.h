@@ -50,5 +50,13 @@ namespace pygmalion::state
 		{
 			return ~static_cast<squaresType>(*this);
 		}
+		constexpr rank down() const noexcept
+		{
+			return (*this) - 1;
+		}
+		constexpr rank up() const noexcept
+		{
+			return (*this) + 1;
+		}
 	};
 }

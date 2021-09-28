@@ -1,7 +1,7 @@
 namespace pygmalion::tictactoe
 {
 	class descriptor_dynamics :
-		public pygmalion::descriptor_dynamics<motor, 9, 7, 0, 10, 1, 0, 0>
+		public pygmalion::descriptor_dynamics<motor, 9, 7, 0, 10, 1, 0, 0, 0, 0, 0>
 	{
 	public:
 		static inline movetable<descriptor_dynamics> moveTable{ movetable<descriptor_dynamics>(0x0095,9) };
@@ -29,7 +29,6 @@ namespace pygmalion::tictactoe
 			std::deque<std::shared_ptr<pygmalion::intrinsics::command>> list{ std::deque<std::shared_ptr<pygmalion::intrinsics::command>>() };
 			return list;
 		}
-
 		static void generateMoves_Implementation(const stackType& stack, movelistType& moves, const passType currentPass) noexcept
 		{
 			if (currentPass == 0)
@@ -44,6 +43,18 @@ namespace pygmalion::tictactoe
 			assert(0);
 		}
 		static void generateCriticalMoves_Implementation(const stackType& stack, movelistType& moves, const passType currentPass) noexcept
+		{
+			assert(0);
+		}
+		static void generateQuietCriticalMoves_Implementation(const stackType& stack, movelistType& moves, const passType currentPass) noexcept
+		{
+			assert(0);
+		}
+		static void generateCriticalEvasionMoves_Implementation(const stackType& stack, movelistType& moves, const passType currentPass) noexcept
+		{
+			assert(0);
+		}
+		static void generateTacticalCriticalEvasionMoves_Implementation(const stackType& stack, movelistType& moves, const passType currentPass) noexcept
 		{
 			assert(0);
 		}
@@ -93,9 +104,21 @@ namespace pygmalion::tictactoe
 		{
 			return "standard tactical";
 		}
+		static std::string tacticalCriticalEvasionPassToString_Implementation(const passType tacticalPass) noexcept
+		{
+			return "standard tactical critical evasion";
+		}
 		static std::string criticalPassToString_Implementation(const passType criticalPass) noexcept
 		{
 			return "standard critical";
+		}
+		static std::string criticalEvasionPassToString_Implementation(const passType criticalPass) noexcept
+		{
+			return "standard critical evasion";
+		}
+		static std::string quietCriticalPassToString_Implementation(const passType quietCriticalPass) noexcept
+		{
+			return "standard quiet critical";
 		}
 		constexpr static size_t countMoveBuckets_Implementation() noexcept
 		{

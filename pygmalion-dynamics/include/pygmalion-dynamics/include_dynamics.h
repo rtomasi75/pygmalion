@@ -11,6 +11,9 @@ constexpr static const size_t evaluationMaxDistance{ descriptorDynamics::evaluat
 constexpr static const size_t countPasses{ descriptorDynamics::countPasses };
 constexpr static const size_t countCriticalPasses{ descriptorDynamics::countCriticalPasses };
 constexpr static const size_t countTacticalPasses{ descriptorDynamics::countTacticalPasses };
+constexpr static const size_t countQuietCriticalPasses{ descriptorDynamics::countQuietCriticalPasses };
+constexpr static const size_t countCriticalEvasionPasses{ descriptorDynamics::countCriticalEvasionPasses };
+constexpr static const size_t countTacticalCriticalEvasionPasses{ descriptorDynamics::countTacticalCriticalEvasionPasses };
 
 using descriptorMechanics = typename motorType::descriptorMechanics;
 #include <pygmalion-mechanics/include_mechanics.h>

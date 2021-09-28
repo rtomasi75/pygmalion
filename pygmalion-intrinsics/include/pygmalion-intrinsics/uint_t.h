@@ -2119,7 +2119,14 @@ namespace pygmalion
 				m_State{ state },
 				m_Current{ 0 }
 			{
-				m_State.bitscanForward(m_Current);
+#if defined(PYGMALION_CPU_BMI) 
+				if constexpr (cpu::supports(cpu::flags::BMI) && cpu::supports(cpu::flags::X64) && (sizeof(typename uint_t::wordType) == 8))
+					m_Current = _tzcnt_u64(m_State.m_Word);
+				else if constexpr (cpu::supports(cpu::flags::BMI) && cpu::supports(cpu::flags::X86) && (sizeof(typename uint_t::wordType) <= 4))
+					m_Current = _tzcnt_u32(m_State.m_Word);
+				else
+#endif
+					m_State.bitscanForward(m_Current);
 			}
 			constexpr iterator(const iterator&) noexcept = default;
 			~iterator() noexcept = default;
@@ -2131,8 +2138,23 @@ namespace pygmalion
 			}
 			constexpr iterator& operator++() noexcept
 			{
-				m_State.clear(m_Current);
-				m_State.bitscanForward(m_Current);
+#if defined(PYGMALION_CPU_BMI) 
+				if constexpr (cpu::supports(cpu::flags::BMI) && cpu::supports(cpu::flags::X64) && (sizeof(typename uint_t::wordType) == 8))
+				{
+					m_State.m_Word = _blsr_u64(m_State.m_Word);
+					m_Current = _tzcnt_u64(m_State.m_Word);
+				}
+				else if constexpr (cpu::supports(cpu::flags::BMI) && cpu::supports(cpu::flags::X86) && (sizeof(typename uint_t::wordType) <= 4))
+				{
+					m_State.m_Word = _blsr_u32(m_State.m_Word);
+					m_Current = _tzcnt_u32(m_State.m_Word);
+				}
+				else
+#endif
+				{
+					m_State.m_Word &= m_State.m_Word - 1;
+					m_State.bitscanForward(m_Current);
+				}
 				return *this;
 			}
 			constexpr value_type operator*() const noexcept

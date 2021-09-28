@@ -50,6 +50,14 @@ namespace pygmalion::state
 		{
 			return squareType::fromRankFile(rank, *this);
 		}
+		constexpr file left() const noexcept
+		{
+			return (*this) - 1;
+		}
+		constexpr file right() const noexcept
+		{
+			return (*this) + 1;
+		}
 	};
 
 }

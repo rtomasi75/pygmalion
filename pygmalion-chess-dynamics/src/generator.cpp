@@ -294,4 +294,46 @@ namespace pygmalion::chess
 			return "critical slider moves diag.";
 		}
 	}
+
+	std::string generator::criticalEvasionPassToString_Implementation(const passType criticalPass) noexcept
+	{
+		switch (static_cast<size_t>(criticalPass))
+		{
+		default:
+			assert(0);
+			return "???";
+		case 0:
+			return "critical evasion moves";
+		}
+	}
+
+	std::string generator::tacticalCriticalEvasionPassToString_Implementation(const passType tacticalCriticalEvasionPass) noexcept
+	{
+		switch (static_cast<size_t>(tacticalCriticalEvasionPass))
+		{
+		default:
+			assert(0);
+			return "???";
+		case 0:
+			return "tactical critical evasion moves";
+		}
+	}
+
+	std::string generator::quietCriticalPassToString_Implementation(const passType quietCriticalPass) noexcept
+	{
+		switch (static_cast<size_t>(quietCriticalPass))
+		{
+		default:
+			assert(0);
+			return "???";
+		case 0:
+			return "quiet critical knight moves";
+		case 1:
+			return "quiet critical pawn moves";
+		case 2:
+			return "quiet critical slider moves h./v.";
+		case 3:
+			return "quiet critical slider moves diag.";
+		}
+	}
 }

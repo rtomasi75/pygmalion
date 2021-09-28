@@ -5,6 +5,7 @@
 #include <pygmalion-dynamics.h>
 
 #include "pygmalion-chess-dynamics/descriptor_dynamics.h"
+#include "pygmalion-chess-dynamics/rays.h"
 #include "pygmalion-chess-dynamics/movegen_knight.h"
 #include "pygmalion-chess-dynamics/movegen_pawn_push_white.h"
 #include "pygmalion-chess-dynamics/movegen_pawn_push_black.h"

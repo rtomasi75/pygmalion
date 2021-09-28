@@ -12,6 +12,11 @@
       "ctestCommandArgs": "",
       "variables": [
         {
+          "name": "OPTIMIZE_FOR_BMI",
+          "value": "True",
+          "type": "BOOL"
+        },
+        {
           "name": "OPTIMIZE_FOR_BMI2",
           "value": "True",
           "type": "BOOL"
