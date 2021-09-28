@@ -54,7 +54,7 @@ namespace pygmalion::tictactoe
 			allowStoreTT = true;
 			return (canDecide && (position.totalOccupancy().count() < 9)) ? gamestateType::open() : gamestateType::draw();
 		}
-		static scoreType evaluate_Implementation(const scoreType alpha, const scoreType beta, const generatorType::stackType& stack) noexcept
+		static scoreType computeMaterial_Implementation(const typename generatorType::stackType& stack) noexcept
 		{
 			const auto& position{ stack.position() };
 			auto sc = scoreType::zero();

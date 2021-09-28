@@ -2155,7 +2155,7 @@ namespace pygmalion::chess
 			&generateQuietCriticalSliderMovesDiag
 		};
 	public:
-		static const rays& rays() noexcept
+		static const rays& getRays() noexcept
 		{
 			return m_Rays;
 		}

@@ -1,6 +1,6 @@
 namespace pygmalion
 {
-	template<typename DESCRIPTOR_EVALUATION, typename INSTANCE >
+	template<typename DESCRIPTOR_EVALUATION, typename INSTANCE, typename... STAGES >
 	class evaluator :
 		public DESCRIPTOR_EVALUATION
 	{
@@ -19,6 +19,39 @@ namespace pygmalion
 			std::shared_ptr<pygmalion::intrinsics::command> pCommand(static_cast<pygmalion::intrinsics::command*>(new COMMAND()), delCmd);
 			return pCommand;
 		}
+		template<typename STAGE, typename... STAGES2>
+		constexpr static scoreType computeDelta() noexcept
+		{
+			constexpr const scoreType sc2{ STAGE::computeDelta() };
+			if constexpr (sizeof...(STAGES2) > 0)
+				return sc2 + computeDelta<STAGES2...>();
+			else
+				return sc2;
+		}
+		template<typename STAGE, typename... STAGES2>
+		static scoreType computeStages(const scoreType& alpha, const scoreType& beta, const scoreType& sc, const typename generatorType::stackType& stack) noexcept
+		{
+			scoreType sc2{ sc };
+			constexpr const scoreType delta{ computeDelta<STAGE,STAGES2...>() };
+			if (!isFutile(alpha, beta, sc, delta))
+			{
+				sc2 += STAGE::evaluate(stack);
+				if constexpr (sizeof...(STAGES2) > 0)
+					return evaluatorType::template computeStages<STAGES2...>(alpha, beta, sc2, stack);
+			}
+			return sc2;
+		}
+		static scoreType computeMaterial(const typename generatorType::stackType& stack) noexcept
+		{
+			return evaluatorType::computeMaterial_Implementation(stack);
+		}
+		constexpr static scoreType rootDelta() noexcept
+		{
+			if constexpr (sizeof...(STAGES) > 0)
+				return computeDelta<STAGES...>();
+			else
+				return scoreType::zero();
+		}
 	protected:
 		template<typename COMMAND>
 		static void addCommand(std::deque<std::shared_ptr<pygmalion::intrinsics::command>>& list) noexcept
@@ -26,18 +59,23 @@ namespace pygmalion
 			std::shared_ptr<pygmalion::intrinsics::command> pCommand{ createCommand<COMMAND>() };
 			list.emplace_back(std::move(pCommand));
 		}
-	public:
 		constexpr static bool isFutile(const scoreType& alpha, const scoreType& beta, const scoreType& approx, const scoreType& delta) noexcept
 		{
 			return (approx + delta <= alpha) && (approx + delta < beta);
 		}
+	public:
+		constexpr static inline scoreType MaxPositionChange{ rootDelta() };
 		static std::deque<std::shared_ptr<pygmalion::intrinsics::command>> commands() noexcept
 		{
 			return evaluatorType::commandsImplementation();
 		}
 		static scoreType evaluate(const scoreType& alpha, const scoreType& beta, const typename generatorType::stackType& stack) noexcept
 		{
-			return evaluatorType::evaluate_Implementation(alpha, beta, stack);
+			const scoreType sc{ computeMaterial(stack) };
+			if constexpr (sizeof...(STAGES) > 0)
+				return evaluatorType::template computeStages<STAGES...>(alpha, beta, sc, stack);
+			else
+				return sc;
 		}
 		template<bool LAZY>
 		static gamestateType earlyResult(const typename generatorType::stackType& stack, bool& allowStoreTT) noexcept

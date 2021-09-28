@@ -8,6 +8,7 @@
 #include "pygmalion-evaluation/command.h"
 #include "pygmalion-evaluation/commands.h"
 #include "pygmalion-evaluation/engine.h"
+#include "pygmalion-evaluation/evaluationstage.h"
 
 #endif
 

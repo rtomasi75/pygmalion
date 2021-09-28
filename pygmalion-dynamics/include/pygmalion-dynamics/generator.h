@@ -1271,7 +1271,7 @@ namespace pygmalion
 		}
 		static std::string criticalEvasionPassToString(const passType& criticalEvasionPass) noexcept
 		{
-			return generatorType::criticalPassToString_Implementation(criticalPass);
+			return generatorType::criticalPassToString_Implementation(criticalEvasionPass);
 		}
 		static std::string quietCriticalPassToString(const passType& quietCriticalPass) noexcept
 		{

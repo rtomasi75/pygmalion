@@ -323,8 +323,6 @@ namespace pygmalion
 		}
 		constexpr auto operator+=(const score sc) noexcept
 		{
-			assert(isOpen());
-			assert(sc.isOpen());
 			m_Value += sc.m_Value;
 		}
 		constexpr auto operator-=(const score sc) noexcept

@@ -1,44 +1,15 @@
 namespace pygmalion::chess
 {
-	class descriptor_evaluation :
-		public pygmalion::descriptor_evaluation<generator>
-	{
-	public:
-	};
-
 	class evaluator :
-		public pygmalion::evaluator<descriptor_evaluation, evaluator>
+		public pygmalion::evaluator<descriptor_evaluation, evaluator, evaluationstage_attacks, evaluationstage_mobility, evaluationstage_control>
 	{
 	public:
-		constexpr static inline double Mobility{ 0.125 };
-		constexpr static inline double Attack{ 0.125 };
-		constexpr static inline double Control{ 0.25 };
-	private:
-		constexpr static inline scoreType MobilityFactor{ static_cast<scoreType>(Mobility / 64.0) };
-		constexpr static inline scoreType AttackFactor{ static_cast<scoreType>(Attack / 64.0) };
-		constexpr static inline scoreType ControlFactor{ static_cast<scoreType>(Control / 64.0) };
-		constexpr static inline scoreType DeltaMobility{ static_cast<scoreType>(48.0 * Mobility / 64.0) };
-		constexpr static inline scoreType DeltaAttack{ static_cast<scoreType>(48.0 * Attack / 64.0) };
-		constexpr static inline scoreType DeltaControl{ static_cast<scoreType>(48.0 * Control / 64.0) };
-		constexpr static inline size_t CountStages{ 3 };
-		constexpr static inline scoreType Delta[]{ DeltaMobility + DeltaAttack + DeltaControl, DeltaAttack + DeltaControl , DeltaControl };
-		static scoreType attack(const generatorType::stackType& stack) noexcept;
-		static scoreType mobility(const generatorType::stackType& stack) noexcept;
-		static scoreType control(const generatorType::stackType& stack) noexcept;
-		typedef scoreType EVALUATIONFUNCTION(const generatorType::stackType& stack);
-		constexpr static inline EVALUATIONFUNCTION* m_EvalFunc[]
+		static scoreType computeMaterial_Implementation(const typename generatorType::stackType& stack) noexcept
 		{
-			&attack,
-			&mobility,
-			&control
-		};
-		constexpr static scoreType evaluationFunction(int i, const generatorType::stackType& stack) noexcept
-		{
-			assert(i >= 0 && i < CountStages);
-			return (*(m_EvalFunc + i))(stack);
+			const scoreType mat{ static_cast<scoreType>(stack.position().material()) };
+			const bool invert{ stack.movingPlayer() == blackPlayer };
+			return invert ? -mat : mat;
 		}
-	public:
-		constexpr static inline scoreType MaxPositionChange{ static_cast<scoreType>(Mobility) };
 		constexpr static scoreType aspirationWindowSize_Implementation(const size_t index) noexcept
 		{
 			constexpr const scoreType windows[]
@@ -136,7 +107,6 @@ namespace pygmalion::chess
 			return gamestateType::open();
 		}
 		static gamestateType lateResult_Implementation(const typename generatorType::stackType& stack) noexcept;
-		static scoreType evaluate_Implementation(const scoreType alpha, const scoreType beta, const generatorType::stackType& stack) noexcept;
 		static squaresType leastValuablePiece(const boardType& position, const squaresType mask, const playerType side) noexcept
 		{
 			const squaresType occ{ position.playerOccupancy(side) & mask };
