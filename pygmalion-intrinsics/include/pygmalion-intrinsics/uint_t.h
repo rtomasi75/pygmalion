@@ -1582,6 +1582,12 @@ namespace pygmalion
 		{
 			return counterType(*this);
 		}
+		template<typename LAMBDA>
+		constexpr void foreach(const LAMBDA& lambda) const noexcept
+		{
+			for (const auto index : *this)
+				lambda(index);
+		}
 	};
 
 	template<size_t COUNT_BITS, bool IS_COMPACT>
@@ -1671,28 +1677,47 @@ namespace pygmalion
 			}
 			else
 			{
-				size_t b{ START % countBitsPerWord };
-				size_t w2{ 0 };
-				size_t b2{ 0 };
-				size_t r{ LEN };
-				while (r > 0)
+				if constexpr (L::countWords == 1)
 				{
-					const size_t rw{ countBitsPerWord - b };
-					const size_t rw2{ L::countBitsPerWord - b2 };
-					const size_t rl{ std::min(rw,rw2) };
-					const size_t ol{ std::min(r,rl) };
-					const wordType mask{ (ol < countBitsPerWord) ? static_cast<wordType>(((wordType(1) << ol) - wordType(1)) << b) : static_cast<wordType>(~wordType(0)) };
-					const WT mask2{ (ol < L::countBitsPerWord) ? static_cast<WT>(((WT(1) << ol) - WT(1)) << b2) : static_cast<WT>(~WT(0)) };
-					m_Word &= ~mask;
-					m_Word |= static_cast<wordType>(static_cast<wordType>((bits.word(w2) & mask2) >> b2) << b);
-					b += ol;
-					b2 += ol;
-					if (b2 >= L::countBitsPerWord)
+					const wordType shifted{ static_cast<wordType>(static_cast<wordType>(bits.word(0)) << START) };
+					if constexpr (LEN < countBitsPerWord)
 					{
-						b2 -= L::countBitsPerWord;
-						w2++;
+						constexpr const wordType mask{ static_cast<wordType>(~(((wordType(1) << LEN) - wordType(1)) << START)) };
+						m_Word &= mask;
+						m_Word |= shifted;
 					}
-					r -= ol;
+					else
+						m_Word = shifted;
+				}
+				else
+				{
+					size_t b{ START % countBitsPerWord };
+					size_t w2{ 0 };
+					size_t b2{ 0 };
+					size_t r{ LEN };
+					constexpr const wordType allBits1{ static_cast<wordType>(~wordType(0)) };
+					constexpr const WT allBits2{ static_cast<WT>(~WT(0)) };
+					while (r > 0)
+					{
+						const size_t rw{ countBitsPerWord - b };
+						const size_t rw2{ L::countBitsPerWord - b2 };
+						const size_t rl{ std::min(rw,rw2) };
+						const size_t ol{ std::min(r,rl) };
+						const wordType set1{ static_cast<wordType>((wordType(1) << ol) - wordType(1)) };
+						const wordType mask{ (ol < countBitsPerWord) ? static_cast<wordType>(set1 << b) : allBits1 };
+						const wordType set2{ static_cast<WT>((WT(1) << ol) - WT(1)) };
+						const WT mask2{ (ol < L::countBitsPerWord) ? static_cast<WT>(set2 << b2) : allBits2 };
+						m_Word &= ~mask;
+						m_Word |= static_cast<wordType>(static_cast<wordType>((bits.word(w2) & mask2) >> b2) << b);
+						b += ol;
+						b2 += ol;
+						if (b2 >= L::countBitsPerWord)
+						{
+							b2 -= L::countBitsPerWord;
+							w2++;
+						}
+						r -= ol;
+					}
 				}
 			}
 		}
@@ -2144,7 +2169,7 @@ namespace pygmalion
 			using pointer = value_type*;
 			using reference = value_type&;
 			using iterator_category = std::input_iterator_tag;
-			constexpr explicit iterator(const uint_t state) noexcept :
+			constexpr explicit iterator(const uint_t& state) noexcept :
 				m_State{ state },
 				m_Current{ 0 }
 			{
@@ -2203,9 +2228,19 @@ namespace pygmalion
 		{
 			friend class uint_t;
 		private:
+#if defined(PYGMALION_CPU_POPCNT)
+			const size_t m_Max;
+			size_t m_Current;
+#else
 			wordType m_Iterator;
-			constexpr counterType(const wordType& it) noexcept :
-				m_Iterator{ it }
+#endif
+			constexpr counterType(const uint_t& it) noexcept :
+#if defined(PYGMALION_CPU_POPCNT)
+				m_Max{ it.populationCount() },
+				m_Current{ 0 }
+#else
+				m_Iterator{ it.m_Word }
+#endif
 			{
 			}
 		public:
@@ -2213,6 +2248,9 @@ namespace pygmalion
 			~counterType() noexcept = default;
 			constexpr bool next() noexcept
 			{
+#if defined(PYGMALION_CPU_POPCNT)
+				return m_Current++ < m_Max;
+#else
 				if (m_Iterator)
 				{
 #if defined(PYGMALION_CPU_BMI) 
@@ -2224,14 +2262,15 @@ namespace pygmalion
 #endif
 						m_Iterator &= m_Iterator - 1;
 					return true;
-				}
+			}
 				else
 					return false;
-			}
-		};
+#endif
+		}
+	};
 		constexpr auto counter() const noexcept
 		{
-			return counterType(m_Word);
+			return counterType(*this);
 		}
 		constexpr auto begin() const noexcept
 		{
@@ -2291,60 +2330,26 @@ namespace pygmalion
 		constexpr uint_t<LEN, isCompact> extractBits() const noexcept
 		{
 			using L = uint_t<LEN, isCompact>;
-			if constexpr (LEN == 0)
-				return L::zero();
-			else if constexpr (LEN == 1)
-				return L(static_cast<typename L::wordType>((*this)[START]), false);
-			else if constexpr (L::countWords <= 1)
+#if defined(PYGMALION_CPU_BMI)
+			if constexpr (cpu::supports(cpu::flags::BMI) && cpu::supports(cpu::flags::X64) && (sizeof(wordType) == 8))
 			{
-				using WT = typename L::wordType;
-				return L(([this]()->WT {
-					if constexpr (LEN == 0)
-						return WT(0);
-					else if constexpr (LEN == 1)
-						return WT(this->template test<START>());
-					else
-					{
-						size_t currentWordBit{ 0 };
-						size_t currentBit{ 0 };
-						size_t otherWord{ (START + currentBit) / countBitsPerWord };
-						size_t otherWordBit{ (START + currentBit) % countBitsPerWord };
-						size_t otherBit{ otherWord * countBitsPerWord + otherWordBit };
-						WT result{ WT(0) };
-						while (true)
-						{
-							if ((otherBit >= countBits) || (currentWordBit >= uint_t<LEN, isCompact>::countBitsPerWord) || (currentBit >= LEN))
-								return result;
-							const size_t otherRemaining{ std::min(countBitsPerWord - otherWordBit,countBits - otherBit) };
-							const size_t currentRemaining{ std::min(uint_t<LEN, isCompact>::countBitsPerWord - currentWordBit,LEN - currentBit) };
-							const size_t slice{ std::min(otherRemaining,currentRemaining) };
-							if (slice >= countBitsPerWord)
-							{
-								result |= static_cast<WT>(static_cast<WT>(this->word(otherWord) >> otherWordBit) << currentWordBit);
-							}
-							else
-							{
-								const wordType mask{ static_cast<wordType>(static_cast<wordType>(static_cast<wordType>(wordType(1) << slice) - wordType(1)) << otherWordBit) };
-								result |= static_cast<WT>(static_cast<WT>(static_cast<wordType>(this->word(otherWord) & mask) >> otherWordBit) << currentWordBit);
-							}
-							otherBit += slice;
-							otherWordBit += slice;
-							if (otherWordBit >= countBitsPerWord)
-							{
-								otherWordBit = 0;
-								otherWord++;
-							}
-							currentBit += slice;
-							currentWordBit += slice;
-						}
-					}
-					})(), false);
+				return L(_bextr_u64(m_Word, START, LEN));
+			}
+			else if constexpr (cpu::supports(cpu::flags::BMI) && cpu::supports(cpu::flags::X86) && (sizeof(wordType) == 4))
+			{
+				return L(_bextr_u32(m_Word, START, LEN));
 			}
 			else
+#endif
 			{
-				using WT = typename L::wordType;
-				return L(L::template nullaryTransformWords<L::countWords, false>([this](const size_t currentWord)->WT
-					{
+				if constexpr (LEN == 0)
+					return L::zero();
+				else if constexpr (LEN == 1)
+					return L(static_cast<typename L::wordType>((*this)[START]), false);
+				else if constexpr (L::countWords <= 1)
+				{
+					using WT = typename L::wordType;
+					return L(([this]()->WT {
 						if constexpr (LEN == 0)
 							return WT(0);
 						else if constexpr (LEN == 1)
@@ -2352,7 +2357,7 @@ namespace pygmalion
 						else
 						{
 							size_t currentWordBit{ 0 };
-							size_t currentBit{ currentWord * uint_t<LEN, isCompact>::countBitsPerWord };
+							size_t currentBit{ 0 };
 							size_t otherWord{ (START + currentBit) / countBitsPerWord };
 							size_t otherWordBit{ (START + currentBit) % countBitsPerWord };
 							size_t otherBit{ otherWord * countBitsPerWord + otherWordBit };
@@ -2384,8 +2389,962 @@ namespace pygmalion
 								currentWordBit += slice;
 							}
 						}
+						})(), false);
+				}
+				else
+				{
+					using WT = typename L::wordType;
+					return L(L::template nullaryTransformWords<L::countWords, false>([this](const size_t currentWord)->WT
+						{
+							if constexpr (LEN == 0)
+								return WT(0);
+							else if constexpr (LEN == 1)
+								return WT(this->template test<START>());
+							else
+							{
+								size_t currentWordBit{ 0 };
+								size_t currentBit{ currentWord * uint_t<LEN, isCompact>::countBitsPerWord };
+								size_t otherWord{ (START + currentBit) / countBitsPerWord };
+								size_t otherWordBit{ (START + currentBit) % countBitsPerWord };
+								size_t otherBit{ otherWord * countBitsPerWord + otherWordBit };
+								WT result{ WT(0) };
+								while (true)
+								{
+									if ((otherBit >= countBits) || (currentWordBit >= uint_t<LEN, isCompact>::countBitsPerWord) || (currentBit >= LEN))
+										return result;
+									const size_t otherRemaining{ std::min(countBitsPerWord - otherWordBit,countBits - otherBit) };
+									const size_t currentRemaining{ std::min(uint_t<LEN, isCompact>::countBitsPerWord - currentWordBit,LEN - currentBit) };
+									const size_t slice{ std::min(otherRemaining,currentRemaining) };
+									if (slice >= countBitsPerWord)
+									{
+										result |= static_cast<WT>(static_cast<WT>(this->word(otherWord) >> otherWordBit) << currentWordBit);
+									}
+									else
+									{
+										const wordType mask{ static_cast<wordType>(static_cast<wordType>(static_cast<wordType>(wordType(1) << slice) - wordType(1)) << otherWordBit) };
+										result |= static_cast<WT>(static_cast<WT>(static_cast<wordType>(this->word(otherWord) & mask) >> otherWordBit) << currentWordBit);
+									}
+									otherBit += slice;
+									otherWordBit += slice;
+									if (otherWordBit >= countBitsPerWord)
+									{
+										otherWordBit = 0;
+										otherWord++;
+									}
+									currentBit += slice;
+									currentWordBit += slice;
+								}
+							}
+						}
+					), false);
+				}
+			}
+		}
+		template<typename LAMBDA>
+		void foreach(const LAMBDA& lambda) const noexcept
+		{
+#if defined(PYGMALION_CPU_POPCNT)
+			if constexpr (cpu::supports(cpu::flags::POPCNT) && cpu::supports(cpu::flags::X64) && (sizeof(wordType) == 8))
+			{
+				const size_t count{ populationCount() };
+				uint_t state{ *this };
+				size_t current;
+				switch (count)
+				{
+				case 63:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
 					}
-				), false);
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 62:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 61:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 60:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 59:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 58:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 57:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 56:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 55:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 54:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 53:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 52:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 51:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 50:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 49:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 48:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 47:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 46:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 45:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 44:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 43:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 42:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 41:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 40:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 39:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 38:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 37:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 36:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 35:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 34:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 33:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 32:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 31:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 30:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 29:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 28:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 27:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 26:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 25:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 24:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 23:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 22:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 21:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 20:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 19:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 18:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 17:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 16:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 15:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 14:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 13:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 12:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 11:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 10:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 9:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 8:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 7:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 6:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 5:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 4:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 3:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 2:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 1:
+#if defined(PYGMALION_CPU_BMI) 
+					if constexpr (cpu::supports(cpu::flags::BMI))
+					{
+						current = _tzcnt_u64(state.m_Word);
+						state.m_Word = _blsr_u64(state.m_Word);
+					}
+					else
+#endif
+					{
+						state.bitscanForward(current);
+						state.m_Word &= state.m_Word - 1;
+					}
+					lambda(current);
+				case 0:
+					break;
+				default:
+					assert(false);
+					break;
+				}
+			}
+			else
+#endif
+			{
+				for (const auto index : *this)
+					lambda(index);
 			}
 		}
 	};
@@ -2826,6 +3785,12 @@ namespace pygmalion
 		{
 			return counterType(m_Word);
 		}
+		template<typename LAMBDA>
+		constexpr void foreach(const LAMBDA& lambda) const noexcept
+		{
+			if(m_Word)
+				lambda(0);
+		}
 	};
 
 	template<size_t COUNT_BITS, bool IS_COMPACT>
@@ -3210,6 +4175,10 @@ namespace pygmalion
 		constexpr auto counter() const noexcept
 		{
 			return counterType();
+		}
+		template<typename LAMBDA>
+		constexpr void foreach(const LAMBDA& lambda) const noexcept
+		{
 		}
 	};
 

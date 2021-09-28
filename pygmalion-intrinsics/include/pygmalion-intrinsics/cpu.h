@@ -70,6 +70,11 @@
 #define PYGMALION_CPU_MMX
 #endif
 #endif
+#if defined(__POPCNT__)
+#if !defined(PYGMALION_CPU_POPCNT)
+#define PYGMALION_CPU_POPCNT
+#endif
+#endif
 
 /*#if defined(PYGMALION_CPU_MMX) 
 #undef PYGMALION_CPU_MMX
@@ -162,7 +167,8 @@ namespace pygmalion
 			SSSE3 = 0b0000001000000000,
 			MMX = 0b0000010000000000,
 			AVX = 0b0000100000000000,
-			AVX2 = 0b0001000000000000
+			AVX2 = 0b0001000000000000,
+			POPCNT = 0b0010000000000000
 		};
 		constexpr static flags computeFlags() noexcept
 		{
@@ -206,6 +212,9 @@ namespace pygmalion
 #endif
 #if defined(PYGMALION_CPU_AVX2)
 			f |= flags::AVX2;
+#endif
+#if defined(PYGMALION_CPU_POPCNT)
+			f |= flags::POPCNT;
 #endif
 			return static_cast<flags>(f);
 		}

@@ -338,6 +338,11 @@ namespace pygmalion::state
 		{
 			return counterType(*this);
 		}
+		template<typename LAMBDA>
+		constexpr void foreach(const LAMBDA& lambda) const noexcept
+		{
+			m_Bits.foreach([lambda](const size_t index) {lambda(static_cast<squareType>(index)); });
+		}
 	};
 
 	template<typename DESCRIPTION_STATE>

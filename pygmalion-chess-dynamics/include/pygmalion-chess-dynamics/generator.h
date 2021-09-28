@@ -156,6 +156,7 @@ namespace pygmalion::chess
 	private:
 		static void control(const generatorType::stackType& stack, squaresType& white, squaresType& black) noexcept
 		{
+			const squaresType unoccupied{ ~stack.position().totalOccupancy() };
 			const squaresType whitePawns{ stack.position().playerOccupancy(whitePlayer) & stack.position().pieceOccupancy(pawn) };
 			const squaresType blackPawns{ stack.position().playerOccupancy(blackPlayer) & stack.position().pieceOccupancy(pawn) };
 			const squaresType whiteRightAttacks{ whitePawns.upRight() };
@@ -224,7 +225,7 @@ namespace pygmalion::chess
 			}
 			for (squareType sq : whiteBishops)
 			{
-				const squaresType attacks{ generatorType::movegenSlidersDiag.attacks(sq,~stack.position().totalOccupancy()) };
+				const squaresType attacks{ generatorType::movegenSlidersDiag.attacks(sq,unoccupied) };
 				for (squareType attack : attacks)
 				{
 					attacksWhite[attack]++;
@@ -233,7 +234,7 @@ namespace pygmalion::chess
 			}
 			for (squareType sq : blackBishops)
 			{
-				const squaresType attacks{ generatorType::movegenSlidersDiag.attacks(sq,~stack.position().totalOccupancy()) };
+				const squaresType attacks{ generatorType::movegenSlidersDiag.attacks(sq,unoccupied) };
 				for (squareType attack : attacks)
 				{
 					attacksBlack[attack]++;
@@ -280,7 +281,7 @@ namespace pygmalion::chess
 			touched = squaresType::none();
 			for (squareType sq : whiteRooks)
 			{
-				const squaresType attacks{ generatorType::movegenSlidersHV.attacks(sq,~stack.position().totalOccupancy()) };
+				const squaresType attacks{ generatorType::movegenSlidersHV.attacks(sq,unoccupied) };
 				for (squareType attack : attacks)
 				{
 					attacksWhite2[attack]++;
@@ -289,7 +290,7 @@ namespace pygmalion::chess
 			}
 			for (squareType sq : blackRooks)
 			{
-				const squaresType attacks{ generatorType::movegenSlidersHV.attacks(sq,~stack.position().totalOccupancy()) };
+				const squaresType attacks{ generatorType::movegenSlidersHV.attacks(sq,unoccupied) };
 				for (squareType attack : attacks)
 				{
 					attacksBlack2[attack]++;
@@ -336,7 +337,7 @@ namespace pygmalion::chess
 			touched = squaresType::none();
 			for (squareType sq : whiteQueens)
 			{
-				const squaresType attacks{ generatorType::movegenSlidersHV.attacks(sq,~stack.position().totalOccupancy()) | generatorType::movegenSlidersHV.attacks(sq,~stack.position().totalOccupancy()) };
+				const squaresType attacks{ generatorType::movegenSlidersHV.attacks(sq,unoccupied) | generatorType::movegenSlidersHV.attacks(sq,unoccupied) };
 				for (squareType attack : attacks)
 				{
 					attacksWhite3[attack]++;
@@ -345,7 +346,7 @@ namespace pygmalion::chess
 			}
 			for (squareType sq : blackQueens)
 			{
-				const squaresType attacks{ generatorType::movegenSlidersHV.attacks(sq,~stack.position().totalOccupancy()) | generatorType::movegenSlidersHV.attacks(sq,~stack.position().totalOccupancy()) };
+				const squaresType attacks{ generatorType::movegenSlidersHV.attacks(sq,unoccupied) | generatorType::movegenSlidersHV.attacks(sq,unoccupied) };
 				for (squareType attack : attacks)
 				{
 					attacksBlack3[attack]++;

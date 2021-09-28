@@ -17,6 +17,8 @@ namespace pygmalion::intrinsics
 				output() << "  X64" << std::endl;
 			if constexpr (cpu::supports(cpu::MMX))
 				output() << "  MMX" << std::endl;
+			if constexpr (cpu::supports(cpu::POPCNT))
+				output() << "  POPCNT" << std::endl;
 			if constexpr (cpu::supports(cpu::BMI))
 				output() << "  BMI" << std::endl;
 			if constexpr (cpu::supports(cpu::BMI2))
