@@ -15,6 +15,7 @@ namespace pygmalion::chess
 		generatorType::addCommand<pygmalion::chess::dynamics::command_getFen>(list);
 		generatorType::addCommand<pygmalion::chess::dynamics::command_testMovegen>(list);
 		generatorType::addCommand<pygmalion::chess::dynamics::command_debugKingArea>(list);
+		generatorType::addCommand<pygmalion::chess::dynamics::command_debugTropism>(list);
 		return list;
 	}
 

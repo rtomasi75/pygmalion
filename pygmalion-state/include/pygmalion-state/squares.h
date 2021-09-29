@@ -350,7 +350,6 @@ namespace pygmalion::state
 	{
 		using descriptorState = DESCRIPTION_STATE;
 #include "include_state.h"
-		using bitsType = uint_t<countSquares, false>;
 		for (const auto r : rankType::range)
 		{
 			const rankType rank{ -r };

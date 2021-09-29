@@ -1233,6 +1233,10 @@ namespace pygmalion
 			{
 				m_pContext->clearMovegenLists();
 			}
+			constexpr contextType* getContext() const noexcept
+			{
+				return m_pContext;
+			}
 			constexpr const boardType& position() const noexcept
 			{
 				return m_Position;

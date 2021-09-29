@@ -4,6 +4,7 @@
 #include "commands/command_debugAttacked.h"
 #include "commands/command_debugKingArea.h"
 #include "commands/command_debugTargeted.h"
+#include "commands/command_debugTropism.h"
 #include "commands/command_debugCheck.h"
 #include "commands/command_perft.h"
 #include "commands/command_setFen.h"

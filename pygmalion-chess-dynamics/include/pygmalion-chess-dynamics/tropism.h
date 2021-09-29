@@ -27,7 +27,43 @@ namespace pygmalion
 			generatorType::template attackTropismBishop<MAXDIST>(seed, pl, stack, m_DistanceSquares[descriptorMechanics::bishop]);
 			generatorType::template attackTropismRook<MAXDIST>(seed, pl, stack, m_DistanceSquares[descriptorMechanics::rook]);
 			generatorType::template attackTropismQueen<MAXDIST>(seed, pl, stack, m_DistanceSquares[descriptorMechanics::queen]);
-			generatorType::template attackTropismPawn<MAXDIST>(seed, pl, stack, m_DistanceSquares[descriptorMechanics::knight], m_DistanceSquares[descriptorMechanics::bishop], m_DistanceSquares[descriptorMechanics::rook], m_DistanceSquares[descriptorMechanics::queen], m_DistanceSquares[descriptorMechanics::queen]);
+			generatorType::template attackTropismPawn<MAXDIST>(seed, pl, stack, m_DistanceSquares[descriptorMechanics::knight], m_DistanceSquares[descriptorMechanics::bishop], m_DistanceSquares[descriptorMechanics::rook], m_DistanceSquares[descriptorMechanics::queen], m_DistanceSquares[descriptorMechanics::pawn]);
+		}
+		void dumpDistances(const pieceType& pc, std::ostream& str) const noexcept
+		{
+			for (const auto r : rankType::range)
+			{
+				const rankType rank{ -r };
+				for (const auto file : fileType::range)
+				{
+					const squareType sq{ rank & file };
+					bool bDone{ false };
+					int d{ -1 };
+					for (unsigned int i = 0; i < MAXDIST; i++)
+					{
+						if (distanceSquares(pc, i)[sq])
+						{
+							if (bDone)
+								d = -1;
+							else
+							{
+								d = static_cast<int>(i);
+								bDone = true;
+							}
+						}
+					}
+					if (bDone)
+					{
+						if (d < 0)
+							str << "E";
+						else
+							str << d;
+					}
+					else
+						str << ".";
+				}
+				str << std::endl;
+			}
 		}
 	};
 }

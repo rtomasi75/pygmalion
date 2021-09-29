@@ -23,14 +23,17 @@ namespace pygmalion::chess
 			public pygmalion::generator<descriptor_dynamics, generator>::context
 		{
 		private:
-			//		mutable std::array<std::array<tropismType, countSquares>, countPlayers> m_Tropisms;
-			//		mutable std::array<squaresType, countPlayers> m_TropismValid{ arrayhelper::make<countPlayers,squaresType>(squaresType::none()) };
+			std::array<std::array<tropismType, countSquares>, countPlayers> m_Tropisms;
 		public:
 			context() noexcept :
 				pygmalion::generator<descriptor_dynamics, generator>::context()
 			{
 			}
 			~context() noexcept = default;
+			std::array<std::array<tropismType, countSquares>, countPlayers>& tropisms() noexcept
+			{
+				return m_Tropisms;
+			}
 		};
 		using contextType = context;
 		class stack :
@@ -40,6 +43,7 @@ namespace pygmalion::chess
 			mutable std::array<squaresType, countPlayers> m_SquaresAttackedByPlayer;
 			mutable std::array<squaresType, countPlayers> m_SquaresTargetedByPlayer;
 			mutable std::array<squaresType, countPlayers> m_ControlledByPlayer;
+			mutable std::array<squaresType, countPlayers> m_TropismValid{ arrayhelper::make<countPlayers,squaresType>(squaresType::none()) };
 			mutable std::array<squareType, countPlayers> m_KingSquare;
 			mutable std::array<bool, countPlayers> m_IsKingSquareValid{ arrayhelper::make<countPlayers,bool>(false) };
 			mutable std::array<bool, countPlayers> m_SquaresAttackedByPlayerValid{ arrayhelper::make<countPlayers,bool>(false) };
@@ -83,15 +87,15 @@ namespace pygmalion::chess
 			{
 			}
 			~stack() noexcept = default;
-	/*		const tropismType& tropism(const squareType& sq, const playerType& pl) const noexcept
+			const tropismType& tropism(const squareType& sq, const playerType& pl) const noexcept
 			{
 				if (!m_TropismValid[pl][sq])
 				{
-					m_Tropisms[pl][sq].compute(sq, pl, *this);
+					this->getContext()->tropisms()[pl][sq].compute(sq, pl, *this);
 					m_TropismValid[pl][sq] = true;
 				}
-				return m_Tropisms[pl][sq];
-			}*/
+				return this->getContext()->tropisms()[pl][sq];
+			}
 		};
 		using stackType = stack;
 		constexpr static squaresType pawnAttacks(const squareType& sq, const playerType p, const squaresType& allowed) noexcept

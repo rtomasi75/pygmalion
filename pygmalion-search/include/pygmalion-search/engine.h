@@ -13,7 +13,7 @@ namespace pygmalion::search
 	private:
 		heuristicsType m_Heuristics;
 		using contextType = typename generatorType::contextType;
-		std::array<contextType, countSearchPlies> m_Context;
+		contextType* m_pContexts;
 		static std::string variationToStringFromDepth(const stackType& stack, const variationType& variation, const depthType& depth) noexcept
 		{
 			if (variation.length() > depth)
@@ -29,7 +29,7 @@ namespace pygmalion::search
 	public:
 		constexpr contextType* rootContext() noexcept
 		{
-			return &(m_Context[0]);
+			return m_pContexts;
 		}
 		constexpr transpositiontable<descriptorSearch>& transpositionTable() noexcept
 		{
@@ -81,14 +81,18 @@ namespace pygmalion::search
 		engine(engine&&) = delete;
 		engine(std::istream& input, std::ostream& output) noexcept :
 			pygmalion::evaluation::engine<typename NODE::evaluatorType>(input, output),
-			m_Heuristics{ heuristicsType(this->feedback()) }
+			m_Heuristics{ heuristicsType(this->feedback()) },
+			m_pContexts{ new contextType[countSearchPlies] }
 		{
 			this->template addCommand<command_debugSearch<descriptorSearch, nodeType>>();
 			this->template addCommand<command_debugPvs<descriptorSearch, nodeType>>();
 			this->template addCommand<command_debugTT<descriptorSearch, nodeType>>();
 			this->template addCommand<command_debugNode<descriptorSearch, nodeType>>();
 		}
-		virtual ~engine() noexcept = default;
+		virtual ~engine() noexcept 
+		{
+			delete[] m_pContexts;
+		}
 		virtual std::string version() const noexcept override
 		{
 			return "no game (search only)";
