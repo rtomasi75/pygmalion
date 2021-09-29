@@ -1,7 +1,5 @@
 namespace pygmalion::chess
 {
-	//#define FASTPAWNS
-
 	class generator :
 		public pygmalion::generator<descriptor_dynamics, generator>
 	{
@@ -123,7 +121,22 @@ namespace pygmalion::chess
 			return squares;
 		}
 		constexpr static const movebitsType m_NullMove{ motorType::move().createNull() };
+		constexpr static const std::array<squaresType, 64> m_KingArea
+		{ 
+			arrayhelper::generate<64,squaresType>([](const size_t index)
+				{
+					const squareType sq{static_cast<squareType>(index)};
+					squaresType area{ squaresType(sq) };
+					area |= area.left() | area.right();
+					area |= area.down() | area.up();
+					return area;
+				})
+		};
 	public:
+		constexpr static squaresType kingArea(const squareType& sq) noexcept
+		{
+			return m_KingArea[sq];
+		}
 		constexpr static squaresType pawnPushTargets(const squareType& sq, const playerType p, const squaresType& allowed) noexcept
 		{
 			if (p == whitePlayer)
@@ -3213,5 +3226,6 @@ namespace pygmalion::chess
 		{
 			return generatorType::isAttacked(stack.position(), stack.kingSquare(stack.movingPlayer()), stack.nextPlayer());
 		}
+
 	};
 }

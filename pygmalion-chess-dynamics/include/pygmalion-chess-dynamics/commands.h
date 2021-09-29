@@ -2,6 +2,7 @@
 #include "commands/command_debugUntabled.h"
 #include "commands/command_debugMagics.h"
 #include "commands/command_debugAttacked.h"
+#include "commands/command_debugKingArea.h"
 #include "commands/command_debugTargeted.h"
 #include "commands/command_debugCheck.h"
 #include "commands/command_perft.h"

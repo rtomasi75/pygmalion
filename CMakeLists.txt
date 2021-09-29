@@ -113,7 +113,7 @@ else()
             endif()
         endif()
     endif()
-# Modify compile flags to change optimization level from O3 to O2
+# Modify compile flags to change optimization level from O2 to O3
 string(REGEX REPLACE "([\\/\\-]O)2" "\\13"
   CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 string(REGEX REPLACE "([\\/\\-]O)2" "\\13"
