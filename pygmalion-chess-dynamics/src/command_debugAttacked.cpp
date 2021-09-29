@@ -14,7 +14,8 @@ namespace pygmalion::chess::dynamics
 			this->output() << std::endl;
 			if (boardType::parsePlayer(token, p))
 			{
-				stackType stack(this->position(), this->history(), this->position().movingPlayer().next());
+				typename generatorType::contextType context;
+				stackType stack(this->position(), this->history(), this->position().movingPlayer().next(), &context);
 				if (p == whitePlayer)
 				{
 					const squaresType attacked{ stack.squaresAttackedByPlayer(whitePlayer) };

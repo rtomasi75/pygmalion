@@ -14,6 +14,10 @@ namespace pygmalion::search
 		using descriptorSearch = DESCRIPTION_SEARCH;
 #include "include_search.h"	
 	public:
+		typename generatorType::contextType* rootContext() noexcept
+		{
+			return this->searchEngine().rootContext();
+		}
 		engine<nodeType>& searchEngine() noexcept
 		{
 			return *dynamic_cast<engine<nodeType>*>(&(this->evaluationEngine()));

@@ -628,9 +628,13 @@ namespace pygmalion
 				return m_Feedback[depth].criticalIndex(pass);
 			}
 		};
-		class contextEntry :
+		class context :
 			public DESCRIPTOR_DYNAMICS
 		{
+		public:
+			using generatorType = INSTANCE;
+			using descriptorDynamics = DESCRIPTOR_DYNAMICS;
+#include "include_dynamics.h"
 		private:
 			scorelistType m_Scores;
 			scorelistType m_TacticalScores;
@@ -641,6 +645,60 @@ namespace pygmalion
 			passlistType m_Passes;
 			passlistType m_TacticalPasses;
 			passlistType m_CriticalPasses;
+		public:
+			context() noexcept
+			{
+
+			}
+			~context() noexcept = default;
+			scorelistType& scores() noexcept
+			{
+				return m_Scores;
+			}
+			scorelistType& tacticalScores() noexcept
+			{
+				return m_TacticalScores;
+			}
+			scorelistType& criticalScores() noexcept
+			{
+				return m_CriticalScores;
+			}
+			movelistType& moves() noexcept
+			{
+				return m_Moves;
+			}
+			movelistType& tacticalMoves() noexcept
+			{
+				return m_TacticalMoves;
+			}
+			movelistType& criticalMoves() noexcept
+			{
+				return m_CriticalMoves;
+			}
+			passlistType& passes() noexcept
+			{
+				return m_Passes;
+			}
+			passlistType& tacticalPasses() noexcept
+			{
+				return m_TacticalPasses;
+			}
+			passlistType& criticalPasses() noexcept
+			{
+				return m_CriticalPasses;
+			}
+			void clearMovegenLists() noexcept
+			{
+				m_Scores.clear();
+				m_TacticalScores.clear();
+				m_CriticalScores.clear();
+				m_Moves.clear();
+				m_TacticalMoves.clear();
+				m_CriticalMoves.clear();
+				m_Passes.clear();
+				m_TacticalPasses.clear();
+				m_CriticalPasses.clear();
+			}
 		};
 		class stack :
 			public DESCRIPTOR_DYNAMICS
@@ -649,17 +707,10 @@ namespace pygmalion
 			using generatorType = INSTANCE;
 			using descriptorDynamics = DESCRIPTOR_DYNAMICS;
 #include "include_dynamics.h"
+			using contextType = typename generatorType::contextType;
 		private:
 			const stack* m_pParent;
-			mutable scorelistType m_Scores;
-			mutable scorelistType m_TacticalScores;
-			mutable scorelistType m_CriticalScores;
-			mutable movelistType m_Moves;
-			mutable movelistType m_TacticalMoves;
-			mutable movelistType m_CriticalMoves;
-			mutable passlistType m_Passes;
-			mutable passlistType m_TacticalPasses;
-			mutable passlistType m_CriticalPasses;
+			contextType* m_pContext;
 			boardType& m_Position;
 			historyType& m_History;
 			const movedataType m_MoveData;
@@ -688,21 +739,21 @@ namespace pygmalion
 				{
 					while (!allMovesGenerated)
 					{
-						if (m_CurrentLegalMove >= m_Moves.length())
+						if (m_CurrentLegalMove >= m_pContext->moves().length())
 						{
 							if (m_CurrentPass >= countCriticalEvasionPasses)
 							{
 								allMovesGenerated = true;
 								return false;
 							}
-							generatorType::generateCriticalEvasionMoves(*static_cast<const typename generatorType::stackType*>(this), m_Moves, feedback.index(m_CurrentPass, depth));
-							while (m_Passes.length() < m_Moves.length())
-								m_Passes.add(m_CurrentPass);
+							generatorType::generateCriticalEvasionMoves(*static_cast<const typename generatorType::stackType*>(this), m_pContext->moves(), feedback.index(m_CurrentPass, depth));
+							while (m_pContext->passes().length() < m_pContext->moves().length())
+								m_pContext->passes().add(m_CurrentPass);
 							++m_CurrentPass;
 						}
-						while (m_CurrentLegalMove < m_Moves.length())
+						while (m_CurrentLegalMove < m_pContext->moves().length())
 						{
-							if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::stackType*>(this), m_Moves[m_CurrentLegalMove]))
+							if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::stackType*>(this), m_pContext->moves()[m_CurrentLegalMove]))
 								return true;
 							++m_CurrentLegalMove;
 						}
@@ -712,21 +763,21 @@ namespace pygmalion
 				{
 					while (!allMovesGenerated)
 					{
-						if (m_CurrentLegalMove >= m_Moves.length())
+						if (m_CurrentLegalMove >= m_pContext->moves().length())
 						{
 							if (m_CurrentPass >= countPasses)
 							{
 								allMovesGenerated = true;
 								return false;
 							}
-							generatorType::generateMoves(*static_cast<const typename generatorType::stackType*>(this), m_Moves, feedback.index(m_CurrentPass, depth));
-							while (m_Passes.length() < m_Moves.length())
-								m_Passes.add(m_CurrentPass);
+							generatorType::generateMoves(*static_cast<const typename generatorType::stackType*>(this), m_pContext->moves(), feedback.index(m_CurrentPass, depth));
+							while (m_pContext->passes().length() < m_pContext->moves().length())
+								m_pContext->passes().add(m_CurrentPass);
 							++m_CurrentPass;
 						}
-						while (m_CurrentLegalMove < m_Moves.length())
+						while (m_CurrentLegalMove < m_pContext->moves().length())
 						{
-							if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::stackType*>(this), m_Moves[m_CurrentLegalMove]))
+							if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::stackType*>(this), m_pContext->moves()[m_CurrentLegalMove]))
 								return true;
 							++m_CurrentLegalMove;
 						}
@@ -804,25 +855,25 @@ namespace pygmalion
 				{
 					while (!allMovesGenerated)
 					{
-						if (m_CurrentMove >= m_Moves.length())
+						if (m_CurrentMove >= m_pContext->moves().length())
 						{
 							if (m_CurrentPass >= countCriticalEvasionPasses)
 							{
 								allMovesGenerated = true;
 								return false;
 							}
-							generatorType::generateCriticalEvasionMoves(*static_cast<const typename generatorType::stackType*>(this), m_Moves, feedback.criticalEvasionIndex(m_CurrentPass, depth));
-							while (m_Passes.length() < m_Moves.length())
-								m_Passes.add(m_CurrentPass);
+							generatorType::generateCriticalEvasionMoves(*static_cast<const typename generatorType::stackType*>(this), m_pContext->moves(), feedback.criticalEvasionIndex(m_CurrentPass, depth));
+							while (m_pContext->passes().length() < m_pContext->moves().length())
+								m_pContext->passes().add(m_CurrentPass);
 							++m_CurrentPass;
 						}
-						while (m_CurrentMove < m_Moves.length())
+						while (m_CurrentMove < m_pContext->moves().length())
 						{
-							moveBits = m_Moves[m_CurrentMove];
+							moveBits = m_pContext->moves()[m_CurrentMove];
 							++m_CurrentMove;
 							if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::stackType*>(this), moveBits))
 							{
-								m_LastPass = m_Passes[m_CurrentMove - 1];
+								m_LastPass = m_pContext->passes()[m_CurrentMove - 1];
 								return true;
 							}
 						}
@@ -832,25 +883,25 @@ namespace pygmalion
 				{
 					while (!allMovesGenerated)
 					{
-						if (m_CurrentMove >= m_Moves.length())
+						if (m_CurrentMove >= m_pContext->moves().length())
 						{
 							if (m_CurrentPass >= countPasses)
 							{
 								allMovesGenerated = true;
 								return false;
 							}
-							generatorType::generateMoves(*static_cast<const typename generatorType::stackType*>(this), m_Moves, feedback.index(m_CurrentPass, depth));
-							while (m_Passes.length() < m_Moves.length())
-								m_Passes.add(m_CurrentPass);
+							generatorType::generateMoves(*static_cast<const typename generatorType::stackType*>(this), m_pContext->moves(), feedback.index(m_CurrentPass, depth));
+							while (m_pContext->passes().length() < m_pContext->moves().length())
+								m_pContext->passes().add(m_CurrentPass);
 							++m_CurrentPass;
 						}
-						while (m_CurrentMove < m_Moves.length())
+						while (m_CurrentMove < m_pContext->moves().length())
 						{
-							moveBits = m_Moves[m_CurrentMove];
+							moveBits = m_pContext->moves()[m_CurrentMove];
 							++m_CurrentMove;
 							if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::stackType*>(this), moveBits))
 							{
-								m_LastPass = m_Passes[m_CurrentMove - 1];
+								m_LastPass = m_pContext->passes()[m_CurrentMove - 1];
 								return true;
 							}
 						}
@@ -866,30 +917,30 @@ namespace pygmalion
 				{
 					while (!allMovesGenerated)
 					{
-						if (m_CurrentMove >= m_Moves.length())
+						if (m_CurrentMove >= m_pContext->moves().length())
 						{
 							if (m_CurrentPass >= countCriticalEvasionPasses)
 							{
 								allMovesGenerated = true;
 								return false;
 							}
-							generatorType::generateCriticalEvasionMoves(*static_cast<const typename generatorType::stackType*>(this), m_Moves, feedback.criticalEvasionIndex(m_CurrentPass, depth));
-							const auto start{ m_Passes.length() };
-							while (m_Passes.length() < m_Moves.length())
+							generatorType::generateCriticalEvasionMoves(*static_cast<const typename generatorType::stackType*>(this), m_pContext->moves(), feedback.criticalEvasionIndex(m_CurrentPass, depth));
+							const auto start{ m_pContext->passes().length() };
+							while (m_pContext->passes().length() < m_pContext->moves().length())
 							{
-								m_Scores.add(lambda(m_Moves[m_Passes.length()]));
-								m_Passes.add(m_CurrentPass);
+								m_pContext->scores().add(lambda(m_pContext->moves()[m_pContext->passes().length()]));
+								m_pContext->passes().add(m_CurrentPass);
 							}
-							sort<movebitsType, scoreType>::sortValues(m_Moves.ptr() + static_cast<size_t>(start), m_Scores.ptr() + static_cast<size_t>(start), static_cast<size_t>(m_Moves.length() - start));
+							sort<movebitsType, scoreType>::sortValues(m_pContext->moves().ptr() + static_cast<size_t>(start), m_pContext->scores().ptr() + static_cast<size_t>(start), static_cast<size_t>(m_pContext->moves().length() - start));
 							++m_CurrentPass;
 						}
-						while (m_CurrentMove < m_Moves.length())
+						while (m_CurrentMove < m_pContext->moves().length())
 						{
-							moveBits = m_Moves[m_CurrentMove];
+							moveBits = m_pContext->moves()[m_CurrentMove];
 							++m_CurrentMove;
 							if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::stackType*>(this), moveBits))
 							{
-								m_LastPass = m_Passes[m_CurrentMove - 1];
+								m_LastPass = m_pContext->passes()[m_CurrentMove - 1];
 								return true;
 							}
 						}
@@ -899,30 +950,30 @@ namespace pygmalion
 				{
 					while (!allMovesGenerated)
 					{
-						if (m_CurrentMove >= m_Moves.length())
+						if (m_CurrentMove >= m_pContext->moves().length())
 						{
 							if (m_CurrentPass >= countPasses)
 							{
 								allMovesGenerated = true;
 								return false;
 							}
-							generatorType::generateMoves(*static_cast<const typename generatorType::stackType*>(this), m_Moves, feedback.index(m_CurrentPass, depth));
-							const auto start{ m_Passes.length() };
-							while (m_Passes.length() < m_Moves.length())
+							generatorType::generateMoves(*static_cast<const typename generatorType::stackType*>(this), m_pContext->moves(), feedback.index(m_CurrentPass, depth));
+							const auto start{ m_pContext->passes().length() };
+							while (m_pContext->passes().length() < m_pContext->moves().length())
 							{
-								m_Scores.add(lambda(m_Moves[m_Passes.length()]));
-								m_Passes.add(m_CurrentPass);
+								m_pContext->scores().add(lambda(m_pContext->moves()[m_pContext->passes().length()]));
+								m_pContext->passes().add(m_CurrentPass);
 							}
-							sort<movebitsType, scoreType>::sortValues(m_Moves.ptr() + static_cast<size_t>(start), m_Scores.ptr() + static_cast<size_t>(start), static_cast<size_t>(m_Moves.length() - start));
+							sort<movebitsType, scoreType>::sortValues(m_pContext->moves().ptr() + static_cast<size_t>(start), m_pContext->scores().ptr() + static_cast<size_t>(start), static_cast<size_t>(m_pContext->moves().length() - start));
 							++m_CurrentPass;
 						}
-						while (m_CurrentMove < m_Moves.length())
+						while (m_CurrentMove < m_pContext->moves().length())
 						{
-							moveBits = m_Moves[m_CurrentMove];
+							moveBits = m_pContext->moves()[m_CurrentMove];
 							++m_CurrentMove;
 							if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::stackType*>(this), moveBits))
 							{
-								m_LastPass = m_Passes[m_CurrentMove - 1];
+								m_LastPass = m_pContext->passes()[m_CurrentMove - 1];
 								return true;
 							}
 						}
@@ -937,26 +988,26 @@ namespace pygmalion
 				{
 					while (!allMovesGenerated)
 					{
-						if (m_CurrentTacticalMove >= m_TacticalMoves.length())
+						if (m_CurrentTacticalMove >= m_pContext->tacticalMoves().length())
 						{
 							if (m_CurrentTacticalPass >= countTacticalCriticalEvasionPasses)
 							{
 								allMovesGenerated = true;
 								return false;
 							}
-							generatorType::generateTacticalCriticalEvasionMoves(*static_cast<const typename generatorType::stackType*>(this), m_TacticalMoves, feedback.tacticalCriticalEvasionIndex(m_CurrentTacticalPass, depth));
-							const auto start{ m_TacticalPasses.length() };
-							while (m_TacticalPasses.length() < m_TacticalMoves.length())
-								m_TacticalPasses.add(m_CurrentTacticalPass);
+							generatorType::generateTacticalCriticalEvasionMoves(*static_cast<const typename generatorType::stackType*>(this), m_pContext->tacticalMoves(), feedback.tacticalCriticalEvasionIndex(m_CurrentTacticalPass, depth));
+							const auto start{ m_pContext->tacticalPasses().length() };
+							while (m_pContext->tacticalPasses().length() < m_pContext->tacticalMoves().length())
+								m_pContext->tacticalPasses().add(m_CurrentTacticalPass);
 							++m_CurrentTacticalPass;
 						}
-						while (m_CurrentTacticalMove < m_TacticalMoves.length())
+						while (m_CurrentTacticalMove < m_pContext->tacticalMoves().length())
 						{
-							moveBits = m_TacticalMoves[m_CurrentTacticalMove];
+							moveBits = m_pContext->tacticalMoves()[m_CurrentTacticalMove];
 							++m_CurrentTacticalMove;
 							if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::stackType*>(this), moveBits))
 							{
-								m_LastTacticalPass = m_TacticalPasses[m_CurrentTacticalMove - 1];
+								m_LastTacticalPass = m_pContext->tacticalPasses()[m_CurrentTacticalMove - 1];
 								return true;
 							}
 						}
@@ -966,26 +1017,26 @@ namespace pygmalion
 				{
 					while (!allMovesGenerated)
 					{
-						if (m_CurrentTacticalMove >= m_TacticalMoves.length())
+						if (m_CurrentTacticalMove >= m_pContext->tacticalMoves().length())
 						{
 							if (m_CurrentTacticalPass >= countTacticalPasses)
 							{
 								allMovesGenerated = true;
 								return false;
 							}
-							generatorType::generateTacticalMoves(*static_cast<const typename generatorType::stackType*>(this), m_TacticalMoves, feedback.tacticalIndex(m_CurrentTacticalPass, depth));
-							const auto start{ m_TacticalPasses.length() };
-							while (m_TacticalPasses.length() < m_TacticalMoves.length())
-								m_TacticalPasses.add(m_CurrentTacticalPass);
+							generatorType::generateTacticalMoves(*static_cast<const typename generatorType::stackType*>(this), m_pContext->tacticalMoves(), feedback.tacticalIndex(m_CurrentTacticalPass, depth));
+							const auto start{ m_pContext->tacticalPasses().length() };
+							while (m_pContext->tacticalPasses().length() < m_pContext->tacticalMoves().length())
+								m_pContext->tacticalPasses().add(m_CurrentTacticalPass);
 							++m_CurrentTacticalPass;
 						}
-						while (m_CurrentTacticalMove < m_TacticalMoves.length())
+						while (m_CurrentTacticalMove < m_pContext->tacticalMoves().length())
 						{
-							moveBits = m_TacticalMoves[m_CurrentTacticalMove];
+							moveBits = m_pContext->tacticalMoves()[m_CurrentTacticalMove];
 							++m_CurrentTacticalMove;
 							if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::stackType*>(this), moveBits))
 							{
-								m_LastTacticalPass = m_TacticalPasses[m_CurrentTacticalMove - 1];
+								m_LastTacticalPass = m_pContext->tacticalPasses()[m_CurrentTacticalMove - 1];
 								return true;
 							}
 						}
@@ -1001,30 +1052,30 @@ namespace pygmalion
 				{
 					while (!allMovesGenerated)
 					{
-						if (m_CurrentTacticalMove >= m_TacticalMoves.length())
+						if (m_CurrentTacticalMove >= m_pContext->tacticalMoves().length())
 						{
 							if (m_CurrentTacticalPass >= countTacticalCriticalEvasionPasses)
 							{
 								allMovesGenerated = true;
 								return false;
 							}
-							generatorType::generateTacticalCriticalEvasionMoves(*static_cast<const typename generatorType::stackType*>(this), m_TacticalMoves, feedback.tacticalCriticalEvasionIndex(m_CurrentTacticalPass, depth));
-							const auto start{ m_TacticalPasses.length() };
-							while (m_TacticalPasses.length() < m_TacticalMoves.length())
+							generatorType::generateTacticalCriticalEvasionMoves(*static_cast<const typename generatorType::stackType*>(this), m_pContext->tacticalMoves(), feedback.tacticalCriticalEvasionIndex(m_CurrentTacticalPass, depth));
+							const auto start{ m_pContext->tacticalPasses().length() };
+							while (m_pContext->tacticalPasses().length() < m_pContext->tacticalMoves().length())
 							{
-								m_TacticalScores.add(lambda(m_TacticalMoves[m_TacticalPasses.length()]));
-								m_TacticalPasses.add(m_CurrentTacticalPass);
+								m_pContext->tacticalScores().add(lambda(m_pContext->tacticalMoves()[m_pContext->tacticalPasses().length()]));
+								m_pContext->tacticalPasses().add(m_CurrentTacticalPass);
 							}
-							sort<movebitsType, scoreType>::sortValues(m_TacticalMoves.ptr() + static_cast<size_t>(start), m_TacticalScores.ptr() + static_cast<size_t>(start), static_cast<size_t>(m_TacticalMoves.length() - start));
+							sort<movebitsType, scoreType>::sortValues(m_pContext->tacticalMoves().ptr() + static_cast<size_t>(start), m_pContext->tacticalScores().ptr() + static_cast<size_t>(start), static_cast<size_t>(m_pContext->tacticalMoves().length() - start));
 							++m_CurrentTacticalPass;
 						}
-						while (m_CurrentTacticalMove < m_TacticalMoves.length())
+						while (m_CurrentTacticalMove < m_pContext->tacticalMoves().length())
 						{
-							moveBits = m_TacticalMoves[m_CurrentTacticalMove];
+							moveBits = m_pContext->tacticalMoves()[m_CurrentTacticalMove];
 							++m_CurrentTacticalMove;
 							if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::stackType*>(this), moveBits))
 							{
-								m_LastTacticalPass = m_TacticalPasses[m_CurrentTacticalMove - 1];
+								m_LastTacticalPass = m_pContext->tacticalPasses()[m_CurrentTacticalMove - 1];
 								return true;
 							}
 						}
@@ -1034,30 +1085,30 @@ namespace pygmalion
 				{
 					while (!allMovesGenerated)
 					{
-						if (m_CurrentTacticalMove >= m_TacticalMoves.length())
+						if (m_CurrentTacticalMove >= m_pContext->tacticalMoves().length())
 						{
 							if (m_CurrentTacticalPass >= countTacticalPasses)
 							{
 								allMovesGenerated = true;
 								return false;
 							}
-							generatorType::generateTacticalMoves(*static_cast<const typename generatorType::stackType*>(this), m_TacticalMoves, feedback.tacticalIndex(m_CurrentTacticalPass, depth));
-							const auto start{ m_TacticalPasses.length() };
-							while (m_TacticalPasses.length() < m_TacticalMoves.length())
+							generatorType::generateTacticalMoves(*static_cast<const typename generatorType::stackType*>(this), m_pContext->tacticalMoves(), feedback.tacticalIndex(m_CurrentTacticalPass, depth));
+							const auto start{ m_pContext->tacticalPasses().length() };
+							while (m_pContext->tacticalPasses().length() < m_pContext->tacticalMoves().length())
 							{
-								m_TacticalScores.add(lambda(m_TacticalMoves[m_TacticalPasses.length()]));
-								m_TacticalPasses.add(m_CurrentTacticalPass);
+								m_pContext->tacticalScores().add(lambda(m_pContext->tacticalMoves()[m_pContext->tacticalPasses().length()]));
+								m_pContext->tacticalPasses().add(m_CurrentTacticalPass);
 							}
-							sort<movebitsType, scoreType>::sortValues(m_TacticalMoves.ptr() + static_cast<size_t>(start), m_TacticalScores.ptr() + static_cast<size_t>(start), static_cast<size_t>(m_TacticalMoves.length() - start));
+							sort<movebitsType, scoreType>::sortValues(m_pContext->tacticalMoves().ptr() + static_cast<size_t>(start), m_pContext->tacticalScores().ptr() + static_cast<size_t>(start), static_cast<size_t>(m_pContext->tacticalMoves().length() - start));
 							++m_CurrentTacticalPass;
 						}
-						while (m_CurrentTacticalMove < m_TacticalMoves.length())
+						while (m_CurrentTacticalMove < m_pContext->tacticalMoves().length())
 						{
-							moveBits = m_TacticalMoves[m_CurrentTacticalMove];
+							moveBits = m_pContext->tacticalMoves()[m_CurrentTacticalMove];
 							++m_CurrentTacticalMove;
 							if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::stackType*>(this), moveBits))
 							{
-								m_LastTacticalPass = m_TacticalPasses[m_CurrentTacticalMove - 1];
+								m_LastTacticalPass = m_pContext->tacticalPasses()[m_CurrentTacticalMove - 1];
 								return true;
 							}
 						}
@@ -1070,26 +1121,26 @@ namespace pygmalion
 				bool allMovesGenerated{ false };
 				while (!allMovesGenerated)
 				{
-					if (m_CurrentCriticalMove >= m_CriticalMoves.length())
+					if (m_CurrentCriticalMove >= m_pContext->criticalMoves().length())
 					{
 						if (m_CurrentCriticalPass >= countCriticalPasses)
 						{
 							allMovesGenerated = true;
 							return false;
 						}
-						generatorType::generateCriticalMoves(*static_cast<const typename generatorType::stackType*>(this), m_CriticalMoves, feedback.criticalIndex(m_CurrentCriticalPass, depth));
-						const auto start{ m_CriticalPasses.length() };
-						while (m_CriticalPasses.length() < m_CriticalMoves.length())
-							m_CriticalPasses.add(m_CurrentCriticalPass);
+						generatorType::generateCriticalMoves(*static_cast<const typename generatorType::stackType*>(this), m_pContext->criticalMoves(), feedback.criticalIndex(m_CurrentCriticalPass, depth));
+						const auto start{ m_pContext->criticalPasses().length() };
+						while (m_pContext->criticalPasses().length() < m_pContext->criticalMoves().length())
+							m_pContext->criticalPasses().add(m_CurrentCriticalPass);
 						++m_CurrentCriticalPass;
 					}
-					while (m_CurrentCriticalMove < m_CriticalMoves.length())
+					while (m_CurrentCriticalMove < m_pContext->criticalMoves().length())
 					{
-						moveBits = m_CriticalMoves[m_CurrentCriticalMove];
+						moveBits = m_pContext->criticalMoves()[m_CurrentCriticalMove];
 						++m_CurrentCriticalMove;
 						if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::stackType*>(this), moveBits))
 						{
-							m_LastCriticalPass = m_CriticalPasses[m_CurrentCriticalMove - 1];
+							m_LastCriticalPass = m_pContext->criticalPasses()[m_CurrentCriticalMove - 1];
 							return true;
 						}
 					}
@@ -1102,30 +1153,30 @@ namespace pygmalion
 				bool allMovesGenerated{ false };
 				while (!allMovesGenerated)
 				{
-					if (m_CurrentCriticalMove >= m_CriticalMoves.length())
+					if (m_CurrentCriticalMove >= m_pContext->criticalMoves().length())
 					{
 						if (m_CurrentCriticalPass >= countCriticalPasses)
 						{
 							allMovesGenerated = true;
 							return false;
 						}
-						generatorType::generateCriticalMoves(*static_cast<const typename generatorType::stackType*>(this), m_CriticalMoves, feedback.criticalIndex(m_CurrentCriticalPass, depth));
-						const auto start{ m_CriticalPasses.length() };
-						while (m_CriticalPasses.length() < m_CriticalMoves.length())
+						generatorType::generateCriticalMoves(*static_cast<const typename generatorType::stackType*>(this), m_pContext->criticalMoves(), feedback.criticalIndex(m_CurrentCriticalPass, depth));
+						const auto start{ m_pContext->criticalPasses().length() };
+						while (m_pContext->criticalPasses().length() < m_pContext->criticalMoves().length())
 						{
-							m_CriticalScores.add(lambda(m_CriticalMoves[m_CriticalPasses.length()]));
-							m_CriticalPasses.add(m_CurrentCriticalPass);
+							m_pContext->criticalScores().add(lambda(m_pContext->criticalMoves()[m_pContext->criticalPasses().length()]));
+							m_pContext->criticalPasses().add(m_CurrentCriticalPass);
 						}
-						sort<movebitsType, scoreType>::sortValues(m_CriticalMoves.ptr() + static_cast<size_t>(start), m_CriticalScores.ptr() + static_cast<size_t>(start), static_cast<size_t>(m_CriticalMoves.length() - start));
+						sort<movebitsType, scoreType>::sortValues(m_pContext->criticalMoves().ptr() + static_cast<size_t>(start), m_pContext->criticalScores().ptr() + static_cast<size_t>(start), static_cast<size_t>(m_pContext->criticalMoves().length() - start));
 						++m_CurrentCriticalPass;
 					}
-					while (m_CurrentCriticalMove < m_CriticalMoves.length())
+					while (m_CurrentCriticalMove < m_pContext->criticalMoves().length())
 					{
-						moveBits = m_CriticalMoves[m_CurrentCriticalMove];
+						moveBits = m_pContext->criticalMoves()[m_CurrentCriticalMove];
 						++m_CurrentCriticalMove;
 						if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::stackType*>(this), moveBits))
 						{
-							m_LastCriticalPass = m_CriticalPasses[m_CurrentCriticalMove - 1];
+							m_LastCriticalPass = m_pContext->criticalPasses()[m_CurrentCriticalMove - 1];
 							return true;
 						}
 					}
@@ -1133,10 +1184,10 @@ namespace pygmalion
 				return false;
 			}
 			stack(const stack& parent, const movebitsType& moveBits) noexcept :
+				m_pContext{ parent.m_pContext + 1 },
 				m_pParent{ &parent },
 				m_Position{ parent.m_Position },
 				m_History{ parent.m_History },
-				m_Moves(),
 				m_HasLegalMove{ false },
 				m_HasLegalMoveValid{ false },
 				m_CurrentPass{ 0 },
@@ -1155,12 +1206,13 @@ namespace pygmalion
 				m_LastCriticalPass{ 0 },
 				m_Hash{ m_Position.hash() }
 			{
+				m_pContext->clearMovegenLists();
 			}
-			stack(boardType& position, historyType& history, const playerType& oldPlayer) noexcept :
+			stack(boardType& position, historyType& history, const playerType& oldPlayer, contextType* pContext) noexcept :
+				m_pContext{ pContext },
 				m_pParent{ nullptr },
 				m_Position{ position },
 				m_History{ history },
-				m_Moves(),
 				m_HasLegalMove{ false },
 				m_HasLegalMoveValid{ false },
 				m_CurrentPass{ 0 },
@@ -1179,6 +1231,7 @@ namespace pygmalion
 				m_LastCriticalPass{ 0 },
 				m_Hash{ m_Position.hash() }
 			{
+				m_pContext->clearMovegenLists();
 			}
 			constexpr const boardType& position() const noexcept
 			{

@@ -11,7 +11,8 @@ namespace pygmalion::chess::dynamics
 			std::string remainder2;
 			parser::parseTokenCaseSensitive(remainder, token, remainder2);
 			this->output() << std::endl;
-			stackType stack(this->position(), this->history(), this->position().movingPlayer().next());
+			typename generatorType::contextType context;
+			stackType stack(this->position(), this->history(), this->position().movingPlayer().next(), &context);
 			if (stack.isPositionCritical())
 			{
 				movebitsType moveBits;

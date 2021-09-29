@@ -14,7 +14,8 @@ namespace pygmalion::chess::evaluation
 			movebitsType movebits;
 			if (motorType::parseMove(this->position(), token, movebits))
 			{
-				stackType stack(this->position(), this->history(), this->position().movingPlayer());
+				typename generatorType::contextType context;
+				stackType stack(this->position(), this->history(), this->position().movingPlayer(), &context);
 				if (generatorType::isMoveLegal(stack, movebits))
 				{
 					materialScore score{ evaluatorType::staticExchange(movebits, this->position()) };

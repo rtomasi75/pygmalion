@@ -9,9 +9,11 @@ namespace pygmalion::search
 		using nodeType = NODE;
 		using descriptorSearch = typename NODE::descriptorSearch;
 #include "include_search.h"
+		using stackType = typename NODE::stackType;
 	private:
 		heuristicsType m_Heuristics;
-		using stackType = typename NODE::stackType;
+		using contextType = typename generatorType::contextType;
+		std::array<contextType, countSearchPlies> m_Context;
 		static std::string variationToStringFromDepth(const stackType& stack, const variationType& variation, const depthType& depth) noexcept
 		{
 			if (variation.length() > depth)
@@ -25,6 +27,10 @@ namespace pygmalion::search
 			return "";
 		}
 	public:
+		constexpr contextType* rootContext() noexcept
+		{
+			return &(m_Context[0]);
+		}
 		constexpr transpositiontable<descriptorSearch>& transpositionTable() noexcept
 		{
 			return m_Heuristics.transpositionTable();
@@ -35,13 +41,13 @@ namespace pygmalion::search
 		}
 		std::string variationToString(const variationType& variation) noexcept
 		{
-			stackType stack{ stackType(this->position(), this->history(),  this->position().movingPlayer()) };
+			stackType stack{ stackType(this->position(), this->history(),  this->position().movingPlayer(), this->rootContext()) };
 			return variationToStringFromDepth(stack, variation, 0);
 		}
 		scoreType pvs(variationType& principalVariation, const depthType& depthRemaining, std::ostream& str) noexcept
 		{
 			this->feedback().sortIndices(this->history().length());
-			stackType stack{ stackType(this->position(), this->history(),  this->position().movingPlayer()) };
+			stackType stack{ stackType(this->position(), this->history(), this->position().movingPlayer(), this->rootContext()) };
 			std::atomic_bool isRunning{ true };
 			m_Heuristics.beginSearch();
 			nodeType node(stack, isRunning, m_Heuristics);
@@ -53,7 +59,7 @@ namespace pygmalion::search
 		scoreType vpvs(variationType& principalVariation, const depthType& depthRemaining, std::ostream& str) noexcept
 		{
 			this->feedback().sortIndices(this->history().length());
-			stackType stack{ stackType(this->position(), this->history(),  this->position().movingPlayer()) };
+			stackType stack{ stackType(this->position(), this->history(),  this->position().movingPlayer(), this->rootContext()) };
 			std::atomic_bool isRunning{ true };
 			m_Heuristics.beginSearch();
 			nodeType node(stack, isRunning, m_Heuristics);

@@ -27,7 +27,7 @@ namespace pygmalion::search
 					parser::parseTokenCaseSensitive(remainder2, token, remainder);
 					std::atomic_bool isRunning{ true };
 					this->searchEngine().heuristics().beginSearch();
-					stackType stack{ stackType(this->position(), this->history(),  this->position().movingPlayer()) };
+					stackType stack{ stackType(this->position(), this->history(), this->position().movingPlayer(), this->rootContext()) };
 					std::array<nodeType*, countSearchPlies> nodes{ arrayhelper::make<countSearchPlies,nodeType*>(nullptr) };
 					nodes[0] = new nodeType(stack, isRunning, this->searchEngine().heuristics());
 					size_t i = 1;

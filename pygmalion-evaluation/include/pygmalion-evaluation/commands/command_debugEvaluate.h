@@ -13,7 +13,8 @@ namespace pygmalion::evaluation
 		{
 			if (cmd == "debug-evaluate")
 			{
-				typename generatorType::stackType stack(this->position(), this->history(), this->position().movingPlayer());
+				typename generatorType::contextType context;
+				typename generatorType::stackType stack(this->position(), this->history(), this->position().movingPlayer(), &context);
 				this->output() << std::endl;
 				for (size_t i = 0; i < evaluatorType::countStages; i++)
 				{

@@ -12,6 +12,7 @@ namespace pygmalion::tictactoe
 	{
 	public:
 		using stackType = typename pygmalion::generator<descriptor_dynamics, generator>::stack;
+		using contextType = typename pygmalion::generator<descriptor_dynamics, generator>::context;
 		static bool isMoveLegal_Implementation(const stackType& stack, const movebitsType& mv) noexcept
 		{
 			return !stack.position().isOccupied(moveType::extractSquare(mv));

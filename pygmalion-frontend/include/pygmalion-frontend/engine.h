@@ -59,7 +59,7 @@ namespace pygmalion::frontend
 		}
 		void moveThreadFunc(const durationType allocatedTime)
 		{
-			typename descriptorFrontend::stackType stack{ typename descriptorFrontend::stackType(this->position(), this->history(),  this->position().movingPlayer()) };
+			typename descriptorFrontend::stackType stack{ typename descriptorFrontend::stackType(this->position(), this->history(),  this->position().movingPlayer(), this->rootContext()) };
 			depthType depthRemaining{ 0 };
 			variationType finalVariation{ variationType() };
 			durationType timeRemaining{ this->currentGame().playerClock(this->position().movingPlayer()).timeRemaining() };

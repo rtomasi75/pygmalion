@@ -14,7 +14,8 @@ namespace pygmalion::chess::evaluation
 			this->output() << std::endl;
 			if (boardType::parsePlayer(token, p))
 			{
-				stackType stack(this->position(), this->history(), this->position().movingPlayer().next());
+				typename generatorType::contextType context;
+				stackType stack(this->position(), this->history(), this->position().movingPlayer().next(), &context);
 				squaresType controlWhite{ squaresType::none() };
 				squaresType controlBlack{ squaresType::none() };
 				stack.control(controlWhite, controlBlack);

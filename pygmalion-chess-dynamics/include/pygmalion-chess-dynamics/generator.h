@@ -19,12 +19,24 @@ namespace pygmalion::chess
 		constexpr static const inline movegen_sliders_diag movegenSlidersDiag{ movegen_sliders_diag() };
 		constexpr static const inline movegen_king movegenKing{ movegen_king() };
 		using tropismType = tropism<maxTopismDistance, generator>;
+		class context :
+			public pygmalion::generator<descriptor_dynamics, generator>::context
+		{
+		private:
+			//		mutable std::array<std::array<tropismType, countSquares>, countPlayers> m_Tropisms;
+			//		mutable std::array<squaresType, countPlayers> m_TropismValid{ arrayhelper::make<countPlayers,squaresType>(squaresType::none()) };
+		public:
+			context() noexcept :
+				pygmalion::generator<descriptor_dynamics, generator>::context()
+			{
+			}
+			~context() noexcept = default;
+		};
+		using contextType = context;
 		class stack :
 			public pygmalion::generator<descriptor_dynamics, generator>::stack
 		{
 		private:
-	//		mutable std::array<std::array<tropismType, countSquares>, countPlayers> m_Tropisms;
-	//		mutable std::array<squaresType, countPlayers> m_TropismValid{ arrayhelper::make<countPlayers,squaresType>(squaresType::none()) };
 			mutable std::array<squaresType, countPlayers> m_SquaresAttackedByPlayer;
 			mutable std::array<squaresType, countPlayers> m_SquaresTargetedByPlayer;
 			mutable std::array<squaresType, countPlayers> m_ControlledByPlayer;
@@ -66,8 +78,8 @@ namespace pygmalion::chess
 				pygmalion::generator<descriptor_dynamics, generator>::stack(parent, movebits)
 			{
 			}
-			stack(boardType& position, historyType& history, const playerType oldPlayer) noexcept :
-				pygmalion::generator<descriptor_dynamics, generator>::stack(position, history, oldPlayer)
+			stack(boardType& position, historyType& history, const playerType oldPlayer, contextType* pContext) noexcept :
+				pygmalion::generator<descriptor_dynamics, generator>::stack(position, history, oldPlayer, pContext)
 			{
 			}
 			~stack() noexcept = default;

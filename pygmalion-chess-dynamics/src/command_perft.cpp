@@ -59,8 +59,9 @@ namespace pygmalion::chess::dynamics
 			if (depth > 0)
 			{
 				perftdata data;
+				typename generatorType::contextType* pContext = new typename generatorType::contextType[depth];
 				p.start();
-				stackType stack{ stackType(this->position(),this->history(), this->position().movingPlayer()) };
+				stackType stack{ stackType(this->position(),this->history(), this->position().movingPlayer(),pContext) };
 				movebitsType moveBits;
 				while (stack.nextMove(moveBits, 0, this->feedback()))
 				{
@@ -106,6 +107,7 @@ namespace pygmalion::chess::dynamics
 					}
 				}
 				p.stop();
+				delete[] pContext;
 				this->output() << std::endl;
 				this->output() << "depth: " << std::setw(2) << static_cast<int>(depth) << " nodes: " << parser::valueToString(static_cast<double>(data.Nodes), "N") << " time: " << parser::durationToString(p.duration()) << " speed: " << p.computeSpeed(data.Nodes, "N") << std::endl;
 				this->output() << std::endl;

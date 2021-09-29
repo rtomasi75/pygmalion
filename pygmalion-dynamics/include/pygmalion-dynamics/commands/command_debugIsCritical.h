@@ -25,7 +25,8 @@ namespace pygmalion::dynamics
 				movebitsType movebits;
 				if (motorType::parseMove(this->position(), token, movebits))
 				{
-					stackType stack{ stackType(this->position(),this->history(), this->position().movingPlayer()) };
+					typename generatorType::contextType context;
+					stackType stack{ stackType(this->position(),this->history(), this->position().movingPlayer(), &context) };
 					if (generatorType::isMoveCritical(stack, movebits))
 						this->output() << generatorType::moveToString(stack, movebits, this->history().length()) << " is a critical move" << std::endl;
 					else

@@ -197,7 +197,8 @@ namespace pygmalion::dynamics
 				for (size_t i = 0; i < depth; i++)
 				{
 					p.start();
-					stackType stack{ stackType(this->position(),this->history(), this->position().movingPlayer()) };
+					typename generatorType::contextType context;
+					stackType stack{ stackType(this->position(),this->history(), this->position().movingPlayer(),&context) };
 					const bool bOk{ verify(stack,0, i, this->feedback()) };
 					p.stop();
 					this->output() << std::endl << "depth: " << std::setw(2) << static_cast<int>(i + 1) << " verification: " << (bOk ? "OK" : "ERROR") << " time: " << parser::durationToString(p.duration()) << std::endl;
