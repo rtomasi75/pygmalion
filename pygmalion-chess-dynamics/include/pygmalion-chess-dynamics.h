@@ -20,6 +20,7 @@
 #include "pygmalion-chess-dynamics/movegen_sliders_hv.h"
 #include "pygmalion-chess-dynamics/movegen_sliders_diag.h"
 #include "pygmalion-chess-dynamics/movegen_king.h"
+#include "pygmalion-chess-dynamics/tropism.h"
 #include "pygmalion-chess-dynamics/generator.h"
 #include "pygmalion-chess-dynamics/commands.h"
 #include "pygmalion-chess-dynamics/engine.h"

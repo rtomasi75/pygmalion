@@ -628,6 +628,20 @@ namespace pygmalion
 				return m_Feedback[depth].criticalIndex(pass);
 			}
 		};
+		class contextEntry :
+			public DESCRIPTOR_DYNAMICS
+		{
+		private:
+			scorelistType m_Scores;
+			scorelistType m_TacticalScores;
+			scorelistType m_CriticalScores;
+			movelistType m_Moves;
+			movelistType m_TacticalMoves;
+			movelistType m_CriticalMoves;
+			passlistType m_Passes;
+			passlistType m_TacticalPasses;
+			passlistType m_CriticalPasses;
+		};
 		class stack :
 			public DESCRIPTOR_DYNAMICS
 		{
@@ -637,14 +651,14 @@ namespace pygmalion
 #include "include_dynamics.h"
 		private:
 			const stack* m_pParent;
+			mutable scorelistType m_Scores;
+			mutable scorelistType m_TacticalScores;
+			mutable scorelistType m_CriticalScores;
 			mutable movelistType m_Moves;
-			mutable list<scoreType, countMaxGeneratedMoves> m_Scores;
-			mutable passlistType m_Passes;
 			mutable movelistType m_TacticalMoves;
-			mutable list<scoreType, countMaxGeneratedMoves> m_TacticalScores;
-			mutable passlistType m_TacticalPasses;
 			mutable movelistType m_CriticalMoves;
-			mutable list<scoreType, countMaxGeneratedMoves> m_CriticalScores;
+			mutable passlistType m_Passes;
+			mutable passlistType m_TacticalPasses;
 			mutable passlistType m_CriticalPasses;
 			boardType& m_Position;
 			historyType& m_History;
@@ -659,12 +673,10 @@ namespace pygmalion
 			mutable indexType m_CurrentTacticalMove;
 			mutable indexType m_CurrentCriticalMove;
 			mutable indexType m_CurrentLegalMove;
-			mutable signatureType m_Signature;
 			const playerType m_MovingPlayer;
 			const playerType m_NextPlayer;
 			mutable bool m_HasLegalMove;
 			mutable bool m_HasLegalMoveValid;
-			mutable bool m_SignatureValid;
 			mutable bool m_IsPositionCriticalValid{ false };
 			mutable bool m_IsPositionCritical{ false };
 			const bool m_IsNullmove;
@@ -777,14 +789,9 @@ namespace pygmalion
 				}
 				return m_HasLegalMove;
 			}
-			signatureType signature() const
+			signatureType signature() const noexcept
 			{
-				if (!m_SignatureValid)
-				{
-					m_Signature = this->position().signature();
-					m_SignatureValid = true;
-				}
-				return m_Signature;
+				return this->position().signature();
 			}
 			bool isMoveLegal(const movebitsType& moveBits) const noexcept
 			{
@@ -1132,7 +1139,6 @@ namespace pygmalion
 				m_Moves(),
 				m_HasLegalMove{ false },
 				m_HasLegalMoveValid{ false },
-				m_SignatureValid{ false },
 				m_CurrentPass{ 0 },
 				m_CurrentMove{ 0 },
 				m_CurrentTacticalPass{ 0 },
@@ -1157,7 +1163,6 @@ namespace pygmalion
 				m_Moves(),
 				m_HasLegalMove{ false },
 				m_HasLegalMoveValid{ false },
-				m_SignatureValid{ false },
 				m_CurrentPass{ 0 },
 				m_CurrentMove{ 0 },
 				m_CurrentTacticalPass{ 0 },

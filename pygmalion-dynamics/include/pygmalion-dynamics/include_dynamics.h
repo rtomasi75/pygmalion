@@ -3,6 +3,7 @@ using movelistType = typename descriptorDynamics::movelistType;
 using indexType = typename descriptorDynamics::indexType;
 using motorType = typename descriptorDynamics::motorType;
 using scoreType = typename descriptorDynamics::scoreType;
+using scorelistType = typename descriptorDynamics::scorelistType;
 
 constexpr static const size_t countMaxGeneratedMoves{ descriptorDynamics::countMaxGeneratedMoves };
 constexpr static const size_t evaluationMantissa{ descriptorDynamics::evaluationMantissa };
