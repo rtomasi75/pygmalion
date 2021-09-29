@@ -17,6 +17,9 @@ namespace pygmalion
 		{
 			return instanceType::evaluate_Implementation(stack);
 		}
-
+		static std::string name() noexcept
+		{
+			return instanceType::name_Implementation();
+		}
 	};
 }

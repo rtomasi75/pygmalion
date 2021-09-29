@@ -52,6 +52,38 @@ namespace pygmalion
 			else
 				return scoreType::zero();
 		}
+		template<typename STAGE, typename... STAGES2>
+		static std::string stageNames(const size_t index, const size_t counter) noexcept
+		{
+			if (index == counter)
+				return STAGE::name();
+			else
+			{
+				if constexpr (sizeof...(STAGES2) > 0)
+					return evaluatorType::template stageNames<STAGES2...>(index, counter + 1);
+				else
+				{
+					assert(false);
+					return "???";
+				}
+			}
+		}
+		template<typename STAGE, typename... STAGES2>
+		static scoreType stageScores(const size_t index, const size_t counter, const typename generatorType::stackType& stack) noexcept
+		{
+			if (index == counter)
+				return STAGE::evaluate(stack);
+			else
+			{
+				if constexpr (sizeof...(STAGES2) > 0)
+					return evaluatorType::template stageScores<STAGES2...>(index, counter + 1, stack);
+				else
+				{
+					assert(false);
+					return scoreType::zero();
+				}
+			}
+		}
 	protected:
 		template<typename COMMAND>
 		static void addCommand(std::deque<std::shared_ptr<pygmalion::intrinsics::command>>& list) noexcept
@@ -64,6 +96,27 @@ namespace pygmalion
 			return (approx + delta <= alpha) && (approx + delta < beta);
 		}
 	public:
+		constexpr static inline size_t countStages{ sizeof...(STAGES) };
+		static std::string stageName(const size_t index) noexcept
+		{
+			if constexpr (sizeof...(STAGES) > 0)
+				return evaluatorType::template stageNames<STAGES...>(index, 0);
+			else
+			{
+				assert(false);
+				return "???";
+			}
+		}
+		static scoreType stageScore(const size_t index, const typename generatorType::stackType& stack) noexcept
+		{
+			if constexpr(sizeof...(STAGES) > 0)
+				return evaluatorType::template stageScores<STAGES...>(index, 0, stack);
+			else
+			{
+				assert(false);
+				return scoreType::zero();
+			}
+		}
 		constexpr static inline scoreType MaxPositionChange{ rootDelta() };
 		static std::deque<std::shared_ptr<pygmalion::intrinsics::command>> commands() noexcept
 		{

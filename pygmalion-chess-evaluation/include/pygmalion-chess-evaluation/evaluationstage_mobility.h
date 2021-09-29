@@ -21,5 +21,9 @@ namespace pygmalion::chess
 			const bool invert{ stack.movingPlayer() == blackPlayer };
 			return invert ? -scoreTargets : scoreTargets;
 		}
+		static std::string name_Implementation() noexcept
+		{
+			return "mobility";
+		}
 	};
 }

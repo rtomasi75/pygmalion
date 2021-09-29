@@ -14,8 +14,16 @@ namespace pygmalion::evaluation
 			if (cmd == "debug-evaluate")
 			{
 				typename generatorType::stackType stack(this->position(), this->history(), this->position().movingPlayer());
+				this->output() << std::endl;
+				for (size_t i = 0; i < evaluatorType::countStages; i++)
+				{
+					const scoreType value{ evaluatorType::stageScore(i,stack) };
+					this->output() << evaluatorType::stageName(i) << ": \t" << value << std::endl;
+				}
+				this->output() << "___________________________________________" << std::endl;
 				scoreType eval{ evaluatorType::evaluate(scoreType::minimum(), scoreType::maximum(),stack) };
-				this->output() << "evaluation score: " << eval << std::endl;
+				this->output() << "total: \t\t" << eval << std::endl;
+				this->output() << std::endl;
 				return true;
 			}
 			else

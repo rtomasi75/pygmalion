@@ -113,6 +113,15 @@ else()
             endif()
         endif()
     endif()
+# Modify compile flags to change optimization level from O3 to O2
+string(REGEX REPLACE "([\\/\\-]O)2" "\\13"
+  CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+string(REGEX REPLACE "([\\/\\-]O)2" "\\13"
+  CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
+string(REGEX REPLACE "([\\/\\-]O)2" "\\13"
+  CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL}")
+string(REGEX REPLACE "([\\/\\-]O)2" "\\13"
+  CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
 endif()
     
 if(OPTIMIZE_FOR_NATIVE)
@@ -134,6 +143,7 @@ if(COMPILER_SUPPORTS_FLTO)
 else()
     message("-- NOT building with -flto")
 endif()
+
 
 add_subdirectory(pygmalion-intrinsics)
 add_subdirectory(pygmalion-state)

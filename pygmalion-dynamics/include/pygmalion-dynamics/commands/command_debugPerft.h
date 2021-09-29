@@ -11,7 +11,7 @@ namespace pygmalion::dynamics
 		using movegenFeedback = typename generatorType::movegenFeedback;
 #include "../include_dynamics.h"
 	private:
-		static std::uintmax_t perft(const stackType& stack, const size_t depth, const size_t maxDepth, movegenFeedback& feedback) noexcept
+		static std::uintmax_t perft(const stackType& stack, const size_t depth, const size_t maxDepth, movegenFeedback& feedback, std::uintmax_t& nodes) noexcept
 		{
 			movebitsType moveBits;
 			std::uintmax_t counter{ 0 };
@@ -27,9 +27,10 @@ namespace pygmalion::dynamics
 				while (stack.nextMove(moveBits, depth, feedback))
 				{
 					const stackType substack{ stackType(stack,moveBits) };
-					counter += perft(substack, depth + 1, maxDepth, feedback);
+					counter += perft(substack, depth + 1, maxDepth, feedback, nodes);
 				}
 			}
+			nodes++;
 			return counter;
 		}
 	protected:
@@ -47,9 +48,10 @@ namespace pygmalion::dynamics
 				{
 					p.start();
 					stackType stack{ stackType(this->position(),this->history(), this->position().movingPlayer()) };
-					const std::uintmax_t nodes{ perft(stack,0, i, this->feedback()) };
+					std::uintmax_t nodes{ 0 };
+					const std::uintmax_t leafs{ perft(stack,0, i, this->feedback(), nodes) };
 					p.stop();
-					this->output() << "depth: " << std::setw(2) << static_cast<int>(i + 1) << " nodes: " << parser::valueToString(static_cast<double>(nodes), "N") << " time: " << parser::durationToString(p.duration()) << " speed: " << p.computeSpeed(nodes, "N") << std::endl;
+					this->output() << "depth: " << std::setw(2) << static_cast<int>(i + 1) << " leafs: " << parser::valueToString(static_cast<double>(leafs), "") << " nodes: " << parser::valueToString(static_cast<double>(nodes), "") << " time: " << parser::durationToString(p.duration()) << " speed: " << p.computeSpeed(nodes, "N") << std::endl;
 				}
 				this->output() << std::endl;
 				return true;
