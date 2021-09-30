@@ -21,7 +21,7 @@ namespace pygmalion::chess::frontend
 		}
 		virtual double timeSkew() const noexcept override
 		{
-			return 4.0;
+			return 8.0;
 		}
 		virtual int expectedGameLength() const noexcept override
 		{

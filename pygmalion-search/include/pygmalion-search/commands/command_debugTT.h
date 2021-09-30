@@ -16,12 +16,12 @@ namespace pygmalion::search
 				this->output() << std::endl;
 				this->output() << "TT entry:   " << std::setw(4) << sizeof(typename transpositiontable<descriptorSearch>::transposition) << " = " << sizeof(typename transpositiontable<descriptorSearch>::transposition) * CHAR_BIT << "bit" << std::endl;
 				this->output() << "TT bits:    " << std::setw(4) << this->searchEngine().transpositionTable().bitCount() << std::endl;
-				this->output() << "TT memory:  " << std::setw(4) << parser::valueToString(this->searchEngine().transpositionTable().memoryUsed(), "B") << std::endl;
+				this->output() << "TT memory:  " << std::setw(4) << parser::memoryToString(this->searchEngine().transpositionTable().memoryUsed(), "B") << std::endl;
 				this->output() << "TT entries: " << std::setw(4) << this->searchEngine().transpositionTable().countEntries() << std::endl;
 				this->output() << "TT used:    " << std::setw(4) << this->searchEngine().transpositionTable().countUsedEntries() << std::endl;
 				this->output() << "TT range:   " << std::setw(4) << this->searchEngine().transpositionTable().countRangeEntries() << std::endl;
 				this->output() << "TT exact:   " << std::setw(4) << this->searchEngine().transpositionTable().countExactEntries() << std::endl;
-				this->output() << "TT move:   " << std::setw(4) << this->searchEngine().transpositionTable().countMoveEntries() << std::endl;
+				this->output() << "TT move:    " << std::setw(4) << this->searchEngine().transpositionTable().countMoveEntries() << std::endl;
 				this->output() << "TT lower:   " << std::setw(4) << this->searchEngine().transpositionTable().countLowerBoundEntries() << std::endl;
 				this->output() << "TT upper:   " << std::setw(4) << this->searchEngine().transpositionTable().countUpperBoundEntries() << std::endl;
 				this->output() << std::endl;

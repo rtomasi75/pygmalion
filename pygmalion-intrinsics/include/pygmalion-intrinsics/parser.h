@@ -120,6 +120,43 @@ namespace pygmalion
 			sstr << value;
 			return sstr.str();
 		}
+		static std::string memoryToString(const double value, const std::string& unit) noexcept
+		{
+			std::stringstream sstr;
+			sstr << std::fixed;
+			sstr << std::setw(6);
+			 if (value < 10.0)
+				sstr << std::setprecision(2) << 1.0 * value << " " << unit << "  ";
+			else if (value < 100.0)
+				sstr << std::setprecision(1) << 1.0 * value << " " << unit << "  ";
+			else if (value < 1000.0)
+				sstr << std::setprecision(0) << 1.0 * value << " " << unit << "  ";
+			else if (value < 10240.0)
+				sstr << std::setprecision(2) << (1.0/1024.0) * value << " k" << unit << " ";
+			else if (value < 102400)
+				sstr << std::setprecision(1) << (1.0 / 1024.0) * value << " k" << unit << " ";
+			else if (value < 1024000)
+				sstr << std::setprecision(0) << (1.0 / 1024.0) * value << " k" << unit << " ";
+			else if (value < 10240000)
+				sstr << std::setprecision(2) << (1.0 / (1024.0* 1024.0)) * value << " M" << unit << " ";
+			else if (value < 102400000)
+				sstr << std::setprecision(1) << (1.0 / (1024.0 * 1024.0)) * value << " M" << unit << " ";
+			else if (value < 1024000000)
+				sstr << std::setprecision(0) << (1.0 / (1024.0 * 1024.0)) * value << " M" << unit << " ";
+			else if (value < 10240000000)
+				sstr << std::setprecision(2) << (1.0 / (1024.0 * 1024.0 * 1024.0)) * value << " G" << unit << " ";
+			else if (value < 102400000000)
+				sstr << std::setprecision(1) << (1.0 / (1024.0 * 1024.0 * 1024.0)) * value << " G" << unit << " ";
+			else if (value < 1024000000000)
+				sstr << std::setprecision(0) << (1.0 / (1024.0 * 1024.0 * 1024.0)) * value << " G" << unit << " ";
+			else if (value < 10240000000000)
+				sstr << std::setprecision(2) << (1.0 / (1024.0 * 1024.0 * 1024.0 * 1024.0)) * value << " T" << unit << " ";
+			else if (value < 102400000000000)
+				sstr << std::setprecision(1) << (1.0 / (1024.0 * 1024.0 * 1024.0 * 1024.0)) * value << " T" << unit << " ";
+			else
+				sstr << std::setprecision(0) << (1.0 / (1024.0 * 1024.0 * 1024.0 * 1024.0)) * value << " T" << unit << " ";
+			return sstr.str();
+		}
 		static std::string valueToString(const double value, const std::string& unit) noexcept
 		{
 			std::stringstream sstr;

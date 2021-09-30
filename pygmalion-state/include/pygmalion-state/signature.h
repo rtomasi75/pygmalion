@@ -2,48 +2,18 @@ namespace pygmalion::state
 {
 	template<typename DESCRIPTION_STATE>
 	class signature :
-		public enumeration<DESCRIPTION_STATE::countSquares, DESCRIPTION_STATE::countHashBits, square<DESCRIPTION_STATE>>,
 		public DESCRIPTION_STATE
 	{
-		friend class file<DESCRIPTION_STATE>;
-		friend class rank<DESCRIPTION_STATE>;
 	public:
 		using descriptorState = DESCRIPTION_STATE;
 #include "include_state.h"
-	private:
-		constexpr static size_t requiredUnsignedBits(const size_t number) noexcept
-		{
-			size_t n = 1;
-			size_t k = 0;
-			while (number > n)
-			{
-				n *= 2;
-				k++;
-			}
-			return k;
-		}
-	public:
-		constexpr static inline size_t counterBits{ requiredUnsignedBits(countSquares) };
+		constexpr static inline size_t counterBits{ arrayhelper::requiredUnsignedBits(countSquares) };
 		constexpr static inline size_t countBits{ counterBits * (countPieces + countPlayers) };
 		using storageType = uint_t<counterBits, false>;
 	private:
 		std::array<storageType, countPieces> m_PieceCounts;
 		std::array<storageType, countPlayers> m_PlayerCounts;
 	public:
-		constexpr rankType rank() const noexcept
-		{
-			assert(this->isValid());
-			return (*this) / countFiles;
-		}
-		constexpr fileType file() const noexcept
-		{
-			assert(this->isValid());
-			return (*this) % countFiles;
-		}
-		constexpr bool isDark() const noexcept
-		{
-			return (rank() + file()) % 2 == 0;
-		}
 		constexpr signature(const signature&) noexcept = default;
 		constexpr signature(signature&&) noexcept = default;
 		constexpr signature() noexcept :

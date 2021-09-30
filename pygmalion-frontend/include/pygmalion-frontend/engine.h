@@ -175,22 +175,20 @@ namespace pygmalion::frontend
 				const int movesPlayed{ static_cast<int>(this->history().length() / countPlayers) };
 				const int movesLeft{ std::max(minimumExpectedGameLength(),expectedGameLength() - movesPlayed) };
 				const durationType timeRemaining{ this->currentGame().playerClock(pl).timeRemaining() / movesLeft };
-				const durationType allocated{ timeRemaining + this->currentGame().incrementTime() };
 				const double factor{ std::max(0.0,static_cast<double>(movesLeft - (expectedGameLength() - minimumExpectedGameLength()))) / static_cast<double>(expectedGameLength() - minimumExpectedGameLength()) };
 				const double skew{ factor * timeSkew() + (1.0 - factor) * 1.0 };
-				const durationType skewed{ durationType(static_cast<long long>(skew * static_cast<double>(allocated.count()))) };
-				return skewed;
+				const durationType allocated{ durationType(static_cast<long long>(skew * static_cast<double>(timeRemaining.count()))) + this->currentGame().incrementTime() };
+				return allocated;
 			}
 			else
 			{
 				const int movesPlayed{ static_cast<int>(this->currentGame().lastTimeControl(pl)) };
 				const int movesLeft{ movesPerTimeControl - movesPlayed };
 				const durationType timeRemaining{ this->currentGame().playerClock(pl).timeRemaining() / movesLeft };
-				const durationType allocated{ timeRemaining - std::chrono::duration_cast<durationType>(std::chrono::milliseconds(20)) };
 				const double factor{ std::max(0.0,static_cast<double>(movesLeft - (expectedGameLength() - minimumExpectedGameLength()))) / static_cast<double>(expectedGameLength() - minimumExpectedGameLength()) };
 				const double skew{ factor * timeSkew() + (1.0 - factor) * 1.0 };
-				const durationType skewed{ durationType(static_cast<long long>(skew * static_cast<double>(allocated.count()))) };
-				return skewed;
+				const durationType allocated{ durationType(static_cast<long long>(skew * static_cast<double>(timeRemaining.count()))) + this->currentGame().incrementTime() };
+				return allocated;
 			}
 		}
 		void thinkMove() noexcept
