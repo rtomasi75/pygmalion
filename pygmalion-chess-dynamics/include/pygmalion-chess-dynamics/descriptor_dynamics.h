@@ -5,6 +5,6 @@ namespace pygmalion::chess
 	{
 	public:
 		constexpr static bool inline usePieceType{ true };
-		constexpr static unsigned int maxTopismDistance{ 6 };
+		constexpr static unsigned int maxTopismDistance{ 1 };
 	};
 }

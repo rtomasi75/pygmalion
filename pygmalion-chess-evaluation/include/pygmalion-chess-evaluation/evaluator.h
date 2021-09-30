@@ -1,7 +1,7 @@
 namespace pygmalion::chess
 {
 	class evaluator :
-		public pygmalion::evaluator<descriptor_evaluation, evaluator, evaluationstage_attacks, evaluationstage_mobility, evaluationstage_control>
+		public pygmalion::evaluator<descriptor_evaluation, evaluator, evaluationstage_attacks, evaluationstage_mobility, evaluationstage_control/*, evaluationstage_kingsafety*/>
 	{
 	public:
 		static scoreType computeMaterial_Implementation(const typename generatorType::stackType& stack) noexcept

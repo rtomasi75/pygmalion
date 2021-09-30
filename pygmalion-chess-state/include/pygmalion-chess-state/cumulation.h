@@ -1,8 +1,13 @@
 namespace pygmalion::chess::state
 {
-	struct cumulation
+	class descriptor_state;
+
+	class cumulation
 	{
+	public:
+		using hashType = pygmalion::uint_t<64, false>;
 	private:
+		hashType m_PawnHash;
 		materialScore m_Material;
 		std::uint16_t m_ReversiblePlies;
 	public:
@@ -10,6 +15,15 @@ namespace pygmalion::chess::state
 		{
 			m_Material = materialScore::zero();
 			m_ReversiblePlies = 0;
+			m_PawnHash = 0;
+		}
+		constexpr const hashType& pawnHash() const noexcept
+		{
+			return m_PawnHash;
+		}
+		constexpr hashType& pawnHash() noexcept
+		{
+			return m_PawnHash;
 		}
 		constexpr const materialScore& score() const noexcept
 		{
@@ -29,7 +43,8 @@ namespace pygmalion::chess::state
 		}
 		constexpr cumulation() noexcept :
 			m_Material{ materialScore::zero() },
-			m_ReversiblePlies{ 0 }
+			m_ReversiblePlies{ 0 },
+			m_PawnHash{ 0 }
 		{
 		}
 		constexpr cumulation(cumulation&&) noexcept = default;

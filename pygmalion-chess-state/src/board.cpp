@@ -338,6 +338,15 @@ namespace pygmalion::chess
 	void board::onAddedPiece_Implementation(const pieceType piece, const squareType square, const playerType player) noexcept
 	{
 		cumulation().score() += m_Material.material(player, piece);
+		switch(piece)
+		{
+		case pawn:
+			cumulation().pawnHash() ^= pieceHash(pawn, square, player);
+			break;
+		case king:
+			cumulation().pawnHash() ^= pieceHash(king, square, player);
+			break;
+		}
 	}
 
 	void board::onSetMovingPlayer_Implementation(const playerType player) noexcept
@@ -347,6 +356,15 @@ namespace pygmalion::chess
 	void board::onRemovedPiece_Implementation(const pieceType piece, const squareType square, const playerType player) noexcept
 	{
 		cumulation().score() -= m_Material.material(player, piece);
+		switch (piece)
+		{
+		case pawn:
+			cumulation().pawnHash() ^= pieceHash(pawn, square, player);
+			break;
+		case king:
+			cumulation().pawnHash() ^= pieceHash(king, square, player);
+			break;
+		}
 	}
 
 	void board::onSetFlag_Implementation(const flagType flag) noexcept

@@ -10,9 +10,9 @@ namespace pygmalion::chess::dynamics
 		{
 			std::string remainder2;
 			parser::parseTokenCaseSensitive(remainder, token, remainder2);
-			playerType p;
+			playerType pl;
 			this->output() << std::endl;
-			if (boardType::parsePlayer(token, p))
+			if (boardType::parsePlayer(token, pl))
 			{
 				parser::parseTokenCaseSensitive(remainder2, token, remainder);
 				squareType sq;
@@ -25,7 +25,16 @@ namespace pygmalion::chess::dynamics
 					{
 						typename generatorType::contextType context;
 						stackType stack(this->position(), this->history(), this->position().movingPlayer().next(), &context);
-						stack.tropism(sq, p).dumpDistances(pc, this->output());
+						const squaresType whitePawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(whitePlayer) };
+						const squaresType blackPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(blackPlayer) };
+						const squareType whiteKing{ stack.kingSquare(whitePlayer) };
+						const squareType blackKing{ stack.kingSquare(blackPlayer) };
+						typename generatorType::tropismType tropism;
+						if (pl == whitePlayer)
+							tropism.compute(sq, whitePlayer, whitePawns, blackPawns, whiteKing, blackKing);
+						else
+							tropism.compute(sq, blackPlayer, blackPawns, whitePawns, blackKing, whiteKing);
+						tropism.dumpDistances(pc, this->output());
 					}
 					else
 						this->output() << "invalid piece: " << token << std::endl;

@@ -16,6 +16,7 @@ namespace pygmalion::evaluation
 				typename generatorType::contextType context;
 				typename generatorType::stackType stack(this->position(), this->history(), this->position().movingPlayer(), &context);
 				this->output() << std::endl;
+				this->output() << "material: \t" << evaluatorType::computeMaterial(stack) << std::endl;
 				for (size_t i = 0; i < evaluatorType::countStages; i++)
 				{
 					const scoreType value{ evaluatorType::stageScore(i,stack) };

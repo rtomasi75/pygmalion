@@ -41,10 +41,6 @@ namespace pygmalion
 			}
 			return sc2;
 		}
-		static scoreType computeMaterial(const typename generatorType::stackType& stack) noexcept
-		{
-			return evaluatorType::computeMaterial_Implementation(stack);
-		}
 		constexpr static scoreType rootDelta() noexcept
 		{
 			if constexpr (sizeof...(STAGES) > 0)
@@ -96,6 +92,10 @@ namespace pygmalion
 			return (approx + delta <= alpha) && (approx + delta < beta);
 		}
 	public:
+		static scoreType computeMaterial(const typename generatorType::stackType& stack) noexcept
+		{
+			return evaluatorType::computeMaterial_Implementation(stack);
+		}
 		constexpr static inline size_t countStages{ sizeof...(STAGES) };
 		static std::string stageName(const size_t index) noexcept
 		{

@@ -226,8 +226,13 @@ namespace pygmalion
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d>
 			constexpr static void vector4_SSE2(VALUE* pValues, SCORE* pScores) noexcept
 			{
+#if defined(PYGMALION_CPU_SSE41)
 				const __m128i score1{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_undefined_si128(), pScores[IDX1a],0), pScores[IDX1b], 1), pScores[IDX1c], 2), pScores[IDX1d], 3) };
 				const __m128i score2{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_undefined_si128(), pScores[IDX2a],0), pScores[IDX2b], 1), pScores[IDX2c], 2), pScores[IDX2d], 3) };
+#else
+				const __m128i score1{ _mm_set_epi32(pScores[IDX1d], pScores[IDX1c], pScores[IDX1b], pScores[IDX1a]) };
+				const __m128i score2{ _mm_set_epi32(pScores[IDX2d], pScores[IDX2c], pScores[IDX2b], pScores[IDX2a]) };
+#endif
 				const __m128i value1{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1a],0), pValues[IDX1b], 1), pValues[IDX1c], 6), pValues[IDX1d], 7) };
 				const __m128i value2{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2a],0), pValues[IDX2b], 1), pValues[IDX2c], 6), pValues[IDX2d], 7) };
 				const __m128i comparision{ _mm_cmpgt_epi32(score2, score1) };
@@ -258,8 +263,13 @@ namespace pygmalion
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c>
 			constexpr static void vector3_SSE2(VALUE* pValues, SCORE* pScores) noexcept
 			{
+#if defined(PYGMALION_CPU_SSE41)
 				const __m128i score1{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_undefined_si128(), pScores[IDX1a],0), pScores[IDX1b], 1), pScores[IDX1c], 2) };
 				const __m128i score2{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_undefined_si128(), pScores[IDX2a],0), pScores[IDX2b], 1), pScores[IDX2c], 2) };
+#else
+				const __m128i score1{ _mm_set_epi32(0, pScores[IDX1c], pScores[IDX1b], pScores[IDX1a]) };
+				const __m128i score2{ _mm_set_epi32(0, pScores[IDX2c], pScores[IDX2b], pScores[IDX2a]) };
+#endif
 				const __m128i value1{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1a],0), pValues[IDX1b], 1), pValues[IDX1c], 6) };
 				const __m128i value2{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2a],0), pValues[IDX2b], 1), pValues[IDX2c], 6) };
 				const __m128i comparision{ _mm_cmpgt_epi32(score2, score1) };
@@ -286,8 +296,13 @@ namespace pygmalion
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b>
 			constexpr static void vector2_SSE2(VALUE* pValues, SCORE* pScores) noexcept
 			{
+#if defined(PYGMALION_CPU_SSE41)
 				const __m128i score1{ _mm_insert_epi32(_mm_insert_epi32(_mm_undefined_si128(), pScores[IDX1a],0), pScores[IDX1b], 1) };
 				const __m128i score2{ _mm_insert_epi32(_mm_insert_epi32(_mm_undefined_si128(), pScores[IDX2a],0), pScores[IDX2b], 1) };
+#else
+				const __m128i score1{ _mm_set_epi32(0, 0, pScores[IDX1b], pScores[IDX1a]) };
+				const __m128i score2{ _mm_set_epi32(0, 0, pScores[IDX2b], pScores[IDX2a]) };
+#endif
 				const __m128i value1{ _mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1a],0), pValues[IDX1b], 1) };
 				const __m128i value2{ _mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2a],0), pValues[IDX2b], 1) };
 				const __m128i comparision{ _mm_cmpgt_epi32(score2, score1) };
