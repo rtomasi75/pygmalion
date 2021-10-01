@@ -44,7 +44,7 @@ namespace pygmalion::dynamics
 				size_t depth{ static_cast<size_t>(parser::parseInt(remainder)) };
 				profiler p;
 				this->output() << std::endl;
-				typename generatorType::contextType* pContext = new typename generatorType::contextType[depth];
+				typename generatorType::contextType* pContext = new typename generatorType::contextType[depth + 1];
 				for (size_t i = 0; i < depth; i++)
 				{
 					p.start();
@@ -52,7 +52,7 @@ namespace pygmalion::dynamics
 					std::uintmax_t nodes{ 0 };
 					const std::uintmax_t leafs{ perft(stack,0, i, this->feedback(), nodes) };
 					p.stop();
-					this->output() << "depth: " << std::setw(2) << static_cast<int>(i + 1) << " leafs: " << parser::valueToString(static_cast<double>(leafs), "") << " nodes: " << parser::valueToString(static_cast<double>(nodes), "") << " time: " << parser::durationToString(p.duration()) << " speed: " << p.computeSpeed(nodes, "N") << std::endl;
+					this->output() << "depth: " << std::setw(2) << static_cast<int>(i + 1) << " leafs: " << parser::valueToString(static_cast<double>(leafs), "") << " nodes: " << parser::valueToString(static_cast<double>(nodes), "") << " time: " << parser::durationToString(p.duration()) << " speed: " << p.computeSpeed(nodes, "N") << ", " << p.computeSpeed(leafs+nodes, "mv") << std::endl;
 				}
 				delete[] pContext;
 				this->output() << std::endl;

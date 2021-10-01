@@ -55,7 +55,7 @@ namespace pygmalion::chess::dynamics
 			this->output() << "Invalid FEN: " << error << std::endl;
 		}
 		this->output() << "Computed: ";
-		typename generatorType::contextType* pContext = new typename generatorType::contextType[set.depth()];
+		typename generatorType::contextType* pContext = new typename generatorType::contextType[set.depth()+1];
 		profiler p;
 		p.start();
 		stackType stack(position, history, position.movingPlayer().next(), pContext);

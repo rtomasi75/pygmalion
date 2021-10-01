@@ -2663,6 +2663,11 @@ namespace pygmalion::chess
 				if (!captureSquare.isValid())
 					return false;
 
+				// are we illegally capturing the other king?
+				if (stack.kingSquare(otherPlayer) == captureSquare)
+					return false;
+
+
 				// is there a piece to capture?
 				if (!position.playerOccupancy(otherPlayer)[captureSquare])
 					return false;
@@ -2739,27 +2744,8 @@ namespace pygmalion::chess
 					break;
 				}
 			}
-			return generatorType::isGeneratedMoveLegal(stack, moveBits);
-		}
-		static bool isMoveTactical_Implementation(const stackType& stack, const movebitsType& moveBits) noexcept
-		{
-			return motorType::move().isCapture(moveBits);
-		}
-		static bool isGeneratedMoveLegal_Implementation(const stackType& stack, const movebitsType& moveBits) noexcept
-		{
-			const boardType& position{ stack.position() };
-			const playerType movingPlayer{ position.movingPlayer() };
-			const playerType otherPlayer{ movingPlayer.next() };
-			const squareType to{ motorType::move().toSquare(position, moveBits) };
-
-			// are we illegally capturing the other king?
-			const bool isCapture{ motorType::move().isCapture(moveBits) };
-			const squareType otherking{ stack.kingSquare(otherPlayer) };
-			if (isCapture && (otherking == to))
-				return false;
 
 			// No. Let's see where our king lives after the move as been made then...
-			const squareType from{ motorType::move().fromSquare(position, moveBits) };
 			const squareType kingsquareOld{ stack.kingSquare(movingPlayer) };
 			const bool isKingMove{ from == kingsquareOld };
 			const squareType kingsquare{ isKingMove ? to : kingsquareOld };
@@ -2769,11 +2755,11 @@ namespace pygmalion::chess
 			const squaresType otherDelta{ motorType::move().otherOccupancyDelta(position, moveBits) };
 			const squaresType occOther{ otherOccupancy ^ otherDelta };
 
-			// if we're moving the king, we need to do some extra work
+			// if we're moving the king or are in check, we need to do some extra work
 			if (isKingMove || stack.isPositionCritical())
 			{
 				// Does our king live on a square that is guarded by the other king?
-				const squaresType attackedByOtherKing{ movegenKing.attacks(otherking,squaresType::all()) };
+				const squaresType attackedByOtherKing{ movegenKing.attacks(stack.kingSquare(otherPlayer),squaresType::all()) };
 				if (attackedByOtherKing[kingsquare])
 					return false;
 
@@ -2817,6 +2803,111 @@ namespace pygmalion::chess
 						if (stack.squaresAttackedByPlayer(otherPlayer) & castleWalk)
 							return false;
 					}
+				}
+			}
+
+			// We need the total occupancy bitboard as it would be after the move...
+			const squaresType movingOccupancy{ position.playerOccupancy(movingPlayer) };
+			const squaresType movingDelta{ motorType::move().ownOccupancyDelta(position, moveBits) };
+			const squaresType occMoving{ movingOccupancy ^ movingDelta };
+			const squaresType occTotal{ occOther | occMoving };
+			const squaresType unoccupied{ ~occTotal };
+
+			// Is he attacked horizontally by sliding pieces?
+			const squaresType queensDelta{ motorType::move().pieceOccupancyDelta(position, queen, moveBits) };
+			const squaresType queens{ position.pieceOccupancy(queen) ^ queensDelta };
+			const squaresType rooksDelta{ motorType::move().pieceOccupancyDelta(position, rook, moveBits) };
+			const squaresType rooks{ position.pieceOccupancy(rook) ^ rooksDelta };
+			const squaresType otherSlidersHV = occOther & (rooks | queens);
+			const squaresType criticalSquaresHV{ movegenSlidersHV.inverseAttacks(kingsquare, unoccupied) };
+			if ((criticalSquaresHV & otherSlidersHV) != squaresType::none())
+				return false;
+
+			// Is he attacked diagonally by sliding pieces?
+			const squaresType bishopsDelta{ motorType::move().pieceOccupancyDelta(position, bishop, moveBits) };
+			const squaresType bishops{ position.pieceOccupancy(bishop) ^ bishopsDelta };
+			const squaresType otherSlidersDiag = occOther & (bishops | queens);
+			const squaresType criticalSquaresDiag{ movegenSlidersDiag.inverseAttacks(kingsquare, unoccupied) };
+			if ((criticalSquaresDiag & otherSlidersDiag) != squaresType::none())
+				return false;
+
+			// The move seems legal
+			return true;
+		}
+		static bool isMoveTactical_Implementation(const stackType& stack, const movebitsType& moveBits) noexcept
+		{
+			return motorType::move().isCapture(moveBits);
+		}
+		static bool isGeneratedMoveLegal_Implementation(const stackType& stack, const movebitsType& moveBits) noexcept
+		{
+			const boardType& position{ stack.position() };
+			const playerType movingPlayer{ position.movingPlayer() };
+			const playerType otherPlayer{ movingPlayer.next() };
+			const squareType to{ motorType::move().toSquare(position, moveBits) };
+
+			// are we illegally capturing the other king?
+			const bool isCapture{ motorType::move().isCapture(moveBits) };
+			const squareType otherking{ stack.kingSquare(otherPlayer) };
+			if (isCapture && (otherking == to))
+				return false;
+
+			// No. Let's see where our king lives after the move as been made then...
+			const squareType from{ motorType::move().fromSquare(position, moveBits) };
+			const squareType kingsquareOld{ stack.kingSquare(movingPlayer) };
+			const bool isKingMove{ from == kingsquareOld };
+			const squareType kingsquare{ isKingMove ? to : kingsquareOld };
+
+			// We need the enemy occupancy bitboard as it would be after the move...
+			const squaresType otherOccupancy{ position.playerOccupancy(otherPlayer) };
+			const squaresType otherDelta{ motorType::move().otherOccupancyDelta(position, moveBits) };
+			const squaresType occOther{ otherOccupancy ^ otherDelta };
+
+			// if we're moving the king, we need to do some extra work
+			if (isKingMove)
+			{
+				// Does our king live on a square that is guarded by the other king?
+				const squaresType attackedByOtherKing{ movegenKing.attacks(otherking,squaresType::all()) };
+				if (attackedByOtherKing[kingsquare])
+					return false;
+
+				// Does he live on a square that is guarded by an enemy knight?
+				const squaresType knightsDelta{ motorType::move().pieceOccupancyDelta(position, knight, moveBits) };
+				const squaresType otherKnights{ (position.pieceOccupancy(knight) ^ knightsDelta) & occOther };
+				const squaresType attackedByOtherKnights{ movegenKnight.attacks(otherKnights,squaresType::all()) };
+				if (attackedByOtherKnights[kingsquare])
+					return false;
+
+				// Does he live on a square that is guarded by an enemy pawn?
+				const squaresType pawnsDelta{ motorType::move().pieceOccupancyDelta(position, pawn, moveBits) };
+				const squaresType otherPawns{ (position.pieceOccupancy(pawn) ^ pawnsDelta) & occOther };
+				if (otherPlayer == whitePlayer)
+				{
+					const squaresType pawnsTemp{ otherPawns.up() };
+					const squaresType attackedByOtherPawns{ pawnsTemp.right() | pawnsTemp.left() };
+					if (attackedByOtherPawns[kingsquare])
+						return false;
+				}
+				else
+				{
+					const squaresType pawnsTemp{ otherPawns.down() };
+					const squaresType attackedByOtherPawns{ pawnsTemp.right() | pawnsTemp.left() };
+					if (attackedByOtherPawns[kingsquare])
+						return false;
+				}
+
+				if (motorType::move().isKingsideCastle(moveBits))
+				{
+					// is the way for the king attacked?
+					const squaresType castleWalk{ (movingPlayer == whitePlayer) ? kingsideCastleWalkWhite : kingsideCastleWalkBlack };
+					if (stack.squaresAttackedByPlayer(otherPlayer) & castleWalk)
+						return false;
+				}
+				else if (motorType::move().isQueensideCastle(moveBits))
+				{
+					// is the way for the king attacked?
+					const squaresType castleWalk{ (movingPlayer == whitePlayer) ? queensideCastleWalkWhite : queensideCastleWalkBlack };
+					if (stack.squaresAttackedByPlayer(otherPlayer) & castleWalk)
+						return false;
 				}
 			}
 
