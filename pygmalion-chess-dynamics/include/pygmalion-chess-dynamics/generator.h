@@ -209,50 +209,94 @@ namespace pygmalion::chess
 			const squaresType blackKnights{ stack.position().playerOccupancy(blackPlayer) & stack.position().pieceOccupancy(knight) };
 			const squaresType whiteBishops{ stack.position().playerOccupancy(whitePlayer) & stack.position().pieceOccupancy(bishop) };
 			const squaresType blackBishops{ stack.position().playerOccupancy(blackPlayer) & stack.position().pieceOccupancy(bishop) };
-			squaresType attackedByWhiteKnightOrBishop{ squaresType::none() };
-			squaresType attackedByBlackKnightOrBishop{ squaresType::none() };
+			squaresType attackedBy1WhiteKnightOrBishop{ squaresType::none() };
+			squaresType attackedBy2WhiteKnightOrBishop{ squaresType::none() };
+			squaresType attackedBy3WhiteKnightOrBishop{ squaresType::none() };
+			squaresType attackedBy4WhiteKnightOrBishop{ squaresType::none() };
+			squaresType attackedBy1BlackKnightOrBishop{ squaresType::none() };
+			squaresType attackedBy2BlackKnightOrBishop{ squaresType::none() };
+			squaresType attackedBy3BlackKnightOrBishop{ squaresType::none() };
+			squaresType attackedBy4BlackKnightOrBishop{ squaresType::none() };
 			for (squareType sq : whiteKnights)
 			{
 				const squaresType attacks{ generatorType::movegenKnight.attacks(sq,squaresType::all()) };
-				attackedByWhiteKnightOrBishop |= attacks;
-			}
-			for (squareType sq : blackKnights)
-			{
-				const squaresType attacks{ generatorType::movegenKnight.attacks(sq,squaresType::all()) };
-				attackedByBlackKnightOrBishop |= attacks;
+				attackedBy4WhiteKnightOrBishop |= attacks & attackedBy3WhiteKnightOrBishop;
+				attackedBy3WhiteKnightOrBishop |= attacks & attackedBy2WhiteKnightOrBishop;
+				attackedBy2WhiteKnightOrBishop |= attacks & attackedBy1WhiteKnightOrBishop;
+				attackedBy1WhiteKnightOrBishop |= attacks;
 			}
 			for (squareType sq : whiteBishops)
 			{
 				const squaresType attacks{ generatorType::movegenSlidersDiag.attacks(sq,unoccupied) };
-				attackedByWhiteKnightOrBishop |= attacks;
+				attackedBy4WhiteKnightOrBishop |= attacks & attackedBy3WhiteKnightOrBishop;
+				attackedBy3WhiteKnightOrBishop |= attacks & attackedBy2WhiteKnightOrBishop;
+				attackedBy2WhiteKnightOrBishop |= attacks & attackedBy1WhiteKnightOrBishop;
+				attackedBy1WhiteKnightOrBishop |= attacks;
+			}
+			attackedBy3WhiteKnightOrBishop &= ~attackedBy4WhiteKnightOrBishop;
+			attackedBy2WhiteKnightOrBishop &= ~attackedBy3WhiteKnightOrBishop;
+			attackedBy1WhiteKnightOrBishop &= ~attackedBy2WhiteKnightOrBishop;
+			for (squareType sq : blackKnights)
+			{
+				const squaresType attacks{ generatorType::movegenKnight.attacks(sq,squaresType::all()) };
+				attackedBy4BlackKnightOrBishop |= attacks & attackedBy3BlackKnightOrBishop;
+				attackedBy3BlackKnightOrBishop |= attacks & attackedBy2BlackKnightOrBishop;
+				attackedBy2BlackKnightOrBishop |= attacks & attackedBy1BlackKnightOrBishop;
+				attackedBy1BlackKnightOrBishop |= attacks;
 			}
 			for (squareType sq : blackBishops)
 			{
 				const squaresType attacks{ generatorType::movegenSlidersDiag.attacks(sq,unoccupied) };
-				attackedByBlackKnightOrBishop |= attacks;
+				attackedBy4BlackKnightOrBishop |= attacks & attackedBy3BlackKnightOrBishop;
+				attackedBy3BlackKnightOrBishop |= attacks & attackedBy2BlackKnightOrBishop;
+				attackedBy2BlackKnightOrBishop |= attacks & attackedBy1BlackKnightOrBishop;
+				attackedBy1BlackKnightOrBishop |= attacks;
 			}
-			const squaresType balancedKnightOrBishopAttacks{ ~(attackedByWhiteKnightOrBishop & attackedByBlackKnightOrBishop) };
-			whiteControl |= open & attackedByWhiteKnightOrBishop & balancedKnightOrBishopAttacks;
-			blackControl |= open & attackedByBlackKnightOrBishop & balancedKnightOrBishopAttacks;
+			attackedBy3BlackKnightOrBishop &= ~attackedBy4BlackKnightOrBishop;
+			attackedBy2BlackKnightOrBishop &= ~attackedBy3BlackKnightOrBishop;
+			attackedBy1BlackKnightOrBishop &= ~attackedBy2BlackKnightOrBishop;
+			const squaresType balanced4KnightOrBishopAttacks{ ~(attackedBy4WhiteKnightOrBishop & attackedBy4BlackKnightOrBishop) };
+			whiteControl |= open & attackedBy4WhiteKnightOrBishop & balanced4KnightOrBishopAttacks;
+			blackControl |= open & attackedBy4BlackKnightOrBishop & balanced4KnightOrBishopAttacks;
+			open &= ~(whiteControl | blackControl);
+			const squaresType balanced3KnightOrBishopAttacks{ ~(attackedBy3WhiteKnightOrBishop & attackedBy3BlackKnightOrBishop) };
+			whiteControl |= open & attackedBy3WhiteKnightOrBishop & balanced3KnightOrBishopAttacks;
+			blackControl |= open & attackedBy3BlackKnightOrBishop & balanced3KnightOrBishopAttacks;
+			open &= ~(whiteControl | blackControl);
+			const squaresType balanced2KnightOrBishopAttacks{ ~(attackedBy2WhiteKnightOrBishop & attackedBy2BlackKnightOrBishop) };
+			whiteControl |= open & attackedBy2WhiteKnightOrBishop & balanced2KnightOrBishopAttacks;
+			blackControl |= open & attackedBy2BlackKnightOrBishop & balanced2KnightOrBishopAttacks;
+			open &= ~(whiteControl | blackControl);
+			const squaresType balanced1KnightOrBishopAttacks{ ~(attackedBy1WhiteKnightOrBishop & attackedBy1BlackKnightOrBishop) };
+			whiteControl |= open & attackedBy1WhiteKnightOrBishop & balanced1KnightOrBishopAttacks;
+			blackControl |= open & attackedBy1BlackKnightOrBishop & balanced1KnightOrBishopAttacks;
 			open &= ~(whiteControl | blackControl);
 
 			const squaresType whiteRooks{ stack.position().playerOccupancy(whitePlayer) & stack.position().pieceOccupancy(rook) };
 			const squaresType blackRooks{ stack.position().playerOccupancy(blackPlayer) & stack.position().pieceOccupancy(rook) };
-			squaresType attackedByWhiteRook{ squaresType::none() };
-			squaresType attackedByBlackRook{ squaresType::none() };
+			squaresType attackedBy2WhiteRook{ squaresType::none() };
+			squaresType attackedBy2BlackRook{ squaresType::none() };
+			squaresType attackedBy1WhiteRook{ squaresType::none() };
+			squaresType attackedBy1BlackRook{ squaresType::none() };
 			for (squareType sq : whiteRooks)
 			{
 				const squaresType attacks{ generatorType::movegenSlidersHV.attacks(sq,unoccupied) };
-				attackedByWhiteRook |= attacks;
+				attackedBy2WhiteRook |= attacks & attackedBy1WhiteRook;
+				attackedBy1WhiteRook |= attacks;
 			}
 			for (squareType sq : blackRooks)
 			{
 				const squaresType attacks{ generatorType::movegenSlidersHV.attacks(sq,unoccupied) };
-				attackedByBlackRook |= attacks;
+				attackedBy2BlackRook |= attacks & attackedBy1BlackRook;
+				attackedBy1BlackRook |= attacks;
 			}
-			const squaresType balancedRookAttacks{ ~(attackedByWhiteRook & attackedByBlackRook) };
-			whiteControl |= open & attackedByWhiteRook & balancedRookAttacks;
-			blackControl |= open & attackedByBlackRook & balancedRookAttacks;
+			const squaresType balanced2RookAttacks{ ~(attackedBy2WhiteRook & attackedBy2BlackRook) };
+			whiteControl |= open & attackedBy2WhiteRook & balanced2RookAttacks;
+			blackControl |= open & attackedBy2BlackRook & balanced2RookAttacks;
+			open &= ~(whiteControl | blackControl);
+			const squaresType balanced1RookAttacks{ ~(attackedBy1WhiteRook & attackedBy1BlackRook) };
+			whiteControl |= open & attackedBy1WhiteRook & balanced1RookAttacks;
+			blackControl |= open & attackedBy1BlackRook & balanced1RookAttacks;
 			open &= ~(whiteControl | blackControl);
 
 			const squaresType whiteQueens{ stack.position().playerOccupancy(whitePlayer) & stack.position().pieceOccupancy(queen) };
@@ -261,12 +305,12 @@ namespace pygmalion::chess
 			squaresType attackedByBlackQueen{ squaresType::none() };
 			for (squareType sq : whiteQueens)
 			{
-				const squaresType attacks{ generatorType::movegenSlidersHV.attacks(sq,unoccupied) | generatorType::movegenSlidersHV.attacks(sq,unoccupied) };
+				const squaresType attacks{ generatorType::movegenSlidersDiag.attacks(sq,unoccupied) | generatorType::movegenSlidersHV.attacks(sq,unoccupied) };
 				attackedByWhiteQueen |= attacks;
 			}
 			for (squareType sq : blackQueens)
 			{
-				const squaresType attacks{ generatorType::movegenSlidersHV.attacks(sq,unoccupied) | generatorType::movegenSlidersHV.attacks(sq,unoccupied) };
+				const squaresType attacks{ generatorType::movegenSlidersDiag.attacks(sq,unoccupied) | generatorType::movegenSlidersHV.attacks(sq,unoccupied) };
 				attackedByBlackQueen |= attacks;
 			}
 			const squaresType balancedQueenAttacks{ ~(attackedByWhiteQueen & attackedByBlackQueen) };

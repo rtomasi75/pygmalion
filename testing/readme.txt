@@ -31,7 +31,8 @@ VERSION_CODENAME=bullseye
 ID=debian
 HOME_URL="https://www.debian.org/"
 SUPPORT_URL="https://www.debian.org/support"
-BUG_REPORT_URL="https://bugs.debian.org/"user@liquidity:~/pygmalion$ cmake /mnt/d/git/pygmalion -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_CXX_FLAGS="-march=skylake" -DBUILD_SHARED_LIBS=OFF -DCMAKE_EXE_LINKER_FLAGS="-static"
+BUG_REPORT_URL="https://bugs.debian.org/"user@liquidity:~/pygmalion$ 
+cmake /mnt/d/git/pygmalion -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_CXX_FLAGS="-march=skylake" -DBUILD_SHARED_LIBS=OFF -DCMAKE_EXE_LINKER_FLAGS="-static"
 -- The C compiler identification is GNU 10.2.1
 -- The CXX compiler identification is Clang 11.0.1
 -- Detecting C compiler ABI info
