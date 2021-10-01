@@ -146,14 +146,13 @@ namespace pygmalion::frontend
 			this->template addCommand<command_easy<descriptorFrontend, frontType>>();
 			this->template addCommand<command_undo<descriptorFrontend, frontType>>();
 			this->template addCommand<command_usermove<descriptorFrontend, frontType>>();
+			this->template addCommand<command_uci<descriptorFrontend, frontType>>();
+			this->template addCommand<command_debug<descriptorFrontend, frontType>>();
+			this->template addCommand<command_isready<descriptorFrontend, frontType>>();
 		}
 		virtual ~engine() noexcept
 		{
 			cancelMove();
-		}
-		virtual std::string version() const noexcept override
-		{
-			return "no game (frontend only)";
 		}
 		virtual double timeSkew() const noexcept
 		{

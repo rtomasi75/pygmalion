@@ -19,7 +19,14 @@ namespace pygmalion::intrinsics
 
 	std::string engine::version() const noexcept
 	{
-		return "no game (intrinsics only)";
+		assert(false);
+		return "(todo: add version)";
+	}
+
+	std::string engine::author() const noexcept
+	{
+		assert(false);
+		return "(todo: add author)";
 	}
 
 	void engine::mainloop() noexcept
@@ -29,11 +36,20 @@ namespace pygmalion::intrinsics
 			std::string input;
 			std::getline(m_Input, input);
 			bool processed{ false };
-			for (auto& cmd : m_Commands)
+			while (!processed)
 			{
-				processed |= cmd->process(input);
-				if (processed)
+				for (auto& cmd : m_Commands)
+				{
+					processed |= cmd->process(input);
+					if (processed)
+						break;
+				}
+				std::string token;
+				std::string remainder;
+				parser::parseToken(input, token, remainder);
+				if (token == "")
 					break;
+				input = remainder;
 			}
 			if (!processed)
 			{

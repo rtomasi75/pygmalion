@@ -1,7 +1,7 @@
 namespace pygmalion::frontend
 {
 	template<typename DESCRIPTION_FRONTEND, typename FRONT>
-	class command_xboard :
+	class command_isready :
 		public pygmalion::frontend::command<DESCRIPTION_FRONTEND, FRONT>
 	{
 	public:
@@ -11,11 +11,9 @@ namespace pygmalion::frontend
 	protected:
 		virtual bool onProcess(const std::string& cmd) noexcept override
 		{
-			if (cmd == "xboard")
+			if ((this->front().isUCI()) && (cmd == "isready"))
 			{
-				this->front().isXBoard() = true;
-				this->front().isUCI() = false;
-				this->output() << std::endl;
+				this->output() << "readyok" << std::endl;
 				return true;
 			}
 			else
@@ -23,7 +21,7 @@ namespace pygmalion::frontend
 		}
 		virtual std::string help() noexcept override
 		{
-			return "XBOARD";
+			return "UCI";
 		}
 	};
 

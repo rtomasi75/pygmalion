@@ -42,9 +42,5 @@ namespace pygmalion::mechanics
 			this->template addCommand<command_debugHistory<descriptorMechanics, motorType>>();
 		}
 		virtual ~engine() noexcept = default;
-		virtual std::string version() const noexcept override
-		{
-			return "no game (mechanics only)";
-		}
 	};
 }
