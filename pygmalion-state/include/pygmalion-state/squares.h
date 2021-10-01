@@ -114,6 +114,12 @@ namespace pygmalion::state
 		{
 			return m_Bits;
 		}
+		constexpr squares operator*(const bool value) const noexcept
+		{
+			const bitsType bits{ m_Bits };
+			const bitsType valueBits{ bitsType(static_cast<unsigned int>(value)) };
+			return squares(bits * valueBits);
+		}
 		constexpr squares operator|(const squares other) const noexcept
 		{
 			const bitsType bits{ m_Bits | other.m_Bits };

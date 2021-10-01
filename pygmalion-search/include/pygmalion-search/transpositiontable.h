@@ -35,7 +35,7 @@ namespace pygmalion
 			~transposition() = default;
 			constexpr bool isValid(const stackType& stack) const noexcept
 			{
-				const bool bOk{ (m_Hash == stack.position().hash()) && (m_BoardFlags == stack.position().flags()) && (m_MovingPlayer == stack.position().movingPlayer()) && (m_Signature == stack.signature()) };
+				const bool bOk{ ((m_Hash == stack.position().hash()) && (m_MovingPlayer == stack.position().movingPlayer())) && ((m_BoardFlags == stack.position().flags()) && (m_Signature == stack.signature())) };
 				if (bOk)
 				{
 					if (m_Flags & transpositiontable::flags_move)
