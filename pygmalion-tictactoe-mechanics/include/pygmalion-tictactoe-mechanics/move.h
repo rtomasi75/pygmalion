@@ -37,7 +37,7 @@ namespace pygmalion::tictactoe
 		constexpr static const size_t countSquareBits{ squareType::countUnsignedBits };
 		constexpr static const size_t countPieceBits{ pieceType::countUnsignedBits };
 		constexpr static const size_t countOwnerBits{ playerType::countUnsignedBits };
-		std::string name_Implementation() const noexcept
+		static std::string name_Implementation() noexcept
 		{
 			std::stringstream sstr;
 			sstr << "" << sizeof(typename move::movedataType) << ":" << move::countBits << "drop";

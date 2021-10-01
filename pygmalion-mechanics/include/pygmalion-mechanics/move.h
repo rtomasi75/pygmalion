@@ -19,9 +19,9 @@ namespace pygmalion::mechanics
 		constexpr move& operator=(const move&) noexcept = default;
 		~move() noexcept = default;
 	public:
-		std::string name() const noexcept
+		static std::string name() noexcept
 		{
-			return static_cast<const instanceType*>(this)->name_Implementation();
+			return instanceType::name_Implementation();
 		}
 		constexpr movedataType doMove(boardType& position, const movebitsType& moveBits) const noexcept
 		{

@@ -42,7 +42,7 @@ namespace pygmalion::mechanics
 		constexpr static flagType firstFlag{ static_cast<typename flagType::baseType>(FIRST) };
 		constexpr static flagType lastFlag{ static_cast<typename flagType::baseType>(LAST) };
 		constexpr static size_t countAffectedFlags{ 1 + LAST - FIRST };
-		std::string name_Implementation() const noexcept
+		static std::string name_Implementation() noexcept
 		{
 			std::stringstream sstr;
 			sstr << "" << sizeof(typename setflagsmove::movedataType) << ":" << setflagsmove::countBits << "@setflags(" << boardType::flagToString(firstFlag) << ":" << boardType::flagToString(lastFlag) << ")";

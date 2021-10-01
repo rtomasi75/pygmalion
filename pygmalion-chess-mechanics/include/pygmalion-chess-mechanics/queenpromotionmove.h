@@ -1,11 +1,11 @@
 namespace pygmalion::chess
 {
 	class queenpromotionmove :
-		public promotionmove
+		public promotionmove<0x3>
 	{
 	public:
 		constexpr queenpromotionmove() noexcept :
-			promotionmove(queen)
+			promotionmove<0x3>()
 		{
 
 		}

@@ -1,11 +1,11 @@
 namespace pygmalion::chess
 {
 	class queenpromocapturemove :
-		public promocapturemove
+		public promocapturemove<0x3>
 	{
 	public:
 		constexpr queenpromocapturemove() noexcept :
-			promocapturemove(queen)
+			promocapturemove<0x3>()
 		{
 
 		}

@@ -10,3 +10,4 @@
 #include "commands/command_setFen.h"
 #include "commands/command_getFen.h"
 #include "commands/command_testMovegen.h"
+#include "commands/command_debugMoveStats.h"

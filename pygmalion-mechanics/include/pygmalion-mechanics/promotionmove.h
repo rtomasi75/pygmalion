@@ -63,7 +63,7 @@ namespace pygmalion::mechanics
 		constexpr static const size_t countFromBits{ squareType::countUnsignedBits };
 		constexpr static const size_t countToBits{ squareType::countUnsignedBits };
 		constexpr static const size_t countPieceBits{ pieceType::countUnsignedBits };
-		std::string name_Implementation() const noexcept
+		static std::string name_Implementation() noexcept
 		{
 			std::stringstream sstr;
 			sstr << "" << sizeof(typename promotionmove::movedataType) << ":" << promotionmove::countBits << "@promotion";

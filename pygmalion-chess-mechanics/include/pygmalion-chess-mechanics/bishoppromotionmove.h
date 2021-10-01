@@ -1,11 +1,11 @@
 namespace pygmalion::chess
 {
 	class bishoppromotionmove :
-		public promotionmove
+		public promotionmove<0x1>
 	{
 	public:
 		constexpr bishoppromotionmove() noexcept :
-			promotionmove(bishop)
+			promotionmove<0x1>()
 		{
 
 		}

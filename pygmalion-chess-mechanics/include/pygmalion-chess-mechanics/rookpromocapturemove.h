@@ -1,11 +1,11 @@
 namespace pygmalion::chess
 {
 	class rookpromocapturemove :
-		public promocapturemove
+		public promocapturemove<0x2>
 	{
 	public:
 		constexpr rookpromocapturemove() noexcept :
-			promocapturemove(rook)
+			promocapturemove<0x2>()
 		{
 
 		}

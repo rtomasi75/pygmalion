@@ -20,22 +20,22 @@ namespace pygmalion
 	{
 	private:
 		template<size_t size, typename T, size_t... indexes>
-		constexpr static auto make_impl(T&& value, std::index_sequence<indexes...>) noexcept
+		constexpr static auto make_impl(T&& value, std::index_sequence<indexes...>&&) noexcept
 		{
 			return std::array<std::decay_t<T>, size>{ (static_cast<void>(indexes), value)..., std::forward<T>(value) };
 		}
 		template<size_t size, typename T, size_t... indexes>
-		constexpr static auto make_impl(std::array<std::decay_t<T>, size>&& values, T&& value, std::index_sequence<indexes...>) noexcept
+		constexpr static auto make_impl(std::array<std::decay_t<T>, size>&& values, T&& value, std::index_sequence<indexes...>&&) noexcept
 		{
 			return std::array<std::decay_t<T>, size>{ (static_cast<void>(indexes), values[indexes])..., std::forward<T>(value) };
 		}
 		template<size_t SIZE, typename T, typename LAMBDA, size_t... INDEX>
-		constexpr static auto generate(const LAMBDA& lambda, std::index_sequence<INDEX...>) noexcept
+		constexpr static auto generate(const LAMBDA& lambda, std::index_sequence<INDEX...>&&) noexcept
 		{
 			return std::array<std::decay_t<T>, SIZE>{(lambda(INDEX))...};
 		}
 		template<size_t SIZE, typename C, typename T, typename LAMBDA, size_t... INDEX>
-		constexpr static auto transform(const std::array<T, SIZE>& values, const LAMBDA& lambda, std::index_sequence<INDEX...>) noexcept
+		constexpr static auto transform(const std::array<T, SIZE>& values, const LAMBDA& lambda, std::index_sequence<INDEX...>&&) noexcept
 		{
 			return std::array<std::decay_t<C>, SIZE>{(lambda(values[INDEX], INDEX))...};
 		}

@@ -71,7 +71,7 @@ namespace pygmalion::mechanics
 				return move.name();
 		}
 	public:
-		std::string name_Implementation() const noexcept
+		static std::string name_Implementation() noexcept
 		{
 			std::stringstream sstr;
 			sstr << sizeof(typename conjunctivemove::movedataType) << ":" << conjunctivemove::countBits << "@[";

@@ -51,20 +51,22 @@ namespace pygmalion::chess
 		};
 	}
 
+	template<size_t PIECE>
 	class promocapturemove :
-		public pygmalion::mechanics::move<board, 2 * board::squareType::countUnsignedBits, detail::promocaptureMovedata, promocapturemove>,
+		public pygmalion::mechanics::move<board, 2 * board::squareType::countUnsignedBits, detail::promocaptureMovedata, promocapturemove<PIECE>>,
 		public board::descriptorState
 	{
 	public:
 		using boardType = board;
 		using descriptorState = typename boardType::descriptorState;
 #include <pygmalion-state/include_state.h>
+		using movebitsType = typename pygmalion::mechanics::move<board, 2 * board::squareType::countUnsignedBits, detail::promocaptureMovedata, promocapturemove<PIECE>>::movebitsType;
 		constexpr static const size_t countFromBits{ squareType::countUnsignedBits };
 		constexpr static const size_t countToBits{ squareType::countUnsignedBits };
 	private:
-		pieceType m_PromotedPiece;
+		constexpr static const inline pieceType m_PromotedPiece{ static_cast<pieceType>(PIECE) };
 	public:
-		std::string name_Implementation() const noexcept
+		static std::string name_Implementation() noexcept
 		{
 			std::stringstream sstr;
 			sstr << "" << sizeof(typename promocapturemove::movedataType) << ":" << promocapturemove::countBits << "@promocapture" << boardType::pieceToString(m_PromotedPiece, whitePlayer);
@@ -90,8 +92,7 @@ namespace pygmalion::chess
 			movebits.template storeBits<0, countFromBits>(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(sq));
 		}
 	protected:
-		constexpr promocapturemove(const pieceType promotedPiece) noexcept :
-			m_PromotedPiece{ promotedPiece }
+		constexpr promocapturemove() noexcept 
 		{
 
 		}

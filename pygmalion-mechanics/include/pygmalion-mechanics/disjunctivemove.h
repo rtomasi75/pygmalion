@@ -1,5 +1,7 @@
 namespace pygmalion::mechanics
 {
+//#define PYGMALION_MOVESTATISTICS
+
 	namespace detail
 	{
 		template<typename MOVE, typename... MOVES2>
@@ -76,13 +78,15 @@ namespace pygmalion::mechanics
 
 	}
 
-	template<typename BOARD, typename... MOVES>
+	template<typename BOARD, typename INSTANCE, typename... MOVES>
 	class disjunctivemove :
-		public move<BOARD, detail::computeDisjunctiveBitsRequired<MOVES...>() + pygmalion::detail::requiredUnsignedBits(sizeof...(MOVES)), detail::disjunctiveMovedata<BOARD, MOVES...>, disjunctivemove<BOARD, MOVES...>>
+		public move<BOARD, detail::computeDisjunctiveBitsRequired<MOVES...>() + pygmalion::detail::requiredUnsignedBits(sizeof...(MOVES)), detail::disjunctiveMovedata<BOARD, MOVES...>, disjunctivemove<BOARD, INSTANCE, MOVES...>>
 	{
 	public:
+		using instanceType = INSTANCE;
 		constexpr static const size_t countDataBits{ detail::computeDisjunctiveBitsRequired<MOVES...>() };
 		constexpr static const size_t countMuxBits{ pygmalion::detail::requiredUnsignedBits(sizeof...(MOVES)) };
+		constexpr static const size_t countChannels{ sizeof...(MOVES) };
 		using muxbitsType = uint_t<countMuxBits, false>;
 		using boardType = BOARD;
 		using descriptorState = typename boardType::descriptorState;
@@ -111,6 +115,9 @@ namespace pygmalion::mechanics
 		}
 	private:
 		std::tuple<MOVES...> m_Moves;
+#if defined(PYGMALION_MOVESTATISTICS)
+		static inline std::array<std::uintmax_t, sizeof...(MOVES)> m_Statistics{ arrayhelper::make<sizeof...(MOVES),std::uintmax_t>(0) };
+#endif
 		template<typename MOVE, typename... MOVES2>
 		static std::string namePack() noexcept
 		{
@@ -120,8 +127,18 @@ namespace pygmalion::mechanics
 			else
 				return move.name();
 		}
+		template<size_t INDEX, typename MOVE, typename... MOVES2>
+		static std::string channelPack(const size_t index) noexcept
+		{
+			if (INDEX == index)
+				return MOVE::name();
+			if constexpr (sizeof...(MOVES2) > 0)
+				return disjunctivemove::channelPack<INDEX + 1, MOVES2...>(index);
+			else
+				return "";
+		}
 	public:
-		std::string name_Implementation() const noexcept
+		static std::string name_Implementation() noexcept
 		{
 			constexpr size_t N{ pygmalion::detail::requiredUnsignedBits(sizeof...(MOVES)) };
 			std::stringstream sstr;
@@ -131,6 +148,12 @@ namespace pygmalion::mechanics
 				sstr << disjunctivemove::namePack<MOVES...>();
 			sstr << "]]";
 			return sstr.str();
+		}
+		static std::string channel(const size_t channel) noexcept
+		{
+			if constexpr (sizeof...(MOVES) > 0)
+				return disjunctivemove::channelPack<0, MOVES...>(channel);
+			return "";
 		}
 		template<size_t INDEX>
 		constexpr const auto& component() const noexcept
@@ -143,6 +166,9 @@ namespace pygmalion::mechanics
 		{
 			if (INDEX == selector)
 			{
+#if defined(PYGMALION_MOVESTATISTICS)
+				m_Statistics[INDEX]++;
+#endif
 				typename MOVE::movebitsType bits{ moveBits.template extractBits<0,MOVE::countBits>() };
 				typename MOVE::movedataType& data{ *reinterpret_cast<typename MOVE::movedataType*>(combinedData.dataPtr()) };
 				data = std::get<INDEX>(this->m_Moves).doMove(position, bits);
@@ -191,11 +217,12 @@ namespace pygmalion::mechanics
 		template<size_t INDEX, typename MOVE, typename... MOVES2>
 		bool parsePack(const boardType& position, std::string& text, typename disjunctivemove::movebitsType& moveBits) const noexcept
 		{
-			typename MOVE::movebitsType bits;
-			if (std::get<INDEX>(this->m_Moves).parse(position, text, bits))
+			using currentMoveType = typename std::decay<decltype(std::get<getParseIndex(INDEX)>(this->m_Moves))>::type;
+			typename currentMoveType::movebitsType bits;
+			if (std::get<getParseIndex(INDEX)>(this->m_Moves).parse(position, text, bits))
 			{
 				constexpr const muxbitsType mux{ static_cast<muxbitsType>(static_cast<typename std::make_unsigned<size_t>::type>(INDEX)) };
-				moveBits.template storeBits<0, MOVE::movebitsType::countBits>(bits);
+				moveBits.template storeBits<0, currentMoveType::movebitsType::countBits>(bits);
 				moveBits.template storeBits<countDataBits, countMuxBits>(mux);
 				return true;
 			}
@@ -244,6 +271,12 @@ namespace pygmalion::mechanics
 		}
 	private:
 	public:
+#if defined(PYGMALION_MOVESTATISTICS)
+		static std::uintmax_t statistics(const size_t index) noexcept
+		{
+			return m_Statistics[index];
+		}
+#endif
 		template<size_t INDEX>
 		constexpr typename disjunctivemove::movebitsType create(const typename detail::disjunctivemoveSelector<INDEX, 0, MOVES...>::moveType::movebitsType& bits) const noexcept
 		{
@@ -356,6 +389,10 @@ namespace pygmalion::mechanics
 			}
 		}
 	public:
+		constexpr static size_t getParseIndex(const size_t index) noexcept
+		{
+			return instanceType::getParseIndex_Implementation(index);
+		}
 		constexpr squaresType otherOccupancyDelta_Implementation(const boardType& position, const typename disjunctivemove::movebitsType& moveBits) const noexcept
 		{
 			const muxbitsType mux{ disjunctivemove::muxbits(moveBits) };

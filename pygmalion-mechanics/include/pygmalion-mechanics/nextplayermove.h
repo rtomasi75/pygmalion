@@ -42,7 +42,7 @@ namespace pygmalion::mechanics
 		constexpr nextplayermove(const nextplayermove&) noexcept = default;
 		constexpr nextplayermove& operator=(nextplayermove&&) noexcept = default;
 		constexpr nextplayermove& operator=(const nextplayermove&) noexcept = default;
-		std::string name_Implementation() const noexcept
+		static std::string name_Implementation() noexcept
 		{
 			std::stringstream sstr;
 			sstr << "" << sizeof(typename nextplayermove::movedataType) << ":" << nextplayermove::countBits << "@nextplayer";
