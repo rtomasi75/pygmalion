@@ -18,3 +18,4 @@ using gamestateType = typename descriptorState::gamestateType;
 using cumulationType = typename descriptorState::cumulationType;
 using hashType = typename descriptorState::hashType;
 using signatureType = typename descriptorState::signatureType;
+

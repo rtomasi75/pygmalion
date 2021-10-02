@@ -16,7 +16,7 @@ namespace pygmalion::mechanics
 			{
 				return m_MovingPlayer;
 			}
-			constexpr nextplayermoveMovedata(const playerType& p) noexcept :
+			constexpr nextplayermoveMovedata(const playerType p) noexcept :
 				m_MovingPlayer{ p }
 			{}
 			constexpr nextplayermoveMovedata() noexcept = default;
@@ -48,7 +48,7 @@ namespace pygmalion::mechanics
 			sstr << "" << sizeof(typename nextplayermove::movedataType) << ":" << nextplayermove::countBits << "@nextplayer";
 			return sstr.str();
 		}
-		constexpr typename nextplayermove::movedataType doMove_Implementation(boardType& position, const typename nextplayermove::movebitsType& moveBits) const noexcept
+		constexpr typename nextplayermove::movedataType doMove_Implementation(boardType& position, const typename nextplayermove::movebitsType moveBits) const noexcept
 		{
 			return typename nextplayermove::movedataType(position.movingPlayer()++);
 		}
@@ -74,7 +74,7 @@ namespace pygmalion::mechanics
 			}
 			return false;
 		}
-		std::string toString_Implementation(const boardType& position, const typename nextplayermove::movebitsType& moveBits) const noexcept
+		std::string toString_Implementation(const boardType& position, const typename nextplayermove::movebitsType moveBits) const noexcept
 		{
 			return "+";
 		}

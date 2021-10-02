@@ -30,15 +30,15 @@ namespace pygmalion
 			return k;
 		}
 	protected:
-		constexpr static const hashType& playerHash(const playerType& player) noexcept
+		constexpr static const hashType& playerHash(const playerType player) noexcept
 		{
 			return playerType::hash(player);
 		}
-		constexpr static const hashType& flagHash(const flagType& flag) noexcept
+		constexpr static const hashType& flagHash(const flagType flag) noexcept
 		{
 			return flagType::hash(flag);
 		}
-		constexpr static hashType pieceHash(const pieceType& piece, const squareType& square, const playerType& player) noexcept
+		constexpr static hashType pieceHash(const pieceType piece, const squareType square, const playerType player) noexcept
 		{
 			//	return pieceType::hash(piece) ^ squareType::hash(square) ^ playerType::hash(player);
 			return m_HashTable[static_cast<size_t>(player) * countSquares * countPieces + static_cast<size_t>(piece) * countSquares + static_cast<size_t>(square)];
@@ -48,17 +48,17 @@ namespace pygmalion
 			m_Hash = playerHash(m_MovingPlayer);
 			static_cast<boardType*>(this)->onClear_Implementation();
 		}
-		void onAddedPiece(const pieceType& piece, const squareType& square, const playerType& player) noexcept
+		void onAddedPiece(const pieceType piece, const squareType square, const playerType player) noexcept
 		{
 			m_Hash ^= pieceHash(piece, square, player);
 			static_cast<boardType*>(this)->onAddedPiece_Implementation(piece, square, player);
 		}
-		void onSetMovingPlayer(const playerType& player) noexcept
+		void onSetMovingPlayer(const playerType player) noexcept
 		{
 			m_Hash ^= playerHash(m_MovingPlayer);
 			static_cast<boardType*>(this)->onSetMovingPlayer_Implementation(player);
 		}
-		void onRemovedPiece(const pieceType& piece, const squareType& square, const playerType& player) noexcept
+		void onRemovedPiece(const pieceType piece, const squareType square, const playerType player) noexcept
 		{
 			m_Hash ^= pieceHash(piece, square, player);
 			static_cast<boardType*>(this)->onRemovedPiece_Implementation(piece, square, player);
@@ -112,7 +112,7 @@ namespace pygmalion
 				return false;
 			return true;
 		}
-		constexpr const hashType& hash() const noexcept
+		constexpr const hashType hash() const noexcept
 		{
 			return m_Hash;
 		}
@@ -138,7 +138,7 @@ namespace pygmalion
 		{
 			return boardType::cumulationToString_Implementation(cumulation);
 		}
-		static std::string fileToString(const fileType& file) noexcept
+		static std::string fileToString(const fileType file) noexcept
 		{
 			return boardType::fileToString_Implementation(file);
 		}
@@ -146,7 +146,7 @@ namespace pygmalion
 		{
 			return boardType::parseFile_Implementation(text, file);
 		}
-		static std::string flagToString(const flagType& flag) noexcept
+		static std::string flagToString(const flagType flag) noexcept
 		{
 			return boardType::flagToString_Implementation(flag);
 		}
@@ -154,7 +154,7 @@ namespace pygmalion
 		{
 			return boardType::parseFlag_Implementation(text, flag);
 		}
-		static std::string rankToString(const rankType& rank) noexcept
+		static std::string rankToString(const rankType rank) noexcept
 		{
 			return boardType::rankToString_Implementation(rank);
 		}
@@ -162,7 +162,7 @@ namespace pygmalion
 		{
 			return boardType::parseRank_Implementation(text, rank);
 		}
-		static std::string playerToString(const playerType& player) noexcept
+		static std::string playerToString(const playerType player) noexcept
 		{
 			return boardType::playerToString_Implementation(player);
 		}
@@ -170,7 +170,7 @@ namespace pygmalion
 		{
 			return boardType::parsePlayer_Implementation(text, player);
 		}
-		static std::string pieceToString(const pieceType& piece, const playerType& player) noexcept
+		static std::string pieceToString(const pieceType piece, const playerType player) noexcept
 		{
 			return boardType::pieceToString_Implementation(piece, player);
 		}
@@ -178,7 +178,7 @@ namespace pygmalion
 		{
 			return boardType::parsePiece_Implementation(text, piece, player);
 		}
-		static std::string squareToString(const squareType& square) noexcept
+		static std::string squareToString(const squareType square) noexcept
 		{
 			return fileToString(square.file()) + rankToString(square.rank());
 		}
@@ -198,7 +198,7 @@ namespace pygmalion
 			}
 			return false;
 		}
-		constexpr void setFlag(const flagType& flag) noexcept
+		constexpr void setFlag(const flagType flag) noexcept
 		{
 			if (!m_Flags[flag])
 			{
@@ -206,7 +206,7 @@ namespace pygmalion
 				onSetFlag(flag);
 			}
 		}
-		constexpr void toggleFlag(const flagType& flag) noexcept
+		constexpr void toggleFlag(const flagType flag) noexcept
 		{
 			m_Flags.toggle(flag);
 			if (m_Flags[flag])
@@ -214,7 +214,7 @@ namespace pygmalion
 			else
 				onClearedFlag(flag);
 		}
-		constexpr void clearFlag(const flagType& flag) noexcept
+		constexpr void clearFlag(const flagType flag) noexcept
 		{
 			if (m_Flags[flag])
 			{
@@ -222,11 +222,11 @@ namespace pygmalion
 				onClearedFlag(flag);
 			}
 		}
-		constexpr bool checkFlag(const flagType& flag) const noexcept
+		constexpr bool checkFlag(const flagType flag) const noexcept
 		{
 			return m_Flags[flag];
 		}
-		constexpr void setFlags(const flagsType& flags) noexcept
+		constexpr void setFlags(const flagsType flags) noexcept
 		{
 			for (const auto f : flags & ~m_Flags)
 			{
@@ -234,7 +234,7 @@ namespace pygmalion
 				onSetFlag(f);
 			}
 		}
-		constexpr void clearFlags(const flagsType& flags) noexcept
+		constexpr void clearFlags(const flagsType flags) noexcept
 		{
 			for (const auto f : flags & m_Flags)
 			{
@@ -282,7 +282,7 @@ namespace pygmalion
 		{
 			return m_Flags;
 		}
-		constexpr void setMovingPlayer(const playerType& movingPlayer) noexcept
+		constexpr void setMovingPlayer(const playerType movingPlayer) noexcept
 		{
 			assert(movingPlayer.isValid());
 			m_Hash ^= playerHash(m_MovingPlayer);
@@ -297,22 +297,22 @@ namespace pygmalion
 		{
 			return m_MovingPlayer;
 		}
-		constexpr const squaresType& pieceOccupancy(const pieceType& pc) const noexcept
+		constexpr const squaresType& pieceOccupancy(const pieceType pc) const noexcept
 		{
 			assert(pc.isValid());
 			return m_PieceOccupancy[pc];
 		}
-		constexpr squaresType& pieceOccupancy(const pieceType& pc) noexcept
+		constexpr squaresType& pieceOccupancy(const pieceType pc) noexcept
 		{
 			assert(pc.isValid());
 			return m_PieceOccupancy[pc];
 		}
-		constexpr const squaresType& playerOccupancy(const playerType& p) const noexcept
+		constexpr const squaresType& playerOccupancy(const playerType p) const noexcept
 		{
 			assert(p.isValid());
 			return m_PlayerOccupancy[p];
 		}
-		constexpr squaresType& playerOccupancy(const playerType& p) noexcept
+		constexpr squaresType& playerOccupancy(const playerType p) noexcept
 		{
 			assert(p.isValid());
 			return m_PlayerOccupancy[p];
@@ -332,18 +332,18 @@ namespace pygmalion
 			}
 			return value;
 		}
-		constexpr bool isOccupied(const squareType& sq) const noexcept
+		constexpr bool isOccupied(const squareType sq) const noexcept
 		{
 			assert(sq.isValid());
 			return totalOccupancy()[sq];
 		}
-		constexpr bool isOccupied(const squareType& sq, const playerType& p) const noexcept
+		constexpr bool isOccupied(const squareType sq, const playerType p) const noexcept
 		{
 			assert(sq.isValid());
 			assert(p.isValid());
 			return playerOccupancy(p)[sq];
 		}
-		constexpr void addPiece(const pieceType& piece, const squareType& square, const playerType& player) noexcept
+		constexpr void addPiece(const pieceType piece, const squareType square, const playerType player) noexcept
 		{
 			assert(player.isValid());
 			assert(piece.isValid());
@@ -357,7 +357,7 @@ namespace pygmalion
 			m_Signature.addPiece(piece, player);
 			onAddedPiece(piece, square, player);
 		}
-		constexpr void removePiece(const pieceType& piece, const squareType& square, const playerType& player) noexcept
+		constexpr void removePiece(const pieceType piece, const squareType square, const playerType player) noexcept
 		{
 			assert(player.isValid());
 			assert(piece.isValid());
@@ -371,7 +371,7 @@ namespace pygmalion
 			m_Signature.removePiece(piece, player);
 			onRemovedPiece(piece, square, player);
 		}
-		constexpr pieceType getPiece(const squareType& sq) const noexcept
+		constexpr pieceType getPiece(const squareType sq) const noexcept
 		{
 			assert(sq.isValid());
 			assert(totalOccupancy()[sq]);
@@ -383,7 +383,7 @@ namespace pygmalion
 			assert(false);
 			return pieceType::invalid;
 		}
-		constexpr playerType getPlayer(const squareType& sq) const noexcept
+		constexpr playerType getPlayer(const squareType sq) const noexcept
 		{
 			assert(sq.isValid());
 			assert(totalOccupancy()[sq]);

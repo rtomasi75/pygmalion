@@ -33,6 +33,7 @@ using timeType = typename chronographType::time_point;
 #include "pygmalion-intrinsics/profiler.h"
 #include "pygmalion-intrinsics/cpu.h"
 #include "pygmalion-intrinsics/compiler.h"
+#include "pygmalion-intrinsics/argtraits.h"
 #include "pygmalion-intrinsics/base.h"
 #include "pygmalion-intrinsics/popcnt.h"
 #include "pygmalion-intrinsics/memory.h"

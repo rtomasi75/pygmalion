@@ -809,7 +809,7 @@ namespace pygmalion::chess
 				return scoreType::zero();
 			}
 		}
-		scoreType moveFutilityValue_Implementation(const movebitsType& move) const noexcept
+		scoreType moveFutilityValue_Implementation(const movebitsType move) const noexcept
 		{
 			if (motorType::move().isCapture(move))
 			{

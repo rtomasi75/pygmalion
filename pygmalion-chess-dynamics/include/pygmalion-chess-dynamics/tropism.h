@@ -16,12 +16,12 @@ namespace pygmalion::chess
 
 		}
 		~tropism() noexcept = default;
-		const squaresType& distanceSquares(const pieceType& pc, const unsigned int distance) const noexcept
+		const squaresType& distanceSquares(const pieceType pc, const unsigned int distance) const noexcept
 		{
 			assert(distance <= maxDistance);
 			return m_DistanceSquares[pc][distance];
 		}
-		void compute(const squareType& seed, const playerType& pl, const squaresType& playerPawns, const squaresType& otherPawns, const squareType& playerKing, const squareType& otherKing) noexcept
+		void compute(const squareType seed, const playerType pl, const squaresType playerPawns, const squaresType& otherPawns, const squareType playerKing, const squareType otherKing) noexcept
 		{
 			squaresType attacked{ generatorType::movegenKing.attacks(otherKing,squaresType::all()) };
 			if (pl == descriptorMechanics::whitePlayer)
@@ -45,7 +45,7 @@ namespace pygmalion::chess
 			generatorType::template attackTropismQueen<maxDistance>(seed, pl, allowed, unoccupied, m_DistanceSquares[descriptorMechanics::queen]);
 			generatorType::template attackTropismPawn<maxDistance>(seed, pl, allowed, unoccupied, otherPawns, m_DistanceSquares[descriptorMechanics::knight], m_DistanceSquares[descriptorMechanics::bishop], m_DistanceSquares[descriptorMechanics::rook], m_DistanceSquares[descriptorMechanics::queen], m_DistanceSquares[descriptorMechanics::pawn]);
 		}
-		void compute(const squaresType& seeds, const playerType& pl, const squaresType& playerPawns, const squaresType& otherPawns, const squareType& playerKing, const squareType& otherKing) noexcept
+		void compute(const squaresType& seeds, const playerType pl, const squaresType& playerPawns, const squaresType& otherPawns, const squareType playerKing, const squareType otherKing) noexcept
 		{
 			squaresType attacked{ generatorType::movegenKing.attacks(otherKing,squaresType::all()) };
 			if (pl == descriptorMechanics::whitePlayer)
@@ -69,7 +69,7 @@ namespace pygmalion::chess
 			generatorType::template attackTropismQueen<maxDistance>(seeds, pl, allowed, unoccupied, m_DistanceSquares[descriptorMechanics::queen]);
 			generatorType::template attackTropismPawn<maxDistance>(seeds, pl, allowed, unoccupied, otherPawns, m_DistanceSquares[descriptorMechanics::knight], m_DistanceSquares[descriptorMechanics::bishop], m_DistanceSquares[descriptorMechanics::rook], m_DistanceSquares[descriptorMechanics::queen], m_DistanceSquares[descriptorMechanics::pawn]);
 		}
-		void dumpDistances(const pieceType& pc, std::ostream& str) const noexcept
+		void dumpDistances(const pieceType pc, std::ostream& str) const noexcept
 		{
 			for (const auto r : rankType::range)
 			{

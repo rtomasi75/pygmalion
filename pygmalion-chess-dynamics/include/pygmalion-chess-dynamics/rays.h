@@ -98,7 +98,7 @@ namespace pygmalion::chess
 				}
 			}
 		}
-		constexpr const squaresType& getRay(const int ray, const squareType& square) const noexcept
+		constexpr const squaresType& getRay(const int ray, const squareType square) const noexcept
 		{
 			return m_Ray[ray][square];
 		}

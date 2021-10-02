@@ -60,7 +60,7 @@ namespace pygmalion
 			return m_MoveHistory[index];
 		}
 		template<typename motorType>
-		void makeMove(boardType& position, const movebitsType& movebits) noexcept
+		void makeMove(boardType& position, const movebitsType movebits) noexcept
 		{
 			m_Boards.push_back(position);
 			m_Bloomfilter.increment(position.hash());

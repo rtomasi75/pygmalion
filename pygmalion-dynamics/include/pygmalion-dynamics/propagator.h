@@ -315,11 +315,11 @@ namespace pygmalion::dynamics
 				propagator::computeInverseAttacks<RAYS...>(seeds, allowed, attacks);
 			return attacks;
 		}
-		constexpr static size_t possibilities(const squareType& seed) noexcept
+		constexpr static size_t possibilities(const squareType seed) noexcept
 		{
 			return propagator::possibilities(squaresType(seed));
 		}
-		constexpr static size_t inversePossibilities(const squareType& seed) noexcept
+		constexpr static size_t inversePossibilities(const squareType seed) noexcept
 		{
 			return propagator::inversePossibilities(squaresType(seed));
 		}
@@ -337,7 +337,7 @@ namespace pygmalion::dynamics
 				maxCount = std::max(maxCount, propagator::inversePossibilities(sq));
 			return maxCount;
 		}
-		constexpr static size_t countAttackSquares(const squareType& seed) noexcept
+		constexpr static size_t countAttackSquares(const squareType seed) noexcept
 		{
 			const squaresType attackSquares{ attacks(squaresType(seed),squaresType::all()) };
 			size_t n{ 0 };
@@ -348,7 +348,7 @@ namespace pygmalion::dynamics
 			}
 			return n;
 		}
-		constexpr static size_t countInverseAttackSquares(const squareType& seed) noexcept
+		constexpr static size_t countInverseAttackSquares(const squareType seed) noexcept
 		{
 			const squaresType attackSquares{ inverseAttacks(squaresType(seed),squaresType::all()) };
 			size_t n{ 0 };
@@ -385,11 +385,11 @@ namespace pygmalion::dynamics
 		static inline std::array<slidermagic<descriptorDynamics, propagator>, countSquares> m_Magic{ arrayhelper::generate<countSquares, slidermagic<descriptorDynamics, propagator>>([](const size_t index)->slidermagic<descriptorDynamics, propagator> { return slidermagic<descriptorDynamics, propagator>(slidermagicinfo<descriptorDynamics>(static_cast<squareType>(index)),propagator::magicFactor(index),propagator::relevant(squaresType(static_cast<squareType>(static_cast<typename squareType::baseType>(index)))).count()); }) };
 		static inline std::array<inverseSlidermagic<descriptorDynamics, propagator>, countSquares> m_InverseMagic{ arrayhelper::generate<countSquares, inverseSlidermagic<descriptorDynamics, propagator>>([](const size_t index)->inverseSlidermagic<descriptorDynamics, propagator> { return inverseSlidermagic<descriptorDynamics, propagator>(inverseSlidermagicinfo<descriptorDynamics>(static_cast<squareType>(index)),propagator::inverseMagicFactor(index),propagator::inverseRelevant(squaresType(static_cast<squareType>(static_cast<typename squareType::baseType>(index)))).count()); }) };
 	public:
-		constexpr static slidermagic<descriptorDynamics, propagator>& magic(const squareType& sq) noexcept
+		constexpr static slidermagic<descriptorDynamics, propagator>& magic(const squareType sq) noexcept
 		{
 			return m_Magic[sq];
 		}
-		constexpr static inverseSlidermagic<descriptorDynamics, propagator>& inverseMagic(const squareType& sq) noexcept
+		constexpr static inverseSlidermagic<descriptorDynamics, propagator>& inverseMagic(const squareType sq) noexcept
 		{
 			return m_InverseMagic[sq];
 		}
@@ -399,19 +399,19 @@ namespace pygmalion::dynamics
 		constexpr propagator& operator=(const propagator&) noexcept = default;
 		constexpr propagator& operator=(propagator&&) noexcept = default;
 		~propagator() noexcept = default;
-		constexpr static squaresType targets(const squareType& seed, const squaresType& allowed) noexcept
+		constexpr static squaresType targets(const squareType seed, const squaresType& allowed) noexcept
 		{
 			return m_Magic[seed][~allowed] & allowed;
 		}
-		constexpr static squaresType attacks(const squareType& seed, const squaresType& allowed) noexcept
+		constexpr static squaresType attacks(const squareType seed, const squaresType& allowed) noexcept
 		{
 			return m_Magic[seed][~allowed];
 		}
-		constexpr static squaresType relevant(const squareType& seed) noexcept
+		constexpr static squaresType relevant(const squareType seed) noexcept
 		{
 			return propagator::relevant(squaresType(seed));
 		}
-		constexpr static squaresType inverseRelevant(const squareType& seed) noexcept
+		constexpr static squaresType inverseRelevant(const squareType seed) noexcept
 		{
 			return propagator::inverseRelevant(squaresType(seed));
 		}
@@ -566,19 +566,19 @@ namespace pygmalion::dynamics
 		constexpr static const inline std::array<squaresType, countSquares> m_PropagationTable{ arrayhelper::generate<countSquares,squaresType>([](const size_t index)->squaresType { return attacks(static_cast<squaresType>(static_cast<squareType>(static_cast<typename std::make_unsigned<size_t>::type>(index))),squaresType::all()); }) };
 		constexpr static const inline std::array<squaresType, countSquares> m_InversePropagationTable{ arrayhelper::generate<countSquares,squaresType>([](const size_t index)->squaresType { return inverseAttacks(static_cast<squaresType>(static_cast<squareType>(static_cast<typename std::make_unsigned<size_t>::type>(index))),squaresType::all()); }) };
 	public:
-		constexpr static squaresType targets(const squareType& seed, const squaresType& allowed) noexcept
+		constexpr static squaresType targets(const squareType seed, const squaresType& allowed) noexcept
 		{
 			return m_PropagationTable[seed] & allowed;
 		}
-		constexpr static squaresType inverseTargets(const squareType& seed, const squaresType& allowed) noexcept
+		constexpr static squaresType inverseTargets(const squareType seed, const squaresType& allowed) noexcept
 		{
 			return m_InversePropagationTable[seed] & allowed;
 		}
-		constexpr static squaresType attacks(const squareType& seed, const squaresType& allowed) noexcept
+		constexpr static squaresType attacks(const squareType seed, const squaresType& allowed) noexcept
 		{
 			return m_PropagationTable[seed];
 		}
-		constexpr static squaresType inverseAttacks(const squareType& seed, const squaresType& allowed) noexcept
+		constexpr static squaresType inverseAttacks(const squareType seed, const squaresType& allowed) noexcept
 		{
 			return m_InversePropagationTable[seed];
 		}

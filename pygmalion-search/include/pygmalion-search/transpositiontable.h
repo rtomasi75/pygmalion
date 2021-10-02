@@ -80,7 +80,7 @@ namespace pygmalion
 			{
 				return m_Flags;
 			}
-			constexpr void update(const stackType& stack, const std::uint8_t flags, const scoreType& value, const movebitsType& move)
+			constexpr void update(const stackType& stack, const std::uint8_t flags, const scoreType value, const movebitsType move)
 			{
 				if (flags & transpositiontable::flags_lower)
 				{
@@ -103,7 +103,7 @@ namespace pygmalion
 					m_Flags |= transpositiontable::flags_move;
 				}
 			}
-			void reset(const stackType& stack, const scoreType& value, const depthType& draft, const std::uint8_t flags, const movebitsType& move)
+			void reset(const stackType& stack, const scoreType value, const depthType draft, const std::uint8_t flags, const movebitsType move)
 			{
 				m_Hash = stack.position().hash();
 				m_MovingPlayer = stack.position().movingPlayer();
@@ -291,7 +291,7 @@ namespace pygmalion
 		{
 			return m_Entry.size() * sizeof(transposition);
 		}
-		constexpr void probeMoves(const stackType& stack, const depthType& depthRemaining, ttmovesType& moves) const noexcept
+		constexpr void probeMoves(const stackType& stack, const depthType depthRemaining, ttmovesType& moves) const noexcept
 		{
 			if constexpr (countBuckets > 0)
 			{
@@ -342,7 +342,7 @@ namespace pygmalion
 				sort<movebitsType, depthType>::sortValues(moves.ptr(), &score[0], moves.length());
 			}
 		}
-		constexpr std::uint8_t probe(const stackType& stack, const depthType& depth, scoreType& alpha, scoreType& beta, scoreType& score, movebitsType& move) const noexcept
+		constexpr std::uint8_t probe(const stackType& stack, const depthType depth, scoreType& alpha, scoreType& beta, scoreType& score, movebitsType& move) const noexcept
 		{
 			bool doNMP{ true };
 			m_Probes++;
@@ -472,7 +472,7 @@ namespace pygmalion
 			}
 			return doNMP ? flags_unused : flags_noNMP;
 		}
-		constexpr void store(const stackType& stack, const depthType& depth, const scoreType& score, const std::uint8_t flags, const movebitsType& move) noexcept
+		constexpr void store(const stackType& stack, const depthType depth, const scoreType score, const std::uint8_t flags, const movebitsType move) noexcept
 		{
 			const hashType i = { computeKey(stack.position().hash()) };
 			depthType best{ countSearchPlies + 1 };

@@ -16,11 +16,11 @@ namespace pygmalion::chess
 			{
 				return m_ReversiblePlies;
 			}
-			constexpr const uint_t<countFlags, false>& oldFlags() const noexcept
+			constexpr const uint_t<countFlags, false> oldFlags() const noexcept
 			{
 				return m_OldFlags;
 			}
-			constexpr kingsidecastleMovedata(const uint_t<countFlags, false>& oldFlags_, const std::uint16_t reversiblePlies_) noexcept :
+			constexpr kingsidecastleMovedata(const uint_t<countFlags, false> oldFlags_, const std::uint16_t reversiblePlies_) noexcept :
 				m_OldFlags{ oldFlags_ },
 				m_ReversiblePlies{ reversiblePlies_ }
 			{}
@@ -55,7 +55,7 @@ namespace pygmalion::chess
 		constexpr kingsidecastlemove(const kingsidecastlemove&) noexcept = default;
 		constexpr kingsidecastlemove& operator=(kingsidecastlemove&&) noexcept = default;
 		constexpr kingsidecastlemove& operator=(const kingsidecastlemove&) noexcept = default;
-		constexpr typename kingsidecastlemove::movedataType doMove_Implementation(boardType& position, const typename kingsidecastlemove::movebitsType& moveBits) const noexcept
+		constexpr typename kingsidecastlemove::movedataType doMove_Implementation(boardType& position, const typename kingsidecastlemove::movebitsType moveBits) const noexcept
 		{
 			const playerType p{ position.movingPlayer() };
 			const uint_t<countFlags, false> oldFlags{ position.extractFlagRange<0, 11>() };
@@ -181,7 +181,7 @@ namespace pygmalion::chess
 			}
 			return false;
 		}
-		std::string toString_Implementation(const boardType& position, const typename kingsidecastlemove::movebitsType& moveBits) const noexcept
+		std::string toString_Implementation(const boardType& position, const typename kingsidecastlemove::movebitsType moveBits) const noexcept
 		{
 			const playerType p{ position.movingPlayer() };
 			if (p == whitePlayer)
@@ -197,18 +197,18 @@ namespace pygmalion::chess
 				return boardType::squareToString(kingFrom) + boardType::squareToString(kingTo);
 			}
 		}
-		constexpr squaresType otherOccupancyDelta_Implementation(const boardType& position, const movebitsType& moveBits) const noexcept
+		constexpr squaresType otherOccupancyDelta_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
 		{
 			return squaresType::none();
 		}
-		constexpr squaresType ownOccupancyDelta_Implementation(const boardType& position, const movebitsType& moveBits) const noexcept
+		constexpr squaresType ownOccupancyDelta_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
 		{
 			if (position.movingPlayer() == whitePlayer)
 				return squaresType(squareE1) ^ squaresType(squareG1) ^ squaresType(squareH1) ^ squaresType(squareF1);
 			else
 				return squaresType(squareE8) ^ squaresType(squareG8) ^ squaresType(squareH8) ^ squaresType(squareF8);
 		}
-		constexpr squaresType pieceOccupancyDelta_Implementation(const boardType& position, const pieceType& piece, const movebitsType& moveBits) const noexcept
+		constexpr squaresType pieceOccupancyDelta_Implementation(const boardType& position, const pieceType piece, const movebitsType moveBits) const noexcept
 		{
 			switch (piece)
 			{
@@ -226,14 +226,14 @@ namespace pygmalion::chess
 					return squaresType(squareH8) ^ squaresType(squareF8);
 			}
 		}
-		constexpr squareType fromSquare_Implementation(const boardType& position, const movebitsType& moveBits) const noexcept
+		constexpr squareType fromSquare_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
 		{
 			if (position.movingPlayer() == whitePlayer)
 				return squareE1;
 			else
 				return squareE8;
 		}
-		constexpr squareType toSquare_Implementation(const boardType& position, const movebitsType& moveBits) const noexcept
+		constexpr squareType toSquare_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
 		{
 			if (position.movingPlayer() == whitePlayer)
 				return squareG1;

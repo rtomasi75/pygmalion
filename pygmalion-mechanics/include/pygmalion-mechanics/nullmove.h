@@ -40,7 +40,7 @@ namespace pygmalion::mechanics
 			sstr << "" << sizeof(typename nullmove::movedataType) << ":" << nullmove::countBits << "@null";
 			return sstr.str();
 		}
-		constexpr typename nullmove::movedataType doMove_Implementation(boardType& position, const typename nullmove::movebitsType& moveBits) const noexcept
+		constexpr typename nullmove::movedataType doMove_Implementation(boardType& position, const typename nullmove::movebitsType moveBits) const noexcept
 		{
 			return typename nullmove::movedataType();
 		}
@@ -65,7 +65,7 @@ namespace pygmalion::mechanics
 			}
 			return false;
 		}
-		std::string toString_Implementation(const boardType& position, const typename nullmove::movebitsType& moveBits) const noexcept
+		std::string toString_Implementation(const boardType& position, const typename nullmove::movebitsType moveBits) const noexcept
 		{
 			return "null";
 		}

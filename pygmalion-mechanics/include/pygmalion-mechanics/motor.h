@@ -16,7 +16,7 @@ namespace pygmalion
 		{
 			return m_Move;
 		}
-		static movedataType makeMove(boardType& position, const movebitsType& movebits) noexcept
+		static movedataType makeMove(boardType& position, const movebitsType movebits) noexcept
 		{
 			movedataType data{ m_Move.doMove(position, movebits) };
 			return data;
@@ -32,12 +32,12 @@ namespace pygmalion
 			return m_Move.parse(position, text, movebits);
 		}
 
-		static std::string moveToString(const boardType& position, const movebitsType& movebits) noexcept
+		static std::string moveToString(const boardType& position, const movebitsType movebits) noexcept
 		{
 			return m_Move.toString(position, movebits);
 		}
 
-		static bool isTacticalMove(const movebitsType& movebits) noexcept
+		static bool isTacticalMove(const movebitsType movebits) noexcept
 		{
 			return motorType::isTacticalMove_Implementation(movebits);
 		}

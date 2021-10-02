@@ -29,35 +29,35 @@ namespace pygmalion::dynamics
 		constexpr movegen(movegen&&) noexcept = default;
 		constexpr movegen& operator=(const movegen&) noexcept = default;
 		constexpr movegen& operator=(movegen&&) noexcept = default;
-		constexpr squaresType targets(const squareType& seed, const squaresType& allowed) const noexcept
+		constexpr squaresType targets(const squareType seed, const squaresType& allowed) const noexcept
 		{
 			return (propagatorType::targets(seed, allowed) & m_AllowedToSquares) * m_AllowedFromSquares[seed];
 		}
-		constexpr squaresType inverseTargets(const squareType& seed, const squaresType& allowed) const noexcept
+		constexpr squaresType inverseTargets(const squareType seed, const squaresType& allowed) const noexcept
 		{
 			return (propagatorType::inverseTargets(seed, allowed) & m_AllowedFromSquares) * m_AllowedToSquares[seed];
 		}
-		constexpr squaresType untabled_targets(const squareType& seed, const squaresType& allowed) const noexcept
+		constexpr squaresType untabled_targets(const squareType seed, const squaresType& allowed) const noexcept
 		{
 			return (propagatorType::targets(squaresType(seed), allowed) & m_AllowedToSquares) * m_AllowedFromSquares[seed];
 		}
-		constexpr squaresType untabled_inverseTargets(const squareType& seed, const squaresType& allowed) const noexcept
+		constexpr squaresType untabled_inverseTargets(const squareType seed, const squaresType& allowed) const noexcept
 		{
 			return (propagatorType::inverseTargets(squaresType(seed), allowed) & m_AllowedFromSquares) * m_AllowedToSquares[seed];
 		}
-		constexpr squaresType attacks(const squareType& seed, const squaresType& allowed) const noexcept
+		constexpr squaresType attacks(const squareType seed, const squaresType& allowed) const noexcept
 		{
 			return (propagatorType::attacks(seed, allowed) & m_AllowedToSquares) * m_AllowedFromSquares[seed];
 		}
-		constexpr squaresType inverseAttacks(const squareType& seed, const squaresType& allowed) const noexcept
+		constexpr squaresType inverseAttacks(const squareType seed, const squaresType& allowed) const noexcept
 		{
 			return (propagatorType::inverseAttacks(seed, allowed) & m_AllowedFromSquares) * m_AllowedToSquares[seed];
 		}
-		constexpr squaresType untabled_attacks(const squareType& seed, const squaresType& allowed) const noexcept
+		constexpr squaresType untabled_attacks(const squareType seed, const squaresType& allowed) const noexcept
 		{
 			return (propagatorType::attacks(squaresType(seed), allowed) & m_AllowedToSquares) * m_AllowedFromSquares[seed];
 		}
-		constexpr squaresType untabled_inverseAttacks(const squareType& seed, const squaresType& allowed) const noexcept
+		constexpr squaresType untabled_inverseAttacks(const squareType seed, const squaresType& allowed) const noexcept
 		{
 			return (propagatorType::inverseAttacks(squaresType(seed), allowed) & m_AllowedFromSquares) * m_AllowedToSquares[seed];
 		}

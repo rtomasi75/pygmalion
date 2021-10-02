@@ -77,17 +77,17 @@ namespace pygmalion::chess
 			}
 			return 0;
 		}
-		constexpr static bool isNull(const movebitsType& movebits) noexcept
+		constexpr static bool isNull(const movebitsType movebits) noexcept
 		{
 			const muxbitsType mux{ combinedmoves::muxbits(movebits) };
 			return mux == muxNull;
 		}
-		constexpr static bool isPromotion(const movebitsType& movebits) noexcept
+		constexpr static bool isPromotion(const movebitsType movebits) noexcept
 		{
 			const muxbitsType mux{ combinedmoves::muxbits(movebits) };
 			return (mux == muxQueenPromo) || (mux == muxQueenPromoCapture) || (mux == muxKnightPromo) || (mux == muxKnightPromoCapture) || (mux == muxRookPromo) || (mux == muxRookPromoCapture) || (mux == muxBishopPromo) || (mux == muxBishopPromoCapture);
 		}
-		constexpr static pieceType promotedPiece(const movebitsType& movebits) noexcept
+		constexpr static pieceType promotedPiece(const movebitsType movebits) noexcept
 		{
 			const muxbitsType mux{ combinedmoves::muxbits(movebits) };
 			assert(isPromotion(movebits));
@@ -107,12 +107,12 @@ namespace pygmalion::chess
 				return knight;
 			}
 		}
-		constexpr static bool isCapture(const movebitsType& movebits) noexcept
+		constexpr static bool isCapture(const movebitsType movebits) noexcept
 		{
 			const muxbitsType mux{ combinedmoves::muxbits(movebits) };
 			return (mux == muxCapture) || (mux == muxQueenPromoCapture) || (mux == muxKnightPromoCapture) || (mux == muxRookPromoCapture) || (mux == muxBishopPromoCapture) || (mux == muxEnPassant);
 		}
-		constexpr squareType captureSquare(const boardType& position, const movebitsType& movebits) const noexcept
+		constexpr squareType captureSquare(const boardType& position, const movebitsType movebits) const noexcept
 		{
 			const muxbitsType mux{ combinedmoves::muxbits(movebits) };
 			if ((mux == muxCapture) || (mux == muxQueenPromoCapture) || (mux == muxKnightPromoCapture) || (mux == muxRookPromoCapture) || (mux == muxBishopPromoCapture))
@@ -125,27 +125,27 @@ namespace pygmalion::chess
 			}
 			return squareType::invalid;
 		}
-		constexpr static bool isEnPassant(const movebitsType& movebits) noexcept
+		constexpr static bool isEnPassant(const movebitsType movebits) noexcept
 		{
 			const muxbitsType mux{ combinedmoves::muxbits(movebits) };
 			return (mux == muxEnPassant);
 		}
-		constexpr static bool isDoublePush(const movebitsType& movebits) noexcept
+		constexpr static bool isDoublePush(const movebitsType movebits) noexcept
 		{
 			const muxbitsType mux{ combinedmoves::muxbits(movebits) };
 			return (mux == muxDoublePush);
 		}
-		constexpr static bool isKingsideCastle(const movebitsType& movebits) noexcept
+		constexpr static bool isKingsideCastle(const movebitsType movebits) noexcept
 		{
 			const muxbitsType mux{ combinedmoves::muxbits(movebits) };
 			return (mux == muxKingside);
 		}
-		constexpr static bool isQueensideCastle(const movebitsType& movebits) noexcept
+		constexpr static bool isQueensideCastle(const movebitsType movebits) noexcept
 		{
 			const muxbitsType mux{ combinedmoves::muxbits(movebits) };
 			return (mux == muxQueenside);
 		}
-		constexpr static bool isCastle(const movebitsType& movebits) noexcept
+		constexpr static bool isCastle(const movebitsType movebits) noexcept
 		{
 			const muxbitsType mux{ combinedmoves::muxbits(movebits) };
 			return (mux == muxQueenside) || (mux == muxKingside);

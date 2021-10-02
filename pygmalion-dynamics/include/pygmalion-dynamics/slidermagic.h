@@ -16,7 +16,7 @@ namespace pygmalion::dynamics
 			m_Square{ squareType::invalid }
 		{
 		}
-		constexpr slidermagicinfo(const squareType& square) noexcept :
+		constexpr slidermagicinfo(const squareType square) noexcept :
 			m_Square{ square }
 		{
 
