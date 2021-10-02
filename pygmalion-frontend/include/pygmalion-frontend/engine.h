@@ -2,7 +2,7 @@ namespace pygmalion::frontend
 {
 	template<typename FRONT>
 	class engine :
-		public pygmalion::search::engine<typename FRONT::nodeType>,
+		public pygmalion::search::engine<typename FRONT::gametreeType>,
 		public FRONT::descriptorFrontend
 	{
 	public:
@@ -119,7 +119,7 @@ namespace pygmalion::frontend
 		engine(const engine&) = delete;
 		engine(engine&&) = delete;
 		engine(std::istream& input, std::ostream& output) noexcept :
-			pygmalion::search::engine<typename FRONT::nodeType>(input, output),
+			pygmalion::search::engine<typename FRONT::gametreeType>(input, output),
 			m_Front{ frontType() },
 			m_MoveThreadIsRunning{ false },
 			m_Mutex{ std::mutex() },

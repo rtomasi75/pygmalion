@@ -1,12 +1,12 @@
 namespace pygmalion
 {
-	template<typename NODE>
+	template<typename GAMETREE>
 	class descriptor_frontend :
-		public NODE::descriptorSearch
+		public GAMETREE::descriptorSearch
 	{
 	public:
-		using nodeType = NODE;
-		using descriptorSearch = typename NODE::descriptorSearch;
+		using gametreeType = GAMETREE;
+		using descriptorSearch = typename gametreeType::descriptorSearch;
 	};
 
 }

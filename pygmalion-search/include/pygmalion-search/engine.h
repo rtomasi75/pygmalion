@@ -1,15 +1,16 @@
 namespace pygmalion::search
 {
-	template<typename NODE>
+	template<typename GAMETREE>
 	class engine :
-		public pygmalion::evaluation::engine<typename NODE::evaluatorType>,
-		public NODE::descriptorSearch
+		public pygmalion::evaluation::engine<typename GAMETREE::evaluatorType>,
+		public GAMETREE::descriptorSearch
 	{
 	public:
-		using nodeType = NODE;
-		using descriptorSearch = typename NODE::descriptorSearch;
+		using gametreeType = GAMETREE;
+		using nodeType = typename gametreeType::nodeType;
+		using descriptorSearch = typename gametreeType::descriptorSearch;
 #include "include_search.h"
-		using stackType = typename NODE::stackType;
+		using stackType = typename generatorType::stackType;
 	private:
 		heuristicsType m_Heuristics;
 		using contextType = typename generatorType::contextType;
@@ -80,16 +81,16 @@ namespace pygmalion::search
 		engine(const engine&) = delete;
 		engine(engine&&) = delete;
 		engine(std::istream& input, std::ostream& output) noexcept :
-			pygmalion::evaluation::engine<typename NODE::evaluatorType>(input, output),
+			pygmalion::evaluation::engine<typename GAMETREE::evaluatorType>(input, output),
 			m_Heuristics{ heuristicsType(this->feedback()) },
 			m_pContexts{ new contextType[countSearchPlies] }
 		{
-			this->template addCommand<command_debugSearch<descriptorSearch, nodeType>>();
-			this->template addCommand<command_debugPvs<descriptorSearch, nodeType>>();
-			this->template addCommand<command_debugTT<descriptorSearch, nodeType>>();
-			this->template addCommand<command_debugNode<descriptorSearch, nodeType>>();
+			this->template addCommand<command_debugSearch<descriptorSearch, gametreeType>>();
+			this->template addCommand<command_debugPvs<descriptorSearch, gametreeType>>();
+			this->template addCommand<command_debugTT<descriptorSearch, gametreeType>>();
+			this->template addCommand<command_debugNode<descriptorSearch, gametreeType>>();
 		}
-		virtual ~engine() noexcept 
+		virtual ~engine() noexcept
 		{
 			delete[] m_pContexts;
 		}

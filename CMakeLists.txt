@@ -166,7 +166,3 @@ add_subdirectory(pygmalion-chess-evaluation)
 add_subdirectory(pygmalion-chess-search)
 add_subdirectory(pygmalion-chess-frontend)
 
-#add_subdirectory(pygmalion-bits)
-#add_subdirectory(pygmalion-core)
-#add_subdirectory(pygmalion-tictactoe)
-#add_subdirectory(pygmalion-chess)

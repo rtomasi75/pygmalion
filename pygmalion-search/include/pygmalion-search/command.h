@@ -1,15 +1,15 @@
 namespace pygmalion::search
 {
-	template<typename NODE>
+	template<typename GAMETREE>
 	class engine;
 
-	template<typename DESCRIPTION_SEARCH, typename NODE>
+	template<typename DESCRIPTION_SEARCH, typename GAMETREE>
 	class command :
 		public pygmalion::evaluation::command<typename DESCRIPTION_SEARCH::descriptorEvaluation, typename DESCRIPTION_SEARCH::evaluatorType>,
 		public DESCRIPTION_SEARCH
 	{
 	public:
-		using nodeType = NODE;
+		using gametreeType = GAMETREE;
 		using parentType = pygmalion::evaluation::command<typename DESCRIPTION_SEARCH::descriptorEvaluation, typename DESCRIPTION_SEARCH::evaluatorType>;
 		using descriptorSearch = DESCRIPTION_SEARCH;
 #include "include_search.h"	
@@ -18,13 +18,13 @@ namespace pygmalion::search
 		{
 			return this->searchEngine().rootContext();
 		}
-		engine<nodeType>& searchEngine() noexcept
+		engine<gametreeType>& searchEngine() noexcept
 		{
-			return *dynamic_cast<engine<nodeType>*>(&(this->evaluationEngine()));
+			return *dynamic_cast<engine<gametreeType>*>(&(this->evaluationEngine()));
 		}
-		const engine<nodeType>& searchEngine() const noexcept
+		const engine<gametreeType>& searchEngine() const noexcept
 		{
-			return *dynamic_cast<const engine<nodeType>*>(&(this->evaluationEngine()));
+			return *dynamic_cast<const engine<gametreeType>*>(&(this->evaluationEngine()));
 		}
 	protected:
 	};

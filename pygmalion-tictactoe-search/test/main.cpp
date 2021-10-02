@@ -6,7 +6,7 @@ using namespace pygmalion::tictactoe;
 
 int main(int argc, char* argv[])
 {
-	engine<pygmalion::tictactoe::node> eng(std::cin, std::cout);
+	engine<pygmalion::tictactoe::gametree> eng(std::cin, std::cout);
 	eng.run();
 	return 0;
 }

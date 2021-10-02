@@ -9,7 +9,7 @@
 #include "pygmalion-search/descriptor_search.h"
 #include "pygmalion-search/transpositiontable.h"
 #include "pygmalion-search/heuristics.h"
-#include "pygmalion-search/node.h"
+#include "pygmalion-search/gametree.h"
 #include "pygmalion-search/command.h"
 #include "pygmalion-search/commands.h"
 #include "pygmalion-search/engine.h"

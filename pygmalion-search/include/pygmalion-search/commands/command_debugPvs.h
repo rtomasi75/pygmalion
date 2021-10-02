@@ -1,11 +1,11 @@
 namespace pygmalion::search
 {
-	template<typename DESCRIPTION_SEARCH, typename NODE>
+	template<typename DESCRIPTION_SEARCH, typename GAMETREE>
 	class command_debugPvs :
-		public pygmalion::search::command<DESCRIPTION_SEARCH, NODE>
+		public pygmalion::search::command<DESCRIPTION_SEARCH, GAMETREE>
 	{
 	public:
-		using nodeType = NODE;
+		using gametreeType = GAMETREE;
 		using descriptorSearch = DESCRIPTION_SEARCH;
 #include "../include_search.h"	
 	private:

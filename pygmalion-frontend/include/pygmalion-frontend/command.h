@@ -5,12 +5,12 @@ namespace pygmalion::frontend
 
 	template<typename DESCRIPTION_FRONTEND, typename FRONT>
 	class command :
-		public pygmalion::search::command<typename DESCRIPTION_FRONTEND::descriptorSearch, typename DESCRIPTION_FRONTEND::nodeType>,
+		public pygmalion::search::command<typename DESCRIPTION_FRONTEND::descriptorSearch, typename DESCRIPTION_FRONTEND::gametreeType>,
 		public DESCRIPTION_FRONTEND
 	{
 	public:
 		using frontType = FRONT;
-		using parentType = pygmalion::search::command<typename DESCRIPTION_FRONTEND::descriptorSearch, typename DESCRIPTION_FRONTEND::nodeType>;
+		using parentType = pygmalion::search::command<typename DESCRIPTION_FRONTEND::descriptorSearch, typename DESCRIPTION_FRONTEND::gametreeType>;
 		using descriptorFrontend = DESCRIPTION_FRONTEND;
 #include "include_frontend.h"	
 	public:

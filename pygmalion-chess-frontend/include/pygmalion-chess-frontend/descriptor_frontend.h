@@ -1,4 +1,4 @@
 namespace pygmalion::chess
 {
-	using descriptor_frontend = pygmalion::descriptor_frontend<pygmalion::chess::node>;
+	using descriptor_frontend = pygmalion::descriptor_frontend<pygmalion::chess::gametree>;
 }

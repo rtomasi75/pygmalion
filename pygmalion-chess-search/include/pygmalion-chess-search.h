@@ -6,6 +6,6 @@
 
 #include "pygmalion-chess-search/descriptor_search.h"
 #include "pygmalion-chess-search/heuristics.h"
-#include "pygmalion-chess-search/node.h"
+#include "pygmalion-chess-search/gametree.h"
 
 #endif
