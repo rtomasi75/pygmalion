@@ -221,7 +221,7 @@ namespace pygmalion::mechanics
 			typename currentMoveType::movebitsType bits;
 			if (std::get<getParseIndex(INDEX)>(this->m_Moves).parse(position, text, bits))
 			{
-				constexpr const muxbitsType mux{ static_cast<muxbitsType>(static_cast<typename std::make_unsigned<size_t>::type>(INDEX)) };
+				constexpr const muxbitsType mux{ static_cast<muxbitsType>(static_cast<typename std::make_unsigned<size_t>::type>(getParseIndex(INDEX))) };
 				moveBits.template storeBits<0, currentMoveType::movebitsType::countBits>(bits);
 				moveBits.template storeBits<countDataBits, countMuxBits>(mux);
 				return true;
