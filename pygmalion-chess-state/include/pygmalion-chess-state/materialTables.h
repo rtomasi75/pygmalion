@@ -25,7 +25,10 @@ namespace pygmalion::chess::state
 						return static_cast<materialScore>(9.0);
 					case 0x4: //pawn
 						return static_cast<materialScore>(1.0);
-					default: //king
+					case 0x5: //king
+						return static_cast<materialScore>(0.0);
+					default:
+						PYGMALION_UNREACHABLE;
 						return static_cast<materialScore>(0.0);
 					}
 				}

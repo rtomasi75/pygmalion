@@ -70,7 +70,7 @@ namespace pygmalion
 		template<typename motorType>
 		void unmakeMove(boardType& position) noexcept
 		{
-			assert(m_MoveHistory.size() > 0);
+			PYGMALION_ASSERT(m_MoveHistory.size() > 0);
 			motorType::unmakeMove(position, m_MovedataHistory[m_MovedataHistory.size() - 1]);
 			m_Bloomfilter.decrement(position.hash());
 			m_MovedataHistory.resize(m_MovedataHistory.size() - 1);

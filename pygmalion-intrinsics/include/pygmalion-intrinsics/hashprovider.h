@@ -24,8 +24,8 @@ namespace pygmalion
 		~hashprovider() noexcept = default;
 		constexpr const hashValue& operator[](const size_t value) const noexcept
 		{
-			assert(value >= 0);
-			assert(value < countValues);
+			PYGMALION_ASSERT(value >= 0);
+			PYGMALION_ASSERT(value < countValues);
 			return m_HashOfValue[value];
 		}
 	};

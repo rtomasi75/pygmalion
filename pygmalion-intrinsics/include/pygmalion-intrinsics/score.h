@@ -46,7 +46,7 @@ namespace pygmalion
 		{
 			if (number >= (size_t(1) << 31))
 			{
-				assert(sizeof(size_t) > 4);
+				PYGMALION_ASSERT(sizeof(size_t) > 4);
 				return 8;
 			}
 			if (number >= (size_t(1) << 15))
@@ -104,12 +104,12 @@ namespace pygmalion
 		}
 		constexpr valueType winDistance() const noexcept
 		{
-			assert(isWinning());
+			PYGMALION_ASSERT(isWinning());
 			return WINVALUE - m_Value;
 		}
 		constexpr valueType lossDistance() const noexcept
 		{
-			assert(isLosing());
+			PYGMALION_ASSERT(isLosing());
 			return m_Value - LOSSVALUE;
 		}
 		~score() = default;
@@ -159,12 +159,12 @@ namespace pygmalion
 		}
 		explicit constexpr operator valueType() const noexcept
 		{
-			assert(isOpen());
+			PYGMALION_ASSERT(isOpen());
 			return static_cast<valueType>(m_Value / granularity);
 		}
 		explicit constexpr operator double() const noexcept
 		{
-			assert(isOpen());
+			PYGMALION_ASSERT(isOpen());
 			return static_cast<double>(m_Value) / static_cast<double>(granularity);
 		}
 		explicit constexpr score(const float value) noexcept :
@@ -174,7 +174,7 @@ namespace pygmalion
 		}
 		explicit constexpr operator float() const noexcept
 		{
-			assert(isOpen());
+			PYGMALION_ASSERT(isOpen());
 			return static_cast<float>(m_Value) / static_cast<float>(granularity);
 		}
 		constexpr score(score&&) noexcept = default;
@@ -308,17 +308,17 @@ namespace pygmalion
 		}
 		constexpr auto operator*(const valueType& i) const noexcept
 		{
-			assert(isOpen());
+			PYGMALION_ASSERT(isOpen());
 			return score(static_cast<valueType>(m_Value * i), 0);
 		}
 		constexpr auto operator/(const valueType& i) const noexcept
 		{
-			assert(isOpen());
+			PYGMALION_ASSERT(isOpen());
 			return score(static_cast<valueType>(m_Value / i), 0);
 		}
 		constexpr auto operator*(const score sc) const noexcept
 		{
-			assert(isOpen());
+			PYGMALION_ASSERT(isOpen());
 			return score(static_cast<valueType>((static_cast<longType>(m_Value) * static_cast<longType>(sc.m_Value)) / granularity), 0);
 		}
 		constexpr auto operator+=(const score sc) noexcept
@@ -327,24 +327,24 @@ namespace pygmalion
 		}
 		constexpr auto operator-=(const score sc) noexcept
 		{
-			assert(isOpen());
-			assert(sc.isOpen());
+			PYGMALION_ASSERT(isOpen());
+			PYGMALION_ASSERT(sc.isOpen());
 			m_Value -= sc.m_Value;
 		}
 		constexpr auto operator*=(const score sc) noexcept
 		{
-			assert(isOpen());
-			assert(sc.isOpen());
+			PYGMALION_ASSERT(isOpen());
+			PYGMALION_ASSERT(sc.isOpen());
 			m_Value = static_cast<valueType>((static_cast<longType>(m_Value) * static_cast<longType>(sc.m_Value)) / granularity);
 		}
 		constexpr auto operator*=(const valueType& i) noexcept
 		{
-			assert(isOpen());
+			PYGMALION_ASSERT(isOpen());
 			m_Value *= i;
 		}
 		constexpr auto operator/=(const valueType& i) noexcept
 		{
-			assert(isOpen());
+			PYGMALION_ASSERT(isOpen());
 			m_Value /= i;
 		}
 		constexpr auto plyUp() const noexcept

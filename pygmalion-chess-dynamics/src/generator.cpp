@@ -35,7 +35,7 @@ namespace pygmalion::chess
 		switch (piece)
 		{
 		default:
-			assert(0);
+			PYGMALION_UNREACHABLE;
 			break;
 		case pawn:
 			break;
@@ -113,6 +113,9 @@ namespace pygmalion::chess
 				{
 					switch (rank)
 					{
+					default:
+						PYGMALION_UNREACHABLE;
+						break;
 					case 0:
 						ret += "1";
 						break;
@@ -144,6 +147,9 @@ namespace pygmalion::chess
 			{
 				switch (file)
 				{
+				default:
+					PYGMALION_UNREACHABLE;
+					break;
 				case 0:
 					ret += "a";
 					break;
@@ -188,6 +194,9 @@ namespace pygmalion::chess
 		{
 			switch (motorType::move().promotedPiece(mv))
 			{
+			default:
+				PYGMALION_UNREACHABLE;
+				break;
 			case knight:
 				ret += "=N";
 				break;
@@ -221,7 +230,7 @@ namespace pygmalion::chess
 		switch (static_cast<size_t>(pass))
 		{
 		default:
-			assert(0);
+			PYGMALION_UNREACHABLE;
 			return "???";
 		case 0:
 			return "knight moves";
@@ -261,7 +270,7 @@ namespace pygmalion::chess
 		switch (static_cast<size_t>(tacticalPass))
 		{
 		default:
-			assert(0);
+			PYGMALION_UNREACHABLE;
 			return "???";
 		case 0:
 			return "knight captures";
@@ -285,7 +294,7 @@ namespace pygmalion::chess
 		switch (static_cast<size_t>(criticalPass))
 		{
 		default:
-			assert(0);
+			PYGMALION_UNREACHABLE;
 			return "???";
 		case 0:
 			return "critical knight moves";
@@ -303,7 +312,7 @@ namespace pygmalion::chess
 		switch (static_cast<size_t>(criticalPass))
 		{
 		default:
-			assert(0);
+			PYGMALION_UNREACHABLE;
 			return "???";
 		case 0:
 			return "critical evasion moves";
@@ -315,7 +324,7 @@ namespace pygmalion::chess
 		switch (static_cast<size_t>(tacticalCriticalEvasionPass))
 		{
 		default:
-			assert(0);
+			PYGMALION_UNREACHABLE;
 			return "???";
 		case 0:
 			return "tactical critical evasion moves";
@@ -327,7 +336,7 @@ namespace pygmalion::chess
 		switch (static_cast<size_t>(quietCriticalPass))
 		{
 		default:
-			assert(0);
+			PYGMALION_UNREACHABLE;
 			return "???";
 		case 0:
 			return "quiet critical knight moves";

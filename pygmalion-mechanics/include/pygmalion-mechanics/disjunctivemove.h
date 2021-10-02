@@ -383,7 +383,7 @@ namespace pygmalion::mechanics
 					return this->template toSquarePack<INDEX + 1, MOVES2...>(position, selector, moveBits);
 				else
 				{
-					assert(false);
+					PYGMALION_ASSERT(false);
 					return squareType::invalid;
 				}
 			}
@@ -428,7 +428,7 @@ namespace pygmalion::mechanics
 				return this->template fromSquarePack<0, MOVES...>(position, selector, moveBits);
 			else
 			{
-				assert(false);
+				PYGMALION_ASSERT(false);
 				return squareType::invalid;
 			}
 		}
@@ -440,7 +440,7 @@ namespace pygmalion::mechanics
 				return this->template toSquarePack<0, MOVES...>(position, selector, moveBits);
 			else
 			{
-				assert(false);
+				PYGMALION_ASSERT(false);
 				return squareType::invalid;
 			}
 		}

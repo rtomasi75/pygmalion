@@ -44,6 +44,9 @@ namespace pygmalion::chess
 		{
 			switch (index)
 			{
+			default:
+				PYGMALION_UNREACHABLE;
+				break;
 			case indexQueenPromoCapture:
 				return 0;
 			case indexQueenPromo:
@@ -87,7 +90,7 @@ namespace pygmalion::chess
 			const muxbitsType mux{ combinedmoves::muxbits(movebits) };
 			return (mux == muxQueenPromo) || (mux == muxQueenPromoCapture) || (mux == muxKnightPromo) || (mux == muxKnightPromoCapture) || (mux == muxRookPromo) || (mux == muxRookPromoCapture) || (mux == muxBishopPromo) || (mux == muxBishopPromoCapture);
 		}
-		constexpr static pieceType promotedPiece(const movebitsType movebits) noexcept
+		static pieceType promotedPiece(const movebitsType movebits) noexcept
 		{
 			const muxbitsType mux{ combinedmoves::muxbits(movebits) };
 			assert(isPromotion(movebits));
@@ -95,6 +98,10 @@ namespace pygmalion::chess
 			switch (mx)
 			{
 			default:
+				PYGMALION_UNREACHABLE;
+				break;
+			case indexQueenPromo:
+			case indexQueenPromoCapture:
 				return queen;
 			case indexBishopPromo:
 			case indexBishopPromoCapture:

@@ -19,13 +19,13 @@ namespace pygmalion::intrinsics
 
 	std::string engine::version() const noexcept
 	{
-		assert(false);
+		PYGMALION_ASSERT(false);
 		return "(todo: add version)";
 	}
 
 	std::string engine::author() const noexcept
 	{
-		assert(false);
+		PYGMALION_ASSERT(false);
 		return "(todo: add author)";
 	}
 
@@ -69,7 +69,7 @@ namespace pygmalion::intrinsics
 	void engine::run() noexcept
 	{
 		std::lock_guard<std::recursive_mutex> lock(m_StartStopMutex);
-		assert(!m_IsRunning);
+		PYGMALION_ASSERT(!m_IsRunning);
 		m_IsRunning = true;
 		mainloop();
 	}
@@ -77,7 +77,7 @@ namespace pygmalion::intrinsics
 	void engine::stop() noexcept
 	{
 		std::lock_guard<std::recursive_mutex> lock(m_StartStopMutex);
-		assert(m_IsRunning);
+		PYGMALION_ASSERT(m_IsRunning);
 		m_IsRunning = false;
 	}
 

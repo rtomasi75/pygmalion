@@ -442,7 +442,7 @@ namespace pygmalion
 				const __m256i score1{ _mm256_inserti128_si256(_mm256_castsi128_si256(score1low),score1high, 1) };
 				const __m256i score2{ _mm256_inserti128_si256(_mm256_castsi128_si256(score2low),score2high, 1) };
 				const __m128i value1low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1a],0), pValues[IDX1b], 1), pValues[IDX1c], 6), pValues[IDX1d], 7) };
-				const __m128i value1high{_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1e],0), pValues[IDX1f], 1), pValues[IDX1g], 6) };
+				const __m128i value1high{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1e],0), pValues[IDX1f], 1), pValues[IDX1g], 6) };
 				const __m256i value1{ _mm256_inserti128_si256(_mm256_castsi128_si256(value1low),value1high, 1) };
 				const __m128i value2low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2a],0), pValues[IDX2b], 1), pValues[IDX2c], 6), pValues[IDX2d], 7) };
 				const __m128i value2high{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2e],0), pValues[IDX2f], 1), pValues[IDX2g], 6) };
@@ -641,7 +641,7 @@ namespace pygmalion
 		private:
 			constexpr static void quickSort(const int low, const int high, VALUE* pValues, SCORE* pScores) noexcept
 			{
-				assert(low < high);
+				PYGMALION_ASSERT(low < high);
 				const int pi{ partition(low, high, pValues, pScores) };
 				sortValues(&pValues[low], &pScores[low], pi - low);
 				sortValues(&pValues[pi + 1], &pScores[pi + 1], high - pi);
@@ -1185,41 +1185,6 @@ namespace pygmalion
 				comparator<1, 4, 3, 6, 5, 8, 7, 10, 9, 12, 11, 14, 13, 16, 15, 18, 17, 20, 19, 22, 21, 24, 23, 26, 25, 28, 27, 30>(pValues, pScores);
 				comparator<1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30>(pValues, pScores);
 			}
-			typedef void SORTFUNCTION(VALUE* pValues, SCORE* pScores);
-			constexpr static inline SORTFUNCTION* m_Sort[31]
-			{
-				&sort_N2,
-				&sort_N3,
-				&sort_N4,
-				&sort_N5,
-				&sort_N6,
-				&sort_N7,
-				&sort_N8,
-				&sort_N9,
-				&sort_N10,
-				&sort_N11,
-				&sort_N12,
-				&sort_N13,
-				&sort_N14,
-				&sort_N15,
-				&sort_N16,
-				&sort_N17,
-				&sort_N18,
-				&sort_N19,
-				&sort_N20,
-				&sort_N21,
-				&sort_N22,
-				&sort_N23,
-				&sort_N24,
-				&sort_N25,
-				&sort_N26,
-				&sort_N27,
-				&sort_N28,
-				&sort_N29,
-				&sort_N30,
-				&sort_N31,
-				&sort_N32
-			};
 			constexpr static size_t sort_tail() noexcept
 			{
 				return 32;
@@ -1227,16 +1192,116 @@ namespace pygmalion
 		public:
 			constexpr static void sortValues(VALUE* pValues, SCORE* pScores, const size_t length) noexcept
 			{
-				if (length > 1)
+				constexpr const auto tail{ sort_tail() };
+				if (length <= tail)
 				{
-					if (length <= sort_tail())
+					switch (length)
 					{
-						m_Sort[length - 2](pValues, pScores);
+					case 0:
+						return;
+					case 1:
+						return;
+					case 2:
+						sort_N2(pValues, pScores);
+						return;
+					case 3:
+						sort_N3(pValues, pScores);
+						return;
+					case 4:
+						sort_N4(pValues, pScores);
+						return;
+					case 5:
+						sort_N5(pValues, pScores);
+						return;
+					case 6:
+						sort_N6(pValues, pScores);
+						return;
+					case 7:
+						sort_N7(pValues, pScores);
+						return;
+					case 8:
+						sort_N8(pValues, pScores);
+						return;
+					case 9:
+						sort_N9(pValues, pScores);
+						return;
+					case 10:
+						sort_N10(pValues, pScores);
+						return;
+					case 11:
+						sort_N11(pValues, pScores);
+						return;
+					case 12:
+						sort_N12(pValues, pScores);
+						return;
+					case 13:
+						sort_N13(pValues, pScores);
+						return;
+					case 14:
+						sort_N14(pValues, pScores);
+						return;
+					case 15:
+						sort_N15(pValues, pScores);
+						return;
+					case 16:
+						sort_N16(pValues, pScores);
+						return;
+					case 17:
+						sort_N17(pValues, pScores);
+						return;
+					case 18:
+						sort_N18(pValues, pScores);
+						return;
+					case 19:
+						sort_N19(pValues, pScores);
+						return;
+					case 20:
+						sort_N20(pValues, pScores);
+						return;
+					case 21:
+						sort_N21(pValues, pScores);
+						return;
+					case 22:
+						sort_N22(pValues, pScores);
+						return;
+					case 23:
+						sort_N23(pValues, pScores);
+						return;
+					case 24:
+						sort_N24(pValues, pScores);
+						return;
+					case 25:
+						sort_N25(pValues, pScores);
+						return;
+					case 26:
+						sort_N26(pValues, pScores);
+						return;
+					case 27:
+						sort_N27(pValues, pScores);
+						return;
+					case 28:
+						sort_N28(pValues, pScores);
+						return;
+					case 29:
+						sort_N29(pValues, pScores);
+						return;
+					case 30:
+						sort_N30(pValues, pScores);
+						return;
+					case 31:
+						sort_N31(pValues, pScores);
+						return;
+					case 32:
+						sort_N32(pValues, pScores);
+						return;
+					default:
+						PYGMALION_UNREACHABLE;
+						return;
 					}
-					else
-					{
-						quickSort(0, length - 1, pValues, pScores);
-					}
+				}
+				else
+				{
+					quickSort(0, length - 1, pValues, pScores);
 				}
 			}
 		};

@@ -284,7 +284,7 @@ namespace pygmalion
 		}
 		constexpr void setMovingPlayer(const playerType movingPlayer) noexcept
 		{
-			assert(movingPlayer.isValid());
+			PYGMALION_ASSERT(movingPlayer.isValid());
 			m_Hash ^= playerHash(m_MovingPlayer);
 			m_MovingPlayer = movingPlayer;
 			onSetMovingPlayer(m_MovingPlayer);
@@ -299,22 +299,22 @@ namespace pygmalion
 		}
 		constexpr const squaresType& pieceOccupancy(const pieceType pc) const noexcept
 		{
-			assert(pc.isValid());
+			PYGMALION_ASSERT(pc.isValid());
 			return m_PieceOccupancy[pc];
 		}
 		constexpr squaresType& pieceOccupancy(const pieceType pc) noexcept
 		{
-			assert(pc.isValid());
+			PYGMALION_ASSERT(pc.isValid());
 			return m_PieceOccupancy[pc];
 		}
 		constexpr const squaresType& playerOccupancy(const playerType p) const noexcept
 		{
-			assert(p.isValid());
+			PYGMALION_ASSERT(p.isValid());
 			return m_PlayerOccupancy[p];
 		}
 		constexpr squaresType& playerOccupancy(const playerType p) noexcept
 		{
-			assert(p.isValid());
+			PYGMALION_ASSERT(p.isValid());
 			return m_PlayerOccupancy[p];
 		}
 		constexpr squaresType totalOccupancy() const noexcept
@@ -334,23 +334,23 @@ namespace pygmalion
 		}
 		constexpr bool isOccupied(const squareType sq) const noexcept
 		{
-			assert(sq.isValid());
+			PYGMALION_ASSERT(sq.isValid());
 			return totalOccupancy()[sq];
 		}
 		constexpr bool isOccupied(const squareType sq, const playerType p) const noexcept
 		{
-			assert(sq.isValid());
-			assert(p.isValid());
+			PYGMALION_ASSERT(sq.isValid());
+			PYGMALION_ASSERT(p.isValid());
 			return playerOccupancy(p)[sq];
 		}
 		constexpr void addPiece(const pieceType piece, const squareType square, const playerType player) noexcept
 		{
-			assert(player.isValid());
-			assert(piece.isValid());
-			assert(square.isValid());
+			PYGMALION_ASSERT(player.isValid());
+			PYGMALION_ASSERT(piece.isValid());
+			PYGMALION_ASSERT(square.isValid());
 #if !defined(NDEBUG)
-			assert(!m_PlayerOccupancy[player][square]);
-			assert(!m_PieceOccupancy[piece][square]);
+			PYGMALION_ASSERT(!m_PlayerOccupancy[player][square]);
+			PYGMALION_ASSERT(!m_PieceOccupancy[piece][square]);
 #endif
 			m_PlayerOccupancy[player] |= square;
 			m_PieceOccupancy[piece] |= square;
@@ -359,12 +359,12 @@ namespace pygmalion
 		}
 		constexpr void removePiece(const pieceType piece, const squareType square, const playerType player) noexcept
 		{
-			assert(player.isValid());
-			assert(piece.isValid());
-			assert(square.isValid());
+			PYGMALION_ASSERT(player.isValid());
+			PYGMALION_ASSERT(piece.isValid());
+			PYGMALION_ASSERT(square.isValid());
 #if !defined(NDEBUG)
-			assert(m_PlayerOccupancy[player][square]);
-			assert(m_PieceOccupancy[piece][square]);
+			PYGMALION_ASSERT(m_PlayerOccupancy[player][square]);
+			PYGMALION_ASSERT(m_PieceOccupancy[piece][square]);
 #endif
 			m_PlayerOccupancy[player] -= square;
 			m_PieceOccupancy[piece] -= square;
@@ -373,26 +373,26 @@ namespace pygmalion
 		}
 		constexpr pieceType getPiece(const squareType sq) const noexcept
 		{
-			assert(sq.isValid());
-			assert(totalOccupancy()[sq]);
+			PYGMALION_ASSERT(sq.isValid());
+			PYGMALION_ASSERT(totalOccupancy()[sq]);
 			for (const auto pc : pieceType::range)
 			{
 				if (m_PieceOccupancy[pc][sq])
 					return pc;
 			}
-			assert(false);
+			PYGMALION_ASSERT(false);
 			return pieceType::invalid;
 		}
 		constexpr playerType getPlayer(const squareType sq) const noexcept
 		{
-			assert(sq.isValid());
-			assert(totalOccupancy()[sq]);
+			PYGMALION_ASSERT(sq.isValid());
+			PYGMALION_ASSERT(totalOccupancy()[sq]);
 			for (const auto p : playerType::range)
 			{
 				if (m_PlayerOccupancy[p][sq])
 					return p;
 			}
-			assert(false);
+			PYGMALION_ASSERT(false);
 			return playerType::invalid;
 		}
 		constexpr void clear() noexcept

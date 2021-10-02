@@ -297,7 +297,7 @@ namespace pygmalion
 		auto duration() const noexcept
 		{
 #if !defined(NDEBUG)
-			assert(!m_IsSearching);
+			PYGMALION_ASSERT(!m_IsSearching);
 #endif
 			return m_SearchProfiler.duration();
 		}
@@ -322,9 +322,9 @@ namespace pygmalion
 		void beginSearch() noexcept
 		{
 #if !defined(NDEBUG)
-			assert(!m_IsSearching);
-			assert(m_NodeDepth == 0);
-			assert(m_MoveDepth == 0);
+			PYGMALION_ASSERT(!m_IsSearching);
+			PYGMALION_ASSERT(m_NodeDepth == 0);
+			PYGMALION_ASSERT(m_MoveDepth == 0);
 			m_IsSearching = true;
 #endif
 			static_cast<instanceType*>(this)->onBeginSearch();
@@ -332,9 +332,9 @@ namespace pygmalion
 		void endSearch() noexcept
 		{
 #if !defined(NDEBUG)
-			assert(m_IsSearching);
-			assert(m_NodeDepth == 0);
-			assert(m_MoveDepth == 0);
+			PYGMALION_ASSERT(m_IsSearching);
+			PYGMALION_ASSERT(m_NodeDepth == 0);
+			PYGMALION_ASSERT(m_MoveDepth == 0);
 			m_IsSearching = false;
 #endif
 			static_cast<instanceType*>(this)->onEndSearch();
@@ -342,7 +342,7 @@ namespace pygmalion
 		void beginNode(const stackType& stack) noexcept
 		{
 #if !defined(NDEBUG)
-			assert(m_IsSearching);
+			PYGMALION_ASSERT(m_IsSearching);
 			m_NodeDepth++;
 #endif
 			static_cast<instanceType*>(this)->onBeginNode(stack);
@@ -350,7 +350,7 @@ namespace pygmalion
 		void endNodeEarly(const stackType& stack) noexcept
 		{
 #if !defined(NDEBUG)
-			assert(m_IsSearching);
+			PYGMALION_ASSERT(m_IsSearching);
 			m_NodeDepth--;
 #endif
 			static_cast<instanceType*>(this)->onEndNodeEarly(stack);
@@ -358,7 +358,7 @@ namespace pygmalion
 		void endNodeLate(const stackType& stack) noexcept
 		{
 #if !defined(NDEBUG)
-			assert(m_IsSearching);
+			PYGMALION_ASSERT(m_IsSearching);
 			m_NodeDepth--;
 #endif
 			static_cast<instanceType*>(this)->onEndNodeLate(stack);
@@ -366,7 +366,7 @@ namespace pygmalion
 		void endNodeTT(const stackType& stack) noexcept
 		{
 #if !defined(NDEBUG)
-			assert(m_IsSearching);
+			PYGMALION_ASSERT(m_IsSearching);
 			m_NodeDepth--;
 #endif
 			static_cast<instanceType*>(this)->onEndNodeTT(stack);
@@ -374,7 +374,7 @@ namespace pygmalion
 		void endNodeNull(const stackType& stack) noexcept
 		{
 #if !defined(NDEBUG)
-			assert(m_IsSearching);
+			PYGMALION_ASSERT(m_IsSearching);
 			m_NodeDepth--;
 #endif
 			static_cast<instanceType*>(this)->onEndNodeNull(stack);
@@ -382,7 +382,7 @@ namespace pygmalion
 		void endNodeFutile(const stackType& stack) noexcept
 		{
 #if !defined(NDEBUG)
-			assert(m_IsSearching);
+			PYGMALION_ASSERT(m_IsSearching);
 			m_NodeDepth--;
 #endif
 			static_cast<instanceType*>(this)->onEndNodeFutile(stack);
@@ -390,7 +390,7 @@ namespace pygmalion
 		void beginMove(const stackType& stack, const movebitsType moveBits, const bool isTactical, const size_t depth) noexcept
 		{
 #if !defined(NDEBUG)
-			assert(m_IsSearching);
+			PYGMALION_ASSERT(m_IsSearching);
 			m_MoveDepth++;
 #endif
 			static_cast<instanceType*>(this)->onBeginMove(stack, moveBits, isTactical, depth);
@@ -399,7 +399,7 @@ namespace pygmalion
 		void endMoveAccepted(const stackType& stack, const movebitsType moveBits, const bool isTactical, const size_t depth, const scoreType score, const bool fromStack) noexcept
 		{
 #if !defined(NDEBUG)
-			assert(m_IsSearching);
+			PYGMALION_ASSERT(m_IsSearching);
 			m_MoveDepth--;
 #endif
 			if (fromStack)
@@ -428,7 +428,7 @@ namespace pygmalion
 		void endMoveRefuted(const stackType& stack, const movebitsType moveBits, const bool isTactical, const size_t depth, const scoreType score, const bool fromStack) noexcept
 		{
 #if !defined(NDEBUG)
-			assert(m_IsSearching);
+			PYGMALION_ASSERT(m_IsSearching);
 			m_MoveDepth--;
 #endif
 			if (fromStack)
@@ -456,7 +456,7 @@ namespace pygmalion
 		void endMoveSilent(const stackType& stack, const movebitsType moveBits, const bool isTactical, const size_t depth) noexcept
 		{
 #if !defined(NDEBUG)
-			assert(m_IsSearching);
+			PYGMALION_ASSERT(m_IsSearching);
 			m_MoveDepth--;
 #endif
 			static_cast<instanceType*>(this)->onEndMoveSilent(stack, moveBits, isTactical, depth);
@@ -464,7 +464,7 @@ namespace pygmalion
 		void endMoveFutile(const stackType& stack, const movebitsType moveBits, const bool isTactical, const size_t depth) noexcept
 		{
 #if !defined(NDEBUG)
-			assert(m_IsSearching);
+			PYGMALION_ASSERT(m_IsSearching);
 			m_MoveDepth--;
 #endif
 			static_cast<instanceType*>(this)->onEndMoveFutile(stack, moveBits, isTactical, depth);
@@ -472,7 +472,7 @@ namespace pygmalion
 		void endNodeCut(const stackType& stack) noexcept
 		{
 #if !defined(NDEBUG)
-			assert(m_IsSearching);
+			PYGMALION_ASSERT(m_IsSearching);
 			m_NodeDepth--;
 #endif
 			static_cast<instanceType*>(this)->onEndNodeCut(stack);
@@ -480,7 +480,7 @@ namespace pygmalion
 		void endNodeLeaf(const stackType& stack) noexcept
 		{
 #if !defined(NDEBUG)
-			assert(m_IsSearching);
+			PYGMALION_ASSERT(m_IsSearching);
 			m_NodeDepth--;
 #endif
 			static_cast<instanceType*>(this)->onEndNodeLeaf(stack);

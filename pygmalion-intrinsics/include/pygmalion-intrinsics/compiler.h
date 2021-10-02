@@ -26,6 +26,31 @@
 #include <spe.h>
 #endif
 
+#if defined(__GNUC__)||defined(__clang__)
+#if _DEBUG
+#define PYGMALION_ASSERT(cond) assert(cond)
+#define PYGMALION_UNREACHABLE  assert(false)
+#else
+#define PYGMALION_ASSERT(cond) do { if (!(cond)) __builtin_unreachable(); } while (0)
+#define PYGMALION_UNREACHABLE  __builtin_unreachable()
+#endif
+#elif defined(_MSC_VER)
+#if _DEBUG
+#define PYGMALION_ASSERT(cond) assert(cond)
+#define PYGMALION_UNREACHABLE  assert(false)
+#else
+#define PYGMALION_ASSERT(cond) 
+#define PYGMALION_UNREACHABLE  __assume(false)
+#endif
+#else
+#if _DEBUG
+#define PYGMALION_ASSERT(cond) assert(cond)
+#define PYGMALION_UNREACHABLE  assert(false)
+#else
+#define PYGMALION_ASSERT(cond) 
+#define PYGMALION_UNREACHABLE  
+#endif
+#endif
 
 namespace pygmalion
 {

@@ -328,7 +328,7 @@ namespace pygmalion::chess
 				return positionalValue + captureValue + promotionValue;
 			}
 			default:
-				assert(false);
+				PYGMALION_UNREACHABLE;
 				return scoreType::zero();
 			}
 		}
@@ -805,7 +805,7 @@ namespace pygmalion::chess
 				return positionalValue + captureValue + promotionValue;
 			}
 			default:
-				assert(false);
+				PYGMALION_UNREACHABLE;
 				return scoreType::zero();
 			}
 		}

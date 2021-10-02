@@ -79,17 +79,17 @@ namespace pygmalion
 				}
 				constexpr passType index(const passType pass) const noexcept
 				{
-					assert(pass < countPasses);
+					PYGMALION_ASSERT(pass < countPasses);
 					return m_Index[static_cast<size_t>(pass)];
 				}
 				constexpr passType criticalEvasionIndex(const passType pass) const noexcept
 				{
-					assert(pass < countCriticalEvasionPasses);
+					PYGMALION_ASSERT(pass < countCriticalEvasionPasses);
 					return m_CriticalEvasionIndex[static_cast<size_t>(pass)];
 				}
 				constexpr passType moveIndex(const passType pass) const noexcept
 				{
-					assert(pass < countPasses);
+					PYGMALION_ASSERT(pass < countPasses);
 					if constexpr (!USE_SCORE)
 						return static_cast<size_t>(pass);
 					else
@@ -97,7 +97,7 @@ namespace pygmalion
 				}
 				constexpr passType moveCriticalEvasionIndex(const passType pass) const noexcept
 				{
-					assert(pass < countCriticalEvasionPasses);
+					PYGMALION_ASSERT(pass < countCriticalEvasionPasses);
 					if constexpr (!USE_SCORE)
 						return static_cast<size_t>(pass);
 					else
@@ -105,27 +105,27 @@ namespace pygmalion
 				}
 				constexpr passType scoreIndex(const passType pass) const noexcept
 				{
-					assert(pass < countPasses);
+					PYGMALION_ASSERT(pass < countPasses);
 					return m_Index[static_cast<size_t>(pass)];
 				}
 				constexpr passType criticalEvasionScoreIndex(const passType pass) const noexcept
 				{
-					assert(pass < countCriticalEvasionPasses);
+					PYGMALION_ASSERT(pass < countCriticalEvasionPasses);
 					return m_CriticalEvasionIndex[static_cast<size_t>(pass)];
 				}
 				constexpr passType tacticalIndex(const passType pass) const noexcept
 				{
-					assert(pass < countTacticalPasses);
+					PYGMALION_ASSERT(pass < countTacticalPasses);
 					return m_TacticalIndex[static_cast<size_t>(pass)];
 				}
 				constexpr passType tacticalCriticalEvasionIndex(const passType pass) const noexcept
 				{
-					assert(pass < countTacticalCriticalEvasionPasses);
+					PYGMALION_ASSERT(pass < countTacticalCriticalEvasionPasses);
 					return m_TacticalCriticalEvasionIndex[static_cast<size_t>(pass)];
 				}
 				constexpr passType tacticalMoveIndex(const passType pass) const noexcept
 				{
-					assert(pass < countTacticalPasses);
+					PYGMALION_ASSERT(pass < countTacticalPasses);
 					if constexpr (!USE_SCORE)
 						return static_cast<size_t>(pass);
 					else
@@ -133,7 +133,7 @@ namespace pygmalion
 				}
 				constexpr passType tacticalCriticalEvasionMoveIndex(const passType pass) const noexcept
 				{
-					assert(pass < countTacticalCriticalEvasionPasses);
+					PYGMALION_ASSERT(pass < countTacticalCriticalEvasionPasses);
 					if constexpr (!USE_SCORE)
 						return static_cast<size_t>(pass);
 					else
@@ -141,22 +141,22 @@ namespace pygmalion
 				}
 				constexpr passType tacticalCriticalEvasionScoreIndex(const passType pass) const noexcept
 				{
-					assert(pass < countTacticalCriticalEvasionPasses);
+					PYGMALION_ASSERT(pass < countTacticalCriticalEvasionPasses);
 					return m_TacticalCriticalEvasionIndex[static_cast<size_t>(pass)];
 				}
 				constexpr passType tacticalScoreIndex(const passType pass) const noexcept
 				{
-					assert(pass < countTacticalPasses);
+					PYGMALION_ASSERT(pass < countTacticalPasses);
 					return m_TacticalIndex[static_cast<size_t>(pass)];
 				}
 				constexpr passType criticalIndex(const passType pass) const noexcept
 				{
-					assert(pass < countCriticalPasses);
+					PYGMALION_ASSERT(pass < countCriticalPasses);
 					return m_CriticalIndex[static_cast<size_t>(pass)];
 				}
 				constexpr passType criticalMoveIndex(const passType pass) const noexcept
 				{
-					assert(pass < countCriticalPasses);
+					PYGMALION_ASSERT(pass < countCriticalPasses);
 					if constexpr (!USE_SCORE)
 						return static_cast<size_t>(pass);
 					else
@@ -164,7 +164,7 @@ namespace pygmalion
 				}
 				constexpr passType criticalEvasionMoveIndex(const passType pass) const noexcept
 				{
-					assert(pass < countCriticalEvasionPasses);
+					PYGMALION_ASSERT(pass < countCriticalEvasionPasses);
 					if constexpr (!USE_SCORE)
 						return static_cast<size_t>(pass);
 					else
@@ -172,7 +172,7 @@ namespace pygmalion
 				}
 				constexpr passType criticalScoreIndex(const passType pass) const noexcept
 				{
-					assert(pass < countCriticalPasses);
+					PYGMALION_ASSERT(pass < countCriticalPasses);
 					return m_CriticalIndex[static_cast<size_t>(pass)];
 				}
 				constexpr feedback() noexcept :
@@ -394,7 +394,7 @@ namespace pygmalion
 			}
 			constexpr const std::uint64_t& counter(const passType pass, const size_t depth) const noexcept
 			{
-				assert(pass < countPasses);
+				PYGMALION_ASSERT(pass < countPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(feedback());
@@ -403,7 +403,7 @@ namespace pygmalion
 			}
 			constexpr const std::uint64_t& criticalEvasionCounter(const passType pass, const size_t depth) const noexcept
 			{
-				assert(pass < countCriticalEvasionPasses);
+				PYGMALION_ASSERT(pass < countCriticalEvasionPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(feedback());
@@ -412,7 +412,7 @@ namespace pygmalion
 			}
 			constexpr scoreType score(const passType pass, const size_t depth) const noexcept
 			{
-				assert(pass < countPasses);
+				PYGMALION_ASSERT(pass < countPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(feedback());
@@ -424,7 +424,7 @@ namespace pygmalion
 			}
 			constexpr scoreType criticalEvasionScore(const passType pass, const size_t depth) const noexcept
 			{
-				assert(pass < countCriticalEvasionPasses);
+				PYGMALION_ASSERT(pass < countCriticalEvasionPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(feedback());
@@ -436,7 +436,7 @@ namespace pygmalion
 			}
 			constexpr const std::uint64_t& tacticalCounter(const passType pass, const size_t depth) const noexcept
 			{
-				assert(pass < countTacticalPasses);
+				PYGMALION_ASSERT(pass < countTacticalPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(std::move(feedback()));
@@ -445,7 +445,7 @@ namespace pygmalion
 			}
 			constexpr const std::uint64_t& tacticalCriticalEvasionCounter(const passType pass, const size_t depth) const noexcept
 			{
-				assert(pass < countTacticalCriticalEvasionPasses);
+				PYGMALION_ASSERT(pass < countTacticalCriticalEvasionPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(std::move(feedback()));
@@ -454,7 +454,7 @@ namespace pygmalion
 			}
 			constexpr scoreType tacticalScore(const passType pass, const size_t depth) const noexcept
 			{
-				assert(pass < countTacticalPasses);
+				PYGMALION_ASSERT(pass < countTacticalPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(feedback());
@@ -463,7 +463,7 @@ namespace pygmalion
 			}
 			constexpr scoreType tacticalCriticalEvasionScore(const passType pass, const size_t depth) const noexcept
 			{
-				assert(pass < countTacticalCriticalEvasionPasses);
+				PYGMALION_ASSERT(pass < countTacticalCriticalEvasionPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(feedback());
@@ -472,7 +472,7 @@ namespace pygmalion
 			}
 			constexpr const std::uint64_t& criticalCounter(const passType pass, const size_t depth) const noexcept
 			{
-				assert(pass < countCriticalPasses);
+				PYGMALION_ASSERT(pass < countCriticalPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(std::move(feedback()));
@@ -481,7 +481,7 @@ namespace pygmalion
 			}
 			constexpr scoreType criticalScore(const passType pass, const size_t depth) const noexcept
 			{
-				assert(pass < countCriticalPasses);
+				PYGMALION_ASSERT(pass < countCriticalPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(feedback());
@@ -490,7 +490,7 @@ namespace pygmalion
 			}
 			constexpr void cutMove(const passType pass, const size_t depth, const scoreType& score) noexcept
 			{
-				assert(pass < countPasses);
+				PYGMALION_ASSERT(pass < countPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(feedback());
@@ -499,7 +499,7 @@ namespace pygmalion
 			}
 			constexpr void criticalEvasionCutMove(const passType pass, const size_t depth, const scoreType score) noexcept
 			{
-				assert(pass < countCriticalEvasionPasses);
+				PYGMALION_ASSERT(pass < countCriticalEvasionPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(feedback());
@@ -508,7 +508,7 @@ namespace pygmalion
 			}
 			constexpr void allMove(const passType pass, const size_t depth, const scoreType score) noexcept
 			{
-				assert(pass < countPasses);
+				PYGMALION_ASSERT(pass < countPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(feedback());
@@ -517,7 +517,7 @@ namespace pygmalion
 			}
 			constexpr void criticalEvasionAllMove(const passType pass, const size_t depth, const scoreType score) noexcept
 			{
-				assert(pass < countPasses);
+				PYGMALION_ASSERT(pass < countPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(feedback());
@@ -526,7 +526,7 @@ namespace pygmalion
 			}
 			constexpr void tacticalCutMove(const passType tacticalPass, const size_t depth, const scoreType score) noexcept
 			{
-				assert(tacticalPass < countTacticalPasses);
+				PYGMALION_ASSERT(tacticalPass < countTacticalPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(feedback());
@@ -535,7 +535,7 @@ namespace pygmalion
 			}
 			constexpr void tacticalCriticalEvasionCutMove(const passType& tacticalCriticalEvasionPass, const size_t depth, const scoreType score) noexcept
 			{
-				assert(tacticalCriticalEvasionPass < countTacticalCriticalEvasionPasses);
+				PYGMALION_ASSERT(tacticalCriticalEvasionPass < countTacticalCriticalEvasionPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(feedback());
@@ -544,7 +544,7 @@ namespace pygmalion
 			}
 			constexpr void tacticalAllMove(const passType tacticalPass, const size_t depth, const scoreType& score) noexcept
 			{
-				assert(tacticalPass < countTacticalPasses);
+				PYGMALION_ASSERT(tacticalPass < countTacticalPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(feedback());
@@ -553,7 +553,7 @@ namespace pygmalion
 			}
 			constexpr void tacticalCriticalEvasionAllMove(const passType& tacticalCriticalEvasionPass, const size_t depth, const scoreType score) noexcept
 			{
-				assert(tacticalCriticalEvasionPass < countTacticalCriticalEvasionPasses);
+				PYGMALION_ASSERT(tacticalCriticalEvasionPass < countTacticalCriticalEvasionPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(feedback());
@@ -562,7 +562,7 @@ namespace pygmalion
 			}
 			constexpr void criticalCutMove(const passType criticalPass, const size_t depth, const scoreType score) noexcept
 			{
-				assert(criticalPass < countCriticalPasses);
+				PYGMALION_ASSERT(criticalPass < countCriticalPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(feedback());
@@ -571,7 +571,7 @@ namespace pygmalion
 			}
 			constexpr void criticalAllMove(const passType criticalPass, const size_t depth, const scoreType score) noexcept
 			{
-				assert(criticalPass < countCriticalPasses);
+				PYGMALION_ASSERT(criticalPass < countCriticalPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(feedback());
@@ -584,7 +584,7 @@ namespace pygmalion
 			}
 			constexpr passType index(const passType pass, const size_t depth) const noexcept
 			{
-				assert(pass < countPasses);
+				PYGMALION_ASSERT(pass < countPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(feedback());
@@ -593,7 +593,7 @@ namespace pygmalion
 			}
 			constexpr passType criticalEvasionIndex(const passType pass, const size_t depth) const noexcept
 			{
-				assert(pass < countCriticalEvasionPasses);
+				PYGMALION_ASSERT(pass < countCriticalEvasionPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(feedback());
@@ -602,7 +602,7 @@ namespace pygmalion
 			}
 			constexpr passType tacticalIndex(const passType pass, const size_t depth) const noexcept
 			{
-				assert(pass < countTacticalPasses);
+				PYGMALION_ASSERT(pass < countTacticalPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(feedback());
@@ -611,7 +611,7 @@ namespace pygmalion
 			}
 			constexpr passType tacticalCriticalEvasionIndex(const passType pass, const size_t depth) const noexcept
 			{
-				assert(pass < countTacticalCriticalEvasionPasses);
+				PYGMALION_ASSERT(pass < countTacticalCriticalEvasionPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(feedback());
@@ -620,7 +620,7 @@ namespace pygmalion
 			}
 			constexpr passType criticalIndex(const passType pass, const size_t depth) const noexcept
 			{
-				assert(pass < countCriticalPasses);
+				PYGMALION_ASSERT(pass < countCriticalPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(feedback());

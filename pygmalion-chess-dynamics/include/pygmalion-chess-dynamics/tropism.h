@@ -18,7 +18,7 @@ namespace pygmalion::chess
 		~tropism() noexcept = default;
 		const squaresType& distanceSquares(const pieceType pc, const unsigned int distance) const noexcept
 		{
-			assert(distance <= maxDistance);
+			PYGMALION_ASSERT(distance <= maxDistance);
 			return m_DistanceSquares[pc][distance];
 		}
 		void compute(const squareType seed, const playerType pl, const squaresType playerPawns, const squaresType& otherPawns, const squareType playerKing, const squareType otherKing) noexcept

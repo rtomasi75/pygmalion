@@ -118,20 +118,20 @@ namespace pygmalion::intrinsics
 		{
 			m_Premask = premask;
 			m_CountBits = toShift(m_Premask.populationCount());
-			assert(m_Premask.populationCount() <= countMaxPatternBits);
+			PYGMALION_ASSERT(m_Premask.populationCount() <= countMaxPatternBits);
 		}
 		constexpr magic(const bitsType& premask, const size_t countValueBits) noexcept :
 			m_Premask{ premask },
 			m_CountBits{ toShift(countValueBits) }
 		{
-			assert(m_Premask.populationCount() <= countMaxPatternBits);
+			PYGMALION_ASSERT(m_Premask.populationCount() <= countMaxPatternBits);
 		}
 	public:
 		magic(const bitsType& premask) noexcept :
 			m_Premask{ premask },
 			m_CountBits{ toShift(premask.populationCount()) }
 		{
-			assert(m_Premask.populationCount() <= countMaxPatternBits);
+			PYGMALION_ASSERT(m_Premask.populationCount() <= countMaxPatternBits);
 		}
 		constexpr magic(const magic&) = default;
 		constexpr magic(magic&&) = default;
@@ -190,7 +190,7 @@ namespace pygmalion::intrinsics
 				{
 					const bitsType pattern{ k.deposePattern(premask) };
 					const size_t idx{ magic::castMagic(pattern,premask,factor,countIndexBits) };
-					assert(idx < N);
+					PYGMALION_ASSERT(idx < N);
 					if (pUsed[idx])
 					{
 						bFound = false;
@@ -209,7 +209,7 @@ namespace pygmalion::intrinsics
 		void find(const bitsType& premask, bitsType& factor) noexcept
 		{
 			m_Premask = premask;
-			assert(m_Premask.populationCount() <= countMaxPatternBits);
+			PYGMALION_ASSERT(m_Premask.populationCount() <= countMaxPatternBits);
 			size_t countIndexBits;
 			magic::findMagic(m_Premask, factor, countIndexBits);
 			m_CountBits = toShift(countIndexBits);

@@ -104,8 +104,8 @@ namespace pygmalion::chess
 		}
 		constexpr static int invertRay(const int ray) noexcept
 		{
-			assert(ray >= 0);
-			assert(ray < 8);
+			PYGMALION_ASSERT(ray >= 0);
+			PYGMALION_ASSERT(ray < 8);
 			return 7 - ray;
 		}
 	};

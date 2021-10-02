@@ -35,7 +35,7 @@ namespace pygmalion
 			{
 				const bitsType bb{ bitsType(static_cast<typename std::make_unsigned<size_t>::type>(k)).deposePattern(m_Magic.premask()) };
 				const size_t idx{ m_Magic.cast(bb) };
-				assert(idx < N);
+				PYGMALION_ASSERT(idx < N);
 				initializeValue(m_pValues[idx], bb, pData);
 			}
 			static_cast<instanceType*>(this)->postInitialize_Implementation(info, pData);
@@ -51,7 +51,7 @@ namespace pygmalion
 			{
 				const bitsType bb{ bitsType(static_cast<typename std::make_unsigned<size_t>::type>(k)).deposePattern(m_Magic.premask()) };
 				const size_t idx{ m_Magic.cast(bb) };
-				assert(idx < N);
+				PYGMALION_ASSERT(idx < N);
 				initializeValue(m_pValues[idx], bb, pData);
 			}
 			static_cast<instanceType*>(this)->postInitialize_Implementation(info, pData);
@@ -87,7 +87,7 @@ namespace pygmalion
 		}
 		constexpr const valueType& value(const bitsType& bitboard) const noexcept
 		{
-			assert(m_pValues != nullptr);
+			PYGMALION_ASSERT(m_pValues != nullptr);
 			const size_t i{ m_Magic.cast(bitboard) };
 			return m_pValues[i];
 		}

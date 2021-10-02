@@ -59,7 +59,7 @@ namespace pygmalion
 					return evaluatorType::template stageNames<STAGES2...>(index, counter + 1);
 				else
 				{
-					assert(false);
+					PYGMALION_ASSERT(false);
 					return "???";
 				}
 			}
@@ -75,7 +75,7 @@ namespace pygmalion
 					return evaluatorType::template stageScores<STAGES2...>(index, counter + 1, stack);
 				else
 				{
-					assert(false);
+					PYGMALION_ASSERT(false);
 					return scoreType::zero();
 				}
 			}
@@ -103,7 +103,7 @@ namespace pygmalion
 				return evaluatorType::template stageNames<STAGES...>(index, 0);
 			else
 			{
-				assert(false);
+				PYGMALION_ASSERT(false);
 				return "???";
 			}
 		}
@@ -113,7 +113,7 @@ namespace pygmalion
 				return evaluatorType::template stageScores<STAGES...>(index, 0, stack);
 			else
 			{
-				assert(false);
+				PYGMALION_ASSERT(false);
 				return scoreType::zero();
 			}
 		}

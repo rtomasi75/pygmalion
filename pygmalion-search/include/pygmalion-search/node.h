@@ -40,7 +40,7 @@ namespace pygmalion
 		scoreType lateScore() const noexcept
 		{
 			const gamestateType lateState{ evaluatorType::lateResult(m_Stack) };
-			assert(!gamestateType::isOpen(lateState));
+			PYGMALION_ASSERT(!gamestateType::isOpen(lateState));
 			if (gamestateType::isDraw(lateState))
 			{
 				return scoreType::zero();

@@ -29,7 +29,7 @@ namespace intrinsics::test
 			const int steps = static_cast<int>(std::floor(delta / step));
 			m_Input[i] = static_cast<double>(std::rand() % steps) * step + min;
 			m_Values1[i] = static_cast<S1>(m_Input[i]);
-			assert(std::abs(m_Values1[i].get_Value()) < S1::WINNINGVALUE);
+			PYGMALION_ASSERT(std::abs(m_Values1[i].get_Value()) < S1::WINNINGVALUE);
 		}
 		str << "    casting to score<" << MANTISSA2 << "," << SHIFT2 << "," << MAXDIST2 << ">..." << std::endl;
 		profiler profile;

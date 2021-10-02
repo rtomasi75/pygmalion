@@ -37,27 +37,27 @@ namespace pygmalion::tictactoe
 				moves = moveTable[static_cast<typename squaresType::bitsType>(stack.position().totalOccupancy())];
 			}
 			else
-				assert(0);
+				PYGMALION_ASSERT(0);
 		}
 		static void generateTacticalMoves_Implementation(const stackType& stack, movelistType& moves, const passType currentPass) noexcept
 		{
-			assert(0);
+			PYGMALION_ASSERT(0);
 		}
 		static void generateCriticalMoves_Implementation(const stackType& stack, movelistType& moves, const passType currentPass) noexcept
 		{
-			assert(0);
+			PYGMALION_ASSERT(0);
 		}
 		static void generateQuietCriticalMoves_Implementation(const stackType& stack, movelistType& moves, const passType currentPass) noexcept
 		{
-			assert(0);
+			PYGMALION_ASSERT(0);
 		}
 		static void generateCriticalEvasionMoves_Implementation(const stackType& stack, movelistType& moves, const passType currentPass) noexcept
 		{
-			assert(0);
+			PYGMALION_ASSERT(0);
 		}
 		static void generateTacticalCriticalEvasionMoves_Implementation(const stackType& stack, movelistType& moves, const passType currentPass) noexcept
 		{
-			assert(0);
+			PYGMALION_ASSERT(0);
 		}
 		static std::string moveToString_Implementation(const stackType& stack, const movebitsType moveBits, const size_t depth) noexcept
 		{
@@ -68,7 +68,7 @@ namespace pygmalion::tictactoe
 			switch (file)
 			{
 			default:
-				assert(false);
+				PYGMALION_UNREACHABLE;
 				break;
 			case 0:
 				text += "a";
@@ -83,7 +83,7 @@ namespace pygmalion::tictactoe
 			switch (rank)
 			{
 			default:
-				assert(false);
+				PYGMALION_UNREACHABLE;
 				break;
 			case 0:
 				text += "1";
