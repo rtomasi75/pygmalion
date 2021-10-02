@@ -6,7 +6,7 @@ namespace pygmalion::chess
 	public:
 		static std::string gamestateToString_Implementation(const boardType& position, const gamestateType gs) noexcept
 		{
-			assert(!gamestateType::isOpen(gs));
+			PYGMALION_ASSERT(!gamestateType::isOpen(gs));
 			if (gamestateType::isDraw(gs))
 				return "1/2-1/2";
 			else if (gamestateType::isWin(gs, whitePlayer))

@@ -42,9 +42,5 @@ namespace pygmalion::dynamics
 			}
 		}
 		virtual ~engine() noexcept = default;
-		virtual std::string version() const noexcept override
-		{
-			return "no game (dynamics only)";
-		}
 	};
 }

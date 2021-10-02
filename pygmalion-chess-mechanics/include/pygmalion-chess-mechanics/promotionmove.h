@@ -18,7 +18,7 @@ namespace pygmalion::chess
 			{
 				return m_ReversiblePlies;
 			}
-			constexpr const uint_t<countFiles, false>& oldFlags() const noexcept
+			constexpr const uint_t<countFiles, false> oldFlags() const noexcept
 			{
 				return m_OldFlags;
 			}
@@ -30,7 +30,7 @@ namespace pygmalion::chess
 			{
 				return m_To;
 			}
-			constexpr promotionMovedata(const squareType fromSquare, const squareType toSquare, const uint_t<countFiles, false>& oldFlags_, const std::uint16_t reversiblePlies_) noexcept :
+			constexpr promotionMovedata(const squareType fromSquare, const squareType toSquare, const uint_t<countFiles, false> oldFlags_, const std::uint16_t reversiblePlies_) noexcept :
 				m_From{ fromSquare },
 				m_To{ toSquare },
 				m_OldFlags{ oldFlags_ },
@@ -45,32 +45,34 @@ namespace pygmalion::chess
 		};
 	}
 
+	template<size_t PIECE>
 	class promotionmove :
-		public pygmalion::mechanics::move<board, 2 * board::squareType::countUnsignedBits, detail::promotionMovedata, promotionmove>,
+		public pygmalion::mechanics::move<board, 2 * board::squareType::countUnsignedBits, detail::promotionMovedata, promotionmove<PIECE>>,
 		public board::descriptorState
 	{
 	public:
 		using boardType = board;
 		using descriptorState = typename boardType::descriptorState;
 #include <pygmalion-state/include_state.h>
+		using movebitsType = typename pygmalion::mechanics::move<board, 2 * board::squareType::countUnsignedBits, detail::promotionMovedata, promotionmove<PIECE>>::movebitsType;
 		constexpr static const size_t countFromBits{ squareType::countUnsignedBits };
 		constexpr static const size_t countToBits{ squareType::countUnsignedBits };
 	private:
-		pieceType m_PromotedPiece;
+		constexpr static const inline pieceType m_PromotedPiece{static_cast<pieceType>(PIECE)};
 	public:
-		std::string name_Implementation() const noexcept
+		static std::string name_Implementation() noexcept
 		{
 			std::stringstream sstr;
 			sstr << "" << sizeof(typename promotionmove::movedataType) << ":" << promotionmove::countBits << "@promotion" << boardType::pieceToString(m_PromotedPiece, whitePlayer);
 			return sstr.str();
 		}
 	private:
-		constexpr static squareType extractTo(const typename promotionmove::movebitsType& movebits) noexcept
+		constexpr static squareType extractTo(const typename promotionmove::movebitsType movebits) noexcept
 		{
 			const squareType sq{ squareType(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(movebits.template extractBits<countFromBits,countToBits>())) };
 			return sq;
 		}
-		constexpr static squareType extractFrom(const typename promotionmove::movebitsType& movebits) noexcept
+		constexpr static squareType extractFrom(const typename promotionmove::movebitsType movebits) noexcept
 		{
 			const squareType sq{ squareType(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(movebits.template extractBits<0,countFromBits>())) };
 			return sq;
@@ -84,8 +86,7 @@ namespace pygmalion::chess
 			movebits.template storeBits<0, countFromBits>(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(sq));
 		}
 	protected:
-		constexpr promotionmove(const pieceType promotedPiece) noexcept :
-			m_PromotedPiece{ promotedPiece }
+		constexpr promotionmove() noexcept 
 		{
 
 		}
@@ -95,7 +96,7 @@ namespace pygmalion::chess
 		constexpr promotionmove& operator=(promotionmove&&) noexcept = default;
 		constexpr promotionmove& operator=(const promotionmove&) noexcept = default;
 	public:
-		constexpr typename promotionmove::movedataType doMove_Implementation(boardType& position, const typename promotionmove::movebitsType& moveBits) const noexcept
+		constexpr typename promotionmove::movedataType doMove_Implementation(boardType& position, const typename promotionmove::movebitsType moveBits) const noexcept
 		{
 			const squareType from{ promotionmove::extractFrom(moveBits) };
 			const squareType to{ promotionmove::extractTo(moveBits) };
@@ -191,21 +192,21 @@ namespace pygmalion::chess
 			}
 			return false;
 		}
-		std::string toString_Implementation(const boardType& position, const typename promotionmove::movebitsType& moveBits) const noexcept
+		std::string toString_Implementation(const boardType& position, const typename promotionmove::movebitsType moveBits) const noexcept
 		{
 			const squareType from{ promotionmove::extractFrom(moveBits) };
 			const squareType to{ promotionmove::extractTo(moveBits) };
 			return boardType::squareToString(from) + boardType::squareToString(to) + boardType::pieceToString(m_PromotedPiece, position.movingPlayer());
 		}
-		constexpr squaresType otherOccupancyDelta_Implementation(const boardType& position, const movebitsType& moveBits) const noexcept
+		constexpr squaresType otherOccupancyDelta_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
 		{
 			return squaresType::none();
 		}
-		constexpr squaresType ownOccupancyDelta_Implementation(const boardType& position, const movebitsType& moveBits) const noexcept
+		constexpr squaresType ownOccupancyDelta_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
 		{
 			return squaresType(promotionmove::extractFrom(moveBits)) ^ squaresType(promotionmove::extractTo(moveBits));
 		}
-		constexpr squaresType pieceOccupancyDelta_Implementation(const boardType& position, const pieceType& piece, const movebitsType& moveBits) const noexcept
+		constexpr squaresType pieceOccupancyDelta_Implementation(const boardType& position, const pieceType piece, const movebitsType moveBits) const noexcept
 		{
 			squaresType delta{ squaresType::none() };
 			if (piece==pawn)
@@ -214,11 +215,11 @@ namespace pygmalion::chess
 				delta ^= promotionmove::extractTo(moveBits);
 			return delta;
 		}
-		constexpr squareType fromSquare_Implementation(const boardType& position, const movebitsType& moveBits) const noexcept
+		constexpr squareType fromSquare_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
 		{
 			return promotionmove::extractFrom(moveBits);
 		}
-		constexpr squareType toSquare_Implementation(const boardType& position, const movebitsType& moveBits) const noexcept
+		constexpr squareType toSquare_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
 		{
 			return promotionmove::extractTo(moveBits);
 		}

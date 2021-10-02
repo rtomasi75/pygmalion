@@ -328,7 +328,7 @@ namespace pygmalion::chess
 				return positionalValue + captureValue + promotionValue;
 			}
 			default:
-				assert(false);
+				PYGMALION_UNREACHABLE;
 				return scoreType::zero();
 			}
 		}
@@ -805,11 +805,11 @@ namespace pygmalion::chess
 				return positionalValue + captureValue + promotionValue;
 			}
 			default:
-				assert(false);
+				PYGMALION_UNREACHABLE;
 				return scoreType::zero();
 			}
 		}
-		scoreType moveFutilityValue_Implementation(const movebitsType& move) const noexcept
+		scoreType moveFutilityValue_Implementation(const movebitsType move) const noexcept
 		{
 			if (motorType::move().isCapture(move))
 			{

@@ -137,7 +137,7 @@ namespace pygmalion
 		}
 		constexpr instanceType next() const noexcept
 		{
-			assert(this->isValid());
+			PYGMALION_ASSERT(this->isValid());
 			return instanceType(static_cast<valueType>(((static_cast<baseType>(m_Value) + 1) % static_cast<baseType>(countValues))));
 		}
 		constexpr bool isValid() const noexcept
@@ -195,7 +195,7 @@ namespace pygmalion
 			}
 			constexpr iterator& operator++() noexcept
 			{
-				assert(m_Current < COUNT);
+				PYGMALION_ASSERT(m_Current < COUNT);
 				++m_Current;
 				return *this;
 			}

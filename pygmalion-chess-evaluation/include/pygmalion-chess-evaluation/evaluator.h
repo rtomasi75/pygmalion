@@ -131,7 +131,7 @@ namespace pygmalion::chess
 			const squareType from{ motorType::move().fromSquare(position, move) };
 			pieceType attackingPiece{ position.getPiece(from) };
 			playerType attackingSide{ position.getPlayer(from) };
-			assert(attackingPiece.isValid());
+			PYGMALION_ASSERT(attackingPiece.isValid());
 			materialScore gain[32];
 			if (motorType::move().isCapture(move))
 			{
@@ -158,7 +158,7 @@ namespace pygmalion::chess
 			while (true)
 			{
 				d++;
-				assert(d < 32);
+				PYGMALION_ASSERT(d < 32);
 				gain[d] = boardType::materialValue(attackingPiece, whitePlayer) - gain[d - 1];
 				if (materialScore::max(gain[d - 1], gain[d]) < materialScore::zero())
 					break;

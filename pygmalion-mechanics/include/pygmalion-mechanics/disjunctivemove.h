@@ -1,5 +1,7 @@
 namespace pygmalion::mechanics
 {
+//#define PYGMALION_MOVESTATISTICS
+
 	namespace detail
 	{
 		template<typename MOVE, typename... MOVES2>
@@ -76,13 +78,15 @@ namespace pygmalion::mechanics
 
 	}
 
-	template<typename BOARD, typename... MOVES>
+	template<typename BOARD, typename INSTANCE, typename... MOVES>
 	class disjunctivemove :
-		public move<BOARD, detail::computeDisjunctiveBitsRequired<MOVES...>() + pygmalion::detail::requiredUnsignedBits(sizeof...(MOVES)), detail::disjunctiveMovedata<BOARD, MOVES...>, disjunctivemove<BOARD, MOVES...>>
+		public move<BOARD, detail::computeDisjunctiveBitsRequired<MOVES...>() + pygmalion::detail::requiredUnsignedBits(sizeof...(MOVES)), detail::disjunctiveMovedata<BOARD, MOVES...>, disjunctivemove<BOARD, INSTANCE, MOVES...>>
 	{
 	public:
+		using instanceType = INSTANCE;
 		constexpr static const size_t countDataBits{ detail::computeDisjunctiveBitsRequired<MOVES...>() };
 		constexpr static const size_t countMuxBits{ pygmalion::detail::requiredUnsignedBits(sizeof...(MOVES)) };
+		constexpr static const size_t countChannels{ sizeof...(MOVES) };
 		using muxbitsType = uint_t<countMuxBits, false>;
 		using boardType = BOARD;
 		using descriptorState = typename boardType::descriptorState;
@@ -92,7 +96,7 @@ namespace pygmalion::mechanics
 			return (idx < sizeof...(MOVES)) && (idx >= 0);
 		}
 		template<size_t INDEX, size_t COUNTER, typename MOVE, typename... MOVES2>
-		constexpr static auto databitsPack(const typename disjunctivemove::movebitsType& moveBits) noexcept
+		constexpr static auto databitsPack(const typename disjunctivemove::movebitsType moveBits) noexcept
 		{
 			if constexpr (INDEX == COUNTER)
 				return moveBits.template extractBits<0, MOVE::countBits>();
@@ -100,7 +104,7 @@ namespace pygmalion::mechanics
 				return disjunctivemove::databitsPack<INDEX, COUNTER + 1, MOVES2...>(moveBits);
 		}
 	protected:
-		constexpr static muxbitsType muxbits(const typename disjunctivemove::movebitsType& moveBits) noexcept
+		constexpr static muxbitsType muxbits(const typename disjunctivemove::movebitsType moveBits) noexcept
 		{
 			return moveBits.template extractBits<countDataBits, countMuxBits>();
 		}
@@ -111,6 +115,9 @@ namespace pygmalion::mechanics
 		}
 	private:
 		std::tuple<MOVES...> m_Moves;
+#if defined(PYGMALION_MOVESTATISTICS)
+		static inline std::array<std::uintmax_t, sizeof...(MOVES)> m_Statistics{ arrayhelper::make<sizeof...(MOVES),std::uintmax_t>(0) };
+#endif
 		template<typename MOVE, typename... MOVES2>
 		static std::string namePack() noexcept
 		{
@@ -120,8 +127,18 @@ namespace pygmalion::mechanics
 			else
 				return move.name();
 		}
+		template<size_t INDEX, typename MOVE, typename... MOVES2>
+		static std::string channelPack(const size_t index) noexcept
+		{
+			if (INDEX == index)
+				return MOVE::name();
+			if constexpr (sizeof...(MOVES2) > 0)
+				return disjunctivemove::channelPack<INDEX + 1, MOVES2...>(index);
+			else
+				return "";
+		}
 	public:
-		std::string name_Implementation() const noexcept
+		static std::string name_Implementation() noexcept
 		{
 			constexpr size_t N{ pygmalion::detail::requiredUnsignedBits(sizeof...(MOVES)) };
 			std::stringstream sstr;
@@ -132,6 +149,12 @@ namespace pygmalion::mechanics
 			sstr << "]]";
 			return sstr.str();
 		}
+		static std::string channel(const size_t channel) noexcept
+		{
+			if constexpr (sizeof...(MOVES) > 0)
+				return disjunctivemove::channelPack<0, MOVES...>(channel);
+			return "";
+		}
 		template<size_t INDEX>
 		constexpr const auto& component() const noexcept
 		{
@@ -139,10 +162,13 @@ namespace pygmalion::mechanics
 		}
 	private:
 		template<size_t INDEX, typename MOVE, typename... MOVES2>
-		constexpr void doMovePack(boardType& position, const size_t selector, const typename disjunctivemove::movebitsType& moveBits, typename disjunctivemove::movedataType& combinedData) const noexcept
+		constexpr void doMovePack(boardType& position, const size_t selector, const typename disjunctivemove::movebitsType moveBits, typename disjunctivemove::movedataType& combinedData) const noexcept
 		{
 			if (INDEX == selector)
 			{
+#if defined(PYGMALION_MOVESTATISTICS)
+				m_Statistics[INDEX]++;
+#endif
 				typename MOVE::movebitsType bits{ moveBits.template extractBits<0,MOVE::countBits>() };
 				typename MOVE::movedataType& data{ *reinterpret_cast<typename MOVE::movedataType*>(combinedData.dataPtr()) };
 				data = std::get<INDEX>(this->m_Moves).doMove(position, bits);
@@ -156,7 +182,7 @@ namespace pygmalion::mechanics
 			}
 		}
 	public:
-		constexpr typename disjunctivemove::movedataType doMove_Implementation(boardType& position, const typename disjunctivemove::movebitsType& moveBits) const noexcept
+		constexpr typename disjunctivemove::movedataType doMove_Implementation(boardType& position, const typename disjunctivemove::movebitsType moveBits) const noexcept
 		{
 			const muxbitsType mux{ disjunctivemove::muxbits(moveBits) };
 			const size_t selector{ static_cast<size_t>(static_cast<typename std::make_unsigned<size_t>::type>(mux)) };
@@ -191,11 +217,12 @@ namespace pygmalion::mechanics
 		template<size_t INDEX, typename MOVE, typename... MOVES2>
 		bool parsePack(const boardType& position, std::string& text, typename disjunctivemove::movebitsType& moveBits) const noexcept
 		{
-			typename MOVE::movebitsType bits;
-			if (std::get<INDEX>(this->m_Moves).parse(position, text, bits))
+			using currentMoveType = typename std::decay<decltype(std::get<getParseIndex(INDEX)>(this->m_Moves))>::type;
+			typename currentMoveType::movebitsType bits;
+			if (std::get<getParseIndex(INDEX)>(this->m_Moves).parse(position, text, bits))
 			{
-				constexpr const muxbitsType mux{ static_cast<muxbitsType>(static_cast<typename std::make_unsigned<size_t>::type>(INDEX)) };
-				moveBits.template storeBits<0, MOVE::movebitsType::countBits>(bits);
+				constexpr const muxbitsType mux{ static_cast<muxbitsType>(static_cast<typename std::make_unsigned<size_t>::type>(getParseIndex(INDEX))) };
+				moveBits.template storeBits<0, currentMoveType::movebitsType::countBits>(bits);
 				moveBits.template storeBits<countDataBits, countMuxBits>(mux);
 				return true;
 			}
@@ -217,7 +244,7 @@ namespace pygmalion::mechanics
 		}
 	private:
 		template<size_t INDEX, typename MOVE, typename... MOVES2>
-		std::string printPack(const boardType& position, const size_t selector, const typename disjunctivemove::movebitsType& moveBits) const noexcept
+		std::string printPack(const boardType& position, const size_t selector, const typename disjunctivemove::movebitsType moveBits) const noexcept
 		{
 			if (INDEX == selector)
 			{
@@ -233,7 +260,7 @@ namespace pygmalion::mechanics
 			}
 		}
 	public:
-		std::string toString_Implementation(const boardType& position, const typename disjunctivemove::movebitsType& moveBits) const noexcept
+		std::string toString_Implementation(const boardType& position, const typename disjunctivemove::movebitsType moveBits) const noexcept
 		{
 			const muxbitsType mux{ disjunctivemove::muxbits(moveBits) };
 			const size_t selector{ static_cast<size_t>(static_cast<typename std::make_unsigned<size_t>::type>(mux)) };
@@ -244,8 +271,14 @@ namespace pygmalion::mechanics
 		}
 	private:
 	public:
+#if defined(PYGMALION_MOVESTATISTICS)
+		static std::uintmax_t statistics(const size_t index) noexcept
+		{
+			return m_Statistics[index];
+		}
+#endif
 		template<size_t INDEX>
-		constexpr typename disjunctivemove::movebitsType create(const typename detail::disjunctivemoveSelector<INDEX, 0, MOVES...>::moveType::movebitsType& bits) const noexcept
+		constexpr typename disjunctivemove::movebitsType create(const typename detail::disjunctivemoveSelector<INDEX, 0, MOVES...>::moveType::movebitsType bits) const noexcept
 		{
 			typename disjunctivemove::movebitsType moveBits;
 			if constexpr (sizeof...(MOVES) > 0)
@@ -270,7 +303,7 @@ namespace pygmalion::mechanics
 		constexpr disjunctivemove& operator=(const disjunctivemove&) noexcept = default;
 	private:
 		template<size_t INDEX, typename MOVE, typename... MOVES2>
-		constexpr squaresType otherOccupancyDeltaPack(const boardType& position, const size_t selector, const typename disjunctivemove::movebitsType& moveBits) const noexcept
+		constexpr squaresType otherOccupancyDeltaPack(const boardType& position, const size_t selector, const typename disjunctivemove::movebitsType moveBits) const noexcept
 		{
 			if (INDEX == selector)
 			{
@@ -286,7 +319,7 @@ namespace pygmalion::mechanics
 			}
 		}
 		template<size_t INDEX, typename MOVE, typename... MOVES2>
-		constexpr squaresType ownOccupancyDeltaPack(const boardType& position, const size_t selector, const typename disjunctivemove::movebitsType& moveBits) const noexcept
+		constexpr squaresType ownOccupancyDeltaPack(const boardType& position, const size_t selector, const typename disjunctivemove::movebitsType moveBits) const noexcept
 		{
 			if (INDEX == selector)
 			{
@@ -302,7 +335,7 @@ namespace pygmalion::mechanics
 			}
 		}
 		template<size_t INDEX, typename MOVE, typename... MOVES2>
-		constexpr squaresType pieceOccupancyDeltaPack(const boardType& position, const pieceType& piece, const size_t selector, const typename disjunctivemove::movebitsType& moveBits) const noexcept
+		constexpr squaresType pieceOccupancyDeltaPack(const boardType& position, const pieceType piece, const size_t selector, const typename disjunctivemove::movebitsType moveBits) const noexcept
 		{
 			if (INDEX == selector)
 			{
@@ -318,7 +351,7 @@ namespace pygmalion::mechanics
 			}
 		}
 		template<size_t INDEX, typename MOVE, typename... MOVES2>
-		constexpr squareType fromSquarePack(const boardType& position, const size_t selector, const typename disjunctivemove::movebitsType& moveBits) const noexcept
+		constexpr squareType fromSquarePack(const boardType& position, const size_t selector, const typename disjunctivemove::movebitsType moveBits) const noexcept
 		{
 			if (INDEX == selector)
 			{
@@ -337,7 +370,7 @@ namespace pygmalion::mechanics
 			}
 		}
 		template<size_t INDEX, typename MOVE, typename... MOVES2>
-		constexpr squareType toSquarePack(const boardType& position, const size_t selector, const typename disjunctivemove::movebitsType& moveBits) const noexcept
+		constexpr squareType toSquarePack(const boardType& position, const size_t selector, const typename disjunctivemove::movebitsType moveBits) const noexcept
 		{
 			if (INDEX == selector)
 			{
@@ -350,13 +383,17 @@ namespace pygmalion::mechanics
 					return this->template toSquarePack<INDEX + 1, MOVES2...>(position, selector, moveBits);
 				else
 				{
-					assert(false);
+					PYGMALION_ASSERT(false);
 					return squareType::invalid;
 				}
 			}
 		}
 	public:
-		constexpr squaresType otherOccupancyDelta_Implementation(const boardType& position, const typename disjunctivemove::movebitsType& moveBits) const noexcept
+		constexpr static size_t getParseIndex(const size_t index) noexcept
+		{
+			return instanceType::getParseIndex_Implementation(index);
+		}
+		constexpr squaresType otherOccupancyDelta_Implementation(const boardType& position, const typename disjunctivemove::movebitsType moveBits) const noexcept
 		{
 			const muxbitsType mux{ disjunctivemove::muxbits(moveBits) };
 			const size_t selector{ static_cast<size_t>(static_cast<typename std::make_unsigned<size_t>::type>(mux)) };
@@ -365,7 +402,7 @@ namespace pygmalion::mechanics
 			else
 				return squaresType::none();
 		}
-		constexpr squaresType ownOccupancyDelta_Implementation(const boardType& position, const typename disjunctivemove::movebitsType& moveBits) const noexcept
+		constexpr squaresType ownOccupancyDelta_Implementation(const boardType& position, const typename disjunctivemove::movebitsType moveBits) const noexcept
 		{
 			const muxbitsType mux{ disjunctivemove::muxbits(moveBits) };
 			const size_t selector{ static_cast<size_t>(static_cast<typename std::make_unsigned<size_t>::type>(mux)) };
@@ -374,7 +411,7 @@ namespace pygmalion::mechanics
 			else
 				return squaresType::none();
 		}
-		constexpr squaresType pieceOccupancyDelta_Implementation(const boardType& position, const pieceType& piece, const typename disjunctivemove::movebitsType& moveBits) const noexcept
+		constexpr squaresType pieceOccupancyDelta_Implementation(const boardType& position, const pieceType piece, const typename disjunctivemove::movebitsType moveBits) const noexcept
 		{
 			const muxbitsType mux{ disjunctivemove::muxbits(moveBits) };
 			const size_t selector{ static_cast<size_t>(static_cast<typename std::make_unsigned<size_t>::type>(mux)) };
@@ -383,7 +420,7 @@ namespace pygmalion::mechanics
 			else
 				return squaresType::none();
 		}
-		constexpr squareType fromSquare_Implementation(const boardType& position, const typename disjunctivemove::movebitsType& moveBits) const noexcept
+		constexpr squareType fromSquare_Implementation(const boardType& position, const typename disjunctivemove::movebitsType moveBits) const noexcept
 		{
 			const muxbitsType mux{ disjunctivemove::muxbits(moveBits) };
 			const size_t selector{ static_cast<size_t>(static_cast<typename std::make_unsigned<size_t>::type>(mux)) };
@@ -391,11 +428,11 @@ namespace pygmalion::mechanics
 				return this->template fromSquarePack<0, MOVES...>(position, selector, moveBits);
 			else
 			{
-				assert(false);
+				PYGMALION_ASSERT(false);
 				return squareType::invalid;
 			}
 		}
-		constexpr squareType toSquare_Implementation(const boardType& position, const typename disjunctivemove::movebitsType& moveBits) const noexcept
+		constexpr squareType toSquare_Implementation(const boardType& position, const typename disjunctivemove::movebitsType moveBits) const noexcept
 		{
 			const muxbitsType mux{ disjunctivemove::muxbits(moveBits) };
 			const size_t selector{ static_cast<size_t>(static_cast<typename std::make_unsigned<size_t>::type>(mux)) };
@@ -403,7 +440,7 @@ namespace pygmalion::mechanics
 				return this->template toSquarePack<0, MOVES...>(position, selector, moveBits);
 			else
 			{
-				assert(false);
+				PYGMALION_ASSERT(false);
 				return squareType::invalid;
 			}
 		}

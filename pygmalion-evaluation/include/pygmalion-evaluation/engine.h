@@ -26,9 +26,5 @@ namespace pygmalion::evaluation
 			}
 		}
 		virtual ~engine() noexcept = default;
-		virtual std::string version() const noexcept override
-		{
-			return "no game (evaluation only)";
-		}
 	};
 }

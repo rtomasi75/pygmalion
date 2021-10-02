@@ -15,12 +15,12 @@ namespace pygmalion::mechanics
 		private:
 			uint_t<countAffectedFlags, false> m_OldFlags;
 		public:
-			constexpr const uint_t<countAffectedFlags, false>& oldFlags() const noexcept
+			constexpr const uint_t<countAffectedFlags, false> oldFlags() const noexcept
 			{
 				return m_OldFlags;
 			}
 			constexpr setflagsMovedata() noexcept = default;
-			constexpr setflagsMovedata(const uint_t<countAffectedFlags, false>& oldFlags_) noexcept :
+			constexpr setflagsMovedata(const uint_t<countAffectedFlags, false> oldFlags_) noexcept :
 				m_OldFlags{ oldFlags_ }
 			{}
 			constexpr setflagsMovedata(setflagsMovedata&&) noexcept = default;
@@ -42,7 +42,7 @@ namespace pygmalion::mechanics
 		constexpr static flagType firstFlag{ static_cast<typename flagType::baseType>(FIRST) };
 		constexpr static flagType lastFlag{ static_cast<typename flagType::baseType>(LAST) };
 		constexpr static size_t countAffectedFlags{ 1 + LAST - FIRST };
-		std::string name_Implementation() const noexcept
+		static std::string name_Implementation() noexcept
 		{
 			std::stringstream sstr;
 			sstr << "" << sizeof(typename setflagsmove::movedataType) << ":" << setflagsmove::countBits << "@setflags(" << boardType::flagToString(firstFlag) << ":" << boardType::flagToString(lastFlag) << ")";
@@ -54,7 +54,7 @@ namespace pygmalion::mechanics
 		constexpr setflagsmove(const setflagsmove&) noexcept = default;
 		constexpr setflagsmove& operator=(setflagsmove&&) noexcept = default;
 		constexpr setflagsmove& operator=(const setflagsmove&) noexcept = default;
-		constexpr typename setflagsmove::movedataType doMove_Implementation(boardType& position, const typename setflagsmove::movebitsType& moveBits) const noexcept
+		constexpr typename setflagsmove::movedataType doMove_Implementation(boardType& position, const typename setflagsmove::movebitsType moveBits) const noexcept
 		{
 			const uint_t<countAffectedFlags, false> oldFlags{ position.template extractFlagRange<FIRST,LAST>() };
 			position.template setFlagRange<FIRST, LAST>();
@@ -93,7 +93,7 @@ namespace pygmalion::mechanics
 			}
 			return false;
 		}
-		std::string toString_Implementation(const boardType& position, const typename setflagsmove::movebitsType& moveBits) const noexcept
+		std::string toString_Implementation(const boardType& position, const typename setflagsmove::movebitsType moveBits) const noexcept
 		{
 			return "#" + boardType::flagToString(firstFlag) + ":" + boardType::flagToString(lastFlag);
 		}

@@ -29,7 +29,7 @@ namespace pygmalion
 				return sc2;
 		}
 		template<typename STAGE, typename... STAGES2>
-		static scoreType computeStages(const scoreType& alpha, const scoreType& beta, const scoreType& sc, const typename generatorType::stackType& stack) noexcept
+		static scoreType computeStages(const scoreType alpha, const scoreType beta, const scoreType sc, const typename generatorType::stackType& stack) noexcept
 		{
 			scoreType sc2{ sc };
 			constexpr const scoreType delta{ computeDelta<STAGE,STAGES2...>() };
@@ -59,7 +59,7 @@ namespace pygmalion
 					return evaluatorType::template stageNames<STAGES2...>(index, counter + 1);
 				else
 				{
-					assert(false);
+					PYGMALION_ASSERT(false);
 					return "???";
 				}
 			}
@@ -75,7 +75,7 @@ namespace pygmalion
 					return evaluatorType::template stageScores<STAGES2...>(index, counter + 1, stack);
 				else
 				{
-					assert(false);
+					PYGMALION_ASSERT(false);
 					return scoreType::zero();
 				}
 			}
@@ -87,7 +87,7 @@ namespace pygmalion
 			std::shared_ptr<pygmalion::intrinsics::command> pCommand{ createCommand<COMMAND>() };
 			list.emplace_back(std::move(pCommand));
 		}
-		constexpr static bool isFutile(const scoreType& alpha, const scoreType& beta, const scoreType& approx, const scoreType& delta) noexcept
+		constexpr static bool isFutile(const scoreType alpha, const scoreType beta, const scoreType approx, const scoreType delta) noexcept
 		{
 			return (approx + delta <= alpha) && (approx + delta < beta);
 		}
@@ -103,7 +103,7 @@ namespace pygmalion
 				return evaluatorType::template stageNames<STAGES...>(index, 0);
 			else
 			{
-				assert(false);
+				PYGMALION_ASSERT(false);
 				return "???";
 			}
 		}
@@ -113,7 +113,7 @@ namespace pygmalion
 				return evaluatorType::template stageScores<STAGES...>(index, 0, stack);
 			else
 			{
-				assert(false);
+				PYGMALION_ASSERT(false);
 				return scoreType::zero();
 			}
 		}
@@ -152,7 +152,7 @@ namespace pygmalion
 		{
 			return evaluatorType::countAspirationWindows_Implementation();
 		}
-		constexpr static scoreType staticTacticalMoveScore(const boardType& position, const movebitsType& move) noexcept
+		constexpr static scoreType staticTacticalMoveScore(const boardType& position, const movebitsType move) noexcept
 		{
 			return evaluatorType::staticTacticalMoveScore_Implementation(position, move);
 		}

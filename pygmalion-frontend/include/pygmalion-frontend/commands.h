@@ -1,5 +1,8 @@
 #include "commands/command_debugFrontend.h"
 #include "commands/command_xboard.h"
+#include "commands/command_uci.h"
+#include "commands/command_debug.h"
+#include "commands/command_isready.h"
 #include "commands/command_protover.h"
 #include "commands/command_accepted.h"
 #include "commands/command_rejected.h"

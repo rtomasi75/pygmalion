@@ -433,7 +433,7 @@ namespace pygmalion
 		}
 		constexpr void set(const size_t bit) noexcept
 		{
-			assert(bit < countBits);
+			PYGMALION_ASSERT(bit < countBits);
 			const size_t word{ bit / countBitsPerWord };
 			const size_t wbit{ bit % countBitsPerWord };
 			const wordType mask{ static_cast<wordType>(wordType(1) << wbit) };
@@ -441,7 +441,7 @@ namespace pygmalion
 		}
 		constexpr void toggle(const size_t bit) noexcept
 		{
-			assert(bit < countBits);
+			PYGMALION_ASSERT(bit < countBits);
 			const size_t word{ bit / countBitsPerWord };
 			const size_t wbit{ bit % countBitsPerWord };
 			const wordType mask{ static_cast<wordType>(wordType(1) << wbit) };
@@ -449,7 +449,7 @@ namespace pygmalion
 		}
 		constexpr void clear(const size_t bit) noexcept
 		{
-			assert(bit < countBits);
+			PYGMALION_ASSERT(bit < countBits);
 			const size_t word{ bit / countBitsPerWord };
 			const size_t wbit{ bit % countBitsPerWord };
 			const wordType mask{ static_cast<wordType>(~static_cast<wordType>(wordType(1) << wbit)) };
@@ -502,7 +502,7 @@ namespace pygmalion
 		}
 		constexpr wordType word(const size_t index) const noexcept
 		{
-			assert(index < countWords);
+			PYGMALION_ASSERT(index < countWords);
 			return m_Words[index];
 		}
 		constexpr uint_t() noexcept :
@@ -898,7 +898,7 @@ namespace pygmalion
 		}
 		constexpr uint_t operator/(const uint_t& other) const noexcept
 		{
-			assert(other);
+			PYGMALION_ASSERT(other);
 			uint_t<countBits + 1, isCompact> dividend{ *this };
 			uint_t<countBits + 1, isCompact> denom{ other };
 			uint_t<countBits + 1, isCompact> current{ uint_t<countBits + 1,isCompact>::one() };
@@ -933,7 +933,7 @@ namespace pygmalion
 		}
 		constexpr uint_t operator%(const uint_t& other) const noexcept
 		{
-			assert(other);
+			PYGMALION_ASSERT(other);
 			const uint_t q{ (*this) / other };
 			return (*this) - (q * other);
 		}
@@ -1022,13 +1022,13 @@ namespace pygmalion
 		}
 		constexpr uint_t& operator/=(const uint_t& other) noexcept
 		{
-			assert(other);
+			PYGMALION_ASSERT(other);
 			(*this) = (*this) / other;
 			return *this;
 		}
 		constexpr uint_t& operator%=(const uint_t& other) noexcept
 		{
-			assert(other);
+			PYGMALION_ASSERT(other);
 			const uint_t q{ (*this) / other };
 			(*this) -= q * other;
 			return *this;
@@ -1124,7 +1124,7 @@ namespace pygmalion
 		}
 		constexpr uint_t operator<<(const size_t shift) const noexcept
 		{
-			assert(shift >= 0);
+			PYGMALION_ASSERT(shift >= 0);
 			const size_t words{ shift / countBitsPerWord };
 			const size_t bits{ shift % countBitsPerWord };
 			if (bits > 0)
@@ -1165,7 +1165,7 @@ namespace pygmalion
 		}
 		constexpr uint_t& operator<<=(const size_t shift) noexcept
 		{
-			assert(shift >= 0);
+			PYGMALION_ASSERT(shift >= 0);
 			const size_t words{ shift / countBitsPerWord };
 			const size_t bits{ shift % countBitsPerWord };
 			if (bits > 0)
@@ -1207,7 +1207,7 @@ namespace pygmalion
 		}
 		constexpr uint_t operator>>(const size_t shift) const noexcept
 		{
-			assert(shift >= 0);
+			PYGMALION_ASSERT(shift >= 0);
 			const size_t words{ shift / countBitsPerWord };
 			const size_t bits{ shift % countBitsPerWord };
 			if (bits > 0)
@@ -1248,7 +1248,7 @@ namespace pygmalion
 		}
 		constexpr uint_t& operator>>=(const size_t shift) noexcept
 		{
-			assert(shift >= 0);
+			PYGMALION_ASSERT(shift >= 0);
 			const size_t words{ shift / countBitsPerWord };
 			const size_t bits{ shift % countBitsPerWord };
 			if (bits > 0)
@@ -1860,25 +1860,25 @@ namespace pygmalion
 		}
 		constexpr bool test(const size_t bit) const noexcept
 		{
-			assert(bit < countBits);
+			PYGMALION_ASSERT(bit < countBits);
 			const wordType mask{ static_cast<wordType>(wordType(1) << bit) };
 			return m_Word & mask;
 		}
 		constexpr void set(const size_t bit) noexcept
 		{
-			assert(bit < countBits);
+			PYGMALION_ASSERT(bit < countBits);
 			const wordType mask{ static_cast<wordType>(wordType(1) << bit) };
 			m_Word |= mask;
 		}
 		constexpr void toggle(const size_t bit) noexcept
 		{
-			assert(bit < countBits);
+			PYGMALION_ASSERT(bit < countBits);
 			const wordType mask{ static_cast<wordType>(wordType(1) << bit) };
 			m_Word ^= mask;
 		}
 		constexpr void clear(const size_t bit) noexcept
 		{
-			assert(bit < countBits);
+			PYGMALION_ASSERT(bit < countBits);
 			const wordType mask{ static_cast<wordType>(~static_cast<wordType>(wordType(1) << bit)) };
 			m_Word &= mask;
 		}
@@ -1917,7 +1917,7 @@ namespace pygmalion
 		}
 		constexpr wordType word(const size_t index) const noexcept
 		{
-			assert(index == 0);
+			PYGMALION_ASSERT(index == 0);
 			return m_Word;
 		}
 		constexpr uint_t() noexcept :
@@ -1999,13 +1999,13 @@ namespace pygmalion
 		}
 		constexpr uint_t& operator/=(const uint_t other) noexcept
 		{
-			assert(other.m_Word);
+			PYGMALION_ASSERT(other.m_Word);
 			m_Word = normalizeWord(m_Word / other.m_Word);
 			return *this;
 		}
 		constexpr uint_t& operator%=(const uint_t other) noexcept
 		{
-			assert(other.m_Word);
+			PYGMALION_ASSERT(other.m_Word);
 			m_Word %= other.m_Word;
 			return *this;
 		}
@@ -2045,12 +2045,12 @@ namespace pygmalion
 		}
 		constexpr uint_t operator/(const uint_t other) const noexcept
 		{
-			assert(other.m_Word);
+			PYGMALION_ASSERT(other.m_Word);
 			return uint_t(m_Word / other.m_Word, false);
 		}
 		constexpr uint_t operator%(const uint_t other) const noexcept
 		{
-			assert(other.m_Word);
+			PYGMALION_ASSERT(other.m_Word);
 			return uint_t(m_Word % other.m_Word, false);
 		}
 		static uint_t random() noexcept
@@ -2099,23 +2099,23 @@ namespace pygmalion
 		}
 		constexpr uint_t operator<<(const size_t shift) const noexcept
 		{
-			assert(shift >= 0);
+			PYGMALION_ASSERT(shift >= 0);
 			return uint_t((shift < countBitsPerWord) ? normalizeWord(m_Word << shift) : 0, false);
 		}
 		constexpr uint_t& operator<<=(const size_t shift) noexcept
 		{
-			assert(shift >= 0);
+			PYGMALION_ASSERT(shift >= 0);
 			m_Word = (shift < countBitsPerWord) ? normalizeWord(m_Word << shift) : 0;
 			return *this;
 		}
 		constexpr uint_t operator>>(const size_t shift) const noexcept
 		{
-			assert(shift >= 0);
+			PYGMALION_ASSERT(shift >= 0);
 			return uint_t((shift < countBitsPerWord) ? (m_Word >> shift) : 0, false);
 		}
 		constexpr uint_t& operator>>=(const size_t shift) noexcept
 		{
-			assert(shift >= 0);
+			PYGMALION_ASSERT(shift >= 0);
 			m_Word = (shift < countBitsPerWord) ? (m_Word >> shift) : 0;
 			return *this;
 		}
@@ -3336,7 +3336,7 @@ namespace pygmalion
 				case 0:
 					break;
 				default:
-					assert(false);
+					PYGMALION_UNREACHABLE;
 					break;
 				}
 			}
@@ -3434,22 +3434,22 @@ namespace pygmalion
 		}
 		constexpr bool test(const size_t bit) const noexcept
 		{
-			assert(bit == 0);
+			PYGMALION_ASSERT(bit == 0);
 			return m_Word;
 		}
 		constexpr void set(const size_t bit) noexcept
 		{
-			assert(bit == 0);
+			PYGMALION_ASSERT(bit == 0);
 			m_Word = true;
 		}
 		constexpr void toggle(const size_t bit) noexcept
 		{
-			assert(bit == 0);
+			PYGMALION_ASSERT(bit == 0);
 			m_Word = !m_Word;
 		}
 		constexpr void clear(const size_t bit) noexcept
 		{
-			assert(bit == 0);
+			PYGMALION_ASSERT(bit == 0);
 			m_Word = false;
 		}
 		template<size_t BIT, typename = typename std::enable_if<BIT == 0>::type>
@@ -3481,7 +3481,7 @@ namespace pygmalion
 		}
 		constexpr wordType word(const size_t index) const noexcept
 		{
-			assert(index == 0);
+			PYGMALION_ASSERT(index == 0);
 			return m_Word;
 		}
 		constexpr uint_t() noexcept :
@@ -3548,12 +3548,12 @@ namespace pygmalion
 		}
 		constexpr uint_t& operator/=(const uint_t other) noexcept
 		{
-			assert(other.m_Word);
+			PYGMALION_ASSERT(other.m_Word);
 			return *this;
 		}
 		constexpr uint_t& operator%=(const uint_t other) noexcept
 		{
-			assert(other.m_Word);
+			PYGMALION_ASSERT(other.m_Word);
 			m_Word = wordType(0);
 			return *this;
 		}
@@ -3596,12 +3596,12 @@ namespace pygmalion
 		}
 		constexpr uint_t operator/(const uint_t other) const noexcept
 		{
-			assert(other.m_Word);
+			PYGMALION_ASSERT(other.m_Word);
 			return *this;
 		}
 		constexpr uint_t operator%(const uint_t other) const noexcept
 		{
-			assert(other.m_Word);
+			PYGMALION_ASSERT(other.m_Word);
 			return uint_t(0, false);
 		}
 		constexpr uint_t operator&(const uint_t other) const noexcept
@@ -3654,23 +3654,23 @@ namespace pygmalion
 		}
 		constexpr uint_t operator<<(const size_t shift) const noexcept
 		{
-			assert(shift >= 0);
+			PYGMALION_ASSERT(shift >= 0);
 			return (shift == 0) ? *this : uint_t(false, false);
 		}
 		constexpr uint_t& operator<<=(const size_t shift) noexcept
 		{
-			assert(shift >= 0);
+			PYGMALION_ASSERT(shift >= 0);
 			m_Word = (shift == 0) ? m_Word : 0;
 			return *this;
 		}
 		constexpr uint_t operator>>(const size_t shift) const noexcept
 		{
-			assert(shift >= 0);
+			PYGMALION_ASSERT(shift >= 0);
 			return (shift == 0) ? *this : uint_t(false, false);
 		}
 		constexpr uint_t& operator>>=(const size_t shift) noexcept
 		{
-			assert(shift >= 0);
+			PYGMALION_ASSERT(shift >= 0);
 			m_Word = (shift == 0) ? m_Word : 0;
 			return *this;
 		}
@@ -3878,20 +3878,20 @@ namespace pygmalion
 		}
 		constexpr bool test(const size_t bit) const noexcept
 		{
-			assert(false);
+			PYGMALION_ASSERT(false);
 			return false;
 		}
 		constexpr void set(const size_t bit) noexcept
 		{
-			assert(false);
+			PYGMALION_ASSERT(false);
 		}
 		constexpr void toggle(const size_t bit) noexcept
 		{
-			assert(false);
+			PYGMALION_ASSERT(false);
 		}
 		constexpr void clear(const size_t bit) noexcept
 		{
-			assert(false);
+			PYGMALION_ASSERT(false);
 		}
 		std::string toString() const noexcept
 		{
@@ -3915,7 +3915,7 @@ namespace pygmalion
 		}
 		constexpr wordType word(const size_t index) const noexcept
 		{
-			assert(0);
+			PYGMALION_ASSERT(0);
 			return 0;
 		}
 		constexpr uint_t() noexcept = default;
@@ -3973,12 +3973,12 @@ namespace pygmalion
 		}
 		constexpr uint_t operator/=(const uint_t other) noexcept
 		{
-			assert(0);
+			PYGMALION_ASSERT(0);
 			return *this;
 		}
 		constexpr uint_t operator%=(const uint_t other) noexcept
 		{
-			assert(0);
+			PYGMALION_ASSERT(0);
 			return *this;
 		}
 		constexpr uint_t operator+=(const uint_t other) noexcept
@@ -4015,12 +4015,12 @@ namespace pygmalion
 		}
 		constexpr uint_t operator/(const uint_t other) const noexcept
 		{
-			assert(0);
+			PYGMALION_ASSERT(0);
 			return *this;
 		}
 		constexpr uint_t operator%(const uint_t other) const noexcept
 		{
-			assert(0);
+			PYGMALION_ASSERT(0);
 			return *this;
 		}
 		constexpr uint_t operator&(const uint_t other) const noexcept
@@ -4069,22 +4069,22 @@ namespace pygmalion
 		}
 		constexpr uint_t operator<<(const size_t shift) const noexcept
 		{
-			assert(shift >= 0);
+			PYGMALION_ASSERT(shift >= 0);
 			return *this;
 		}
 		constexpr uint_t& operator<<=(const size_t shift) noexcept
 		{
-			assert(shift >= 0);
+			PYGMALION_ASSERT(shift >= 0);
 			return *this;
 		}
 		constexpr uint_t operator>>(const size_t shift) const noexcept
 		{
-			assert(shift >= 0);
+			PYGMALION_ASSERT(shift >= 0);
 			return *this;
 		}
 		constexpr uint_t& operator>>=(const size_t shift) noexcept
 		{
-			assert(shift >= 0);
+			PYGMALION_ASSERT(shift >= 0);
 			return *this;
 		}
 		static const inline std::string populationCount_Intrinsic{ intrinsics::popcnt::implementationName<0,wordType>() };

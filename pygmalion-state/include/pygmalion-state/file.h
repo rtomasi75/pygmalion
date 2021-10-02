@@ -16,11 +16,11 @@ namespace pygmalion::state
 		{
 
 		}
-		constexpr file(const typename parentType::baseType& value) noexcept :
+		constexpr file(const typename parentType::baseType value) noexcept :
 			parentType(value)
 		{
 		}
-		constexpr file(const typename parentType::valueType& value) noexcept :
+		constexpr file(const typename parentType::valueType value) noexcept :
 			parentType(value)
 		{
 		}
@@ -30,15 +30,15 @@ namespace pygmalion::state
 		{
 			return countFiles - 1 - (*this);
 		}
-		constexpr squaresType operator|(const fileType& other) const noexcept
+		constexpr squaresType operator|(const fileType other) const noexcept
 		{
 			return static_cast<squaresType>(*this) | static_cast<squaresType>(other);
 		}
-		constexpr squaresType operator&(const fileType& other) const noexcept
+		constexpr squaresType operator&(const fileType other) const noexcept
 		{
 			return static_cast<squaresType>(*this) & static_cast<squaresType>(other);
 		}
-		constexpr squaresType operator^(const fileType& other) const noexcept
+		constexpr squaresType operator^(const fileType other) const noexcept
 		{
 			return static_cast<squaresType>(*this) ^ static_cast<squaresType>(other);
 		}
@@ -46,7 +46,7 @@ namespace pygmalion::state
 		{
 			return ~static_cast<squaresType>(*this);
 		}
-		constexpr squareType operator&(const rankType& rank) const noexcept
+		constexpr squareType operator&(const rankType rank) const noexcept
 		{
 			return squareType::fromRankFile(rank, *this);
 		}

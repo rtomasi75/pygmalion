@@ -93,9 +93,5 @@ namespace pygmalion::search
 		{
 			delete[] m_pContexts;
 		}
-		virtual std::string version() const noexcept override
-		{
-			return "no game (search only)";
-		}
 	};
 }

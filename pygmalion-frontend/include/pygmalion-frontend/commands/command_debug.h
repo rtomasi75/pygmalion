@@ -1,7 +1,7 @@
 namespace pygmalion::frontend
 {
 	template<typename DESCRIPTION_FRONTEND, typename FRONT>
-	class command_xboard :
+	class command_debug :
 		public pygmalion::frontend::command<DESCRIPTION_FRONTEND, FRONT>
 	{
 	public:
@@ -11,11 +11,21 @@ namespace pygmalion::frontend
 	protected:
 		virtual bool onProcess(const std::string& cmd) noexcept override
 		{
-			if (cmd == "xboard")
+			std::string token;
+			std::string remainder;
+			parser::parseToken(cmd, token, remainder);
+			if ((this->front().isUCI()) && (token == "debug"))
 			{
-				this->front().isXBoard() = true;
-				this->front().isUCI() = false;
-				this->output() << std::endl;
+				std::string remainder2;
+				parser::parseToken(remainder, token, remainder2);
+				if (token == "on")
+				{
+					this->front().isDebug() = true;
+				}
+				else if (token == "off")
+				{
+					this->front().isDebug() = false;
+				}
 				return true;
 			}
 			else
@@ -23,7 +33,7 @@ namespace pygmalion::frontend
 		}
 		virtual std::string help() noexcept override
 		{
-			return "XBOARD";
+			return "DEBUG";
 		}
 	};
 

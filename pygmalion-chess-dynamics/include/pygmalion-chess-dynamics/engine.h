@@ -17,9 +17,5 @@ namespace pygmalion::chess::dynamics
 		{
 		}
 		virtual ~engine() noexcept = default;
-		virtual std::string version() const noexcept override
-		{
-			return "chess (dynamics only)";
-		}
 	};
 }

@@ -36,15 +36,15 @@ namespace pygmalion
 			for (const auto pl : playerType::range)
 				m_LastTimeControl[pl] = 0;
 		}
-		constexpr int lastTimeControl(const playerType& pl) const noexcept
+		constexpr int lastTimeControl(const playerType pl) const noexcept
 		{
 			return m_LastTimeControl[pl];
 		}
-		constexpr void makeMove(const playerType& pl) noexcept
+		constexpr void makeMove(const playerType pl) noexcept
 		{
 			m_LastTimeControl[pl]++;
 		}
-		constexpr void unmakeMove(const playerType& pl) noexcept
+		constexpr void unmakeMove(const playerType pl) noexcept
 		{
 			m_LastTimeControl[pl]--;
 		}
@@ -62,11 +62,11 @@ namespace pygmalion
 			m_BaseTime{ 0 }
 		{
 		}
-		constexpr const clock& playerClock(const playerType& pl) const noexcept
+		constexpr const clock& playerClock(const playerType pl) const noexcept
 		{
 			return m_Clock[pl];
 		}
-		constexpr clock& playerClock(const playerType& pl) noexcept
+		constexpr clock& playerClock(const playerType pl) noexcept
 		{
 			return m_Clock[pl];
 		}

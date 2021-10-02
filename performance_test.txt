@@ -1,0 +1,50 @@
+debug-perft 7
+
+depth:  1 leafs:   20.0    nodes:   1.00    time:   44.5 mcs speed:   22.5 kN/s,    472 kmv/s
+depth:  2 leafs:    400    nodes:   21.0    time:   48.6 mcs speed:    432 kN/s,   8.66 Mmv/s
+depth:  3 leafs:   8.90 k  nodes:    421    time:    608 mcs speed:    692 kN/s,   15.3 Mmv/s
+depth:  4 leafs:    197 k  nodes:   9.32 k  time:   13.4 ms  speed:    696 kN/s,   15.4 Mmv/s
+depth:  5 leafs:   4.87 M  nodes:    207 k  time:    263 ms  speed:    786 kN/s,   19.3 Mmv/s
+depth:  6 leafs:    119 M  nodes:   5.07 M  time:   6.45 s   speed:    786 kN/s,   19.2 Mmv/s
+depth:  7 leafs:   3.20 G  nodes:    124 M  time:    172 s   speed:    723 kN/s,   19.4 Mmv/s
+
+debug-pvs 12
+
+0:            0 -
+  1.00 N   in   41.3 mcs =>   24.2 kN/s
+
+1:   +0.0527344 - e3
+  24.0 N   in   57.1 mcs =>    420 kN/s
+
+2:            0 - e3 e6
+  78.0 N   in   80.2 mcs =>    973 kN/s
+
+3:     +0.03125 - e3 d5 Qh5
+   565 N   in    370 mcs =>   1.53 MN/s
+
+4:            0 - Nc3 d5 d4 Nc6
+  2.80 kN  in   1.78 ms  =>   1.58 MN/s
+
+5:   +0.0214844 - Nc3 d5 d4 Nc6 f3
+  6.52 kN  in   3.37 ms  =>   1.93 MN/s
+
+6:            0 - Nc3 d5 d4 Nc6 Nf3 Nf6
+  46.9 kN  in   23.0 ms  =>   2.04 MN/s
+
+7:   +0.0195312 - Nc3 d5 d4 Nc6 Nf3 Nf6 Qd3
+   154 kN  in   65.9 ms  =>   2.34 MN/s
+
+8:            0 - Nc3 d5 d4 Nc6 Nf3 Nf6 Qd3 Qd6
+  1.22 MN  in    508 ms  =>   2.40 MN/s
+
+9:   +0.0117188 - Nc3 d5 d4 Nc6 f3 Nf6 Qd3 e5 xe5 Nxe5
+  2.46 MN  in   1.06 s   =>   2.31 MN/s
+
+10:  +0.00195312 - Nc3 Nc6 e4 e5 Nf3 Nf6 d4 xd4 Nxd4 Bd6
+  31.1 MN  in   13.4 s   =>   2.32 MN/s
+
+11:   +0.0175781 - Nc3 Nc6 d4 d5 e4 e6 xd5 xd5 g4 g5 f3
+  43.5 MN  in   19.0 s   =>   2.29 MN/s
+
+12:  +0.00390625 - Nc3 d5 d4 f6 f3 Nc6 e4 e6 xd5 xd5 Qe2 Nge7
+   757 MN  in    334 s   =>   2.26 MN/s

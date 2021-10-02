@@ -82,7 +82,7 @@ namespace pygmalion
 		{
 			if (number >= (size_t(1) << 31))
 			{
-				assert(sizeof(size_t) > 4);
+				PYGMALION_ASSERT(sizeof(size_t) > 4);
 				return 8;
 			}
 			if (number >= (size_t(1) << 15))
@@ -105,25 +105,25 @@ namespace pygmalion
 		}
 		void replace(const counterType& idx, const itemType& item) noexcept
 		{
-			assert(idx >= 0);
-			assert(idx < maxLength);
-			assert(idx <= (m_Length + 1));
-			assert(m_Length < (maxLength - 1));
+			PYGMALION_ASSERT(idx >= 0);
+			PYGMALION_ASSERT(idx < maxLength);
+			PYGMALION_ASSERT(idx <= (m_Length + 1));
+			PYGMALION_ASSERT(m_Length < (maxLength - 1));
 			m_Items[idx] = item;
 			m_Length = std::max(m_Length, static_cast<counterType>(idx + 1));
 		}
 		void replace(const counterType& idx, itemType&& item) noexcept
 		{
-			assert(idx >= 0);
-			assert(idx < maxLength);
-			assert(idx <= (m_Length + 1));
-			assert(m_Length < (maxLength - 1));
+			PYGMALION_ASSERT(idx >= 0);
+			PYGMALION_ASSERT(idx < maxLength);
+			PYGMALION_ASSERT(idx <= (m_Length + 1));
+			PYGMALION_ASSERT(m_Length < (maxLength - 1));
 			m_Items[idx] = item;
 			m_Length = std::max(m_Length, static_cast<counterType>(idx + 1));
 		}
 		void combine(const itemType& item, const list& tail) noexcept
 		{
-			assert(tail.m_Length < maxLength);
+			PYGMALION_ASSERT(tail.m_Length < maxLength);
 			m_Items[0] = item;
 			for (counterType i = 0; i < tail.m_Length; ++i)
 			{
@@ -133,7 +133,7 @@ namespace pygmalion
 		}
 		void combine(const list& head, const list& tail) noexcept
 		{
-			assert(tail.m_Length + head.m_Length <= maxLength);
+			PYGMALION_ASSERT(tail.m_Length + head.m_Length <= maxLength);
 			for (counterType i = 0; i < tail.m_Length; ++i)
 			{
 				m_Items[i] = head.m_Items[i];
@@ -155,7 +155,7 @@ namespace pygmalion
 		}
 		void combine(const itemType& item, list&& tail) noexcept
 		{
-			assert(tail.m_Length < maxLength);
+			PYGMALION_ASSERT(tail.m_Length < maxLength);
 			m_Items[0] = item;
 			for (counterType i = 0; i < tail.m_Length; ++i)
 			{
@@ -206,9 +206,9 @@ namespace pygmalion
 		}
 		const itemType& operator[](const counterType& idx) const noexcept
 		{
-			assert(idx >= 0);
-			assert(idx < maxLength);
-			assert(idx < m_Length);
+			PYGMALION_ASSERT(idx >= 0);
+			PYGMALION_ASSERT(idx < maxLength);
+			PYGMALION_ASSERT(idx < m_Length);
 			return m_Items[idx];
 		}
 		void clear() noexcept
@@ -217,12 +217,12 @@ namespace pygmalion
 		}
 		void add(const itemType& item) noexcept
 		{
-			assert(m_Length < maxLength);
+			PYGMALION_ASSERT(m_Length < maxLength);
 			m_Items[m_Length++] = item;
 		}
 		void add(itemType&& item) noexcept
 		{
-			assert(m_Length < maxLength);
+			PYGMALION_ASSERT(m_Length < maxLength);
 			m_Items[m_Length++] = std::move(item);
 		}
 	};

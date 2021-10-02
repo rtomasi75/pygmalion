@@ -14,12 +14,12 @@ namespace pygmalion
 		{
 
 		}
-		constexpr moveinfo(const movebitsType& moveBits) noexcept :
+		constexpr moveinfo(const movebitsType moveBits) noexcept :
 			m_MoveBits{ moveBits }
 		{
 
 		}
-		constexpr const movebitsType& moveBits() const noexcept
+		constexpr const movebitsType moveBits() const noexcept
 		{
 			return m_MoveBits;
 		}

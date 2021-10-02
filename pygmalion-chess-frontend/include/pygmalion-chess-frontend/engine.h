@@ -34,7 +34,11 @@ namespace pygmalion::chess::frontend
 		virtual ~engine() noexcept = default;
 		virtual std::string version() const noexcept override
 		{
-			return "no game (frontend only)";
+			return "Pygmalion ver. 0.1 alpha";
+		}
+		virtual std::string author() const noexcept override
+		{
+			return "Roland Tomasi";
 		}
 	};
 }

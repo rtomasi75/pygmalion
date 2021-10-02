@@ -77,102 +77,102 @@ namespace pygmalion
 						sort<passType, scoreType>::sortValues(m_CriticalIndex.data(), criticalScores.data(), countCriticalPasses);
 					}
 				}
-				constexpr passType index(const passType& pass) const noexcept
+				constexpr passType index(const passType pass) const noexcept
 				{
-					assert(pass < countPasses);
+					PYGMALION_ASSERT(pass < countPasses);
 					return m_Index[static_cast<size_t>(pass)];
 				}
-				constexpr passType criticalEvasionIndex(const passType& pass) const noexcept
+				constexpr passType criticalEvasionIndex(const passType pass) const noexcept
 				{
-					assert(pass < countCriticalEvasionPasses);
+					PYGMALION_ASSERT(pass < countCriticalEvasionPasses);
 					return m_CriticalEvasionIndex[static_cast<size_t>(pass)];
 				}
-				constexpr passType moveIndex(const passType& pass) const noexcept
+				constexpr passType moveIndex(const passType pass) const noexcept
 				{
-					assert(pass < countPasses);
+					PYGMALION_ASSERT(pass < countPasses);
 					if constexpr (!USE_SCORE)
 						return static_cast<size_t>(pass);
 					else
 						return m_Index[static_cast<size_t>(pass)];
 				}
-				constexpr passType moveCriticalEvasionIndex(const passType& pass) const noexcept
+				constexpr passType moveCriticalEvasionIndex(const passType pass) const noexcept
 				{
-					assert(pass < countCriticalEvasionPasses);
+					PYGMALION_ASSERT(pass < countCriticalEvasionPasses);
 					if constexpr (!USE_SCORE)
 						return static_cast<size_t>(pass);
 					else
 						return m_CriticalEvasionIndex[static_cast<size_t>(pass)];
 				}
-				constexpr passType scoreIndex(const passType& pass) const noexcept
+				constexpr passType scoreIndex(const passType pass) const noexcept
 				{
-					assert(pass < countPasses);
+					PYGMALION_ASSERT(pass < countPasses);
 					return m_Index[static_cast<size_t>(pass)];
 				}
-				constexpr passType criticalEvasionScoreIndex(const passType& pass) const noexcept
+				constexpr passType criticalEvasionScoreIndex(const passType pass) const noexcept
 				{
-					assert(pass < countCriticalEvasionPasses);
+					PYGMALION_ASSERT(pass < countCriticalEvasionPasses);
 					return m_CriticalEvasionIndex[static_cast<size_t>(pass)];
 				}
-				constexpr passType tacticalIndex(const passType& pass) const noexcept
+				constexpr passType tacticalIndex(const passType pass) const noexcept
 				{
-					assert(pass < countTacticalPasses);
+					PYGMALION_ASSERT(pass < countTacticalPasses);
 					return m_TacticalIndex[static_cast<size_t>(pass)];
 				}
-				constexpr passType tacticalCriticalEvasionIndex(const passType& pass) const noexcept
+				constexpr passType tacticalCriticalEvasionIndex(const passType pass) const noexcept
 				{
-					assert(pass < countTacticalCriticalEvasionPasses);
+					PYGMALION_ASSERT(pass < countTacticalCriticalEvasionPasses);
 					return m_TacticalCriticalEvasionIndex[static_cast<size_t>(pass)];
 				}
-				constexpr passType tacticalMoveIndex(const passType& pass) const noexcept
+				constexpr passType tacticalMoveIndex(const passType pass) const noexcept
 				{
-					assert(pass < countTacticalPasses);
+					PYGMALION_ASSERT(pass < countTacticalPasses);
 					if constexpr (!USE_SCORE)
 						return static_cast<size_t>(pass);
 					else
 						return m_TacticalIndex[static_cast<size_t>(pass)];
 				}
-				constexpr passType tacticalCriticalEvasionMoveIndex(const passType& pass) const noexcept
+				constexpr passType tacticalCriticalEvasionMoveIndex(const passType pass) const noexcept
 				{
-					assert(pass < countTacticalCriticalEvasionPasses);
+					PYGMALION_ASSERT(pass < countTacticalCriticalEvasionPasses);
 					if constexpr (!USE_SCORE)
 						return static_cast<size_t>(pass);
 					else
 						return m_TacticalCriticalEvasionIndex[static_cast<size_t>(pass)];
 				}
-				constexpr passType tacticalCriticalEvasionScoreIndex(const passType& pass) const noexcept
+				constexpr passType tacticalCriticalEvasionScoreIndex(const passType pass) const noexcept
 				{
-					assert(pass < countTacticalCriticalEvasionPasses);
+					PYGMALION_ASSERT(pass < countTacticalCriticalEvasionPasses);
 					return m_TacticalCriticalEvasionIndex[static_cast<size_t>(pass)];
 				}
-				constexpr passType tacticalScoreIndex(const passType& pass) const noexcept
+				constexpr passType tacticalScoreIndex(const passType pass) const noexcept
 				{
-					assert(pass < countTacticalPasses);
+					PYGMALION_ASSERT(pass < countTacticalPasses);
 					return m_TacticalIndex[static_cast<size_t>(pass)];
 				}
-				constexpr passType criticalIndex(const passType& pass) const noexcept
+				constexpr passType criticalIndex(const passType pass) const noexcept
 				{
-					assert(pass < countCriticalPasses);
+					PYGMALION_ASSERT(pass < countCriticalPasses);
 					return m_CriticalIndex[static_cast<size_t>(pass)];
 				}
-				constexpr passType criticalMoveIndex(const passType& pass) const noexcept
+				constexpr passType criticalMoveIndex(const passType pass) const noexcept
 				{
-					assert(pass < countCriticalPasses);
+					PYGMALION_ASSERT(pass < countCriticalPasses);
 					if constexpr (!USE_SCORE)
 						return static_cast<size_t>(pass);
 					else
 						return m_CriticalIndex[static_cast<size_t>(pass)];
 				}
-				constexpr passType criticalEvasionMoveIndex(const passType& pass) const noexcept
+				constexpr passType criticalEvasionMoveIndex(const passType pass) const noexcept
 				{
-					assert(pass < countCriticalEvasionPasses);
+					PYGMALION_ASSERT(pass < countCriticalEvasionPasses);
 					if constexpr (!USE_SCORE)
 						return static_cast<size_t>(pass);
 					else
 						return m_CriticalEvasionIndex[static_cast<size_t>(pass)];
 				}
-				constexpr passType criticalScoreIndex(const passType& pass) const noexcept
+				constexpr passType criticalScoreIndex(const passType pass) const noexcept
 				{
-					assert(pass < countCriticalPasses);
+					PYGMALION_ASSERT(pass < countCriticalPasses);
 					return m_CriticalIndex[static_cast<size_t>(pass)];
 				}
 				constexpr feedback() noexcept :
@@ -194,7 +194,7 @@ namespace pygmalion
 				{
 
 				}
-				constexpr scoreType score(const passType& pass) const noexcept
+				constexpr scoreType score(const passType pass) const noexcept
 				{
 					const size_t indexMove{ static_cast<size_t>(moveIndex(pass)) };
 					const size_t indexScore{ static_cast<size_t>(scoreIndex(pass)) };
@@ -205,7 +205,7 @@ namespace pygmalion
 					else
 						return m_ScoreCounter[indexScore];
 				}
-				constexpr scoreType criticalEvasionScore(const passType& pass) const noexcept
+				constexpr scoreType criticalEvasionScore(const passType pass) const noexcept
 				{
 					const size_t indexMove{ static_cast<size_t>(criticalEvasionMoveIndex(pass)) };
 					const size_t indexScore{ static_cast<size_t>(criticalEvasionScoreIndex(pass)) };
@@ -216,7 +216,7 @@ namespace pygmalion
 					else
 						return m_CriticalEvasionScoreCounter[indexScore];
 				}
-				constexpr scoreType tacticalScore(const passType& pass) const noexcept
+				constexpr scoreType tacticalScore(const passType pass) const noexcept
 				{
 					const size_t indexMove{ static_cast<size_t>(tacticalMoveIndex(pass)) };
 					const size_t indexScore{ static_cast<size_t>(tacticalScoreIndex(pass)) };
@@ -227,7 +227,7 @@ namespace pygmalion
 					else
 						return m_TacticalScoreCounter[indexScore];
 				}
-				constexpr scoreType tacticalCriticalEvasionScore(const passType& pass) const noexcept
+				constexpr scoreType tacticalCriticalEvasionScore(const passType pass) const noexcept
 				{
 					const size_t indexMove{ static_cast<size_t>(tacticalCriticalEvasionMoveIndex(pass)) };
 					const size_t indexScore{ static_cast<size_t>(tacticalCriticalEvasionScoreIndex(pass)) };
@@ -238,7 +238,7 @@ namespace pygmalion
 					else
 						return m_TacticalCriticalEvasionScoreCounter[indexScore];
 				}
-				constexpr scoreType criticalScore(const passType& pass) const noexcept
+				constexpr scoreType criticalScore(const passType pass) const noexcept
 				{
 					const size_t indexMove{ static_cast<size_t>(criticalMoveIndex(pass)) };
 					const size_t indexScore{ static_cast<size_t>(criticalScoreIndex(pass)) };
@@ -249,27 +249,27 @@ namespace pygmalion
 					else
 						return m_CriticalScoreCounter[indexScore];
 				}
-				constexpr const std::uint64_t& counter(const passType& pass) const noexcept
+				constexpr const std::uint64_t& counter(const passType pass) const noexcept
 				{
 					return m_MoveCounter[static_cast<size_t>(moveIndex(pass))];
 				}
-				constexpr const std::uint64_t& criticalEvasionCounter(const passType& pass) const noexcept
+				constexpr const std::uint64_t& criticalEvasionCounter(const passType pass) const noexcept
 				{
 					return m_CriticalEvasionMoveCounter[static_cast<size_t>(criticalEvasionMoveIndex(pass))];
 				}
-				constexpr const std::uint64_t& tacticalCounter(const passType& pass) const noexcept
+				constexpr const std::uint64_t& tacticalCounter(const passType pass) const noexcept
 				{
 					return m_TacticalMoveCounter[static_cast<size_t>(tacticalMoveIndex(pass))];
 				}
-				constexpr const std::uint64_t& tacticalCriticalEvasionCounter(const passType& pass) const noexcept
+				constexpr const std::uint64_t& tacticalCriticalEvasionCounter(const passType pass) const noexcept
 				{
 					return m_TacticalCriticalEvasionMoveCounter[static_cast<size_t>(tacticalCriticalEvasionMoveIndex(pass))];
 				}
-				constexpr const std::uint64_t& criticalCounter(const passType& pass) const noexcept
+				constexpr const std::uint64_t& criticalCounter(const passType pass) const noexcept
 				{
 					return m_CriticalMoveCounter[static_cast<size_t>(criticalMoveIndex(pass))];
 				}
-				constexpr void incrementMove(const passType& pass, const scoreType& score) noexcept
+				constexpr void incrementMove(const passType pass, const scoreType score) noexcept
 				{
 					const size_t indexMove{ static_cast<size_t>(moveIndex(pass)) };
 					const size_t indexScore{ static_cast<size_t>(scoreIndex(pass)) };
@@ -284,7 +284,7 @@ namespace pygmalion
 						m_ScoreCounter[indexScore] = scoreType::max(score, m_ScoreCounter[indexScore]);
 					m_MoveCounter[indexMove]++;
 				}
-				constexpr void incrementCriticalEvasionMove(const passType& pass, const scoreType& score) noexcept
+				constexpr void incrementCriticalEvasionMove(const passType pass, const scoreType score) noexcept
 				{
 					const size_t indexMove{ static_cast<size_t>(criticalEvasionMoveIndex(pass)) };
 					const size_t indexScore{ static_cast<size_t>(criticalEvasionScoreIndex(pass)) };
@@ -299,7 +299,7 @@ namespace pygmalion
 						m_CriticalEvasionScoreCounter[indexScore] = scoreType::max(score, m_CriticalEvasionScoreCounter[indexScore]);
 					m_CriticalEvasionMoveCounter[indexMove]++;
 				}
-				constexpr void incrementTacticalMove(const passType& pass, const scoreType& score) noexcept
+				constexpr void incrementTacticalMove(const passType pass, const scoreType score) noexcept
 				{
 					const size_t indexMove{ static_cast<size_t>(tacticalMoveIndex(pass)) };
 					const size_t indexScore{ static_cast<size_t>(tacticalScoreIndex(pass)) };
@@ -314,7 +314,7 @@ namespace pygmalion
 						m_TacticalScoreCounter[indexScore] = scoreType::max(score, m_TacticalScoreCounter[indexScore]);
 					m_TacticalMoveCounter[indexMove]++;
 				}
-				constexpr void incrementTacticalCriticalEvasionMove(const passType& pass, const scoreType& score) noexcept
+				constexpr void incrementTacticalCriticalEvasionMove(const passType pass, const scoreType score) noexcept
 				{
 					const size_t indexMove{ static_cast<size_t>(tacticalCriticalEvasionMoveIndex(pass)) };
 					const size_t indexScore{ static_cast<size_t>(tacticalCriticalEvasionScoreIndex(pass)) };
@@ -329,7 +329,7 @@ namespace pygmalion
 						m_TacticalCriticalEvasionScoreCounter[indexScore] = scoreType::max(score, m_TacticalCriticalEvasionScoreCounter[indexScore]);
 					m_TacticalCriticalEvasionMoveCounter[indexMove]++;
 				}
-				constexpr void incrementCriticalMove(const passType& pass, const scoreType& score) noexcept
+				constexpr void incrementCriticalMove(const passType pass, const scoreType score) noexcept
 				{
 					const size_t indexMove{ static_cast<size_t>(criticalMoveIndex(pass)) };
 					const size_t indexScore{ static_cast<size_t>(criticalScoreIndex(pass)) };
@@ -392,27 +392,27 @@ namespace pygmalion
 					m_Feedback[d].sortIndices();
 				}
 			}
-			constexpr const std::uint64_t& counter(const passType& pass, const size_t depth) const noexcept
+			constexpr const std::uint64_t& counter(const passType pass, const size_t depth) const noexcept
 			{
-				assert(pass < countPasses);
+				PYGMALION_ASSERT(pass < countPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(feedback());
 				}
 				return m_Feedback[depth].counter(pass);
 			}
-			constexpr const std::uint64_t& criticalEvasionCounter(const passType& pass, const size_t depth) const noexcept
+			constexpr const std::uint64_t& criticalEvasionCounter(const passType pass, const size_t depth) const noexcept
 			{
-				assert(pass < countCriticalEvasionPasses);
+				PYGMALION_ASSERT(pass < countCriticalEvasionPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(feedback());
 				}
 				return m_Feedback[depth].criticalEvasionCounter(pass);
 			}
-			constexpr scoreType score(const passType& pass, const size_t depth) const noexcept
+			constexpr scoreType score(const passType pass, const size_t depth) const noexcept
 			{
-				assert(pass < countPasses);
+				PYGMALION_ASSERT(pass < countPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(feedback());
@@ -422,9 +422,9 @@ namespace pygmalion
 				else
 					return m_Feedback[depth].score(pass);
 			}
-			constexpr scoreType criticalEvasionScore(const passType& pass, const size_t depth) const noexcept
+			constexpr scoreType criticalEvasionScore(const passType pass, const size_t depth) const noexcept
 			{
-				assert(pass < countCriticalEvasionPasses);
+				PYGMALION_ASSERT(pass < countCriticalEvasionPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(feedback());
@@ -434,144 +434,144 @@ namespace pygmalion
 				else
 					return m_Feedback[depth].criticalEvasionScore(pass);
 			}
-			constexpr const std::uint64_t& tacticalCounter(const passType& pass, const size_t depth) const noexcept
+			constexpr const std::uint64_t& tacticalCounter(const passType pass, const size_t depth) const noexcept
 			{
-				assert(pass < countTacticalPasses);
+				PYGMALION_ASSERT(pass < countTacticalPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(std::move(feedback()));
 				}
 				return m_Feedback[depth].tacticalCounter(pass);
 			}
-			constexpr const std::uint64_t& tacticalCriticalEvasionCounter(const passType& pass, const size_t depth) const noexcept
+			constexpr const std::uint64_t& tacticalCriticalEvasionCounter(const passType pass, const size_t depth) const noexcept
 			{
-				assert(pass < countTacticalCriticalEvasionPasses);
+				PYGMALION_ASSERT(pass < countTacticalCriticalEvasionPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(std::move(feedback()));
 				}
 				return m_Feedback[depth].tacticalCriticalEvasionCounter(pass);
 			}
-			constexpr scoreType tacticalScore(const passType& pass, const size_t depth) const noexcept
+			constexpr scoreType tacticalScore(const passType pass, const size_t depth) const noexcept
 			{
-				assert(pass < countTacticalPasses);
+				PYGMALION_ASSERT(pass < countTacticalPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(feedback());
 				}
 				return m_Feedback[depth].tacticalScore(pass);
 			}
-			constexpr scoreType tacticalCriticalEvasionScore(const passType& pass, const size_t depth) const noexcept
+			constexpr scoreType tacticalCriticalEvasionScore(const passType pass, const size_t depth) const noexcept
 			{
-				assert(pass < countTacticalCriticalEvasionPasses);
+				PYGMALION_ASSERT(pass < countTacticalCriticalEvasionPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(feedback());
 				}
 				return m_Feedback[depth].tacticalCriticalEvasionScore(pass);
 			}
-			constexpr const std::uint64_t& criticalCounter(const passType& pass, const size_t depth) const noexcept
+			constexpr const std::uint64_t& criticalCounter(const passType pass, const size_t depth) const noexcept
 			{
-				assert(pass < countCriticalPasses);
+				PYGMALION_ASSERT(pass < countCriticalPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(std::move(feedback()));
 				}
 				return m_Feedback[depth].criticalCounter(pass);
 			}
-			constexpr scoreType criticalScore(const passType& pass, const size_t depth) const noexcept
+			constexpr scoreType criticalScore(const passType pass, const size_t depth) const noexcept
 			{
-				assert(pass < countCriticalPasses);
+				PYGMALION_ASSERT(pass < countCriticalPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(feedback());
 				}
 				return m_Feedback[depth].criticalScore(pass);
 			}
-			constexpr void cutMove(const passType& pass, const size_t depth, const scoreType& score) noexcept
+			constexpr void cutMove(const passType pass, const size_t depth, const scoreType& score) noexcept
 			{
-				assert(pass < countPasses);
+				PYGMALION_ASSERT(pass < countPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(feedback());
 				}
 				m_Feedback[depth].incrementMove(pass, score);
 			}
-			constexpr void criticalEvasionCutMove(const passType& pass, const size_t depth, const scoreType& score) noexcept
+			constexpr void criticalEvasionCutMove(const passType pass, const size_t depth, const scoreType score) noexcept
 			{
-				assert(pass < countCriticalEvasionPasses);
+				PYGMALION_ASSERT(pass < countCriticalEvasionPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(feedback());
 				}
 				m_Feedback[depth].incrementCriticalEvasionMove(pass, score);
 			}
-			constexpr void allMove(const passType& pass, const size_t depth, const scoreType& score) noexcept
+			constexpr void allMove(const passType pass, const size_t depth, const scoreType score) noexcept
 			{
-				assert(pass < countPasses);
+				PYGMALION_ASSERT(pass < countPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(feedback());
 				}
 				m_Feedback[depth].incrementMove(pass, score);
 			}
-			constexpr void criticalEvasionAllMove(const passType& pass, const size_t depth, const scoreType& score) noexcept
+			constexpr void criticalEvasionAllMove(const passType pass, const size_t depth, const scoreType score) noexcept
 			{
-				assert(pass < countPasses);
+				PYGMALION_ASSERT(pass < countPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(feedback());
 				}
 				m_Feedback[depth].incrementCriticalEvasionMove(pass, score);
 			}
-			constexpr void tacticalCutMove(const passType& tacticalPass, const size_t depth, const scoreType& score) noexcept
+			constexpr void tacticalCutMove(const passType tacticalPass, const size_t depth, const scoreType score) noexcept
 			{
-				assert(tacticalPass < countTacticalPasses);
+				PYGMALION_ASSERT(tacticalPass < countTacticalPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(feedback());
 				}
 				m_Feedback[depth].incrementTacticalMove(tacticalPass, score);
 			}
-			constexpr void tacticalCriticalEvasionCutMove(const passType& tacticalCriticalEvasionPass, const size_t depth, const scoreType& score) noexcept
+			constexpr void tacticalCriticalEvasionCutMove(const passType& tacticalCriticalEvasionPass, const size_t depth, const scoreType score) noexcept
 			{
-				assert(tacticalCriticalEvasionPass < countTacticalCriticalEvasionPasses);
+				PYGMALION_ASSERT(tacticalCriticalEvasionPass < countTacticalCriticalEvasionPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(feedback());
 				}
 				m_Feedback[depth].incrementTacticalCriticalEvasionMove(tacticalCriticalEvasionPass, score);
 			}
-			constexpr void tacticalAllMove(const passType& tacticalPass, const size_t depth, const scoreType& score) noexcept
+			constexpr void tacticalAllMove(const passType tacticalPass, const size_t depth, const scoreType& score) noexcept
 			{
-				assert(tacticalPass < countTacticalPasses);
+				PYGMALION_ASSERT(tacticalPass < countTacticalPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(feedback());
 				}
 				m_Feedback[depth].incrementTacticalMove(tacticalPass, score);
 			}
-			constexpr void tacticalCriticalEvasionAllMove(const passType& tacticalCriticalEvasionPass, const size_t depth, const scoreType& score) noexcept
+			constexpr void tacticalCriticalEvasionAllMove(const passType& tacticalCriticalEvasionPass, const size_t depth, const scoreType score) noexcept
 			{
-				assert(tacticalCriticalEvasionPass < countTacticalCriticalEvasionPasses);
+				PYGMALION_ASSERT(tacticalCriticalEvasionPass < countTacticalCriticalEvasionPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(feedback());
 				}
 				m_Feedback[depth].incrementTacticalCriticalEvasionMove(tacticalCriticalEvasionPass, score);
 			}
-			constexpr void criticalCutMove(const passType& criticalPass, const size_t depth, const scoreType& score) noexcept
+			constexpr void criticalCutMove(const passType criticalPass, const size_t depth, const scoreType score) noexcept
 			{
-				assert(criticalPass < countCriticalPasses);
+				PYGMALION_ASSERT(criticalPass < countCriticalPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(feedback());
 				}
 				m_Feedback[depth].incrementCriticalMove(criticalPass, score);
 			}
-			constexpr void criticalAllMove(const passType& criticalPass, const size_t depth, const scoreType& score) noexcept
+			constexpr void criticalAllMove(const passType criticalPass, const size_t depth, const scoreType score) noexcept
 			{
-				assert(criticalPass < countCriticalPasses);
+				PYGMALION_ASSERT(criticalPass < countCriticalPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(feedback());
@@ -582,45 +582,45 @@ namespace pygmalion
 			{
 				m_Feedback.clear();
 			}
-			constexpr passType index(const passType& pass, const size_t depth) const noexcept
+			constexpr passType index(const passType pass, const size_t depth) const noexcept
 			{
-				assert(pass < countPasses);
+				PYGMALION_ASSERT(pass < countPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(feedback());
 				}
 				return m_Feedback[depth].index(pass);
 			}
-			constexpr passType criticalEvasionIndex(const passType& pass, const size_t depth) const noexcept
+			constexpr passType criticalEvasionIndex(const passType pass, const size_t depth) const noexcept
 			{
-				assert(pass < countCriticalEvasionPasses);
+				PYGMALION_ASSERT(pass < countCriticalEvasionPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(feedback());
 				}
 				return m_Feedback[depth].criticalEvasionIndex(pass);
 			}
-			constexpr passType tacticalIndex(const passType& pass, const size_t depth) const noexcept
+			constexpr passType tacticalIndex(const passType pass, const size_t depth) const noexcept
 			{
-				assert(pass < countTacticalPasses);
+				PYGMALION_ASSERT(pass < countTacticalPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(feedback());
 				}
 				return m_Feedback[depth].tacticalIndex(pass);
 			}
-			constexpr passType tacticalCriticalEvasionIndex(const passType& pass, const size_t depth) const noexcept
+			constexpr passType tacticalCriticalEvasionIndex(const passType pass, const size_t depth) const noexcept
 			{
-				assert(pass < countTacticalCriticalEvasionPasses);
+				PYGMALION_ASSERT(pass < countTacticalCriticalEvasionPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(feedback());
 				}
 				return m_Feedback[depth].tacticalCriticalEvasionIndex(pass);
 			}
-			constexpr passType criticalIndex(const passType& pass, const size_t depth) const noexcept
+			constexpr passType criticalIndex(const passType pass, const size_t depth) const noexcept
 			{
-				assert(pass < countCriticalPasses);
+				PYGMALION_ASSERT(pass < countCriticalPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(feedback());
@@ -795,36 +795,36 @@ namespace pygmalion
 				}
 				return m_IsPositionCritical;
 			}
-			constexpr void allMove(movegenFeedback& feedback, const size_t depth, const scoreType& score) const noexcept
+			constexpr void allMove(movegenFeedback& feedback, const size_t depth, const scoreType score) const noexcept
 			{
 				if (isPositionCritical())
 					feedback.criticalEvasionAllMove(m_LastPass, depth, score);
 				else
 					feedback.allMove(m_LastPass, depth, score);
 			}
-			constexpr void criticalAllMove(movegenFeedback& feedback, const size_t depth, const scoreType& score) const noexcept
+			constexpr void criticalAllMove(movegenFeedback& feedback, const size_t depth, const scoreType score) const noexcept
 			{
 				feedback.criticalAllMove(m_LastPass, depth, score);
 			}
-			constexpr void tacticalAllMove(movegenFeedback& feedback, const size_t depth, const scoreType& score) const noexcept
+			constexpr void tacticalAllMove(movegenFeedback& feedback, const size_t depth, const scoreType score) const noexcept
 			{
 				if (isPositionCritical())
 					feedback.tacticalCriticalEvasionAllMove(m_LastTacticalPass, depth, score);
 				else
 					feedback.tacticalAllMove(m_LastTacticalPass, depth, score);
 			}
-			constexpr void cutMove(movegenFeedback& feedback, const size_t depth, const scoreType& score) const noexcept
+			constexpr void cutMove(movegenFeedback& feedback, const size_t depth, const scoreType score) const noexcept
 			{
 				if (isPositionCritical())
 					feedback.criticalEvasionCutMove(m_LastPass, depth, score);
 				else
 					feedback.cutMove(m_LastPass, depth, score);
 			}
-			constexpr void criticalCutMove(movegenFeedback& feedback, const size_t depth, const scoreType& score) const noexcept
+			constexpr void criticalCutMove(movegenFeedback& feedback, const size_t depth, const scoreType score) const noexcept
 			{
 				feedback.criticalCutMove(m_LastPass, depth, score);
 			}
-			constexpr void tacticalCutMove(movegenFeedback& feedback, const size_t depth, const scoreType& score) const noexcept
+			constexpr void tacticalCutMove(movegenFeedback& feedback, const size_t depth, const scoreType score) const noexcept
 			{
 				if (isPositionCritical())
 					feedback.tacticalCriticalEvasionCutMove(m_LastTacticalPass, depth, score);
@@ -844,7 +844,7 @@ namespace pygmalion
 			{
 				return this->position().signature();
 			}
-			bool isMoveLegal(const movebitsType& moveBits) const noexcept
+			bool isMoveLegal(const movebitsType moveBits) const noexcept
 			{
 				return generatorType::isMoveLegal(*static_cast<const typename generatorType::stackType*>(this), moveBits);
 			}
@@ -1183,7 +1183,7 @@ namespace pygmalion
 				}
 				return false;
 			}
-			stack(const stack& parent, const movebitsType& moveBits) noexcept :
+			stack(const stack& parent, const movebitsType moveBits) noexcept :
 				m_pContext{ parent.m_pContext + 1 },
 				m_pParent{ &parent },
 				m_Position{ parent.m_Position },
@@ -1208,7 +1208,7 @@ namespace pygmalion
 			{
 				m_pContext->clearMovegenLists();
 			}
-			stack(boardType& position, historyType& history, const playerType& oldPlayer, contextType* pContext) noexcept :
+			stack(boardType& position, historyType& history, const playerType oldPlayer, contextType* pContext) noexcept :
 				m_pContext{ pContext },
 				m_pParent{ nullptr },
 				m_Position{ position },
@@ -1258,7 +1258,7 @@ namespace pygmalion
 				if (!m_IsNullmove)
 					motorType::move().undoMove(m_Position, m_MoveData);
 			}
-			std::string moveToString(const movebitsType& moveBits, const size_t depth) const
+			std::string moveToString(const movebitsType moveBits, const size_t depth) const
 			{
 				return generatorType::moveToString(*static_cast<const typename generatorType::stackType*>(this), moveBits, depth);
 			}
@@ -1311,71 +1311,71 @@ namespace pygmalion
 			return generatorType::commandsImplementation();
 		}
 		template<typename stackType>
-		static std::string moveToString(const stackType& stack, const movebitsType& moveBits, const size_t depth) noexcept
+		static std::string moveToString(const stackType& stack, const movebitsType moveBits, const size_t depth) noexcept
 		{
 			return generatorType::moveToString_Implementation(stack, moveBits, depth);
 		}
-		static std::string passToString(const passType& pass) noexcept
+		static std::string passToString(const passType pass) noexcept
 		{
 			return generatorType::passToString_Implementation(pass);
 		}
-		static std::string tacticalPassToString(const passType& tacticalPass) noexcept
+		static std::string tacticalPassToString(const passType tacticalPass) noexcept
 		{
 			return generatorType::tacticalPassToString_Implementation(tacticalPass);
 		}
-		static std::string tacticalCriticalEvasionPassToString(const passType& tacticalCriticalEvasionPass) noexcept
+		static std::string tacticalCriticalEvasionPassToString(const passType tacticalCriticalEvasionPass) noexcept
 		{
 			return generatorType::tacticalCriticalEvasionPassToString_Implementation(tacticalCriticalEvasionPass);
 		}
-		static std::string criticalPassToString(const passType& criticalPass) noexcept
+		static std::string criticalPassToString(const passType criticalPass) noexcept
 		{
 			return generatorType::criticalPassToString_Implementation(criticalPass);
 		}
-		static std::string criticalEvasionPassToString(const passType& criticalEvasionPass) noexcept
+		static std::string criticalEvasionPassToString(const passType criticalEvasionPass) noexcept
 		{
 			return generatorType::criticalPassToString_Implementation(criticalEvasionPass);
 		}
-		static std::string quietCriticalPassToString(const passType& quietCriticalPass) noexcept
+		static std::string quietCriticalPassToString(const passType quietCriticalPass) noexcept
 		{
 			return generatorType::quietCriticalPassToString_Implementation(quietCriticalPass);
 		}
 		template<typename stackType>
-		constexpr static void generateMoves(const stackType& stack, movelistType& moves, const passType& currentPass) noexcept
+		constexpr static void generateMoves(const stackType& stack, movelistType& moves, const passType currentPass) noexcept
 		{
 			generatorType::generateMoves_Implementation(stack, moves, currentPass);
 		}
 		template<typename stackType>
-		constexpr static void generateCriticalMoves(const stackType& stack, movelistType& moves, const passType& currentPass) noexcept
+		constexpr static void generateCriticalMoves(const stackType& stack, movelistType& moves, const passType currentPass) noexcept
 		{
 			generatorType::generateCriticalMoves_Implementation(stack, moves, currentPass);
 		}
 		template<typename stackType>
-		constexpr static void generateTacticalCriticalEvasionMoves(const stackType& stack, movelistType& moves, const passType& currentPass) noexcept
+		constexpr static void generateTacticalCriticalEvasionMoves(const stackType& stack, movelistType& moves, const passType currentPass) noexcept
 		{
 			generatorType::generateTacticalCriticalEvasionMoves_Implementation(stack, moves, currentPass);
 		}
 		template<typename stackType>
-		constexpr static void generateCriticalEvasionMoves(const stackType& stack, movelistType& moves, const passType& currentPass) noexcept
+		constexpr static void generateCriticalEvasionMoves(const stackType& stack, movelistType& moves, const passType currentPass) noexcept
 		{
 			generatorType::generateCriticalEvasionMoves_Implementation(stack, moves, currentPass);
 		}
 		template<typename stackType>
-		constexpr static void generateQuietCriticalMoves(const stackType& stack, movelistType& moves, const passType& currentPass) noexcept
+		constexpr static void generateQuietCriticalMoves(const stackType& stack, movelistType& moves, const passType currentPass) noexcept
 		{
 			generatorType::generateQuietCriticalMoves_Implementation(stack, moves, currentPass);
 		}
 		template<typename stackType>
-		constexpr static void generateTacticalMoves(const stackType& stack, movelistType& moves, const passType& currentPass) noexcept
+		constexpr static void generateTacticalMoves(const stackType& stack, movelistType& moves, const passType currentPass) noexcept
 		{
 			generatorType::generateTacticalMoves_Implementation(stack, moves, currentPass);
 		}
 		template<typename stackType>
-		static bool isMoveLegal(const stackType& stack, const movebitsType& moveBits) noexcept
+		static bool isMoveLegal(const stackType& stack, const movebitsType moveBits) noexcept
 		{
 			return generatorType::isMoveLegal_Implementation(stack, moveBits);
 		}
 		template<typename stackType>
-		static bool isGeneratedMoveLegal(const stackType& stack, const movebitsType& moveBits) noexcept
+		static bool isGeneratedMoveLegal(const stackType& stack, const movebitsType moveBits) noexcept
 		{
 			return generatorType::isGeneratedMoveLegal_Implementation(stack, moveBits);
 		}
@@ -1398,7 +1398,7 @@ namespace pygmalion
 			}
 		}
 		template<typename stackType>
-		constexpr static bool isMoveTactical(const stackType& stack, const movebitsType& mv) noexcept
+		constexpr static bool isMoveTactical(const stackType& stack, const movebitsType mv) noexcept
 		{
 			return generatorType::isMoveTactical_Implementation(stack, mv);
 		}
@@ -1411,7 +1411,7 @@ namespace pygmalion
 		{
 			return generatorType::countMoveBuckets_Implementation();
 		}
-		constexpr static size_t moveBucket(const boardType& position, const movebitsType& mv) noexcept
+		constexpr static size_t moveBucket(const boardType& position, const movebitsType mv) noexcept
 		{
 			return generatorType::moveBucket_Implementation(position, mv);
 		}
@@ -1424,7 +1424,7 @@ namespace pygmalion
 			return generatorType::nullMove_Implementation();
 		}
 		template<typename stackType>
-		constexpr static bool isMoveCritical(const stackType& stack, const movebitsType& moveBits) noexcept
+		constexpr static bool isMoveCritical(const stackType& stack, const movebitsType moveBits) noexcept
 		{
 			return generatorType::isMoveCritical_Implementation(stack, moveBits);
 		}

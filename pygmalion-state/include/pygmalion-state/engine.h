@@ -59,7 +59,11 @@ namespace pygmalion::state
 		virtual ~engine() noexcept = default;
 		virtual std::string version() const noexcept override
 		{
-			return "no game (state only)";
+			return "Pygmalion";
+		}
+		virtual std::string author() const noexcept override
+		{
+			return "Roland Tomasi";
 		}
 	};
 }

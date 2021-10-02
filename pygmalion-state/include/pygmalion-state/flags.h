@@ -44,19 +44,19 @@ namespace pygmalion::state
 		{
 			return m_Bits;
 		}
-		constexpr void toggle(const flagType& flag) noexcept
+		constexpr void toggle(const flagType flag) noexcept
 		{
 			m_Bits.toggle(flag);
 		}
-		constexpr void set(const flagType& flag) noexcept
+		constexpr void set(const flagType flag) noexcept
 		{
 			m_Bits.set(flag);
 		}
-		constexpr void clear(const flagType& flag) noexcept
+		constexpr void clear(const flagType flag) noexcept
 		{
 			m_Bits.clear(flag);
 		}
-		constexpr bool operator[](const flagType& flag) const noexcept
+		constexpr bool operator[](const flagType flag) const noexcept
 		{
 			return m_Bits.test(flag);
 		}
@@ -108,17 +108,17 @@ namespace pygmalion::state
 		{
 			return m_Bits != other.m_Bits;
 		}
-		constexpr squaresType& operator|=(const flagType& flag) noexcept
+		constexpr squaresType& operator|=(const flagType flag) noexcept
 		{
 			m_Bits.set(static_cast<typename flagType::baseType>(flag));
 			return *this;
 		}
-		constexpr squaresType& operator&=(const flagType& flag) noexcept
+		constexpr squaresType& operator&=(const flagType flag) noexcept
 		{
 			m_Bits &= bitsType::setMask(static_cast<typename flagType::baseType>(flag));
 			return *this;
 		}
-		constexpr squaresType& operator-=(const flagType& flag) noexcept
+		constexpr squaresType& operator-=(const flagType flag) noexcept
 		{
 			m_Bits.clear(static_cast<typename flagType::baseType>(flag));
 			return *this;

@@ -126,7 +126,7 @@ namespace pygmalion::dynamics
 			const bitsType squarebits{ static_cast<bitsType>(squares) };
 			const bitsType extracted{ squarebits.extractPattern(m_Mask) };
 			const valueType value{ static_cast<valueType>(extracted) };
-			assert(squarebits.populationCount() == value.populationCount());
+			PYGMALION_ASSERT(squarebits.populationCount() == value.populationCount());
 			return value;
 #else
 			return squares;
@@ -153,7 +153,7 @@ namespace pygmalion::dynamics
 		}
 		void initializeValue_Implementation(entryType& value, const slidermagicinfo<descriptorDynamics>& info, const bitsType& blockers, const bitsType& premask, void* pData) const noexcept
 		{
-			assert(info.square().isValid());
+			PYGMALION_ASSERT(info.square().isValid());
 			bool* pUsage = static_cast<bool*>(pData);
 			const squaresType attacks{ propagatorType::attacks(squaresType(info.square()), squaresType(~blockers)) };
 			const squareType sq{ info.square() };
@@ -181,7 +181,7 @@ namespace pygmalion::dynamics
 					return;
 				}
 			}
-			assert(false);
+			PYGMALION_ASSERT(false);
 		}
 #else
 		void* preInitialize_Implementation(const slidermagicinfo<descriptorDynamics>& info) noexcept
@@ -196,13 +196,13 @@ namespace pygmalion::dynamics
 		}
 		void initializeValue_Implementation(valueType& value, const slidermagicinfo<descriptorDynamics>& info, const bitsType& blockers, const bitsType& premask, void* pData) const noexcept
 		{
-			assert(info.square().isValid());
+			PYGMALION_ASSERT(info.square().isValid());
 			value = encodeSquares(propagatorType::attacks(squaresType(info.square()), squaresType(~blockers)));
 		}
 #endif
 		static bitsType calculatePremask(const slidermagicinfo<descriptorDynamics>& info) noexcept
 		{
-			assert(info.square().isValid());
+			PYGMALION_ASSERT(info.square().isValid());
 			return static_cast<bitsType>(propagatorType::relevant(info.square()));
 		}
 		slidermagic(const slidermagicinfo<descriptorDynamics>& info) noexcept :

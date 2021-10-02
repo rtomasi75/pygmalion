@@ -15,6 +15,8 @@ namespace pygmalion
 		depthType m_MaxDepth;
 		playerType m_EnginePlayer;
 		bool m_IsXBoard;
+		bool m_IsUCI;
+		bool m_IsDebug;
 		bool m_IsRandom;
 		bool m_PlayingComputer;
 		bool m_ForceMode;
@@ -94,6 +96,14 @@ namespace pygmalion
 		{
 			return m_IsXBoard;
 		}
+		constexpr bool& isUCI() noexcept
+		{
+			return m_IsUCI;
+		}
+		constexpr bool& isDebug() noexcept
+		{
+			return m_IsDebug;
+		}
 		constexpr bool isXBoard() const noexcept
 		{
 			return m_IsXBoard;
@@ -148,6 +158,8 @@ namespace pygmalion
 		}
 		constexpr front() noexcept :
 			m_IsXBoard{ false },
+			m_IsDebug{ false },
+			m_IsUCI{ false },
 			m_IsRandom{ false },
 			m_ForceMode{ false },
 			m_PostMode{ false },

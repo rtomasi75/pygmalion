@@ -64,7 +64,7 @@ namespace pygmalion
 		}
 		void removeLast() noexcept
 		{
-			assert(m_CountEntries > 0);
+			PYGMALION_ASSERT(m_CountEntries > 0);
 			m_Bloomfilter.decrement(m_Boards[m_CountEntries - 1]);
 			m_CountEntries--;
 		}

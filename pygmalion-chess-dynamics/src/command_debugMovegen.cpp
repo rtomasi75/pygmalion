@@ -22,6 +22,9 @@ namespace pygmalion::chess::dynamics
 				{
 					switch (pc)
 					{
+					default:
+						PYGMALION_UNREACHABLE;
+						break;
 					case knight:
 						if (p == whitePlayer)
 							this->output() << "white ";

@@ -41,7 +41,7 @@ namespace pygmalion::mechanics
 			{
 				return m_To;
 			}
-			constexpr captureMovedata(const pieceType& transportedPiece_, const squareType& fromSquare, const squareType& toSquare, const playerType& ownerTransported_, const pieceType& capturedPiece_, const playerType& ownerCaptured_) noexcept :
+			constexpr captureMovedata(const pieceType transportedPiece_, const squareType fromSquare, const squareType toSquare, const playerType ownerTransported_, const pieceType capturedPiece_, const playerType ownerCaptured_) noexcept :
 				m_TransportedPiece{ transportedPiece_ },
 				m_From{ fromSquare },
 				m_To{ toSquare },
@@ -68,28 +68,28 @@ namespace pygmalion::mechanics
 #include <pygmalion-state/include_state.h>
 		constexpr static const size_t countFromBits{ squareType::countUnsignedBits };
 		constexpr static const size_t countToBits{ squareType::countUnsignedBits };
-		std::string name_Implementation() const noexcept
+		static std::string name_Implementation() noexcept
 		{
 			std::stringstream sstr;
 			sstr << "" << sizeof(typename capturemove::movedataType) << ":" << capturemove::countBits << "@capture";
 			return sstr.str();
 		}
 	private:
-		constexpr static squareType extractTo(const typename capturemove::movebitsType& movebits) noexcept
+		constexpr static squareType extractTo(const typename capturemove::movebitsType movebits) noexcept
 		{
 			const squareType sq{ squareType(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(movebits.template extractBits<countFromBits,countToBits>())) };
 			return sq;
 		}
-		constexpr static void encodeTo(typename capturemove::movebitsType& movebits, const squareType& sq) noexcept
+		constexpr static void encodeTo(typename capturemove::movebitsType& movebits, const squareType sq) noexcept
 		{
 			movebits.template storeBits<countFromBits, countToBits>(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(sq));
 		}
-		constexpr static squareType extractFrom(const typename capturemove::movebitsType& movebits) noexcept
+		constexpr static squareType extractFrom(const typename capturemove::movebitsType movebits) noexcept
 		{
 			const squareType sq{ squareType(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(movebits.template extractBits<0,countFromBits>())) };
 			return sq;
 		}
-		constexpr static void encodeFrom(typename capturemove::movebitsType& movebits, const squareType& sq) noexcept
+		constexpr static void encodeFrom(typename capturemove::movebitsType& movebits, const squareType sq) noexcept
 		{
 			movebits.template storeBits<0, countFromBits>(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(sq));
 		}
@@ -100,7 +100,7 @@ namespace pygmalion::mechanics
 		constexpr capturemove(const capturemove&) noexcept = default;
 		constexpr capturemove& operator=(capturemove&&) noexcept = default;
 		constexpr capturemove& operator=(const capturemove&) noexcept = default;
-		constexpr typename capturemove::movedataType doMove_Implementation(boardType& position, const typename capturemove::movebitsType& moveBits) const noexcept
+		constexpr typename capturemove::movedataType doMove_Implementation(boardType& position, const typename capturemove::movebitsType moveBits) const noexcept
 		{
 			const squareType from{ capturemove::extractFrom(moveBits) };
 			const squareType to{ capturemove::extractTo(moveBits) };
@@ -119,7 +119,7 @@ namespace pygmalion::mechanics
 			position.addPiece(data.capturedPiece(), data.to(), data.ownerCaptured());
 			position.addPiece(data.transportedPiece(), data.from(), data.ownerTransported());
 		}
-		constexpr typename capturemove::movebitsType create(const squareType& from, const squareType& to) const noexcept
+		constexpr typename capturemove::movebitsType create(const squareType from, const squareType to) const noexcept
 		{
 			typename capturemove::movebitsType bits{ capturemove::movebitsType::zero() };
 			capturemove::encodeFrom(bits, from);
@@ -152,7 +152,7 @@ namespace pygmalion::mechanics
 			}
 			return false;
 		}
-		std::string toString_Implementation(const boardType& position, const typename capturemove::movebitsType& moveBits) const noexcept
+		std::string toString_Implementation(const boardType& position, const typename capturemove::movebitsType moveBits) const noexcept
 		{
 			const squareType from{ capturemove::extractFrom(moveBits) };
 			const squareType to{ capturemove::extractTo(moveBits) };

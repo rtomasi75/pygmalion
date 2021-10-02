@@ -29,6 +29,7 @@ namespace pygmalion::intrinsics
 		}
 	public:
 		virtual std::string version() const noexcept;
+		virtual std::string author() const noexcept;
 		engine() noexcept = delete;
 		engine(const engine&) = delete;
 		engine(engine&&) = delete;

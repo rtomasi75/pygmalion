@@ -98,14 +98,14 @@ namespace pygmalion::chess
 				}
 			}
 		}
-		constexpr const squaresType& getRay(const int ray, const squareType& square) const noexcept
+		constexpr const squaresType& getRay(const int ray, const squareType square) const noexcept
 		{
 			return m_Ray[ray][square];
 		}
 		constexpr static int invertRay(const int ray) noexcept
 		{
-			assert(ray >= 0);
-			assert(ray < 8);
+			PYGMALION_ASSERT(ray >= 0);
+			PYGMALION_ASSERT(ray < 8);
 			return 7 - ray;
 		}
 	};

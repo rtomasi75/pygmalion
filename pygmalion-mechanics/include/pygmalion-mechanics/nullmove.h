@@ -34,13 +34,13 @@ namespace pygmalion::mechanics
 		constexpr nullmove(const nullmove&) noexcept = default;
 		constexpr nullmove& operator=(nullmove&&) noexcept = default;
 		constexpr nullmove& operator=(const nullmove&) noexcept = default;
-		std::string name_Implementation() const noexcept
+		static std::string name_Implementation() noexcept
 		{
 			std::stringstream sstr;
 			sstr << "" << sizeof(typename nullmove::movedataType) << ":" << nullmove::countBits << "@null";
 			return sstr.str();
 		}
-		constexpr typename nullmove::movedataType doMove_Implementation(boardType& position, const typename nullmove::movebitsType& moveBits) const noexcept
+		constexpr typename nullmove::movedataType doMove_Implementation(boardType& position, const typename nullmove::movebitsType moveBits) const noexcept
 		{
 			return typename nullmove::movedataType();
 		}
@@ -65,7 +65,7 @@ namespace pygmalion::mechanics
 			}
 			return false;
 		}
-		std::string toString_Implementation(const boardType& position, const typename nullmove::movebitsType& moveBits) const noexcept
+		std::string toString_Implementation(const boardType& position, const typename nullmove::movebitsType moveBits) const noexcept
 		{
 			return "null";
 		}

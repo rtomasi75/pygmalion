@@ -37,7 +37,7 @@ namespace pygmalion::chess
 		case enPassantFileH:
 			return "H";
 		default:
-			assert(false);
+			PYGMALION_UNREACHABLE;
 			return "?";
 		}
 	}
@@ -229,7 +229,7 @@ namespace pygmalion::chess
 			case king:
 				return "K";
 			default:
-				assert(false);
+				PYGMALION_UNREACHABLE;
 				return "?";
 			}
 		}
@@ -250,7 +250,7 @@ namespace pygmalion::chess
 			case king:
 				return "k";
 			default:
-				assert(false);
+				PYGMALION_UNREACHABLE;
 				return "?";
 			}
 		}
@@ -715,7 +715,7 @@ namespace pygmalion::chess
 						switch (piece)
 						{
 						default:
-							assert(false);
+							PYGMALION_UNREACHABLE;
 							break;
 						case pawn:
 							fen = fen + "P";
@@ -742,7 +742,7 @@ namespace pygmalion::chess
 						switch (piece)
 						{
 						default:
-							assert(false);
+							PYGMALION_UNREACHABLE;
 							break;
 						case pawn:
 							fen = fen + "p";

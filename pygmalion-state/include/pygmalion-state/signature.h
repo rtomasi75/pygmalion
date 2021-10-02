@@ -29,21 +29,21 @@ namespace pygmalion::state
 			for (const auto pl : playerType::range)
 				m_PlayerCounts[pl] = storageType(0);
 		}
-		constexpr void addPiece(const pieceType& pc, const playerType& pl) noexcept
+		constexpr void addPiece(const pieceType pc, const playerType pl) noexcept
 		{
 			m_PieceCounts[pc]++;
 			m_PlayerCounts[pl]++;
 		}
-		constexpr void removePiece(const pieceType& pc, const playerType& pl) noexcept
+		constexpr void removePiece(const pieceType pc, const playerType pl) noexcept
 		{
 			m_PieceCounts[pc]--;
 			m_PlayerCounts[pl]--;
 		}
-		constexpr storageType count(const pieceType& pc) const noexcept
+		constexpr storageType count(const pieceType pc) const noexcept
 		{
 			return m_PieceCounts[pc];
 		}
-		constexpr storageType count(const playerType& pl) const noexcept
+		constexpr storageType count(const playerType pl) const noexcept
 		{
 			return m_PlayerCounts[pl];
 		}
