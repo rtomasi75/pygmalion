@@ -422,7 +422,8 @@ namespace pygmalion::chess
 		template<size_t PLAYER>
 		static void generateKingMoves(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
-			const squareType from{ stack.kingSquare(stack.movingPlayer()) };
+			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
+			const squareType from{ stack.kingSquare(movingPlayer) };
 			const squaresType destinations{ movegenKing.targets(from, ~stack.position().totalOccupancy()) };
 			for (const squareType to : destinations)
 				moves.add(motorType::move().createQuiet(from, to));
@@ -430,8 +431,10 @@ namespace pygmalion::chess
 		template<size_t PLAYER>
 		static void generateKingCaptures(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
-			const squareType from{ stack.kingSquare(stack.movingPlayer()) };
-			const squaresType destinations{ movegenKing.attacks(from, ~stack.position().totalOccupancy()) & stack.position().playerOccupancy(stack.nextPlayer()) };
+			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
+			constexpr const playerType nextPlayer{ movingPlayer.next() };
+			const squareType from{ stack.kingSquare(movingPlayer) };
+			const squaresType destinations{ movegenKing.attacks(from, ~stack.position().totalOccupancy()) & stack.position().playerOccupancy(nextPlayer) };
 			for (const squareType to : destinations)
 				moves.add(motorType::move().createCapture(from, to));
 		}
@@ -507,7 +510,8 @@ namespace pygmalion::chess
 		template<size_t PLAYER>
 		constexpr static void generateKnightMoves(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
-			for (const squareType from : stack.position().pieceOccupancy(knight)& stack.position().playerOccupancy(stack.position().movingPlayer()))
+			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
+			for (const squareType from : stack.position().pieceOccupancy(knight)& stack.position().playerOccupancy(movingPlayer))
 			{
 				for (const squareType to : movegenKnight.targets(from, ~stack.position().totalOccupancy()))
 					moves.add(motorType::move().createQuiet(from, to));
@@ -516,7 +520,8 @@ namespace pygmalion::chess
 		template<size_t PLAYER>
 		constexpr static void generateSliderMovesHV(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
-			for (const squareType from : (stack.position().pieceOccupancy(rook) | stack.position().pieceOccupancy(queen))& stack.position().playerOccupancy(stack.position().movingPlayer()))
+			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
+			for (const squareType from : (stack.position().pieceOccupancy(rook) | stack.position().pieceOccupancy(queen))& stack.position().playerOccupancy(movingPlayer))
 			{
 				for (const squareType to : movegenSlidersHV.targets(from, ~stack.position().totalOccupancy()))
 					moves.add(motorType::move().createQuiet(from, to));
@@ -525,7 +530,8 @@ namespace pygmalion::chess
 		template<size_t PLAYER>
 		constexpr static void generateSliderMovesDiag(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
-			for (const squareType from : (stack.position().pieceOccupancy(bishop) | stack.position().pieceOccupancy(queen))& stack.position().playerOccupancy(stack.position().movingPlayer()))
+			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
+			for (const squareType from : (stack.position().pieceOccupancy(bishop) | stack.position().pieceOccupancy(queen))& stack.position().playerOccupancy(movingPlayer))
 			{
 				for (const squareType to : movegenSlidersDiag.targets(from, ~stack.position().totalOccupancy()))
 					moves.add(motorType::move().createQuiet(from, to));
@@ -534,27 +540,33 @@ namespace pygmalion::chess
 		template<size_t PLAYER>
 		constexpr static void generateSliderCapturesHV(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
-			for (const squareType from : (stack.position().pieceOccupancy(rook) | stack.position().pieceOccupancy(queen))& stack.position().playerOccupancy(stack.position().movingPlayer()))
+			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
+			constexpr const playerType nextPlayer{ movingPlayer.next() };
+			for (const squareType from : (stack.position().pieceOccupancy(rook) | stack.position().pieceOccupancy(queen))& stack.position().playerOccupancy(movingPlayer))
 			{
-				for (const squareType to : movegenSlidersHV.attacks(from, ~stack.position().totalOccupancy())& stack.position().playerOccupancy(stack.nextPlayer()))
+				for (const squareType to : movegenSlidersHV.attacks(from, ~stack.position().totalOccupancy())& stack.position().playerOccupancy(nextPlayer))
 					moves.add(motorType::move().createCapture(from, to));
 			}
 		}
 		template<size_t PLAYER>
 		constexpr static void generateSliderCapturesDiag(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
-			for (const squareType from : (stack.position().pieceOccupancy(bishop) | stack.position().pieceOccupancy(queen))& stack.position().playerOccupancy(stack.position().movingPlayer()))
+			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
+			constexpr const playerType nextPlayer{ movingPlayer.next() };
+			for (const squareType from : (stack.position().pieceOccupancy(bishop) | stack.position().pieceOccupancy(queen))& stack.position().playerOccupancy(movingPlayer))
 			{
-				for (const squareType to : movegenSlidersDiag.attacks(from, ~stack.position().totalOccupancy())& stack.position().playerOccupancy(stack.nextPlayer()))
+				for (const squareType to : movegenSlidersDiag.attacks(from, ~stack.position().totalOccupancy())& stack.position().playerOccupancy(nextPlayer))
 					moves.add(motorType::move().createCapture(from, to));
 			}
 		}
 		template<size_t PLAYER>
 		constexpr static void generateKnightCaptures(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
-			for (const squareType from : stack.position().pieceOccupancy(knight)& stack.position().playerOccupancy(stack.position().movingPlayer()))
+			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
+			constexpr const playerType nextPlayer{ movingPlayer.next() };
+			for (const squareType from : stack.position().pieceOccupancy(knight)& stack.position().playerOccupancy(movingPlayer))
 			{
-				for (const squareType to : movegenKnight.attacks(from, ~stack.position().totalOccupancy())& stack.position().playerOccupancy(stack.nextPlayer()))
+				for (const squareType to : movegenKnight.attacks(from, ~stack.position().totalOccupancy())& stack.position().playerOccupancy(nextPlayer))
 					moves.add(motorType::move().createCapture(from, to));
 			}
 		}
