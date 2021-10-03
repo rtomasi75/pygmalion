@@ -199,7 +199,10 @@ namespace pygmalion
 					const size_t indexMove{ static_cast<size_t>(moveIndex(pass)) };
 					const size_t indexScore{ static_cast<size_t>(scoreIndex(pass)) };
 					if (m_MoveCounter[indexMove] == 0)
-						return scoreType::minimum();
+					{
+						constexpr const scoreType minimum{ scoreType::minimum() };
+						return minimum;
+					}
 					if (m_ScoreCounter[indexScore].isOpen())
 						return m_ScoreCounter[indexScore] / static_cast<typename scoreType::valueType>(m_MoveCounter[indexMove]);
 					else
@@ -210,7 +213,10 @@ namespace pygmalion
 					const size_t indexMove{ static_cast<size_t>(criticalEvasionMoveIndex(pass)) };
 					const size_t indexScore{ static_cast<size_t>(criticalEvasionScoreIndex(pass)) };
 					if (m_CriticalEvasionMoveCounter[indexMove] == 0)
-						return scoreType::minimum();
+					{
+						constexpr const scoreType minimum{ scoreType::minimum() };
+						return minimum;
+					}
 					if (m_CriticalEvasionScoreCounter[indexScore].isOpen())
 						return m_CriticalEvasionScoreCounter[indexScore] / static_cast<typename scoreType::valueType>(m_CriticalEvasionMoveCounter[indexMove]);
 					else
@@ -221,7 +227,10 @@ namespace pygmalion
 					const size_t indexMove{ static_cast<size_t>(tacticalMoveIndex(pass)) };
 					const size_t indexScore{ static_cast<size_t>(tacticalScoreIndex(pass)) };
 					if (m_TacticalMoveCounter[indexMove] == 0)
-						return scoreType::minimum();
+					{
+						constexpr const scoreType minimum{ scoreType::minimum() };
+						return minimum;
+					}
 					if (m_TacticalScoreCounter[indexScore].isOpen())
 						return m_TacticalScoreCounter[indexScore] / static_cast<typename scoreType::valueType>(m_TacticalMoveCounter[indexMove]);
 					else
@@ -232,7 +241,10 @@ namespace pygmalion
 					const size_t indexMove{ static_cast<size_t>(tacticalCriticalEvasionMoveIndex(pass)) };
 					const size_t indexScore{ static_cast<size_t>(tacticalCriticalEvasionScoreIndex(pass)) };
 					if (m_TacticalCriticalEvasionMoveCounter[indexMove] == 0)
-						return scoreType::minimum();
+					{
+						constexpr const scoreType minimum{ scoreType::minimum() };
+						return minimum;
+					}
 					if (m_TacticalCriticalEvasionScoreCounter[indexScore].isOpen())
 						return m_TacticalCriticalEvasionScoreCounter[indexScore] / static_cast<typename scoreType::valueType>(m_TacticalCriticalEvasionMoveCounter[indexMove]);
 					else
@@ -243,7 +255,10 @@ namespace pygmalion
 					const size_t indexMove{ static_cast<size_t>(criticalMoveIndex(pass)) };
 					const size_t indexScore{ static_cast<size_t>(criticalScoreIndex(pass)) };
 					if (m_CriticalMoveCounter[indexMove] == 0)
-						return scoreType::minimum();
+					{
+						constexpr const scoreType minimum{ scoreType::minimum() };
+						return minimum;
+					}
 					if (m_CriticalScoreCounter[indexScore].isOpen())
 						return m_CriticalScoreCounter[indexScore] / static_cast<typename scoreType::valueType>(m_CriticalMoveCounter[indexMove]);
 					else

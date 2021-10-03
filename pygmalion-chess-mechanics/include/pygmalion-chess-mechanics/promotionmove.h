@@ -200,7 +200,8 @@ namespace pygmalion::chess
 		}
 		constexpr squaresType otherOccupancyDelta_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
 		{
-			return squaresType::none();
+			constexpr const squaresType none{ squaresType::none() };
+			return none;
 		}
 		constexpr squaresType ownOccupancyDelta_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
 		{
@@ -208,7 +209,8 @@ namespace pygmalion::chess
 		}
 		constexpr squaresType pieceOccupancyDelta_Implementation(const boardType& position, const pieceType piece, const movebitsType moveBits) const noexcept
 		{
-			squaresType delta{ squaresType::none() };
+			constexpr const squaresType none{ squaresType::none() };
+			squaresType delta{ none };
 			if (piece==pawn)
 				delta ^= promotionmove::extractFrom(moveBits);
 			if (piece == m_PromotedPiece)

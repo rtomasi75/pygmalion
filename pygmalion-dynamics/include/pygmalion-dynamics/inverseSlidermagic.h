@@ -137,7 +137,8 @@ namespace pygmalion::dynamics
 		void* preInitialize_Implementation(const inverseSlidermagicinfo<descriptorDynamics>& info) noexcept
 		{
 #if defined(PYGMALION_inverseSlidermagic_COMPACT)&&defined(PYGMALION_CPU_BMI2)
-			m_Mask = static_cast<bitsType>(propagatorType::inverseAttacks(squaresType(info.square()), squaresType::all()));
+			constexpr const squaresType all{ squaresType::all() };
+			m_Mask = static_cast<bitsType>(propagatorType::inverseAttacks(squaresType(info.square()), all));
 #endif
 			const size_t count{ propagatorType::inversePossibilities(info.square()) };
 			bool* pUsage = new bool[count];
@@ -187,7 +188,8 @@ namespace pygmalion::dynamics
 		void* preInitialize_Implementation(const inverseSlidermagicinfo<descriptorDynamics>& info) noexcept
 		{
 #if defined(PYGMALION_inverseSlidermagic_COMPACT)&&defined(PYGMALION_CPU_BMI2)
-			m_Mask = static_cast<bitsType>(propagatorType::inverseAttacks(squaresType(info.square()), squaresType::all()));
+			constexpr const squaresType all{ squaresType::all() };
+			m_Mask = static_cast<bitsType>(propagatorType::inverseAttacks(squaresType(info.square()), all));
 #endif
 			return nullptr;
 		}
@@ -209,14 +211,16 @@ namespace pygmalion::dynamics
 			parentType(info)
 		{
 #if defined(PYGMALION_inverseSlidermagic_COMPACT)&&defined(PYGMALION_CPU_BMI2)
-			m_Mask = static_cast<bitsType>(propagatorType::inverseAttacks(squaresType(info.square()), squaresType::all()));
+			constexpr const squaresType all{ squaresType::all() };
+			m_Mask = static_cast<bitsType>(propagatorType::inverseAttacks(squaresType(info.square()), all));
 #endif
 		}
 		inverseSlidermagic(const inverseSlidermagicinfo<descriptorDynamics>& info, const bitsType& factor, const size_t shift) noexcept :
 			parentType(info, factor, shift)
 		{
 #if defined(PYGMALION_inverseSlidermagic_COMPACT)&&defined(PYGMALION_CPU_BMI2)
-			m_Mask = static_cast<bitsType>(propagatorType::inverseAttacks(squaresType(info.square()), squaresType::all()));
+			constexpr const squaresType all{ squaresType::all() };
+			m_Mask = static_cast<bitsType>(propagatorType::inverseAttacks(squaresType(info.square()), all));
 #endif
 		}
 		inverseSlidermagic() noexcept = default;

@@ -15,12 +15,16 @@ namespace pygmalion::chess
 		template<size_t PLAYER>
 		static scoreType evaluate_Implementation(const generatorType::template stackType<PLAYER>& stack) noexcept
 		{
-			const squaresType attackedByBlack{ stack.squaresAttackedByPlayer(blackPlayer) };
-			const squaresType attackedByWhite{ stack.squaresAttackedByPlayer(whitePlayer) };
+			const squaresType attackedByBlack{ stack.template squaresAttackedByPlayer<static_cast<size_t>(blackPlayer)>() };
+			const squaresType attackedByWhite{ stack.template squaresAttackedByPlayer<static_cast<size_t>(whitePlayer)>() };
 			const int attacks{ static_cast<int>(attackedByWhite.count()) - static_cast<int>(attackedByBlack.count()) };
 			const scoreType scoreAttacks{ attacks * AttackFactor };
-			const bool invert{ stack.movingPlayer() == blackPlayer };
-			return invert ? -scoreAttacks : scoreAttacks;
+			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
+			constexpr const bool invert{ movingPlayer == blackPlayer };
+			if constexpr (invert)
+				return -scoreAttacks;
+			else
+				return scoreAttacks;
 		}
 		static std::string name_Implementation() noexcept
 		{

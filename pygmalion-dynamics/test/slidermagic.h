@@ -137,7 +137,8 @@ namespace pygmalion::dynamics
 		void* preInitialize_Implementation(const slidermagicinfo<descriptorDynamics>& info) noexcept
 		{
 #if defined(PYGMALION_SLIDERMAGIC_COMPACT)&&defined(PYGMALION_CPU_BMI2)
-			m_Mask = static_cast<bitsType>(propagatorType::attacks(squaresType(info.square()), squaresType::all()));
+			constexpr const squaresType all{ squaresType::all() };
+			m_Mask = static_cast<bitsType>(propagatorType::attacks(squaresType(info.square()), all));
 #endif
 			const size_t count{ propagatorType::possibilities(info.square()) };
 			bool* pUsage = new bool[count];
@@ -187,7 +188,8 @@ namespace pygmalion::dynamics
 		void* preInitialize_Implementation(const slidermagicinfo<descriptorDynamics>& info) noexcept
 		{
 #if defined(PYGMALION_SLIDERMAGIC_COMPACT)&&defined(PYGMALION_CPU_BMI2)
-			m_Mask = static_cast<bitsType>(propagatorType::attacks(squaresType(info.square()), squaresType::all()));
+			constexpr const squaresType all{ squaresType::all() };
+			m_Mask = static_cast<bitsType>(propagatorType::attacks(squaresType(info.square()), all));
 #endif
 			return nullptr;
 		}
@@ -210,7 +212,8 @@ namespace pygmalion::dynamics
 			m_Table{ nullptr }
 		{
 #if defined(PYGMALION_SLIDERMAGIC_COMPACT)&&defined(PYGMALION_CPU_BMI2)
-			m_Mask = static_cast<bitsType>(propagatorType::attacks(squaresType(info.square()), squaresType::all()));
+			constexpr const squaresType all{ squaresType::all() };
+			m_Mask = static_cast<bitsType>(propagatorType::attacks(squaresType(info.square()), all));
 #endif
 		}
 		slidermagic(const slidermagicinfo<descriptorDynamics>& info, const bitsType& factor, const size_t shift) noexcept :
@@ -218,7 +221,8 @@ namespace pygmalion::dynamics
 			m_Table{ nullptr }
 		{
 #if defined(PYGMALION_SLIDERMAGIC_COMPACT)&&defined(PYGMALION_CPU_BMI2)
-			m_Mask = static_cast<bitsType>(propagatorType::attacks(squaresType(info.square()), squaresType::all()));
+			constexpr const squaresType all{ squaresType::all() };
+			m_Mask = static_cast<bitsType>(propagatorType::attacks(squaresType(info.square()), all));
 #endif
 		}
 		slidermagic() noexcept = default;

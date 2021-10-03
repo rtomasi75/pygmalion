@@ -10,10 +10,11 @@ namespace pygmalion::chess::state
 		hashType m_PawnHash;
 		materialScore m_Material;
 		std::uint16_t m_ReversiblePlies;
+		constexpr static const materialScore m_Zero{ materialScore::zero() };
 	public:
 		constexpr void clear() noexcept
 		{
-			m_Material = materialScore::zero();
+			m_Material = m_Zero;
 			m_ReversiblePlies = 0;
 			m_PawnHash = 0;
 		}
@@ -42,7 +43,7 @@ namespace pygmalion::chess::state
 			return m_ReversiblePlies;
 		}
 		constexpr cumulation() noexcept :
-			m_Material{ materialScore::zero() },
+			m_Material{ m_Zero },
 			m_ReversiblePlies{ 0 },
 			m_PawnHash{ 0 }
 		{

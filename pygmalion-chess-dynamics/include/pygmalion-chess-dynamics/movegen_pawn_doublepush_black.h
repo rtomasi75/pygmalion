@@ -159,13 +159,15 @@ namespace pygmalion::chess
 	private:
 		constexpr static const squaresType pawnToSquares() noexcept
 		{
-			squaresType squares{ squaresType::none() };
+			constexpr const squaresType none{ squaresType::none() };
+			squaresType squares{ none };
 			squares |= static_cast<squaresType>(static_cast<rankType>(countRanks - 4));
 			return squares;
 		}
 		constexpr static const squaresType pawnFromSquares() noexcept
 		{
-			squaresType squares{ squaresType::none() };
+			constexpr const squaresType none{ squaresType::none() };
+			squaresType squares{ none };
 			squares |= static_cast<squaresType>(static_cast<rankType>(countRanks - 2));
 			return squares;
 		}

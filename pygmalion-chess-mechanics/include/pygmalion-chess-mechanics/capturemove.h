@@ -239,7 +239,8 @@ namespace pygmalion::chess
 		{
 			const squareType to{ capturemove::extractTo(moveBits) };
 			const squareType from{ capturemove::extractFrom(moveBits) };
-			squaresType delta{ squaresType::none() };
+			constexpr const squaresType none{ squaresType::none() };
+			squaresType delta{ none };
 			if (position.pieceOccupancy(piece)[from])
 			{
 				delta ^= from;

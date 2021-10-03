@@ -12,7 +12,8 @@ namespace pygmalion::tictactoe
 	public:
 		constexpr static scoreType aspirationWindowSize_Implementation(const size_t index) noexcept
 		{
-			return scoreType::zero();
+			constexpr const scoreType zero{ scoreType::zero() };
+			return zero;
 		}
 		constexpr static size_t countAspirationWindows_Implementation() noexcept
 		{
@@ -59,23 +60,25 @@ namespace pygmalion::tictactoe
 		static scoreType computeMaterial_Implementation(const typename generatorType::template stackType<PLAYER>& stack) noexcept
 		{
 			const auto& position{ stack.position() };
-			auto sc = scoreType::zero();
+			constexpr const scoreType zero{ scoreType::zero() };
+			auto sc = zero;
 			for (int line = 0; line < m_Patterns.countLines; line++)
 			{
 				const auto ctr1 = (position.playerOccupancy(0) & m_Patterns.line(line)).count();
 				const auto ctr2 = (position.playerOccupancy(1) & m_Patterns.line(line)).count();
-
+				constexpr const scoreType one{ scoreType::one() };
 				if ((ctr1 > 0) && (ctr2 == 0))
-					sc += scoreType::one() * (ctr1 * ctr1);
+					sc += one * (ctr1 * ctr1);
 				if ((ctr2 > 0) && (ctr1 == 0))
-					sc -= scoreType::one() * (ctr2 * ctr2);
+					sc -= one * (ctr2 * ctr2);
 			}
 			return stack.movingPlayer() == playerType(0) ? sc : -sc;
 		}
 		static scoreType staticTacticalMoveScore_Implementation(const boardType& position, const movebitsType move) noexcept
 		{
 			PYGMALION_ASSERT(false);
-			return scoreType::zero();
+			constexpr const scoreType zero{ scoreType::zero() };
+			return zero;
 		}
 	};
 }

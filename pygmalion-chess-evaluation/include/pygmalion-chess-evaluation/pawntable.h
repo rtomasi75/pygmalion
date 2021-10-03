@@ -45,6 +45,7 @@ namespace pygmalion::chess
 			template<size_t PLAYER>
 			void update(const typename generatorType::template stackType<PLAYER>& stack) noexcept
 			{
+				constexpr const squaresType all{ squaresType::all() };
 				const squaresType whitePawns{ stack.position().pieceOccupancy(descriptorEvaluation::pawn) & stack.position().playerOccupancy(descriptorEvaluation::whitePlayer) };
 				const squaresType blackPawns{ stack.position().pieceOccupancy(descriptorEvaluation::pawn) & stack.position().playerOccupancy(descriptorEvaluation::blackPlayer) };
 				const squareType whiteKing{ stack.kingSquare(descriptorEvaluation::whitePlayer) };
@@ -56,11 +57,11 @@ namespace pygmalion::chess
 				m_KingSquare[descriptorEvaluation::whitePlayer] = whiteKing;
 				m_KingSquare[descriptorEvaluation::blackPlayer] = blackKing;
 
-				const squaresType kingAreaWhite{ generatorType::movegenKing.attacks(whiteKing,squaresType::all()) & ~whitePawns };
+				const squaresType kingAreaWhite{ generatorType::movegenKing.attacks(whiteKing,all) & ~whitePawns };
 				m_KingTropism[descriptorEvaluation::whitePlayer].compute(whiteKing, descriptorEvaluation::blackPlayer, blackPawns, whitePawns, blackKing, whiteKing);
 				m_KingAreaTropism[descriptorEvaluation::whitePlayer].compute(kingAreaWhite, descriptorEvaluation::blackPlayer, blackPawns, whitePawns, blackKing, whiteKing);
 
-				const squaresType kingAreaBlack{ generatorType::movegenKing.attacks(blackKing,squaresType::all()) & ~blackPawns };
+				const squaresType kingAreaBlack{ generatorType::movegenKing.attacks(blackKing,all) & ~blackPawns };
 				m_KingTropism[descriptorEvaluation::blackPlayer].compute(blackKing, descriptorEvaluation::whitePlayer, whitePawns, blackPawns, whiteKing, blackKing);
 				m_KingAreaTropism[descriptorEvaluation::blackPlayer].compute(kingAreaBlack, descriptorEvaluation::whitePlayer, whitePawns, blackPawns, whiteKing, blackKing);
 

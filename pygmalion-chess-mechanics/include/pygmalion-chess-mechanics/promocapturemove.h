@@ -251,7 +251,8 @@ namespace pygmalion::chess
 		constexpr squaresType pieceOccupancyDelta_Implementation(const boardType& position, const pieceType piece, const movebitsType moveBits) const noexcept
 		{
 			const squareType to{ promocapturemove::extractTo(moveBits) };
-			squaresType delta{ squaresType::none() };
+			constexpr const squaresType none{ squaresType::none() };
+			squaresType delta{ none };
 			if (piece == pawn)
 				delta ^= promocapturemove::extractFrom(moveBits);
 			if (piece == m_PromotedPiece)

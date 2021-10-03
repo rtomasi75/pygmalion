@@ -265,6 +265,7 @@ namespace pygmalion::chess
 		}
 		constexpr squaresType pieceOccupancyDelta_Implementation(const boardType& position, const pieceType piece, const movebitsType moveBits) const noexcept
 		{
+			constexpr const squaresType none{ squaresType::none() };
 			if (piece == pawn)
 			{
 				const playerType p{ position.movingPlayer() };
@@ -290,7 +291,7 @@ namespace pygmalion::chess
 				}
 			}
 			else
-				return squaresType::none();
+				return none;
 		}
 		constexpr squareType fromSquare_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
 		{

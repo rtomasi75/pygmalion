@@ -20,8 +20,9 @@ namespace pygmalion::chess::evaluation
 				{
 					typename generatorType::contextType context;
 					stackType<PLAYER> stack{ stackType<PLAYER>(this->position(), this->history(), &context) };
-					squaresType controlWhite{ squaresType::none() };
-					squaresType controlBlack{ squaresType::none() };
+					constexpr const squaresType none{ squaresType::none() };
+					squaresType controlWhite{ none };
+					squaresType controlBlack{ none };
 					stack.control(controlWhite, controlBlack);
 					if (p == whitePlayer)
 					{

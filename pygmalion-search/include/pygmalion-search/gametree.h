@@ -56,11 +56,14 @@ namespace pygmalion
 				PYGMALION_ASSERT(!gamestateType::isOpen(lateState));
 				if (gamestateType::isDraw(lateState))
 				{
-					return scoreType::zero();
+					constexpr const scoreType zero{ scoreType::zero() };
+					return zero;
 				}
 				else
 				{
-					return gamestateType::isWin(lateState, movingPlayer) ? scoreType::win() : scoreType::loss();
+					constexpr const scoreType win{ scoreType::win() };
+					constexpr const scoreType loss{ scoreType::loss() };
+					return gamestateType::isWin(lateState, movingPlayer) ? win : loss;
 				}
 			}
 			template<bool LAZY>
@@ -71,12 +74,15 @@ namespace pygmalion
 				{
 					if (gamestateType::isDraw(earlyState))
 					{
-						score = scoreType::zero();
+						constexpr const scoreType zero{ scoreType::zero() };
+						score = zero;
 						return true;
 					}
 					else
 					{
-						score = gamestateType::isWin(earlyState, movingPlayer) ? scoreType::win() : scoreType::loss();
+						constexpr const scoreType win{ scoreType::win() };
+						constexpr const scoreType loss{ scoreType::loss() };
+						score = gamestateType::isWin(earlyState, movingPlayer) ? win : loss;
 						return true;
 					}
 				}
@@ -385,7 +391,7 @@ namespace pygmalion
 			{
 				if constexpr (searchIterativeDeepening)
 				{
-					scoreType sc{ scoreType::zero() };
+					scoreType sc;
 					childType subnode(childType(*static_cast<const instanceType*>(this), move));
 					if (depthRemaining >= 0)
 					{
@@ -475,7 +481,7 @@ namespace pygmalion
 						}
 					}
 					bool bEnded{ false };
-					scoreType sc{ scoreType::zero() };
+					scoreType sc;
 					bool allowStoreTTsubnode{ true };
 					if constexpr (searchScout)
 					{
@@ -613,7 +619,7 @@ namespace pygmalion
 				variationType subVariation;
 				bool allowStoreTTsubnode{ true };
 				bool bEnded{ false };
-				scoreType sc{ scoreType::zero() };
+				scoreType sc;
 				{
 					childType subnode(childType(*static_cast<const instanceType*>(this), move));
 					sc = -subnode.template eval<VERBOSE, USE_TT>(-beta.plyDown(), -alpha.plyDown(), depth + 1, subVariation, str, allowStoreTTsubnode).plyUp();
@@ -658,7 +664,7 @@ namespace pygmalion
 			{
 				m_Heuristics.beginMove(m_Stack, move, true, depth);
 				bool allowStoreTTsubnode{ true };
-				scoreType sc{ scoreType::zero() };
+				scoreType sc;
 				{
 					childType subnode(childType(*static_cast<const instanceType*>(this), move));
 					sc = -subnode.template zweval<VERBOSE, USE_TT>(-alpha.plyDown(), depth + 1, str, allowStoreTTsubnode).plyUp();
@@ -752,13 +758,14 @@ namespace pygmalion
 			template<bool VERBOSE, bool USE_TT>
 			scoreType eval(scoreType alpha, scoreType beta, const size_t depth, variationType& principalVariation, std::ostream& str, bool& allowStoreTT) noexcept
 			{
+				constexpr const scoreType zero{ scoreType::zero() };
 				if (!m_IsRunning)
 				{
 					allowStoreTT = false;
-					return scoreType::zero();
+					return zero;
 				}
 				m_Heuristics.beginNode(m_Stack);
-				scoreType early{ scoreType::zero() };
+				scoreType early{ zero };
 				if (earlyScore<false>(early, allowStoreTT))
 				{
 					m_Heuristics.endNodeEarly(m_Stack);
@@ -828,14 +835,15 @@ namespace pygmalion
 			template<bool VERBOSE, bool USE_TT>
 			scoreType zweval(scoreType beta, const size_t depth, std::ostream& str, bool& allowStoreTT) noexcept
 			{
+				constexpr const scoreType zero{ scoreType::zero() };
 				if (!m_IsRunning)
 				{
 					allowStoreTT = false;
-					return scoreType::zero();
+					return zero;
 				}
 				m_Heuristics.beginNode(m_Stack);
 				scoreType alpha{ beta.zeroWindow() };
-				scoreType early{ scoreType::zero() };
+				scoreType early{ zero };
 				if (earlyScore<true>(early, allowStoreTT))
 				{
 					m_Heuristics.endNodeEarly(m_Stack);
@@ -844,10 +852,11 @@ namespace pygmalion
 				movebitsType bestmove;
 				bool hasLegalMove{ false };
 				movebitsType move;
-				scoreType best{ scoreType::minimum() };
+				constexpr const scoreType minimum{ scoreType::minimum() };
+				scoreType best{ minimum };
 				if constexpr (USE_TT)
 				{
-					scoreType ttScore{ scoreType::zero() };
+					scoreType ttScore;
 					movebitsType ttMove;
 					const std::uint8_t lookUp{ m_Heuristics.transpositionTable().probe(m_Stack, depthType(-1), alpha, beta, ttScore, ttMove) };
 					if (lookUp != transpositiontable<descriptorSearch>::flags_unused)
@@ -967,7 +976,8 @@ namespace pygmalion
 			{
 				bool hasLegalMove{ false };
 				movebitsType move;
-				scoreType best{ scoreType::minimum() };
+				constexpr const scoreType minimum{ scoreType::minimum() };
+				scoreType best{ minimum };
 				movebitsType bestmove;
 				bool fromStack;
 				allowStoreTT = true;
@@ -1006,16 +1016,17 @@ namespace pygmalion
 			template<bool VERBOSE>
 			scoreType zwsearch(scoreType beta, const depthType depthRemaining, const size_t depth, const uint_t<countPlayers, false> nullMoveHistory, std::ostream& str, bool& allowStoreTT) noexcept
 			{
+				constexpr const scoreType zero{ scoreType::zero() };
 				if (!m_IsRunning)
 				{
 					allowStoreTT = false;
-					return scoreType::zero();
+					return zero;
 				}
 				scoreType alpha{ beta.zeroWindow() };
 				if (depthRemaining >= depthType(0))
 				{
 					m_Heuristics.beginNode(m_Stack);
-					scoreType early{ scoreType::zero() };
+					scoreType early{ zero };
 					if (earlyScore<true>(early, allowStoreTT))
 					{
 						m_Heuristics.endNodeEarly(m_Stack);
@@ -1023,11 +1034,12 @@ namespace pygmalion
 					}
 					bool hasLegalMove{ false };
 					bool allowNMP{ true };
-					scoreType best{ scoreType::minimum() };
+					constexpr const scoreType minimum{ scoreType::minimum() };
+					scoreType best{ minimum };
 					movebitsType bestmove;
 					if constexpr (searchTranspositionTable)
 					{
-						scoreType ttScore{ scoreType::zero() };
+						scoreType ttScore;
 						movebitsType ttMove;
 						const std::uint8_t lookUp{ m_Heuristics.transpositionTable().probe(m_Stack, depthRemaining, alpha, beta, ttScore, ttMove) };
 						if ((lookUp & transpositiontable<descriptorSearch>::flags_hit) != transpositiontable<descriptorSearch>::flags_unused)
@@ -1063,11 +1075,13 @@ namespace pygmalion
 								if (allowNMP && checkNullMove(nullMoveHistory) && this->nullMoveAllowed())
 								{
 									bool allowStoreTTsubnode;
-									scoreType nmsc{ scoreType::zero() };
+									constexpr const scoreType zero{ scoreType::zero() };
+									scoreType nmsc{ zero };
 									const depthType remainingNullMoveDepth{ static_cast<depthType>(depthRemaining - nullMoveReduction(depthRemaining) - 1) };
 									{
 										childType subnode(childType(*static_cast<const instanceType*>(this), generatorType::nullMove()));
-										nmsc = -subnode.template zwsearch<VERBOSE>((scoreType::atom() - beta).plyDown(), remainingNullMoveDepth, depth + 1, doNullMove(nullMoveHistory), str, allowStoreTTsubnode).plyUp();
+										constexpr const scoreType atom{ scoreType::atom() };
+										nmsc = -subnode.template zwsearch<VERBOSE>((atom - beta).plyDown(), remainingNullMoveDepth, depth + 1, doNullMove(nullMoveHistory), str, allowStoreTTsubnode).plyUp();
 									}
 									if (nmsc >= beta)
 									{
@@ -1085,9 +1099,10 @@ namespace pygmalion
 								if (instanceType::futilityPruningEnabled(depthRemaining))
 								{
 									const scoreType futileGlobalScore{ alpha - instanceType::futilityGlobalMargin(depthRemaining, m_Stack) };
-									const scoreType eval{ evaluate(futileGlobalScore, scoreType::maximum()) };
+									constexpr const scoreType maximum{ scoreType::maximum() };
+									const scoreType eval{ evaluate(futileGlobalScore, maximum) };
 									m_FutileGap = alpha - eval - instanceType::futilityMargin(depthRemaining, m_Stack);
-									m_FutilityPruningAllowed = m_FutileGap >= scoreType::zero();
+									m_FutilityPruningAllowed = m_FutileGap >= zero;
 									bPruned |= futileGlobalScore >= eval;
 								}
 							}
@@ -1106,15 +1121,16 @@ namespace pygmalion
 			template<bool VERBOSE>
 			scoreType search(scoreType alpha, scoreType beta, const depthType depthRemaining, const size_t depth, variationType& principalVariation, std::ostream& str, bool& allowStoreTT) noexcept
 			{
+				constexpr const scoreType zero{ scoreType::zero() };
 				if (!m_IsRunning)
 				{
 					allowStoreTT = false;
-					return scoreType::zero();
+					return zero;
 				}
 				if (depthRemaining >= depthType(0))
 				{
 					m_Heuristics.beginNode(m_Stack);
-					scoreType early{ scoreType::zero() };
+					scoreType early{ zero };
 					if (earlyScore<false>(early, allowStoreTT))
 					{
 						m_Heuristics.endNodeEarly(m_Stack);
@@ -1129,9 +1145,10 @@ namespace pygmalion
 								if (instanceType::futilityPruningEnabled(depthRemaining))
 								{
 									const scoreType futileGlobalScore{ alpha - instanceType::futilityGlobalMargin(depthRemaining, m_Stack) };
-									const scoreType eval{ evaluate(futileGlobalScore, scoreType::maximum()) };
+									constexpr const scoreType maximum{ scoreType::maximum() };
+									const scoreType eval{ evaluate(futileGlobalScore, maximum) };
 									m_FutileGap = alpha - eval - instanceType::futilityMargin(depthRemaining, m_Stack);
-									m_FutilityPruningAllowed = m_FutileGap >= scoreType::zero();
+									m_FutilityPruningAllowed = m_FutileGap >= zero;
 								}
 							}
 						}
@@ -1147,7 +1164,7 @@ namespace pygmalion
 			constexpr node(const node&) = default;
 			constexpr node(node&&) = default;
 			constexpr node& operator=(const node&) = default;
-			constexpr node(const stackType& stack, std::atomic_bool& isRunning, heuristicsType& heuristics) noexcept :
+			node(const stackType& stack, std::atomic_bool& isRunning, heuristicsType& heuristics) noexcept :
 				m_Stack{ stack },
 				m_IsRunning{ isRunning },
 				m_Heuristics{ heuristics },
@@ -1166,17 +1183,20 @@ namespace pygmalion
 				m_NeedsSorting{ false },
 				m_NeedsTacticalSorting{ false },
 				m_FutilityPruningAllowed{ false },
-				m_DistanceFromRoot{ 0 },
-				m_EvalAlpha{ scoreType::maximum() },
-				m_EvalBeta{ scoreType::minimum() },
-				m_Eval{ scoreType::zero() },
-				m_FutileGap{ scoreType::zero() }
+				m_DistanceFromRoot{ 0 }
 			{
 				PYGMALION_ASSERT(stack.position().movingPlayer() == movingPlayer);
 				if constexpr (searchTranspositionTable)
 					m_Heuristics.transpositionTable().prefetch(m_Stack);
+				constexpr const scoreType minimum{ scoreType::minimum() };
+				constexpr const scoreType maximum{ scoreType::maximum() };
+				constexpr const scoreType zero{ scoreType::zero() };
+				m_EvalAlpha = maximum;
+				m_EvalBeta = minimum;
+				m_Eval = zero;
+				m_FutileGap = zero;
 			}
-			constexpr node(const parentType& parent, const movebitsType moveBits) noexcept :
+			node(const parentType& parent, const movebitsType moveBits) noexcept :
 				m_Stack(parent.m_Stack, moveBits),
 				m_IsRunning{ parent.m_IsRunning },
 				m_Heuristics{ parent.m_Heuristics },
@@ -1195,21 +1215,26 @@ namespace pygmalion
 				m_NeedsSorting{ false },
 				m_NeedsTacticalSorting{ false },
 				m_FutilityPruningAllowed{ false },
-				m_DistanceFromRoot{ parent.m_DistanceFromRoot + 1 },
-				m_EvalAlpha{ scoreType::maximum() },
-				m_EvalBeta{ scoreType::minimum() },
-				m_Eval{ scoreType::zero() },
-				m_FutileGap{ scoreType::zero() }
+				m_DistanceFromRoot{ parent.m_DistanceFromRoot + 1 }
 			{
 				if constexpr (searchTranspositionTable)
 					m_Heuristics.transpositionTable().prefetch(m_Stack);
+				constexpr const scoreType minimum{ scoreType::minimum() };
+				constexpr const scoreType maximum{ scoreType::maximum() };
+				constexpr const scoreType zero{ scoreType::zero() };
+				m_EvalAlpha = maximum;
+				m_EvalBeta = minimum;
+				m_Eval = zero;
+				m_FutileGap = zero;
 			}
 			~node() noexcept = default;
 			template<bool VERBOSE>
 			scoreType searchRoot(const depthType depthRemaining, const size_t depth, variationType& principalVariation, std::ostream& str) noexcept
 			{
 				bool allowStoreTT;
-				return this->template search<VERBOSE>(scoreType::minimum(), scoreType::maximum(), depthRemaining, depth, principalVariation, str, allowStoreTT);
+				constexpr const scoreType minimum{ scoreType::minimum() };
+				constexpr const scoreType maximum{ scoreType::maximum() };
+				return this->template search<VERBOSE>(minimum, maximum, depthRemaining, depth, principalVariation, str, allowStoreTT);
 			}
 			constexpr const stackType& stack() const noexcept
 			{

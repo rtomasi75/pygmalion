@@ -42,9 +42,9 @@ namespace pygmalion::chess
 			{
 				if (stack.position().playerOccupancy(blackPlayer) == squaresType(stack.kingSquare(blackPlayer)))
 					return gamestateType::draw();
-				if ((stack.position().playerOccupancy(blackPlayer) & (stack.position().pieceOccupancy(rook) | stack.position().pieceOccupancy(queen) | stack.position().pieceOccupancy(pawn))) == squaresType::none())
+				if (!(stack.position().playerOccupancy(blackPlayer) & (stack.position().pieceOccupancy(rook) | stack.position().pieceOccupancy(queen) | stack.position().pieceOccupancy(pawn))))
 				{
-					if ((stack.position().playerOccupancy(blackPlayer) & stack.position().pieceOccupancy(bishop)) == squaresType::none())
+					if (!(stack.position().playerOccupancy(blackPlayer) & stack.position().pieceOccupancy(bishop)))
 					{
 						if ((stack.position().playerOccupancy(blackPlayer) & stack.position().pieceOccupancy(knight)).count() == 1)
 						{
@@ -52,7 +52,7 @@ namespace pygmalion::chess
 							return gamestateType::draw();
 						}
 					}
-					if ((stack.position().playerOccupancy(blackPlayer) & stack.position().pieceOccupancy(knight)) == squaresType::none())
+					if (!(stack.position().playerOccupancy(blackPlayer) & stack.position().pieceOccupancy(knight)))
 					{
 						if ((stack.position().playerOccupancy(blackPlayer) & stack.position().pieceOccupancy(bishop)).count() == 1)
 						{
@@ -64,9 +64,9 @@ namespace pygmalion::chess
 			}
 			else if (stack.position().playerOccupancy(blackPlayer) == squaresType(stack.kingSquare(blackPlayer)))
 			{
-				if ((stack.position().playerOccupancy(whitePlayer) & (stack.position().pieceOccupancy(rook) | stack.position().pieceOccupancy(queen) | stack.position().pieceOccupancy(pawn))) == squaresType::none())
+				if (!(stack.position().playerOccupancy(whitePlayer) & (stack.position().pieceOccupancy(rook) | stack.position().pieceOccupancy(queen) | stack.position().pieceOccupancy(pawn))))
 				{
-					if ((stack.position().playerOccupancy(whitePlayer) & stack.position().pieceOccupancy(bishop)) == squaresType::none())
+					if (!(stack.position().playerOccupancy(whitePlayer) & stack.position().pieceOccupancy(bishop)))
 					{
 						if ((stack.position().playerOccupancy(whitePlayer) & stack.position().pieceOccupancy(knight)).count() == 1)
 						{
@@ -74,7 +74,7 @@ namespace pygmalion::chess
 							return gamestateType::draw();
 						}
 					}
-					if ((stack.position().playerOccupancy(whitePlayer) & stack.position().pieceOccupancy(knight)) == squaresType::none())
+					if (!(stack.position().playerOccupancy(whitePlayer) & stack.position().pieceOccupancy(knight)))
 					{
 						if ((stack.position().playerOccupancy(whitePlayer) & stack.position().pieceOccupancy(bishop)).count() == 1)
 						{
@@ -84,7 +84,7 @@ namespace pygmalion::chess
 					}
 				}
 			}
-			else if ((stack.position().pieceOccupancy(queen) | stack.position().pieceOccupancy(rook) | stack.position().pieceOccupancy(knight) | stack.position().pieceOccupancy(pawn)) == squaresType::none())
+			else if (!(stack.position().pieceOccupancy(queen) | stack.position().pieceOccupancy(rook) | stack.position().pieceOccupancy(knight) | stack.position().pieceOccupancy(pawn)))
 			{
 				if (((stack.position().playerOccupancy(whitePlayer) & stack.position().pieceOccupancy(bishop)).count() == 1) && ((stack.position().playerOccupancy(whitePlayer) & stack.position().pieceOccupancy(bishop)).count() == 1))
 				{
@@ -119,16 +119,16 @@ namespace pygmalion::chess
 		{
 			const squaresType occ{ position.playerOccupancy(side) & mask };
 			squaresType subset{ position.pieceOccupancy(pawn) & occ };
-			if (subset != squaresType::none())
+			if (subset)
 				return subset.singlePiece();
 			subset = (position.pieceOccupancy(knight) | position.pieceOccupancy(bishop)) & occ;
-			if (subset != squaresType::none())
+			if (subset)
 				return subset.singlePiece();
 			subset = position.pieceOccupancy(rook) & occ;
-			if (subset != squaresType::none())
+			if (subset)
 				return subset.singlePiece();
 			subset = position.pieceOccupancy(queen) & occ;
-			if (subset != squaresType::none())
+			if (subset)
 				return subset.singlePiece();
 			subset = position.pieceOccupancy(king) & occ;
 			return subset;
@@ -141,6 +141,7 @@ namespace pygmalion::chess
 			playerType attackingSide{ position.getPlayer(from) };
 			PYGMALION_ASSERT(attackingPiece.isValid());
 			materialScore gain[32];
+			constexpr const materialScore zero{ materialScore::zero() };
 			if (motorType::move().isCapture(move))
 			{
 				const squaresType captureSquare{ motorType::move().captureSquare(position, move) };
@@ -149,7 +150,7 @@ namespace pygmalion::chess
 			}
 			else
 			{
-				gain[0] = materialScore::zero();
+				gain[0] = zero;
 			}
 			if (motorType::move().isPromotion(move))
 			{
@@ -168,7 +169,7 @@ namespace pygmalion::chess
 				d++;
 				PYGMALION_ASSERT(d < 32);
 				gain[d] = boardType::materialValue(attackingPiece, whitePlayer) - gain[d - 1];
-				if (materialScore::max(gain[d - 1], gain[d]) < materialScore::zero())
+				if (materialScore::max(gain[d - 1], gain[d]) < zero)
 					break;
 				attackBB ^= fromBB;
 				occBB ^= fromBB;
@@ -178,7 +179,7 @@ namespace pygmalion::chess
 				attackBB |= generatorType::attacksXrayDiag(to, occBB, mayXrayDiag);
 				attackingSide = attackingSide.next();
 				fromBB = leastValuablePiece(position, attackBB, attackingSide);
-				if (fromBB != squaresType::none())
+				if (fromBB)
 				{
 					const squareType attackersquare{ *fromBB.begin() };
 					if (attackingPiece == king)

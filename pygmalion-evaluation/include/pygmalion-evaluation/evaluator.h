@@ -46,7 +46,10 @@ namespace pygmalion
 			if constexpr (sizeof...(STAGES) > 0)
 				return computeDelta<STAGES...>();
 			else
-				return scoreType::zero();
+			{
+				constexpr const scoreType zero{ scoreType::zero() };
+				return zero;
+			}
 		}
 		template<typename STAGE, typename... STAGES2>
 		static std::string stageNames(const size_t index, const size_t counter) noexcept
@@ -76,7 +79,8 @@ namespace pygmalion
 				else
 				{
 					PYGMALION_ASSERT(false);
-					return scoreType::zero();
+					constexpr const scoreType zero{ scoreType::zero() };
+					return zero;
 				}
 			}
 		}

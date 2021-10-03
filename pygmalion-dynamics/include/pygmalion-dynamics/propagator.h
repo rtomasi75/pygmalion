@@ -83,7 +83,8 @@ namespace pygmalion::dynamics
 		{
 			if constexpr (DISTANCE < RANGE)
 			{
-				squaresType pattern{ squaresType::none() };
+				constexpr const squaresType none{ squaresType::none() };
+				squaresType pattern{ none };
 				propagator::computeRayStep<RAY>(seeds, pattern);
 				destinations |= pattern;
 				propagator::computeAttackRay<RAY, DISTANCE + 1>(pattern & allowed, allowed, destinations);
@@ -94,7 +95,8 @@ namespace pygmalion::dynamics
 		{
 			if constexpr (DISTANCE < RANGE)
 			{
-				squaresType pattern{ squaresType::none() };
+				constexpr const squaresType none{ squaresType::none() };
+				squaresType pattern{ none };
 				propagator::computeInverseRayStep<RAY>(seeds, pattern);
 				destinations |= pattern;
 				propagator::computeInverseAttackRay<RAY, DISTANCE + 1>(pattern & allowed, allowed, destinations);
@@ -105,7 +107,8 @@ namespace pygmalion::dynamics
 		{
 			if constexpr (DISTANCE < RANGE)
 			{
-				squaresType pattern{ squaresType::none() };
+				constexpr const squaresType none{ squaresType::none() };
+				squaresType pattern{ none };
 				propagator::computeRayStep<RAY>(seeds, pattern);
 				const squaresType targets{ pattern & allowed };
 				destinations |= targets;
@@ -117,7 +120,8 @@ namespace pygmalion::dynamics
 		{
 			if constexpr (DISTANCE < RANGE)
 			{
-				squaresType pattern{ squaresType::none() };
+				constexpr const squaresType none{ squaresType::none() };
+				squaresType pattern{ none };
 				propagator::computeInverseRayStep<RAY>(seeds, pattern);
 				const squaresType targets{ pattern & allowed };
 				destinations |= targets;
@@ -129,7 +133,8 @@ namespace pygmalion::dynamics
 		{
 			if constexpr ((DISTANCE + 1) < RANGE)
 			{
-				squaresType pattern{ squaresType::none() };
+				constexpr const squaresType none{ squaresType::none() };
+				squaresType pattern{ none };
 				propagator::computeRayStep<RAY>(seeds, pattern);
 				if (pattern)
 				{
@@ -143,7 +148,8 @@ namespace pygmalion::dynamics
 		{
 			if constexpr ((DISTANCE + 1) < RANGE)
 			{
-				squaresType pattern{ squaresType::none() };
+				constexpr const squaresType none{ squaresType::none() };
+				squaresType pattern{ none };
 				propagator::computeInverseRayStep<RAY>(seeds, pattern);
 				if (pattern)
 				{
@@ -157,7 +163,8 @@ namespace pygmalion::dynamics
 		{
 			if constexpr ((DISTANCE + 1) < RANGE)
 			{
-				squaresType pattern{ squaresType::none() };
+				constexpr const squaresType none{ squaresType::none() };
+				squaresType pattern{ none };
 				propagator::computeRayStep<RAY>(seeds, pattern);
 				if (pattern)
 					return 1 + propagator::computePossibilitiesRay<RAY, DISTANCE + 1>(pattern);
@@ -169,7 +176,8 @@ namespace pygmalion::dynamics
 		{
 			if constexpr ((DISTANCE + 1) < RANGE)
 			{
-				squaresType pattern{ squaresType::none() };
+				constexpr const squaresType none{ squaresType::none() };
+				squaresType pattern{ none };
 				propagator::computeInverseRayStep<RAY>(seeds, pattern);
 				if (pattern)
 					return 1 + propagator::computeInversePossibilitiesRay<RAY, DISTANCE + 1>(pattern);
@@ -193,7 +201,8 @@ namespace pygmalion::dynamics
 		template<typename RAY, typename... RAYS2>
 		constexpr static void computeRelevant(const squaresType& seeds, squaresType& targets) noexcept
 		{
-			squaresType pattern{ squaresType::none() };
+			constexpr const squaresType none{ squaresType::none() };
+			squaresType pattern{ none };
 			propagator::computeRayStep<RAY>(seeds, pattern);
 			if (pattern)
 			{
@@ -205,7 +214,8 @@ namespace pygmalion::dynamics
 		template<typename RAY, typename... RAYS2>
 		constexpr static void computeInverseRelevant(const squaresType& seeds, squaresType& targets) noexcept
 		{
-			squaresType pattern{ squaresType::none() };
+			constexpr const squaresType none{ squaresType::none() };
+			squaresType pattern{ none };
 			propagator::computeInverseRayStep<RAY>(seeds, pattern);
 			if (pattern)
 			{
@@ -217,7 +227,8 @@ namespace pygmalion::dynamics
 		template<typename RAY, typename... RAYS2>
 		constexpr static size_t computePossibilities(const squaresType& seeds) noexcept
 		{
-			squaresType pattern{ squaresType::none() };
+			constexpr const squaresType none{ squaresType::none() };
+			squaresType pattern{ none };
 			propagator::computeRayStep<RAY>(seeds, pattern);
 			size_t rayPossibilities{ 1 };
 			if (pattern)
@@ -232,7 +243,8 @@ namespace pygmalion::dynamics
 		template<typename RAY, typename... RAYS2>
 		constexpr static size_t computeInversePossibilities(const squaresType& seeds) noexcept
 		{
-			squaresType pattern{ squaresType::none() };
+			constexpr const squaresType none{ squaresType::none() };
+			squaresType pattern{ none };
 			propagator::computeInverseRayStep<RAY>(seeds, pattern);
 			size_t rayPossibilities{ 1 };
 			if (pattern)
@@ -260,14 +272,16 @@ namespace pygmalion::dynamics
 		}
 		constexpr static squaresType relevant(const squaresType& seeds) noexcept
 		{
-			squaresType mask{ squaresType::none() };
+			constexpr const squaresType none{ squaresType::none() };
+			squaresType mask{ none };
 			if constexpr (sizeof...(RAYS) > 0)
 				propagator::computeRelevant<RAYS...>(seeds, mask);
 			return mask;
 		}
 		constexpr static squaresType inverseRelevant(const squaresType& seeds) noexcept
 		{
-			squaresType mask{ squaresType::none() };
+			constexpr const squaresType none{ squaresType::none() };
+			squaresType mask{ none };
 			if constexpr (sizeof...(RAYS) > 0)
 				propagator::computeInverseRelevant<RAYS...>(seeds, mask);
 			return mask;
@@ -289,28 +303,32 @@ namespace pygmalion::dynamics
 	public:
 		constexpr static squaresType targets(const squaresType& seeds, const squaresType& allowed) noexcept
 		{
-			squaresType targets{ squaresType::none() };
+			constexpr const squaresType none{ squaresType::none() };
+			squaresType targets{ none };
 			if constexpr (sizeof...(RAYS) > 0)
 				propagator::computeTargets<RAYS...>(seeds, allowed, targets);
 			return targets;
 		}
 		constexpr static squaresType inverseTargets(const squaresType& seeds, const squaresType& allowed) noexcept
 		{
-			squaresType targets{ squaresType::none() };
+			constexpr const squaresType none{ squaresType::none() };
+			squaresType targets{ none };
 			if constexpr (sizeof...(RAYS) > 0)
 				propagator::computeInverseTargets<RAYS...>(seeds, allowed, targets);
 			return targets;
 		}
 		constexpr static squaresType attacks(const squaresType& seeds, const squaresType& allowed) noexcept
 		{
-			squaresType attacks{ squaresType::none() };
+			constexpr const squaresType none{ squaresType::none() };
+			squaresType attacks{ none };
 			if constexpr (sizeof...(RAYS) > 0)
 				propagator::computeAttacks<RAYS...>(seeds, allowed, attacks);
 			return attacks;
 		}
 		constexpr static squaresType inverseAttacks(const squaresType& seeds, const squaresType& allowed) noexcept
 		{
-			squaresType attacks{ squaresType::none() };
+			constexpr const squaresType none{ squaresType::none() };
+			squaresType attacks{ none };
 			if constexpr (sizeof...(RAYS) > 0)
 				propagator::computeInverseAttacks<RAYS...>(seeds, allowed, attacks);
 			return attacks;
@@ -339,7 +357,8 @@ namespace pygmalion::dynamics
 		}
 		constexpr static size_t countAttackSquares(const squareType seed) noexcept
 		{
-			const squaresType attackSquares{ attacks(squaresType(seed),squaresType::all()) };
+			constexpr const squaresType all{ squaresType::all() };
+			const squaresType attackSquares{ attacks(squaresType(seed),all) };
 			size_t n{ 0 };
 			for (const auto sq : squareType::range)
 			{
@@ -350,7 +369,8 @@ namespace pygmalion::dynamics
 		}
 		constexpr static size_t countInverseAttackSquares(const squareType seed) noexcept
 		{
-			const squaresType attackSquares{ inverseAttacks(squaresType(seed),squaresType::all()) };
+			constexpr const squaresType all{ squaresType::all() };
+			const squaresType attackSquares{ inverseAttacks(squaresType(seed),all) };
 			size_t n{ 0 };
 			for (const auto sq : squareType::range)
 			{
@@ -498,7 +518,8 @@ namespace pygmalion::dynamics
 		template<typename RAY, typename... RAYS2>
 		constexpr static void computeTargets(const squaresType& seeds, const squaresType& allowed, squaresType& targets) noexcept
 		{
-			squaresType ray{ squaresType::none() };
+			constexpr const squaresType none{ squaresType::none() };
+			squaresType ray{ none };
 			propagator::propagateRayStep<RAY>(seeds, ray);
 			targets |= ray & allowed;
 			if constexpr (sizeof...(RAYS2) > 0)
@@ -507,7 +528,8 @@ namespace pygmalion::dynamics
 		template<typename RAY, typename... RAYS2>
 		constexpr static void computeInverseTargets(const squaresType& seeds, const squaresType& allowed, squaresType& targets) noexcept
 		{
-			squaresType ray{ squaresType::none() };
+			constexpr const squaresType none{ squaresType::none() };
+			squaresType ray{ none };
 			propagator::propagateInverseRayStep<RAY>(seeds, ray);
 			targets |= ray & allowed;
 			if constexpr (sizeof...(RAYS2) > 0)
@@ -536,28 +558,32 @@ namespace pygmalion::dynamics
 		~propagator() noexcept = default;
 		constexpr static squaresType targets(const squaresType& seeds, const squaresType& allowed) noexcept
 		{
-			squaresType targets{ squaresType::none() };
+			constexpr const squaresType none{ squaresType::none() };
+			squaresType targets{ none };
 			if constexpr (sizeof...(RAYS) > 0)
 				propagator::computeTargets<RAYS...>(seeds, allowed, targets);
 			return targets;
 		}
 		constexpr static squaresType inverseTargets(const squaresType& seeds, const squaresType& allowed) noexcept
 		{
-			squaresType targets{ squaresType::none() };
+			constexpr const squaresType none{ squaresType::none() };
+			squaresType targets{ none };
 			if constexpr (sizeof...(RAYS) > 0)
 				propagator::computeInverseTargets<RAYS...>(seeds, allowed, targets);
 			return targets;
 		}
 		constexpr static squaresType attacks(const squaresType& seeds, const squaresType& allowed) noexcept
 		{
-			squaresType attacks{ squaresType::none() };
+			constexpr const squaresType none{ squaresType::none() };
+			squaresType attacks{ none };
 			if constexpr (sizeof...(RAYS) > 0)
 				propagator::computeAttacks<RAYS...>(seeds, allowed, attacks);
 			return attacks;
 		}
 		constexpr static squaresType inverseAttacks(const squaresType& seeds, const squaresType& allowed) noexcept
 		{
-			squaresType attacks{ squaresType::none() };
+			constexpr const squaresType none{ squaresType::none() };
+			squaresType attacks{ none };
 			if constexpr (sizeof...(RAYS) > 0)
 				propagator::computeInverseAttacks<RAYS...>(seeds, allowed, attacks);
 			return attacks;

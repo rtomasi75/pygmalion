@@ -37,10 +37,11 @@ namespace pygmalion::chess
 			{
 				const squaresType pieces{ this->stack().position().pieceOccupancy(descriptorSearch::knight) | this->stack().position().pieceOccupancy(descriptorSearch::bishop) | this->stack().position().pieceOccupancy(descriptorSearch::rook) | this->stack().position().pieceOccupancy(descriptorSearch::queen) };
 				const squaresType playerPieces{ pieces & this->stack().position().playerOccupancy(movingPlayer) };
-				return playerPieces != squaresType::none();
+				return playerPieces;
 			}
 			constexpr static scoreType futilityMargin_Implementation(const size_t depthRemaining, const stackType& stack) noexcept
 			{
+				constexpr const scoreType zero{ scoreType::zero() };
 				switch (depthRemaining)
 				{
 				case 0:
@@ -58,7 +59,7 @@ namespace pygmalion::chess
 					const squaresType ownPawns{ stack.position().pieceOccupancy(descriptorSearch::pawn) & stack.position().playerOccupancy(movingPlayer) };
 					constexpr const squaresType promotionsMask{ movingPlayer == descriptorSearch::whitePlayer ? descriptorSearch::rank7 : descriptorSearch::rank2 };
 					const squaresType promotionPawns{ ownPawns & promotionsMask };
-					scoreType promotionValue{ scoreType::zero() };
+					scoreType promotionValue{ zero };
 					if (promotionPawns)
 					{
 						constexpr const scoreType singlePromotionsValue{ static_cast<scoreType>(boardType::materialValue(descriptorSearch::queen, descriptorSearch::whitePlayer)) - static_cast<scoreType>(boardType::materialValue(descriptorSearch::pawn, descriptorSearch::whitePlayer)) };
@@ -68,8 +69,8 @@ namespace pygmalion::chess
 					bool noCapture{ true };
 					const squaresType otherOcc{ stack.position().playerOccupancy(otherPlayer) };
 					const squaresType queens{ stack.position().pieceOccupancy(descriptorSearch::queen) & otherOcc };
-					scoreType captureValue{ scoreType::zero() };
-					if (queens != squaresType::none())
+					scoreType captureValue{ zero };
+					if (queens)
 					{
 						constexpr const scoreType queenValue{ static_cast<scoreType>(boardType::materialValue(descriptorSearch::queen, descriptorSearch::whitePlayer)) };
 						captureValue += queenValue;
@@ -78,7 +79,7 @@ namespace pygmalion::chess
 					if (noCapture)
 					{
 						const squaresType rooks{ stack.position().pieceOccupancy(descriptorSearch::rook) & otherOcc };
-						if (rooks != squaresType::none())
+						if (rooks)
 						{
 							constexpr const scoreType rookValue{ static_cast<scoreType>(boardType::materialValue(descriptorSearch::rook, descriptorSearch::whitePlayer)) };
 							captureValue += rookValue;
@@ -122,7 +123,7 @@ namespace pygmalion::chess
 					const squaresType ownPawns{ stack.position().pieceOccupancy(descriptorSearch::pawn) & stack.position().playerOccupancy(movingPlayer) };
 					constexpr const squaresType promotionsMask{ movingPlayer == descriptorSearch::whitePlayer ? descriptorSearch::rank7 : descriptorSearch::rank2 };
 					const squaresType promotionPawns{ ownPawns & promotionsMask };
-					scoreType promotionValue{ scoreType::zero() };
+					scoreType promotionValue{ zero };
 					if (promotionPawns)
 					{
 						constexpr const scoreType singlePromotionsValue{ static_cast<scoreType>(boardType::materialValue(descriptorSearch::queen, descriptorSearch::whitePlayer)) - static_cast<scoreType>(boardType::materialValue(descriptorSearch::pawn, descriptorSearch::whitePlayer)) };
@@ -132,8 +133,8 @@ namespace pygmalion::chess
 					bool noCapture{ true };
 					const squaresType otherOcc{ stack.position().playerOccupancy(otherPlayer) };
 					const squaresType queens{ stack.position().pieceOccupancy(descriptorSearch::queen) & otherOcc };
-					scoreType captureValue{ scoreType::zero() };
-					if (queens != squaresType::none())
+					scoreType captureValue{ zero };
+					if (queens)
 					{
 						constexpr const scoreType queenValue{ static_cast<scoreType>(boardType::materialValue(descriptorSearch::queen, descriptorSearch::whitePlayer)) };
 						captureValue += queenValue;
@@ -142,7 +143,7 @@ namespace pygmalion::chess
 					if (noCapture)
 					{
 						const squaresType rooks{ stack.position().pieceOccupancy(descriptorSearch::rook) & otherOcc };
-						if (rooks != squaresType::none())
+						if (rooks)
 						{
 							constexpr const scoreType rookValue{ static_cast<scoreType>(boardType::materialValue(descriptorSearch::rook, descriptorSearch::whitePlayer)) };
 							captureValue += rookValue;
@@ -191,9 +192,9 @@ namespace pygmalion::chess
 					{
 						constexpr const squaresType prePromotionsMask{ movingPlayer == descriptorSearch::whitePlayer ? (descriptorSearch::rank7 | descriptorSearch::rank6) : (descriptorSearch::rank2 | descriptorSearch::rank3) };
 						const squaresType prePromotionPawns{ ownPawns & prePromotionsMask };
-						countPossiblePromotions += prePromotionPawns != squaresType::none();
+						countPossiblePromotions += static_cast<bool>(prePromotionPawns);
 					}
-					scoreType promotionValue{ scoreType::zero() };
+					scoreType promotionValue{ zero };
 					if (countPossiblePromotions >= 1)
 					{
 						constexpr const scoreType singlePromotionsValue{ static_cast<scoreType>(boardType::materialValue(descriptorSearch::queen, descriptorSearch::whitePlayer)) - static_cast<scoreType>(boardType::materialValue(descriptorSearch::pawn, descriptorSearch::whitePlayer)) };
@@ -204,7 +205,7 @@ namespace pygmalion::chess
 					size_t countCaptures{ 0 };
 					const squaresType otherOcc{ stack.position().playerOccupancy(otherPlayer) };
 					const squaresType queens{ stack.position().pieceOccupancy(descriptorSearch::queen) & otherOcc };
-					scoreType captureValue{ scoreType::zero() };
+					scoreType captureValue{ zero };
 					for (const auto sq : queens)
 					{
 						constexpr const scoreType queenValue{ static_cast<scoreType>(boardType::materialValue(descriptorSearch::queen, descriptorSearch::whitePlayer)) };
@@ -273,9 +274,9 @@ namespace pygmalion::chess
 					{
 						constexpr const squaresType prePromotionsMask{ movingPlayer == descriptorSearch::whitePlayer ? (descriptorSearch::rank7 | descriptorSearch::rank6) : (descriptorSearch::rank2 | descriptorSearch::rank3) };
 						const squaresType prePromotionPawns{ ownPawns & prePromotionsMask };
-						countPossiblePromotions += prePromotionPawns != squaresType::none();
+						countPossiblePromotions += static_cast<bool>(prePromotionPawns);
 					}
-					scoreType promotionValue{ scoreType::zero() };
+					scoreType promotionValue{ zero };
 					if (countPossiblePromotions >= 1)
 					{
 						constexpr const scoreType singlePromotionsValue{ static_cast<scoreType>(boardType::materialValue(descriptorSearch::queen, descriptorSearch::whitePlayer)) - static_cast<scoreType>(boardType::materialValue(descriptorSearch::pawn, descriptorSearch::whitePlayer)) };
@@ -286,7 +287,7 @@ namespace pygmalion::chess
 					size_t countCaptures{ 0 };
 					const squaresType otherOcc{ stack.position().playerOccupancy(otherPlayer) };
 					const squaresType queens{ stack.position().pieceOccupancy(descriptorSearch::queen) & otherOcc };
-					scoreType captureValue{ scoreType::zero() };
+					scoreType captureValue{ zero };
 					for (const auto sq : queens)
 					{
 						constexpr const scoreType queenValue{ static_cast<scoreType>(boardType::materialValue(descriptorSearch::queen, descriptorSearch::whitePlayer)) };
@@ -347,11 +348,12 @@ namespace pygmalion::chess
 				}
 				default:
 					PYGMALION_UNREACHABLE;
-					return scoreType::zero();
+					return zero;
 				}
 			}
 			constexpr static scoreType futilityGlobalMargin_Implementation(const size_t depthRemaining, const stackType& stack) noexcept
 			{
+				constexpr const scoreType zero{ scoreType::zero() };
 				switch (depthRemaining)
 				{
 				case 0:
@@ -359,7 +361,7 @@ namespace pygmalion::chess
 					const squaresType ownPawns{ stack.position().pieceOccupancy(descriptorSearch::pawn) & stack.position().playerOccupancy(movingPlayer) };
 					constexpr const squaresType promotionsMask{ movingPlayer == descriptorSearch::whitePlayer ? descriptorSearch::rank7 : descriptorSearch::rank2 };
 					const squaresType promotionPawns{ ownPawns & promotionsMask };
-					scoreType promotionValue{ scoreType::zero() };
+					scoreType promotionValue{ zero };
 					if (promotionPawns)
 					{
 						constexpr const scoreType singlePromotionsValue{ static_cast<scoreType>(boardType::materialValue(descriptorSearch::queen, descriptorSearch::whitePlayer)) - static_cast<scoreType>(boardType::materialValue(descriptorSearch::pawn, descriptorSearch::whitePlayer)) };
@@ -369,8 +371,8 @@ namespace pygmalion::chess
 					bool noCapture{ true };
 					const squaresType otherOcc{ stack.position().playerOccupancy(otherPlayer) };
 					const squaresType queens{ stack.position().pieceOccupancy(descriptorSearch::queen) & otherOcc };
-					scoreType captureValue{ scoreType::zero() };
-					if (queens != squaresType::none())
+					scoreType captureValue{ zero };
+					if (queens)
 					{
 						constexpr const scoreType queenValue{ static_cast<scoreType>(boardType::materialValue(descriptorSearch::queen, descriptorSearch::whitePlayer)) };
 						captureValue += queenValue;
@@ -379,7 +381,7 @@ namespace pygmalion::chess
 					if (noCapture)
 					{
 						const squaresType rooks{ stack.position().pieceOccupancy(descriptorSearch::rook) & otherOcc };
-						if (rooks != squaresType::none())
+						if (rooks)
 						{
 							constexpr const scoreType rookValue{ static_cast<scoreType>(boardType::materialValue(descriptorSearch::rook, descriptorSearch::whitePlayer)) };
 							captureValue += rookValue;
@@ -423,7 +425,7 @@ namespace pygmalion::chess
 					const squaresType ownPawns{ stack.position().pieceOccupancy(descriptorSearch::pawn) & stack.position().playerOccupancy(movingPlayer) };
 					constexpr const squaresType promotionsMask{ movingPlayer == descriptorSearch::whitePlayer ? descriptorSearch::rank7 : descriptorSearch::rank2 };
 					const squaresType promotionPawns{ ownPawns & promotionsMask };
-					scoreType promotionValue{ scoreType::zero() };
+					scoreType promotionValue{ zero };
 					if (promotionPawns)
 					{
 						constexpr const scoreType singlePromotionsValue{ static_cast<scoreType>(boardType::materialValue(descriptorSearch::queen, descriptorSearch::whitePlayer)) - static_cast<scoreType>(boardType::materialValue(descriptorSearch::pawn, descriptorSearch::whitePlayer)) };
@@ -433,8 +435,8 @@ namespace pygmalion::chess
 					bool noCapture{ true };
 					const squaresType otherOcc{ stack.position().playerOccupancy(otherPlayer) };
 					const squaresType queens{ stack.position().pieceOccupancy(descriptorSearch::queen) & otherOcc };
-					scoreType captureValue{ scoreType::zero() };
-					if (queens != squaresType::none())
+					scoreType captureValue{ zero };
+					if (queens)
 					{
 						constexpr const scoreType queenValue{ static_cast<scoreType>(boardType::materialValue(descriptorSearch::queen, descriptorSearch::whitePlayer)) };
 						captureValue += queenValue;
@@ -443,7 +445,7 @@ namespace pygmalion::chess
 					if (noCapture)
 					{
 						const squaresType rooks{ stack.position().pieceOccupancy(descriptorSearch::rook) & otherOcc };
-						if (rooks != squaresType::none())
+						if (rooks)
 						{
 							constexpr const scoreType rookValue{ static_cast<scoreType>(boardType::materialValue(descriptorSearch::rook, descriptorSearch::whitePlayer)) };
 							captureValue += rookValue;
@@ -492,9 +494,9 @@ namespace pygmalion::chess
 					{
 						constexpr const squaresType prePromotionsMask{ movingPlayer == descriptorSearch::whitePlayer ? (descriptorSearch::rank7 | descriptorSearch::rank6) : (descriptorSearch::rank2 | descriptorSearch::rank3) };
 						const squaresType prePromotionPawns{ ownPawns & prePromotionsMask };
-						countPossiblePromotions += prePromotionPawns != squaresType::none();
+						countPossiblePromotions += static_cast<bool>(prePromotionPawns);
 					}
-					scoreType promotionValue{ scoreType::zero() };
+					scoreType promotionValue{ zero };
 					if (countPossiblePromotions >= 1)
 					{
 						constexpr const scoreType singlePromotionsValue{ static_cast<scoreType>(boardType::materialValue(descriptorSearch::queen, descriptorSearch::whitePlayer)) - static_cast<scoreType>(boardType::materialValue(descriptorSearch::pawn, descriptorSearch::whitePlayer)) };
@@ -505,7 +507,7 @@ namespace pygmalion::chess
 					size_t countCaptures{ 0 };
 					const squaresType otherOcc{ stack.position().playerOccupancy(otherPlayer) };
 					const squaresType queens{ stack.position().pieceOccupancy(descriptorSearch::queen) & otherOcc };
-					scoreType captureValue{ scoreType::zero() };
+					scoreType captureValue{ zero };
 					for (const auto sq : queens)
 					{
 						constexpr const scoreType queenValue{ static_cast<scoreType>(boardType::materialValue(descriptorSearch::queen, descriptorSearch::whitePlayer)) };
@@ -574,9 +576,9 @@ namespace pygmalion::chess
 					{
 						constexpr const squaresType prePromotionsMask{ movingPlayer == descriptorSearch::whitePlayer ? (descriptorSearch::rank7 | descriptorSearch::rank6) : (descriptorSearch::rank2 | descriptorSearch::rank3) };
 						const squaresType prePromotionPawns{ ownPawns & prePromotionsMask };
-						countPossiblePromotions += prePromotionPawns != squaresType::none();
+						countPossiblePromotions += static_cast<bool>(prePromotionPawns);
 					}
-					scoreType promotionValue{ scoreType::zero() };
+					scoreType promotionValue{ zero };
 					if (countPossiblePromotions >= 1)
 					{
 						constexpr const scoreType singlePromotionsValue{ static_cast<scoreType>(boardType::materialValue(descriptorSearch::queen, descriptorSearch::whitePlayer)) - static_cast<scoreType>(boardType::materialValue(descriptorSearch::pawn, descriptorSearch::whitePlayer)) };
@@ -587,7 +589,7 @@ namespace pygmalion::chess
 					size_t countCaptures{ 0 };
 					const squaresType otherOcc{ stack.position().playerOccupancy(otherPlayer) };
 					const squaresType queens{ stack.position().pieceOccupancy(descriptorSearch::queen) & otherOcc };
-					scoreType captureValue{ scoreType::zero() };
+					scoreType captureValue{ zero };
 					for (const auto sq : queens)
 					{
 						constexpr const scoreType queenValue{ static_cast<scoreType>(boardType::materialValue(descriptorSearch::queen, descriptorSearch::whitePlayer)) };
@@ -661,10 +663,10 @@ namespace pygmalion::chess
 						{
 							constexpr const squaresType prePrePromotionsMask{ movingPlayer == descriptorSearch::whitePlayer ? (descriptorSearch::rank7 | descriptorSearch::rank6 | descriptorSearch::rank5) : (descriptorSearch::rank2 | descriptorSearch::rank3 | descriptorSearch::rank4) };
 							const squaresType prePrePromotionPawns{ ownPawns & prePrePromotionsMask };
-							countPossiblePromotions += prePrePromotionPawns != squaresType::none();
+							countPossiblePromotions += static_cast<bool>(prePrePromotionPawns);
 						}
 					}
-					scoreType promotionValue{ scoreType::zero() };
+					scoreType promotionValue{ zero };
 					if (countPossiblePromotions >= 1)
 					{
 						constexpr const scoreType singlePromotionsValue{ static_cast<scoreType>(boardType::materialValue(descriptorSearch::queen, descriptorSearch::whitePlayer)) - static_cast<scoreType>(boardType::materialValue(descriptorSearch::pawn, descriptorSearch::whitePlayer)) };
@@ -679,7 +681,7 @@ namespace pygmalion::chess
 					size_t countCaptures{ 0 };
 					const squaresType otherOcc{ stack.position().playerOccupancy(otherPlayer) };
 					const squaresType queens{ stack.position().pieceOccupancy(descriptorSearch::queen) & otherOcc };
-					scoreType captureValue{ scoreType::zero() };
+					scoreType captureValue{ zero };
 					for (const auto sq : queens)
 					{
 						constexpr const scoreType queenValue{ static_cast<scoreType>(boardType::materialValue(descriptorSearch::queen, descriptorSearch::whitePlayer)) };
@@ -753,10 +755,10 @@ namespace pygmalion::chess
 						{
 							constexpr const squaresType prePrePromotionsMask{ movingPlayer == descriptorSearch::whitePlayer ? (descriptorSearch::rank7 | descriptorSearch::rank6 | descriptorSearch::rank5) : (descriptorSearch::rank2 | descriptorSearch::rank3 | descriptorSearch::rank4) };
 							const squaresType prePrePromotionPawns{ ownPawns & prePrePromotionsMask };
-							countPossiblePromotions += prePrePromotionPawns != squaresType::none();
+							countPossiblePromotions += static_cast<bool>(prePrePromotionPawns);
 						}
 					}
-					scoreType promotionValue{ scoreType::zero() };
+					scoreType promotionValue{ zero };
 					if (countPossiblePromotions >= 1)
 					{
 						constexpr const scoreType singlePromotionsValue{ static_cast<scoreType>(boardType::materialValue(descriptorSearch::queen, descriptorSearch::whitePlayer)) - static_cast<scoreType>(boardType::materialValue(descriptorSearch::pawn, descriptorSearch::whitePlayer)) };
@@ -771,7 +773,7 @@ namespace pygmalion::chess
 					size_t countCaptures{ 0 };
 					const squaresType otherOcc{ stack.position().playerOccupancy(otherPlayer) };
 					const squaresType queens{ stack.position().pieceOccupancy(descriptorSearch::queen) & otherOcc };
-					scoreType captureValue{ scoreType::zero() };
+					scoreType captureValue{ zero };
 					for (const auto sq : queens)
 					{
 						constexpr const scoreType queenValue{ static_cast<scoreType>(boardType::materialValue(descriptorSearch::queen, descriptorSearch::whitePlayer)) };
@@ -832,11 +834,12 @@ namespace pygmalion::chess
 				}
 				default:
 					PYGMALION_UNREACHABLE;
-					return scoreType::zero();
+					return zero;
 				}
 			}
 			scoreType moveFutilityValue_Implementation(const movebitsType move) const noexcept
 			{
+				constexpr const scoreType zero{ scoreType::zero() };
 				if (motorType::move().isCapture(move))
 				{
 					const squareType captureSquare{ motorType::move().captureSquare(this->stack().position(),move) };
@@ -860,7 +863,7 @@ namespace pygmalion::chess
 						return promotionValue;
 					}
 					else
-						return scoreType::zero();
+						return zero;
 				}
 			}
 		};

@@ -22,12 +22,12 @@ namespace pygmalion::chess::dynamics
 					stackType<PLAYER> stack{ stackType<PLAYER>(this->position(), this->history(), &context) };
 					if (p == whitePlayer)
 					{
-						const squaresType attacked{ stack.squaresTargetedByPlayer(whitePlayer) };
+						const squaresType attacked{ stack.template squaresTargetedByPlayer<static_cast<size_t>(whitePlayer)>() };
 						dumpSquares(attacked);
 					}
 					else
 					{
-						const squaresType attacked{ stack.squaresTargetedByPlayer(blackPlayer) };
+						const squaresType attacked{ stack.template squaresTargetedByPlayer<static_cast<size_t>(blackPlayer)>() };
 						dumpSquares(attacked);
 					}
 				}

@@ -27,7 +27,8 @@ namespace pygmalion::tictactoe
 		}
 		constexpr static bitsType calculatePremask(const movetableinfo& info) noexcept
 		{
-			return bitsType(squaresType::all());
+			constexpr const bitsType all{ bitsType(squaresType::all()) };
+			return all;
 		}
 		movetable() noexcept :
 			pygmalion::magictable<DESCRIPTOR_DYNAMICS::boardType::countSquares, DESCRIPTOR_DYNAMICS::boardType::countSquares, typename DESCRIPTOR_DYNAMICS::movelistType, movetableinfo, movetable<DESCRIPTOR_DYNAMICS>>(movetableinfo())

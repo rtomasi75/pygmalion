@@ -57,7 +57,8 @@ namespace pygmalion::search
 			if constexpr (PLAYER >= countPlayers)
 			{
 				PYGMALION_ASSERT(false);
-				return scoreType::zero();
+				constexpr const scoreType zero{ scoreType::zero() };
+				return zero;
 			}
 			else
 			{

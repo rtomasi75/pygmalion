@@ -102,25 +102,43 @@ namespace pygmalion::chess::dynamics
 						break;
 					case pawn:
 						if (p == whitePlayer)
+						{
 							this->output() << "white ";
+							this->output() << "pawn pushes from " << boardType::squareToString(sq) << ":" << std::endl;
+							dumpSquares(generatorType::template pawnPushTargets<static_cast<size_t>(whitePlayer)>(sq, ~position().totalOccupancy()));
+						}
 						else
+						{
 							this->output() << "black ";
-						this->output() << "pawn pushes from " << boardType::squareToString(sq) << ":" << std::endl;
-						dumpSquares(generatorType::pawnPushTargets(sq, p, ~position().totalOccupancy()));
+							this->output() << "pawn pushes from " << boardType::squareToString(sq) << ":" << std::endl;
+							dumpSquares(generatorType::template pawnPushTargets<static_cast<size_t>(blackPlayer)>(sq, ~position().totalOccupancy()));
+						}
 						this->output() << std::endl;
 						if (p == whitePlayer)
+						{
 							this->output() << "white ";
+							this->output() << "pawn double pushes from " << boardType::squareToString(sq) << ":" << std::endl;
+							dumpSquares(generatorType::template pawnDoublePushTargets<static_cast<size_t>(whitePlayer)>(sq, ~position().totalOccupancy()));
+						}
 						else
+						{
 							this->output() << "black ";
-						this->output() << "pawn double pushes from " << boardType::squareToString(sq) << ":" << std::endl;
-						dumpSquares(generatorType::pawnDoublePushTargets(sq, p, ~position().totalOccupancy()));
+							this->output() << "pawn double pushes from " << boardType::squareToString(sq) << ":" << std::endl;
+							dumpSquares(generatorType::template pawnDoublePushTargets<static_cast<size_t>(blackPlayer)>(sq, ~position().totalOccupancy()));
+						}
 						this->output() << std::endl;
 						if (p == whitePlayer)
+						{
 							this->output() << "white ";
+							this->output() << "pawn captures from " << boardType::squareToString(sq) << ":" << std::endl;
+							dumpSquares(generatorType::template pawnCaptureTargets<static_cast<size_t>(whitePlayer)>(sq, ~position().totalOccupancy()));
+						}
 						else
+						{
 							this->output() << "black ";
-						this->output() << "pawn captures from " << boardType::squareToString(sq) << ":" << std::endl;
-						dumpSquares(generatorType::pawnCaptureTargets(sq, p, ~position().totalOccupancy()));
+							this->output() << "pawn captures from " << boardType::squareToString(sq) << ":" << std::endl;
+							dumpSquares(generatorType::template pawnCaptureTargets<static_cast<size_t>(blackPlayer)>(sq, ~position().totalOccupancy()));
+						}
 						break;
 					}
 				}

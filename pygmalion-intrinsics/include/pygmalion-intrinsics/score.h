@@ -94,11 +94,11 @@ namespace pygmalion
 		{
 			return m_Value < 0;
 		}
-		static constexpr score win(const valueType& distance) noexcept
+		static constexpr score distantWin(const valueType& distance) noexcept
 		{
 			return score(WINVALUE - distance, 0);
 		}
-		static constexpr score loss(const valueType& distance) noexcept
+		static constexpr score distantLoss(const valueType& distance) noexcept
 		{
 			return score(LOSSVALUE + distance, 0);
 		}
@@ -207,7 +207,7 @@ namespace pygmalion
 		}
 		static constexpr score win() noexcept
 		{
-			return win(0);
+			return distantWin(0);
 		}
 		static constexpr score winning() noexcept
 		{
@@ -219,7 +219,7 @@ namespace pygmalion
 		}
 		static constexpr score loss() noexcept
 		{
-			return loss(0);
+			return distantLoss(0);
 		}
 		static constexpr score maximum() noexcept
 		{

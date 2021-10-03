@@ -21,10 +21,11 @@ namespace pygmalion
 			signatureType m_Signature;
 			depthType m_Draft;
 			std::uint8_t m_Flags;
+			constexpr static const scoreType m_Minimum{ scoreType::minimum() };
 		public:
 			constexpr transposition() noexcept :
 				m_Hash{ hashType(0) },
-				m_Value{ scoreType::minimum() },
+				m_Value{ m_Minimum },
 				m_Flags{ transpositiontable::flags_unused },
 				m_Move{ movebitsType(0) },
 				m_Draft{ depthType(0) },

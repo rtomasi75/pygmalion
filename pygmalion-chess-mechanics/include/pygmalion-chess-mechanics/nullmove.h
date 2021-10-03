@@ -93,15 +93,18 @@ namespace pygmalion::chess
 		}
 		constexpr squaresType otherOccupancyDelta_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
 		{
-			return squaresType::none();
+			constexpr const squaresType none{ squaresType::none() };
+			return none;
 		}
 		constexpr squaresType ownOccupancyDelta_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
 		{
-			return squaresType::none();
+			constexpr const squaresType none{ squaresType::none() };
+			return none;
 		}
 		constexpr squaresType pieceOccupancyDelta_Implementation(const boardType& position, const pieceType piece, const movebitsType moveBits) const noexcept
 		{
-			return squaresType::none();
+			constexpr const squaresType none{ squaresType::none() };
+			return none;
 		}
 		constexpr squareType fromSquare_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
 		{

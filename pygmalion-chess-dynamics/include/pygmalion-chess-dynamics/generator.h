@@ -65,23 +65,27 @@ namespace pygmalion::chess
 				}
 				return m_KingSquare[player];
 			}
-			squaresType squaresTargetedByPlayer(const playerType player) const
+			template<size_t ATTACKER>
+			squaresType squaresTargetedByPlayer() const
 			{
-				if (!m_SquaresTargetedByPlayerValid[player])
+				constexpr const playerType attacker{ static_cast<playerType>(ATTACKER) };
+				if (!m_SquaresTargetedByPlayerValid[attacker])
 				{
-					m_SquaresTargetedByPlayer[player] = generatorType::squaresTargetedByPlayer(*this, player);
-					m_SquaresTargetedByPlayerValid[player] = true;
+					m_SquaresTargetedByPlayer[attacker] = generatorType::template squaresTargetedByPlayer<PLAYER, ATTACKER>(*this);
+					m_SquaresTargetedByPlayerValid[attacker] = true;
 				}
-				return m_SquaresTargetedByPlayer[player];
+				return m_SquaresTargetedByPlayer[attacker];
 			}
-			squaresType squaresAttackedByPlayer(const playerType player) const
+			template<size_t ATTACKER>
+			squaresType squaresAttackedByPlayer() const
 			{
-				if (!m_SquaresAttackedByPlayerValid[player])
+				constexpr const playerType attacker{ static_cast<playerType>(ATTACKER) };
+				if (!m_SquaresAttackedByPlayerValid[attacker])
 				{
-					m_SquaresAttackedByPlayer[player] = generatorType::squaresAttackedByPlayer(*this, player);
-					m_SquaresAttackedByPlayerValid[player] = true;
+					m_SquaresAttackedByPlayer[attacker] = generatorType::template squaresAttackedByPlayer<PLAYER, ATTACKER>(*this);
+					m_SquaresAttackedByPlayerValid[attacker] = true;
 				}
-				return m_SquaresAttackedByPlayer[player];
+				return m_SquaresAttackedByPlayer[attacker];
 			}
 			stack(const parentType& parent, const movebitsType movebits) noexcept :
 				pygmalion::generator<descriptor_dynamics, generator>::stack<PLAYER>(parent, movebits)
@@ -95,20 +99,6 @@ namespace pygmalion::chess
 		};
 		template<size_t PLAYER>
 		using stackType = stack<PLAYER>;
-		constexpr static squaresType pawnAttacks(const squareType& sq, const playerType p, const squaresType& allowed) noexcept
-		{
-			if (p == whitePlayer)
-				return movegenPawnCaptureWhite.attacks(sq, allowed);
-			else
-				return movegenPawnCaptureBlack.attacks(sq, allowed);
-		}
-		constexpr static squaresType pawnAttacks(const squaresType& squares, const playerType p, const squaresType& allowed) noexcept
-		{
-			if (p == whitePlayer)
-				return movegenPawnCaptureWhite.attacks(squares, allowed);
-			else
-				return movegenPawnCaptureBlack.attacks(squares, allowed);
-		}
 	private:
 		constexpr static inline const rays m_Rays{ rays() };
 		constexpr static const squaresType pawnPromotionFromSquaresBlack() noexcept
@@ -121,27 +111,31 @@ namespace pygmalion::chess
 		}
 		constexpr static const squaresType pawnFromSquaresBlack() noexcept
 		{
-			squaresType squares{ squaresType::none() };
+			constexpr const squaresType none{ squaresType::none() };
+			squaresType squares{ none };
 			for (rankType rank = 2; rank < (countRanks - 1); rank++)
 				squares |= static_cast<squaresType>(rank);
 			return squares;
 		}
 		constexpr static const squaresType pawnFromSquaresWhite() noexcept
 		{
-			squaresType squares{ squaresType::none() };
+			constexpr const squaresType none{ squaresType::none() };
+			squaresType squares{ none };
 			for (rankType rank = 1; rank < (countRanks - 2); rank++)
 				squares |= static_cast<squaresType>(rank);
 			return squares;
 		}
 		constexpr static const squaresType pawnDoublePushFromSquaresBlack() noexcept
 		{
-			squaresType squares{ squaresType::none() };
+			constexpr const squaresType none{ squaresType::none() };
+			squaresType squares{ none };
 			squares |= static_cast<squaresType>(static_cast<rankType>(countRanks - 2));
 			return squares;
 		}
 		constexpr static const squaresType pawnDoublePushFromSquaresWhite() noexcept
 		{
-			squaresType squares{ squaresType::none() };
+			constexpr const squaresType none{ squaresType::none() };
+			squaresType squares{ none };
 			squares |= static_cast<squaresType>(static_cast<rankType>(1));
 			return squares;
 		}
@@ -162,30 +156,29 @@ namespace pygmalion::chess
 		{
 			return m_KingArea[sq];
 		}
-		constexpr static squaresType pawnPushTargets(const squareType sq, const playerType p, const squaresType& allowed) noexcept
+		template<size_t PLAYER>
+		constexpr static squaresType pawnPushTargets(const squareType sq, const squaresType& allowed) noexcept
 		{
-			if (p == whitePlayer)
+			constexpr const playerType player{ static_cast<playerType>(PLAYER) };
+			if constexpr (player == whitePlayer)
 				return movegenPawnPushWhite.targets(sq, allowed);
 			else
 				return movegenPawnPushBlack.targets(sq, allowed);
 		}
-		constexpr static squaresType pawnCaptureTargets(const squareType sq, const playerType p, const squaresType& allowed) noexcept
+		template<size_t PLAYER>
+		constexpr static squaresType pawnCaptureTargets(const squaresType& squares, const squaresType& allowed) noexcept
 		{
-			if (p == whitePlayer)
-				return movegenPawnCaptureWhite.attacks(sq, allowed);
-			else
-				return movegenPawnCaptureBlack.attacks(sq, allowed);
-		}
-		constexpr static squaresType pawnCaptureTargets(const squaresType& squares, const playerType p, const squaresType& allowed) noexcept
-		{
-			if (p == whitePlayer)
+			constexpr const playerType player{ static_cast<playerType>(PLAYER) };
+			if constexpr (player == whitePlayer)
 				return movegenPawnCaptureWhite.attacks(squares, allowed);
 			else
 				return movegenPawnCaptureBlack.attacks(squares, allowed);
 		}
-		constexpr static squaresType pawnDoublePushTargets(const squareType sq, const playerType p, const squaresType& allowed) noexcept
+		template<size_t PLAYER>
+		constexpr static squaresType pawnDoublePushTargets(const squareType sq, const squaresType& allowed) noexcept
 		{
-			if (p == whitePlayer)
+			constexpr const playerType player{ static_cast<playerType>(PLAYER) };
+			if constexpr (player == whitePlayer)
 				return movegenPawnDoublePushWhite.targets(sq, allowed);
 			else
 				return movegenPawnDoublePushBlack.targets(sq, allowed);
@@ -205,9 +198,11 @@ namespace pygmalion::chess
 			const squaresType whiteDoubleAttacks{ whiteLeftAttacks & whiteRightAttacks };
 			const squaresType blackSingleAttacks{ blackLeftAttacks ^ blackRightAttacks };
 			const squaresType blackDoubleAttacks{ blackLeftAttacks & blackRightAttacks };
-			squaresType open{ squaresType::all() };
-			whiteControl = squaresType::none();
-			blackControl = squaresType::none();
+			constexpr const squaresType all{ squaresType::all() };
+			squaresType open{ all };
+			constexpr const squaresType none{ squaresType::none() };
+			whiteControl = none;
+			blackControl = none;
 			const squaresType balancedDoubleAttacks{ ~(whiteDoubleAttacks & blackDoubleAttacks) };
 			whiteControl |= open & whiteDoubleAttacks & balancedDoubleAttacks;
 			blackControl |= open & blackDoubleAttacks & balancedDoubleAttacks;
@@ -221,17 +216,17 @@ namespace pygmalion::chess
 			const squaresType blackKnights{ stack.position().playerOccupancy(blackPlayer) & stack.position().pieceOccupancy(knight) };
 			const squaresType whiteBishops{ stack.position().playerOccupancy(whitePlayer) & stack.position().pieceOccupancy(bishop) };
 			const squaresType blackBishops{ stack.position().playerOccupancy(blackPlayer) & stack.position().pieceOccupancy(bishop) };
-			squaresType attackedBy1WhiteKnightOrBishop{ squaresType::none() };
-			squaresType attackedBy2WhiteKnightOrBishop{ squaresType::none() };
-			squaresType attackedBy3WhiteKnightOrBishop{ squaresType::none() };
-			squaresType attackedBy4WhiteKnightOrBishop{ squaresType::none() };
-			squaresType attackedBy1BlackKnightOrBishop{ squaresType::none() };
-			squaresType attackedBy2BlackKnightOrBishop{ squaresType::none() };
-			squaresType attackedBy3BlackKnightOrBishop{ squaresType::none() };
-			squaresType attackedBy4BlackKnightOrBishop{ squaresType::none() };
+			squaresType attackedBy1WhiteKnightOrBishop{ none };
+			squaresType attackedBy2WhiteKnightOrBishop{ none };
+			squaresType attackedBy3WhiteKnightOrBishop{ none };
+			squaresType attackedBy4WhiteKnightOrBishop{ none };
+			squaresType attackedBy1BlackKnightOrBishop{ none };
+			squaresType attackedBy2BlackKnightOrBishop{ none };
+			squaresType attackedBy3BlackKnightOrBishop{ none };
+			squaresType attackedBy4BlackKnightOrBishop{ none };
 			for (squareType sq : whiteKnights)
 			{
-				const squaresType attacks{ generatorType::movegenKnight.attacks(sq,squaresType::all()) };
+				const squaresType attacks{ generatorType::movegenKnight.attacks(sq,all) };
 				attackedBy4WhiteKnightOrBishop |= attacks & attackedBy3WhiteKnightOrBishop;
 				attackedBy3WhiteKnightOrBishop |= attacks & attackedBy2WhiteKnightOrBishop;
 				attackedBy2WhiteKnightOrBishop |= attacks & attackedBy1WhiteKnightOrBishop;
@@ -250,7 +245,7 @@ namespace pygmalion::chess
 			attackedBy1WhiteKnightOrBishop &= ~attackedBy2WhiteKnightOrBishop;
 			for (squareType sq : blackKnights)
 			{
-				const squaresType attacks{ generatorType::movegenKnight.attacks(sq,squaresType::all()) };
+				const squaresType attacks{ generatorType::movegenKnight.attacks(sq,all) };
 				attackedBy4BlackKnightOrBishop |= attacks & attackedBy3BlackKnightOrBishop;
 				attackedBy3BlackKnightOrBishop |= attacks & attackedBy2BlackKnightOrBishop;
 				attackedBy2BlackKnightOrBishop |= attacks & attackedBy1BlackKnightOrBishop;
@@ -286,10 +281,10 @@ namespace pygmalion::chess
 
 			const squaresType whiteRooks{ stack.position().playerOccupancy(whitePlayer) & stack.position().pieceOccupancy(rook) };
 			const squaresType blackRooks{ stack.position().playerOccupancy(blackPlayer) & stack.position().pieceOccupancy(rook) };
-			squaresType attackedBy2WhiteRook{ squaresType::none() };
-			squaresType attackedBy2BlackRook{ squaresType::none() };
-			squaresType attackedBy1WhiteRook{ squaresType::none() };
-			squaresType attackedBy1BlackRook{ squaresType::none() };
+			squaresType attackedBy2WhiteRook{ none };
+			squaresType attackedBy2BlackRook{ none };
+			squaresType attackedBy1WhiteRook{ none };
+			squaresType attackedBy1BlackRook{ none };
 			for (squareType sq : whiteRooks)
 			{
 				const squaresType attacks{ generatorType::movegenSlidersHV.attacks(sq,unoccupied) };
@@ -313,8 +308,8 @@ namespace pygmalion::chess
 
 			const squaresType whiteQueens{ stack.position().playerOccupancy(whitePlayer) & stack.position().pieceOccupancy(queen) };
 			const squaresType blackQueens{ stack.position().playerOccupancy(blackPlayer) & stack.position().pieceOccupancy(queen) };
-			squaresType attackedByWhiteQueen{ squaresType::none() };
-			squaresType attackedByBlackQueen{ squaresType::none() };
+			squaresType attackedByWhiteQueen{ none };
+			squaresType attackedByBlackQueen{ none };
 			for (squareType sq : whiteQueens)
 			{
 				const squaresType attacks{ generatorType::movegenSlidersDiag.attacks(sq,unoccupied) | generatorType::movegenSlidersHV.attacks(sq,unoccupied) };
@@ -330,49 +325,51 @@ namespace pygmalion::chess
 			blackControl |= open & attackedByBlackQueen & balancedQueenAttacks;
 			open &= ~(whiteControl | blackControl);
 
-			const squaresType whiteKingAttacks{ generatorType::movegenKing.attacks(stack.kingSquare(whitePlayer),squaresType::all()) };
-			const squaresType blackKingAttacks{ generatorType::movegenKing.attacks(stack.kingSquare(blackPlayer),squaresType::all()) };
+			const squaresType whiteKingAttacks{ generatorType::movegenKing.attacks(stack.kingSquare(whitePlayer),all) };
+			const squaresType blackKingAttacks{ generatorType::movegenKing.attacks(stack.kingSquare(blackPlayer),all) };
 			const squaresType balancedKingAttacks{ ~(whiteKingAttacks & blackKingAttacks) };
 			whiteControl |= open & whiteKingAttacks & balancedKingAttacks;
 			blackControl |= open & blackKingAttacks & balancedKingAttacks;
 		}
-		static bool isAttacked(const boardType& position, const squareType square, const playerType attacker) noexcept
+		template<size_t ATTACKER>
+		static bool isAttacked(const boardType& position, const squareType square) noexcept
 		{
 			PYGMALION_ASSERT(square.isValid());
+			constexpr const playerType attacker{ static_cast<playerType>(ATTACKER) };
 			const squaresType allowed{ ~position.totalOccupancy() };
 			if (movegenKnight.attacks(square, allowed) & position.pieceOccupancy(knight) & position.playerOccupancy(attacker))
 				return true;
 			if (movegenKing.attacks(square, allowed) & position.pieceOccupancy(king) & position.playerOccupancy(attacker))
 				return true;
 			const squaresType piecemap{ squaresType(square) };
-			if (attacker == whitePlayer)
+			const squaresType attackerOcc{ position.playerOccupancy(attacker) };
+			if constexpr (attacker == whitePlayer)
 			{
-				const squaresType pawns{ position.pieceOccupancy(pawn) & position.playerOccupancy(whitePlayer) };
-				const squaresType temppawns{ pawns.up() };
-				const squaresType pawnAttacks{ temppawns.left() | temppawns.right() };
+				const squaresType pawns{ position.pieceOccupancy(pawn) & attackerOcc };
+				const squaresType pawnAttacks{ pawns.upLeft() | pawns.upRight() };
 				if (pawnAttacks & piecemap)
 					return true;
 			}
 			else
 			{
-				const squaresType pawns{ position.pieceOccupancy(pawn) & position.playerOccupancy(blackPlayer) };
+				const squaresType pawns{ position.pieceOccupancy(pawn) & attackerOcc };
 				const squaresType temppawns{ pawns.down() };
 				const squaresType pawnAttacks{ temppawns.left() | temppawns.right() };
 				if (pawnAttacks & piecemap)
 					return true;
 			}
-			const squaresType slidersDiag{ (position.pieceOccupancy(queen) | position.pieceOccupancy(bishop)) & position.playerOccupancy(attacker) };
+			const squaresType slidersDiag{ (position.pieceOccupancy(queen) | position.pieceOccupancy(bishop)) & attackerOcc };
 			if (movegenSlidersDiag.attacks(square, allowed) & slidersDiag)
 				return true;
-			const squaresType slidersHV{ (position.pieceOccupancy(queen) | position.pieceOccupancy(rook)) & position.playerOccupancy(attacker) };
+			const squaresType slidersHV{ (position.pieceOccupancy(queen) | position.pieceOccupancy(rook)) & attackerOcc };
 			if (movegenSlidersHV.attacks(square, allowed) & slidersHV)
 				return true;
 			return false;
 		}
-		template<size_t PLAYER>
-		static squaresType squaresAttackedByPlayer(const stackType<PLAYER>& stack, const playerType attackingPlayer) noexcept
+		template<size_t PLAYER, size_t ATTACKER>
+		static squaresType squaresAttackedByPlayer(const stackType<PLAYER>& stack) noexcept
 		{
-			PYGMALION_ASSERT(attackingPlayer.isValid());
+			constexpr const playerType attackingPlayer{ static_cast<playerType>(ATTACKER) };
 			const boardType& position{ stack.position() };
 			const squaresType totalOccupancy{ position.totalOccupancy() };
 			const squaresType notBlockers = ~totalOccupancy;
@@ -386,16 +383,16 @@ namespace pygmalion::chess
 			attacked |= movegenSlidersHV.attacks(slidersHV, notBlockers);
 			attacked |= movegenSlidersDiag.attacks(slidersDiag, notBlockers);;
 			const squaresType pawns{ position.pieceOccupancy(pawn) & attackerOccupancy };
-			if (attackingPlayer == whitePlayer)
+			if constexpr (attackingPlayer == whitePlayer)
 				attacked |= pawns.upLeft() | pawns.upRight();
 			else
 				attacked |= pawns.downLeft() | pawns.downRight();
 			return attacked;
 		}
-		template<size_t PLAYER>
-		static squaresType squaresTargetedByPlayer(const stackType<PLAYER>& stack, const playerType attackingPlayer) noexcept
+		template<size_t PLAYER, size_t ATTACKER>
+		static squaresType squaresTargetedByPlayer(const stackType<PLAYER>& stack) noexcept
 		{
-			PYGMALION_ASSERT(attackingPlayer.isValid());
+			constexpr const playerType attackingPlayer{ static_cast<playerType>(ATTACKER) };
 			const boardType& position{ stack.position() };
 			const squaresType totalOccupancy{ position.totalOccupancy() };
 			const squaresType notBlockers = ~totalOccupancy;
@@ -409,7 +406,7 @@ namespace pygmalion::chess
 			attacked |= movegenSlidersHV.targets(slidersHV, notBlockers);
 			attacked |= movegenSlidersDiag.targets(slidersDiag, notBlockers);;
 			const squaresType pawns{ position.pieceOccupancy(pawn) & attackerOccupancy };
-			if (attackingPlayer == whitePlayer)
+			if constexpr (attackingPlayer == whitePlayer)
 				attacked |= pawns.upLeft() | pawns.upRight();
 			else
 				attacked |= pawns.downLeft() | pawns.downRight();
@@ -434,7 +431,8 @@ namespace pygmalion::chess
 		template<size_t PLAYER>
 		static void generateCastles(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
-			if (stack.position().movingPlayer() == whitePlayer)
+			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
+			if constexpr (movingPlayer == whitePlayer)
 			{
 				if (stack.position().checkCastleRightKingsideWhite())
 				{
@@ -467,8 +465,9 @@ namespace pygmalion::chess
 			const uint_t<8, false> epFlags{ stack.position().flags().template extractRange<4,11>() };
 			if (epFlags)
 			{
+				constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 				size_t bit;
-				if (stack.position().movingPlayer() == whitePlayer)
+				if constexpr (movingPlayer == whitePlayer)
 				{
 					if (epFlags.bitscanForward(bit))
 					{
@@ -569,7 +568,8 @@ namespace pygmalion::chess
 		template<size_t PLAYER>
 		constexpr static void generatePawnPushes(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
-			if (stack.position().movingPlayer() == whitePlayer)
+			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
+			if constexpr (movingPlayer == whitePlayer)
 				generatePawnPushesWhite(stack, moves);
 			else
 				generatePawnPushesBlack(stack, moves);
@@ -603,7 +603,8 @@ namespace pygmalion::chess
 		template<size_t PLAYER>
 		constexpr static void generatePawnPromotions(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
-			if (stack.position().movingPlayer() == whitePlayer)
+			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
+			if constexpr (movingPlayer == whitePlayer)
 				generatePawnPromotionsWhite(stack, moves);
 			else
 				generatePawnPromotionsBlack(stack, moves);
@@ -651,7 +652,8 @@ namespace pygmalion::chess
 		template<size_t PLAYER>
 		constexpr static void generatePawnCaptures(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
-			if (stack.position().movingPlayer() == whitePlayer)
+			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
+			if constexpr (movingPlayer == whitePlayer)
 				generatePawnCapturesWhite(stack, moves);
 			else
 				generatePawnCapturesBlack(stack, moves);
@@ -719,7 +721,8 @@ namespace pygmalion::chess
 		template<size_t PLAYER>
 		constexpr static void generatePawnPromoCaptures(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
-			if (stack.position().movingPlayer() == whitePlayer)
+			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
+			if constexpr (movingPlayer == whitePlayer)
 				generatePawnPromoCapturesWhite(stack, moves);
 			else
 				generatePawnPromoCapturesBlack(stack, moves);
@@ -741,7 +744,8 @@ namespace pygmalion::chess
 		template<size_t PLAYER>
 		constexpr static void generatePawnDoublePushes(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
-			if (stack.position().movingPlayer() == whitePlayer)
+			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
+			if constexpr (movingPlayer == whitePlayer)
 				generatePawnDoublePushesWhite(stack, moves);
 			else
 				generatePawnDoublePushesBlack(stack, moves);
@@ -749,26 +753,29 @@ namespace pygmalion::chess
 		template<size_t PLAYER>
 		static void generateCriticalKnightMoves(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
-			const squaresType ownKnights{ stack.position().pieceOccupancy(knight) & stack.position().playerOccupancy(stack.movingPlayer()) };
-			const squareType otherKing{ stack.kingSquare(stack.nextPlayer()) };
-			const squaresType criticalSquares{ movegenKnight.inverseAttacks(otherKing, squaresType::all()) };
+			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
+			constexpr const playerType nextPlayer{ movingPlayer.next() };
+			const squaresType ownKnights{ stack.position().pieceOccupancy(knight) & stack.position().playerOccupancy(movingPlayer) };
+			const squareType otherKing{ stack.kingSquare(nextPlayer) };
+			constexpr const squaresType all{ squaresType::all() };
+			const squaresType criticalSquares{ movegenKnight.inverseAttacks(otherKing, all) };
 			const squaresType criticalTargets{ criticalSquares & ~stack.position().totalOccupancy() };
 			const squaresType criticalCaptures{ criticalSquares & stack.position().playerOccupancy(stack.nextPlayer()) };
 			for (const auto to : criticalTargets)
 			{
-				const squaresType origins{ movegenKnight.inverseTargets(to,squaresType::all()) };
+				const squaresType origins{ movegenKnight.inverseTargets(to,all) };
 				const squaresType movers{ origins & ownKnights };
 				for (const auto from : movers)
 					moves.add(motorType::move().createQuiet(from, to));
 			}
 			for (const auto to : criticalCaptures)
 			{
-				const squaresType origins{ movegenKnight.inverseAttacks(to,squaresType::all()) };
+				const squaresType origins{ movegenKnight.inverseAttacks(to,all) };
 				const squaresType movers{ origins & ownKnights };
 				for (const auto from : movers)
 					moves.add(motorType::move().createCapture(from, to));
 			}
-			if (stack.movingPlayer() == whitePlayer)
+			if constexpr (movingPlayer == whitePlayer)
 			{
 				const squaresType criticalPromotionSquares{ criticalSquares & rank8 };
 				const squaresType criticalPromotions{ criticalPromotionSquares & ~stack.position().totalOccupancy() };
@@ -776,14 +783,14 @@ namespace pygmalion::chess
 				const squaresType ownPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(whitePlayer) };
 				for (const auto to : criticalPromotions)
 				{
-					const squaresType origins{ movegenPawnPromotionWhite.inverseTargets(to,squaresType::all()) };
+					const squaresType origins{ movegenPawnPromotionWhite.inverseTargets(to,all) };
 					const squaresType movers{ origins & ownPawns };
 					for (const auto from : movers)
 						moves.add(motorType::move().createPromotionKnight(from, to));
 				}
 				for (const auto to : criticalPromoCaptures)
 				{
-					const squaresType origins{ movegenPawnPromoCaptureWhite.inverseAttacks(to,squaresType::all()) };
+					const squaresType origins{ movegenPawnPromoCaptureWhite.inverseAttacks(to,all) };
 					const squaresType movers{ origins & ownPawns };
 					for (const auto from : movers)
 						moves.add(motorType::move().createPromoCaptureKnight(from, to));
@@ -797,14 +804,14 @@ namespace pygmalion::chess
 				const squaresType ownPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(blackPlayer) };
 				for (const auto to : criticalPromotions)
 				{
-					const squaresType origins{ movegenPawnPromotionBlack.inverseTargets(to,squaresType::all()) };
+					const squaresType origins{ movegenPawnPromotionBlack.inverseTargets(to,all) };
 					const squaresType movers{ origins & ownPawns };
 					for (const auto from : movers)
 						moves.add(motorType::move().createPromotionKnight(from, to));
 				}
 				for (const auto to : criticalPromoCaptures)
 				{
-					const squaresType origins{ movegenPawnPromoCaptureWhite.inverseAttacks(to,squaresType::all()) };
+					const squaresType origins{ movegenPawnPromoCaptureWhite.inverseAttacks(to,all) };
 					const squaresType movers{ origins & ownPawns };
 					for (const auto from : movers)
 						moves.add(motorType::move().createPromoCaptureKnight(from, to));
@@ -930,7 +937,8 @@ namespace pygmalion::chess
 		template<size_t PLAYER>
 		static void generateCriticalPawnMoves(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
-			if (stack.movingPlayer() == whitePlayer)
+			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
+			if constexpr (movingPlayer == whitePlayer)
 				generateCriticalPawnMovesWhite(stack, moves);
 			else
 				generateCriticalPawnMovesBlack(stack, moves);
@@ -938,16 +946,18 @@ namespace pygmalion::chess
 		template<size_t PLAYER>
 		static void generateCriticalSliderMovesHV(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
-			const squaresType ownQueens{ stack.position().pieceOccupancy(queen) & stack.position().playerOccupancy(stack.movingPlayer()) };
-			const squaresType ownRooks{ stack.position().pieceOccupancy(rook) & stack.position().playerOccupancy(stack.movingPlayer()) };
+			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
+			constexpr const playerType nextPlayer{ movingPlayer.next() };
+			const squaresType ownQueens{ stack.position().pieceOccupancy(queen) & stack.position().playerOccupancy(movingPlayer) };
+			const squaresType ownRooks{ stack.position().pieceOccupancy(rook) & stack.position().playerOccupancy(movingPlayer) };
 			const squaresType ownSlidersHV{ ownQueens | ownRooks };
 			const squareType otherKing{ stack.kingSquare(stack.nextPlayer()) };
 			const squaresType occupied{ stack.position().totalOccupancy() };
 			const squaresType unoccupied{ ~occupied };
 			const squaresType criticalSquares{ movegenSlidersHV.inverseAttacks(otherKing, unoccupied) };
 			const squaresType criticalTargets{ criticalSquares & unoccupied };
-			const squaresType criticalCaptures{ criticalSquares & stack.position().playerOccupancy(stack.nextPlayer()) };
-			const squaresType discoveryCandidates{ criticalSquares & stack.position().playerOccupancy(stack.movingPlayer()) };
+			const squaresType criticalCaptures{ criticalSquares & stack.position().playerOccupancy(nextPlayer) };
+			const squaresType discoveryCandidates{ criticalSquares & stack.position().playerOccupancy(movingPlayer) };
 			for (const auto to : criticalTargets)
 			{
 				const squaresType origins{ movegenSlidersHV.inverseAttacks(to,unoccupied) };
@@ -970,12 +980,13 @@ namespace pygmalion::chess
 				for (const auto from : movers2)
 					moves.add(motorType::move().createCapture(from, to));
 			}
+			constexpr const squaresType all{ squaresType::all() };
 			for (const auto from : discoveryCandidates)
 			{
 				const squaresType discovered{ unoccupied | from };
 				const squaresType discoveredRays{ movegenSlidersHV.inverseAttacks(otherKing,discovered) };
 				const squaresType discoveredAttacks{ discoveredRays & ownSlidersHV };
-				if (discoveredAttacks != squaresType::none())
+				if (discoveredAttacks)
 				{
 					const pieceType discoveringPiece{ stack.position().getPiece(from) };
 					const squareType discoveredSquare{ *discoveredAttacks.begin() };
@@ -984,10 +995,10 @@ namespace pygmalion::chess
 					{
 					default:
 						PYGMALION_UNREACHABLE;
-					break;
+						break;
 					case king:
 					{
-						const squaresType discoveryTargets{ movegenKing.targets(from,squaresType::all()) & allowedDestinations };
+						const squaresType discoveryTargets{ movegenKing.targets(from,all) & allowedDestinations };
 						const squaresType discoveryMoves{ discoveryTargets & unoccupied };
 						const squaresType discoveryCaptures{ discoveryTargets & stack.position().playerOccupancy(stack.nextPlayer()) };
 						for (const auto to : discoveryMoves)
@@ -998,9 +1009,9 @@ namespace pygmalion::chess
 					}
 					case knight:
 					{
-						const squaresType criticalSquares2{ movegenKnight.inverseAttacks(otherKing, squaresType::all()) };
+						const squaresType criticalSquares2{ movegenKnight.inverseAttacks(otherKing, all) };
 						const squaresType allowedDestinations2{ allowedDestinations & ~criticalSquares2 };
-						const squaresType discoveryTargets{ movegenKnight.targets(from,squaresType::all()) & allowedDestinations2 };
+						const squaresType discoveryTargets{ movegenKnight.targets(from,all) & allowedDestinations2 };
 						const squaresType discoveryMoves{ discoveryTargets & unoccupied };
 						const squaresType discoveryCaptures{ discoveryTargets & stack.position().playerOccupancy(stack.nextPlayer()) };
 						for (const auto to : discoveryMoves)
@@ -1049,14 +1060,14 @@ namespace pygmalion::chess
 					}
 					case pawn:
 					{
-						if (stack.movingPlayer() == whitePlayer)
+						if constexpr (movingPlayer == whitePlayer)
 						{
 							constexpr const squaresType notRank1{ ~rank1 };
 							const squaresType tempSquare{ squaresType(otherKing).down() & notRank1 };
 							const squaresType criticalSquares2{ tempSquare.left() | tempSquare.right() };
 							const squaresType allowedDestinations2{ allowedDestinations & ~criticalSquares2 };
-							const squaresType discoveryMoves{ movegenPawnPushWhite.targets(from,squaresType::all()) & allowedDestinations2 & unoccupied };
-							const squaresType discoveryCaptures{ movegenPawnCaptureWhite.targets(from,squaresType::all()) & allowedDestinations2 & stack.position().playerOccupancy(stack.nextPlayer()) };
+							const squaresType discoveryMoves{ movegenPawnPushWhite.targets(from,all) & allowedDestinations2 & unoccupied };
+							const squaresType discoveryCaptures{ movegenPawnCaptureWhite.targets(from,all) & allowedDestinations2 & stack.position().playerOccupancy(stack.nextPlayer()) };
 							const squaresType discoveryDoublePushes{ movegenPawnDoublePushWhite.targets(from,discovered) & allowedDestinations2 };
 							for (const auto to : discoveryMoves)
 								moves.add(motorType::move().createQuiet(from, to));
@@ -1072,8 +1083,8 @@ namespace pygmalion::chess
 							const squaresType tempSquare{ squaresType(otherKing).up() & notRank8 };
 							const squaresType criticalSquares2{ tempSquare.left() | tempSquare.right() };
 							const squaresType allowedDestinations2{ allowedDestinations & ~criticalSquares2 };
-							const squaresType discoveryMoves{ movegenPawnPushBlack.targets(from,squaresType::all()) & allowedDestinations2 & unoccupied };
-							const squaresType discoveryCaptures{ movegenPawnCaptureBlack.targets(from,squaresType::all()) & allowedDestinations2 & stack.position().playerOccupancy(stack.nextPlayer()) };
+							const squaresType discoveryMoves{ movegenPawnPushBlack.targets(from,all) & allowedDestinations2 & unoccupied };
+							const squaresType discoveryCaptures{ movegenPawnCaptureBlack.targets(from,all) & allowedDestinations2 & stack.position().playerOccupancy(stack.nextPlayer()) };
 							const squaresType discoveryDoublePushes{ movegenPawnDoublePushBlack.targets(from,discovered) & allowedDestinations2 };
 							for (const auto to : discoveryMoves)
 								moves.add(motorType::move().createQuiet(from, to));
@@ -1092,7 +1103,7 @@ namespace pygmalion::chess
 			if (epFlags)
 			{
 				size_t bit;
-				if (stack.position().movingPlayer() == whitePlayer)
+				if constexpr (movingPlayer == whitePlayer)
 				{
 					if (epFlags.bitscanForward(bit))
 					{
@@ -1118,7 +1129,7 @@ namespace pygmalion::chess
 								const squaresType otherOcc{ otherDelta ^ stack.position().playerOccupancy(blackPlayer) };
 								const squaresType unoccupied2{ ~(ownOcc | otherOcc) };
 								const squaresType criticalSquares3{ movegenSlidersHV.inverseAttacks(otherKing, unoccupied2) };
-								if ((criticalSquares3 & ownSlidersHV) != squaresType::none())
+								if (criticalSquares3 & ownSlidersHV)
 									moves.add(mv);
 							}
 						}
@@ -1150,14 +1161,14 @@ namespace pygmalion::chess
 								const squaresType otherOcc{ otherDelta ^ stack.position().playerOccupancy(whitePlayer) };
 								const squaresType unoccupied2{ ~(ownOcc | otherOcc) };
 								const squaresType criticalSquares3{ movegenSlidersHV.inverseAttacks(otherKing, unoccupied2) };
-								if ((criticalSquares3 & ownSlidersHV) != squaresType::none())
+								if (criticalSquares3 & ownSlidersHV)
 									moves.add(mv);
 							}
 						}
 					}
 				}
 			}
-			if (stack.movingPlayer() == whitePlayer)
+			if constexpr (movingPlayer == whitePlayer)
 			{
 				const squaresType criticalPromotionSquares{ rank8 };
 				const squaresType criticalPromotions{ criticalPromotionSquares & ~stack.position().totalOccupancy() };
@@ -1165,7 +1176,7 @@ namespace pygmalion::chess
 				const squaresType ownPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(whitePlayer) };
 				for (const auto to : criticalPromotions)
 				{
-					const squaresType origins{ movegenPawnPromotionWhite.inverseTargets(to,squaresType::all()) };
+					const squaresType origins{ movegenPawnPromotionWhite.inverseTargets(to,all) };
 					const squaresType movers{ origins & ownPawns };
 					const squaresType toBB{ squaresType(to) };
 					const squaresType promotedSliders{ ownSlidersHV ^ toBB };
@@ -1183,7 +1194,7 @@ namespace pygmalion::chess
 				}
 				for (const auto to : criticalPromoCaptures)
 				{
-					const squaresType origins{ movegenPawnPromoCaptureWhite.inverseAttacks(to,squaresType::all()) };
+					const squaresType origins{ movegenPawnPromoCaptureWhite.inverseAttacks(to,all) };
 					const squaresType movers{ origins & ownPawns };
 					const squaresType toBB{ squaresType(to) };
 					const squaresType promotedSliders{ ownSlidersHV ^ toBB };
@@ -1208,7 +1219,7 @@ namespace pygmalion::chess
 				const squaresType ownPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(blackPlayer) };
 				for (const auto to : criticalPromotions)
 				{
-					const squaresType origins{ movegenPawnPromotionBlack.inverseTargets(to,squaresType::all()) };
+					const squaresType origins{ movegenPawnPromotionBlack.inverseTargets(to,all) };
 					const squaresType movers{ origins & ownPawns };
 					const squaresType toBB{ squaresType(to) };
 					const squaresType promotedSliders{ ownSlidersHV ^ toBB };
@@ -1226,7 +1237,7 @@ namespace pygmalion::chess
 				}
 				for (const auto to : criticalPromoCaptures)
 				{
-					const squaresType origins{ movegenPawnPromoCaptureWhite.inverseAttacks(to,squaresType::all()) };
+					const squaresType origins{ movegenPawnPromoCaptureWhite.inverseAttacks(to,all) };
 					const squaresType movers{ origins & ownPawns };
 					const squaresType toBB{ squaresType(to) };
 					const squaresType promotedSliders{ ownSlidersHV ^ toBB };
@@ -1243,7 +1254,7 @@ namespace pygmalion::chess
 					}
 				}
 			}
-			if (stack.position().movingPlayer() == whitePlayer)
+			if constexpr (movingPlayer == whitePlayer)
 			{
 				if (stack.position().checkCastleRightKingsideWhite())
 				{
@@ -1313,15 +1324,18 @@ namespace pygmalion::chess
 		template<size_t PLAYER>
 		static void generateCriticalSliderMovesDiag(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
-			const squaresType ownQueens{ stack.position().pieceOccupancy(queen) & stack.position().playerOccupancy(stack.movingPlayer()) };
-			const squaresType ownBishops{ stack.position().pieceOccupancy(bishop) & stack.position().playerOccupancy(stack.movingPlayer()) };
+			constexpr const squaresType all{ squaresType::all() };
+			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
+			constexpr const playerType nextPlayer{ movingPlayer.next() };
+			const squaresType ownQueens{ stack.position().pieceOccupancy(queen) & stack.position().playerOccupancy(movingPlayer) };
+			const squaresType ownBishops{ stack.position().pieceOccupancy(bishop) & stack.position().playerOccupancy(movingPlayer) };
 			const squaresType ownSlidersDiag{ ownQueens | ownBishops };
 			const squareType otherKing{ stack.kingSquare(stack.nextPlayer()) };
 			const squaresType unoccupied{ ~stack.position().totalOccupancy() };
 			const squaresType criticalSquares{ movegenSlidersDiag.inverseAttacks(otherKing, unoccupied) };
 			const squaresType criticalTargets{ criticalSquares & unoccupied };
-			const squaresType criticalCaptures{ criticalSquares & stack.position().playerOccupancy(stack.nextPlayer()) };
-			const squaresType discoveryCandidates{ criticalSquares & stack.position().playerOccupancy(stack.movingPlayer()) };
+			const squaresType criticalCaptures{ criticalSquares & stack.position().playerOccupancy(nextPlayer) };
+			const squaresType discoveryCandidates{ criticalSquares & stack.position().playerOccupancy(movingPlayer) };
 			for (const auto to : criticalTargets)
 			{
 				const squaresType origins{ movegenSlidersDiag.inverseAttacks(to,unoccupied) };
@@ -1349,7 +1363,7 @@ namespace pygmalion::chess
 				const squaresType discovered{ unoccupied | from };
 				const squaresType discoveredRays{ movegenSlidersDiag.inverseAttacks(otherKing,discovered) };
 				const squaresType discoveredAttacks{ discoveredRays & ownSlidersDiag };
-				if (discoveredAttacks != squaresType::none())
+				if (discoveredAttacks)
 				{
 					const pieceType discoveringPiece{ stack.position().getPiece(from) };
 					const squareType discoveredSquare{ *discoveredAttacks.begin() };
@@ -1361,7 +1375,7 @@ namespace pygmalion::chess
 						break;
 					case king:
 					{
-						const squaresType discoveryTargets{ movegenKing.targets(from,squaresType::all()) & allowedDestinations };
+						const squaresType discoveryTargets{ movegenKing.targets(from,all) & allowedDestinations };
 						const squaresType discoveryMoves{ discoveryTargets & unoccupied };
 						const squaresType discoveryCaptures{ discoveryTargets & stack.position().playerOccupancy(stack.nextPlayer()) };
 						for (const auto to : discoveryMoves)
@@ -1372,9 +1386,9 @@ namespace pygmalion::chess
 					}
 					case knight:
 					{
-						const squaresType criticalSquares2{ movegenKnight.inverseAttacks(otherKing, squaresType::all()) };
+						const squaresType criticalSquares2{ movegenKnight.inverseAttacks(otherKing, all) };
 						const squaresType allowedDestinations2{ allowedDestinations & ~criticalSquares2 };
-						const squaresType discoveryTargets{ movegenKnight.targets(from,squaresType::all()) & allowedDestinations2 };
+						const squaresType discoveryTargets{ movegenKnight.targets(from,all) & allowedDestinations2 };
 						const squaresType discoveryMoves{ discoveryTargets & unoccupied };
 						const squaresType discoveryCaptures{ discoveryTargets & stack.position().playerOccupancy(stack.nextPlayer()) };
 						for (const auto to : discoveryMoves)
@@ -1423,14 +1437,14 @@ namespace pygmalion::chess
 					}
 					case pawn:
 					{
-						if (stack.movingPlayer() == whitePlayer)
+						if constexpr (movingPlayer == whitePlayer)
 						{
 							constexpr const squaresType notRank1{ ~rank1 };
 							const squaresType tempSquare{ squaresType(otherKing).down() & notRank1 };
 							const squaresType criticalSquares2{ tempSquare.left() | tempSquare.right() };
 							const squaresType allowedDestinations2{ allowedDestinations & ~criticalSquares2 };
-							const squaresType discoveryMoves{ movegenPawnPushWhite.targets(from,squaresType::all()) & allowedDestinations2 & unoccupied };
-							const squaresType discoveryCaptures{ movegenPawnCaptureWhite.targets(from,squaresType::all()) & allowedDestinations2 & stack.position().playerOccupancy(stack.nextPlayer()) };
+							const squaresType discoveryMoves{ movegenPawnPushWhite.targets(from,all) & allowedDestinations2 & unoccupied };
+							const squaresType discoveryCaptures{ movegenPawnCaptureWhite.targets(from,all) & allowedDestinations2 & stack.position().playerOccupancy(stack.nextPlayer()) };
 							const squaresType discoveryDoublePushes{ movegenPawnDoublePushWhite.targets(from,discovered) & allowedDestinations2 };
 							for (const auto to : discoveryMoves)
 								moves.add(motorType::move().createQuiet(from, to));
@@ -1446,8 +1460,8 @@ namespace pygmalion::chess
 							const squaresType tempSquare{ squaresType(otherKing).up() & notRank8 };
 							const squaresType criticalSquares2{ tempSquare.left() | tempSquare.right() };
 							const squaresType allowedDestinations2{ allowedDestinations & ~criticalSquares2 };
-							const squaresType discoveryMoves{ movegenPawnPushBlack.targets(from,squaresType::all()) & allowedDestinations2 & unoccupied };
-							const squaresType discoveryCaptures{ movegenPawnCaptureBlack.targets(from,squaresType::all()) & allowedDestinations2 & stack.position().playerOccupancy(stack.nextPlayer()) };
+							const squaresType discoveryMoves{ movegenPawnPushBlack.targets(from,all) & allowedDestinations2 & unoccupied };
+							const squaresType discoveryCaptures{ movegenPawnCaptureBlack.targets(from,all) & allowedDestinations2 & stack.position().playerOccupancy(stack.nextPlayer()) };
 							const squaresType discoveryDoublePushes{ movegenPawnDoublePushBlack.targets(from,discovered) & allowedDestinations2 };
 							for (const auto to : discoveryMoves)
 								moves.add(motorType::move().createQuiet(from, to));
@@ -1466,7 +1480,7 @@ namespace pygmalion::chess
 			if (epFlags)
 			{
 				size_t bit;
-				if (stack.position().movingPlayer() == whitePlayer)
+				if constexpr (movingPlayer == whitePlayer)
 				{
 					if (epFlags.bitscanForward(bit))
 					{
@@ -1492,7 +1506,7 @@ namespace pygmalion::chess
 								const squaresType otherOcc{ otherDelta ^ stack.position().playerOccupancy(blackPlayer) };
 								const squaresType unoccupied2{ ~(ownOcc | otherOcc) };
 								const squaresType criticalSquares3{ movegenSlidersDiag.inverseAttacks(otherKing, unoccupied2) };
-								if ((criticalSquares3 & ownSlidersDiag) != squaresType::none())
+								if (criticalSquares3 & ownSlidersDiag)
 									moves.add(mv);
 							}
 						}
@@ -1524,14 +1538,14 @@ namespace pygmalion::chess
 								const squaresType otherOcc{ otherDelta ^ stack.position().playerOccupancy(whitePlayer) };
 								const squaresType unoccupied2{ ~(ownOcc | otherOcc) };
 								const squaresType criticalSquares3{ movegenSlidersDiag.inverseAttacks(otherKing, unoccupied2) };
-								if ((criticalSquares3 & ownSlidersDiag) != squaresType::none())
+								if (criticalSquares3 & ownSlidersDiag)
 									moves.add(mv);
 							}
 						}
 					}
 				}
 			}
-			if (stack.movingPlayer() == whitePlayer)
+			if constexpr (movingPlayer == whitePlayer)
 			{
 				const squaresType criticalPromotionSquares{ rank8 };
 				const squaresType criticalPromotions{ criticalPromotionSquares & ~stack.position().totalOccupancy() };
@@ -1539,7 +1553,7 @@ namespace pygmalion::chess
 				const squaresType ownPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(whitePlayer) };
 				for (const auto to : criticalPromotions)
 				{
-					const squaresType origins{ movegenPawnPromotionWhite.inverseTargets(to,squaresType::all()) };
+					const squaresType origins{ movegenPawnPromotionWhite.inverseTargets(to,all) };
 					const squaresType movers{ origins & ownPawns };
 					const squaresType toBB{ squaresType(to) };
 					const squaresType promotedSliders{ ownSlidersDiag ^ toBB };
@@ -1557,7 +1571,7 @@ namespace pygmalion::chess
 				}
 				for (const auto to : criticalPromoCaptures)
 				{
-					const squaresType origins{ movegenPawnPromoCaptureWhite.inverseAttacks(to,squaresType::all()) };
+					const squaresType origins{ movegenPawnPromoCaptureWhite.inverseAttacks(to,all) };
 					const squaresType movers{ origins & ownPawns };
 					const squaresType toBB{ squaresType(to) };
 					const squaresType promotedSliders{ ownSlidersDiag ^ toBB };
@@ -1582,7 +1596,7 @@ namespace pygmalion::chess
 				const squaresType ownPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(blackPlayer) };
 				for (const auto to : criticalPromotions)
 				{
-					const squaresType origins{ movegenPawnPromotionBlack.inverseTargets(to,squaresType::all()) };
+					const squaresType origins{ movegenPawnPromotionBlack.inverseTargets(to,all) };
 					const squaresType movers{ origins & ownPawns };
 					const squaresType toBB{ squaresType(to) };
 					const squaresType promotedSliders{ ownSlidersDiag ^ toBB };
@@ -1600,7 +1614,7 @@ namespace pygmalion::chess
 				}
 				for (const auto to : criticalPromoCaptures)
 				{
-					const squaresType origins{ movegenPawnPromoCaptureWhite.inverseAttacks(to,squaresType::all()) };
+					const squaresType origins{ movegenPawnPromoCaptureWhite.inverseAttacks(to,all) };
 					const squaresType movers{ origins & ownPawns };
 					const squaresType toBB{ squaresType(to) };
 					const squaresType promotedSliders{ ownSlidersDiag ^ toBB };
@@ -1621,25 +1635,28 @@ namespace pygmalion::chess
 		template<size_t PLAYER>
 		static void generateQuietCriticalKnightMoves(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
-			const squaresType ownKnights{ stack.position().pieceOccupancy(knight) & stack.position().playerOccupancy(stack.movingPlayer()) };
-			const squareType otherKing{ stack.kingSquare(stack.nextPlayer()) };
-			const squaresType criticalSquares{ movegenKnight.inverseAttacks(otherKing, squaresType::all()) };
+			constexpr const squaresType all{ squaresType::all() };
+			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
+			constexpr const playerType nextPlayer{ movingPlayer.next() };
+			const squaresType ownKnights{ stack.position().pieceOccupancy(knight) & stack.position().playerOccupancy(movingPlayer) };
+			const squareType otherKing{ stack.kingSquare(nextPlayer) };
+			const squaresType criticalSquares{ movegenKnight.inverseAttacks(otherKing, all) };
 			const squaresType criticalTargets{ criticalSquares & ~stack.position().totalOccupancy() };
 			for (const auto to : criticalTargets)
 			{
-				const squaresType origins{ movegenKnight.inverseTargets(to,squaresType::all()) };
+				const squaresType origins{ movegenKnight.inverseTargets(to,all) };
 				const squaresType movers{ origins & ownKnights };
 				for (const auto from : movers)
 					moves.add(motorType::move().createQuiet(from, to));
 			}
-			if (stack.movingPlayer() == whitePlayer)
+			if constexpr (movingPlayer == whitePlayer)
 			{
 				const squaresType criticalPromotionSquares{ criticalSquares & rank8 };
 				const squaresType criticalPromotions{ criticalPromotionSquares & ~stack.position().totalOccupancy() };
 				const squaresType ownPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(whitePlayer) };
 				for (const auto to : criticalPromotions)
 				{
-					const squaresType origins{ movegenPawnPromotionWhite.inverseTargets(to,squaresType::all()) };
+					const squaresType origins{ movegenPawnPromotionWhite.inverseTargets(to,all) };
 					const squaresType movers{ origins & ownPawns };
 					for (const auto from : movers)
 						moves.add(motorType::move().createPromotionKnight(from, to));
@@ -1652,7 +1669,7 @@ namespace pygmalion::chess
 				const squaresType ownPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(blackPlayer) };
 				for (const auto to : criticalPromotions)
 				{
-					const squaresType origins{ movegenPawnPromotionBlack.inverseTargets(to,squaresType::all()) };
+					const squaresType origins{ movegenPawnPromotionBlack.inverseTargets(to,all) };
 					const squaresType movers{ origins & ownPawns };
 					for (const auto from : movers)
 						moves.add(motorType::move().createPromotionKnight(from, to));
@@ -1716,7 +1733,8 @@ namespace pygmalion::chess
 		template<size_t PLAYER>
 		static void generateQuietCriticalPawnMoves(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
-			if (stack.movingPlayer() == whitePlayer)
+			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
+			if constexpr (movingPlayer == whitePlayer)
 				generateQuietCriticalPawnMovesWhite(stack, moves);
 			else
 				generateQuietCriticalPawnMovesBlack(stack, moves);
@@ -1724,15 +1742,18 @@ namespace pygmalion::chess
 		template<size_t PLAYER>
 		static void generateQuietCriticalSliderMovesHV(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
-			const squaresType ownQueens{ stack.position().pieceOccupancy(queen) & stack.position().playerOccupancy(stack.movingPlayer()) };
-			const squaresType ownRooks{ stack.position().pieceOccupancy(rook) & stack.position().playerOccupancy(stack.movingPlayer()) };
+			constexpr const squaresType all{ squaresType::all() };
+			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
+			constexpr const playerType nextPlayer{ movingPlayer.next() };
+			const squaresType ownQueens{ stack.position().pieceOccupancy(queen) & stack.position().playerOccupancy(movingPlayer) };
+			const squaresType ownRooks{ stack.position().pieceOccupancy(rook) & stack.position().playerOccupancy(movingPlayer) };
 			const squaresType ownSlidersHV{ ownQueens | ownRooks };
 			const squareType otherKing{ stack.kingSquare(stack.nextPlayer()) };
 			const squaresType occupied{ stack.position().totalOccupancy() };
 			const squaresType unoccupied{ ~occupied };
 			const squaresType criticalSquares{ movegenSlidersHV.inverseAttacks(otherKing, unoccupied) };
 			const squaresType criticalTargets{ criticalSquares & unoccupied };
-			const squaresType discoveryCandidates{ criticalSquares & stack.position().playerOccupancy(stack.movingPlayer()) };
+			const squaresType discoveryCandidates{ criticalSquares & stack.position().playerOccupancy(movingPlayer) };
 			for (const auto to : criticalTargets)
 			{
 				const squaresType origins{ movegenSlidersHV.inverseAttacks(to,unoccupied) };
@@ -1749,7 +1770,7 @@ namespace pygmalion::chess
 				const squaresType discovered{ unoccupied | from };
 				const squaresType discoveredRays{ movegenSlidersHV.inverseAttacks(otherKing,discovered) };
 				const squaresType discoveredAttacks{ discoveredRays & ownSlidersHV };
-				if (discoveredAttacks != squaresType::none())
+				if (discoveredAttacks)
 				{
 					const pieceType discoveringPiece{ stack.position().getPiece(from) };
 					const squareType discoveredSquare{ *discoveredAttacks.begin() };
@@ -1761,7 +1782,7 @@ namespace pygmalion::chess
 						break;
 					case king:
 					{
-						const squaresType discoveryTargets{ movegenKing.targets(from,squaresType::all()) & allowedDestinations };
+						const squaresType discoveryTargets{ movegenKing.targets(from,all) & allowedDestinations };
 						const squaresType discoveryMoves{ discoveryTargets & unoccupied };
 						for (const auto to : discoveryMoves)
 							moves.add(motorType::move().createQuiet(from, to));
@@ -1769,9 +1790,9 @@ namespace pygmalion::chess
 					}
 					case knight:
 					{
-						const squaresType criticalSquares2{ movegenKnight.inverseAttacks(otherKing, squaresType::all()) };
+						const squaresType criticalSquares2{ movegenKnight.inverseAttacks(otherKing, all) };
 						const squaresType allowedDestinations2{ allowedDestinations & ~criticalSquares2 };
-						const squaresType discoveryTargets{ movegenKnight.targets(from,squaresType::all()) & allowedDestinations2 };
+						const squaresType discoveryTargets{ movegenKnight.targets(from,all) & allowedDestinations2 };
 						const squaresType discoveryMoves{ discoveryTargets & unoccupied };
 						for (const auto to : discoveryMoves)
 							moves.add(motorType::move().createQuiet(from, to));
@@ -1808,13 +1829,13 @@ namespace pygmalion::chess
 					}
 					case pawn:
 					{
-						if (stack.movingPlayer() == whitePlayer)
+						if constexpr (movingPlayer == whitePlayer)
 						{
 							constexpr const squaresType notRank1{ ~rank1 };
 							const squaresType tempSquare{ squaresType(otherKing).down() & notRank1 };
 							const squaresType criticalSquares2{ tempSquare.left() | tempSquare.right() };
 							const squaresType allowedDestinations2{ allowedDestinations & ~criticalSquares2 };
-							const squaresType discoveryMoves{ movegenPawnPushWhite.targets(from,squaresType::all()) & allowedDestinations2 & unoccupied };
+							const squaresType discoveryMoves{ movegenPawnPushWhite.targets(from,all) & allowedDestinations2 & unoccupied };
 							const squaresType discoveryDoublePushes{ movegenPawnDoublePushWhite.targets(from,discovered) & allowedDestinations2 };
 							for (const auto to : discoveryMoves)
 								moves.add(motorType::move().createQuiet(from, to));
@@ -1828,7 +1849,7 @@ namespace pygmalion::chess
 							const squaresType tempSquare{ squaresType(otherKing).up() & notRank8 };
 							const squaresType criticalSquares2{ tempSquare.left() | tempSquare.right() };
 							const squaresType allowedDestinations2{ allowedDestinations & ~criticalSquares2 };
-							const squaresType discoveryMoves{ movegenPawnPushBlack.targets(from,squaresType::all()) & allowedDestinations2 & unoccupied };
+							const squaresType discoveryMoves{ movegenPawnPushBlack.targets(from,all) & allowedDestinations2 & unoccupied };
 							const squaresType discoveryDoublePushes{ movegenPawnDoublePushBlack.targets(from,discovered) & allowedDestinations2 };
 							for (const auto to : discoveryMoves)
 								moves.add(motorType::move().createQuiet(from, to));
@@ -1841,14 +1862,14 @@ namespace pygmalion::chess
 					}
 				}
 			}
-			if (stack.movingPlayer() == whitePlayer)
+			if constexpr (movingPlayer == whitePlayer)
 			{
 				const squaresType criticalPromotionSquares{ rank8 };
 				const squaresType criticalPromotions{ criticalPromotionSquares & ~stack.position().totalOccupancy() };
 				const squaresType ownPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(whitePlayer) };
 				for (const auto to : criticalPromotions)
 				{
-					const squaresType origins{ movegenPawnPromotionWhite.inverseTargets(to,squaresType::all()) };
+					const squaresType origins{ movegenPawnPromotionWhite.inverseTargets(to,all) };
 					const squaresType movers{ origins & ownPawns };
 					const squaresType toBB{ squaresType(to) };
 					const squaresType promotedSliders{ ownSlidersHV ^ toBB };
@@ -1872,7 +1893,7 @@ namespace pygmalion::chess
 				const squaresType ownPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(blackPlayer) };
 				for (const auto to : criticalPromotions)
 				{
-					const squaresType origins{ movegenPawnPromotionBlack.inverseTargets(to,squaresType::all()) };
+					const squaresType origins{ movegenPawnPromotionBlack.inverseTargets(to,all) };
 					const squaresType movers{ origins & ownPawns };
 					const squaresType toBB{ squaresType(to) };
 					const squaresType promotedSliders{ ownSlidersHV ^ toBB };
@@ -1889,7 +1910,7 @@ namespace pygmalion::chess
 					}
 				}
 			}
-			if (stack.position().movingPlayer() == whitePlayer)
+			if constexpr (movingPlayer == whitePlayer)
 			{
 				if (stack.position().checkCastleRightKingsideWhite())
 				{
@@ -1959,14 +1980,17 @@ namespace pygmalion::chess
 		template<size_t PLAYER>
 		static void generateQuietCriticalSliderMovesDiag(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
-			const squaresType ownQueens{ stack.position().pieceOccupancy(queen) & stack.position().playerOccupancy(stack.movingPlayer()) };
-			const squaresType ownBishops{ stack.position().pieceOccupancy(bishop) & stack.position().playerOccupancy(stack.movingPlayer()) };
+			constexpr const squaresType all{ squaresType::all() };
+			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
+			constexpr const playerType nextPlayer{ movingPlayer.next() };
+			const squaresType ownQueens{ stack.position().pieceOccupancy(queen) & stack.position().playerOccupancy(movingPlayer) };
+			const squaresType ownBishops{ stack.position().pieceOccupancy(bishop) & stack.position().playerOccupancy(movingPlayer) };
 			const squaresType ownSlidersDiag{ ownQueens | ownBishops };
 			const squareType otherKing{ stack.kingSquare(stack.nextPlayer()) };
 			const squaresType unoccupied{ ~stack.position().totalOccupancy() };
 			const squaresType criticalSquares{ movegenSlidersDiag.inverseAttacks(otherKing, unoccupied) };
 			const squaresType criticalTargets{ criticalSquares & unoccupied };
-			const squaresType discoveryCandidates{ criticalSquares & stack.position().playerOccupancy(stack.movingPlayer()) };
+			const squaresType discoveryCandidates{ criticalSquares & stack.position().playerOccupancy(movingPlayer) };
 			for (const auto to : criticalTargets)
 			{
 				const squaresType origins{ movegenSlidersDiag.inverseAttacks(to,unoccupied) };
@@ -1983,7 +2007,7 @@ namespace pygmalion::chess
 				const squaresType discovered{ unoccupied | from };
 				const squaresType discoveredRays{ movegenSlidersDiag.inverseAttacks(otherKing,discovered) };
 				const squaresType discoveredAttacks{ discoveredRays & ownSlidersDiag };
-				if (discoveredAttacks != squaresType::none())
+				if (discoveredAttacks)
 				{
 					const pieceType discoveringPiece{ stack.position().getPiece(from) };
 					const squareType discoveredSquare{ *discoveredAttacks.begin() };
@@ -1995,7 +2019,7 @@ namespace pygmalion::chess
 						break;
 					case king:
 					{
-						const squaresType discoveryTargets{ movegenKing.targets(from,squaresType::all()) & allowedDestinations };
+						const squaresType discoveryTargets{ movegenKing.targets(from,all) & allowedDestinations };
 						const squaresType discoveryMoves{ discoveryTargets & unoccupied };
 						for (const auto to : discoveryMoves)
 							moves.add(motorType::move().createQuiet(from, to));
@@ -2003,9 +2027,9 @@ namespace pygmalion::chess
 					}
 					case knight:
 					{
-						const squaresType criticalSquares2{ movegenKnight.inverseAttacks(otherKing, squaresType::all()) };
+						const squaresType criticalSquares2{ movegenKnight.inverseAttacks(otherKing, all) };
 						const squaresType allowedDestinations2{ allowedDestinations & ~criticalSquares2 };
-						const squaresType discoveryTargets{ movegenKnight.targets(from,squaresType::all()) & allowedDestinations2 };
+						const squaresType discoveryTargets{ movegenKnight.targets(from,all) & allowedDestinations2 };
 						const squaresType discoveryMoves{ discoveryTargets & unoccupied };
 						for (const auto to : discoveryMoves)
 							moves.add(motorType::move().createQuiet(from, to));
@@ -2042,13 +2066,13 @@ namespace pygmalion::chess
 					}
 					case pawn:
 					{
-						if (stack.movingPlayer() == whitePlayer)
+						if constexpr (movingPlayer == whitePlayer)
 						{
 							constexpr const squaresType notRank1{ ~rank1 };
 							const squaresType tempSquare{ squaresType(otherKing).down() & notRank1 };
 							const squaresType criticalSquares2{ tempSquare.left() | tempSquare.right() };
 							const squaresType allowedDestinations2{ allowedDestinations & ~criticalSquares2 };
-							const squaresType discoveryMoves{ movegenPawnPushWhite.targets(from,squaresType::all()) & allowedDestinations2 & unoccupied };
+							const squaresType discoveryMoves{ movegenPawnPushWhite.targets(from,all) & allowedDestinations2 & unoccupied };
 							const squaresType discoveryDoublePushes{ movegenPawnDoublePushWhite.targets(from,discovered) & allowedDestinations2 };
 							for (const auto to : discoveryMoves)
 								moves.add(motorType::move().createQuiet(from, to));
@@ -2062,7 +2086,7 @@ namespace pygmalion::chess
 							const squaresType tempSquare{ squaresType(otherKing).up() & notRank8 };
 							const squaresType criticalSquares2{ tempSquare.left() | tempSquare.right() };
 							const squaresType allowedDestinations2{ allowedDestinations & ~criticalSquares2 };
-							const squaresType discoveryMoves{ movegenPawnPushBlack.targets(from,squaresType::all()) & allowedDestinations2 & unoccupied };
+							const squaresType discoveryMoves{ movegenPawnPushBlack.targets(from,all) & allowedDestinations2 & unoccupied };
 							const squaresType discoveryDoublePushes{ movegenPawnDoublePushBlack.targets(from,discovered) & allowedDestinations2 };
 							for (const auto to : discoveryMoves)
 								moves.add(motorType::move().createQuiet(from, to));
@@ -2075,14 +2099,14 @@ namespace pygmalion::chess
 					}
 				}
 			}
-			if (stack.movingPlayer() == whitePlayer)
+			if constexpr (movingPlayer == whitePlayer)
 			{
 				const squaresType criticalPromotionSquares{ rank8 };
 				const squaresType criticalPromotions{ criticalPromotionSquares & ~stack.position().totalOccupancy() };
 				const squaresType ownPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(whitePlayer) };
 				for (const auto to : criticalPromotions)
 				{
-					const squaresType origins{ movegenPawnPromotionWhite.inverseTargets(to,squaresType::all()) };
+					const squaresType origins{ movegenPawnPromotionWhite.inverseTargets(to,all) };
 					const squaresType movers{ origins & ownPawns };
 					const squaresType toBB{ squaresType(to) };
 					const squaresType promotedSliders{ ownSlidersDiag ^ toBB };
@@ -2106,7 +2130,7 @@ namespace pygmalion::chess
 				const squaresType ownPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(blackPlayer) };
 				for (const auto to : criticalPromotions)
 				{
-					const squaresType origins{ movegenPawnPromotionBlack.inverseTargets(to,squaresType::all()) };
+					const squaresType origins{ movegenPawnPromotionBlack.inverseTargets(to,all) };
 					const squaresType movers{ origins & ownPawns };
 					const squaresType toBB{ squaresType(to) };
 					const squaresType promotedSliders{ ownSlidersDiag ^ toBB };
@@ -2126,19 +2150,23 @@ namespace pygmalion::chess
 		}
 		static squaresType tropismKing(const squaresType& sq) noexcept
 		{
-			return movegenKing.inverseAttacks(sq, squaresType::all());
+			constexpr const squaresType all{ squaresType::all() };
+			return movegenKing.inverseAttacks(sq, all);
 		}
 		static squaresType tropismKing(const squareType sq) noexcept
 		{
-			return movegenKing.inverseAttacks(sq, squaresType::all());
+			constexpr const squaresType all{ squaresType::all() };
+			return movegenKing.inverseAttacks(sq, all);
 		}
 		static squaresType tropismKnight(const squareType sq) noexcept
 		{
-			return movegenKnight.inverseAttacks(sq, squaresType::all());
+			constexpr const squaresType all{ squaresType::all() };
+			return movegenKnight.inverseAttacks(sq, all);
 		}
 		static squaresType tropismKnight(const squaresType& sq) noexcept
 		{
-			return movegenKnight.inverseAttacks(sq, squaresType::all());
+			constexpr const squaresType all{ squaresType::all() };
+			return movegenKnight.inverseAttacks(sq, all);
 		}
 		static squaresType tropismBishop(const squareType sq, const squaresType& unoccupiedSquares) noexcept
 		{
@@ -2166,15 +2194,16 @@ namespace pygmalion::chess
 		}
 		static squaresType tropismPawn(const squareType sq, const playerType pl, const squaresType& unoccupiedSquares, const squaresType& victims) noexcept
 		{
+			constexpr const squaresType all{ squaresType::all() };
 			squaresType tropism;
 			const rankType rank{ sq.rank() };
 			if (pl == whitePlayer)
 			{
 				if (victims[sq])
-					tropism = rank != rank8 ? movegenPawnCaptureWhite.inverseAttacks(sq, squaresType::all()) : movegenPawnPromoCaptureWhite.inverseAttacks(sq, squaresType::all());
+					tropism = rank != rank8 ? movegenPawnCaptureWhite.inverseAttacks(sq, all) : movegenPawnPromoCaptureWhite.inverseAttacks(sq, all);
 				else
 				{
-					tropism = rank != rank8 ? movegenPawnPushWhite.inverseTargets(sq, squaresType::all()) : movegenPawnPromotionWhite.inverseTargets(sq, squaresType::all());
+					tropism = rank != rank8 ? movegenPawnPushWhite.inverseTargets(sq, all) : movegenPawnPromotionWhite.inverseTargets(sq, all);
 					if (rank == rank4)
 						tropism |= movegenPawnDoublePushWhite.inverseAttacks(sq, unoccupiedSquares);
 				}
@@ -2182,10 +2211,10 @@ namespace pygmalion::chess
 			else
 			{
 				if (victims[sq])
-					tropism = rank != rank1 ? movegenPawnCaptureBlack.inverseAttacks(sq, squaresType::all()) : movegenPawnPromoCaptureBlack.inverseAttacks(sq, squaresType::all());
+					tropism = rank != rank1 ? movegenPawnCaptureBlack.inverseAttacks(sq, all) : movegenPawnPromoCaptureBlack.inverseAttacks(sq, all);
 				else
 				{
-					tropism = rank != rank1 ? movegenPawnPushBlack.inverseTargets(sq, squaresType::all()) : movegenPawnPromotionBlack.inverseTargets(sq, squaresType::all());
+					tropism = rank != rank1 ? movegenPawnPushBlack.inverseTargets(sq, all) : movegenPawnPromotionBlack.inverseTargets(sq, all);
 					if (rank == rank5)
 						tropism |= movegenPawnDoublePushBlack.inverseAttacks(sq, unoccupiedSquares);
 				}
@@ -2194,29 +2223,31 @@ namespace pygmalion::chess
 		}
 		static squaresType tropismPawn(const squaresType& sq, const playerType pl, const squaresType& unoccupiedSquares, const squaresType& victims) noexcept
 		{
-			squaresType tropism{ squaresType::none() };
+			constexpr const squaresType all{ squaresType::all() };
+			constexpr const squaresType none{ squaresType::none() };
+			squaresType tropism{ none };
 			const squaresType pushDestinations{ sq & ~victims };
 			const squaresType captureDestinations{ sq & victims };
 			if (pl == whitePlayer)
 			{
 				if (pushDestinations)
 				{
-					tropism |= movegenPawnPushWhite.inverseTargets(pushDestinations & ~rank8, squaresType::all()) | movegenPawnPromotionWhite.inverseTargets(pushDestinations & rank8, squaresType::all());
+					tropism |= movegenPawnPushWhite.inverseTargets(pushDestinations & ~rank8, all) | movegenPawnPromotionWhite.inverseTargets(pushDestinations & rank8, all);
 					tropism |= movegenPawnDoublePushWhite.inverseAttacks(pushDestinations & rank4, unoccupiedSquares);
 				}
 				if (captureDestinations)
-					tropism |= movegenPawnCaptureWhite.inverseAttacks(captureDestinations & ~rank8, squaresType::all()) | movegenPawnPromoCaptureWhite.inverseAttacks(captureDestinations & rank8, squaresType::all());
+					tropism |= movegenPawnCaptureWhite.inverseAttacks(captureDestinations & ~rank8, all) | movegenPawnPromoCaptureWhite.inverseAttacks(captureDestinations & rank8, all);
 				return tropism;
 			}
 			else
 			{
 				if (pushDestinations)
 				{
-					tropism |= movegenPawnPushBlack.inverseTargets(pushDestinations & ~rank1, squaresType::all()) | movegenPawnPromotionBlack.inverseTargets(pushDestinations & rank1, squaresType::all());
+					tropism |= movegenPawnPushBlack.inverseTargets(pushDestinations & ~rank1, all) | movegenPawnPromotionBlack.inverseTargets(pushDestinations & rank1, all);
 					tropism |= movegenPawnDoublePushBlack.inverseAttacks(pushDestinations & rank5, unoccupiedSquares);
 				}
 				if (captureDestinations)
-					tropism |= movegenPawnCaptureBlack.inverseAttacks(captureDestinations & ~rank1, squaresType::all()) | movegenPawnPromoCaptureBlack.inverseAttacks(captureDestinations & rank1, squaresType::all());
+					tropism |= movegenPawnCaptureBlack.inverseAttacks(captureDestinations & ~rank1, all) | movegenPawnPromoCaptureBlack.inverseAttacks(captureDestinations & rank1, all);
 				return tropism;
 			}
 		}
@@ -2227,7 +2258,7 @@ namespace pygmalion::chess
 			tropism[0] = tropismKing(sq);
 			if constexpr (MAXDIST > 0)
 			{
-				std::array<squaresType, MAXDIST> visited{ arrayhelper::make<MAXDIST,squaresType>(squaresType::none()) };
+				std::array<squaresType, MAXDIST> visited;
 				visited[0] = tropism[0];
 				for (unsigned i = 1; i < MAXDIST; i++)
 				{
@@ -2243,7 +2274,7 @@ namespace pygmalion::chess
 			tropism[0] = tropismKing(sq);
 			if constexpr (MAXDIST > 0)
 			{
-				std::array<squaresType, MAXDIST> visited{ arrayhelper::make<MAXDIST,squaresType>(squaresType::none()) };
+				std::array<squaresType, MAXDIST> visited;
 				visited[0] = tropism[0];
 				for (unsigned i = 1; i < MAXDIST; i++)
 				{
@@ -2259,7 +2290,7 @@ namespace pygmalion::chess
 			tropism[0] = tropismKnight(sq);
 			if constexpr (MAXDIST > 0)
 			{
-				std::array<squaresType, MAXDIST> visited{ arrayhelper::make<MAXDIST,squaresType>(squaresType::none()) };
+				std::array<squaresType, MAXDIST> visited;
 				visited[0] = tropism[0];
 				for (unsigned i = 1; i < MAXDIST; i++)
 				{
@@ -2275,7 +2306,7 @@ namespace pygmalion::chess
 			tropism[0] = tropismKnight(sq);
 			if constexpr (MAXDIST > 0)
 			{
-				std::array<squaresType, MAXDIST> visited{ arrayhelper::make<MAXDIST,squaresType>(squaresType::none()) };
+				std::array<squaresType, MAXDIST> visited;
 				visited[0] = tropism[0];
 				for (unsigned i = 1; i < MAXDIST; i++)
 				{
@@ -2291,7 +2322,7 @@ namespace pygmalion::chess
 			tropism[0] = tropismRook(sq, unoccupiedSquares);
 			if constexpr (MAXDIST > 0)
 			{
-				std::array<squaresType, MAXDIST> visited{ arrayhelper::make<MAXDIST,squaresType>(squaresType::none()) };
+				std::array<squaresType, MAXDIST> visited;
 				visited[0] = tropism[0];
 				for (unsigned i = 1; i < MAXDIST; i++)
 				{
@@ -2307,7 +2338,7 @@ namespace pygmalion::chess
 			tropism[0] = tropismRook(sq, unoccupiedSquares);
 			if constexpr (MAXDIST > 0)
 			{
-				std::array<squaresType, MAXDIST> visited{ arrayhelper::make<MAXDIST,squaresType>(squaresType::none()) };
+				std::array<squaresType, MAXDIST> visited;
 				visited[0] = tropism[0];
 				for (unsigned i = 1; i < MAXDIST; i++)
 				{
@@ -2323,7 +2354,7 @@ namespace pygmalion::chess
 			tropism[0] = tropismBishop(sq, unoccupiedSquares);
 			if constexpr (MAXDIST > 0)
 			{
-				std::array<squaresType, MAXDIST> visited{ arrayhelper::make<MAXDIST,squaresType>(squaresType::none()) };
+				std::array<squaresType, MAXDIST> visited;
 				visited[0] = tropism[0];
 				for (unsigned i = 1; i < MAXDIST; i++)
 				{
@@ -2339,7 +2370,7 @@ namespace pygmalion::chess
 			tropism[0] = tropismBishop(sq, unoccupiedSquares);
 			if constexpr (MAXDIST > 0)
 			{
-				std::array<squaresType, MAXDIST> visited{ arrayhelper::make<MAXDIST,squaresType>(squaresType::none()) };
+				std::array<squaresType, MAXDIST> visited;
 				visited[0] = tropism[0];
 				for (unsigned i = 1; i < MAXDIST; i++)
 				{
@@ -2355,7 +2386,7 @@ namespace pygmalion::chess
 			tropism[0] = tropismQueen(sq, unoccupiedSquares);
 			if constexpr (MAXDIST > 0)
 			{
-				std::array<squaresType, MAXDIST> visited{ arrayhelper::make<MAXDIST,squaresType>(squaresType::none()) };
+				std::array<squaresType, MAXDIST> visited;
 				visited[0] = tropism[0];
 				for (unsigned i = 1; i < MAXDIST; i++)
 				{
@@ -2371,7 +2402,7 @@ namespace pygmalion::chess
 			tropism[0] = tropismQueen(sq, unoccupiedSquares);
 			if constexpr (MAXDIST > 0)
 			{
-				std::array<squaresType, MAXDIST> visited{ arrayhelper::make<MAXDIST,squaresType>(squaresType::none()) };
+				std::array<squaresType, MAXDIST> visited;
 				visited[0] = tropism[0];
 				for (unsigned i = 1; i < MAXDIST; i++)
 				{
@@ -2387,10 +2418,11 @@ namespace pygmalion::chess
 			if (pl == whitePlayer)
 			{
 				const rankType rank{ sq.rank() };
-				tropism[0] = movegenPawnCaptureWhite.inverseTargets(sq, squaresType::all()) | movegenPawnPromoCaptureWhite.inverseTargets(sq, squaresType::all());
+				constexpr const squaresType all{ squaresType::all() };
+				tropism[0] = movegenPawnCaptureWhite.inverseTargets(sq, all) | movegenPawnPromoCaptureWhite.inverseTargets(sq, all);
 				if constexpr (MAXDIST > 0)
 				{
-					std::array<squaresType, MAXDIST> visited{ arrayhelper::make<MAXDIST,squaresType>(squaresType::none()) };
+					std::array<squaresType, MAXDIST> visited;
 					visited[0] = tropism[0];
 					for (unsigned i = 1; i < MAXDIST; i++)
 					{
@@ -2405,10 +2437,11 @@ namespace pygmalion::chess
 			else
 			{
 				const rankType rank{ sq.rank() };
-				tropism[0] = movegenPawnCaptureBlack.inverseTargets(sq, squaresType::all()) | movegenPawnPromoCaptureBlack.inverseTargets(sq, squaresType::all());
+				constexpr const squaresType all{ squaresType::all() };
+				tropism[0] = movegenPawnCaptureBlack.inverseTargets(sq, all) | movegenPawnPromoCaptureBlack.inverseTargets(sq, all);
 				if constexpr (MAXDIST > 0)
 				{
-					std::array<squaresType, MAXDIST> visited{ arrayhelper::make<MAXDIST,squaresType>(squaresType::none()) };
+					std::array<squaresType, MAXDIST> visited;
 					visited[0] = tropism[0];
 					for (unsigned i = 1; i < MAXDIST; i++)
 					{
@@ -2426,10 +2459,11 @@ namespace pygmalion::chess
 		{
 			if (pl == whitePlayer)
 			{
-				tropism[0] = movegenPawnCaptureWhite.inverseTargets(sq, squaresType::all()) | movegenPawnPromoCaptureWhite.inverseTargets(sq, squaresType::all());
+				constexpr const squaresType all{ squaresType::all() };
+				tropism[0] = movegenPawnCaptureWhite.inverseTargets(sq, all) | movegenPawnPromoCaptureWhite.inverseTargets(sq, all);
 				if constexpr (MAXDIST > 0)
 				{
-					std::array<squaresType, MAXDIST> visited{ arrayhelper::make<MAXDIST,squaresType>(squaresType::none()) };
+					std::array<squaresType, MAXDIST> visited;
 					visited[0] = tropism[0];
 					for (unsigned i = 1; i < MAXDIST; i++)
 					{
@@ -2443,10 +2477,11 @@ namespace pygmalion::chess
 			}
 			else
 			{
-				tropism[0] = movegenPawnCaptureBlack.inverseTargets(sq, squaresType::all()) | movegenPawnPromoCaptureBlack.inverseTargets(sq, squaresType::all());
+				constexpr const squaresType all{ squaresType::all() };
+				tropism[0] = movegenPawnCaptureBlack.inverseTargets(sq, all) | movegenPawnPromoCaptureBlack.inverseTargets(sq, all);
 				if constexpr (MAXDIST > 0)
 				{
-					std::array<squaresType, MAXDIST> visited{ arrayhelper::make<MAXDIST,squaresType>(squaresType::none()) };
+					std::array<squaresType, MAXDIST> visited;
 					visited[0] = tropism[0];
 					for (unsigned i = 1; i < MAXDIST; i++)
 					{
@@ -2466,7 +2501,8 @@ namespace pygmalion::chess
 		static squaresType attackers(const boardType& position, const squareType square) noexcept
 		{
 			PYGMALION_ASSERT(square.isValid());
-			squaresType attackers{ squaresType::none() };
+			constexpr const squaresType none{ squaresType::none() };
+			squaresType attackers{ none };
 			const squaresType allowed{ ~position.totalOccupancy() };
 			attackers |= movegenKnight.attacks(square, allowed) & position.pieceOccupancy(knight);
 			attackers |= movegenKing.attacks(square, allowed) & position.pieceOccupancy(king);
@@ -2486,7 +2522,8 @@ namespace pygmalion::chess
 		static squaresType attackers(const boardType& position, const squareType square, const playerType attacker) noexcept
 		{
 			PYGMALION_ASSERT(square.isValid());
-			squaresType attackers{ squaresType::none() };
+			constexpr const squaresType none{ squaresType::none() };
+			squaresType attackers{ none };
 			const squaresType allowed{ ~position.totalOccupancy() };
 			attackers |= movegenKnight.attacks(square, allowed) & position.pieceOccupancy(knight);
 			attackers |= movegenKing.attacks(square, allowed) & position.pieceOccupancy(king);
@@ -2534,8 +2571,8 @@ namespace pygmalion::chess
 		static bool isMoveLegal_Implementation(const stackType<PLAYER>& stack, const movebitsType moveBits) noexcept
 		{
 			const boardType& position{ stack.position() };
-			const playerType movingPlayer{ position.movingPlayer() };
-			const playerType otherPlayer{ movingPlayer.next() };
+			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
+			constexpr const playerType otherPlayer{ movingPlayer.next() };
 			const squareType from{ motorType::move().fromSquare(position, moveBits) };
 			const squareType to{ motorType::move().toSquare(position, moveBits) };
 			if (!from.isValid())
@@ -2557,7 +2594,7 @@ namespace pygmalion::chess
 				if (position.totalOccupancy()[to])
 					return false;
 
-				if (movingPlayer == whitePlayer)
+				if constexpr (movingPlayer == whitePlayer)
 				{
 					// is the pawn elegible for a double push?
 					if (!pawnDoublePushFromSquaresWhite()[from])
@@ -2624,13 +2661,29 @@ namespace pygmalion::chess
 
 				// is the pawn elegible for a promotion?
 				const fileType rankFrom{ from.rank() };
-				if (((movingPlayer == whitePlayer) ? rank7 : rank2) == rankFrom)
-					return false;
+				if constexpr (movingPlayer == whitePlayer)
+				{
+					if (rank7 == rankFrom)
+						return false;
+				}
+				else
+				{
+					if (rank2 == rankFrom)
+						return false;
+				}
 
 				// is the destination rank correct?
 				const fileType rankTo{ to.rank() };
-				if (((movingPlayer == whitePlayer) ? rank8 : rank1) == rankTo)
-					return false;
+				if constexpr (movingPlayer == whitePlayer)
+				{
+					if (rank8 == rankTo)
+						return false;
+				}
+				else
+				{
+					if (rank1 == rankTo)
+						return false;
+				}
 
 				// is it a promotion capture?
 				if (motorType::move().isCapture(moveBits))
@@ -2658,9 +2711,16 @@ namespace pygmalion::chess
 					return false;
 
 				// are pieces obstructing the way?
-				const squaresType castleInterest{ (movingPlayer == whitePlayer) ? kingsideCastleInterestWhite : kingsideCastleInterestBlack };
-				if (position.totalOccupancy() & castleInterest)
-					return false;
+				if constexpr (movingPlayer == whitePlayer)
+				{
+					if (position.totalOccupancy() & kingsideCastleInterestWhite)
+						return false;
+				}
+				else
+				{
+					if (position.totalOccupancy() & kingsideCastleInterestBlack)
+						return false;
+				}
 			}
 			else if (motorType::move().isQueensideCastle(moveBits))
 			{
@@ -2669,9 +2729,16 @@ namespace pygmalion::chess
 					return false;
 
 				// are pieces obstructing the way?
-				const squaresType castleInterest{ (movingPlayer == whitePlayer) ? queensideCastleInterestWhite : queensideCastleInterestBlack };
-				if (position.totalOccupancy() & castleInterest)
-					return false;
+				if constexpr (movingPlayer == whitePlayer)
+				{
+					if (position.totalOccupancy() & queensideCastleInterestWhite)
+						return false;
+				}
+				else
+				{
+					if (position.totalOccupancy() & queensideCastleInterestBlack)
+						return false;
+				}
 			}
 			else if (motorType::move().isCapture(moveBits))
 			{
@@ -2703,7 +2770,7 @@ namespace pygmalion::chess
 					PYGMALION_UNREACHABLE;
 					break;
 				case pawn:
-					if (!pawnCaptureTargets(from, movingPlayer, ~position.playerOccupancy(movingPlayer))[to])
+					if (!pawnCaptureTargets<PLAYER>(from, ~position.playerOccupancy(movingPlayer))[to])
 						return false;
 					break;
 				case king:
@@ -2783,17 +2850,18 @@ namespace pygmalion::chess
 			const squaresType occOther{ otherOccupancy ^ otherDelta };
 
 			// if we're moving the king or are in check, we need to do some extra work
+			constexpr const squaresType all{ squaresType::all() };
 			if (isKingMove || stack.isPositionCritical())
 			{
 				// Does our king live on a square that is guarded by the other king?
-				const squaresType attackedByOtherKing{ movegenKing.attacks(stack.kingSquare(otherPlayer),squaresType::all()) };
+				const squaresType attackedByOtherKing{ movegenKing.attacks(stack.kingSquare(otherPlayer),all) };
 				if (attackedByOtherKing[kingsquare])
 					return false;
 
 				// Does he live on a square that is guarded by an enemy knight?
 				const squaresType knightsDelta{ motorType::move().pieceOccupancyDelta(position, knight, moveBits) };
 				const squaresType otherKnights{ (position.pieceOccupancy(knight) ^ knightsDelta) & occOther };
-				const squaresType attackedByOtherKnights{ movegenKnight.attacks(otherKnights,squaresType::all()) };
+				const squaresType attackedByOtherKnights{ movegenKnight.attacks(otherKnights,all) };
 				if (attackedByOtherKnights[kingsquare])
 					return false;
 
@@ -2816,19 +2884,33 @@ namespace pygmalion::chess
 				}
 				if (isKingMove)
 				{
-					if (motorType::move().isKingsideCastle(moveBits))
+					if (motorType::move().isQueensideCastle(moveBits))
 					{
 						// is the way for the king attacked?
-						const squaresType castleWalk{ (movingPlayer == whitePlayer) ? kingsideCastleWalkWhite : kingsideCastleWalkBlack };
-						if (stack.squaresAttackedByPlayer(otherPlayer) & castleWalk)
-							return false;
+						if constexpr (movingPlayer == whitePlayer)
+						{
+							if (stack.template squaresAttackedByPlayer<static_cast<size_t>(otherPlayer)>() & queensideCastleWalkWhite)
+								return false;
+						}
+						else
+						{
+							if (stack.template squaresAttackedByPlayer<static_cast<size_t>(otherPlayer)>() & queensideCastleWalkBlack)
+								return false;
+						}
 					}
-					else if (motorType::move().isQueensideCastle(moveBits))
+					else if (motorType::move().isKingsideCastle(moveBits))
 					{
 						// is the way for the king attacked?
-						const squaresType castleWalk{ (movingPlayer == whitePlayer) ? queensideCastleWalkWhite : queensideCastleWalkBlack };
-						if (stack.squaresAttackedByPlayer(otherPlayer) & castleWalk)
-							return false;
+						if constexpr (movingPlayer == whitePlayer)
+						{
+							if (stack.template squaresAttackedByPlayer<static_cast<size_t>(otherPlayer)>() & kingsideCastleWalkWhite)
+								return false;
+						}
+						else
+						{
+							if (stack.template squaresAttackedByPlayer<static_cast<size_t>(otherPlayer)>() & kingsideCastleWalkBlack)
+								return false;
+						}
 					}
 				}
 			}
@@ -2847,7 +2929,7 @@ namespace pygmalion::chess
 			const squaresType rooks{ position.pieceOccupancy(rook) ^ rooksDelta };
 			const squaresType otherSlidersHV = occOther & (rooks | queens);
 			const squaresType criticalSquaresHV{ movegenSlidersHV.inverseAttacks(kingsquare, unoccupied) };
-			if ((criticalSquaresHV & otherSlidersHV) != squaresType::none())
+			if (criticalSquaresHV & otherSlidersHV)
 				return false;
 
 			// Is he attacked diagonally by sliding pieces?
@@ -2855,7 +2937,7 @@ namespace pygmalion::chess
 			const squaresType bishops{ position.pieceOccupancy(bishop) ^ bishopsDelta };
 			const squaresType otherSlidersDiag = occOther & (bishops | queens);
 			const squaresType criticalSquaresDiag{ movegenSlidersDiag.inverseAttacks(kingsquare, unoccupied) };
-			if ((criticalSquaresDiag & otherSlidersDiag) != squaresType::none())
+			if (criticalSquaresDiag & otherSlidersDiag)
 				return false;
 
 			// The move seems legal
@@ -2870,8 +2952,8 @@ namespace pygmalion::chess
 		static bool isGeneratedMoveLegal_Implementation(const stackType<PLAYER>& stack, const movebitsType moveBits) noexcept
 		{
 			const boardType& position{ stack.position() };
-			const playerType movingPlayer{ position.movingPlayer() };
-			const playerType otherPlayer{ movingPlayer.next() };
+			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
+			constexpr const playerType otherPlayer{ movingPlayer.next() };
 			const squareType to{ motorType::move().toSquare(position, moveBits) };
 
 			// are we illegally capturing the other king?
@@ -2892,24 +2974,25 @@ namespace pygmalion::chess
 			const squaresType occOther{ otherOccupancy ^ otherDelta };
 
 			// if we're moving the king, we need to do some extra work
+			constexpr const squaresType all{ squaresType::all() };
 			if (isKingMove)
 			{
 				// Does our king live on a square that is guarded by the other king?
-				const squaresType attackedByOtherKing{ movegenKing.attacks(otherking,squaresType::all()) };
+				const squaresType attackedByOtherKing{ movegenKing.attacks(otherking,all) };
 				if (attackedByOtherKing[kingsquare])
 					return false;
 
 				// Does he live on a square that is guarded by an enemy knight?
 				const squaresType knightsDelta{ motorType::move().pieceOccupancyDelta(position, knight, moveBits) };
 				const squaresType otherKnights{ (position.pieceOccupancy(knight) ^ knightsDelta) & occOther };
-				const squaresType attackedByOtherKnights{ movegenKnight.attacks(otherKnights,squaresType::all()) };
+				const squaresType attackedByOtherKnights{ movegenKnight.attacks(otherKnights,all) };
 				if (attackedByOtherKnights[kingsquare])
 					return false;
 
 				// Does he live on a square that is guarded by an enemy pawn?
 				const squaresType pawnsDelta{ motorType::move().pieceOccupancyDelta(position, pawn, moveBits) };
 				const squaresType otherPawns{ (position.pieceOccupancy(pawn) ^ pawnsDelta) & occOther };
-				if (otherPlayer == whitePlayer)
+				if constexpr (otherPlayer == whitePlayer)
 				{
 					const squaresType pawnsTemp{ otherPawns.up() };
 					const squaresType attackedByOtherPawns{ pawnsTemp.right() | pawnsTemp.left() };
@@ -2924,19 +3007,33 @@ namespace pygmalion::chess
 						return false;
 				}
 
-				if (motorType::move().isKingsideCastle(moveBits))
+				if (motorType::move().isQueensideCastle(moveBits))
 				{
 					// is the way for the king attacked?
-					const squaresType castleWalk{ (movingPlayer == whitePlayer) ? kingsideCastleWalkWhite : kingsideCastleWalkBlack };
-					if (stack.squaresAttackedByPlayer(otherPlayer) & castleWalk)
-						return false;
+					if constexpr (movingPlayer == whitePlayer)
+					{
+						if (stack.template squaresAttackedByPlayer<static_cast<size_t>(otherPlayer)>() & queensideCastleWalkWhite)
+							return false;
+					}
+					else
+					{
+						if (stack.template squaresAttackedByPlayer<static_cast<size_t>(otherPlayer)>() & queensideCastleWalkBlack)
+							return false;
+					}
 				}
-				else if (motorType::move().isQueensideCastle(moveBits))
+				else if (motorType::move().isKingsideCastle(moveBits))
 				{
 					// is the way for the king attacked?
-					const squaresType castleWalk{ (movingPlayer == whitePlayer) ? queensideCastleWalkWhite : queensideCastleWalkBlack };
-					if (stack.squaresAttackedByPlayer(otherPlayer) & castleWalk)
-						return false;
+					if constexpr (movingPlayer == whitePlayer)
+					{
+						if (stack.template squaresAttackedByPlayer<static_cast<size_t>(otherPlayer)>() & kingsideCastleWalkWhite)
+							return false;
+					}
+					else
+					{
+						if (stack.template squaresAttackedByPlayer<static_cast<size_t>(otherPlayer)>() & kingsideCastleWalkBlack)
+							return false;
+					}
 				}
 			}
 
@@ -2954,7 +3051,7 @@ namespace pygmalion::chess
 			const squaresType rooks{ position.pieceOccupancy(rook) ^ rooksDelta };
 			const squaresType otherSlidersHV = occOther & (rooks | queens);
 			const squaresType criticalSquaresHV{ movegenSlidersHV.inverseAttacks(kingsquare, unoccupied) };
-			if ((criticalSquaresHV & otherSlidersHV) != squaresType::none())
+			if (criticalSquaresHV & otherSlidersHV)
 				return false;
 
 			// Is he attacked diagonally by sliding pieces?
@@ -2962,7 +3059,7 @@ namespace pygmalion::chess
 			const squaresType bishops{ position.pieceOccupancy(bishop) ^ bishopsDelta };
 			const squaresType otherSlidersDiag = occOther & (bishops | queens);
 			const squaresType criticalSquaresDiag{ movegenSlidersDiag.inverseAttacks(kingsquare, unoccupied) };
-			if ((criticalSquaresDiag & otherSlidersDiag) != squaresType::none())
+			if (criticalSquaresDiag & otherSlidersDiag)
 				return false;
 
 			// The move seems legal
@@ -3048,41 +3145,42 @@ namespace pygmalion::chess
 		template<size_t PLAYER>
 		static void generateCriticalEvasionMoves_Implementation(const stackType<PLAYER>& stack, movelistType& moves, const passType currentPass) noexcept
 		{
+			constexpr const squaresType all{ squaresType::all() };
+			constexpr const playerType side{ static_cast<playerType>(PLAYER) };
+			constexpr const playerType otherSide{ side.next() };
 			const squaresType totalOCC{ stack.position().totalOccupancy() };
 			const squaresType unoccupied{ ~totalOCC };
 			movebitsType move;
-			const playerType side{ stack.position().movingPlayer() };
-			const playerType otherSide{ side.next() };
 			const squareType king{ stack.kingSquare(side) };
-			const squaresType otherPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(otherSide) };
-			const squaresType otherKnights{ stack.position().pieceOccupancy(knight) & stack.position().playerOccupancy(otherSide) };
-			const squaresType otherBishops{ stack.position().pieceOccupancy(bishop) & stack.position().playerOccupancy(otherSide) };
-			const squaresType otherRooks{ stack.position().pieceOccupancy(rook) & stack.position().playerOccupancy(otherSide) };
-			const squaresType otherQueens{ stack.position().pieceOccupancy(queen) & stack.position().playerOccupancy(otherSide) };
-			squaresType attackers = otherKnights & movegenKnight.attacks(king, squaresType::all());
+			const squaresType otherOcc{ stack.position().playerOccupancy(otherSide) };
+			const squaresType otherPawns{ stack.position().pieceOccupancy(pawn) & otherOcc };
+			const squaresType otherKnights{ stack.position().pieceOccupancy(knight) & otherOcc };
+			const squaresType otherBishops{ stack.position().pieceOccupancy(bishop) & otherOcc };
+			const squaresType otherRooks{ stack.position().pieceOccupancy(rook) & otherOcc };
+			const squaresType otherQueens{ stack.position().pieceOccupancy(queen) & otherOcc };
+			squaresType attackers = otherKnights & movegenKnight.attacks(king, all);
 			attackers |= (otherBishops | otherQueens) & movegenSlidersDiag.attacks(king, unoccupied);
 			attackers |= (otherRooks | otherQueens) & movegenSlidersHV.attacks(king, unoccupied);
 			const squaresType kingSquares{ squaresType(king) };
-			if (side == blackPlayer)
+			if constexpr (side == blackPlayer)
 			{
-				const squaresType downSquares{ kingSquares.down() };
-				attackers |= otherPawns & (downSquares.left() | downSquares.right());
+				attackers |= otherPawns & (kingSquares.downLeft() | kingSquares.downRight());
 			}
 			else
 			{
-				const squaresType upSquares{ kingSquares.up() };
-				attackers |= otherPawns & (upSquares.left() | upSquares.right());
+				attackers |= otherPawns & (kingSquares.upLeft() | kingSquares.upRight());
 			}
 			// Is the king attacked by a single piece?
 			if (attackers.count() == 1)
 			{
-				const squaresType ownPawns = stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(side);
-				const squaresType ownKnights = stack.position().pieceOccupancy(knight) & stack.position().playerOccupancy(side);
-				const squaresType ownDiagSliders = (stack.position().pieceOccupancy(bishop) | stack.position().pieceOccupancy(queen)) & stack.position().playerOccupancy(side);
-				const squaresType ownHVSliders = (stack.position().pieceOccupancy(rook) | stack.position().pieceOccupancy(queen)) & stack.position().playerOccupancy(side);
+				const squaresType ownOcc{ stack.position().playerOccupancy(side) };
+				const squaresType ownPawns = stack.position().pieceOccupancy(pawn) & ownOcc;
+				const squaresType ownKnights = stack.position().pieceOccupancy(knight) & ownOcc;
+				const squaresType ownDiagSliders = (stack.position().pieceOccupancy(bishop) | stack.position().pieceOccupancy(queen)) & ownOcc;
+				const squaresType ownHVSliders = (stack.position().pieceOccupancy(rook) | stack.position().pieceOccupancy(queen)) & ownOcc;
 				const squareType attackerSquare{ *attackers.begin() };
 				// Can the attacker be captured with a knight?
-				squaresType defenders = ownKnights & movegenKnight.attacks(attackerSquare, squaresType::all());
+				squaresType defenders = ownKnights & movegenKnight.attacks(attackerSquare, all);
 				for (const auto defenderSquare : defenders)
 					moves.add(motorType::move().createCapture(defenderSquare, attackerSquare));
 				// Can the attacker be captured with a diagonal slider?
@@ -3095,7 +3193,9 @@ namespace pygmalion::chess
 					moves.add(motorType::move().createCapture(defenderSquare, attackerSquare));
 				// Can the attacker be captured by a pawn?
 				const rankType attackerRank{ attackerSquare.rank() };
-				if ((attackerRank == rank1) && (side == blackPlayer))
+				constexpr const bool sideIsBlack{ side == blackPlayer };
+				constexpr const bool sideIsWhite{ side == whitePlayer };
+				if ((attackerRank == rank1) && sideIsBlack)
 				{
 					const fileType attackerFile{ attackerSquare.file() };
 					if (attackerFile != fileA)
@@ -3121,7 +3221,7 @@ namespace pygmalion::chess
 						}
 					}
 				}
-				else if ((attackerRank == rank8) && (side == whitePlayer))
+				else if ((attackerRank == rank8) && sideIsWhite)
 				{
 					const fileType attackerFile{ attackerSquare.file() };
 					if (attackerFile != fileA)
@@ -3149,7 +3249,7 @@ namespace pygmalion::chess
 				}
 				else
 				{
-					if (side == blackPlayer)
+					if constexpr (side == blackPlayer)
 					{
 						if (attackerRank != rank8)
 						{
@@ -3194,7 +3294,7 @@ namespace pygmalion::chess
 					const fileType attackerFile{ attackerSquare.file() };
 					if (stack.position().checkEnPassantFile(attackerFile))
 					{
-						if ((otherSide == blackPlayer) && (attackerRank == rank5))
+						if (sideIsWhite && (attackerRank == rank5))
 						{
 							if (attackerFile != fileA)
 							{
@@ -3211,7 +3311,7 @@ namespace pygmalion::chess
 									moves.add(motorType::move().createEnPassant(defenderFile, attackerFile));
 							}
 						}
-						else if (attackerRank == rank4)
+						else if (sideIsBlack && (attackerRank == rank4))
 						{
 							if (attackerFile != fileA)
 							{
@@ -3231,7 +3331,8 @@ namespace pygmalion::chess
 					}
 				}
 				// Is the attack a slide attack that can be blocked?
-				squaresType blockSquares{ squaresType::none() };
+				constexpr const squaresType none{ squaresType::none() };
+				squaresType blockSquares{ none };
 				for (int rayDir = 0; rayDir < 8; rayDir++)
 				{
 					const squaresType rayFromKing{ m_Rays.getRay(rayDir,king) };
@@ -3269,7 +3370,7 @@ namespace pygmalion::chess
 				for (const auto blockSquare : blockSquares)
 				{
 					// Is it possible to block on this square with knights?
-					squaresType defenders{ ownKnights & movegenKnight.attacks(blockSquare, squaresType::all()) };
+					squaresType defenders{ ownKnights & movegenKnight.attacks(blockSquare, all) };
 					for (const auto defenderSquare : defenders)
 					{
 						moves.add(motorType::move().createQuiet(defenderSquare, blockSquare));
@@ -3289,14 +3390,14 @@ namespace pygmalion::chess
 					// Is it possible to block on this square with a pawn doublepush?
 					const rankType rank{ blockSquare.rank() };
 					const fileType file{ blockSquare.file() };
-					if ((rank == rank4) && (side == whitePlayer))
+					if ((rank == rank4) && sideIsWhite)
 					{
 						if (ownPawns[file & rank2] && !totalOCC[file & rank3])
 						{
 							moves.add(motorType::move().createDoublePush(file));
 						}
 					}
-					else if ((rank == rank5) && (side == blackPlayer))
+					else if ((rank == rank5) && sideIsBlack)
 					{
 						if (ownPawns[file & rank7] && !totalOCC[file & rank6])
 						{
@@ -3304,7 +3405,7 @@ namespace pygmalion::chess
 						}
 					}
 					// Is it possible to block on this square with a pawn push?
-					if (side == whitePlayer)
+					if constexpr (side == whitePlayer)
 					{
 						if (rank != rank1)
 						{
@@ -3351,12 +3452,12 @@ namespace pygmalion::chess
 				}
 			}
 			// Finally generate the king moves out of check...
-			const squaresType quiets{ movegenKing.attacks(king, squaresType::all()) & unoccupied };
+			const squaresType quiets{ movegenKing.attacks(king, all) & unoccupied };
 			for (const auto square : quiets)
 			{
 				moves.add(motorType::move().createQuiet(king, square));
 			}
-			const squaresType caps{ movegenKing.attacks(king, squaresType::all()) & stack.position().playerOccupancy(otherSide) };
+			const squaresType caps{ movegenKing.attacks(king, all) & stack.position().playerOccupancy(otherSide) };
 			for (const auto square : caps)
 			{
 				moves.add(motorType::move().createCapture(king, square));
@@ -3365,22 +3466,23 @@ namespace pygmalion::chess
 		template<size_t PLAYER>
 		static void generateTacticalCriticalEvasionMoves_Implementation(const stackType<PLAYER>& stack, movelistType& moves, const passType currentPass) noexcept
 		{
+			constexpr const squaresType all{ squaresType::all() };
 			const squaresType totalOCC{ stack.position().totalOccupancy() };
 			const squaresType unoccupied{ ~totalOCC };
 			movebitsType move;
-			const playerType side{ stack.position().movingPlayer() };
-			const playerType otherSide{ side.next() };
+			constexpr const playerType side{ static_cast<playerType>(PLAYER) };
+			constexpr const playerType otherSide{ side.next() };
 			const squareType king{ stack.kingSquare(side) };
 			const squaresType otherPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(otherSide) };
 			const squaresType otherKnights{ stack.position().pieceOccupancy(knight) & stack.position().playerOccupancy(otherSide) };
 			const squaresType otherBishops{ stack.position().pieceOccupancy(bishop) & stack.position().playerOccupancy(otherSide) };
 			const squaresType otherRooks{ stack.position().pieceOccupancy(rook) & stack.position().playerOccupancy(otherSide) };
 			const squaresType otherQueens{ stack.position().pieceOccupancy(queen) & stack.position().playerOccupancy(otherSide) };
-			squaresType attackers = otherKnights & movegenKnight.attacks(king, squaresType::all());
+			squaresType attackers = otherKnights & movegenKnight.attacks(king, all);
 			attackers |= (otherBishops | otherQueens) & movegenSlidersDiag.attacks(king, unoccupied);
 			attackers |= (otherRooks | otherQueens) & movegenSlidersHV.attacks(king, unoccupied);
 			const squaresType kingSquares{ squaresType(king) };
-			if (side == blackPlayer)
+			if constexpr (side == blackPlayer)
 			{
 				const squaresType downSquares{ kingSquares.down() };
 				attackers |= otherPawns & (downSquares.left() | downSquares.right());
@@ -3399,7 +3501,7 @@ namespace pygmalion::chess
 				const squaresType ownHVSliders = (stack.position().pieceOccupancy(rook) | stack.position().pieceOccupancy(queen)) & stack.position().playerOccupancy(side);
 				const squareType attackerSquare{ *attackers.begin() };
 				// Can the attacker be captured with a knight?
-				squaresType defenders = ownKnights & movegenKnight.attacks(attackerSquare, squaresType::all());
+				squaresType defenders = ownKnights & movegenKnight.attacks(attackerSquare, all);
 				for (const auto defenderSquare : defenders)
 					moves.add(motorType::move().createCapture(defenderSquare, attackerSquare));
 				// Can the attacker be captured with a diagonal slider?
@@ -3412,7 +3514,9 @@ namespace pygmalion::chess
 					moves.add(motorType::move().createCapture(defenderSquare, attackerSquare));
 				// Can the attacker be captured by a pawn?
 				const rankType attackerRank{ attackerSquare.rank() };
-				if ((attackerRank == rank1) && (side == blackPlayer))
+				constexpr const bool sideIsBlack{ side == blackPlayer };
+				constexpr const bool sideIsWhite{ side == whitePlayer };
+				if ((attackerRank == rank1) && sideIsBlack)
 				{
 					const fileType attackerFile{ attackerSquare.file() };
 					if (attackerFile != fileA)
@@ -3438,7 +3542,7 @@ namespace pygmalion::chess
 						}
 					}
 				}
-				else if ((attackerRank == rank8) && (side == whitePlayer))
+				else if ((attackerRank == rank8) && sideIsWhite)
 				{
 					const fileType attackerFile{ attackerSquare.file() };
 					if (attackerFile != fileA)
@@ -3466,7 +3570,7 @@ namespace pygmalion::chess
 				}
 				else
 				{
-					if (side == blackPlayer)
+					if constexpr (side == blackPlayer)
 					{
 						if (attackerRank != rank8)
 						{
@@ -3511,7 +3615,7 @@ namespace pygmalion::chess
 					const fileType attackerFile{ attackerSquare.file() };
 					if (stack.position().checkEnPassantFile(attackerFile))
 					{
-						if ((otherSide == blackPlayer) && (attackerRank == rank5))
+						if (sideIsWhite && (attackerRank == rank5))
 						{
 							if (attackerFile != fileA)
 							{
@@ -3528,7 +3632,7 @@ namespace pygmalion::chess
 									moves.add(motorType::move().createEnPassant(defenderFile, attackerFile));
 							}
 						}
-						else if (attackerRank == rank4)
+						else if (sideIsBlack && (attackerRank == rank4))
 						{
 							if (attackerFile != fileA)
 							{
@@ -3549,7 +3653,7 @@ namespace pygmalion::chess
 				}
 			}
 			// Finally generate the king moves out of check...
-			const squaresType caps{ movegenKing.attacks(king, squaresType::all()) & stack.position().playerOccupancy(otherSide) };
+			const squaresType caps{ movegenKing.attacks(king, all) & stack.position().playerOccupancy(otherSide) };
 			for (const auto square : caps)
 			{
 				moves.add(motorType::move().createCapture(king, square));
@@ -3612,8 +3716,9 @@ namespace pygmalion::chess
 		static void movesFromSquare(const stackType<PLAYER>& stack, const squareType square, squaresType& moves, squaresType& captures, const size_t depth) noexcept
 		{
 			const boardType& position{ stack.position() };
-			moves = squaresType::none();
-			captures = squaresType::none();
+			constexpr const squaresType none{ squaresType::none() };
+			moves = none;
+			captures = none;
 			movelistType list;
 			size_t pass{ 0 };
 			for (size_t pass = 0; pass < countPasses; pass++)
@@ -3642,7 +3747,7 @@ namespace pygmalion::chess
 			const squareType from{ motorType::move().fromSquare(position,mv) };
 			const squareType to{ motorType::move().toSquare(position,mv) };
 			const pieceType piece{ position.getPiece(from) };
-			const playerType side{ position.movingPlayer() };
+			constexpr const playerType side{ static_cast<playerType>(PLAYER) };
 			if (motorType::move().isKingsideCastle(mv))
 				return "O-O";
 			if (motorType::move().isQueensideCastle(mv))
@@ -3672,12 +3777,13 @@ namespace pygmalion::chess
 				break;
 			}
 			int countamb{ 0 };
+			constexpr const squaresType none{ squaresType::none() };
 			for (const auto sq : squareType::range)
 			{
 				if ((position.pieceOccupancy(piece) & position.playerOccupancy(side))[sq])
 				{
-					squaresType captures{ squaresType::none() };
-					squaresType moves{ squaresType::none() };
+					squaresType captures{ none };
+					squaresType moves{ none };
 					generatorType::movesFromSquare(stack, sq, moves, captures, depth);
 					if ((captures | moves)[to])
 					{
@@ -3693,8 +3799,8 @@ namespace pygmalion::chess
 				{
 					if ((position.pieceOccupancy(piece) & position.playerOccupancy(side))[sq])
 					{
-						squaresType captures{ squaresType::none() };
-						squaresType moves{ squaresType::none() };
+						squaresType captures{ none };
+						squaresType moves{ none };
 						generatorType::movesFromSquare(stack, sq, moves, captures, depth);
 						if ((captures | moves)[to])
 						{
@@ -3711,8 +3817,8 @@ namespace pygmalion::chess
 					{
 						if ((position.pieceOccupancy(piece) & position.playerOccupancy(side))[sq])
 						{
-							squaresType captures{ squaresType::none() };
-							squaresType moves{ squaresType::none() };
+							squaresType captures{ none };
+							squaresType moves{ none };
 							generatorType::movesFromSquare(stack, sq, moves, captures, depth);
 							if ((captures | moves)[to])
 							{
@@ -3858,9 +3964,10 @@ namespace pygmalion::chess
 		template<size_t PLAYER>
 		static bool isMoveCritical_Implementation(const stackType<PLAYER>& stack, const movebitsType moveBits) noexcept
 		{
+			constexpr const squaresType all{ squaresType::all() };
 			const boardType& position{ stack.position() };
-			const playerType movingPlayer{ position.movingPlayer() };
-			const playerType otherPlayer{ movingPlayer.next() };
+			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
+			constexpr const playerType otherPlayer{ movingPlayer.next() };
 			const squareType to{ motorType::move().toSquare(position, moveBits) };
 
 			// We need to know where the enemy king lives
@@ -3874,14 +3981,14 @@ namespace pygmalion::chess
 			// Does he live on a square that is attacked by one of our knights?
 			const squaresType knightsDelta{ motorType::move().pieceOccupancyDelta(position, knight, moveBits) };
 			const squaresType ownKnights{ (position.pieceOccupancy(knight) ^ knightsDelta) & occOwn };
-			const squaresType attackedByOwnKnights{ movegenKnight.attacks(ownKnights,squaresType::all()) };
+			const squaresType attackedByOwnKnights{ movegenKnight.attacks(ownKnights,all) };
 			if (attackedByOwnKnights[otherking])
 				return true;
 
 			// Does he live on a square that is attacked by one of our pawns?
 			const squaresType pawnsDelta{ motorType::move().pieceOccupancyDelta(position, pawn, moveBits) };
 			const squaresType ownPawns{ (position.pieceOccupancy(pawn) ^ pawnsDelta) & occOwn };
-			if (movingPlayer == whitePlayer)
+			if constexpr (movingPlayer == whitePlayer)
 			{
 				const squaresType pawnsTemp{ ownPawns.up() };
 				const squaresType attackedByOwnPawns{ pawnsTemp.right() | pawnsTemp.left() };
@@ -3910,7 +4017,7 @@ namespace pygmalion::chess
 			const squaresType rooks{ position.pieceOccupancy(rook) ^ rooksDelta };
 			const squaresType ownSlidersHV = occOwn & (rooks | queens);
 			const squaresType criticalSquaresHV{ movegenSlidersHV.inverseAttacks(otherking, unoccupied) };
-			if ((criticalSquaresHV & ownSlidersHV) != squaresType::none())
+			if (criticalSquaresHV & ownSlidersHV)
 				return true;
 
 			// Is he attacked diagonally by sliding pieces?
@@ -3918,7 +4025,7 @@ namespace pygmalion::chess
 			const squaresType bishops{ position.pieceOccupancy(bishop) ^ bishopsDelta };
 			const squaresType ownSlidersDiag = occOwn & (bishops | queens);
 			const squaresType criticalSquaresDiag{ movegenSlidersDiag.inverseAttacks(otherking, unoccupied) };
-			if ((criticalSquaresDiag & ownSlidersDiag) != squaresType::none())
+			if (criticalSquaresDiag & ownSlidersDiag)
 				return true;
 
 			// The move seems not to be giving check
@@ -3927,7 +4034,9 @@ namespace pygmalion::chess
 		template<size_t PLAYER>
 		static bool isPositionCritical_Implementation(const stackType<PLAYER>& stack) noexcept
 		{
-			return generatorType::isAttacked(stack.position(), stack.kingSquare(stack.movingPlayer()), stack.nextPlayer());
+			constexpr const playerType player{ static_cast<playerType>(PLAYER) };
+			constexpr const playerType attacker{ player.next() };
+			return generatorType::template isAttacked<static_cast<size_t>(attacker)>(stack.position(), stack.kingSquare(player));
 		}
 
 	};

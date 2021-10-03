@@ -23,7 +23,8 @@ namespace pygmalion::chess
 		}
 		void compute(const squareType seed, const playerType pl, const squaresType playerPawns, const squaresType& otherPawns, const squareType playerKing, const squareType otherKing) noexcept
 		{
-			squaresType attacked{ generatorType::movegenKing.attacks(otherKing,squaresType::all()) };
+			constexpr const squaresType all{ squaresType::all() };
+			squaresType attacked{ generatorType::movegenKing.attacks(otherKing,all) };
 			if (pl == descriptorMechanics::whitePlayer)
 			{
 				const squaresType pawnsTemp{ otherPawns.down() };
@@ -47,7 +48,8 @@ namespace pygmalion::chess
 		}
 		void compute(const squaresType& seeds, const playerType pl, const squaresType& playerPawns, const squaresType& otherPawns, const squareType playerKing, const squareType otherKing) noexcept
 		{
-			squaresType attacked{ generatorType::movegenKing.attacks(otherKing,squaresType::all()) };
+			constexpr const squaresType all{ squaresType::all() };
+			squaresType attacked{ generatorType::movegenKing.attacks(otherKing,all) };
 			if (pl == descriptorMechanics::whitePlayer)
 			{
 				const squaresType pawnsTemp{ otherPawns.down() };

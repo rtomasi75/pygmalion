@@ -319,7 +319,8 @@ namespace pygmalion
 		}
 		constexpr squaresType totalOccupancy() const noexcept
 		{
-			squaresType value{ squaresType::none() };
+			constexpr const squaresType none{ squaresType::none() };
+			squaresType value{ none };
 			if constexpr (countPlayers < countPieces)
 			{
 				for (const auto p : playerType::range)
@@ -397,10 +398,11 @@ namespace pygmalion
 		}
 		constexpr void clear() noexcept
 		{
+			constexpr const squaresType none{ squaresType::none() };
 			for (const auto p : playerType::range)
-				m_PlayerOccupancy[p] = squaresType::none();
+				m_PlayerOccupancy[p] = none;
 			for (const auto pc : pieceType::range)
-				m_PieceOccupancy[pc] = squaresType::none();
+				m_PieceOccupancy[pc] = none;
 			m_Flags.clear();
 			m_MovingPlayer = 0;
 			m_Arbitration = gamestateType::open();
