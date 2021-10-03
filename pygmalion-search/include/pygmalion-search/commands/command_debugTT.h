@@ -6,7 +6,6 @@ namespace pygmalion::search
 	{
 	public:
 		using gametreeType = GAMETREE;
-		using nodeType = typename gametreeType::nodeType;
 		using descriptorSearch = DESCRIPTION_SEARCH;
 #include "../include_search.h"	
 	protected:

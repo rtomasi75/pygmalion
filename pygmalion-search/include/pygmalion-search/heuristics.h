@@ -22,7 +22,7 @@ namespace pygmalion
 		class movebucket
 		{
 		private:
-			std::array<std::uint64_t, generatorType::countMoveBuckets()> m_Counter;
+//			std::array<std::uintmax_t, generatorType::countMoveBuckets()> m_Counter;
 			std::array<scoreType, generatorType::countMoveBuckets()> m_Score;
 			std::array<movebitsType, killerMoves> m_Killers;
 			std::array<movebitsType, killerMoves> m_TacticalKillers;
@@ -30,8 +30,8 @@ namespace pygmalion
 			size_t m_TacticalKillerCount;
 		public:
 			constexpr movebucket() noexcept :
-				m_Counter{ arrayhelper::make<generatorType::countMoveBuckets(),std::uint64_t>(0) },
-				m_Score{ arrayhelper::make<generatorType::countMoveBuckets(),scoreType>(scoreType::zero()) },
+//				m_Counter{ arrayhelper::make<generatorType::countMoveBuckets(),std::uint64_t>(0) },
+				m_Score{ arrayhelper::make<generatorType::countMoveBuckets(),scoreType>(scoreType::minimum()) },
 				m_Killers{ arrayhelper::make<killerMoves,movebitsType>(movebitsType(0)) },
 				m_TacticalKillers{ arrayhelper::make<killerMoves,movebitsType>(movebitsType(0)) },
 				m_KillerCount{ 0 },
@@ -39,18 +39,18 @@ namespace pygmalion
 			{
 
 			}
-			constexpr std::uint64_t counter(const boardType& position, const movebitsType moveBits) const noexcept
+	/*		constexpr std::uint64_t counter(const boardType& position, const movebitsType moveBits) const noexcept
 			{
 				return m_Counter[generatorType::moveBucket(position, moveBits)];
-			}
+			}*/
 			constexpr scoreType score(const boardType& position, const movebitsType moveBits) const noexcept
 			{
 				const size_t bucket{ generatorType::moveBucket(position, moveBits) };
-				if (m_Counter[bucket] == 0)
+			/*	if (m_Counter[bucket] == 0)
 					return scoreType::minimum();
 				if (m_Score[bucket].isOpen())
 					return m_Score[bucket] / static_cast<typename scoreType::valueType>(m_Counter[bucket]);
-				else
+				else*/
 					return m_Score[bucket];
 			}
 			constexpr void killers(const stackType& stack, killermovesType& killerMoves) const noexcept
@@ -73,7 +73,7 @@ namespace pygmalion
 			{
 				const boardType& position{ stack.position() };
 				const size_t index{ generatorType::moveBucket(position,moveBits) };
-				m_Counter[index]++;
+/*				m_Counter[index]++;
 				if (score.isOpen())
 				{
 					if (m_Score[index].isOpen())
@@ -81,7 +81,7 @@ namespace pygmalion
 					else
 						m_Score[index] = scoreType::max(score, m_Score[index]);
 				}
-				else
+				else*/
 					m_Score[index] = scoreType::max(score, m_Score[index]);
 				bool contains{ false };
 				if (generatorType::isMoveTactical(stack, moveBits))
@@ -153,7 +153,7 @@ namespace pygmalion
 			{
 				const boardType& position{ stack.position() };
 				const size_t index{ generatorType::moveBucket(position,moveBits) };
-				m_Counter[index]++;
+		/*		m_Counter[index]++;
 				if (score.isOpen())
 				{
 					if (m_Score[index].isOpen())
@@ -161,7 +161,7 @@ namespace pygmalion
 					else
 						m_Score[index] = scoreType::max(score, m_Score[index]);
 				}
-				else
+				else*/
 					m_Score[index] = scoreType::max(score, m_Score[index]);
 			}
 		};

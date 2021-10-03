@@ -99,7 +99,7 @@ namespace pygmalion::chess
 			{
 			default:
 				PYGMALION_UNREACHABLE;
-				break;
+				return pieceType::invalid;
 			case indexQueenPromo:
 			case indexQueenPromoCapture:
 				return queen;

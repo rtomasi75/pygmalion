@@ -16,30 +16,14 @@ namespace pygmalion::search
 			std::string token;
 			std::string remainder;
 			parser::parseToken(cmd, token, remainder);
-			if (token == "debug-vpvs")
-			{
-				this->output() << std::endl;
-				depthType depth = parser::parseInt(remainder);
-				for (depthType i = -1; i <= depth - 1; ++i)
-				{
-					variationType principalVariation;
-					scoreType score{ this->searchEngine().vpvs(principalVariation, i, this->output()) };
-					uint64_t nodeCount{ this->searchEngine().heuristics().nodeCount() };
-					this->output() << static_cast<int>(i + 1) << ": " << std::setw(12) << score << " - " << this->searchEngine().variationToString(principalVariation) << std::endl;
-					this->output() << this->searchEngine().heuristics().toString();
-					this->output() << std::endl;
-				}
-				this->output() << std::endl;
-				return true;
-			}
-			else if (token == "debug-pvs")
+			if (token == "debug-pvs")
 			{
 				this->output() << std::endl;
 				depthType depth = parser::parseInt(remainder);
 				for (depthType i = - 1; i <= depth - 1; ++i)
 				{
 					variationType principalVariation;
-					scoreType score{ this->searchEngine().pvs(principalVariation, i, this->output()) };
+					scoreType score{ this->searchEngine().template pvs<0>(principalVariation, i) };
 					uint64_t nodeCount{ this->searchEngine().heuristics().nodeCount() };
 					this->output() << static_cast<int>(i + 1) << ": " << std::setw(12) << score << " - " << this->searchEngine().variationToString(principalVariation) << std::endl;
 					this->output() << this->searchEngine().heuristics().toString();

@@ -4,17 +4,21 @@ namespace pygmalion::tictactoe
 		public pygmalion::gametree<descriptor_search, gametree>
 	{
 	public:
+		template<size_t PLAYER>
 		class node :
-			public pygmalion::gametree<descriptor_search, gametree>::node<node>
+			public pygmalion::gametree<descriptor_search, gametree>::node<PLAYER, node<PLAYER>>
 		{
 		public:
+			constexpr static inline const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
+			using parentType = node< static_cast<size_t>(movingPlayer.previous())>;
+			using childType = node< static_cast<size_t>(movingPlayer.next())>;
 			node(const stackType& stack, std::atomic_bool& isRunning, heuristicsType& heuristics) noexcept :
-				pygmalion::gametree<descriptor_search, gametree>::node<node>(stack, isRunning, heuristics)
+				pygmalion::gametree<descriptor_search, gametree>::node<PLAYER, node<PLAYER>>(stack, isRunning, heuristics)
 			{
 
 			}
-			node(const node& parent, const movebitsType moveBits) noexcept :
-				pygmalion::gametree<descriptor_search, gametree>::node<node>(parent, moveBits)
+			node(const parentType& parent, const movebitsType moveBits) noexcept :
+				pygmalion::gametree<descriptor_search, gametree>::node<PLAYER, node<PLAYER>>(parent, moveBits)
 			{
 			}
 			constexpr static bool futilityPruningEnabled_Implementation(const size_t depthRemaining) noexcept
@@ -42,6 +46,7 @@ namespace pygmalion::tictactoe
 				return scoreType::zero();
 			}
 		};
-		using nodeType = node;
+		template<size_t PLAYER>
+		using nodeType = node<PLAYER>;
 	};
 }

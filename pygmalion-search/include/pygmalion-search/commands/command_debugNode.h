@@ -6,11 +6,70 @@ namespace pygmalion::search
 	{
 	public:
 		using gametreeType = GAMETREE;
-		using nodeType = typename gametreeType::nodeType;
 		using descriptorSearch = DESCRIPTION_SEARCH;
 #include "../include_search.h"	
 	private:
 		using stackType = typename generatorType::stackType;
+		template<size_t PLAYERINDEX>
+		bool debugSubNode(const size_t depthFromRoot, const depthType depth, typename gametreeType::template nodeType<static_cast<size_t>(static_cast<playerType>(PLAYERINDEX).previous())>& parentNode, const std::string& remainder, scoreType& score, variationType& principalVariation)
+		{
+			std::string token;
+			std::string newRemainder;
+			parser::parseTokenCaseSensitive(remainder, token, newRemainder);
+			using nodeType = typename gametreeType::template nodeType<PLAYERINDEX>;
+			if (token != "")
+			{
+				movebitsType movebits;
+				if (motorType::parseMove(parentNode.stack().position(), token, movebits))
+				{
+					this->output() << "performed move " << motorType::moveToString(parentNode.stack().position(), movebits) << ", hash=" << std::hex << static_cast<std::uint64_t>(parentNode.stack().position().hash()) << std::dec << std::endl;
+					nodeType node{ nodeType(parentNode, movebits) };
+					return this->template debugSubNode<static_cast<size_t>(static_cast<playerType>(PLAYERINDEX).next())>(depthFromRoot + 1, depth, node, newRemainder, score, principalVariation);
+				}
+				else
+				{
+					this->output() << token << " is not a possible move." << std::endl;
+					return false;
+				}
+			}
+			else
+			{
+				score = parentNode.template searchRoot<false>(depth, depthFromRoot, principalVariation, this->output());
+				return true;
+			}
+		}
+		template<size_t PLAYERINDEX>
+		void debugNode(const depthType depth, const std::string& remainder) noexcept
+		{
+			if constexpr (PLAYERINDEX < countPlayers)
+			{
+				constexpr const playerType indexedPlayer{ static_cast<playerType>(PLAYERINDEX) };
+				using nodeType = typename gametreeType::template nodeType<PLAYERINDEX>;
+				if (this->position().movingPlayer() == indexedPlayer)
+				{
+					std::atomic_bool isRunning{ true };
+					this->searchEngine().heuristics().beginSearch();
+					stackType stack{ stackType(this->position(), this->history(), this->position().movingPlayer(), this->rootContext()) };
+					nodeType node{ nodeType(stack, isRunning, this->searchEngine().heuristics()) };
+					variationType principalVariation;
+					scoreType score;
+					bool bOk{ debugSubNode<static_cast<size_t>(static_cast<playerType>(PLAYERINDEX).next())>(this->history().length(), depth, node,remainder,score,principalVariation) };
+					if (bOk)
+					{
+						uint64_t nodeCount{ this->searchEngine().heuristics().nodeCount() };
+						this->output() << static_cast<int>(depth) << ": " << std::setw(12) << score << " - " << this->searchEngine().variationToString(principalVariation) << std::endl;
+						this->output() << std::endl;
+					}
+					this->searchEngine().heuristics().endSearch();
+				}
+				else
+				{
+					debugNode<PLAYERINDEX + 1>(depth, remainder);
+				}
+			}
+			else
+				PYGMALION_ASSERT(false);
+		}
 	protected:
 		virtual bool onProcess(const std::string& cmd) noexcept override
 		{
@@ -25,45 +84,7 @@ namespace pygmalion::search
 				if (token != "")
 				{
 					depthType depth = parser::parseInt(token);
-					parser::parseTokenCaseSensitive(remainder2, token, remainder);
-					std::atomic_bool isRunning{ true };
-					this->searchEngine().heuristics().beginSearch();
-					stackType stack{ stackType(this->position(), this->history(), this->position().movingPlayer(), this->rootContext()) };
-					std::array<nodeType*, countSearchPlies> nodes{ arrayhelper::make<countSearchPlies,nodeType*>(nullptr) };
-					nodes[0] = new nodeType(stack, isRunning, this->searchEngine().heuristics());
-					size_t i = 1;
-					bool bOk{ true };
-					while (token != "")
-					{
-						movebitsType movebits;
-						if (motorType::parseMove(stack.position(), token, movebits))
-						{
-							this->output() << "performed move " << motorType::moveToString(stack.position(), movebits) << ", hash=" << std::hex << static_cast<std::uint64_t>(stack.position().hash()) << std::dec << std::endl;
-							nodes[i] = new nodeType(*(nodes[i - 1]), movebits);
-							i++;
-						}
-						else
-						{
-							this->output() << token << " is not a possible move." << std::endl;
-							bOk = false;
-							break;
-						}
-						remainder2 = remainder;
-						parser::parseTokenCaseSensitive(remainder2, token, remainder);
-					}
-					if (bOk)
-					{
-						variationType principalVariation;
-						const scoreType score{ nodes[i - 1]->template searchRoot<false>(depth, this->history().length() + i - 1, principalVariation, this->output()) };
-						uint64_t nodeCount{ this->searchEngine().heuristics().nodeCount() };
-						this->output() << static_cast<int>(depth) << ": " << std::setw(12) << score << " - " << this->searchEngine().variationToString(principalVariation) << std::endl;
-						this->output() << std::endl;
-					}
-					for (; i > 0; i--)
-					{
-						delete nodes[i - 1];
-					}
-					this->searchEngine().heuristics().endSearch();
+					debugNode<0>(depth, token);
 					this->output() << std::endl;
 					return true;
 				}

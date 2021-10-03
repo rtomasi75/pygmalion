@@ -7,7 +7,8 @@ namespace pygmalion::search
 	{
 	public:
 		using gametreeType = GAMETREE;
-		using nodeType = typename gametreeType::nodeType;
+		template<size_t PLAYER>
+		using nodeType = typename gametreeType::template nodeType<PLAYER>;
 		using descriptorSearch = typename gametreeType::descriptorSearch;
 #include "include_search.h"
 		using stackType = typename generatorType::stackType;
@@ -45,29 +46,32 @@ namespace pygmalion::search
 			stackType stack{ stackType(this->position(), this->history(),  this->position().movingPlayer(), this->rootContext()) };
 			return variationToStringFromDepth(stack, variation, 0);
 		}
-		scoreType pvs(variationType& principalVariation, const depthType& depthRemaining, std::ostream& str) noexcept
+		template<size_t PLAYER>
+		scoreType pvs(variationType& principalVariation, const depthType& depthRemaining) noexcept
 		{
-			this->feedback().sortIndices(this->history().length());
-			stackType stack{ stackType(this->position(), this->history(), this->position().movingPlayer(), this->rootContext()) };
-			std::atomic_bool isRunning{ true };
-			m_Heuristics.beginSearch();
-			nodeType node(stack, isRunning, m_Heuristics);
-			principalVariation.clear();
-			const scoreType score{ node.template searchRoot<false>(depthRemaining, this->history().length(), principalVariation, str) };
-			m_Heuristics.endSearch();
-			return score;
-		}
-		scoreType vpvs(variationType& principalVariation, const depthType& depthRemaining, std::ostream& str) noexcept
-		{
-			this->feedback().sortIndices(this->history().length());
-			stackType stack{ stackType(this->position(), this->history(),  this->position().movingPlayer(), this->rootContext()) };
-			std::atomic_bool isRunning{ true };
-			m_Heuristics.beginSearch();
-			nodeType node(stack, isRunning, m_Heuristics);
-			principalVariation.clear();
-			const scoreType score{ node.template searchRoot<true>(depthRemaining, this->history().length(), principalVariation, str) };
-			m_Heuristics.endSearch();
-			return score;
+			if constexpr (PLAYER >= countPlayers)
+			{
+				PYGMALION_ASSERT(false);
+				return scoreType::zero();
+			}
+			else
+			{
+				constexpr playerType player{ static_cast<playerType>(PLAYER) };
+				if (player == this->position().movingPlayer())
+				{
+					this->feedback().sortIndices(this->history().length());
+					stackType stack{ stackType(this->position(), this->history(), this->position().movingPlayer(), this->rootContext()) };
+					std::atomic_bool isRunning{ true };
+					m_Heuristics.beginSearch();
+					nodeType<static_cast<size_t>(static_cast<playerType>(PLAYER))> node(stack, isRunning, m_Heuristics);
+					principalVariation.clear();
+					const scoreType score{ node.template searchRoot<false>(depthRemaining, this->history().length(), principalVariation, this->outputStream()) };
+					m_Heuristics.endSearch();
+					return score;
+				}
+				else
+					return pvs<PLAYER + 1>(principalVariation, depthRemaining);
+			}
 		}
 		const heuristicsType& heuristics() const noexcept
 		{
