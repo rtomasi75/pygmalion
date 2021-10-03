@@ -9,7 +9,8 @@ namespace pygmalion::search
 		using descriptorSearch = DESCRIPTION_SEARCH;
 #include "../include_search.h"	
 	private:
-		using stackType = typename generatorType::stackType;
+		template<size_t PLAYER>
+		using stackType = typename generatorType::template stackType<PLAYER>;
 		template<size_t PLAYERINDEX>
 		bool debugSubNode(const size_t depthFromRoot, const depthType depth, typename gametreeType::template nodeType<static_cast<size_t>(static_cast<playerType>(PLAYERINDEX).previous())>& parentNode, const std::string& remainder, scoreType& score, variationType& principalVariation)
 		{
@@ -49,7 +50,7 @@ namespace pygmalion::search
 				{
 					std::atomic_bool isRunning{ true };
 					this->searchEngine().heuristics().beginSearch();
-					stackType stack{ stackType(this->position(), this->history(), this->position().movingPlayer(), this->rootContext()) };
+					stackType<PLAYERINDEX> stack{ stackType<PLAYERINDEX>(this->position(), this->history(), this->rootContext()) };
 					nodeType node{ nodeType(stack, isRunning, this->searchEngine().heuristics()) };
 					variationType principalVariation;
 					scoreType score;
@@ -57,7 +58,7 @@ namespace pygmalion::search
 					if (bOk)
 					{
 						uint64_t nodeCount{ this->searchEngine().heuristics().nodeCount() };
-						this->output() << static_cast<int>(depth) << ": " << std::setw(12) << score << " - " << this->searchEngine().variationToString(principalVariation) << std::endl;
+						this->output() << static_cast<int>(depth) << ": " << std::setw(12) << score << " - " << this->searchEngine().template variationToString<PLAYERINDEX>(principalVariation) << std::endl;
 						this->output() << std::endl;
 					}
 					this->searchEngine().heuristics().endSearch();

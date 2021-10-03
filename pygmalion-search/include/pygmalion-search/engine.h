@@ -11,19 +11,23 @@ namespace pygmalion::search
 		using nodeType = typename gametreeType::template nodeType<PLAYER>;
 		using descriptorSearch = typename gametreeType::descriptorSearch;
 #include "include_search.h"
-		using stackType = typename generatorType::stackType;
+		template<size_t PLAYER>
+		using stackType = typename generatorType::template stackType<PLAYER>;
 	private:
 		heuristicsType m_Heuristics;
 		using contextType = typename generatorType::contextType;
 		contextType* m_pContexts;
-		static std::string variationToStringFromDepth(const stackType& stack, const variationType& variation, const depthType& depth) noexcept
+		template<size_t PLAYER>
+		static std::string variationToStringFromDepth(const stackType<PLAYER>& stack, const variationType& variation, const depthType& depth) noexcept
 		{
 			if (variation.length() > depth)
 			{
+				constexpr playerType player{ static_cast<playerType>(PLAYER) };
+				constexpr playerType nextPlayer{ player.next() };
 				std::stringstream sstr;
 				sstr << stack.moveToString(variation[depth], depth) << " ";
-				stackType subStack(stack, variation[depth]);
-				sstr << variationToStringFromDepth(subStack, variation, depth + 1);
+				stackType<static_cast<size_t>(nextPlayer)> subStack{ stackType<static_cast<size_t>(nextPlayer)>(stack, variation[depth]) };
+				sstr << variationToStringFromDepth<static_cast<size_t>(nextPlayer)>(subStack, variation, depth + 1);
 				return sstr.str();
 			}
 			return "";
@@ -41,9 +45,10 @@ namespace pygmalion::search
 		{
 			return m_Heuristics.transpositionTable();
 		}
+		template<size_t PLAYER>
 		std::string variationToString(const variationType& variation) noexcept
 		{
-			stackType stack{ stackType(this->position(), this->history(),  this->position().movingPlayer(), this->rootContext()) };
+			stackType<PLAYER> stack{ stackType<PLAYER>(this->position(), this->history(), this->rootContext()) };
 			return variationToStringFromDepth(stack, variation, 0);
 		}
 		template<size_t PLAYER>
@@ -60,7 +65,7 @@ namespace pygmalion::search
 				if (player == this->position().movingPlayer())
 				{
 					this->feedback().sortIndices(this->history().length());
-					stackType stack{ stackType(this->position(), this->history(), this->position().movingPlayer(), this->rootContext()) };
+					stackType<PLAYER> stack{ stackType<PLAYER>(this->position(), this->history(), this->rootContext()) };
 					std::atomic_bool isRunning{ true };
 					m_Heuristics.beginSearch();
 					nodeType<static_cast<size_t>(static_cast<playerType>(PLAYER))> node(stack, isRunning, m_Heuristics);

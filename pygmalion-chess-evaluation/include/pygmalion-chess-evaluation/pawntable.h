@@ -42,7 +42,8 @@ namespace pygmalion::chess
 			{
 			}
 			~pawnentry() noexcept = default;
-			void update(const typename generatorType::stackType& stack) noexcept
+			template<size_t PLAYER>
+			void update(const typename generatorType::template stackType<PLAYER>& stack) noexcept
 			{
 				const squaresType whitePawns{ stack.position().pieceOccupancy(descriptorEvaluation::pawn) & stack.position().playerOccupancy(descriptorEvaluation::whitePlayer) };
 				const squaresType blackPawns{ stack.position().pieceOccupancy(descriptorEvaluation::pawn) & stack.position().playerOccupancy(descriptorEvaluation::blackPlayer) };
@@ -68,7 +69,8 @@ namespace pygmalion::chess
 	private:
 		static inline std::shared_ptr<std::array<pawnentry, countPawnTableEntries>> m_pEntries{ std::shared_ptr<std::array<pawnentry, countPawnTableEntries>>(new std::array<pawnentry, countPawnTableEntries>,[](std::array<pawnentry, countPawnTableEntries>* pMemory) { delete pMemory; }) };
 	public:
-		static pawnentry& entry(const typename generatorType::stackType& stack) noexcept
+		template<size_t PLAYER>
+		static pawnentry& entry(const typename generatorType::template stackType<PLAYER>& stack) noexcept
 		{
 			const size_t index{ static_cast<size_t>(stack.position().pawnHash() & m_Mask) };
 			(*m_pEntries)[index].update(stack);

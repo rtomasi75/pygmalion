@@ -7,7 +7,8 @@ namespace pygmalion
 		using gametreeType = INSTANCE;
 		using descriptorSearch = DESCRIPTION_SEARCH;
 #include "include_search.h"	
-		using stackType = typename generatorType::stackType;
+		template<size_t PLAYER>
+		using stackType = typename generatorType::template stackType<PLAYER>;
 		template<size_t PLAYER, typename INSTANCE2>
 		class node :
 			public DESCRIPTION_SEARCH
@@ -16,7 +17,7 @@ namespace pygmalion
 			using instanceType = INSTANCE2;
 			using descriptorSearch = DESCRIPTION_SEARCH;
 #include "include_search.h"	
-			using stackType = typename generatorType::stackType;
+			using stackType = typename generatorType::template stackType<PLAYER>;
 			constexpr static inline const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			friend node< static_cast<size_t>(movingPlayer.next()), typename gametreeType::template nodeType< static_cast<size_t>(movingPlayer.next()) > >;
 			using parentType = node< static_cast<size_t>(movingPlayer.previous()), typename gametreeType::template nodeType< static_cast<size_t>(movingPlayer.previous()) >>;
@@ -65,7 +66,7 @@ namespace pygmalion
 			template<bool LAZY>
 			bool earlyScore(scoreType& score, bool& allowStoreTT) const noexcept
 			{
-				const gamestateType earlyState{ evaluatorType::template earlyResult<LAZY>(m_Stack,allowStoreTT) };
+				const gamestateType earlyState{ evaluatorType::template earlyResult<PLAYER, LAZY>(m_Stack,allowStoreTT) };
 				if (!gamestateType::isOpen(earlyState))
 				{
 					if (gamestateType::isDraw(earlyState))
@@ -110,7 +111,7 @@ namespace pygmalion
 						++m_MoveTT;
 						if constexpr (PRUNED)
 						{
-							if (generatorType::isMoveCritical(m_Stack, movebits))
+							if (generatorType::template isMoveCritical<PLAYER>(m_Stack, movebits))
 								return true;
 						}
 						else
@@ -129,7 +130,7 @@ namespace pygmalion
 						++m_MoveKiller;
 						if constexpr (PRUNED)
 						{
-							if (generatorType::isMoveCritical(m_Stack, movebits))
+							if (generatorType::template isMoveCritical<PLAYER>(m_Stack, movebits))
 							{
 								const bool bDouble{ m_MovesTT.contains(movebits) };
 								if (!bDouble)
@@ -160,7 +161,7 @@ namespace pygmalion
 						++m_TacticalMoveKiller;
 						if constexpr (PRUNED)
 						{
-							if (generatorType::isMoveCritical(m_Stack, movebits))
+							if (generatorType::template isMoveCritical<PLAYER>(m_Stack, movebits))
 							{
 								const bool bDouble{ m_MovesTT.contains(movebits) };
 								if (!bDouble)
@@ -469,7 +470,7 @@ namespace pygmalion
 					{
 						if (m_FutilityPruningAllowed && this->canPruneMove(move) && this->canFutilityPruneMove(move))
 						{
-							m_Heuristics.endMoveFutile(m_Stack, move, false, depth);
+							m_Heuristics.template endMoveFutile<PLAYER>(m_Stack, move, false, depth);
 							return false;
 						}
 					}
@@ -521,7 +522,7 @@ namespace pygmalion
 								if (allowStoreTT)
 									m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, best, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
 							}
-							m_Heuristics.template endMoveRefuted<false>(m_Stack, move, false, depth, best, fromStack);
+							m_Heuristics.template endMoveRefuted<PLAYER, false>(m_Stack, move, false, depth, best, fromStack);
 							m_Heuristics.endNodeCut(m_Stack);
 							return true;
 						}
@@ -529,9 +530,9 @@ namespace pygmalion
 						bestmove = move;
 					}
 					if (!bEnded)
-						m_Heuristics.endMoveSilent(m_Stack, move, false, depth);
+						m_Heuristics.template endMoveSilent<PLAYER>(m_Stack, move, false, depth);
 					else
-						m_Heuristics.template endMoveAccepted<false>(m_Stack, move, false, depth, alpha, fromStack);
+						m_Heuristics.template endMoveAccepted<PLAYER, false>(m_Stack, move, false, depth, alpha, fromStack);
 					return false;
 				}
 				else
@@ -550,7 +551,7 @@ namespace pygmalion
 								if (allowStoreTT)
 									m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, best, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
 							}
-							m_Heuristics.template endMoveRefuted<false>(m_Stack, move, false, depth, best, fromStack);
+							m_Heuristics.template endMoveRefuted<PLAYER, false>(m_Stack, move, false, depth, best, fromStack);
 							return true;
 						}
 						principalVariation.combine(move, subVariation);
@@ -561,10 +562,10 @@ namespace pygmalion
 							if (allowStoreTT)
 								m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, best, transpositiontable<descriptorSearch>::flags_upper | transpositiontable<descriptorSearch>::flags_move, move);
 						}
-						m_Heuristics.template endMoveAccepted<false>(m_Stack, move, false, depth, best, fromStack);
+						m_Heuristics.template endMoveAccepted<PLAYER, false>(m_Stack, move, false, depth, best, fromStack);
 					}
 					else
-						m_Heuristics.endMoveSilent(m_Stack, move, false, depth);
+						m_Heuristics.template endMoveSilent<PLAYER>(m_Stack, move, false, depth);
 					return false;
 				}
 			}
@@ -578,7 +579,7 @@ namespace pygmalion
 					{
 						if (m_FutilityPruningAllowed && this->canPruneMove(move) && this->canFutilityPruneMove(move))
 						{
-							m_Heuristics.endMoveFutile(m_Stack, move, false, depth);
+							m_Heuristics.template endMoveFutile<PLAYER>(m_Stack, move, false, depth);
 							return false;
 						}
 					}
@@ -596,19 +597,19 @@ namespace pygmalion
 							if (allowStoreTT)
 								m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, best, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
 						}
-						m_Heuristics.template endMoveRefuted<PRUNED>(m_Stack, move, false, depth, best, fromStack);
+						m_Heuristics.template endMoveRefuted<PLAYER, PRUNED>(m_Stack, move, false, depth, best, fromStack);
 						m_Heuristics.endNodeCut(m_Stack);
 						return true;
 					}
 					bestmove = move;
 				}
-				m_Heuristics.endMoveSilent(m_Stack, move, false, depth);
+				m_Heuristics.template endMoveSilent<PLAYER>(m_Stack, move, false, depth);
 				return false;
 			}
 			template<bool VERBOSE, bool USE_TT>
 			constexpr bool qsearchSubNode(const movebitsType move, scoreType& alpha, scoreType& beta, scoreType& best, movebitsType& bestmove, const size_t depth, variationType& principalVariation, std::ostream& str, const bool fromStack, bool& allowStoreTT) const noexcept
 			{
-				m_Heuristics.beginMove(m_Stack, move, true, depth);
+				m_Heuristics.template beginMove<PLAYER>(m_Stack, move, true, depth);
 				variationType subVariation;
 				bool allowStoreTTsubnode{ true };
 				bool bEnded{ false };
@@ -639,17 +640,17 @@ namespace pygmalion
 							if (allowStoreTT)
 								m_Heuristics.transpositionTable().store(m_Stack, -1, best, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
 						}
-						m_Heuristics.template endMoveRefuted<false>(m_Stack, move, true, depth, best, fromStack);
-						m_Heuristics.endNodeCut(m_Stack);
+						m_Heuristics.template endMoveRefuted<PLAYER, false>(m_Stack, move, true, depth, best, fromStack);
+						m_Heuristics.template endNodeCut<PLAYER>(m_Stack);
 						return true;
 					}
 					principalVariation.combine(move, subVariation);
 					bestmove = move;
 				}
 				if (!bEnded)
-					m_Heuristics.endMoveSilent(m_Stack, move, false, depth);
+					m_Heuristics.template endMoveSilent<PLAYER>(m_Stack, move, false, depth);
 				else
-					m_Heuristics.template endMoveAccepted<false>(m_Stack, move, false, depth, alpha, fromStack);
+					m_Heuristics.template endMoveAccepted<PLAYER, false>(m_Stack, move, false, depth, alpha, fromStack);
 				return false;
 			}
 			template<bool VERBOSE, bool USE_TT>
@@ -671,11 +672,11 @@ namespace pygmalion
 						if (allowStoreTT)
 							m_Heuristics.transpositionTable().store(m_Stack, -1, best, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
 					}
-					m_Heuristics.template endMoveRefuted<false>(m_Stack, move, true, depth, best, fromStack);
-					m_Heuristics.endNodeCut(m_Stack);
+					m_Heuristics.template endMoveRefuted<PLAYER, false>(m_Stack, move, true, depth, best, fromStack);
+					m_Heuristics.template endNodeCut<PLAYER>(m_Stack);
 					return true;
 				}
-				m_Heuristics.endMoveSilent(m_Stack, move, false, depth);
+				m_Heuristics.template endMoveSilent<PLAYER>(m_Stack, move, false, depth);
 				return false;
 			}
 			constexpr static uint_t<countPlayers, false> noNullMove(const uint_t<countPlayers, false> nullMoveHistory) noexcept
@@ -718,7 +719,7 @@ namespace pygmalion
 			}
 			constexpr bool canPruneMove(const movebitsType& move) const noexcept
 			{
-				return !generatorType::isMoveCritical(this->stack(), move);
+				return !generatorType::template isMoveCritical<PLAYER>(this->stack(), move);
 			}
 			constexpr bool canFutilityPruneMove(const movebitsType move) const noexcept
 			{
@@ -1171,6 +1172,7 @@ namespace pygmalion
 				m_Eval{ scoreType::zero() },
 				m_FutileGap{ scoreType::zero() }
 			{
+				PYGMALION_ASSERT(stack.position().movingPlayer() == movingPlayer);
 				if constexpr (searchTranspositionTable)
 					m_Heuristics.transpositionTable().prefetch(m_Stack);
 			}

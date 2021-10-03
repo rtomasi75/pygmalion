@@ -8,23 +8,40 @@ namespace pygmalion::evaluation
 		using evaluatorType = EVALUATOR;
 		using descriptorEvaluation = DESCRIPTION_EVALUATION;
 #include "../include_evaluation.h"	
+	private:
+		template<size_t PLAYER>
+		void process() noexcept
+		{
+			if constexpr (PLAYER < countPlayers)
+			{
+				constexpr const playerType player{ static_cast<playerType>(PLAYER) };
+				if (player == this->position().movingPlayer())
+				{
+					typename generatorType::contextType context;
+					typename generatorType::template stackType<PLAYER> stack{ typename generatorType::template stackType<PLAYER>(this->position(), this->history(), &context) };
+					this->output() << "material: \t" << evaluatorType::template computeMaterial<PLAYER>(stack) << std::endl;
+					for (size_t i = 0; i < evaluatorType::countStages; i++)
+					{
+						const scoreType value{ evaluatorType::template stageScore<PLAYER>(i,stack) };
+						this->output() << evaluatorType::stageName(i) << ": \t" << value << std::endl;
+					}
+					this->output() << "___________________________________________" << std::endl;
+					scoreType eval{ evaluatorType::template evaluate<PLAYER>(scoreType::minimum(), scoreType::maximum(),stack) };
+					this->output() << "total: \t\t" << eval << std::endl;
+				}
+				else
+					this->template process<PLAYER + 1>();
+			}
+			else
+				PYGMALION_ASSERT(false);
+		}
 	protected:
 		virtual bool onProcess(const std::string& cmd) noexcept override
 		{
 			if (cmd == "debug-evaluate")
 			{
-				typename generatorType::contextType context;
-				typename generatorType::stackType stack(this->position(), this->history(), this->position().movingPlayer(), &context);
 				this->output() << std::endl;
-				this->output() << "material: \t" << evaluatorType::computeMaterial(stack) << std::endl;
-				for (size_t i = 0; i < evaluatorType::countStages; i++)
-				{
-					const scoreType value{ evaluatorType::stageScore(i,stack) };
-					this->output() << evaluatorType::stageName(i) << ": \t" << value << std::endl;
-				}
-				this->output() << "___________________________________________" << std::endl;
-				scoreType eval{ evaluatorType::evaluate(scoreType::minimum(), scoreType::maximum(),stack) };
-				this->output() << "total: \t\t" << eval << std::endl;
+				this->template process<0>();
 				this->output() << std::endl;
 				return true;
 			}

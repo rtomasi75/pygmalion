@@ -5,7 +5,8 @@ namespace pygmalion::chess::dynamics
 	{
 	public:
 		using generatorType = generator;
-		using stackType = typename generatorType::stackType;
+		template<size_t PLAYER>
+		using stackType = typename generatorType::template stackType<PLAYER>;
 		using descriptorDynamics = descriptor_dynamics;
 #include <pygmalion-dynamics/include_dynamics.h>
 	protected:

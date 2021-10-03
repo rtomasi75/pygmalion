@@ -11,28 +11,18 @@ namespace pygmalion::chess::dynamics
 			std::string remainder2;
 			parser::parseTokenCaseSensitive(remainder, token, remainder2);
 			playerType p;
-			this->output() << std::endl;
 			if (boardType::parsePlayer(token, p))
 			{
-				typename generatorType::contextType context;
-				stackType stack(this->position(), this->history(), this->position().movingPlayer().next(), &context);
-				if (p == whitePlayer)
-				{
-					const squaresType attacked{ stack.squaresAttackedByPlayer(whitePlayer) };
-					dumpSquares(attacked);
-				}
-				else
-				{
-					const squaresType attacked{ stack.squaresAttackedByPlayer(blackPlayer) };
-					dumpSquares(attacked);
-				}
+				this->output() << std::endl;
+				this->template process<0>(p);
+				this->output() << std::endl;
 			}
 			else
 				this->output() << "invalid player: " << token << std::endl;
-			this->output() << std::endl;
 			return true;
 		}
 		else
 			return false;
 	}
 }
+

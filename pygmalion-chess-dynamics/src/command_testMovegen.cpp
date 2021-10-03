@@ -14,69 +14,13 @@ namespace pygmalion::chess::dynamics
 			if (token != "")
 				maxdepth = parser::parseInt(token);
 			this->output() << std::endl;
-			bool bPassed{ true };
-			constexpr const size_t n{ sizeof(m_Sets) / sizeof(testset) };
-			std::uintmax_t nodes{ 0 };
-			typename profiler::durationType duration{ 0 };
-			for (size_t i = 0; i < n; i++)
-			{
-				if (m_Sets[i].depth() <= maxdepth)
-				{
-					bPassed &= test(m_Sets[i], nodes, duration);
-					this->output() << std::endl;
-					if (!bPassed)
-						break;
-				}
-			}
-			if (bPassed)
-				this->output() << "ALL PASSED." << std::endl;
-			else
-				this->output() << "SOME FAILED." << std::endl;
-			this->output() << std::endl;
-			const profiler::speed spd(static_cast<double>(nodes), duration, "N");
-			this->output() << parser::valueToString(static_cast<double>(nodes), "N") << " in " << parser::durationToString(duration) << " => " << spd << std::endl;
+			this->template process<0>(maxdepth);
 			this->output() << std::endl;
 			return true;
 		}
 		else
 			return false;
 	}
-
-	bool command_testMovegen::test(const testset& set, std::uintmax_t& nodes, typename profiler::durationType& duration) noexcept
-	{
-		this->output() << "Position: " << set.fen() << std::endl;
-		this->output() << "Depth:    " << set.depth() << std::endl;
-		this->output() << "Expected: " << set.expected() << std::endl;
-		historyType history;
-		boardType position;
-		std::string error;
-		if (!position.setFen(set.fen(), error))
-		{
-			this->output() << "Invalid FEN: " << error << std::endl;
-		}
-		this->output() << "Computed: ";
-		typename generatorType::contextType* pContext = new typename generatorType::contextType[set.depth()+1];
-		profiler p;
-		p.start();
-		stackType stack(position, history, position.movingPlayer().next(), pContext);
-		std::uintmax_t computed{ generatorType::perft(stack, set.depth(),0, nodes, this->feedback()) };
-		p.stop();
-		delete[] pContext;
-		duration += p.duration();
-		this->output() << computed << std::endl;
-		this->output() << std::endl;
-		if (computed == set.expected())
-		{
-			this->output() << " => PASSED" << std::endl;
-			return true;
-		}
-		else
-		{
-			this->output() << " => FAILED" << std::endl;
-			return false;
-		}
-	}
-
 
 	const std::string& command_testMovegen::testset::fen() const noexcept
 	{

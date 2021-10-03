@@ -6,7 +6,8 @@ namespace pygmalion::dynamics
 	{
 	public:
 		using generatorType = GENERATOR;
-		using stackType = typename generatorType::stackType;
+		template<size_t PLAYER>
+		using stackType = typename generatorType::template stackType<PLAYER>;
 		using descriptorDynamics = DESCRIPTION_DYNAMICS;
 #include "../include_dynamics.h"	
 	protected:

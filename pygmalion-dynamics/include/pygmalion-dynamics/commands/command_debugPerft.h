@@ -6,13 +6,16 @@ namespace pygmalion::dynamics
 	{
 	public:
 		using generatorType = GENERATOR;
-		using stackType = typename generatorType::stackType;
+		template<size_t PLAYER>
+		using stackType = typename generatorType::template stackType<PLAYER>;
 		using descriptorDynamics = DESCRIPTION_DYNAMICS;
-		using movegenFeedback = typename generatorType::movegenFeedback;
 #include "../include_dynamics.h"
+		using movegenFeedback = typename generatorType::movegenFeedback;
 	private:
-		static std::uintmax_t perft(const stackType& stack, const size_t depth, const size_t maxDepth, movegenFeedback& feedback, std::uintmax_t& nodes) noexcept
+		template<size_t PLAYER>
+		static std::uintmax_t perft(const stackType<PLAYER>& stack, const size_t depth, const size_t maxDepth, movegenFeedback& feedback, std::uintmax_t& nodes) noexcept
 		{
+			constexpr const playerType nextPlayer{ static_cast<playerType>(PLAYER).next() };
 			movebitsType moveBits;
 			std::uintmax_t counter{ 0 };
 			if (depth == maxDepth)
@@ -26,12 +29,39 @@ namespace pygmalion::dynamics
 			{
 				while (stack.nextMove(moveBits, depth, feedback))
 				{
-					const stackType substack{ stackType(stack,moveBits) };
+					const stackType<static_cast<size_t>(nextPlayer)> substack{ stackType<static_cast<size_t>(nextPlayer)>(stack,moveBits) };
 					counter += perft(substack, depth + 1, maxDepth, feedback, nodes);
 				}
 			}
 			nodes++;
 			return counter;
+		}
+		template<size_t PLAYER>
+		void process(const size_t depth) noexcept
+		{
+			if constexpr (PLAYER < countPlayers)
+			{
+				constexpr const playerType player{ static_cast<playerType>(PLAYER) };
+				if (player == this->position().movingPlayer())
+				{
+					typename generatorType::contextType* pContext = new typename generatorType::contextType[depth + 1];
+					profiler p;
+					for (size_t i = 0; i < depth; i++)
+					{
+						p.start();
+						stackType<PLAYER> stack{ stackType<PLAYER>(this->position(),this->history(), pContext) };
+						std::uintmax_t nodes{ 0 };
+						const std::uintmax_t leafs{ this->template perft<PLAYER>(stack,0, i, this->feedback(), nodes) };
+						p.stop();
+						this->output() << "depth: " << std::setw(2) << static_cast<int>(i + 1) << " leafs: " << parser::valueToString(static_cast<double>(leafs), "") << " nodes: " << parser::valueToString(static_cast<double>(nodes), "") << " time: " << parser::durationToString(p.duration()) << " speed: " << p.computeSpeed(nodes, "N") << ", " << p.computeSpeed(leafs + nodes, "mv") << std::endl;
+					}
+					delete[] pContext;
+				}
+				else
+					this->template process<PLAYER + 1>(depth);
+			}
+			else
+				PYGMALION_ASSERT(false);
 		}
 	protected:
 		virtual bool onProcess(const std::string& cmd) noexcept override
@@ -42,19 +72,8 @@ namespace pygmalion::dynamics
 			if (token == "debug-perft")
 			{
 				size_t depth{ static_cast<size_t>(parser::parseInt(remainder)) };
-				profiler p;
 				this->output() << std::endl;
-				typename generatorType::contextType* pContext = new typename generatorType::contextType[depth + 1];
-				for (size_t i = 0; i < depth; i++)
-				{
-					p.start();
-					stackType stack{ stackType(this->position(),this->history(), this->position().movingPlayer(), pContext) };
-					std::uintmax_t nodes{ 0 };
-					const std::uintmax_t leafs{ perft(stack,0, i, this->feedback(), nodes) };
-					p.stop();
-					this->output() << "depth: " << std::setw(2) << static_cast<int>(i + 1) << " leafs: " << parser::valueToString(static_cast<double>(leafs), "") << " nodes: " << parser::valueToString(static_cast<double>(nodes), "") << " time: " << parser::durationToString(p.duration()) << " speed: " << p.computeSpeed(nodes, "N") << ", " << p.computeSpeed(leafs+nodes, "mv") << std::endl;
-				}
-				delete[] pContext;
+				this->template process<0>(depth);
 				this->output() << std::endl;
 				return true;
 			}

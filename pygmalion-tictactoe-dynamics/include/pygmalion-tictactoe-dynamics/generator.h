@@ -11,17 +11,21 @@ namespace pygmalion::tictactoe
 		public pygmalion::generator<descriptor_dynamics, generator>
 	{
 	public:
-		using stackType = typename pygmalion::generator<descriptor_dynamics, generator>::stack;
+		template<size_t PLAYER>
+		using stackType = typename pygmalion::generator<descriptor_dynamics, generator>::stack<PLAYER>;
 		using contextType = typename pygmalion::generator<descriptor_dynamics, generator>::context;
-		static bool isMoveLegal_Implementation(const stackType& stack, const movebitsType& mv) noexcept
+		template<size_t PLAYER>
+		static bool isMoveLegal_Implementation(const stackType<PLAYER>& stack, const movebitsType& mv) noexcept
 		{
 			return !stack.position().isOccupied(moveType::extractSquare(mv));
 		}
-		static bool isGeneratedMoveLegal_Implementation(const stackType& stack, const movebitsType& mv) noexcept
+		template<size_t PLAYER>
+		static bool isGeneratedMoveLegal_Implementation(const stackType<PLAYER>& stack, const movebitsType& mv) noexcept
 		{
 			return !stack.position().isOccupied(moveType::extractSquare(mv));
 		}
-		static bool isMoveTactical_Implementation(const stackType& stack, const movebitsType& mv) noexcept
+		template<size_t PLAYER>
+		static bool isMoveTactical_Implementation(const stackType<PLAYER>& stack, const movebitsType& mv) noexcept
 		{
 			return false;
 		}
@@ -30,7 +34,8 @@ namespace pygmalion::tictactoe
 			std::deque<std::shared_ptr<pygmalion::intrinsics::command>> list{ std::deque<std::shared_ptr<pygmalion::intrinsics::command>>() };
 			return list;
 		}
-		static void generateMoves_Implementation(const stackType& stack, movelistType& moves, const passType currentPass) noexcept
+		template<size_t PLAYER>
+		static void generateMoves_Implementation(const stackType<PLAYER>& stack, movelistType& moves, const passType currentPass) noexcept
 		{
 			if (currentPass == 0)
 			{
@@ -39,27 +44,33 @@ namespace pygmalion::tictactoe
 			else
 				PYGMALION_ASSERT(0);
 		}
-		static void generateTacticalMoves_Implementation(const stackType& stack, movelistType& moves, const passType currentPass) noexcept
+		template<size_t PLAYER>
+		static void generateTacticalMoves_Implementation(const stackType<PLAYER>& stack, movelistType& moves, const passType currentPass) noexcept
 		{
 			PYGMALION_ASSERT(0);
 		}
-		static void generateCriticalMoves_Implementation(const stackType& stack, movelistType& moves, const passType currentPass) noexcept
+		template<size_t PLAYER>
+		static void generateCriticalMoves_Implementation(const stackType<PLAYER>& stack, movelistType& moves, const passType currentPass) noexcept
 		{
 			PYGMALION_ASSERT(0);
 		}
-		static void generateQuietCriticalMoves_Implementation(const stackType& stack, movelistType& moves, const passType currentPass) noexcept
+		template<size_t PLAYER>
+		static void generateQuietCriticalMoves_Implementation(const stackType<PLAYER>& stack, movelistType& moves, const passType currentPass) noexcept
 		{
 			PYGMALION_ASSERT(0);
 		}
-		static void generateCriticalEvasionMoves_Implementation(const stackType& stack, movelistType& moves, const passType currentPass) noexcept
+		template<size_t PLAYER>
+		static void generateCriticalEvasionMoves_Implementation(const stackType<PLAYER>& stack, movelistType& moves, const passType currentPass) noexcept
 		{
 			PYGMALION_ASSERT(0);
 		}
-		static void generateTacticalCriticalEvasionMoves_Implementation(const stackType& stack, movelistType& moves, const passType currentPass) noexcept
+		template<size_t PLAYER>
+		static void generateTacticalCriticalEvasionMoves_Implementation(const stackType<PLAYER>& stack, movelistType& moves, const passType currentPass) noexcept
 		{
 			PYGMALION_ASSERT(0);
 		}
-		static std::string moveToString_Implementation(const stackType& stack, const movebitsType moveBits, const size_t depth) noexcept
+		template<size_t PLAYER>
+		static std::string moveToString_Implementation(const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth) noexcept
 		{
 			squareType sq = moveType::extractSquare(moveBits);
 			auto file = sq.file();
@@ -138,11 +149,13 @@ namespace pygmalion::tictactoe
 		{
 			return movebitsType(0);
 		}
-		constexpr static bool isMoveCritical_Implementation(const stackType& stack, const movebitsType& moveBits) noexcept
+		template<size_t PLAYER>
+		constexpr static bool isMoveCritical_Implementation(const stackType<PLAYER>& stack, const movebitsType& moveBits) noexcept
 		{
 			return false;
 		}
-		constexpr static bool isPositionCritical_Implementation(const stackType& stack) noexcept
+		template<size_t PLAYER>
+		constexpr static bool isPositionCritical_Implementation(const stackType<PLAYER>& stack) noexcept
 		{
 			return false;
 		}

@@ -33,53 +33,36 @@ namespace pygmalion::frontend
 			return str.str();
 		}
 		template<size_t PLAYER>
-		bool principalVariationSearchRecursion(const typename descriptorFrontend::stackType& stack, const depthType& depthRemaining, variationType& finalVariation, std::atomic_bool& isRunning) noexcept
+		bool principalVariationSearch(const typename descriptorFrontend::template stackType<PLAYER>& stack, const depthType& depthRemaining, variationType& finalVariation, std::atomic_bool& isRunning) noexcept
 		{
-			if constexpr (PLAYER < countPlayers)
+			using nodeType = typename gametreeType::template nodeType<PLAYER>;
+			nodeType node(stack, isRunning, this->heuristics());
+			variationType principalVariation{ variationType() };
+			this->feedback().sortIndices(this->history().length());
+			this->heuristics().beginSearch();
+			const scoreType score{ node.template searchRoot<false>(depthRemaining, this->history().length(), principalVariation, this->outputStream()) };
+			this->heuristics().endSearch();
+			if (isRunning)
 			{
-				constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
-				if (movingPlayer == this->position().movingPlayer())
+				finalVariation = principalVariation;
+				if (this->front().postMode())
 				{
-					using nodeType = typename gametreeType::template nodeType<PLAYER>;
-					nodeType node(stack, isRunning, this->heuristics());
-					variationType principalVariation{ variationType() };
-					this->feedback().sortIndices(this->history().length());
-					this->heuristics().beginSearch();
-					const scoreType score{ node.template searchRoot<false>(depthRemaining, this->history().length(), principalVariation, this->outputStream()) };
-					this->heuristics().endSearch();
-					if (isRunning)
-					{
-						finalVariation = principalVariation;
-						if (this->front().postMode())
-						{
-							this->outputStream() << static_cast<int>(depthRemaining) << " ";
-							this->outputStream() << scoreToString(score) << " ";
-							const std::chrono::milliseconds milliseconds{ std::chrono::duration_cast<std::chrono::milliseconds>(this->heuristics().duration()) };
-							const int centiseconds{ static_cast<int>(milliseconds.count() / 10) };
-							this->outputStream() << centiseconds << " ";
-							this->outputStream() << this->heuristics().nodeCount() << " ";
-							this->outputStream() << this->variationToString(finalVariation) << std::endl;
-						}
-						return true;
-					}
-					return false;
+					this->outputStream() << static_cast<int>(depthRemaining) << " ";
+					this->outputStream() << scoreToString(score) << " ";
+					const std::chrono::milliseconds milliseconds{ std::chrono::duration_cast<std::chrono::milliseconds>(this->heuristics().duration()) };
+					const int centiseconds{ static_cast<int>(milliseconds.count() / 10) };
+					this->outputStream() << centiseconds << " ";
+					this->outputStream() << this->heuristics().nodeCount() << " ";
+					this->outputStream() << this->template variationToString<PLAYER>(finalVariation) << std::endl;
 				}
-				else
-					return this->template principalVariationSearchRecursion<PLAYER + 1>(stack, depthRemaining, finalVariation, isRunning);
+				return true;
 			}
-			else
-			{
-				PYGMALION_ASSERT(false);
-				return false;
-			}
+			return false;
 		}
-		bool principalVariationSearch(const typename descriptorFrontend::stackType& stack, const depthType& depthRemaining, variationType& finalVariation, std::atomic_bool& isRunning) noexcept
-		{
-			return this->template principalVariationSearchRecursion<0>(stack, depthRemaining, finalVariation, isRunning);
-		}
+		template<size_t PLAYER>
 		void moveThreadFunc(const durationType allocatedTime)
 		{
-			typename descriptorFrontend::stackType stack{ typename descriptorFrontend::stackType(this->position(), this->history(),  this->position().movingPlayer(), this->rootContext()) };
+			typename descriptorFrontend::template stackType<PLAYER> stack{ typename descriptorFrontend::template stackType<PLAYER>(this->position(), this->history(), this->rootContext()) };
 			depthType depthRemaining{ 0 };
 			variationType finalVariation{ variationType() };
 			durationType timeRemaining{ this->currentGame().playerClock(this->position().movingPlayer()).timeRemaining() };
@@ -115,7 +98,7 @@ namespace pygmalion::frontend
 					this->currentGame().playerClock(this->currentGame().position().movingPlayer()).start();
 					this->outputStream() << "move " << moveString << std::endl;
 					bool allowStoreTT;
-					const gamestateType result{ evaluatorType::template earlyResult<false>(stack, allowStoreTT) };
+					const gamestateType result{ evaluatorType::template earlyResult<PLAYER,false>(stack, allowStoreTT) };
 					if (!gamestateType::isOpen(result))
 					{
 						this->outputStream() << "result " << frontType::gamestateToString(this->currentGame().position(), result) << std::endl;
@@ -210,6 +193,7 @@ namespace pygmalion::frontend
 				return allocated;
 			}
 		}
+		template<size_t PLAYER>
 		void thinkMove() noexcept
 		{
 			std::unique_lock<std::mutex> lock(m_Mutex);
@@ -222,7 +206,7 @@ namespace pygmalion::frontend
 				this->currentGame().playerClock(this->currentGame().position().movingPlayer()).start();
 				m_MoveThreadIsRunning = true;
 				m_MoveThreadAborted = false;
-				m_pMoveThread = new std::thread([this, timeAvailable]() {moveThreadFunc(timeAvailable); });
+				m_pMoveThread = new std::thread([this, timeAvailable]() {moveThreadFunc<PLAYER>(timeAvailable); });
 				std::thread timerThread
 				{
 					std::thread(

@@ -8,7 +8,8 @@ namespace pygmalion
 		constexpr static inline bool UseDeepHits{ false };
 		using descriptorSearch = DESCRIPTION_SEARCH;
 #include "include_search.h"
-		using stackType = typename generatorType::stackType;
+		template<size_t PLAYER>
+		using stackType = typename generatorType::template stackType<PLAYER>;
 		struct transposition
 		{
 		public:
@@ -33,7 +34,8 @@ namespace pygmalion
 			{
 			}
 			~transposition() = default;
-			constexpr bool isValid(const stackType& stack) const noexcept
+			template<size_t PLAYER>
+			constexpr bool isValid(const stackType<PLAYER>& stack) const noexcept
 			{
 				const bool bOk{ ((m_Hash == stack.position().hash()) && (m_MovingPlayer == stack.position().movingPlayer())) && ((m_BoardFlags == stack.position().flags()) && (m_Signature == stack.signature())) };
 				if (bOk)
@@ -80,7 +82,8 @@ namespace pygmalion
 			{
 				return m_Flags;
 			}
-			constexpr void update(const stackType& stack, const std::uint8_t flags, const scoreType value, const movebitsType move)
+			template<size_t PLAYER>
+			constexpr void update(const stackType<PLAYER>& stack, const std::uint8_t flags, const scoreType value, const movebitsType move)
 			{
 				if (flags & transpositiontable::flags_lower)
 				{
@@ -103,7 +106,8 @@ namespace pygmalion
 					m_Flags |= transpositiontable::flags_move;
 				}
 			}
-			void reset(const stackType& stack, const scoreType value, const depthType draft, const std::uint8_t flags, const movebitsType move)
+			template<size_t PLAYER>
+			void reset(const stackType<PLAYER>& stack, const scoreType value, const depthType draft, const std::uint8_t flags, const movebitsType move)
 			{
 				m_Hash = stack.position().hash();
 				m_MovingPlayer = stack.position().movingPlayer();
@@ -291,7 +295,8 @@ namespace pygmalion
 		{
 			return m_Entry.size() * sizeof(transposition);
 		}
-		constexpr void probeMoves(const stackType& stack, const depthType depthRemaining, ttmovesType& moves) const noexcept
+		template<size_t PLAYER>
+		constexpr void probeMoves(const stackType<PLAYER>& stack, const depthType depthRemaining, ttmovesType& moves) const noexcept
 		{
 			if constexpr (countBuckets > 0)
 			{
@@ -315,7 +320,8 @@ namespace pygmalion
 				sort<movebitsType, depthType>::sortValues(moves.ptr(), &score[0], moves.length());
 			}
 		}
-		constexpr void probeTacticalMoves(const stackType& stack, ttmovesType& moves) const noexcept
+		template<size_t PLAYER>
+		constexpr void probeTacticalMoves(const stackType<PLAYER>& stack, ttmovesType& moves) const noexcept
 		{
 			if constexpr (countBuckets > 0)
 			{
@@ -342,7 +348,8 @@ namespace pygmalion
 				sort<movebitsType, depthType>::sortValues(moves.ptr(), &score[0], moves.length());
 			}
 		}
-		constexpr std::uint8_t probe(const stackType& stack, const depthType depth, scoreType& alpha, scoreType& beta, scoreType& score, movebitsType& move) const noexcept
+		template<size_t PLAYER>
+		constexpr std::uint8_t probe(const stackType<PLAYER>& stack, const depthType depth, scoreType& alpha, scoreType& beta, scoreType& score, movebitsType& move) const noexcept
 		{
 			bool doNMP{ true };
 			m_Probes++;
@@ -472,7 +479,8 @@ namespace pygmalion
 			}
 			return doNMP ? flags_unused : flags_noNMP;
 		}
-		constexpr void store(const stackType& stack, const depthType depth, const scoreType score, const std::uint8_t flags, const movebitsType move) noexcept
+		template<size_t PLAYER>
+		constexpr void store(const stackType<PLAYER>& stack, const depthType depth, const scoreType score, const std::uint8_t flags, const movebitsType move) noexcept
 		{
 			const hashType i = { computeKey(stack.position().hash()) };
 			depthType best{ countSearchPlies + 1 };
@@ -494,7 +502,8 @@ namespace pygmalion
 			const size_t index2 = static_cast<std::uint64_t>(i) * countBuckets + bestidx;
 			m_Entry[index2].reset(stack, score, depth, flags, move);
 		}
-		constexpr void prefetch(const stackType& stack) const noexcept
+		template<size_t PLAYER>
+		constexpr void prefetch(const stackType<PLAYER>& stack) const noexcept
 		{
 			const hashType i = { computeKey(stack.position().hash()) };
 			const size_t index = static_cast<std::uint64_t>(i) * countBuckets;

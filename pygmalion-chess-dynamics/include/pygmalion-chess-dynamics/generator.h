@@ -31,8 +31,9 @@ namespace pygmalion::chess
 			~context() noexcept = default;
 		};
 		using contextType = context;
+		template<size_t PLAYER>
 		class stack :
-			public pygmalion::generator<descriptor_dynamics, generator>::stack
+			public pygmalion::generator<descriptor_dynamics, generator>::stack<PLAYER>
 		{
 		private:
 			mutable std::array<squaresType, countPlayers> m_SquaresAttackedByPlayer;
@@ -44,12 +45,22 @@ namespace pygmalion::chess
 			mutable std::array<bool, countPlayers> m_SquaresTargetedByPlayerValid{ arrayhelper::make<countPlayers,bool>(false) };
 			mutable bool m_IsControlValid{ false };
 		public:
-			void control(squaresType& white, squaresType& black) const;
+			using parentType = stack<static_cast<size_t>(static_cast<playerType>(PLAYER).previous())>;
+			void control(squaresType& white, squaresType& black) const noexcept
+			{
+				if (!m_IsControlValid)
+				{
+					generatorType::template control<PLAYER>(*this, m_ControlledByPlayer[whitePlayer], m_ControlledByPlayer[blackPlayer]);
+					m_IsControlValid = true;
+				}
+				white = m_ControlledByPlayer[whitePlayer];
+				black = m_ControlledByPlayer[blackPlayer];
+			}
 			squareType kingSquare(const playerType player) const noexcept
 			{
 				if (!m_IsKingSquareValid[player])
 				{
-					m_KingSquare[player] = position().kingSquare(player);
+					m_KingSquare[player] = this->position().kingSquare(player);
 					m_IsKingSquareValid[player] = true;
 				}
 				return m_KingSquare[player];
@@ -72,17 +83,18 @@ namespace pygmalion::chess
 				}
 				return m_SquaresAttackedByPlayer[player];
 			}
-			stack(const stack& parent, const movebitsType movebits) noexcept :
-				pygmalion::generator<descriptor_dynamics, generator>::stack(parent, movebits)
+			stack(const parentType& parent, const movebitsType movebits) noexcept :
+				pygmalion::generator<descriptor_dynamics, generator>::stack<PLAYER>(parent, movebits)
 			{
 			}
-			stack(boardType& position, historyType& history, const playerType oldPlayer, contextType* pContext) noexcept :
-				pygmalion::generator<descriptor_dynamics, generator>::stack(position, history, oldPlayer, pContext)
+			stack(boardType& position, historyType& history, contextType* pContext) noexcept :
+				pygmalion::generator<descriptor_dynamics, generator>::stack<PLAYER>(position, history, pContext)
 			{
 			}
 			~stack() noexcept = default;
 		};
-		using stackType = stack;
+		template<size_t PLAYER>
+		using stackType = stack<PLAYER>;
 		constexpr static squaresType pawnAttacks(const squareType& sq, const playerType p, const squaresType& allowed) noexcept
 		{
 			if (p == whitePlayer)
@@ -178,9 +190,9 @@ namespace pygmalion::chess
 			else
 				return movegenPawnDoublePushBlack.targets(sq, allowed);
 		}
-		friend class stack;
 	private:
-		static void control(const generatorType::stackType& stack, squaresType& whiteControl, squaresType& blackControl) noexcept
+		template<size_t PLAYER>
+		static void control(const stackType<PLAYER>& stack, squaresType& whiteControl, squaresType& blackControl) noexcept
 		{
 			const squaresType unoccupied{ ~stack.position().totalOccupancy() };
 			const squaresType whitePawns{ stack.position().playerOccupancy(whitePlayer) & stack.position().pieceOccupancy(pawn) };
@@ -357,7 +369,8 @@ namespace pygmalion::chess
 				return true;
 			return false;
 		}
-		static squaresType squaresAttackedByPlayer(const stackType& stack, const playerType attackingPlayer) noexcept
+		template<size_t PLAYER>
+		static squaresType squaresAttackedByPlayer(const stackType<PLAYER>& stack, const playerType attackingPlayer) noexcept
 		{
 			PYGMALION_ASSERT(attackingPlayer.isValid());
 			const boardType& position{ stack.position() };
@@ -379,7 +392,8 @@ namespace pygmalion::chess
 				attacked |= pawns.downLeft() | pawns.downRight();
 			return attacked;
 		}
-		static squaresType squaresTargetedByPlayer(const stackType& stack, const playerType attackingPlayer) noexcept
+		template<size_t PLAYER>
+		static squaresType squaresTargetedByPlayer(const stackType<PLAYER>& stack, const playerType attackingPlayer) noexcept
 		{
 			PYGMALION_ASSERT(attackingPlayer.isValid());
 			const boardType& position{ stack.position() };
@@ -401,21 +415,24 @@ namespace pygmalion::chess
 				attacked |= pawns.downLeft() | pawns.downRight();
 			return attacked;
 		}
-		static void generateKingMoves(const stackType& stack, movelistType& moves) noexcept
+		template<size_t PLAYER>
+		static void generateKingMoves(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			const squareType from{ stack.kingSquare(stack.movingPlayer()) };
 			const squaresType destinations{ movegenKing.targets(from, ~stack.position().totalOccupancy()) };
 			for (const squareType to : destinations)
 				moves.add(motorType::move().createQuiet(from, to));
 		}
-		static void generateKingCaptures(const stackType& stack, movelistType& moves) noexcept
+		template<size_t PLAYER>
+		static void generateKingCaptures(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			const squareType from{ stack.kingSquare(stack.movingPlayer()) };
 			const squaresType destinations{ movegenKing.attacks(from, ~stack.position().totalOccupancy()) & stack.position().playerOccupancy(stack.nextPlayer()) };
 			for (const squareType to : destinations)
 				moves.add(motorType::move().createCapture(from, to));
 		}
-		static void generateCastles(const stackType& stack, movelistType& moves) noexcept
+		template<size_t PLAYER>
+		static void generateCastles(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			if (stack.position().movingPlayer() == whitePlayer)
 			{
@@ -444,9 +461,10 @@ namespace pygmalion::chess
 				}
 			}
 		}
-		static void generatePawnEnPassant(const stackType& stack, movelistType& moves) noexcept
+		template<size_t PLAYER>
+		static void generatePawnEnPassant(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
-			const uint_t<8, false> epFlags{ stack.position().flags().extractRange<4,11>() };
+			const uint_t<8, false> epFlags{ stack.position().flags().template extractRange<4,11>() };
 			if (epFlags)
 			{
 				size_t bit;
@@ -480,8 +498,8 @@ namespace pygmalion::chess
 				}
 			}
 		}
-		typedef void moveGenFunction(const stackType& stack, movelistType& moves);
-		constexpr static void generateKnightMoves(const stackType& stack, movelistType& moves) noexcept
+		template<size_t PLAYER>
+		constexpr static void generateKnightMoves(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			for (const squareType from : stack.position().pieceOccupancy(knight)& stack.position().playerOccupancy(stack.position().movingPlayer()))
 			{
@@ -489,7 +507,8 @@ namespace pygmalion::chess
 					moves.add(motorType::move().createQuiet(from, to));
 			}
 		}
-		constexpr static void generateSliderMovesHV(const stackType& stack, movelistType& moves) noexcept
+		template<size_t PLAYER>
+		constexpr static void generateSliderMovesHV(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			for (const squareType from : (stack.position().pieceOccupancy(rook) | stack.position().pieceOccupancy(queen))& stack.position().playerOccupancy(stack.position().movingPlayer()))
 			{
@@ -497,7 +516,8 @@ namespace pygmalion::chess
 					moves.add(motorType::move().createQuiet(from, to));
 			}
 		}
-		constexpr static void generateSliderMovesDiag(const stackType& stack, movelistType& moves) noexcept
+		template<size_t PLAYER>
+		constexpr static void generateSliderMovesDiag(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			for (const squareType from : (stack.position().pieceOccupancy(bishop) | stack.position().pieceOccupancy(queen))& stack.position().playerOccupancy(stack.position().movingPlayer()))
 			{
@@ -505,7 +525,8 @@ namespace pygmalion::chess
 					moves.add(motorType::move().createQuiet(from, to));
 			}
 		}
-		constexpr static void generateSliderCapturesHV(const stackType& stack, movelistType& moves) noexcept
+		template<size_t PLAYER>
+		constexpr static void generateSliderCapturesHV(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			for (const squareType from : (stack.position().pieceOccupancy(rook) | stack.position().pieceOccupancy(queen))& stack.position().playerOccupancy(stack.position().movingPlayer()))
 			{
@@ -513,7 +534,8 @@ namespace pygmalion::chess
 					moves.add(motorType::move().createCapture(from, to));
 			}
 		}
-		constexpr static void generateSliderCapturesDiag(const stackType& stack, movelistType& moves) noexcept
+		template<size_t PLAYER>
+		constexpr static void generateSliderCapturesDiag(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			for (const squareType from : (stack.position().pieceOccupancy(bishop) | stack.position().pieceOccupancy(queen))& stack.position().playerOccupancy(stack.position().movingPlayer()))
 			{
@@ -521,7 +543,8 @@ namespace pygmalion::chess
 					moves.add(motorType::move().createCapture(from, to));
 			}
 		}
-		constexpr static void generateKnightCaptures(const stackType& stack, movelistType& moves) noexcept
+		template<size_t PLAYER>
+		constexpr static void generateKnightCaptures(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			for (const squareType from : stack.position().pieceOccupancy(knight)& stack.position().playerOccupancy(stack.position().movingPlayer()))
 			{
@@ -529,26 +552,30 @@ namespace pygmalion::chess
 					moves.add(motorType::move().createCapture(from, to));
 			}
 		}
-		constexpr static void generatePawnPushesWhite(const stackType& stack, movelistType& moves) noexcept
+		template<size_t PLAYER>
+		constexpr static void generatePawnPushesWhite(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			const squaresType whitePawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(whitePlayer) };
 			for (const squareType to : movegenPawnPushWhite.targets(whitePawns, ~stack.position().totalOccupancy()))
 				moves.add(motorType::move().createQuiet(to.down(), to));
 		}
-		constexpr static void generatePawnPushesBlack(const stackType& stack, movelistType& moves) noexcept
+		template<size_t PLAYER>
+		constexpr static void generatePawnPushesBlack(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			const squaresType blackPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(blackPlayer) };
 			for (const squareType to : movegenPawnPushBlack.targets(blackPawns, ~stack.position().totalOccupancy()))
 				moves.add(motorType::move().createQuiet(to.up(), to));
 		}
-		constexpr static void generatePawnPushes(const stackType& stack, movelistType& moves) noexcept
+		template<size_t PLAYER>
+		constexpr static void generatePawnPushes(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			if (stack.position().movingPlayer() == whitePlayer)
 				generatePawnPushesWhite(stack, moves);
 			else
 				generatePawnPushesBlack(stack, moves);
 		}
-		constexpr static void generatePawnPromotionsWhite(const stackType& stack, movelistType& moves) noexcept
+		template<size_t PLAYER>
+		constexpr static void generatePawnPromotionsWhite(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			const squaresType whitePawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(whitePlayer) };
 			for (const squareType to : movegenPawnPromotionWhite.targets(whitePawns, ~stack.position().totalOccupancy()))
@@ -560,7 +587,8 @@ namespace pygmalion::chess
 				moves.add(motorType::move().createPromotionBishop(from, to));
 			}
 		}
-		constexpr static void generatePawnPromotionsBlack(const stackType& stack, movelistType& moves) noexcept
+		template<size_t PLAYER>
+		constexpr static void generatePawnPromotionsBlack(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			const squaresType blackPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(blackPlayer) };
 			for (const squareType to : movegenPawnPromotionBlack.targets(blackPawns, ~stack.position().totalOccupancy()))
@@ -572,14 +600,16 @@ namespace pygmalion::chess
 				moves.add(motorType::move().createPromotionBishop(from, to));
 			}
 		}
-		constexpr static void generatePawnPromotions(const stackType& stack, movelistType& moves) noexcept
+		template<size_t PLAYER>
+		constexpr static void generatePawnPromotions(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			if (stack.position().movingPlayer() == whitePlayer)
 				generatePawnPromotionsWhite(stack, moves);
 			else
 				generatePawnPromotionsBlack(stack, moves);
 		}
-		constexpr static void generatePawnCapturesWhite(const stackType& stack, movelistType& moves) noexcept
+		template<size_t PLAYER>
+		constexpr static void generatePawnCapturesWhite(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			const squaresType whitePawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(whitePlayer) };
 			for (const squareType to : movegenPawnCaptureWhite.attacks(whitePawns, ~stack.position().totalOccupancy())& stack.position().playerOccupancy(blackPlayer))
@@ -598,7 +628,8 @@ namespace pygmalion::chess
 				}
 			}
 		}
-		constexpr static void generatePawnCapturesBlack(const stackType& stack, movelistType& moves) noexcept
+		template<size_t PLAYER>
+		constexpr static void generatePawnCapturesBlack(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			const squaresType blackPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(blackPlayer) };
 			for (const squareType to : movegenPawnCaptureBlack.attacks(blackPawns, ~stack.position().totalOccupancy())& stack.position().playerOccupancy(whitePlayer))
@@ -617,14 +648,16 @@ namespace pygmalion::chess
 				}
 			}
 		}
-		constexpr static void generatePawnCaptures(const stackType& stack, movelistType& moves) noexcept
+		template<size_t PLAYER>
+		constexpr static void generatePawnCaptures(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			if (stack.position().movingPlayer() == whitePlayer)
 				generatePawnCapturesWhite(stack, moves);
 			else
 				generatePawnCapturesBlack(stack, moves);
 		}
-		constexpr static void generatePawnPromoCapturesWhite(const stackType& stack, movelistType& moves) noexcept
+		template<size_t PLAYER>
+		constexpr static void generatePawnPromoCapturesWhite(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			const squaresType whitePawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(whitePlayer) };
 			for (const squareType to : movegenPawnPromoCaptureWhite.attacks(whitePawns, ~stack.position().totalOccupancy())& stack.position().playerOccupancy(blackPlayer))
@@ -653,7 +686,8 @@ namespace pygmalion::chess
 				}
 			}
 		}
-		constexpr static void generatePawnPromoCapturesBlack(const stackType& stack, movelistType& moves) noexcept
+		template<size_t PLAYER>
+		constexpr static void generatePawnPromoCapturesBlack(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			const squaresType blackPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(blackPlayer) };
 			for (const squareType to : movegenPawnPromoCaptureBlack.attacks(blackPawns, ~stack.position().totalOccupancy())& stack.position().playerOccupancy(whitePlayer))
@@ -682,33 +716,38 @@ namespace pygmalion::chess
 				}
 			}
 		}
-		constexpr static void generatePawnPromoCaptures(const stackType& stack, movelistType& moves) noexcept
+		template<size_t PLAYER>
+		constexpr static void generatePawnPromoCaptures(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			if (stack.position().movingPlayer() == whitePlayer)
 				generatePawnPromoCapturesWhite(stack, moves);
 			else
 				generatePawnPromoCapturesBlack(stack, moves);
 		}
-		constexpr static void generatePawnDoublePushesWhite(const stackType& stack, movelistType& moves) noexcept
+		template<size_t PLAYER>
+		constexpr static void generatePawnDoublePushesWhite(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			const squaresType whitePawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(whitePlayer) };
 			for (const squareType to : movegenPawnDoublePushWhite.targets(whitePawns, ~stack.position().totalOccupancy()))
 				moves.add(motorType::move().createDoublePush(to.file()));
 		}
-		constexpr static void generatePawnDoublePushesBlack(const stackType& stack, movelistType& moves) noexcept
+		template<size_t PLAYER>
+		constexpr static void generatePawnDoublePushesBlack(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			const squaresType blackPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(blackPlayer) };
 			for (const squareType to : movegenPawnDoublePushBlack.targets(blackPawns, ~stack.position().totalOccupancy()))
 				moves.add(motorType::move().createDoublePush(to.file()));
 		}
-		constexpr static void generatePawnDoublePushes(const stackType& stack, movelistType& moves) noexcept
+		template<size_t PLAYER>
+		constexpr static void generatePawnDoublePushes(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			if (stack.position().movingPlayer() == whitePlayer)
 				generatePawnDoublePushesWhite(stack, moves);
 			else
 				generatePawnDoublePushesBlack(stack, moves);
 		}
-		static void generateCriticalKnightMoves(const stackType& stack, movelistType& moves) noexcept
+		template<size_t PLAYER>
+		static void generateCriticalKnightMoves(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			const squaresType ownKnights{ stack.position().pieceOccupancy(knight) & stack.position().playerOccupancy(stack.movingPlayer()) };
 			const squareType otherKing{ stack.kingSquare(stack.nextPlayer()) };
@@ -772,7 +811,8 @@ namespace pygmalion::chess
 				}
 			}
 		}
-		static void generateCriticalPawnMovesWhite(const stackType& stack, movelistType& moves) noexcept
+		template<size_t PLAYER>
+		static void generateCriticalPawnMovesWhite(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			const squareType otherKing{ stack.kingSquare(blackPlayer) };
 			const rankType otherKingRank{ otherKing.rank() };
@@ -829,7 +869,8 @@ namespace pygmalion::chess
 					moves.add(motorType::move().createCapture(from, to));
 			}
 		}
-		static void generateCriticalPawnMovesBlack(const stackType& stack, movelistType& moves) noexcept
+		template<size_t PLAYER>
+		static void generateCriticalPawnMovesBlack(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			const squareType otherKing{ stack.kingSquare(whitePlayer) };
 			const rankType otherKingRank{ otherKing.rank() };
@@ -886,14 +927,16 @@ namespace pygmalion::chess
 					moves.add(motorType::move().createCapture(from, to));
 			}
 		}
-		static void generateCriticalPawnMoves(const stackType& stack, movelistType& moves) noexcept
+		template<size_t PLAYER>
+		static void generateCriticalPawnMoves(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			if (stack.movingPlayer() == whitePlayer)
 				generateCriticalPawnMovesWhite(stack, moves);
 			else
 				generateCriticalPawnMovesBlack(stack, moves);
 		}
-		static void generateCriticalSliderMovesHV(const stackType& stack, movelistType& moves) noexcept
+		template<size_t PLAYER>
+		static void generateCriticalSliderMovesHV(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			const squaresType ownQueens{ stack.position().pieceOccupancy(queen) & stack.position().playerOccupancy(stack.movingPlayer()) };
 			const squaresType ownRooks{ stack.position().pieceOccupancy(rook) & stack.position().playerOccupancy(stack.movingPlayer()) };
@@ -1045,7 +1088,7 @@ namespace pygmalion::chess
 					}
 				}
 			}
-			const uint_t<8, false> epFlags{ stack.position().flags().extractRange<4,11>() };
+			const uint_t<8, false> epFlags{ stack.position().flags().template extractRange<4,11>() };
 			if (epFlags)
 			{
 				size_t bit;
@@ -1267,7 +1310,8 @@ namespace pygmalion::chess
 				}
 			}
 		}
-		static void generateCriticalSliderMovesDiag(const stackType& stack, movelistType& moves) noexcept
+		template<size_t PLAYER>
+		static void generateCriticalSliderMovesDiag(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			const squaresType ownQueens{ stack.position().pieceOccupancy(queen) & stack.position().playerOccupancy(stack.movingPlayer()) };
 			const squaresType ownBishops{ stack.position().pieceOccupancy(bishop) & stack.position().playerOccupancy(stack.movingPlayer()) };
@@ -1418,7 +1462,7 @@ namespace pygmalion::chess
 					}
 				}
 			}
-			const uint_t<8, false> epFlags{ stack.position().flags().extractRange<4,11>() };
+			const uint_t<8, false> epFlags{ stack.position().flags().template extractRange<4,11>() };
 			if (epFlags)
 			{
 				size_t bit;
@@ -1574,7 +1618,8 @@ namespace pygmalion::chess
 				}
 			}
 		}
-		static void generateQuietCriticalKnightMoves(const stackType& stack, movelistType& moves) noexcept
+		template<size_t PLAYER>
+		static void generateQuietCriticalKnightMoves(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			const squaresType ownKnights{ stack.position().pieceOccupancy(knight) & stack.position().playerOccupancy(stack.movingPlayer()) };
 			const squareType otherKing{ stack.kingSquare(stack.nextPlayer()) };
@@ -1614,7 +1659,8 @@ namespace pygmalion::chess
 				}
 			}
 		}
-		static void generateQuietCriticalPawnMovesWhite(const stackType& stack, movelistType& moves) noexcept
+		template<size_t PLAYER>
+		static void generateQuietCriticalPawnMovesWhite(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			const squareType otherKing{ stack.kingSquare(blackPlayer) };
 			const rankType otherKingRank{ otherKing.rank() };
@@ -1640,7 +1686,8 @@ namespace pygmalion::chess
 				}
 			}
 		}
-		static void generateQuietCriticalPawnMovesBlack(const stackType& stack, movelistType& moves) noexcept
+		template<size_t PLAYER>
+		static void generateQuietCriticalPawnMovesBlack(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			const squareType otherKing{ stack.kingSquare(whitePlayer) };
 			const rankType otherKingRank{ otherKing.rank() };
@@ -1666,14 +1713,16 @@ namespace pygmalion::chess
 				}
 			}
 		}
-		static void generateQuietCriticalPawnMoves(const stackType& stack, movelistType& moves) noexcept
+		template<size_t PLAYER>
+		static void generateQuietCriticalPawnMoves(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			if (stack.movingPlayer() == whitePlayer)
 				generateQuietCriticalPawnMovesWhite(stack, moves);
 			else
 				generateQuietCriticalPawnMovesBlack(stack, moves);
 		}
-		static void generateQuietCriticalSliderMovesHV(const stackType& stack, movelistType& moves) noexcept
+		template<size_t PLAYER>
+		static void generateQuietCriticalSliderMovesHV(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			const squaresType ownQueens{ stack.position().pieceOccupancy(queen) & stack.position().playerOccupancy(stack.movingPlayer()) };
 			const squaresType ownRooks{ stack.position().pieceOccupancy(rook) & stack.position().playerOccupancy(stack.movingPlayer()) };
@@ -1907,7 +1956,8 @@ namespace pygmalion::chess
 				}
 			}
 		}
-		static void generateQuietCriticalSliderMovesDiag(const stackType& stack, movelistType& moves) noexcept
+		template<size_t PLAYER>
+		static void generateQuietCriticalSliderMovesDiag(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			const squaresType ownQueens{ stack.position().pieceOccupancy(queen) & stack.position().playerOccupancy(stack.movingPlayer()) };
 			const squaresType ownBishops{ stack.position().pieceOccupancy(bishop) & stack.position().playerOccupancy(stack.movingPlayer()) };
@@ -2480,7 +2530,8 @@ namespace pygmalion::chess
 			}
 		}
 		static std::deque<std::shared_ptr<pygmalion::intrinsics::command>> commandsImplementation() noexcept;
-		static bool isMoveLegal_Implementation(const stackType& stack, const movebitsType moveBits) noexcept
+		template<size_t PLAYER>
+		static bool isMoveLegal_Implementation(const stackType<PLAYER>& stack, const movebitsType moveBits) noexcept
 		{
 			const boardType& position{ stack.position() };
 			const playerType movingPlayer{ position.movingPlayer() };
@@ -2810,11 +2861,13 @@ namespace pygmalion::chess
 			// The move seems legal
 			return true;
 		}
-		static bool isMoveTactical_Implementation(const stackType& stack, const movebitsType moveBits) noexcept
+		template<size_t PLAYER>
+		static bool isMoveTactical_Implementation(const stackType<PLAYER>& stack, const movebitsType moveBits) noexcept
 		{
 			return motorType::move().isCapture(moveBits);
 		}
-		static bool isGeneratedMoveLegal_Implementation(const stackType& stack, const movebitsType moveBits) noexcept
+		template<size_t PLAYER>
+		static bool isGeneratedMoveLegal_Implementation(const stackType<PLAYER>& stack, const movebitsType moveBits) noexcept
 		{
 			const boardType& position{ stack.position() };
 			const playerType movingPlayer{ position.movingPlayer() };
@@ -2915,7 +2968,8 @@ namespace pygmalion::chess
 			// The move seems legal
 			return true;
 		}
-		static void generateMoves_Implementation(const stackType& stack, movelistType& moves, const passType currentPass) noexcept
+		template<size_t PLAYER>
+		static void generateMoves_Implementation(const stackType<PLAYER>& stack, movelistType& moves, const passType currentPass) noexcept
 		{
 			switch (static_cast<size_t>(currentPass))
 			{
@@ -2969,7 +3023,8 @@ namespace pygmalion::chess
 				break;
 			}
 		}
-		static void generateCriticalMoves_Implementation(const stackType& stack, movelistType& moves, const passType currentPass) noexcept
+		template<size_t PLAYER>
+		static void generateCriticalMoves_Implementation(const stackType<PLAYER>& stack, movelistType& moves, const passType currentPass) noexcept
 		{
 			switch (static_cast<size_t>(currentPass))
 			{
@@ -2990,7 +3045,8 @@ namespace pygmalion::chess
 				break;
 			};
 		}
-		static void generateCriticalEvasionMoves_Implementation(const stackType& stack, movelistType& moves, const passType currentPass) noexcept
+		template<size_t PLAYER>
+		static void generateCriticalEvasionMoves_Implementation(const stackType<PLAYER>& stack, movelistType& moves, const passType currentPass) noexcept
 		{
 			const squaresType totalOCC{ stack.position().totalOccupancy() };
 			const squaresType unoccupied{ ~totalOCC };
@@ -3306,7 +3362,8 @@ namespace pygmalion::chess
 				moves.add(motorType::move().createCapture(king, square));
 			}
 		}
-		static void generateTacticalCriticalEvasionMoves_Implementation(const stackType& stack, movelistType& moves, const passType currentPass) noexcept
+		template<size_t PLAYER>
+		static void generateTacticalCriticalEvasionMoves_Implementation(const stackType<PLAYER>& stack, movelistType& moves, const passType currentPass) noexcept
 		{
 			const squaresType totalOCC{ stack.position().totalOccupancy() };
 			const squaresType unoccupied{ ~totalOCC };
@@ -3498,7 +3555,8 @@ namespace pygmalion::chess
 				moves.add(motorType::move().createCapture(king, square));
 			}
 		}
-		static void generateQuietCriticalMoves_Implementation(const stackType& stack, movelistType& moves, const passType currentPass) noexcept
+		template<size_t PLAYER>
+		static void generateQuietCriticalMoves_Implementation(const stackType<PLAYER>& stack, movelistType& moves, const passType currentPass) noexcept
 		{
 			switch (static_cast<size_t>(currentPass))
 			{
@@ -3519,7 +3577,8 @@ namespace pygmalion::chess
 				break;
 			}
 		}
-		static void generateTacticalMoves_Implementation(const stackType& stack, movelistType& moves, const passType currentPass) noexcept
+		template<size_t PLAYER>
+		static void generateTacticalMoves_Implementation(const stackType<PLAYER>& stack, movelistType& moves, const passType currentPass) noexcept
 		{
 			switch (static_cast<size_t>(currentPass))
 			{
@@ -3549,7 +3608,8 @@ namespace pygmalion::chess
 				break;
 			};
 		}
-		static void movesFromSquare(const stackType& stack, const squareType square, squaresType& moves, squaresType& captures, const size_t depth) noexcept
+		template<size_t PLAYER>
+		static void movesFromSquare(const stackType<PLAYER>& stack, const squareType square, squaresType& moves, squaresType& captures, const size_t depth) noexcept
 		{
 			const boardType& position{ stack.position() };
 			moves = squaresType::none();
@@ -3575,7 +3635,200 @@ namespace pygmalion::chess
 				}
 			}
 		}
-		static std::string moveToString_Implementation(const stackType& stack, const movebitsType mv, const size_t depth) noexcept;
+		template<size_t PLAYER>
+		static std::string moveToString_Implementation(const stackType<PLAYER>& stack, const movebitsType mv, const size_t depth) noexcept
+		{
+			const boardType& position{ stack.position() };
+			const squareType from{ motorType::move().fromSquare(position,mv) };
+			const squareType to{ motorType::move().toSquare(position,mv) };
+			const pieceType piece{ position.getPiece(from) };
+			const playerType side{ position.movingPlayer() };
+			if (motorType::move().isKingsideCastle(mv))
+				return "O-O";
+			if (motorType::move().isQueensideCastle(mv))
+				return "O-O-O";
+			std::string ret = "";
+			switch (piece)
+			{
+			default:
+				PYGMALION_UNREACHABLE;
+				break;
+			case pawn:
+				break;
+			case knight:
+				ret += "N";
+				break;
+			case bishop:
+				ret += "B";
+				break;
+			case rook:
+				ret += "R";
+				break;
+			case queen:
+				ret += "Q";
+				break;
+			case king:
+				ret += "K";
+				break;
+			}
+			int countamb{ 0 };
+			for (const auto sq : squareType::range)
+			{
+				if ((position.pieceOccupancy(piece) & position.playerOccupancy(side))[sq])
+				{
+					squaresType captures{ squaresType::none() };
+					squaresType moves{ squaresType::none() };
+					generatorType::movesFromSquare(stack, sq, moves, captures, depth);
+					if ((captures | moves)[to])
+					{
+						countamb++;
+					}
+				}
+			}
+			if (countamb > 1)
+			{
+				const auto file{ from.file() };
+				countamb = 0;
+				for (const auto sq : squareType::range)
+				{
+					if ((position.pieceOccupancy(piece) & position.playerOccupancy(side))[sq])
+					{
+						squaresType captures{ squaresType::none() };
+						squaresType moves{ squaresType::none() };
+						generatorType::movesFromSquare(stack, sq, moves, captures, depth);
+						if ((captures | moves)[to])
+						{
+							if (sq.file() == file)
+								countamb++;
+						}
+					}
+				}
+				if (countamb > 1)
+				{
+					const auto rank{ from.rank() };
+					countamb = 0;
+					for (const auto sq : squareType::range)
+					{
+						if ((position.pieceOccupancy(piece) & position.playerOccupancy(side))[sq])
+						{
+							squaresType captures{ squaresType::none() };
+							squaresType moves{ squaresType::none() };
+							generatorType::movesFromSquare(stack, sq, moves, captures, depth);
+							if ((captures | moves)[to])
+							{
+								if (sq.rank() == rank)
+									countamb++;
+							}
+						}
+					}
+					if (countamb > 1)
+					{
+						ret += boardType::squareToString(from);
+					}
+					else
+					{
+						switch (rank)
+						{
+						default:
+							PYGMALION_UNREACHABLE;
+							break;
+						case 0:
+							ret += "1";
+							break;
+						case 1:
+							ret += "2";
+							break;
+						case 2:
+							ret += "3";
+							break;
+						case 3:
+							ret += "4";
+							break;
+						case 4:
+							ret += "5";
+							break;
+						case 5:
+							ret += "6";
+							break;
+						case 6:
+							ret += "7";
+							break;
+						case 7:
+							ret += "8";
+							break;
+						}
+					}
+				}
+				else
+				{
+					switch (file)
+					{
+					default:
+						PYGMALION_UNREACHABLE;
+						break;
+					case 0:
+						ret += "a";
+						break;
+					case 1:
+						ret += "b";
+						break;
+					case 2:
+						ret += "c";
+						break;
+					case 3:
+						ret += "d";
+						break;
+					case 4:
+						ret += "e";
+						break;
+					case 5:
+						ret += "f";
+						break;
+					case 6:
+						ret += "g";
+						break;
+					case 7:
+						ret += "h";
+						break;
+					}
+				}
+			}
+			if (motorType::move().isCapture(mv))
+			{
+				ret += "x";
+				if (motorType::move().isEnPassant(mv))
+				{
+					ret = ret + boardType::squareToString(motorType::move().captureSquare(position, mv));
+					ret += "ep";
+				}
+				else
+					ret = ret + boardType::squareToString(to);
+			}
+			else
+				ret = ret + boardType::squareToString(to);
+			if (motorType::move().isPromotion(mv))
+			{
+				switch (motorType::move().promotedPiece(mv))
+				{
+				default:
+					PYGMALION_UNREACHABLE;
+					break;
+				case knight:
+					ret += "=N";
+					break;
+				case bishop:
+					ret += "=B";
+					break;
+				case rook:
+					ret += "=R";
+					break;
+				case queen:
+					ret += "=Q";
+					break;
+				}
+			}
+			return ret;
+		}
 		static std::string passToString_Implementation(const passType pass) noexcept;
 		static std::string tacticalPassToString_Implementation(const passType tacticalPass) noexcept;
 		static std::string tacticalCriticalEvasionPassToString_Implementation(const passType tacticalCriticalEvasionPass) noexcept;
@@ -3602,7 +3855,8 @@ namespace pygmalion::chess
 		{
 			return m_NullMove;
 		}
-		static bool isMoveCritical_Implementation(const stackType& stack, const movebitsType moveBits) noexcept
+		template<size_t PLAYER>
+		static bool isMoveCritical_Implementation(const stackType<PLAYER>& stack, const movebitsType moveBits) noexcept
 		{
 			const boardType& position{ stack.position() };
 			const playerType movingPlayer{ position.movingPlayer() };
@@ -3670,7 +3924,8 @@ namespace pygmalion::chess
 			// The move seems not to be giving check
 			return false;
 		}
-		static bool isPositionCritical_Implementation(const stackType& stack) noexcept
+		template<size_t PLAYER>
+		static bool isPositionCritical_Implementation(const stackType<PLAYER>& stack) noexcept
 		{
 			return generatorType::isAttacked(stack.position(), stack.kingSquare(stack.movingPlayer()), stack.nextPlayer());
 		}

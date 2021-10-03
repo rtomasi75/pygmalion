@@ -5,9 +5,36 @@ namespace pygmalion::chess::evaluation
 	{
 	public:
 		using evaluatorType = evaluator;
-		using stackType = typename generatorType::stackType;
+		template<size_t PLAYER>
+		using stackType = typename generatorType::template stackType<PLAYER>;
 		using descriptorEvaluation = descriptor_evaluation;
 #include <pygmalion-evaluation/include_evaluation.h>
+	private:
+		template<size_t PLAYER>
+		void process(const std::string& token, const movebitsType movebits) noexcept
+		{
+			if constexpr (PLAYER < countPlayers)
+			{
+				constexpr const playerType player{ static_cast<playerType>(PLAYER) };
+				if (player == this->position().movingPlayer())
+				{
+					typename generatorType::contextType context;
+					stackType<PLAYER> stack{ stackType<PLAYER>(this->position(), this->history(), &context) };
+					if (generatorType::isMoveLegal(stack, movebits))
+					{
+						materialScore score{ evaluatorType::staticExchange(movebits, this->position()) };
+						this->output() << "static exchange evaluation for " << motorType::moveToString(this->position(), movebits) << ":" << std::endl;
+						this->output() << score;
+					}
+					else
+						this->output() << token << " is not a legal move." << std::endl;
+				}
+				else
+					this->template process<PLAYER + 1>(token, movebits);
+			}
+			else
+				PYGMALION_ASSERT(false);
+		}
 	protected:
 		virtual bool onProcess(const std::string& cmd) noexcept override;
 		virtual std::string help() noexcept override

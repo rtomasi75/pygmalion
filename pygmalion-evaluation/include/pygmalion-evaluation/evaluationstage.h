@@ -13,9 +13,10 @@ namespace pygmalion
 		{
 			return instanceType::computeDelta_Implementation();
 		}
-		static scoreType evaluate(const typename generatorType::stackType& stack) noexcept
+		template<size_t PLAYER>
+		static scoreType evaluate(const typename generatorType::template stackType<PLAYER>& stack) noexcept
 		{
-			return instanceType::evaluate_Implementation(stack);
+			return instanceType::template evaluate_Implementation<PLAYER>(stack);
 		}
 		static std::string name() noexcept
 		{

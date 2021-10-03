@@ -28,8 +28,8 @@ namespace pygmalion
 			else
 				return sc2;
 		}
-		template<typename STAGE, typename... STAGES2>
-		static scoreType computeStages(const scoreType alpha, const scoreType beta, const scoreType sc, const typename generatorType::stackType& stack) noexcept
+		template<size_t PLAYER, typename STAGE, typename... STAGES2>
+		static scoreType computeStages(const scoreType alpha, const scoreType beta, const scoreType sc, const typename generatorType::template stackType<PLAYER>& stack) noexcept
 		{
 			scoreType sc2{ sc };
 			constexpr const scoreType delta{ computeDelta<STAGE,STAGES2...>() };
@@ -37,7 +37,7 @@ namespace pygmalion
 			{
 				sc2 += STAGE::evaluate(stack);
 				if constexpr (sizeof...(STAGES2) > 0)
-					return evaluatorType::template computeStages<STAGES2...>(alpha, beta, sc2, stack);
+					return evaluatorType::template computeStages<PLAYER, STAGES2...>(alpha, beta, sc2, stack);
 			}
 			return sc2;
 		}
@@ -64,15 +64,15 @@ namespace pygmalion
 				}
 			}
 		}
-		template<typename STAGE, typename... STAGES2>
-		static scoreType stageScores(const size_t index, const size_t counter, const typename generatorType::stackType& stack) noexcept
+		template<size_t PLAYER, typename STAGE, typename... STAGES2>
+		static scoreType stageScores(const size_t index, const size_t counter, const typename generatorType::template stackType<PLAYER>& stack) noexcept
 		{
 			if (index == counter)
-				return STAGE::evaluate(stack);
+				return STAGE::template evaluate<PLAYER>(stack);
 			else
 			{
 				if constexpr (sizeof...(STAGES2) > 0)
-					return evaluatorType::template stageScores<STAGES2...>(index, counter + 1, stack);
+					return evaluatorType::template stageScores<PLAYER, STAGES2...>(index, counter + 1, stack);
 				else
 				{
 					PYGMALION_ASSERT(false);
@@ -92,9 +92,10 @@ namespace pygmalion
 			return (approx + delta <= alpha) && (approx + delta < beta);
 		}
 	public:
-		static scoreType computeMaterial(const typename generatorType::stackType& stack) noexcept
+		template<size_t PLAYER>
+		static scoreType computeMaterial(const typename generatorType::template stackType<PLAYER>& stack) noexcept
 		{
-			return evaluatorType::computeMaterial_Implementation(stack);
+			return evaluatorType::template computeMaterial_Implementation<PLAYER>(stack);
 		}
 		constexpr static inline size_t countStages{ sizeof...(STAGES) };
 		static std::string stageName(const size_t index) noexcept
@@ -107,10 +108,11 @@ namespace pygmalion
 				return "???";
 			}
 		}
-		static scoreType stageScore(const size_t index, const typename generatorType::stackType& stack) noexcept
+		template<size_t PLAYER>
+		static scoreType stageScore(const size_t index, const typename generatorType::template stackType<PLAYER>& stack) noexcept
 		{
-			if constexpr(sizeof...(STAGES) > 0)
-				return evaluatorType::template stageScores<STAGES...>(index, 0, stack);
+			if constexpr (sizeof...(STAGES) > 0)
+				return evaluatorType::template stageScores<PLAYER, STAGES...>(index, 0, stack);
 			else
 			{
 				PYGMALION_ASSERT(false);
@@ -122,27 +124,29 @@ namespace pygmalion
 		{
 			return evaluatorType::commandsImplementation();
 		}
-		static scoreType evaluate(const scoreType& alpha, const scoreType& beta, const typename generatorType::stackType& stack) noexcept
+		template<size_t PLAYER>
+		static scoreType evaluate(const scoreType& alpha, const scoreType& beta, const typename generatorType::template stackType<PLAYER>& stack) noexcept
 		{
 			const scoreType sc{ computeMaterial(stack) };
 			if constexpr (sizeof...(STAGES) > 0)
-				return evaluatorType::template computeStages<STAGES...>(alpha, beta, sc, stack);
+				return evaluatorType::template computeStages<PLAYER, STAGES...>(alpha, beta, sc, stack);
 			else
 				return sc;
 		}
-		template<bool LAZY>
-		static gamestateType earlyResult(const typename generatorType::stackType& stack, bool& allowStoreTT) noexcept
+		template<size_t PLAYER, bool LAZY>
+		static gamestateType earlyResult(const typename generatorType::template stackType<PLAYER>& stack, bool& allowStoreTT) noexcept
 		{
 			if (!gamestateType::isOpen(stack.position().arbitration()))
 			{
 				allowStoreTT = false;
 				return stack.position().arbitration();
 			}
-			return evaluatorType::template earlyResult_Implementation<LAZY>(stack, allowStoreTT);
+			return evaluatorType::template earlyResult_Implementation<PLAYER, LAZY>(stack, allowStoreTT);
 		}
-		static gamestateType lateResult(const typename generatorType::stackType& stack) noexcept
+		template<size_t PLAYER>
+		static gamestateType lateResult(const typename generatorType::template stackType<PLAYER>& stack) noexcept
 		{
-			return evaluatorType::lateResult_Implementation(stack);
+			return evaluatorType::template lateResult_Implementation<PLAYER>(stack);
 		}
 		constexpr static scoreType aspirationWindowSize(const size_t index) noexcept
 		{

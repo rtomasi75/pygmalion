@@ -12,7 +12,8 @@ namespace pygmalion::chess
 		{
 			return static_cast<scoreType>(48.0 * Attack / 64.0);
 		}
-		static scoreType evaluate_Implementation(const generatorType::stackType& stack) noexcept
+		template<size_t PLAYER>
+		static scoreType evaluate_Implementation(const generatorType::template stackType<PLAYER>& stack) noexcept
 		{
 			const squaresType attackedByBlack{ stack.squaresAttackedByPlayer(blackPlayer) };
 			const squaresType attackedByWhite{ stack.squaresAttackedByPlayer(whitePlayer) };

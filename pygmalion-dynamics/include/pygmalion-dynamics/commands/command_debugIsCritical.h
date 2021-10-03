@@ -6,11 +6,33 @@ namespace pygmalion::dynamics
 	{
 	public:
 		using generatorType = GENERATOR;
-		using stackType = typename generatorType::stackType;
+		template<size_t PLAYER>
+		using stackType = typename generatorType::template stackType<PLAYER>;
 		using descriptorDynamics = DESCRIPTION_DYNAMICS;
 		using movegenFeedback = typename generatorType::movegenFeedback;
 #include "../include_dynamics.h"
 	private:
+		template<size_t PLAYER>
+		void process(const movebitsType movebits) noexcept
+		{
+			if constexpr (PLAYER < countPlayers)
+			{
+				constexpr const playerType player{ static_cast<playerType>(PLAYER) };
+				if (player == this->position().movingPlayer())
+				{
+					typename generatorType::contextType context;
+					stackType<PLAYER> stack{ stackType<PLAYER>(this->position(),this->history(), &context) };
+					if (generatorType::template isMoveCritical<PLAYER, stackType<PLAYER>>(stack, movebits))
+						this->output() << generatorType::moveToString(stack, movebits, this->history().length()) << " is a critical move" << std::endl;
+					else
+						this->output() << generatorType::moveToString(stack, movebits, this->history().length()) << " is NOT a critical move" << std::endl;
+				}
+				else
+					this->template process<PLAYER + 1>(movebits);
+			}
+			else
+				PYGMALION_ASSERT(false);
+		}
 	protected:
 		virtual bool onProcess(const std::string& cmd) noexcept override
 		{
@@ -25,12 +47,7 @@ namespace pygmalion::dynamics
 				movebitsType movebits;
 				if (motorType::parseMove(this->position(), token, movebits))
 				{
-					typename generatorType::contextType context;
-					stackType stack{ stackType(this->position(),this->history(), this->position().movingPlayer(), &context) };
-					if (generatorType::isMoveCritical(stack, movebits))
-						this->output() << generatorType::moveToString(stack, movebits, this->history().length()) << " is a critical move" << std::endl;
-					else
-						this->output() << generatorType::moveToString(stack, movebits, this->history().length()) << " is NOT a critical move" << std::endl;
+					this->template process<0>(movebits);
 				}
 				else
 					this->output() << token << " is not a possible move." << std::endl;

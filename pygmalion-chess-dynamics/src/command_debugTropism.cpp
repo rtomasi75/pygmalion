@@ -22,20 +22,7 @@ namespace pygmalion::chess::dynamics
 					pieceType pc;
 					playerType dummy;
 					if (boardType::parsePiece(token, pc, dummy))
-					{
-						typename generatorType::contextType context;
-						stackType stack(this->position(), this->history(), this->position().movingPlayer().next(), &context);
-						const squaresType whitePawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(whitePlayer) };
-						const squaresType blackPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(blackPlayer) };
-						const squareType whiteKing{ stack.kingSquare(whitePlayer) };
-						const squareType blackKing{ stack.kingSquare(blackPlayer) };
-						typename generatorType::tropismType tropism;
-						if (pl == whitePlayer)
-							tropism.compute(sq, whitePlayer, whitePawns, blackPawns, whiteKing, blackKing);
-						else
-							tropism.compute(sq, blackPlayer, blackPawns, whitePawns, blackKing, whiteKing);
-						tropism.dumpDistances(pc, this->output());
-					}
+						this->template process<0>(pl, sq, pc);
 					else
 						this->output() << "invalid piece: " << token << std::endl;
 				}

@@ -9,7 +9,32 @@ namespace pygmalion::search
 		using descriptorSearch = DESCRIPTION_SEARCH;
 #include "../include_search.h"	
 	private:
-		using stackType = typename generatorType::stackType;
+		template<size_t PLAYER>
+		using stackType = typename generatorType::template stackType<PLAYER>;
+		template<size_t PLAYER>
+		void process(const depthType depth) noexcept
+		{
+			if constexpr (PLAYER < countPlayers)
+			{
+				constexpr const playerType player{ static_cast<playerType>(PLAYER) };
+				if (player == this->position().movingPlayer())
+				{
+					for (depthType i = -1; i <= depth - 1; ++i)
+					{
+						variationType principalVariation;
+						scoreType score{ this->searchEngine().template pvs<0>(principalVariation, i) };
+						uint64_t nodeCount{ this->searchEngine().heuristics().nodeCount() };
+						this->output() << static_cast<int>(i + 1) << ": " << std::setw(12) << score << " - " << this->searchEngine().template variationToString<PLAYER>(principalVariation) << std::endl;
+						this->output() << this->searchEngine().heuristics().toString();
+						this->output() << std::endl;
+					}
+				}
+				else
+					this->template process<PLAYER + 1>(depth);
+			}
+			else
+				PYGMALION_ASSERT(false);
+		}
 	protected:
 		virtual bool onProcess(const std::string& cmd) noexcept override
 		{
@@ -20,15 +45,7 @@ namespace pygmalion::search
 			{
 				this->output() << std::endl;
 				depthType depth = parser::parseInt(remainder);
-				for (depthType i = - 1; i <= depth - 1; ++i)
-				{
-					variationType principalVariation;
-					scoreType score{ this->searchEngine().template pvs<0>(principalVariation, i) };
-					uint64_t nodeCount{ this->searchEngine().heuristics().nodeCount() };
-					this->output() << static_cast<int>(i + 1) << ": " << std::setw(12) << score << " - " << this->searchEngine().variationToString(principalVariation) << std::endl;
-					this->output() << this->searchEngine().heuristics().toString();
-					this->output() << std::endl;
-				}
+				this->template process<0>(depth);
 				this->output() << std::endl;
 				return true;
 			}
@@ -37,7 +54,7 @@ namespace pygmalion::search
 		}
 		virtual std::string help() noexcept override
 		{
-			return "DEBUG-(V)PVS";
+			return "DEBUG-PVS";
 		}
 	};
 

@@ -10,11 +10,4 @@ namespace pygmalion::chess
 		return list;
 	}
 
-	evaluator::gamestateType evaluator::lateResult_Implementation(const typename generatorType::stackType& stack) noexcept
-	{
-		if (stack.isPositionCritical())
-			return gamestateType::loss(stack.position().movingPlayer());
-		else
-			return gamestateType::draw();
-	}
 }

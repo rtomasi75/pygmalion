@@ -6,13 +6,16 @@ namespace pygmalion::dynamics
 	{
 	public:
 		using generatorType = GENERATOR;
-		using stackType = typename generatorType::stackType;
+		template<size_t PLAYER>
+		using stackType = typename generatorType::template stackType<PLAYER>;
 		using descriptorDynamics = DESCRIPTION_DYNAMICS;
-		using movegenFeedback = typename generatorType::movegenFeedback;
 #include "../include_dynamics.h"
+		using movegenFeedback = typename generatorType::movegenFeedback;
 	private:
-		bool verify(const stackType& stack, const size_t depth, const size_t maxDepth, movegenFeedback& feedback) noexcept
+		template<size_t PLAYER>
+		bool verify(const stackType<PLAYER>& stack, const size_t depth, const size_t maxDepth, movegenFeedback& feedback) noexcept
 		{
+			constexpr const playerType nextPlayer{ static_cast<playerType>(PLAYER).next() };
 			movebitsType moveBits;
 			std::uintmax_t counterMoves{ 0 };
 			std::uintmax_t counterCriticalMoves{ 0 };
@@ -23,7 +26,7 @@ namespace pygmalion::dynamics
 			{
 				while (stack.nextMove(moveBits, depth, feedback))
 				{
-					if (generatorType::isMoveCritical(stack, moveBits))
+					if (generatorType::template isMoveCritical<PLAYER, stackType<PLAYER>>(stack, moveBits))
 					{
 						counterMoves++;
 						moves.add(moveBits);
@@ -98,14 +101,14 @@ namespace pygmalion::dynamics
 			{
 				while (stack.nextMove(moveBits, depth, feedback))
 				{
-					if (generatorType::isMoveCritical(stack, moveBits))
+					if (generatorType::template isMoveCritical<PLAYER, stackType<PLAYER>>(stack, moveBits))
 					{
 						counterMoves++;
 						moves.add(moveBits);
 					}
 					{
-						const stackType substack{ stackType(stack,moveBits) };
-						bOk &= verify(substack, depth + 1, maxDepth, feedback);
+						const stackType<static_cast<size_t>(nextPlayer)> substack{ stackType<static_cast<size_t>(nextPlayer)>(stack,moveBits) };
+						bOk &= this->template verify<static_cast<size_t>(nextPlayer)>(substack, depth + 1, maxDepth, feedback);
 					}
 					if (!bOk)
 					{
@@ -183,6 +186,31 @@ namespace pygmalion::dynamics
 			}
 			return bOk;
 		}
+		template<size_t PLAYER>
+		void process(const size_t depth) noexcept
+		{
+			if constexpr (PLAYER < countPlayers)
+			{
+				constexpr const playerType player{ static_cast<playerType>(PLAYER) };
+				if (player == this->position().movingPlayer())
+				{
+					profiler p;
+					for (size_t i = 0; i < depth; i++)
+					{
+						p.start();
+						typename generatorType::contextType context;
+						stackType<PLAYER> stack{ stackType<PLAYER>(this->position(),this->history(),&context) };
+						const bool bOk{ this->template verify<PLAYER>(stack,0, i, this->feedback()) };
+						p.stop();
+						this->output() << std::endl << "depth: " << std::setw(2) << static_cast<int>(i + 1) << " verification: " << (bOk ? "OK" : "ERROR") << " time: " << parser::durationToString(p.duration()) << std::endl;
+					}
+				}
+				else
+					this->template process<PLAYER + 1>(depth);
+			}
+			else
+				PYGMALION_ASSERT(false);
+		}
 	protected:
 		virtual bool onProcess(const std::string& cmd) noexcept override
 		{
@@ -192,17 +220,8 @@ namespace pygmalion::dynamics
 			if (token == "debug-criticals")
 			{
 				size_t depth{ static_cast<size_t>(parser::parseInt(remainder)) };
-				profiler p;
 				this->output() << std::endl;
-				for (size_t i = 0; i < depth; i++)
-				{
-					p.start();
-					typename generatorType::contextType context;
-					stackType stack{ stackType(this->position(),this->history(), this->position().movingPlayer(),&context) };
-					const bool bOk{ verify(stack,0, i, this->feedback()) };
-					p.stop();
-					this->output() << std::endl << "depth: " << std::setw(2) << static_cast<int>(i + 1) << " verification: " << (bOk ? "OK" : "ERROR") << " time: " << parser::durationToString(p.duration()) << std::endl;
-				}
+				this->template process<0>(depth);
 				this->output() << std::endl;
 				return true;
 			}

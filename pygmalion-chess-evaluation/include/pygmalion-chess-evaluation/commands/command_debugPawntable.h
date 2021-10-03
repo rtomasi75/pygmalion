@@ -5,7 +5,8 @@ namespace pygmalion::chess::evaluation
 	{
 	public:
 		using evaluatorType = evaluator;
-		using stackType = typename generatorType::stackType;
+		template<size_t PLAYER>
+		using stackType = typename generatorType::template stackType<PLAYER>;
 		using descriptorEvaluation = descriptor_evaluation;
 #include <pygmalion-evaluation/include_evaluation.h>
 	protected:

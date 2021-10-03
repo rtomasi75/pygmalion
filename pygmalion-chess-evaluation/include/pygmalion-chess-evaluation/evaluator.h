@@ -4,7 +4,8 @@ namespace pygmalion::chess
 		public pygmalion::evaluator<descriptor_evaluation, evaluator, evaluationstage_attacks, evaluationstage_mobility, evaluationstage_control/*, evaluationstage_kingsafety*/>
 	{
 	public:
-		static scoreType computeMaterial_Implementation(const typename generatorType::stackType& stack) noexcept
+		template<size_t PLAYER>
+		static scoreType computeMaterial_Implementation(const typename generatorType::template stackType<PLAYER>& stack) noexcept
 		{
 			const scoreType mat{ static_cast<scoreType>(stack.position().material()) };
 			const bool invert{ stack.movingPlayer() == blackPlayer };
@@ -26,8 +27,8 @@ namespace pygmalion::chess
 			return 4;
 		}
 		static std::deque<std::shared_ptr<pygmalion::intrinsics::command>> commandsImplementation() noexcept;
-		template<bool LAZY>
-		static gamestateType earlyResult_Implementation(const generatorType::stackType& stack, bool& allowStoreTT) noexcept
+		template<size_t PLAYER, bool LAZY>
+		static gamestateType earlyResult_Implementation(const generatorType::template stackType<PLAYER>& stack, bool& allowStoreTT) noexcept
 		{
 			if constexpr (!LAZY)
 			{
@@ -106,7 +107,14 @@ namespace pygmalion::chess
 			}
 			return gamestateType::open();
 		}
-		static gamestateType lateResult_Implementation(const typename generatorType::stackType& stack) noexcept;
+		template<size_t PLAYER>
+		static gamestateType lateResult_Implementation(const typename generatorType::template stackType<PLAYER>& stack) noexcept
+		{
+			if (stack.isPositionCritical())
+				return gamestateType::loss(stack.position().movingPlayer());
+			else
+				return gamestateType::draw();
+		}
 		static squaresType leastValuablePiece(const boardType& position, const squaresType mask, const playerType side) noexcept
 		{
 			const squaresType occ{ position.playerOccupancy(side) & mask };

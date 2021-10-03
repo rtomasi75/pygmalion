@@ -700,6 +700,7 @@ namespace pygmalion
 				m_CriticalPasses.clear();
 			}
 		};
+		template<size_t PLAYER>
 		class stack :
 			public DESCRIPTOR_DYNAMICS
 		{
@@ -709,7 +710,13 @@ namespace pygmalion
 #include "include_dynamics.h"
 			using contextType = typename generatorType::contextType;
 		private:
-			const stack* m_pParent;
+			constexpr static inline const playerType m_MovingPlayer{ static_cast<playerType>(PLAYER) };
+			constexpr static inline const playerType m_NextPlayer{ m_MovingPlayer.next() };
+		public:
+			using parentType = stack< static_cast<size_t>(m_MovingPlayer.previous())>;
+			friend stack< static_cast<size_t>(m_MovingPlayer.next())>;
+		private:
+			const parentType* m_pParent;
 			contextType* m_pContext;
 			boardType& m_Position;
 			historyType& m_History;
@@ -724,8 +731,6 @@ namespace pygmalion
 			mutable indexType m_CurrentTacticalMove;
 			mutable indexType m_CurrentCriticalMove;
 			mutable indexType m_CurrentLegalMove;
-			const playerType m_MovingPlayer;
-			const playerType m_NextPlayer;
 			mutable bool m_HasLegalMove;
 			mutable bool m_HasLegalMoveValid;
 			mutable bool m_IsPositionCriticalValid{ false };
@@ -746,14 +751,14 @@ namespace pygmalion
 								allMovesGenerated = true;
 								return false;
 							}
-							generatorType::generateCriticalEvasionMoves(*static_cast<const typename generatorType::stackType*>(this), m_pContext->moves(), feedback.index(m_CurrentPass, depth));
+							generatorType::generateCriticalEvasionMoves(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->moves(), feedback.index(m_CurrentPass, depth));
 							while (m_pContext->passes().length() < m_pContext->moves().length())
 								m_pContext->passes().add(m_CurrentPass);
 							++m_CurrentPass;
 						}
 						while (m_CurrentLegalMove < m_pContext->moves().length())
 						{
-							if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::stackType*>(this), m_pContext->moves()[m_CurrentLegalMove]))
+							if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->moves()[m_CurrentLegalMove]))
 								return true;
 							++m_CurrentLegalMove;
 						}
@@ -770,14 +775,14 @@ namespace pygmalion
 								allMovesGenerated = true;
 								return false;
 							}
-							generatorType::generateMoves(*static_cast<const typename generatorType::stackType*>(this), m_pContext->moves(), feedback.index(m_CurrentPass, depth));
+							generatorType::generateMoves(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->moves(), feedback.index(m_CurrentPass, depth));
 							while (m_pContext->passes().length() < m_pContext->moves().length())
 								m_pContext->passes().add(m_CurrentPass);
 							++m_CurrentPass;
 						}
 						while (m_CurrentLegalMove < m_pContext->moves().length())
 						{
-							if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::stackType*>(this), m_pContext->moves()[m_CurrentLegalMove]))
+							if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->moves()[m_CurrentLegalMove]))
 								return true;
 							++m_CurrentLegalMove;
 						}
@@ -790,7 +795,7 @@ namespace pygmalion
 			{
 				if (!m_IsPositionCriticalValid)
 				{
-					m_IsPositionCritical = generatorType::isPositionCritical(*static_cast<const typename generatorType::stackType*>(this));
+					m_IsPositionCritical = generatorType::isPositionCritical(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this));
 					m_IsPositionCriticalValid = true;
 				}
 				return m_IsPositionCritical;
@@ -862,7 +867,7 @@ namespace pygmalion
 								allMovesGenerated = true;
 								return false;
 							}
-							generatorType::generateCriticalEvasionMoves(*static_cast<const typename generatorType::stackType*>(this), m_pContext->moves(), feedback.criticalEvasionIndex(m_CurrentPass, depth));
+							generatorType::generateCriticalEvasionMoves(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->moves(), feedback.criticalEvasionIndex(m_CurrentPass, depth));
 							while (m_pContext->passes().length() < m_pContext->moves().length())
 								m_pContext->passes().add(m_CurrentPass);
 							++m_CurrentPass;
@@ -871,7 +876,7 @@ namespace pygmalion
 						{
 							moveBits = m_pContext->moves()[m_CurrentMove];
 							++m_CurrentMove;
-							if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::stackType*>(this), moveBits))
+							if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits))
 							{
 								m_LastPass = m_pContext->passes()[m_CurrentMove - 1];
 								return true;
@@ -890,7 +895,7 @@ namespace pygmalion
 								allMovesGenerated = true;
 								return false;
 							}
-							generatorType::generateMoves(*static_cast<const typename generatorType::stackType*>(this), m_pContext->moves(), feedback.index(m_CurrentPass, depth));
+							generatorType::generateMoves(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->moves(), feedback.index(m_CurrentPass, depth));
 							while (m_pContext->passes().length() < m_pContext->moves().length())
 								m_pContext->passes().add(m_CurrentPass);
 							++m_CurrentPass;
@@ -899,7 +904,7 @@ namespace pygmalion
 						{
 							moveBits = m_pContext->moves()[m_CurrentMove];
 							++m_CurrentMove;
-							if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::stackType*>(this), moveBits))
+							if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits))
 							{
 								m_LastPass = m_pContext->passes()[m_CurrentMove - 1];
 								return true;
@@ -924,7 +929,7 @@ namespace pygmalion
 								allMovesGenerated = true;
 								return false;
 							}
-							generatorType::generateCriticalEvasionMoves(*static_cast<const typename generatorType::stackType*>(this), m_pContext->moves(), feedback.criticalEvasionIndex(m_CurrentPass, depth));
+							generatorType::generateCriticalEvasionMoves(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->moves(), feedback.criticalEvasionIndex(m_CurrentPass, depth));
 							const auto start{ m_pContext->passes().length() };
 							while (m_pContext->passes().length() < m_pContext->moves().length())
 							{
@@ -938,7 +943,7 @@ namespace pygmalion
 						{
 							moveBits = m_pContext->moves()[m_CurrentMove];
 							++m_CurrentMove;
-							if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::stackType*>(this), moveBits))
+							if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits))
 							{
 								m_LastPass = m_pContext->passes()[m_CurrentMove - 1];
 								return true;
@@ -957,7 +962,7 @@ namespace pygmalion
 								allMovesGenerated = true;
 								return false;
 							}
-							generatorType::generateMoves(*static_cast<const typename generatorType::stackType*>(this), m_pContext->moves(), feedback.index(m_CurrentPass, depth));
+							generatorType::generateMoves(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->moves(), feedback.index(m_CurrentPass, depth));
 							const auto start{ m_pContext->passes().length() };
 							while (m_pContext->passes().length() < m_pContext->moves().length())
 							{
@@ -971,7 +976,7 @@ namespace pygmalion
 						{
 							moveBits = m_pContext->moves()[m_CurrentMove];
 							++m_CurrentMove;
-							if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::stackType*>(this), moveBits))
+							if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits))
 							{
 								m_LastPass = m_pContext->passes()[m_CurrentMove - 1];
 								return true;
@@ -995,7 +1000,7 @@ namespace pygmalion
 								allMovesGenerated = true;
 								return false;
 							}
-							generatorType::generateTacticalCriticalEvasionMoves(*static_cast<const typename generatorType::stackType*>(this), m_pContext->tacticalMoves(), feedback.tacticalCriticalEvasionIndex(m_CurrentTacticalPass, depth));
+							generatorType::generateTacticalCriticalEvasionMoves(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->tacticalMoves(), feedback.tacticalCriticalEvasionIndex(m_CurrentTacticalPass, depth));
 							const auto start{ m_pContext->tacticalPasses().length() };
 							while (m_pContext->tacticalPasses().length() < m_pContext->tacticalMoves().length())
 								m_pContext->tacticalPasses().add(m_CurrentTacticalPass);
@@ -1005,7 +1010,7 @@ namespace pygmalion
 						{
 							moveBits = m_pContext->tacticalMoves()[m_CurrentTacticalMove];
 							++m_CurrentTacticalMove;
-							if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::stackType*>(this), moveBits))
+							if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits))
 							{
 								m_LastTacticalPass = m_pContext->tacticalPasses()[m_CurrentTacticalMove - 1];
 								return true;
@@ -1024,7 +1029,7 @@ namespace pygmalion
 								allMovesGenerated = true;
 								return false;
 							}
-							generatorType::generateTacticalMoves(*static_cast<const typename generatorType::stackType*>(this), m_pContext->tacticalMoves(), feedback.tacticalIndex(m_CurrentTacticalPass, depth));
+							generatorType::generateTacticalMoves(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->tacticalMoves(), feedback.tacticalIndex(m_CurrentTacticalPass, depth));
 							const auto start{ m_pContext->tacticalPasses().length() };
 							while (m_pContext->tacticalPasses().length() < m_pContext->tacticalMoves().length())
 								m_pContext->tacticalPasses().add(m_CurrentTacticalPass);
@@ -1034,7 +1039,7 @@ namespace pygmalion
 						{
 							moveBits = m_pContext->tacticalMoves()[m_CurrentTacticalMove];
 							++m_CurrentTacticalMove;
-							if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::stackType*>(this), moveBits))
+							if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits))
 							{
 								m_LastTacticalPass = m_pContext->tacticalPasses()[m_CurrentTacticalMove - 1];
 								return true;
@@ -1059,7 +1064,7 @@ namespace pygmalion
 								allMovesGenerated = true;
 								return false;
 							}
-							generatorType::generateTacticalCriticalEvasionMoves(*static_cast<const typename generatorType::stackType*>(this), m_pContext->tacticalMoves(), feedback.tacticalCriticalEvasionIndex(m_CurrentTacticalPass, depth));
+							generatorType::generateTacticalCriticalEvasionMoves(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->tacticalMoves(), feedback.tacticalCriticalEvasionIndex(m_CurrentTacticalPass, depth));
 							const auto start{ m_pContext->tacticalPasses().length() };
 							while (m_pContext->tacticalPasses().length() < m_pContext->tacticalMoves().length())
 							{
@@ -1073,7 +1078,7 @@ namespace pygmalion
 						{
 							moveBits = m_pContext->tacticalMoves()[m_CurrentTacticalMove];
 							++m_CurrentTacticalMove;
-							if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::stackType*>(this), moveBits))
+							if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits))
 							{
 								m_LastTacticalPass = m_pContext->tacticalPasses()[m_CurrentTacticalMove - 1];
 								return true;
@@ -1092,7 +1097,7 @@ namespace pygmalion
 								allMovesGenerated = true;
 								return false;
 							}
-							generatorType::generateTacticalMoves(*static_cast<const typename generatorType::stackType*>(this), m_pContext->tacticalMoves(), feedback.tacticalIndex(m_CurrentTacticalPass, depth));
+							generatorType::generateTacticalMoves(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->tacticalMoves(), feedback.tacticalIndex(m_CurrentTacticalPass, depth));
 							const auto start{ m_pContext->tacticalPasses().length() };
 							while (m_pContext->tacticalPasses().length() < m_pContext->tacticalMoves().length())
 							{
@@ -1106,7 +1111,7 @@ namespace pygmalion
 						{
 							moveBits = m_pContext->tacticalMoves()[m_CurrentTacticalMove];
 							++m_CurrentTacticalMove;
-							if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::stackType*>(this), moveBits))
+							if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits))
 							{
 								m_LastTacticalPass = m_pContext->tacticalPasses()[m_CurrentTacticalMove - 1];
 								return true;
@@ -1128,7 +1133,7 @@ namespace pygmalion
 							allMovesGenerated = true;
 							return false;
 						}
-						generatorType::generateCriticalMoves(*static_cast<const typename generatorType::stackType*>(this), m_pContext->criticalMoves(), feedback.criticalIndex(m_CurrentCriticalPass, depth));
+						generatorType::generateCriticalMoves(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->criticalMoves(), feedback.criticalIndex(m_CurrentCriticalPass, depth));
 						const auto start{ m_pContext->criticalPasses().length() };
 						while (m_pContext->criticalPasses().length() < m_pContext->criticalMoves().length())
 							m_pContext->criticalPasses().add(m_CurrentCriticalPass);
@@ -1138,7 +1143,7 @@ namespace pygmalion
 					{
 						moveBits = m_pContext->criticalMoves()[m_CurrentCriticalMove];
 						++m_CurrentCriticalMove;
-						if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::stackType*>(this), moveBits))
+						if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits))
 						{
 							m_LastCriticalPass = m_pContext->criticalPasses()[m_CurrentCriticalMove - 1];
 							return true;
@@ -1160,7 +1165,7 @@ namespace pygmalion
 							allMovesGenerated = true;
 							return false;
 						}
-						generatorType::generateCriticalMoves(*static_cast<const typename generatorType::stackType*>(this), m_pContext->criticalMoves(), feedback.criticalIndex(m_CurrentCriticalPass, depth));
+						generatorType::generateCriticalMoves(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->criticalMoves(), feedback.criticalIndex(m_CurrentCriticalPass, depth));
 						const auto start{ m_pContext->criticalPasses().length() };
 						while (m_pContext->criticalPasses().length() < m_pContext->criticalMoves().length())
 						{
@@ -1174,7 +1179,7 @@ namespace pygmalion
 					{
 						moveBits = m_pContext->criticalMoves()[m_CurrentCriticalMove];
 						++m_CurrentCriticalMove;
-						if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::stackType*>(this), moveBits))
+						if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits))
 						{
 							m_LastCriticalPass = m_pContext->criticalPasses()[m_CurrentCriticalMove - 1];
 							return true;
@@ -1183,7 +1188,7 @@ namespace pygmalion
 				}
 				return false;
 			}
-			stack(const stack& parent, const movebitsType moveBits) noexcept :
+			stack(const parentType& parent, const movebitsType moveBits) noexcept :
 				m_pContext{ parent.m_pContext + 1 },
 				m_pParent{ &parent },
 				m_Position{ parent.m_Position },
@@ -1198,8 +1203,6 @@ namespace pygmalion
 				m_CurrentCriticalMove{ 0 },
 				m_CurrentLegalMove{ 0 },
 				m_MoveData(motorType::move().doMove(m_Position, moveBits)),
-				m_MovingPlayer{ m_Position.movingPlayer() },
-				m_NextPlayer{ m_MovingPlayer.next() },
 				m_IsNullmove{ false },
 				m_LastPass{ 0 },
 				m_LastTacticalPass{ 0 },
@@ -1208,7 +1211,7 @@ namespace pygmalion
 			{
 				m_pContext->clearMovegenLists();
 			}
-			stack(boardType& position, historyType& history, const playerType oldPlayer, contextType* pContext) noexcept :
+			stack(boardType& position, historyType& history, contextType* pContext) noexcept :
 				m_pContext{ pContext },
 				m_pParent{ nullptr },
 				m_Position{ position },
@@ -1223,8 +1226,6 @@ namespace pygmalion
 				m_CurrentCriticalMove{ 0 },
 				m_CurrentLegalMove{ 0 },
 				m_MoveData(),
-				m_MovingPlayer{ m_Position.movingPlayer() },
-				m_NextPlayer{ m_MovingPlayer.next() },
 				m_IsNullmove{ true },
 				m_LastPass{ 0 },
 				m_LastTacticalPass{ 0 },
@@ -1232,6 +1233,7 @@ namespace pygmalion
 				m_Hash{ m_Position.hash() }
 			{
 				m_pContext->clearMovegenLists();
+				PYGMALION_ASSERT(position.movingPlayer() == m_MovingPlayer);
 			}
 			constexpr contextType* getContext() const noexcept
 			{
@@ -1260,7 +1262,7 @@ namespace pygmalion
 			}
 			std::string moveToString(const movebitsType moveBits, const size_t depth) const
 			{
-				return generatorType::moveToString(*static_cast<const typename generatorType::stackType*>(this), moveBits, depth);
+				return generatorType::moveToString(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits, depth);
 			}
 			constexpr bool occurs(const boardType& position, const int times, const int start, const int frequency) const noexcept
 			{
@@ -1379,20 +1381,22 @@ namespace pygmalion
 		{
 			return generatorType::isGeneratedMoveLegal_Implementation(stack, moveBits);
 		}
-		template<typename stackType>
+		template<size_t PLAYER, typename stackType>
 		static std::uintmax_t perft(const stackType& stack, const size_t depthRemaining, const size_t depth, std::uintmax_t& nodes, movegenFeedback& feedback) noexcept
 		{
 			if (depthRemaining <= 0)
 				return 1;
 			else
 			{
+				constexpr const playerType player{ static_cast<playerType>(PLAYER) };
 				movebitsType mb;
 				std::uintmax_t count{ 0 };
 				while (stack.nextMove(mb, depth, feedback))
 				{
 					nodes++;
-					stackType subStack(stack, mb);
-					count += generator::perft(subStack, depthRemaining - 1, depth + 1, nodes, feedback);
+					using subStackType = typename generatorType::template stackType<static_cast<size_t>(player.next())>;
+					subStackType subStack{ subStackType(stack, mb) };
+					count += generator::perft<static_cast<size_t>(player.next()), subStackType>(subStack, depthRemaining - 1, depth + 1, nodes, feedback);
 				}
 				return count;
 			}
@@ -1423,10 +1427,10 @@ namespace pygmalion
 		{
 			return generatorType::nullMove_Implementation();
 		}
-		template<typename stackType>
+		template<size_t PLAYER, typename stackType>
 		constexpr static bool isMoveCritical(const stackType& stack, const movebitsType moveBits) noexcept
 		{
-			return generatorType::isMoveCritical_Implementation(stack, moveBits);
+			return generatorType::template isMoveCritical_Implementation<PLAYER>(stack, moveBits);
 		}
 		static void dumpSquares(const squaresType& squares) noexcept
 		{

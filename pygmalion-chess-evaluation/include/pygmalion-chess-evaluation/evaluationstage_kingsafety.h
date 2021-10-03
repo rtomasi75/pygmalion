@@ -36,7 +36,8 @@ namespace pygmalion::chess
 		};
 		static inline scoreLookUp m_KingAreaSafetyScores{ scoreLookUp(KingAreaSafety) };
 		static inline scoreLookUp m_KingSafetyScores{ scoreLookUp(KingSafety) };
-		static scoreType scoreKingsafety(const generatorType::stackType& stack, const playerType player) noexcept
+		template<size_t PLAYER>
+		static scoreType scoreKingsafety(const generatorType::template stackType<PLAYER>& stack, const playerType player) noexcept
 		{
 			const playerType otherPlayer{ player.next() };
 			const squareType kingSquare{ stack.kingSquare(player) };
@@ -70,10 +71,11 @@ namespace pygmalion::chess
 		{
 			return static_cast<scoreType>(0.5 * (KingSafety + KingAreaSafety));
 		}
-		static scoreType evaluate_Implementation(const generatorType::stackType& stack) noexcept
+		template<size_t PLAYER>
+		static scoreType evaluate_Implementation(const generatorType::template stackType<PLAYER>& stack) noexcept
 		{
-			const scoreType kingSafetyWhite{ scoreKingsafety(stack,whitePlayer) };
-			const scoreType kingSafetyBlack{ scoreKingsafety(stack,blackPlayer) };
+			const scoreType kingSafetyWhite{ scoreKingsafety<PLAYER>(stack,whitePlayer) };
+			const scoreType kingSafetyBlack{ scoreKingsafety<PLAYER>(stack,blackPlayer) };
 			const scoreType scoreKingSafety{ kingSafetyWhite - kingSafetyBlack };
 			const bool invert{ stack.movingPlayer() == blackPlayer };
 			return invert ? -scoreKingSafety : scoreKingSafety;

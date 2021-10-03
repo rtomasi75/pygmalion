@@ -10,7 +10,8 @@ namespace pygmalion
 	public:
 		using generatorType = GENERATOR;
 		using descriptorDynamics = typename GENERATOR::descriptorDynamics;
-		using stackType = typename generatorType::stackType;
+		template<size_t PLAYER>
+		using stackType = typename generatorType::template stackType<PLAYER>;
 
 	}; 
 

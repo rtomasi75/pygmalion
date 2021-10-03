@@ -13,7 +13,8 @@ namespace pygmalion::chess
 		{
 			return ControlDelta;
 		}
-		static scoreType evaluate_Implementation(const generatorType::stackType& stack) noexcept
+		template<size_t PLAYER>
+		static scoreType evaluate_Implementation(const generatorType::template stackType<PLAYER>& stack) noexcept
 		{
 			squaresType controlledByBlack;
 			squaresType controlledByWhite;

@@ -15,6 +15,7 @@ namespace pygmalion::chess
 			constexpr static inline const playerType otherPlayer{ movingPlayer.next() };
 			using parentType = node< static_cast<size_t>(movingPlayer.previous())>;
 			using childType = node< static_cast<size_t>(movingPlayer.next())>;
+			using stackType = typename generatorType::template stackType<PLAYER>;
 			node(const stackType& stack, std::atomic_bool& isRunning, heuristicsType& heuristics) noexcept :
 				pygmalion::gametree<descriptor_search, gametree>::node<PLAYER, node<PLAYER>>(stack, isRunning, heuristics)
 			{

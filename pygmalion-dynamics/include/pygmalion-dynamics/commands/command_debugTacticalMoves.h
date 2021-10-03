@@ -6,30 +6,48 @@ namespace pygmalion::dynamics
 	{
 	public:
 		using generatorType = GENERATOR;
-		using stackType = typename generatorType::stackType;
+		template<size_t PLAYER>
+		using stackType = typename generatorType::template stackType<PLAYER>;
 		using descriptorDynamics = DESCRIPTION_DYNAMICS;
 #include "../include_dynamics.h"	
+	private:
+		template<size_t PLAYER>
+		void process() noexcept
+		{
+			if constexpr (PLAYER < countPlayers)
+			{
+				constexpr const playerType player{ static_cast<playerType>(PLAYER) };
+				if (player == this->position().movingPlayer())
+				{
+					movelistType moves;
+					typename generatorType::contextType context;
+					stackType<PLAYER> stack{ stackType<PLAYER>(this->position(), this->history(), &context) };
+					movebitsType movebits;
+					bool hasMoves{ false };
+					while (stack.nextTacticalMove(movebits, this->history().length(), this->feedback()))
+					{
+						hasMoves = true;
+						this->output() << motorType::move().toString(this->position(), movebits) << "\t";
+						this->output() << std::endl;
+					}
+					if (!hasMoves)
+					{
+						this->output() << "(no moves possible)" << std::endl;
+					}
+				}
+				else
+					this->template process<PLAYER + 1>();
+			}
+			else
+				PYGMALION_ASSERT(false);
+		}
 	protected:
 		virtual bool onProcess(const std::string& cmd) noexcept override
 		{
 			if (cmd == "debug-tacticalmoves")
 			{
 				this->output() << std::endl;
-				movelistType moves;
-				typename generatorType::contextType context;
-				stackType stack(this->position(), this->history(), this->position().movingPlayer(), &context);
-				movebitsType movebits;
-				bool hasMoves{ false };
-				while (stack.nextTacticalMove(movebits, this->history().length(), this->feedback()))
-				{
-					hasMoves = true;
-					this->output() << motorType::move().toString(this->position(), movebits) << "\t";
-					this->output() << std::endl;
-				}
-				if (!hasMoves)
-				{
-					this->output() << "(no moves possible)" << std::endl;
-				}
+				this->template process<0>();
 				this->output() << std::endl;
 				return true;
 			}

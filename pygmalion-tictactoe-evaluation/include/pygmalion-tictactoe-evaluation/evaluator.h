@@ -24,12 +24,13 @@ namespace pygmalion::tictactoe
 			std::deque<std::shared_ptr<pygmalion::intrinsics::command>> list{ std::deque<std::shared_ptr<pygmalion::intrinsics::command>>() };
 			return list;
 		}
-		constexpr static gamestateType lateResult_Implementation(const generatorType::stackType& stack) noexcept
+		template<size_t PLAYER>
+		constexpr static gamestateType lateResult_Implementation(const generatorType::template stackType<PLAYER>& stack) noexcept
 		{
 			return gamestateType::draw();
 		}
-		template<bool LAZY>
-		static gamestateType earlyResult_Implementation(const generatorType::stackType& stack, bool& allowStoreTT) noexcept
+		template<size_t PLAYER, bool LAZY>
+		static gamestateType earlyResult_Implementation(const generatorType::template stackType<PLAYER>& stack, bool& allowStoreTT) noexcept
 		{
 			const boardType& position{ stack.position() };
 			const playerType movingPlayer{ stack.position().movingPlayer() };
@@ -54,7 +55,8 @@ namespace pygmalion::tictactoe
 			allowStoreTT = true;
 			return (canDecide && (position.totalOccupancy().count() < 9)) ? gamestateType::open() : gamestateType::draw();
 		}
-		static scoreType computeMaterial_Implementation(const typename generatorType::stackType& stack) noexcept
+		template<size_t PLAYER>
+		static scoreType computeMaterial_Implementation(const typename generatorType::template stackType<PLAYER>& stack) noexcept
 		{
 			const auto& position{ stack.position() };
 			auto sc = scoreType::zero();

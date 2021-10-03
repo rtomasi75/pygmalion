@@ -18,7 +18,8 @@ namespace pygmalion
 #include "include_search.h"
 		using movegenFeedback = typename generatorType::movegenFeedback;
 		using passType = typename generatorType::passType;
-		using stackType = typename generatorType::stackType;
+		template<size_t PLAYER>
+		using stackType = typename generatorType::template stackType<PLAYER>;
 		class movebucket
 		{
 		private:
@@ -53,7 +54,8 @@ namespace pygmalion
 				else*/
 					return m_Score[bucket];
 			}
-			constexpr void killers(const stackType& stack, killermovesType& killerMoves) const noexcept
+			template<size_t PLAYER>
+			constexpr void killers(const stackType<PLAYER>& stack, killermovesType& killerMoves) const noexcept
 			{
 				for (size_t i = 0; i < m_KillerCount; i++)
 				{
@@ -61,7 +63,8 @@ namespace pygmalion
 						killerMoves.add(m_Killers[i]);
 				}
 			}
-			constexpr void tacticalKillers(const stackType& stack, killermovesType& killerMoves) const noexcept
+			template<size_t PLAYER>
+			constexpr void tacticalKillers(const stackType<PLAYER>& stack, killermovesType& killerMoves) const noexcept
 			{
 				for (size_t i = 0; i < m_TacticalKillerCount; i++)
 				{
@@ -69,7 +72,8 @@ namespace pygmalion
 						killerMoves.add(m_TacticalKillers[i]);
 				}
 			}
-			constexpr void refuted(const stackType& stack, const movebitsType moveBits, const scoreType score) noexcept
+			template<size_t PLAYER>
+			constexpr void refuted(const stackType<PLAYER>& stack, const movebitsType moveBits, const scoreType score) noexcept
 			{
 				const boardType& position{ stack.position() };
 				const size_t index{ generatorType::moveBucket(position,moveBits) };
@@ -149,7 +153,8 @@ namespace pygmalion
 					}
 				}
 			}
-			constexpr void accepted(const stackType& stack, const movebitsType moveBits, const scoreType score) noexcept
+			template<size_t PLAYER>
+			constexpr void accepted(const stackType<PLAYER>& stack, const movebitsType moveBits, const scoreType score) noexcept
 			{
 				const boardType& position{ stack.position() };
 				const size_t index{ generatorType::moveBucket(position,moveBits) };
@@ -186,44 +191,57 @@ namespace pygmalion
 		{
 			m_SearchProfiler.stop();
 		}
-		void onBeginNode(const stackType& stack) noexcept
+		template<size_t PLAYER>
+		void onBeginNode(const stackType<PLAYER>& stack) noexcept
 		{
 			m_NodeCounter++;
 		}
-		void onEndNodeEarly(const stackType& stack) noexcept
+		template<size_t PLAYER>
+		void onEndNodeEarly(const stackType<PLAYER>& stack) noexcept
 		{
 		}
-		void onEndNodeLate(const stackType& stack) noexcept
+		template<size_t PLAYER>
+		void onEndNodeLate(const stackType<PLAYER>& stack) noexcept
 		{
 		}
-		void onBeginMove(const stackType& stack, const movebitsType moveBits, const bool isTactical, const size_t depth) noexcept
+		template<size_t PLAYER>
+		void onBeginMove(const stackType<PLAYER>& stack, const movebitsType moveBits, const bool isTactical, const size_t depth) noexcept
 		{
 		}
-		void onEndMoveRefuted(const stackType& stack, const movebitsType moveBits, const bool isTactical, const size_t depth, const scoreType score) noexcept
+		template<size_t PLAYER>
+		void onEndMoveRefuted(const stackType<PLAYER>& stack, const movebitsType moveBits, const bool isTactical, const size_t depth, const scoreType score) noexcept
 		{
 		}
-		void onEndMoveSilent(const stackType& stack, const movebitsType moveBits, const bool isTactical, const size_t depth) noexcept
+		template<size_t PLAYER>
+		void onEndMoveSilent(const stackType<PLAYER>& stack, const movebitsType moveBits, const bool isTactical, const size_t depth) noexcept
 		{
 		}
-		void onEndMoveFutile(const stackType& stack, const movebitsType moveBits, const bool isTactical, const size_t depth) noexcept
+		template<size_t PLAYER>
+		void onEndMoveFutile(const stackType<PLAYER>& stack, const movebitsType moveBits, const bool isTactical, const size_t depth) noexcept
 		{
 		}
-		void onEndMoveAccepted(const stackType& stack, const movebitsType moveBits, const bool isTactical, const size_t depth, const scoreType score) noexcept
+		template<size_t PLAYER>
+		void onEndMoveAccepted(const stackType<PLAYER>& stack, const movebitsType moveBits, const bool isTactical, const size_t depth, const scoreType score) noexcept
 		{
 		}
-		void onEndNodeCut(const stackType& stack) noexcept
+		template<size_t PLAYER>
+		void onEndNodeCut(const stackType<PLAYER>& stack) noexcept
 		{
 		}
-		void onEndNodeLeaf(const stackType& stack) noexcept
+		template<size_t PLAYER>
+		void onEndNodeLeaf(const stackType<PLAYER>& stack) noexcept
 		{
 		}
-		void onEndNodeTT(const stackType& stack) noexcept
+		template<size_t PLAYER>
+		void onEndNodeTT(const stackType<PLAYER>& stack) noexcept
 		{
 		}
-		void onEndNodeNull(const stackType& stack) noexcept
+		template<size_t PLAYER>
+		void onEndNodeNull(const stackType<PLAYER>& stack) noexcept
 		{
 		}
-		void onEndNodeFutile(const stackType& stack) noexcept
+		template<size_t PLAYER>
+		void onEndNodeFutile(const stackType<PLAYER>& stack) noexcept
 		{
 		}
 		void sortMoves(movelistType& moves, list<scoreType, countMaxGeneratedMoves>& scores, const indexType fromMoveIndex, const indexType fromScoreIndex) noexcept
@@ -240,7 +258,8 @@ namespace pygmalion
 			}
 			return m_MoveBuckets[depth].score(position, movebits);
 		}
-		constexpr void killers(const stackType& stack, const size_t depth, killermovesType& killermoves) noexcept
+		template<size_t PLAYER>
+		constexpr void killers(const stackType<PLAYER>& stack, const size_t depth, killermovesType& killermoves) noexcept
 		{
 			while (depth >= m_MoveBuckets.size())
 			{
@@ -248,7 +267,8 @@ namespace pygmalion
 			}
 			return m_MoveBuckets[depth].killers(stack, killermoves);
 		}
-		constexpr void tacticalKillers(const stackType& stack, const size_t depth, killermovesType& killermoves) noexcept
+		template<size_t PLAYER>
+		constexpr void tacticalKillers(const stackType<PLAYER>& stack, const size_t depth, killermovesType& killermoves) noexcept
 		{
 			while (depth >= m_MoveBuckets.size())
 			{
@@ -339,64 +359,71 @@ namespace pygmalion
 #endif
 			static_cast<instanceType*>(this)->onEndSearch();
 		}
-		void beginNode(const stackType& stack) noexcept
+		template<size_t PLAYER>
+		void beginNode(const stackType<PLAYER>& stack) noexcept
 		{
 #if !defined(NDEBUG)
 			PYGMALION_ASSERT(m_IsSearching);
 			m_NodeDepth++;
 #endif
-			static_cast<instanceType*>(this)->onBeginNode(stack);
+			static_cast<instanceType*>(this)->template onBeginNode<PLAYER>(stack);
 		}
-		void endNodeEarly(const stackType& stack) noexcept
+		template<size_t PLAYER>
+		void endNodeEarly(const stackType<PLAYER>& stack) noexcept
 		{
 #if !defined(NDEBUG)
 			PYGMALION_ASSERT(m_IsSearching);
 			m_NodeDepth--;
 #endif
-			static_cast<instanceType*>(this)->onEndNodeEarly(stack);
+			static_cast<instanceType*>(this)->template onEndNodeEarly<PLAYER>(stack);
 		}
-		void endNodeLate(const stackType& stack) noexcept
+		template<size_t PLAYER>
+		void endNodeLate(const stackType<PLAYER>& stack) noexcept
 		{
 #if !defined(NDEBUG)
 			PYGMALION_ASSERT(m_IsSearching);
 			m_NodeDepth--;
 #endif
-			static_cast<instanceType*>(this)->onEndNodeLate(stack);
+			static_cast<instanceType*>(this)->template onEndNodeLate<PLAYER>(stack);
 		}
-		void endNodeTT(const stackType& stack) noexcept
+		template<size_t PLAYER>
+		void endNodeTT(const stackType<PLAYER>& stack) noexcept
 		{
 #if !defined(NDEBUG)
 			PYGMALION_ASSERT(m_IsSearching);
 			m_NodeDepth--;
 #endif
-			static_cast<instanceType*>(this)->onEndNodeTT(stack);
+			static_cast<instanceType*>(this)->template onEndNodeTT<PLAYER>(stack);
 		}
-		void endNodeNull(const stackType& stack) noexcept
+		template<size_t PLAYER>
+		void endNodeNull(const stackType<PLAYER>& stack) noexcept
 		{
 #if !defined(NDEBUG)
 			PYGMALION_ASSERT(m_IsSearching);
 			m_NodeDepth--;
 #endif
-			static_cast<instanceType*>(this)->onEndNodeNull(stack);
+			static_cast<instanceType*>(this)->template onEndNodeNull<PLAYER>(stack);
 		}
-		void endNodeFutile(const stackType& stack) noexcept
+		template<size_t PLAYER>
+		void endNodeFutile(const stackType<PLAYER>& stack) noexcept
 		{
 #if !defined(NDEBUG)
 			PYGMALION_ASSERT(m_IsSearching);
 			m_NodeDepth--;
 #endif
-			static_cast<instanceType*>(this)->onEndNodeFutile(stack);
+			static_cast<instanceType*>(this)->template onEndNodeFutile<PLAYER>(stack);
 		}
-		void beginMove(const stackType& stack, const movebitsType moveBits, const bool isTactical, const size_t depth) noexcept
+		template<size_t PLAYER>
+		void beginMove(const stackType<PLAYER>& stack, const movebitsType moveBits, const bool isTactical, const size_t depth) noexcept
 		{
 #if !defined(NDEBUG)
 			PYGMALION_ASSERT(m_IsSearching);
 			m_MoveDepth++;
 #endif
-			static_cast<instanceType*>(this)->onBeginMove(stack, moveBits, isTactical, depth);
+			static_cast<instanceType*>(this)->template onBeginMove<PLAYER>(stack, moveBits, isTactical, depth);
 		}
-		template<bool PRUNED>
-		void endMoveAccepted(const stackType& stack, const movebitsType moveBits, const bool isTactical, const size_t depth, const scoreType score, const bool fromStack) noexcept
+		template<size_t PLAYER, bool PRUNED>
+		void endMoveAccepted(const stackType<PLAYER>& stack, const movebitsType moveBits, const bool isTactical, const size_t depth, const scoreType score, const bool fromStack) noexcept
 		{
 #if !defined(NDEBUG)
 			PYGMALION_ASSERT(m_IsSearching);
@@ -422,10 +449,10 @@ namespace pygmalion
 				}
 				m_MoveBuckets[depth].accepted(stack, moveBits, score);
 			}
-			static_cast<instanceType*>(this)->onEndMoveAccepted(stack, moveBits, isTactical, depth, score);
+			static_cast<instanceType*>(this)->template onEndMoveAccepted<PLAYER>(stack, moveBits, isTactical, depth, score);
 		}
-		template<bool PRUNED>
-		void endMoveRefuted(const stackType& stack, const movebitsType moveBits, const bool isTactical, const size_t depth, const scoreType score, const bool fromStack) noexcept
+		template<size_t PLAYER, bool PRUNED>
+		void endMoveRefuted(const stackType<PLAYER>& stack, const movebitsType moveBits, const bool isTactical, const size_t depth, const scoreType score, const bool fromStack) noexcept
 		{
 #if !defined(NDEBUG)
 			PYGMALION_ASSERT(m_IsSearching);
@@ -451,39 +478,43 @@ namespace pygmalion
 				}
 				m_MoveBuckets[depth].refuted(stack, moveBits, score);
 			}
-			static_cast<instanceType*>(this)->onEndMoveRefuted(stack, moveBits, isTactical, depth, score);
+			static_cast<instanceType*>(this)->template onEndMoveRefuted<PLAYER>(stack, moveBits, isTactical, depth, score);
 		}
-		void endMoveSilent(const stackType& stack, const movebitsType moveBits, const bool isTactical, const size_t depth) noexcept
+		template<size_t PLAYER>
+		void endMoveSilent(const stackType<PLAYER>& stack, const movebitsType moveBits, const bool isTactical, const size_t depth) noexcept
 		{
 #if !defined(NDEBUG)
 			PYGMALION_ASSERT(m_IsSearching);
 			m_MoveDepth--;
 #endif
-			static_cast<instanceType*>(this)->onEndMoveSilent(stack, moveBits, isTactical, depth);
+			static_cast<instanceType*>(this)->template onEndMoveSilent<PLAYER>(stack, moveBits, isTactical, depth);
 		}
-		void endMoveFutile(const stackType& stack, const movebitsType moveBits, const bool isTactical, const size_t depth) noexcept
+		template<size_t PLAYER>
+		void endMoveFutile(const stackType<PLAYER>& stack, const movebitsType moveBits, const bool isTactical, const size_t depth) noexcept
 		{
 #if !defined(NDEBUG)
 			PYGMALION_ASSERT(m_IsSearching);
 			m_MoveDepth--;
 #endif
-			static_cast<instanceType*>(this)->onEndMoveFutile(stack, moveBits, isTactical, depth);
+			static_cast<instanceType*>(this)->template onEndMoveFutile<PLAYER>(stack, moveBits, isTactical, depth);
 		}
-		void endNodeCut(const stackType& stack) noexcept
+		template<size_t PLAYER>
+		void endNodeCut(const stackType<PLAYER>& stack) noexcept
 		{
 #if !defined(NDEBUG)
 			PYGMALION_ASSERT(m_IsSearching);
 			m_NodeDepth--;
 #endif
-			static_cast<instanceType*>(this)->onEndNodeCut(stack);
+			static_cast<instanceType*>(this)->template onEndNodeCut<PLAYER>(stack);
 		}
-		void endNodeLeaf(const stackType& stack) noexcept
+		template<size_t PLAYER>
+		void endNodeLeaf(const stackType<PLAYER>& stack) noexcept
 		{
 #if !defined(NDEBUG)
 			PYGMALION_ASSERT(m_IsSearching);
 			m_NodeDepth--;
 #endif
-			static_cast<instanceType*>(this)->onEndNodeLeaf(stack);
+			static_cast<instanceType*>(this)->template onEndNodeLeaf<PLAYER>(stack);
 		}
 		heuristics(movegenFeedback& feedback) noexcept :
 #if !defined(NDEBUG)

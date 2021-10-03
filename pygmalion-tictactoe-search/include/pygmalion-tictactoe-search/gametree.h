@@ -12,6 +12,7 @@ namespace pygmalion::tictactoe
 			constexpr static inline const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			using parentType = node< static_cast<size_t>(movingPlayer.previous())>;
 			using childType = node< static_cast<size_t>(movingPlayer.next())>;
+			using stackType = typename generatorType::template stackType<PLAYER>;
 			node(const stackType& stack, std::atomic_bool& isRunning, heuristicsType& heuristics) noexcept :
 				pygmalion::gametree<descriptor_search, gametree>::node<PLAYER, node<PLAYER>>(stack, isRunning, heuristics)
 			{

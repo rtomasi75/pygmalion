@@ -14,19 +14,7 @@ namespace pygmalion::chess::evaluation
 			this->output() << std::endl;
 			if (boardType::parsePlayer(token, p))
 			{
-				typename generatorType::contextType context;
-				stackType stack(this->position(), this->history(), this->position().movingPlayer().next(), &context);
-				squaresType controlWhite{ squaresType::none() };
-				squaresType controlBlack{ squaresType::none() };
-				stack.control(controlWhite, controlBlack);
-				if (p == whitePlayer)
-				{
-					dumpSquares(controlWhite);
-				}
-				else
-				{
-					dumpSquares(controlBlack);
-				}
+				this->template process<0>(p);
 			}
 			else
 				this->output() << "invalid player: " << token << std::endl;
