@@ -188,8 +188,11 @@ namespace pygmalion::chess
 		static void control(const stackType<PLAYER>& stack, squaresType& whiteControl, squaresType& blackControl) noexcept
 		{
 			const squaresType unoccupied{ ~stack.position().totalOccupancy() };
-			const squaresType whitePawns{ stack.position().playerOccupancy(whitePlayer) & stack.position().pieceOccupancy(pawn) };
-			const squaresType blackPawns{ stack.position().playerOccupancy(blackPlayer) & stack.position().pieceOccupancy(pawn) };
+			const squaresType whiteOcc{ stack.position().playerOccupancy(whitePlayer) };
+			const squaresType blackOcc{ stack.position().playerOccupancy(blackPlayer) };
+			const squaresType pawnOcc{ stack.position().pieceOccupancy(pawn) };
+			const squaresType whitePawns{ whiteOcc & pawnOcc };
+			const squaresType blackPawns{ blackOcc & pawnOcc };
 			const squaresType whiteRightAttacks{ whitePawns.upRight() };
 			const squaresType whiteLeftAttacks{ whitePawns.upLeft() };
 			const squaresType blackRightAttacks{ blackPawns.downRight() };
@@ -212,10 +215,12 @@ namespace pygmalion::chess
 			blackControl |= open & blackSingleAttacks & balancedSingleAttacks;
 			open &= ~(whiteControl | blackControl);
 
-			const squaresType whiteKnights{ stack.position().playerOccupancy(whitePlayer) & stack.position().pieceOccupancy(knight) };
-			const squaresType blackKnights{ stack.position().playerOccupancy(blackPlayer) & stack.position().pieceOccupancy(knight) };
-			const squaresType whiteBishops{ stack.position().playerOccupancy(whitePlayer) & stack.position().pieceOccupancy(bishop) };
-			const squaresType blackBishops{ stack.position().playerOccupancy(blackPlayer) & stack.position().pieceOccupancy(bishop) };
+			const squaresType knightOcc{ stack.position().pieceOccupancy(knight) };
+			const squaresType whiteKnights{ whiteOcc & knightOcc };
+			const squaresType blackKnights{ blackOcc & knightOcc };
+			const squaresType bishopOcc{ stack.position().pieceOccupancy(bishop) };
+			const squaresType whiteBishops{ whiteOcc & bishopOcc };
+			const squaresType blackBishops{ blackOcc & bishopOcc };
 			squaresType attackedBy1WhiteKnightOrBishop{ none };
 			squaresType attackedBy2WhiteKnightOrBishop{ none };
 			squaresType attackedBy3WhiteKnightOrBishop{ none };
@@ -279,8 +284,9 @@ namespace pygmalion::chess
 			blackControl |= open & attackedBy1BlackKnightOrBishop & balanced1KnightOrBishopAttacks;
 			open &= ~(whiteControl | blackControl);
 
-			const squaresType whiteRooks{ stack.position().playerOccupancy(whitePlayer) & stack.position().pieceOccupancy(rook) };
-			const squaresType blackRooks{ stack.position().playerOccupancy(blackPlayer) & stack.position().pieceOccupancy(rook) };
+			const squaresType rookOcc{ stack.position().pieceOccupancy(rook) };
+			const squaresType whiteRooks{ whiteOcc & rookOcc };
+			const squaresType blackRooks{ blackOcc & rookOcc };
 			squaresType attackedBy2WhiteRook{ none };
 			squaresType attackedBy2BlackRook{ none };
 			squaresType attackedBy1WhiteRook{ none };
@@ -306,8 +312,9 @@ namespace pygmalion::chess
 			blackControl |= open & attackedBy1BlackRook & balanced1RookAttacks;
 			open &= ~(whiteControl | blackControl);
 
-			const squaresType whiteQueens{ stack.position().playerOccupancy(whitePlayer) & stack.position().pieceOccupancy(queen) };
-			const squaresType blackQueens{ stack.position().playerOccupancy(blackPlayer) & stack.position().pieceOccupancy(queen) };
+			const squaresType queenOcc{ stack.position().pieceOccupancy(queen) };
+			const squaresType whiteQueens{ whiteOcc & queenOcc };
+			const squaresType blackQueens{ blackOcc & queenOcc };
 			squaresType attackedByWhiteQueen{ none };
 			squaresType attackedByBlackQueen{ none };
 			for (squareType sq : whiteQueens)
@@ -4038,6 +4045,5 @@ namespace pygmalion::chess
 			constexpr const playerType attacker{ player.next() };
 			return generatorType::template isAttacked<static_cast<size_t>(attacker)>(stack.position(), stack.kingSquare(player));
 		}
-
 	};
 }

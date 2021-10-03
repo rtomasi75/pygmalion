@@ -55,12 +55,12 @@
 #define PYGMALION_CPU_SSE3
 #endif
 #endif
-#if defined(__SSE2__)
+#if defined(__SSE2__)||(defined(_M_X64)||defined(__x86_64__)||defined(__amd64__))
 #if !defined(PYGMALION_CPU_SSE2)
 #define PYGMALION_CPU_SSE2
 #endif
 #endif
-#if defined(__SSE__)
+#if defined(__SSE__)||(defined(_M_X64)||defined(__x86_64__)||defined(__amd64__))
 #if !defined(PYGMALION_CPU_SSE)
 #define PYGMALION_CPU_SSE
 #endif
