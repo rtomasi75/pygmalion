@@ -491,27 +491,52 @@ namespace pygmalion
 			{
 				if (m_CurrentNormalMove >= m_pContext->normalMoves().length())
 				{
-					if (m_CurrentNormalStage < countNormalStages)
+					if (isPositionCritical())
 					{
-						if (m_CurrentNormalPass < countMovegenPasses[static_cast<size_t>(m_NormalStages[static_cast<size_t>(m_CurrentNormalStage)])])
+						if (m_CurrentNormalStage < countCriticalEvasionStages)
 						{
-//							std::cout << "generating stage " << static_cast<size_t>(m_CurrentNormalStage) << " pass " << static_cast<size_t>(m_CurrentNormalPass) << " " << generatorType::passToString(normalStage(static_cast<size_t>(m_CurrentNormalStage)), normalPass(feedback, static_cast<size_t>(m_CurrentNormalStage), static_cast<size_t>(m_CurrentNormalPass))) << std::endl;
-							generatorType::generateMoves(m_NormalStages[static_cast<size_t>(m_CurrentNormalStage)], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->normalMoves(), feedback.index(m_NormalStages[static_cast<size_t>(m_CurrentNormalStage)], m_CurrentNormalPass, depth));
-							while (m_pContext->normalPasses().length() < m_pContext->normalMoves().length())
+							if (m_CurrentNormalPass < countMovegenPasses[static_cast<size_t>(m_CriticalEvasionStages[static_cast<size_t>(m_CurrentNormalStage)])])
 							{
-								m_pContext->normalPasses().add(m_CurrentNormalPass);
-								m_pContext->normalStages().add(m_NormalStages[static_cast<size_t>(m_CurrentNormalStage)]);
+								generatorType::generateMoves(m_CriticalEvasionStages[static_cast<size_t>(m_CurrentNormalStage)], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->normalMoves(), feedback.index(m_CriticalEvasionStages[static_cast<size_t>(m_CurrentNormalStage)], m_CurrentNormalPass, depth));
+								while (m_pContext->normalPasses().length() < m_pContext->normalMoves().length())
+								{
+									m_pContext->normalPasses().add(m_CurrentNormalPass);
+									m_pContext->normalStages().add(m_CriticalEvasionStages[static_cast<size_t>(m_CurrentNormalStage)]);
+								}
+								++m_CurrentNormalPass;
 							}
-							++m_CurrentNormalPass;
+							else
+							{
+								++m_CurrentNormalStage;
+								m_CurrentNormalPass = 0;
+							}
 						}
 						else
-						{
-							++m_CurrentNormalStage;
-							m_CurrentNormalPass = 0;
-						}
+							return false;
 					}
 					else
-						return false;
+					{
+						if (m_CurrentNormalStage < countNormalStages)
+						{
+							if (m_CurrentNormalPass < countMovegenPasses[static_cast<size_t>(m_NormalStages[static_cast<size_t>(m_CurrentNormalStage)])])
+							{
+								generatorType::generateMoves(m_NormalStages[static_cast<size_t>(m_CurrentNormalStage)], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->normalMoves(), feedback.index(m_NormalStages[static_cast<size_t>(m_CurrentNormalStage)], m_CurrentNormalPass, depth));
+								while (m_pContext->normalPasses().length() < m_pContext->normalMoves().length())
+								{
+									m_pContext->normalPasses().add(m_CurrentNormalPass);
+									m_pContext->normalStages().add(m_NormalStages[static_cast<size_t>(m_CurrentNormalStage)]);
+								}
+								++m_CurrentNormalPass;
+							}
+							else
+							{
+								++m_CurrentNormalStage;
+								m_CurrentNormalPass = 0;
+							}
+						}
+						else
+							return false;
+					}
 				}
 				while (m_CurrentNormalMove < m_pContext->normalMoves().length())
 				{
@@ -532,28 +557,56 @@ namespace pygmalion
 			{
 				while (m_CurrentNormalMove >= m_pContext->normalMoves().length())
 				{
-					if (m_CurrentNormalStage < countNormalStages)
+					if (isPositionCritical())
 					{
-						if (m_CurrentNormalPass < countMovegenPasses[static_cast<size_t>(m_NormalStages[static_cast<size_t>(m_CurrentNormalStage)])])
+						if (m_CurrentNormalStage < countCriticalEvasionStages)
 						{
-							generatorType::generateMoves(m_NormalStages[static_cast<size_t>(m_CurrentNormalStage)], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->normalMoves(), feedback.index(m_NormalStages[static_cast<size_t>(m_CurrentNormalStage)], m_CurrentNormalPass, depth));
-							const auto start{ m_pContext->normalPasses().length() };
-							while (m_pContext->normalPasses().length() < m_pContext->normalMoves().length())
+							if (m_CurrentNormalPass < countMovegenPasses[static_cast<size_t>(m_CriticalEvasionStages[static_cast<size_t>(m_CurrentNormalStage)])])
 							{
-								m_pContext->normalScores().add(lambda(m_pContext->normalMoves()[m_pContext->normalPasses().length()]));
-								m_pContext->normalPasses().add(m_CurrentNormalPass);
-								m_pContext->normalStages().add(m_NormalStages[static_cast<size_t>(m_CurrentNormalStage)]);
+								generatorType::generateMoves(m_CriticalEvasionStages[static_cast<size_t>(m_CurrentNormalStage)], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->normalMoves(), feedback.index(m_CriticalEvasionStages[static_cast<size_t>(m_CurrentNormalStage)], m_CurrentNormalPass, depth));
+								const auto start{ m_pContext->normalPasses().length() };
+								while (m_pContext->normalPasses().length() < m_pContext->normalMoves().length())
+								{
+									m_pContext->normalScores().add(lambda(m_pContext->normalMoves()[m_pContext->normalPasses().length()]));
+									m_pContext->normalPasses().add(m_CurrentNormalPass);
+									m_pContext->normalStages().add(m_CriticalEvasionStages[static_cast<size_t>(m_CurrentNormalStage)]);
+								}
+								++m_CurrentNormalPass;
 							}
-							++m_CurrentNormalPass;
+							else
+							{
+								++m_CurrentNormalStage;
+								m_CurrentNormalPass = 0;
+							}
 						}
 						else
-						{
-							++m_CurrentNormalStage;
-							m_CurrentNormalPass = 0;
-						}
+							return false;
 					}
 					else
-						return false;
+					{
+						if (m_CurrentNormalStage < countNormalStages)
+						{
+							if (m_CurrentNormalPass < countMovegenPasses[static_cast<size_t>(m_NormalStages[static_cast<size_t>(m_CurrentNormalStage)])])
+							{
+								generatorType::generateMoves(m_NormalStages[static_cast<size_t>(m_CurrentNormalStage)], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->normalMoves(), feedback.index(m_NormalStages[static_cast<size_t>(m_CurrentNormalStage)], m_CurrentNormalPass, depth));
+								const auto start{ m_pContext->normalPasses().length() };
+								while (m_pContext->normalPasses().length() < m_pContext->normalMoves().length())
+								{
+									m_pContext->normalScores().add(lambda(m_pContext->normalMoves()[m_pContext->normalPasses().length()]));
+									m_pContext->normalPasses().add(m_CurrentNormalPass);
+									m_pContext->normalStages().add(m_NormalStages[static_cast<size_t>(m_CurrentNormalStage)]);
+								}
+								++m_CurrentNormalPass;
+							}
+							else
+							{
+								++m_CurrentNormalStage;
+								m_CurrentNormalPass = 0;
+							}
+						}
+						else
+							return false;
+					}
 				}
 				while (m_CurrentNormalMove < m_pContext->normalMoves().length())
 				{
@@ -573,26 +626,52 @@ namespace pygmalion
 			{
 				while (m_CurrentTacticalMove >= m_pContext->tacticalMoves().length())
 				{
-					if (m_CurrentTacticalStage < countTacticalStages)
+					if (isPositionCritical())
 					{
-						if (m_CurrentTacticalPass < countMovegenPasses[static_cast<size_t>(m_TacticalStages[static_cast<size_t>(m_CurrentTacticalStage)])])
+						if (m_CurrentTacticalStage < countCriticalEvasionTacticalStages)
 						{
-							generatorType::generateMoves(m_TacticalStages[static_cast<size_t>(m_CurrentTacticalStage)], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->tacticalMoves(), feedback.index(m_TacticalStages[static_cast<size_t>(m_CurrentTacticalStage)], m_CurrentTacticalPass, depth));
-							while (m_pContext->tacticalPasses().length() < m_pContext->tacticalMoves().length())
+							if (m_CurrentTacticalPass < countMovegenPasses[static_cast<size_t>(m_CriticalEvasionTacticalStages[static_cast<size_t>(m_CurrentTacticalStage)])])
 							{
-								m_pContext->tacticalPasses().add(m_CurrentTacticalPass);
-								m_pContext->tacticalStages().add(m_TacticalStages[static_cast<size_t>(m_CurrentTacticalStage)]);
+								generatorType::generateMoves(m_CriticalEvasionTacticalStages[static_cast<size_t>(m_CurrentTacticalStage)], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->tacticalMoves(), feedback.index(m_CriticalEvasionTacticalStages[static_cast<size_t>(m_CurrentTacticalStage)], m_CurrentTacticalPass, depth));
+								while (m_pContext->tacticalPasses().length() < m_pContext->tacticalMoves().length())
+								{
+									m_pContext->tacticalPasses().add(m_CurrentTacticalPass);
+									m_pContext->tacticalStages().add(m_CriticalEvasionTacticalStages[static_cast<size_t>(m_CurrentTacticalStage)]);
+								}
+								++m_CurrentTacticalPass;
 							}
-							++m_CurrentTacticalPass;
+							else
+							{
+								++m_CurrentTacticalStage;
+								m_CurrentTacticalPass = 0;
+							}
 						}
 						else
-						{
-							++m_CurrentTacticalStage;
-							m_CurrentTacticalPass = 0;
-						}
+							return false;
 					}
 					else
-						return false;
+					{
+						if (m_CurrentTacticalStage < countTacticalStages)
+						{
+							if (m_CurrentTacticalPass < countMovegenPasses[static_cast<size_t>(m_TacticalStages[static_cast<size_t>(m_CurrentTacticalStage)])])
+							{
+								generatorType::generateMoves(m_TacticalStages[static_cast<size_t>(m_CurrentTacticalStage)], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->tacticalMoves(), feedback.index(m_TacticalStages[static_cast<size_t>(m_CurrentTacticalStage)], m_CurrentTacticalPass, depth));
+								while (m_pContext->tacticalPasses().length() < m_pContext->tacticalMoves().length())
+								{
+									m_pContext->tacticalPasses().add(m_CurrentTacticalPass);
+									m_pContext->tacticalStages().add(m_TacticalStages[static_cast<size_t>(m_CurrentTacticalStage)]);
+								}
+								++m_CurrentTacticalPass;
+							}
+							else
+							{
+								++m_CurrentTacticalStage;
+								m_CurrentTacticalPass = 0;
+							}
+						}
+						else
+							return false;
+					}
 				}
 				while (m_CurrentTacticalMove < m_pContext->tacticalMoves().length())
 				{
@@ -613,28 +692,56 @@ namespace pygmalion
 			{
 				while (m_CurrentTacticalMove >= m_pContext->tacticalMoves().length())
 				{
-					if (m_CurrentTacticalStage < countTacticalStages)
+					if (isPositionCritical())
 					{
-						if (m_CurrentTacticalPass < countMovegenPasses[static_cast<size_t>(m_TacticalStages[static_cast<size_t>(m_CurrentTacticalStage)])])
+						if (m_CurrentTacticalStage < countCriticalEvasionTacticalStages)
 						{
-							generatorType::generateMoves(m_TacticalStages[static_cast<size_t>(m_CurrentTacticalStage)], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->tacticalMoves(), feedback.index(m_TacticalStages[static_cast<size_t>(m_CurrentTacticalStage)], m_CurrentTacticalPass, depth));
-							const auto start{ m_pContext->tacticalPasses().length() };
-							while (m_pContext->tacticalPasses().length() < m_pContext->tacticalMoves().length())
+							if (m_CurrentTacticalPass < countMovegenPasses[static_cast<size_t>(m_CriticalEvasionTacticalStages[static_cast<size_t>(m_CurrentTacticalStage)])])
 							{
-								m_pContext->tacticalScores().add(lambda(m_pContext->tacticalMoves()[m_pContext->tacticalPasses().length()]));
-								m_pContext->tacticalPasses().add(m_CurrentTacticalPass);
-								m_pContext->tacticalStages().add(m_TacticalStages[static_cast<size_t>(m_CurrentTacticalStage)]);
+								generatorType::generateMoves(m_CriticalEvasionTacticalStages[static_cast<size_t>(m_CurrentTacticalStage)], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->tacticalMoves(), feedback.index(m_CriticalEvasionTacticalStages[static_cast<size_t>(m_CurrentTacticalStage)], m_CurrentTacticalPass, depth));
+								const auto start{ m_pContext->tacticalPasses().length() };
+								while (m_pContext->tacticalPasses().length() < m_pContext->tacticalMoves().length())
+								{
+									m_pContext->tacticalScores().add(lambda(m_pContext->tacticalMoves()[m_pContext->tacticalPasses().length()]));
+									m_pContext->tacticalPasses().add(m_CurrentTacticalPass);
+									m_pContext->tacticalStages().add(m_CriticalEvasionTacticalStages[static_cast<size_t>(m_CurrentTacticalStage)]);
+								}
+								++m_CurrentTacticalPass;
 							}
-							++m_CurrentTacticalPass;
+							else
+							{
+								++m_CurrentTacticalStage;
+								m_CurrentTacticalPass = 0;
+							}
 						}
 						else
-						{
-							++m_CurrentTacticalStage;
-							m_CurrentTacticalPass = 0;
-						}
+							return false;
 					}
 					else
-						return false;
+					{
+						if (m_CurrentTacticalStage < countTacticalStages)
+						{
+							if (m_CurrentTacticalPass < countMovegenPasses[static_cast<size_t>(m_TacticalStages[static_cast<size_t>(m_CurrentTacticalStage)])])
+							{
+								generatorType::generateMoves(m_TacticalStages[static_cast<size_t>(m_CurrentTacticalStage)], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->tacticalMoves(), feedback.index(m_TacticalStages[static_cast<size_t>(m_CurrentTacticalStage)], m_CurrentTacticalPass, depth));
+								const auto start{ m_pContext->tacticalPasses().length() };
+								while (m_pContext->tacticalPasses().length() < m_pContext->tacticalMoves().length())
+								{
+									m_pContext->tacticalScores().add(lambda(m_pContext->tacticalMoves()[m_pContext->tacticalPasses().length()]));
+									m_pContext->tacticalPasses().add(m_CurrentTacticalPass);
+									m_pContext->tacticalStages().add(m_TacticalStages[static_cast<size_t>(m_CurrentTacticalStage)]);
+								}
+								++m_CurrentTacticalPass;
+							}
+							else
+							{
+								++m_CurrentTacticalStage;
+								m_CurrentTacticalPass = 0;
+							}
+						}
+						else
+							return false;
+					}
 				}
 				while (m_CurrentTacticalMove < m_pContext->tacticalMoves().length())
 				{
