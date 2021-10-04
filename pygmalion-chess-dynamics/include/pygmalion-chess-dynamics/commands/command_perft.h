@@ -96,7 +96,7 @@ namespace pygmalion::chess::dynamics
 					{
 						this->output() << std::endl;
 						perftdata data;
-						typename generatorType::contextType* pContext = new typename generatorType::contextType[depth];
+						typename generatorType::contextType* pContext = new typename generatorType::contextType[depth + 1];
 						profiler p;
 						p.start();
 						stackType<PLAYER> stack{ stackType<PLAYER>(this->position(),this->history(),pContext) };

@@ -217,11 +217,13 @@ namespace pygmalion
 		}
 		void add(const itemType& item) noexcept
 		{
+			PYGMALION_ASSERT(m_Length >= 0);
 			PYGMALION_ASSERT(m_Length < maxLength);
 			m_Items[m_Length++] = item;
 		}
 		void add(itemType&& item) noexcept
 		{
+			PYGMALION_ASSERT(m_Length >= 0);
 			PYGMALION_ASSERT(m_Length < maxLength);
 			m_Items[m_Length++] = std::move(item);
 		}

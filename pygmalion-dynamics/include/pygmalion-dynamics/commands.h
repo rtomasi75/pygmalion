@@ -1,8 +1,6 @@
 #include "commands/command_debugMoves.h"
 #include "commands/command_debugTacticalMoves.h"
-#include "commands/command_debugCriticalMoves.h"
 #include "commands/command_debugIsCritical.h"
 #include "commands/command_debugDynamics.h"
 #include "commands/command_debugPerft.h"
-#include "commands/command_debugCriticals.h"
 #include "commands/command_debugPasses.h"

@@ -8,389 +8,114 @@ namespace pygmalion
 		using generatorType = INSTANCE;
 		using descriptorDynamics = DESCRIPTOR_DYNAMICS;
 #include "include_dynamics.h"
-		using passType = uint_t<arrayhelper::requiredUnsignedBits(std::max(countPasses, countTacticalPasses) + 1), false>;
-		using passlistType = list<passType, countMaxGeneratedMoves>;
 		class movegenFeedback
 		{
 		private:
 			class feedback
 			{
 			private:
-				std::array <std::uint64_t, countPasses> m_MoveCounter;
-				std::array <scoreType, countPasses> m_ScoreCounter;
-				std::array <std::uint64_t, countCriticalEvasionPasses> m_CriticalEvasionMoveCounter;
-				std::array <scoreType, countCriticalEvasionPasses> m_CriticalEvasionScoreCounter;
-				std::array <std::uint64_t, countTacticalPasses> m_TacticalMoveCounter;
-				std::array <scoreType, countTacticalPasses> m_TacticalScoreCounter;
-				std::array <std::uint64_t, countTacticalCriticalEvasionPasses> m_TacticalCriticalEvasionMoveCounter;
-				std::array <scoreType, countTacticalCriticalEvasionPasses> m_TacticalCriticalEvasionScoreCounter;
-				std::array <std::uint64_t, countCriticalPasses> m_CriticalMoveCounter;
-				std::array <scoreType, countCriticalPasses> m_CriticalScoreCounter;
-				std::array <passType, countPasses> m_Index;
-				std::array <passType, countCriticalEvasionPasses> m_CriticalEvasionIndex;
-				std::array <passType, countTacticalPasses> m_TacticalIndex;
-				std::array <passType, countTacticalCriticalEvasionPasses> m_TacticalCriticalEvasionIndex;
-				std::array <passType, countCriticalPasses> m_CriticalIndex;
+				std::array<std::array<std::uint64_t, maxCountPasses>, countMovegenStages> m_MoveCounters;
+				std::array<std::array<scoreType, maxCountPasses>, countMovegenStages> m_ScoreCounters;
+				std::array<std::array<passType, maxCountPasses>, countMovegenStages> m_Indices;
 				constexpr static bool USE_SCORE{ true };
+				constexpr void sortIndicesStage(const stageType stage) noexcept
+				{
+					if constexpr (!USE_SCORE)
+						sort<passType, std::uint64_t>::sortValues(m_Indices[stage].data(), m_MoveCounters[static_cast<size_t>(stage)].data(), countMovegenPasses[static_cast<size_t>(stage)]);
+					else
+					{
+						std::array <scoreType, maxCountPasses> scores;
+						for (size_t pass = 0; pass < countMovegenPasses[static_cast<size_t>(stage)]; pass++)
+						{
+							scores[pass] = score(stage, static_cast<passType>(pass));
+						}
+						sort<passType, scoreType>::sortValues(m_Indices[static_cast<size_t>(stage)].data(), scores.data(), countMovegenPasses[static_cast<size_t>(stage)]);
+					}
+				}
+				constexpr void resetStage(const stageType stage) noexcept
+				{
+					constexpr const scoreType zero{ scoreType::zero() };
+					for (size_t i = 0; i < countMovegenPasses[static_cast<size_t>(stage)]; i++)
+					{
+						m_MoveCounters[static_cast<size_t>(stage)][i] = 0;
+						m_ScoreCounters[static_cast<size_t>(stage)][i] = zero;
+						m_Indices[static_cast<size_t>(stage)][i] = i;
+					}
+				}
 			public:
 				constexpr void sortIndices() noexcept
 				{
+					for (size_t stage = 0; stage < countMovegenStages; stage++)
+						sortIndicesStage(static_cast<stageType>(stage));
+				}
+				constexpr passType index(const stageType stage, const passType pass) const noexcept
+				{
+					PYGMALION_ASSERT(stage < countMovegenStages);
+					PYGMALION_ASSERT(pass < countMovegenPasses[static_cast<size_t>(stage)]);
+					return m_Indices[static_cast<size_t>(stage)][static_cast<size_t>(pass)];
+				}
+				constexpr passType moveIndex(const stageType stage, const passType pass) const noexcept
+				{
+					PYGMALION_ASSERT(stage < countMovegenStages);
+					PYGMALION_ASSERT(pass < countMovegenPasses[static_cast<size_t>(stage)]);
 					if constexpr (!USE_SCORE)
-					{
-						sort<passType, std::uint64_t>::sortValues(m_Index.data(), m_MoveCounter.data(), countPasses);
-						sort<passType, std::uint64_t>::sortValues(m_CriticalEvasionIndex.data(), m_CriticalEvasionMoveCounter.data(), countCriticalEvasionPasses);
-						sort<passType, std::uint64_t>::sortValues(m_TacticalIndex.data(), m_TacticalMoveCounter.data(), countTacticalPasses);
-						sort<passType, std::uint64_t>::sortValues(m_TacticalCriticalEvasionIndex.data(), m_TacticalCriticalEvasionMoveCounter.data(), countTacticalCriticalEvasionPasses);
-						sort<passType, std::uint64_t>::sortValues(m_CriticalIndex.data(), m_CriticalMoveCounter.data(), countCriticalPasses);
-					}
+						return pass;
 					else
-					{
-						std::array <scoreType, countPasses> scores{ arrayhelper::generate<countPasses,scoreType>([this](const size_t pass)
-							{
-								return this->score(pass);
-							})
-						};
-						std::array <scoreType, countCriticalEvasionPasses> criticalEvasionScores{ arrayhelper::generate<countCriticalEvasionPasses,scoreType>([this](const size_t pass)
-							{
-								return this->criticalEvasionScore(pass);
-							})
-						};
-						std::array <scoreType, countTacticalPasses> tacticalScores{ arrayhelper::generate<countTacticalPasses,scoreType>([this](const size_t pass)
-							{
-								return this->tacticalScore(pass);
-							})
-						};
-						std::array <scoreType, countTacticalCriticalEvasionPasses> tacticalCriticalEvasionScores{ arrayhelper::generate<countTacticalCriticalEvasionPasses,scoreType>([this](const size_t pass)
-							{
-								return this->tacticalCriticalEvasionScore(pass);
-							})
-						};
-						std::array <scoreType, countCriticalPasses> criticalScores{ arrayhelper::generate<countCriticalPasses,scoreType>([this](const size_t pass)
-							{
-								return this->criticalScore(pass);
-							})
-						};
-						sort<passType, scoreType>::sortValues(m_Index.data(), scores.data(), countPasses);
-						sort<passType, scoreType>::sortValues(m_CriticalEvasionIndex.data(), criticalEvasionScores.data(), countCriticalEvasionPasses);
-						sort<passType, scoreType>::sortValues(m_TacticalIndex.data(), tacticalScores.data(), countTacticalPasses);
-						sort<passType, scoreType>::sortValues(m_TacticalCriticalEvasionIndex.data(), tacticalCriticalEvasionScores.data(), countTacticalCriticalEvasionPasses);
-						sort<passType, scoreType>::sortValues(m_CriticalIndex.data(), criticalScores.data(), countCriticalPasses);
-					}
+						return m_Indices[static_cast<size_t>(stage)][static_cast<size_t>(pass)];
 				}
-				constexpr passType index(const passType pass) const noexcept
+				constexpr passType scoreIndex(const stageType stage, const passType pass) const noexcept
 				{
-					PYGMALION_ASSERT(pass < countPasses);
-					return m_Index[static_cast<size_t>(pass)];
+					PYGMALION_ASSERT(stage < countMovegenStages);
+					PYGMALION_ASSERT(pass < countMovegenPasses[static_cast<size_t>(stage)]);
+					return m_Indices[static_cast<size_t>(stage)][static_cast<size_t>(pass)];
 				}
-				constexpr passType criticalEvasionIndex(const passType pass) const noexcept
+				constexpr feedback() noexcept
 				{
-					PYGMALION_ASSERT(pass < countCriticalEvasionPasses);
-					return m_CriticalEvasionIndex[static_cast<size_t>(pass)];
+					reset();
 				}
-				constexpr passType moveIndex(const passType pass) const noexcept
+				constexpr scoreType score(const stageType stage, const passType pass) const noexcept
 				{
-					PYGMALION_ASSERT(pass < countPasses);
-					if constexpr (!USE_SCORE)
-						return static_cast<size_t>(pass);
-					else
-						return m_Index[static_cast<size_t>(pass)];
-				}
-				constexpr passType moveCriticalEvasionIndex(const passType pass) const noexcept
-				{
-					PYGMALION_ASSERT(pass < countCriticalEvasionPasses);
-					if constexpr (!USE_SCORE)
-						return static_cast<size_t>(pass);
-					else
-						return m_CriticalEvasionIndex[static_cast<size_t>(pass)];
-				}
-				constexpr passType scoreIndex(const passType pass) const noexcept
-				{
-					PYGMALION_ASSERT(pass < countPasses);
-					return m_Index[static_cast<size_t>(pass)];
-				}
-				constexpr passType criticalEvasionScoreIndex(const passType pass) const noexcept
-				{
-					PYGMALION_ASSERT(pass < countCriticalEvasionPasses);
-					return m_CriticalEvasionIndex[static_cast<size_t>(pass)];
-				}
-				constexpr passType tacticalIndex(const passType pass) const noexcept
-				{
-					PYGMALION_ASSERT(pass < countTacticalPasses);
-					return m_TacticalIndex[static_cast<size_t>(pass)];
-				}
-				constexpr passType tacticalCriticalEvasionIndex(const passType pass) const noexcept
-				{
-					PYGMALION_ASSERT(pass < countTacticalCriticalEvasionPasses);
-					return m_TacticalCriticalEvasionIndex[static_cast<size_t>(pass)];
-				}
-				constexpr passType tacticalMoveIndex(const passType pass) const noexcept
-				{
-					PYGMALION_ASSERT(pass < countTacticalPasses);
-					if constexpr (!USE_SCORE)
-						return static_cast<size_t>(pass);
-					else
-						return m_TacticalIndex[static_cast<size_t>(pass)];
-				}
-				constexpr passType tacticalCriticalEvasionMoveIndex(const passType pass) const noexcept
-				{
-					PYGMALION_ASSERT(pass < countTacticalCriticalEvasionPasses);
-					if constexpr (!USE_SCORE)
-						return static_cast<size_t>(pass);
-					else
-						return m_TacticalCriticalEvasionIndex[static_cast<size_t>(pass)];
-				}
-				constexpr passType tacticalCriticalEvasionScoreIndex(const passType pass) const noexcept
-				{
-					PYGMALION_ASSERT(pass < countTacticalCriticalEvasionPasses);
-					return m_TacticalCriticalEvasionIndex[static_cast<size_t>(pass)];
-				}
-				constexpr passType tacticalScoreIndex(const passType pass) const noexcept
-				{
-					PYGMALION_ASSERT(pass < countTacticalPasses);
-					return m_TacticalIndex[static_cast<size_t>(pass)];
-				}
-				constexpr passType criticalIndex(const passType pass) const noexcept
-				{
-					PYGMALION_ASSERT(pass < countCriticalPasses);
-					return m_CriticalIndex[static_cast<size_t>(pass)];
-				}
-				constexpr passType criticalMoveIndex(const passType pass) const noexcept
-				{
-					PYGMALION_ASSERT(pass < countCriticalPasses);
-					if constexpr (!USE_SCORE)
-						return static_cast<size_t>(pass);
-					else
-						return m_CriticalIndex[static_cast<size_t>(pass)];
-				}
-				constexpr passType criticalEvasionMoveIndex(const passType pass) const noexcept
-				{
-					PYGMALION_ASSERT(pass < countCriticalEvasionPasses);
-					if constexpr (!USE_SCORE)
-						return static_cast<size_t>(pass);
-					else
-						return m_CriticalEvasionIndex[static_cast<size_t>(pass)];
-				}
-				constexpr passType criticalScoreIndex(const passType pass) const noexcept
-				{
-					PYGMALION_ASSERT(pass < countCriticalPasses);
-					return m_CriticalIndex[static_cast<size_t>(pass)];
-				}
-				constexpr feedback() noexcept :
-					m_MoveCounter{ arrayhelper::make<countPasses,std::uint64_t>(0) },
-					m_CriticalEvasionMoveCounter{ arrayhelper::make<countCriticalEvasionPasses,std::uint64_t>(0) },
-					m_TacticalMoveCounter{ arrayhelper::make<countTacticalPasses, std::uint64_t>(0) },
-					m_TacticalCriticalEvasionMoveCounter{ arrayhelper::make<countTacticalCriticalEvasionPasses, std::uint64_t>(0) },
-					m_CriticalMoveCounter{ arrayhelper::make<countCriticalPasses, std::uint64_t>(0) },
-					m_ScoreCounter{ arrayhelper::make<countPasses,scoreType>(scoreType::zero()) },
-					m_CriticalEvasionScoreCounter{ arrayhelper::make<countCriticalEvasionPasses,scoreType>(scoreType::zero()) },
-					m_TacticalScoreCounter{ arrayhelper::make<countTacticalPasses, scoreType>(scoreType::zero()) },
-					m_TacticalCriticalEvasionScoreCounter{ arrayhelper::make<countTacticalCriticalEvasionPasses, scoreType>(scoreType::zero()) },
-					m_CriticalScoreCounter{ arrayhelper::make<countCriticalPasses, scoreType>(scoreType::zero()) },
-					m_Index{ arrayhelper::generate<countPasses,passType>([](const size_t index) {return index; }) },
-					m_CriticalEvasionIndex{ arrayhelper::generate<countCriticalEvasionPasses,passType>([](const size_t index) {return index; }) },
-					m_TacticalIndex{ arrayhelper::generate<countTacticalPasses,passType>([](const size_t index) {return index; }) },
-					m_TacticalCriticalEvasionIndex{ arrayhelper::generate<countTacticalCriticalEvasionPasses,passType>([](const size_t index) {return index; }) },
-					m_CriticalIndex{ arrayhelper::generate<countCriticalPasses,passType>([](const size_t index) {return index; }) }
-				{
-
-				}
-				constexpr scoreType score(const passType pass) const noexcept
-				{
-					const size_t indexMove{ static_cast<size_t>(moveIndex(pass)) };
-					const size_t indexScore{ static_cast<size_t>(scoreIndex(pass)) };
-					if (m_MoveCounter[indexMove] == 0)
+					PYGMALION_ASSERT(stage < countMovegenStages);
+					PYGMALION_ASSERT(pass < countMovegenPasses[static_cast<size_t>(stage)]);
+					const passType indexMove{ moveIndex(stage, pass) };
+					const passType indexScore{ scoreIndex(stage, pass) };
+					if (m_MoveCounters[static_cast<size_t>(stage)][static_cast<size_t>(indexMove)] == 0)
 					{
 						constexpr const scoreType minimum{ scoreType::minimum() };
 						return minimum;
 					}
-					if (m_ScoreCounter[indexScore].isOpen())
-						return m_ScoreCounter[indexScore] / static_cast<typename scoreType::valueType>(m_MoveCounter[indexMove]);
+					if (m_ScoreCounters[static_cast<size_t>(stage)][static_cast<size_t>(indexScore)].isOpen())
+						return m_ScoreCounters[static_cast<size_t>(stage)][static_cast<size_t>(indexScore)] / static_cast<typename scoreType::valueType>(m_MoveCounters[static_cast<size_t>(stage)][static_cast<size_t>(indexMove)]);
 					else
-						return m_ScoreCounter[indexScore];
+						return m_ScoreCounters[static_cast<size_t>(stage)][static_cast<size_t>(indexScore)];
 				}
-				constexpr scoreType criticalEvasionScore(const passType pass) const noexcept
+				constexpr const std::uint64_t& counter(const stageType stage, const passType pass) const noexcept
 				{
-					const size_t indexMove{ static_cast<size_t>(criticalEvasionMoveIndex(pass)) };
-					const size_t indexScore{ static_cast<size_t>(criticalEvasionScoreIndex(pass)) };
-					if (m_CriticalEvasionMoveCounter[indexMove] == 0)
-					{
-						constexpr const scoreType minimum{ scoreType::minimum() };
-						return minimum;
-					}
-					if (m_CriticalEvasionScoreCounter[indexScore].isOpen())
-						return m_CriticalEvasionScoreCounter[indexScore] / static_cast<typename scoreType::valueType>(m_CriticalEvasionMoveCounter[indexMove]);
-					else
-						return m_CriticalEvasionScoreCounter[indexScore];
+					PYGMALION_ASSERT(stage < countMovegenStages);
+					PYGMALION_ASSERT(pass < countMovegenPasses[static_cast<size_t>(stage)]);
+					return m_MoveCounters[static_cast<size_t>(stage)][static_cast<size_t>(moveIndex(stage, pass))];
 				}
-				constexpr scoreType tacticalScore(const passType pass) const noexcept
+				constexpr void incrementMove(const stageType stage, const passType pass, const scoreType score) noexcept
 				{
-					const size_t indexMove{ static_cast<size_t>(tacticalMoveIndex(pass)) };
-					const size_t indexScore{ static_cast<size_t>(tacticalScoreIndex(pass)) };
-					if (m_TacticalMoveCounter[indexMove] == 0)
-					{
-						constexpr const scoreType minimum{ scoreType::minimum() };
-						return minimum;
-					}
-					if (m_TacticalScoreCounter[indexScore].isOpen())
-						return m_TacticalScoreCounter[indexScore] / static_cast<typename scoreType::valueType>(m_TacticalMoveCounter[indexMove]);
-					else
-						return m_TacticalScoreCounter[indexScore];
-				}
-				constexpr scoreType tacticalCriticalEvasionScore(const passType pass) const noexcept
-				{
-					const size_t indexMove{ static_cast<size_t>(tacticalCriticalEvasionMoveIndex(pass)) };
-					const size_t indexScore{ static_cast<size_t>(tacticalCriticalEvasionScoreIndex(pass)) };
-					if (m_TacticalCriticalEvasionMoveCounter[indexMove] == 0)
-					{
-						constexpr const scoreType minimum{ scoreType::minimum() };
-						return minimum;
-					}
-					if (m_TacticalCriticalEvasionScoreCounter[indexScore].isOpen())
-						return m_TacticalCriticalEvasionScoreCounter[indexScore] / static_cast<typename scoreType::valueType>(m_TacticalCriticalEvasionMoveCounter[indexMove]);
-					else
-						return m_TacticalCriticalEvasionScoreCounter[indexScore];
-				}
-				constexpr scoreType criticalScore(const passType pass) const noexcept
-				{
-					const size_t indexMove{ static_cast<size_t>(criticalMoveIndex(pass)) };
-					const size_t indexScore{ static_cast<size_t>(criticalScoreIndex(pass)) };
-					if (m_CriticalMoveCounter[indexMove] == 0)
-					{
-						constexpr const scoreType minimum{ scoreType::minimum() };
-						return minimum;
-					}
-					if (m_CriticalScoreCounter[indexScore].isOpen())
-						return m_CriticalScoreCounter[indexScore] / static_cast<typename scoreType::valueType>(m_CriticalMoveCounter[indexMove]);
-					else
-						return m_CriticalScoreCounter[indexScore];
-				}
-				constexpr const std::uint64_t& counter(const passType pass) const noexcept
-				{
-					return m_MoveCounter[static_cast<size_t>(moveIndex(pass))];
-				}
-				constexpr const std::uint64_t& criticalEvasionCounter(const passType pass) const noexcept
-				{
-					return m_CriticalEvasionMoveCounter[static_cast<size_t>(criticalEvasionMoveIndex(pass))];
-				}
-				constexpr const std::uint64_t& tacticalCounter(const passType pass) const noexcept
-				{
-					return m_TacticalMoveCounter[static_cast<size_t>(tacticalMoveIndex(pass))];
-				}
-				constexpr const std::uint64_t& tacticalCriticalEvasionCounter(const passType pass) const noexcept
-				{
-					return m_TacticalCriticalEvasionMoveCounter[static_cast<size_t>(tacticalCriticalEvasionMoveIndex(pass))];
-				}
-				constexpr const std::uint64_t& criticalCounter(const passType pass) const noexcept
-				{
-					return m_CriticalMoveCounter[static_cast<size_t>(criticalMoveIndex(pass))];
-				}
-				constexpr void incrementMove(const passType pass, const scoreType score) noexcept
-				{
-					const size_t indexMove{ static_cast<size_t>(moveIndex(pass)) };
-					const size_t indexScore{ static_cast<size_t>(scoreIndex(pass)) };
+					PYGMALION_ASSERT(stage < countMovegenStages);
+					PYGMALION_ASSERT(pass < countMovegenPasses[static_cast<size_t>(stage)]);
+					const passType indexMove{ moveIndex(stage, pass) };
+					const passType indexScore{ scoreIndex(stage, pass) };
 					if (score.isOpen())
 					{
-						if (m_ScoreCounter[indexScore].isOpen())
-							m_ScoreCounter[indexScore] += score;
+						if (m_ScoreCounters[static_cast<size_t>(stage)][static_cast<size_t>(indexScore)].isOpen())
+							m_ScoreCounters[static_cast<size_t>(stage)][static_cast<size_t>(indexScore)] += score;
 						else
-							m_ScoreCounter[indexScore] = scoreType::max(score, m_ScoreCounter[indexScore]);
+							m_ScoreCounters[static_cast<size_t>(stage)][static_cast<size_t>(indexScore)] = scoreType::max(score, m_ScoreCounters[static_cast<size_t>(stage)][static_cast<size_t>(indexScore)]);
 					}
 					else
-						m_ScoreCounter[indexScore] = scoreType::max(score, m_ScoreCounter[indexScore]);
-					m_MoveCounter[indexMove]++;
-				}
-				constexpr void incrementCriticalEvasionMove(const passType pass, const scoreType score) noexcept
-				{
-					const size_t indexMove{ static_cast<size_t>(criticalEvasionMoveIndex(pass)) };
-					const size_t indexScore{ static_cast<size_t>(criticalEvasionScoreIndex(pass)) };
-					if (score.isOpen())
-					{
-						if (m_CriticalEvasionScoreCounter[indexScore].isOpen())
-							m_CriticalEvasionScoreCounter[indexScore] += score;
-						else
-							m_CriticalEvasionScoreCounter[indexScore] = scoreType::max(score, m_CriticalEvasionScoreCounter[indexScore]);
-					}
-					else
-						m_CriticalEvasionScoreCounter[indexScore] = scoreType::max(score, m_CriticalEvasionScoreCounter[indexScore]);
-					m_CriticalEvasionMoveCounter[indexMove]++;
-				}
-				constexpr void incrementTacticalMove(const passType pass, const scoreType score) noexcept
-				{
-					const size_t indexMove{ static_cast<size_t>(tacticalMoveIndex(pass)) };
-					const size_t indexScore{ static_cast<size_t>(tacticalScoreIndex(pass)) };
-					if (score.isOpen())
-					{
-						if (m_TacticalScoreCounter[indexScore].isOpen())
-							m_TacticalScoreCounter[indexScore] += score;
-						else
-							m_TacticalScoreCounter[indexScore] = scoreType::max(score, m_TacticalScoreCounter[indexScore]);
-					}
-					else
-						m_TacticalScoreCounter[indexScore] = scoreType::max(score, m_TacticalScoreCounter[indexScore]);
-					m_TacticalMoveCounter[indexMove]++;
-				}
-				constexpr void incrementTacticalCriticalEvasionMove(const passType pass, const scoreType score) noexcept
-				{
-					const size_t indexMove{ static_cast<size_t>(tacticalCriticalEvasionMoveIndex(pass)) };
-					const size_t indexScore{ static_cast<size_t>(tacticalCriticalEvasionScoreIndex(pass)) };
-					if (score.isOpen())
-					{
-						if (m_TacticalCriticalEvasionScoreCounter[indexScore].isOpen())
-							m_TacticalCriticalEvasionScoreCounter[indexScore] += score;
-						else
-							m_TacticalCriticalEvasionScoreCounter[indexScore] = scoreType::max(score, m_TacticalCriticalEvasionScoreCounter[indexScore]);
-					}
-					else
-						m_TacticalCriticalEvasionScoreCounter[indexScore] = scoreType::max(score, m_TacticalCriticalEvasionScoreCounter[indexScore]);
-					m_TacticalCriticalEvasionMoveCounter[indexMove]++;
-				}
-				constexpr void incrementCriticalMove(const passType pass, const scoreType score) noexcept
-				{
-					const size_t indexMove{ static_cast<size_t>(criticalMoveIndex(pass)) };
-					const size_t indexScore{ static_cast<size_t>(criticalScoreIndex(pass)) };
-					if (score.isOpen())
-					{
-						if (m_CriticalScoreCounter[indexScore].isOpen())
-							m_CriticalScoreCounter[indexScore] += score;
-						else
-							m_CriticalScoreCounter[indexScore] = scoreType::max(score, m_CriticalScoreCounter[indexScore]);
-					}
-					else
-						m_CriticalScoreCounter[indexScore] = scoreType::max(score, m_CriticalScoreCounter[indexScore]);
-					m_CriticalMoveCounter[indexMove]++;
+						m_ScoreCounters[static_cast<size_t>(stage)][static_cast<size_t>(indexScore)] = scoreType::max(score, m_ScoreCounters[static_cast<size_t>(stage)][static_cast<size_t>(indexScore)]);
+					m_MoveCounters[static_cast<size_t>(stage)][static_cast<size_t>(indexMove)]++;
 				}
 				constexpr void reset() noexcept
 				{
-					for (size_t i = 0; i < generatorType::countCriticalEvasionPasses; i++)
-					{
-						m_CriticalEvasionMoveCounter[i] = 0;
-						m_CriticalEvasionScoreCounter[i] = scoreType::zero();
-						m_CriticalEvasionIndex[i] = i;
-					}
-					for (size_t i = 0; i < generatorType::countPasses; i++)
-					{
-						m_MoveCounter[i] = 0;
-						m_ScoreCounter[i] = scoreType::zero();
-						m_Index[i] = i;
-					}
-					for (size_t i = 0; i < generatorType::countTacticalPasses; i++)
-					{
-						m_TacticalMoveCounter[i] = 0;
-						m_TacticalScoreCounter[i] = scoreType::zero();
-						m_TacticalIndex[i] = i;
-					}
-					for (size_t i = 0; i < generatorType::countTacticalCriticalEvasionPasses; i++)
-					{
-						m_TacticalCriticalEvasionMoveCounter[i] = 0;
-						m_TacticalCriticalEvasionScoreCounter[i] = scoreType::zero();
-						m_TacticalCriticalEvasionIndex[i] = i;
-					}
-					for (size_t i = 0; i < generatorType::countCriticalPasses; i++)
-					{
-						m_CriticalMoveCounter[i] = 0;
-						m_CriticalScoreCounter[i] = scoreType::zero();
-						m_CriticalIndex[i] = i;
-					}
+					for (size_t stage = 0; stage < countMovegenStages; stage++)
+						resetStage(static_cast<stageType>(stage));
 				}
 			};
 			mutable std::vector<feedback> m_Feedback;
@@ -407,240 +132,52 @@ namespace pygmalion
 					m_Feedback[d].sortIndices();
 				}
 			}
-			constexpr const std::uint64_t& counter(const passType pass, const size_t depth) const noexcept
+			constexpr const std::uint64_t& counter(const stageType stage, const passType pass, const size_t depth) const noexcept
 			{
-				PYGMALION_ASSERT(pass < countPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(feedback());
 				}
-				return m_Feedback[depth].counter(pass);
+				return m_Feedback[depth].counter(stage, pass);
 			}
-			constexpr const std::uint64_t& criticalEvasionCounter(const passType pass, const size_t depth) const noexcept
+			constexpr scoreType score(const stageType stage, const passType pass, const size_t depth) const noexcept
 			{
-				PYGMALION_ASSERT(pass < countCriticalEvasionPasses);
-				while (m_Feedback.size() <= depth)
-				{
-					m_Feedback.emplace_back(feedback());
-				}
-				return m_Feedback[depth].criticalEvasionCounter(pass);
-			}
-			constexpr scoreType score(const passType pass, const size_t depth) const noexcept
-			{
-				PYGMALION_ASSERT(pass < countPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(feedback());
 				}
 				if (depth >= 2)
-					return (m_Feedback[depth - 2].score(pass) + (3 * m_Feedback[depth].score(pass))) / 4;
+					return (m_Feedback[depth - 2].score(stage, pass) + (3 * m_Feedback[depth].score(stage, pass))) / 4;
 				else
-					return m_Feedback[depth].score(pass);
+					return m_Feedback[depth].score(stage, pass);
 			}
-			constexpr scoreType criticalEvasionScore(const passType pass, const size_t depth) const noexcept
+			constexpr void cutMove(const stageType stage, const passType pass, const size_t depth, const scoreType& score) noexcept
 			{
-				PYGMALION_ASSERT(pass < countCriticalEvasionPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(feedback());
 				}
-				if (depth >= 2)
-					return (m_Feedback[depth - 2].criticalEvasionScore(pass) + (3 * m_Feedback[depth].criticalEvasionScore(pass))) / 4;
-				else
-					return m_Feedback[depth].criticalEvasionScore(pass);
+				m_Feedback[depth].incrementMove(stage, pass, score);
 			}
-			constexpr const std::uint64_t& tacticalCounter(const passType pass, const size_t depth) const noexcept
+			constexpr void allMove(const stageType stage, const passType pass, const size_t depth, const scoreType score) noexcept
 			{
-				PYGMALION_ASSERT(pass < countTacticalPasses);
-				while (m_Feedback.size() <= depth)
-				{
-					m_Feedback.emplace_back(std::move(feedback()));
-				}
-				return m_Feedback[depth].tacticalCounter(pass);
-			}
-			constexpr const std::uint64_t& tacticalCriticalEvasionCounter(const passType pass, const size_t depth) const noexcept
-			{
-				PYGMALION_ASSERT(pass < countTacticalCriticalEvasionPasses);
-				while (m_Feedback.size() <= depth)
-				{
-					m_Feedback.emplace_back(std::move(feedback()));
-				}
-				return m_Feedback[depth].tacticalCriticalEvasionCounter(pass);
-			}
-			constexpr scoreType tacticalScore(const passType pass, const size_t depth) const noexcept
-			{
-				PYGMALION_ASSERT(pass < countTacticalPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(feedback());
 				}
-				return m_Feedback[depth].tacticalScore(pass);
-			}
-			constexpr scoreType tacticalCriticalEvasionScore(const passType pass, const size_t depth) const noexcept
-			{
-				PYGMALION_ASSERT(pass < countTacticalCriticalEvasionPasses);
-				while (m_Feedback.size() <= depth)
-				{
-					m_Feedback.emplace_back(feedback());
-				}
-				return m_Feedback[depth].tacticalCriticalEvasionScore(pass);
-			}
-			constexpr const std::uint64_t& criticalCounter(const passType pass, const size_t depth) const noexcept
-			{
-				PYGMALION_ASSERT(pass < countCriticalPasses);
-				while (m_Feedback.size() <= depth)
-				{
-					m_Feedback.emplace_back(std::move(feedback()));
-				}
-				return m_Feedback[depth].criticalCounter(pass);
-			}
-			constexpr scoreType criticalScore(const passType pass, const size_t depth) const noexcept
-			{
-				PYGMALION_ASSERT(pass < countCriticalPasses);
-				while (m_Feedback.size() <= depth)
-				{
-					m_Feedback.emplace_back(feedback());
-				}
-				return m_Feedback[depth].criticalScore(pass);
-			}
-			constexpr void cutMove(const passType pass, const size_t depth, const scoreType& score) noexcept
-			{
-				PYGMALION_ASSERT(pass < countPasses);
-				while (m_Feedback.size() <= depth)
-				{
-					m_Feedback.emplace_back(feedback());
-				}
-				m_Feedback[depth].incrementMove(pass, score);
-			}
-			constexpr void criticalEvasionCutMove(const passType pass, const size_t depth, const scoreType score) noexcept
-			{
-				PYGMALION_ASSERT(pass < countCriticalEvasionPasses);
-				while (m_Feedback.size() <= depth)
-				{
-					m_Feedback.emplace_back(feedback());
-				}
-				m_Feedback[depth].incrementCriticalEvasionMove(pass, score);
-			}
-			constexpr void allMove(const passType pass, const size_t depth, const scoreType score) noexcept
-			{
-				PYGMALION_ASSERT(pass < countPasses);
-				while (m_Feedback.size() <= depth)
-				{
-					m_Feedback.emplace_back(feedback());
-				}
-				m_Feedback[depth].incrementMove(pass, score);
-			}
-			constexpr void criticalEvasionAllMove(const passType pass, const size_t depth, const scoreType score) noexcept
-			{
-				PYGMALION_ASSERT(pass < countPasses);
-				while (m_Feedback.size() <= depth)
-				{
-					m_Feedback.emplace_back(feedback());
-				}
-				m_Feedback[depth].incrementCriticalEvasionMove(pass, score);
-			}
-			constexpr void tacticalCutMove(const passType tacticalPass, const size_t depth, const scoreType score) noexcept
-			{
-				PYGMALION_ASSERT(tacticalPass < countTacticalPasses);
-				while (m_Feedback.size() <= depth)
-				{
-					m_Feedback.emplace_back(feedback());
-				}
-				m_Feedback[depth].incrementTacticalMove(tacticalPass, score);
-			}
-			constexpr void tacticalCriticalEvasionCutMove(const passType& tacticalCriticalEvasionPass, const size_t depth, const scoreType score) noexcept
-			{
-				PYGMALION_ASSERT(tacticalCriticalEvasionPass < countTacticalCriticalEvasionPasses);
-				while (m_Feedback.size() <= depth)
-				{
-					m_Feedback.emplace_back(feedback());
-				}
-				m_Feedback[depth].incrementTacticalCriticalEvasionMove(tacticalCriticalEvasionPass, score);
-			}
-			constexpr void tacticalAllMove(const passType tacticalPass, const size_t depth, const scoreType& score) noexcept
-			{
-				PYGMALION_ASSERT(tacticalPass < countTacticalPasses);
-				while (m_Feedback.size() <= depth)
-				{
-					m_Feedback.emplace_back(feedback());
-				}
-				m_Feedback[depth].incrementTacticalMove(tacticalPass, score);
-			}
-			constexpr void tacticalCriticalEvasionAllMove(const passType& tacticalCriticalEvasionPass, const size_t depth, const scoreType score) noexcept
-			{
-				PYGMALION_ASSERT(tacticalCriticalEvasionPass < countTacticalCriticalEvasionPasses);
-				while (m_Feedback.size() <= depth)
-				{
-					m_Feedback.emplace_back(feedback());
-				}
-				m_Feedback[depth].incrementTacticalCriticalEvasionMove(tacticalCriticalEvasionPass, score);
-			}
-			constexpr void criticalCutMove(const passType criticalPass, const size_t depth, const scoreType score) noexcept
-			{
-				PYGMALION_ASSERT(criticalPass < countCriticalPasses);
-				while (m_Feedback.size() <= depth)
-				{
-					m_Feedback.emplace_back(feedback());
-				}
-				m_Feedback[depth].incrementCriticalMove(criticalPass, score);
-			}
-			constexpr void criticalAllMove(const passType criticalPass, const size_t depth, const scoreType score) noexcept
-			{
-				PYGMALION_ASSERT(criticalPass < countCriticalPasses);
-				while (m_Feedback.size() <= depth)
-				{
-					m_Feedback.emplace_back(feedback());
-				}
-				m_Feedback[depth].incrementCriticalMove(criticalPass, score);
+				m_Feedback[depth].incrementMove(stage, pass, score);
 			}
 			constexpr void reset() noexcept
 			{
 				m_Feedback.clear();
 			}
-			constexpr passType index(const passType pass, const size_t depth) const noexcept
+			constexpr passType index(const stageType stage, const passType pass, const size_t depth) const noexcept
 			{
-				PYGMALION_ASSERT(pass < countPasses);
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(feedback());
 				}
-				return m_Feedback[depth].index(pass);
-			}
-			constexpr passType criticalEvasionIndex(const passType pass, const size_t depth) const noexcept
-			{
-				PYGMALION_ASSERT(pass < countCriticalEvasionPasses);
-				while (m_Feedback.size() <= depth)
-				{
-					m_Feedback.emplace_back(feedback());
-				}
-				return m_Feedback[depth].criticalEvasionIndex(pass);
-			}
-			constexpr passType tacticalIndex(const passType pass, const size_t depth) const noexcept
-			{
-				PYGMALION_ASSERT(pass < countTacticalPasses);
-				while (m_Feedback.size() <= depth)
-				{
-					m_Feedback.emplace_back(feedback());
-				}
-				return m_Feedback[depth].tacticalIndex(pass);
-			}
-			constexpr passType tacticalCriticalEvasionIndex(const passType pass, const size_t depth) const noexcept
-			{
-				PYGMALION_ASSERT(pass < countTacticalCriticalEvasionPasses);
-				while (m_Feedback.size() <= depth)
-				{
-					m_Feedback.emplace_back(feedback());
-				}
-				return m_Feedback[depth].tacticalCriticalEvasionIndex(pass);
-			}
-			constexpr passType criticalIndex(const passType pass, const size_t depth) const noexcept
-			{
-				PYGMALION_ASSERT(pass < countCriticalPasses);
-				while (m_Feedback.size() <= depth)
-				{
-					m_Feedback.emplace_back(feedback());
-				}
-				return m_Feedback[depth].criticalIndex(pass);
+				return m_Feedback[depth].index(stage, pass);
 			}
 		};
 		class context :
@@ -651,13 +188,16 @@ namespace pygmalion
 			using descriptorDynamics = DESCRIPTOR_DYNAMICS;
 #include "include_dynamics.h"
 		private:
-			scorelistType m_Scores;
+			stagelistType m_NormalStages;
+			stagelistType m_TacticalStages;
+			stagelistType m_CriticalStages;
+			scorelistType m_NormalScores;
 			scorelistType m_TacticalScores;
 			scorelistType m_CriticalScores;
-			movelistType m_Moves;
+			movelistType m_NormalMoves;
 			movelistType m_TacticalMoves;
 			movelistType m_CriticalMoves;
-			passlistType m_Passes;
+			passlistType m_NormalPasses;
 			passlistType m_TacticalPasses;
 			passlistType m_CriticalPasses;
 		public:
@@ -666,37 +206,49 @@ namespace pygmalion
 
 			}
 			~context() noexcept = default;
-			scorelistType& scores() noexcept
+			stagelistType& normalStages() noexcept
 			{
-				return m_Scores;
+				return m_NormalStages;
+			}
+			scorelistType& normalScores() noexcept
+			{
+				return m_NormalScores;
+			}
+			movelistType& normalMoves() noexcept
+			{
+				return m_NormalMoves;
+			}
+			passlistType& normalPasses() noexcept
+			{
+				return m_NormalPasses;
 			}
 			scorelistType& tacticalScores() noexcept
 			{
 				return m_TacticalScores;
 			}
-			scorelistType& criticalScores() noexcept
-			{
-				return m_CriticalScores;
-			}
-			movelistType& moves() noexcept
-			{
-				return m_Moves;
-			}
 			movelistType& tacticalMoves() noexcept
 			{
 				return m_TacticalMoves;
 			}
-			movelistType& criticalMoves() noexcept
+			stagelistType& tacticalStages() noexcept
 			{
-				return m_CriticalMoves;
-			}
-			passlistType& passes() noexcept
-			{
-				return m_Passes;
+				return m_TacticalStages;
 			}
 			passlistType& tacticalPasses() noexcept
 			{
 				return m_TacticalPasses;
+			}
+			stagelistType& criticalStages() noexcept
+			{
+				return m_CriticalStages;
+			}
+			scorelistType& criticalScores() noexcept
+			{
+				return m_CriticalScores;
+			}
+			movelistType& criticalMoves() noexcept
+			{
+				return m_CriticalMoves;
 			}
 			passlistType& criticalPasses() noexcept
 			{
@@ -704,14 +256,17 @@ namespace pygmalion
 			}
 			void clearMovegenLists() noexcept
 			{
-				m_Scores.clear();
+				m_NormalStages.clear();
+				m_NormalScores.clear();
+				m_NormalMoves.clear();
+				m_NormalPasses.clear();
+				m_TacticalStages.clear();
 				m_TacticalScores.clear();
-				m_CriticalScores.clear();
-				m_Moves.clear();
 				m_TacticalMoves.clear();
-				m_CriticalMoves.clear();
-				m_Passes.clear();
 				m_TacticalPasses.clear();
+				m_CriticalStages.clear();
+				m_CriticalScores.clear();
+				m_CriticalMoves.clear();
 				m_CriticalPasses.clear();
 			}
 		};
@@ -736,13 +291,19 @@ namespace pygmalion
 			boardType& m_Position;
 			historyType& m_History;
 			const movedataType m_MoveData;
-			mutable passType m_CurrentPass;
-			mutable passType m_LastPass;
+			mutable stageType m_LastNormalStage;
+			mutable stageType m_CurrentNormalStage;
+			mutable stageType m_LastTacticalStage;
+			mutable stageType m_CurrentTacticalStage;
+			mutable stageType m_LastCriticalStage;
+			mutable stageType m_CurrentCriticalStage;
+			mutable passType m_CurrentNormalPass;
+			mutable passType m_LastNormalPass;
 			mutable passType m_CurrentTacticalPass;
 			mutable passType m_LastTacticalPass;
 			mutable passType m_CurrentCriticalPass;
 			mutable passType m_LastCriticalPass;
-			mutable indexType m_CurrentMove;
+			mutable indexType m_CurrentNormalMove;
 			mutable indexType m_CurrentTacticalMove;
 			mutable indexType m_CurrentCriticalMove;
 			mutable indexType m_CurrentLegalMove;
@@ -752,60 +313,130 @@ namespace pygmalion
 			mutable bool m_IsPositionCritical{ false };
 			const bool m_IsNullmove;
 			const hashType m_Hash;
+			constexpr static inline const std::array<size_t, 4> m_NormalStages
+			{
+				movegenStage_WinningMoves,
+				movegenStage_QuietMoves,
+				movegenStage_EqualMoves,
+				movegenStage_LosingMoves
+			};
+			constexpr static inline const size_t countNormalStages{ 4 };
+			constexpr static inline const std::array<size_t, 3> m_TacticalStages
+			{
+				movegenStage_WinningMoves,
+				movegenStage_EqualMoves,
+				movegenStage_LosingMoves
+			};
+			constexpr static inline const size_t countTacticalStages{ 3 };
+			constexpr static inline const std::array<size_t, 1> m_CriticalEvasionStages
+			{
+				movegenStage_CriticalEvasionMoves
+			};
+			constexpr static inline const size_t countCriticalEvasionStages{ 1 };
+			constexpr static inline const std::array<size_t, 1> m_CriticalEvasionTacticalStages
+			{
+				movegenStage_TacticalCriticalEvasionMoves
+			};
+			constexpr static inline const size_t countCriticalEvasionTacticalStages{ 1 };
+			constexpr static inline const std::array<size_t, 4> m_CriticalStages
+			{
+				movegenStage_CriticalMoves
+			};
+			constexpr static inline const size_t countCriticalStages{ 1 };
 			bool computeHasLegalMove(const size_t depth, movegenFeedback& feedback) const
 			{
-				bool allMovesGenerated{ false };
-				if (isPositionCritical())
+				while (m_CurrentLegalMove >= m_pContext->normalMoves().length())
 				{
-					while (!allMovesGenerated)
+					if (m_CurrentNormalStage < countNormalStages)
 					{
-						if (m_CurrentLegalMove >= m_pContext->moves().length())
+						if (m_CurrentNormalPass < countMovegenPasses[static_cast<size_t>(m_NormalStages[static_cast<size_t>(m_CurrentNormalStage)])])
 						{
-							if (m_CurrentPass >= countCriticalEvasionPasses)
+							generatorType::generateMoves(m_NormalStages[static_cast<size_t>(m_CurrentNormalStage)], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->normalMoves(), feedback.index(m_NormalStages[static_cast<size_t>(m_CurrentNormalStage)], m_CurrentNormalPass, depth));
+							while (m_pContext->normalPasses().length() < m_pContext->normalMoves().length())
 							{
-								allMovesGenerated = true;
-								return false;
+								m_pContext->normalPasses().add(m_CurrentNormalPass);
+								m_pContext->normalStages().add(m_NormalStages[static_cast<size_t>(m_CurrentNormalStage)]);
 							}
-							generatorType::generateCriticalEvasionMoves(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->moves(), feedback.index(m_CurrentPass, depth));
-							while (m_pContext->passes().length() < m_pContext->moves().length())
-								m_pContext->passes().add(m_CurrentPass);
-							++m_CurrentPass;
+							++m_CurrentNormalPass;
 						}
-						while (m_CurrentLegalMove < m_pContext->moves().length())
+						else
 						{
-							if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->moves()[m_CurrentLegalMove]))
-								return true;
-							++m_CurrentLegalMove;
+							++m_CurrentNormalStage;
+							m_CurrentNormalPass = 0;
 						}
 					}
+					else
+						return false;
 				}
-				else
+				while (m_CurrentLegalMove < m_pContext->normalMoves().length())
 				{
-					while (!allMovesGenerated)
+					if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->normalMoves()[m_CurrentLegalMove]))
 					{
-						if (m_CurrentLegalMove >= m_pContext->moves().length())
-						{
-							if (m_CurrentPass >= countPasses)
-							{
-								allMovesGenerated = true;
-								return false;
-							}
-							generatorType::generateMoves(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->moves(), feedback.index(m_CurrentPass, depth));
-							while (m_pContext->passes().length() < m_pContext->moves().length())
-								m_pContext->passes().add(m_CurrentPass);
-							++m_CurrentPass;
-						}
-						while (m_CurrentLegalMove < m_pContext->moves().length())
-						{
-							if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->moves()[m_CurrentLegalMove]))
-								return true;
-							++m_CurrentLegalMove;
-						}
+						++m_CurrentLegalMove;
+						return true;
 					}
+					++m_CurrentLegalMove;
 				}
-				return false;
+				return computeHasLegalMove(depth, feedback);
 			}
 		public:
+			constexpr size_t normalStagesCount() const noexcept
+			{
+				return countNormalStages;
+			}
+			constexpr size_t normalPassesCount(const stageType stage) const noexcept
+			{
+				PYGMALION_ASSERT(stage < countNormalStages);
+				return countMovegenPasses[static_cast<size_t>(m_NormalStages[static_cast<size_t>(stage)])];
+			}
+			constexpr stageType normalStage(const size_t stageIndex) const noexcept
+			{
+				PYGMALION_ASSERT(stageIndex < countNormalStages);
+				return m_NormalStages[stageIndex];
+			}
+			constexpr passType normalPass(movegenFeedback& feedback, const size_t stageIndex, const size_t passIndex) const noexcept
+			{
+				PYGMALION_ASSERT(stageIndex < countNormalStages);
+				return feedback.index(m_NormalStages[stageIndex], passIndex, m_History.length());
+			}
+			constexpr size_t tacticalStagesCount() const noexcept
+			{
+				return countTacticalStages;
+			}
+			constexpr size_t tacticalPassesCount(const stageType stage) const noexcept
+			{
+				PYGMALION_ASSERT(stage < countTacticalStages);
+				return countMovegenPasses[static_cast<size_t>(m_TacticalStages[static_cast<size_t>(stage)])];
+			}
+			constexpr stageType tacticalStage(const size_t stageIndex) const noexcept
+			{
+				PYGMALION_ASSERT(stageIndex < countTacticalStages);
+				return m_TacticalStages[stageIndex];
+			}
+			constexpr passType tacticalPass(movegenFeedback& feedback, const size_t stageIndex, const size_t passIndex) const noexcept
+			{
+				PYGMALION_ASSERT(stageIndex < countTacticalStages);
+				return feedback.index(m_TacticalStages[stageIndex], passIndex, m_History.length());
+			}
+			constexpr size_t criticalStagesCount() const noexcept
+			{
+				return countCriticalStages;
+			}
+			constexpr size_t criticalPassesCount(const stageType stage) const noexcept
+			{
+				PYGMALION_ASSERT(stage < countCriticalStages);
+				return countMovegenPasses[static_cast<size_t>(m_CriticalStages[static_cast<size_t>(stage)])];
+			}
+			constexpr stageType criticalStage(const size_t stageIndex) const noexcept
+			{
+				PYGMALION_ASSERT(stageIndex < countCriticalStages);
+				return m_CriticalStages[stageIndex];
+			}
+			constexpr passType criticalPass(movegenFeedback& feedback, const size_t stageIndex, const size_t passIndex) const noexcept
+			{
+				PYGMALION_ASSERT(stageIndex < countCriticalStages);
+				return feedback.index(m_CriticalStages[stageIndex], passIndex, m_History.length());
+			}
 			constexpr bool isPositionCritical() const noexcept
 			{
 				if (!m_IsPositionCriticalValid)
@@ -815,41 +446,29 @@ namespace pygmalion
 				}
 				return m_IsPositionCritical;
 			}
-			constexpr void allMove(movegenFeedback& feedback, const size_t depth, const scoreType score) const noexcept
+			constexpr void normalAllMove(movegenFeedback& feedback, const size_t depth, const scoreType score) const noexcept
 			{
-				if (isPositionCritical())
-					feedback.criticalEvasionAllMove(m_LastPass, depth, score);
-				else
-					feedback.allMove(m_LastPass, depth, score);
+				feedback.allMove(m_LastNormalStage, m_LastNormalPass, depth, score);
 			}
-			constexpr void criticalAllMove(movegenFeedback& feedback, const size_t depth, const scoreType score) const noexcept
+			constexpr void normalCutMove(movegenFeedback& feedback, const size_t depth, const scoreType score) const noexcept
 			{
-				feedback.criticalAllMove(m_LastPass, depth, score);
+				feedback.cutMove(m_LastNormalStage, m_LastNormalPass, depth, score);
 			}
 			constexpr void tacticalAllMove(movegenFeedback& feedback, const size_t depth, const scoreType score) const noexcept
 			{
-				if (isPositionCritical())
-					feedback.tacticalCriticalEvasionAllMove(m_LastTacticalPass, depth, score);
-				else
-					feedback.tacticalAllMove(m_LastTacticalPass, depth, score);
-			}
-			constexpr void cutMove(movegenFeedback& feedback, const size_t depth, const scoreType score) const noexcept
-			{
-				if (isPositionCritical())
-					feedback.criticalEvasionCutMove(m_LastPass, depth, score);
-				else
-					feedback.cutMove(m_LastPass, depth, score);
-			}
-			constexpr void criticalCutMove(movegenFeedback& feedback, const size_t depth, const scoreType score) const noexcept
-			{
-				feedback.criticalCutMove(m_LastPass, depth, score);
+				feedback.allMove(m_LastTacticalStage, m_LastTacticalPass, depth, score);
 			}
 			constexpr void tacticalCutMove(movegenFeedback& feedback, const size_t depth, const scoreType score) const noexcept
 			{
-				if (isPositionCritical())
-					feedback.tacticalCriticalEvasionCutMove(m_LastTacticalPass, depth, score);
-				else
-					feedback.tacticalCutMove(m_LastTacticalPass, depth, score);
+				feedback.cutMove(m_LastTacticalStage, m_LastTacticalPass, depth, score);
+			}
+			constexpr void criticalAllMove(movegenFeedback& feedback, const size_t depth, const scoreType score) const noexcept
+			{
+				feedback.allMove(m_LastCriticalStage, m_LastCriticalPass, depth, score);
+			}
+			constexpr void criticalCutMove(movegenFeedback& feedback, const size_t depth, const scoreType score) const noexcept
+			{
+				feedback.cutMove(m_LastCriticalStage, m_LastCriticalPass, depth, score);
 			}
 			bool hasLegalMove(const size_t depth, movegenFeedback& feedback) const
 			{
@@ -870,338 +489,247 @@ namespace pygmalion
 			}
 			bool nextMove(movebitsType& moveBits, const size_t depth, movegenFeedback& feedback) const noexcept
 			{
-				bool allMovesGenerated{ false };
-				if (isPositionCritical())
+				if (m_CurrentNormalMove >= m_pContext->normalMoves().length())
 				{
-					while (!allMovesGenerated)
+					if (m_CurrentNormalStage < countNormalStages)
 					{
-						if (m_CurrentMove >= m_pContext->moves().length())
+						if (m_CurrentNormalPass < countMovegenPasses[static_cast<size_t>(m_NormalStages[static_cast<size_t>(m_CurrentNormalStage)])])
 						{
-							if (m_CurrentPass >= countCriticalEvasionPasses)
+//							std::cout << "generating stage " << static_cast<size_t>(m_CurrentNormalStage) << " pass " << static_cast<size_t>(m_CurrentNormalPass) << " " << generatorType::passToString(normalStage(static_cast<size_t>(m_CurrentNormalStage)), normalPass(feedback, static_cast<size_t>(m_CurrentNormalStage), static_cast<size_t>(m_CurrentNormalPass))) << std::endl;
+							generatorType::generateMoves(m_NormalStages[static_cast<size_t>(m_CurrentNormalStage)], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->normalMoves(), feedback.index(m_NormalStages[static_cast<size_t>(m_CurrentNormalStage)], m_CurrentNormalPass, depth));
+							while (m_pContext->normalPasses().length() < m_pContext->normalMoves().length())
 							{
-								allMovesGenerated = true;
-								return false;
+								m_pContext->normalPasses().add(m_CurrentNormalPass);
+								m_pContext->normalStages().add(m_NormalStages[static_cast<size_t>(m_CurrentNormalStage)]);
 							}
-							generatorType::generateCriticalEvasionMoves(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->moves(), feedback.criticalEvasionIndex(m_CurrentPass, depth));
-							while (m_pContext->passes().length() < m_pContext->moves().length())
-								m_pContext->passes().add(m_CurrentPass);
-							++m_CurrentPass;
+							++m_CurrentNormalPass;
 						}
-						while (m_CurrentMove < m_pContext->moves().length())
+						else
 						{
-							moveBits = m_pContext->moves()[m_CurrentMove];
-							++m_CurrentMove;
-							if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits))
-							{
-								m_LastPass = m_pContext->passes()[m_CurrentMove - 1];
-								return true;
-							}
+							++m_CurrentNormalStage;
+							m_CurrentNormalPass = 0;
 						}
 					}
+					else
+						return false;
 				}
-				else
+				while (m_CurrentNormalMove < m_pContext->normalMoves().length())
 				{
-					while (!allMovesGenerated)
+					moveBits = m_pContext->normalMoves()[m_CurrentNormalMove];
+					if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits))
 					{
-						if (m_CurrentMove >= m_pContext->moves().length())
-						{
-							if (m_CurrentPass >= countPasses)
-							{
-								allMovesGenerated = true;
-								return false;
-							}
-							generatorType::generateMoves(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->moves(), feedback.index(m_CurrentPass, depth));
-							while (m_pContext->passes().length() < m_pContext->moves().length())
-								m_pContext->passes().add(m_CurrentPass);
-							++m_CurrentPass;
-						}
-						while (m_CurrentMove < m_pContext->moves().length())
-						{
-							moveBits = m_pContext->moves()[m_CurrentMove];
-							++m_CurrentMove;
-							if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits))
-							{
-								m_LastPass = m_pContext->passes()[m_CurrentMove - 1];
-								return true;
-							}
-						}
+						m_LastNormalPass = m_pContext->normalPasses()[m_CurrentNormalMove];
+						m_LastNormalStage = m_pContext->normalStages()[m_CurrentNormalMove];
+						++m_CurrentNormalMove;
+						return true;
 					}
+					++m_CurrentNormalMove;
 				}
-				return false;
+				return nextMove(moveBits, depth, feedback);
 			}
 			template<typename LAMBDA>
 			bool nextMove(movebitsType& moveBits, const size_t depth, movegenFeedback& feedback, const LAMBDA& lambda) const noexcept
 			{
-				bool allMovesGenerated{ false };
-				if (isPositionCritical())
+				while (m_CurrentNormalMove >= m_pContext->normalMoves().length())
 				{
-					while (!allMovesGenerated)
+					if (m_CurrentNormalStage < countNormalStages)
 					{
-						if (m_CurrentMove >= m_pContext->moves().length())
+						if (m_CurrentNormalPass < countMovegenPasses[static_cast<size_t>(m_NormalStages[static_cast<size_t>(m_CurrentNormalStage)])])
 						{
-							if (m_CurrentPass >= countCriticalEvasionPasses)
+							generatorType::generateMoves(m_NormalStages[static_cast<size_t>(m_CurrentNormalStage)], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->normalMoves(), feedback.index(m_NormalStages[static_cast<size_t>(m_CurrentNormalStage)], m_CurrentNormalPass, depth));
+							const auto start{ m_pContext->normalPasses().length() };
+							while (m_pContext->normalPasses().length() < m_pContext->normalMoves().length())
 							{
-								allMovesGenerated = true;
-								return false;
+								m_pContext->normalScores().add(lambda(m_pContext->normalMoves()[m_pContext->normalPasses().length()]));
+								m_pContext->normalPasses().add(m_CurrentNormalPass);
+								m_pContext->normalStages().add(m_NormalStages[static_cast<size_t>(m_CurrentNormalStage)]);
 							}
-							generatorType::generateCriticalEvasionMoves(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->moves(), feedback.criticalEvasionIndex(m_CurrentPass, depth));
-							const auto start{ m_pContext->passes().length() };
-							while (m_pContext->passes().length() < m_pContext->moves().length())
-							{
-								m_pContext->scores().add(lambda(m_pContext->moves()[m_pContext->passes().length()]));
-								m_pContext->passes().add(m_CurrentPass);
-							}
-							sort<movebitsType, scoreType>::sortValues(m_pContext->moves().ptr() + static_cast<size_t>(start), m_pContext->scores().ptr() + static_cast<size_t>(start), static_cast<size_t>(m_pContext->moves().length() - start));
-							++m_CurrentPass;
+							++m_CurrentNormalPass;
 						}
-						while (m_CurrentMove < m_pContext->moves().length())
+						else
 						{
-							moveBits = m_pContext->moves()[m_CurrentMove];
-							++m_CurrentMove;
-							if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits))
-							{
-								m_LastPass = m_pContext->passes()[m_CurrentMove - 1];
-								return true;
-							}
+							++m_CurrentNormalStage;
+							m_CurrentNormalPass = 0;
 						}
 					}
+					else
+						return false;
 				}
-				else
+				while (m_CurrentNormalMove < m_pContext->normalMoves().length())
 				{
-					while (!allMovesGenerated)
+					moveBits = m_pContext->normalMoves()[m_CurrentNormalMove];
+					if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits))
 					{
-						if (m_CurrentMove >= m_pContext->moves().length())
-						{
-							if (m_CurrentPass >= countPasses)
-							{
-								allMovesGenerated = true;
-								return false;
-							}
-							generatorType::generateMoves(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->moves(), feedback.index(m_CurrentPass, depth));
-							const auto start{ m_pContext->passes().length() };
-							while (m_pContext->passes().length() < m_pContext->moves().length())
-							{
-								m_pContext->scores().add(lambda(m_pContext->moves()[m_pContext->passes().length()]));
-								m_pContext->passes().add(m_CurrentPass);
-							}
-							sort<movebitsType, scoreType>::sortValues(m_pContext->moves().ptr() + static_cast<size_t>(start), m_pContext->scores().ptr() + static_cast<size_t>(start), static_cast<size_t>(m_pContext->moves().length() - start));
-							++m_CurrentPass;
-						}
-						while (m_CurrentMove < m_pContext->moves().length())
-						{
-							moveBits = m_pContext->moves()[m_CurrentMove];
-							++m_CurrentMove;
-							if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits))
-							{
-								m_LastPass = m_pContext->passes()[m_CurrentMove - 1];
-								return true;
-							}
-						}
+						m_LastNormalPass = m_pContext->normalPasses()[m_CurrentNormalMove];
+						m_LastNormalStage = m_pContext->normalStages()[m_CurrentNormalMove];
+						++m_CurrentNormalMove;
+						return true;
 					}
+					++m_CurrentNormalMove;
 				}
-				return false;
+				return nextMove(moveBits, depth, feedback, lambda);
 			}
 			bool nextTacticalMove(movebitsType& moveBits, const size_t depth, movegenFeedback& feedback) const noexcept
 			{
-				bool allMovesGenerated{ false };
-				if (isPositionCritical())
+				while (m_CurrentTacticalMove >= m_pContext->tacticalMoves().length())
 				{
-					while (!allMovesGenerated)
+					if (m_CurrentTacticalStage < countTacticalStages)
 					{
-						if (m_CurrentTacticalMove >= m_pContext->tacticalMoves().length())
+						if (m_CurrentTacticalPass < countMovegenPasses[static_cast<size_t>(m_TacticalStages[static_cast<size_t>(m_CurrentTacticalStage)])])
 						{
-							if (m_CurrentTacticalPass >= countTacticalCriticalEvasionPasses)
-							{
-								allMovesGenerated = true;
-								return false;
-							}
-							generatorType::generateTacticalCriticalEvasionMoves(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->tacticalMoves(), feedback.tacticalCriticalEvasionIndex(m_CurrentTacticalPass, depth));
-							const auto start{ m_pContext->tacticalPasses().length() };
+							generatorType::generateMoves(m_TacticalStages[static_cast<size_t>(m_CurrentTacticalStage)], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->tacticalMoves(), feedback.index(m_TacticalStages[static_cast<size_t>(m_CurrentTacticalStage)], m_CurrentTacticalPass, depth));
 							while (m_pContext->tacticalPasses().length() < m_pContext->tacticalMoves().length())
+							{
 								m_pContext->tacticalPasses().add(m_CurrentTacticalPass);
+								m_pContext->tacticalStages().add(m_TacticalStages[static_cast<size_t>(m_CurrentTacticalStage)]);
+							}
 							++m_CurrentTacticalPass;
 						}
-						while (m_CurrentTacticalMove < m_pContext->tacticalMoves().length())
+						else
 						{
-							moveBits = m_pContext->tacticalMoves()[m_CurrentTacticalMove];
-							++m_CurrentTacticalMove;
-							if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits))
-							{
-								m_LastTacticalPass = m_pContext->tacticalPasses()[m_CurrentTacticalMove - 1];
-								return true;
-							}
+							++m_CurrentTacticalStage;
+							m_CurrentTacticalPass = 0;
 						}
 					}
+					else
+						return false;
 				}
-				else
+				while (m_CurrentTacticalMove < m_pContext->tacticalMoves().length())
 				{
-					while (!allMovesGenerated)
+					moveBits = m_pContext->tacticalMoves()[m_CurrentTacticalMove];
+					if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits))
 					{
-						if (m_CurrentTacticalMove >= m_pContext->tacticalMoves().length())
-						{
-							if (m_CurrentTacticalPass >= countTacticalPasses)
-							{
-								allMovesGenerated = true;
-								return false;
-							}
-							generatorType::generateTacticalMoves(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->tacticalMoves(), feedback.tacticalIndex(m_CurrentTacticalPass, depth));
-							const auto start{ m_pContext->tacticalPasses().length() };
-							while (m_pContext->tacticalPasses().length() < m_pContext->tacticalMoves().length())
-								m_pContext->tacticalPasses().add(m_CurrentTacticalPass);
-							++m_CurrentTacticalPass;
-						}
-						while (m_CurrentTacticalMove < m_pContext->tacticalMoves().length())
-						{
-							moveBits = m_pContext->tacticalMoves()[m_CurrentTacticalMove];
-							++m_CurrentTacticalMove;
-							if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits))
-							{
-								m_LastTacticalPass = m_pContext->tacticalPasses()[m_CurrentTacticalMove - 1];
-								return true;
-							}
-						}
+						m_LastTacticalPass = m_pContext->tacticalPasses()[m_CurrentTacticalMove];
+						m_LastTacticalStage = m_pContext->tacticalStages()[m_CurrentTacticalMove];
+						++m_CurrentTacticalMove;
+						return true;
 					}
+					++m_CurrentTacticalMove;
 				}
-				return false;
+				return nextTacticalMove(moveBits, depth, feedback);
 			}
 			template<typename LAMBDA>
 			bool nextTacticalMove(movebitsType& moveBits, const size_t depth, movegenFeedback& feedback, const LAMBDA& lambda) const noexcept
 			{
-				bool allMovesGenerated{ false };
-				if (isPositionCritical())
+				while (m_CurrentTacticalMove >= m_pContext->tacticalMoves().length())
 				{
-					while (!allMovesGenerated)
+					if (m_CurrentTacticalStage < countTacticalStages)
 					{
-						if (m_CurrentTacticalMove >= m_pContext->tacticalMoves().length())
+						if (m_CurrentTacticalPass < countMovegenPasses[static_cast<size_t>(m_TacticalStages[static_cast<size_t>(m_CurrentTacticalStage)])])
 						{
-							if (m_CurrentTacticalPass >= countTacticalCriticalEvasionPasses)
-							{
-								allMovesGenerated = true;
-								return false;
-							}
-							generatorType::generateTacticalCriticalEvasionMoves(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->tacticalMoves(), feedback.tacticalCriticalEvasionIndex(m_CurrentTacticalPass, depth));
+							generatorType::generateMoves(m_TacticalStages[static_cast<size_t>(m_CurrentTacticalStage)], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->tacticalMoves(), feedback.index(m_TacticalStages[static_cast<size_t>(m_CurrentTacticalStage)], m_CurrentTacticalPass, depth));
 							const auto start{ m_pContext->tacticalPasses().length() };
 							while (m_pContext->tacticalPasses().length() < m_pContext->tacticalMoves().length())
 							{
 								m_pContext->tacticalScores().add(lambda(m_pContext->tacticalMoves()[m_pContext->tacticalPasses().length()]));
 								m_pContext->tacticalPasses().add(m_CurrentTacticalPass);
+								m_pContext->tacticalStages().add(m_TacticalStages[static_cast<size_t>(m_CurrentTacticalStage)]);
 							}
-							sort<movebitsType, scoreType>::sortValues(m_pContext->tacticalMoves().ptr() + static_cast<size_t>(start), m_pContext->tacticalScores().ptr() + static_cast<size_t>(start), static_cast<size_t>(m_pContext->tacticalMoves().length() - start));
 							++m_CurrentTacticalPass;
 						}
-						while (m_CurrentTacticalMove < m_pContext->tacticalMoves().length())
+						else
 						{
-							moveBits = m_pContext->tacticalMoves()[m_CurrentTacticalMove];
-							++m_CurrentTacticalMove;
-							if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits))
-							{
-								m_LastTacticalPass = m_pContext->tacticalPasses()[m_CurrentTacticalMove - 1];
-								return true;
-							}
+							++m_CurrentTacticalStage;
+							m_CurrentTacticalPass = 0;
 						}
 					}
+					else
+						return false;
 				}
-				else
+				while (m_CurrentTacticalMove < m_pContext->tacticalMoves().length())
 				{
-					while (!allMovesGenerated)
+					moveBits = m_pContext->tacticalMoves()[m_CurrentTacticalMove];
+					if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits))
 					{
-						if (m_CurrentTacticalMove >= m_pContext->tacticalMoves().length())
-						{
-							if (m_CurrentTacticalPass >= countTacticalPasses)
-							{
-								allMovesGenerated = true;
-								return false;
-							}
-							generatorType::generateTacticalMoves(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->tacticalMoves(), feedback.tacticalIndex(m_CurrentTacticalPass, depth));
-							const auto start{ m_pContext->tacticalPasses().length() };
-							while (m_pContext->tacticalPasses().length() < m_pContext->tacticalMoves().length())
-							{
-								m_pContext->tacticalScores().add(lambda(m_pContext->tacticalMoves()[m_pContext->tacticalPasses().length()]));
-								m_pContext->tacticalPasses().add(m_CurrentTacticalPass);
-							}
-							sort<movebitsType, scoreType>::sortValues(m_pContext->tacticalMoves().ptr() + static_cast<size_t>(start), m_pContext->tacticalScores().ptr() + static_cast<size_t>(start), static_cast<size_t>(m_pContext->tacticalMoves().length() - start));
-							++m_CurrentTacticalPass;
-						}
-						while (m_CurrentTacticalMove < m_pContext->tacticalMoves().length())
-						{
-							moveBits = m_pContext->tacticalMoves()[m_CurrentTacticalMove];
-							++m_CurrentTacticalMove;
-							if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits))
-							{
-								m_LastTacticalPass = m_pContext->tacticalPasses()[m_CurrentTacticalMove - 1];
-								return true;
-							}
-						}
+						m_LastTacticalPass = m_pContext->tacticalPasses()[m_CurrentTacticalMove];
+						m_LastTacticalStage = m_pContext->tacticalStages()[m_CurrentTacticalMove];
+						++m_CurrentTacticalMove;
+						return true;
 					}
+					++m_CurrentTacticalMove;
 				}
-				return false;
+				return nextTacticalMove(moveBits, depth, feedback, lambda);
 			}
 			bool nextCriticalMove(movebitsType& moveBits, const size_t depth, movegenFeedback& feedback) const noexcept
 			{
-				bool allMovesGenerated{ false };
-				while (!allMovesGenerated)
+				while (m_CurrentCriticalMove >= m_pContext->criticalMoves().length())
 				{
-					if (m_CurrentCriticalMove >= m_pContext->criticalMoves().length())
+					if (m_CurrentCriticalStage < countCriticalStages)
 					{
-						if (m_CurrentCriticalPass >= countCriticalPasses)
+						if (m_CurrentCriticalPass < countMovegenPasses[static_cast<size_t>(m_CriticalStages[static_cast<size_t>(m_CurrentCriticalStage)])])
 						{
-							allMovesGenerated = true;
-							return false;
+							generatorType::generateMoves(m_CriticalStages[static_cast<size_t>(m_CurrentCriticalStage)], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->criticalMoves(), feedback.index(m_CriticalStages[static_cast<size_t>(m_CurrentCriticalStage)], m_CurrentCriticalPass, depth));
+							while (m_pContext->criticalPasses().length() < m_pContext->criticalMoves().length())
+							{
+								m_pContext->criticalPasses().add(m_CurrentCriticalPass);
+								m_pContext->criticalStages().add(m_CriticalStages[static_cast<size_t>(m_CurrentCriticalStage)]);
+							}
+							++m_CurrentCriticalPass;
 						}
-						generatorType::generateCriticalMoves(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->criticalMoves(), feedback.criticalIndex(m_CurrentCriticalPass, depth));
-						const auto start{ m_pContext->criticalPasses().length() };
-						while (m_pContext->criticalPasses().length() < m_pContext->criticalMoves().length())
-							m_pContext->criticalPasses().add(m_CurrentCriticalPass);
-						++m_CurrentCriticalPass;
-					}
-					while (m_CurrentCriticalMove < m_pContext->criticalMoves().length())
-					{
-						moveBits = m_pContext->criticalMoves()[m_CurrentCriticalMove];
-						++m_CurrentCriticalMove;
-						if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits))
+						else
 						{
-							m_LastCriticalPass = m_pContext->criticalPasses()[m_CurrentCriticalMove - 1];
-							return true;
+							++m_CurrentCriticalStage;
+							m_CurrentCriticalPass = 0;
 						}
 					}
+					else
+						return false;
 				}
-				return false;
+				while (m_CurrentCriticalMove < m_pContext->criticalMoves().length())
+				{
+					moveBits = m_pContext->criticalMoves()[m_CurrentCriticalMove];
+					if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits))
+					{
+						m_LastCriticalPass = m_pContext->criticalPasses()[m_CurrentCriticalMove];
+						m_LastCriticalStage = m_pContext->criticalStages()[m_CurrentCriticalMove];
+						++m_CurrentCriticalMove;
+						return true;
+					}
+					++m_CurrentCriticalMove;
+				}
+				return nextCriticalMove(moveBits, depth, feedback);
 			}
 			template<typename LAMBDA>
 			bool nextCriticalMove(movebitsType& moveBits, const size_t depth, movegenFeedback& feedback, const LAMBDA& lambda) const noexcept
 			{
-				bool allMovesGenerated{ false };
-				while (!allMovesGenerated)
+				while (m_CurrentCriticalMove >= m_pContext->criticalMoves().length())
 				{
-					if (m_CurrentCriticalMove >= m_pContext->criticalMoves().length())
+					if (m_CurrentCriticalStage < countCriticalStages)
 					{
-						if (m_CurrentCriticalPass >= countCriticalPasses)
+						if (m_CurrentCriticalPass < countMovegenPasses[static_cast<size_t>(m_CriticalStages[static_cast<size_t>(m_CurrentCriticalStage)])])
 						{
-							allMovesGenerated = true;
-							return false;
+							generatorType::generateMoves(m_CriticalStages[static_cast<size_t>(m_CurrentCriticalStage)], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->criticalMoves(), feedback.index(m_CriticalStages[static_cast<size_t>(m_CurrentCriticalStage)], m_CurrentCriticalPass, depth));
+							const auto start{ m_pContext->criticalPasses().length() };
+							while (m_pContext->criticalPasses().length() < m_pContext->criticalMoves().length())
+							{
+								m_pContext->criticalScores().add(lambda(m_pContext->criticalMoves()[m_pContext->criticalPasses().length()]));
+								m_pContext->criticalPasses().add(m_CurrentCriticalPass);
+								m_pContext->criticalStages().add(m_CriticalStages[static_cast<size_t>(m_CurrentCriticalStage)]);
+							}
+							++m_CurrentCriticalPass;
 						}
-						generatorType::generateCriticalMoves(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->criticalMoves(), feedback.criticalIndex(m_CurrentCriticalPass, depth));
-						const auto start{ m_pContext->criticalPasses().length() };
-						while (m_pContext->criticalPasses().length() < m_pContext->criticalMoves().length())
+						else
 						{
-							m_pContext->criticalScores().add(lambda(m_pContext->criticalMoves()[m_pContext->criticalPasses().length()]));
-							m_pContext->criticalPasses().add(m_CurrentCriticalPass);
-						}
-						sort<movebitsType, scoreType>::sortValues(m_pContext->criticalMoves().ptr() + static_cast<size_t>(start), m_pContext->criticalScores().ptr() + static_cast<size_t>(start), static_cast<size_t>(m_pContext->criticalMoves().length() - start));
-						++m_CurrentCriticalPass;
-					}
-					while (m_CurrentCriticalMove < m_pContext->criticalMoves().length())
-					{
-						moveBits = m_pContext->criticalMoves()[m_CurrentCriticalMove];
-						++m_CurrentCriticalMove;
-						if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits))
-						{
-							m_LastCriticalPass = m_pContext->criticalPasses()[m_CurrentCriticalMove - 1];
-							return true;
+							++m_CurrentCriticalStage;
+							m_CurrentCriticalPass = 0;
 						}
 					}
+					else
+						return false;
 				}
-				return false;
+				while (m_CurrentCriticalMove < m_pContext->criticalMoves().length())
+				{
+					moveBits = m_pContext->criticalMoves()[m_CurrentCriticalMove];
+					if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits))
+					{
+						m_LastCriticalPass = m_pContext->criticalPasses()[m_CurrentCriticalMove];
+						m_LastCriticalStage = m_pContext->criticalStages()[m_CurrentCriticalMove];
+						++m_CurrentCriticalMove;
+						return true;
+					}
+					++m_CurrentCriticalMove;
+				}
+				return nextCriticalMove(moveBits, depth, feedback, lambda);
 			}
 			stack(const parentType& parent, const movebitsType moveBits) noexcept :
 				m_pContext{ parent.m_pContext + 1 },
@@ -1210,18 +738,24 @@ namespace pygmalion
 				m_History{ parent.m_History },
 				m_HasLegalMove{ false },
 				m_HasLegalMoveValid{ false },
-				m_CurrentPass{ 0 },
-				m_CurrentMove{ 0 },
+				m_CurrentLegalMove{ 0 },
+				m_CurrentNormalPass{ 0 },
+				m_CurrentNormalMove{ 0 },
+				m_CurrentNormalStage{ 0 },
+				m_LastNormalPass{ 0 },
+				m_LastNormalStage{ 0 },
 				m_CurrentTacticalPass{ 0 },
 				m_CurrentTacticalMove{ 0 },
+				m_CurrentTacticalStage{ 0 },
+				m_LastTacticalPass{ 0 },
+				m_LastTacticalStage{ 0 },
 				m_CurrentCriticalPass{ 0 },
 				m_CurrentCriticalMove{ 0 },
-				m_CurrentLegalMove{ 0 },
+				m_CurrentCriticalStage{ 0 },
+				m_LastCriticalPass{ 0 },
+				m_LastCriticalStage{ 0 },
 				m_MoveData(motorType::move().doMove(m_Position, moveBits)),
 				m_IsNullmove{ false },
-				m_LastPass{ 0 },
-				m_LastTacticalPass{ 0 },
-				m_LastCriticalPass{ 0 },
 				m_Hash{ m_Position.hash() }
 			{
 				m_pContext->clearMovegenLists();
@@ -1233,18 +767,24 @@ namespace pygmalion
 				m_History{ history },
 				m_HasLegalMove{ false },
 				m_HasLegalMoveValid{ false },
-				m_CurrentPass{ 0 },
-				m_CurrentMove{ 0 },
+				m_CurrentLegalMove{ 0 },
+				m_CurrentNormalPass{ 0 },
+				m_CurrentNormalMove{ 0 },
+				m_CurrentNormalStage{ 0 },
+				m_LastNormalPass{ 0 },
+				m_LastNormalStage{ 0 },
 				m_CurrentTacticalPass{ 0 },
 				m_CurrentTacticalMove{ 0 },
+				m_CurrentTacticalStage{ 0 },
+				m_LastTacticalPass{ 0 },
+				m_LastTacticalStage{ 0 },
 				m_CurrentCriticalPass{ 0 },
 				m_CurrentCriticalMove{ 0 },
-				m_CurrentLegalMove{ 0 },
+				m_CurrentCriticalStage{ 0 },
+				m_LastCriticalPass{ 0 },
+				m_LastCriticalStage{ 0 },
 				m_MoveData(),
 				m_IsNullmove{ true },
-				m_LastPass{ 0 },
-				m_LastTacticalPass{ 0 },
-				m_LastCriticalPass{ 0 },
 				m_Hash{ m_Position.hash() }
 			{
 				m_pContext->clearMovegenLists();
@@ -1332,9 +872,9 @@ namespace pygmalion
 		{
 			return generatorType::moveToString_Implementation(stack, moveBits, depth);
 		}
-		static std::string passToString(const passType pass) noexcept
+		static std::string passToString(const stageType stage, const passType pass) noexcept
 		{
-			return generatorType::passToString_Implementation(pass);
+			return generatorType::passToString_Implementation(stage, pass);
 		}
 		static std::string tacticalPassToString(const passType tacticalPass) noexcept
 		{
@@ -1357,34 +897,9 @@ namespace pygmalion
 			return generatorType::quietCriticalPassToString_Implementation(quietCriticalPass);
 		}
 		template<typename stackType>
-		constexpr static void generateMoves(const stackType& stack, movelistType& moves, const passType currentPass) noexcept
+		constexpr static void generateMoves(const stageType stage, const stackType& stack, movelistType& moves, const passType currentPass) noexcept
 		{
-			generatorType::generateMoves_Implementation(stack, moves, currentPass);
-		}
-		template<typename stackType>
-		constexpr static void generateCriticalMoves(const stackType& stack, movelistType& moves, const passType currentPass) noexcept
-		{
-			generatorType::generateCriticalMoves_Implementation(stack, moves, currentPass);
-		}
-		template<typename stackType>
-		constexpr static void generateTacticalCriticalEvasionMoves(const stackType& stack, movelistType& moves, const passType currentPass) noexcept
-		{
-			generatorType::generateTacticalCriticalEvasionMoves_Implementation(stack, moves, currentPass);
-		}
-		template<typename stackType>
-		constexpr static void generateCriticalEvasionMoves(const stackType& stack, movelistType& moves, const passType currentPass) noexcept
-		{
-			generatorType::generateCriticalEvasionMoves_Implementation(stack, moves, currentPass);
-		}
-		template<typename stackType>
-		constexpr static void generateQuietCriticalMoves(const stackType& stack, movelistType& moves, const passType currentPass) noexcept
-		{
-			generatorType::generateQuietCriticalMoves_Implementation(stack, moves, currentPass);
-		}
-		template<typename stackType>
-		constexpr static void generateTacticalMoves(const stackType& stack, movelistType& moves, const passType currentPass) noexcept
-		{
-			generatorType::generateTacticalMoves_Implementation(stack, moves, currentPass);
+			generatorType::generateMoves_Implementation(stage, stack, moves, currentPass);
 		}
 		template<typename stackType>
 		static bool isMoveLegal(const stackType& stack, const movebitsType moveBits) noexcept

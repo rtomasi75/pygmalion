@@ -20,43 +20,185 @@ namespace pygmalion::chess
 		return list;
 	}
 
-	std::string generator::passToString_Implementation(const passType pass) noexcept
+	std::string generator::passToString_Implementation(const stageType stage, const passType pass) noexcept
 	{
-		switch (static_cast<size_t>(pass))
+		switch (static_cast<size_t>(stage))
 		{
+		case movegenStage_AllMoves:
+			switch (static_cast<size_t>(pass))
+			{
+			case 0:
+				return "knight quiet moves";
+			case 1:
+				return "pawn pushes";
+			case 2:
+				return "pawn double pushes";
+			case 3:
+				return "knight captures";
+			case 4:
+				return "pawn captures";
+			case 5:
+				return "en passant captures";
+			case 6:
+				return "h./v. slider quiet moves";
+			case 7:
+				return "diag. slider quiet moves";
+			case 8:
+				return "h./v. slider captures";
+			case 9:
+				return "diag. slider captures";
+			case 10:
+				return "king quiet moves";
+			case 11:
+				return "king captures";
+			case 12:
+				return "castles";
+			case 13:
+				return "quiet promotions";
+			case 14:
+				return "capture promotions";
+			default:
+				PYGMALION_UNREACHABLE;
+				return "???";
+			}
+			break;
+		case movegenStage_TacticalMoves:
+			switch (static_cast<size_t>(pass))
+			{
+			case 0:
+				return "knight captures";
+			case 1:
+				return "pawn captures";
+			case 2:
+				return "en passant captures";
+			case 3:
+				return "h./v. slider captures";
+			case 4:
+				return "diag. slider captures";
+			case 5:
+				return "king captures";
+			case 6:
+				return "capture promotions";
+			default:
+				PYGMALION_UNREACHABLE;
+				return "???";
+			};
+			break;
+		case movegenStage_CriticalMoves:
+			switch (static_cast<size_t>(pass))
+			{
+			case 0:
+				return "critical knight moves";
+			case 1:
+				return "critical pawn moves";
+			case 2:
+				return "critical h./v. slider moves";
+			case 3:
+				return "critical diag. slider moves";
+			default:
+				PYGMALION_UNREACHABLE;
+				return "???";
+			};
+			break;
+		case movegenStage_QuietCriticalMoves:
+			switch (static_cast<size_t>(pass))
+			{
+			case 0:
+				return "critical quiet knight moves";
+			case 1:
+				return "critical quiet pawn moves";
+			case 2:
+				return "critical quiet h./v. slider moves";
+			case 3:
+				return "critical quiet diag. slider moves";
+			default:
+				PYGMALION_UNREACHABLE;
+				return "???";
+			}
+			break;
+		case movegenStage_CriticalEvasionMoves:
+			return "criticality evasion moves";
+		case movegenStage_TacticalCriticalEvasionMoves:
+			return "tactical criticality evasion moves";
+		case movegenStage_WinningMoves:
+			switch (static_cast<size_t>(pass))
+			{
+			case 0:
+				return "winning knight captures";
+			case 1:
+				return "winning pawn captures";
+			case 2:
+				return "winning h./v. slider captures";
+			case 3:
+				return "winning diag. slider captures";
+			case 4:
+				return "king captures";
+			case 5:
+				return "capture promotions";
+			default:
+				PYGMALION_UNREACHABLE;
+				return "???";
+			};
+			break;
+		case movegenStage_EqualMoves:
+			switch (static_cast<size_t>(pass))
+			{
+			case 0:
+				return "equal knight captures";
+			case 1:
+				return "equal pawn captures";
+			case 2:
+				return "equal h./v. slider captures";
+			case 3:
+				return "equal diag. slider captures";
+			case 4:
+				return "en passant captures";
+			default:
+				PYGMALION_UNREACHABLE;
+				return "???";
+			};
+			break;
+		case movegenStage_LosingMoves:
+			switch (static_cast<size_t>(pass))
+			{
+			case 0:
+				return "losing knight captures";
+			case 1:
+				return "losing h./v. slider captures";
+			case 2:
+				return "losing diag. slider captures";
+			default:
+				PYGMALION_UNREACHABLE;
+				return "???";
+			};
+			break;
+		case movegenStage_QuietMoves:
+			switch (static_cast<size_t>(pass))
+			{
+			case 0:
+				return "knight quiet moves";
+			case 1:
+				return "pawn pushes";
+			case 2:
+				return "pawn double pushes";
+			case 3:
+				return "h./v. slider quiet moves";
+			case 4:
+				return "diag. slider quiet moves";
+			case 5:
+				return "king quiet moves";
+			case 6:
+				return "castles";
+			case 7:
+				return "quiet promotions";
+			default:
+				PYGMALION_UNREACHABLE;
+				return "???";
+			}
+			break;
 		default:
 			PYGMALION_UNREACHABLE;
 			return "???";
-		case 0:
-			return "knight moves";
-		case 1:
-			return "pawn pushes";
-		case 2:
-			return "double pushes";
-		case 3:
-			return "knight captures";
-		case 4:
-			return "pawn captures";
-		case 5:
-			return "en Passant";
-		case 6:
-			return "slider moves h./v.";
-		case 7:
-			return "slider moves diag.";
-		case 8:
-			return "slider captures h./v.";
-		case 9:
-			return "slider captures diag.";
-		case 10:
-			return "king moves";
-		case 11:
-			return "king captures";
-		case 12:
-			return "castles";
-		case 13:
-			return "promotions";
-		case 14:
-			return "promotion captures";
 		}
 	}
 

@@ -1,7 +1,7 @@
 namespace pygmalion::tictactoe
 {
 	class descriptor_dynamics :
-		public pygmalion::descriptor_dynamics<motor, 9, 7, 0, 10, 1, 0, 0, 0, 0, 0>
+		public pygmalion::descriptor_dynamics<motor, 9, 7, 0, 10, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0>
 	{
 	public:
 		static inline movetable<descriptor_dynamics> moveTable{ movetable<descriptor_dynamics>(0x0095,9) };
@@ -35,39 +35,11 @@ namespace pygmalion::tictactoe
 			return list;
 		}
 		template<size_t PLAYER>
-		static void generateMoves_Implementation(const stackType<PLAYER>& stack, movelistType& moves, const passType currentPass) noexcept
+		static void generateMoves_Implementation(const stageType stage, const stackType<PLAYER>& stack, movelistType& moves, const passType currentPass) noexcept
 		{
-			if (currentPass == 0)
-			{
-				moves = moveTable[static_cast<typename squaresType::bitsType>(stack.position().totalOccupancy())];
-			}
-			else
-				PYGMALION_ASSERT(0);
-		}
-		template<size_t PLAYER>
-		static void generateTacticalMoves_Implementation(const stackType<PLAYER>& stack, movelistType& moves, const passType currentPass) noexcept
-		{
-			PYGMALION_ASSERT(0);
-		}
-		template<size_t PLAYER>
-		static void generateCriticalMoves_Implementation(const stackType<PLAYER>& stack, movelistType& moves, const passType currentPass) noexcept
-		{
-			PYGMALION_ASSERT(0);
-		}
-		template<size_t PLAYER>
-		static void generateQuietCriticalMoves_Implementation(const stackType<PLAYER>& stack, movelistType& moves, const passType currentPass) noexcept
-		{
-			PYGMALION_ASSERT(0);
-		}
-		template<size_t PLAYER>
-		static void generateCriticalEvasionMoves_Implementation(const stackType<PLAYER>& stack, movelistType& moves, const passType currentPass) noexcept
-		{
-			PYGMALION_ASSERT(0);
-		}
-		template<size_t PLAYER>
-		static void generateTacticalCriticalEvasionMoves_Implementation(const stackType<PLAYER>& stack, movelistType& moves, const passType currentPass) noexcept
-		{
-			PYGMALION_ASSERT(0);
+			PYGMALION_ASSERT(stage == 0);
+			PYGMALION_ASSERT(currentPass == 0);
+			moves = moveTable[static_cast<typename squaresType::bitsType>(stack.position().totalOccupancy())];
 		}
 		template<size_t PLAYER>
 		static std::string moveToString_Implementation(const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth) noexcept
@@ -108,7 +80,7 @@ namespace pygmalion::tictactoe
 			}
 			return text;
 		}
-		static std::string passToString_Implementation(const passType pass) noexcept
+		static std::string passToString_Implementation(const stageType stage, const passType pass) noexcept
 		{
 			return "standard";
 		}

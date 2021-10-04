@@ -17,7 +17,6 @@ namespace pygmalion
 		using descriptorSearch = DESCRIPTION_SEARCH;
 #include "include_search.h"
 		using movegenFeedback = typename generatorType::movegenFeedback;
-		using passType = typename generatorType::passType;
 		template<size_t PLAYER>
 		using stackType = typename generatorType::template stackType<PLAYER>;
 		class movebucket
@@ -436,7 +435,7 @@ namespace pygmalion
 					if (isTactical)
 						stack.tacticalAllMove(m_Feedback, depth, score);
 					else
-						stack.allMove(m_Feedback, depth, score);
+						stack.normalAllMove(m_Feedback, depth, score);
 				}
 				else
 					stack.criticalAllMove(m_Feedback, depth, score);
@@ -465,7 +464,7 @@ namespace pygmalion
 					if (isTactical)
 						stack.tacticalCutMove(m_Feedback, depth, score);
 					else
-						stack.cutMove(m_Feedback, depth, score);
+						stack.normalCutMove(m_Feedback, depth, score);
 				}
 				else
 					stack.criticalCutMove(m_Feedback, depth, score);

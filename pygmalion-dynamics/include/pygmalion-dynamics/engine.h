@@ -29,11 +29,9 @@ namespace pygmalion::dynamics
 		{
 			this->template addCommand<command_debugMoves<descriptorDynamics, generatorType>>();
 			this->template addCommand<command_debugTacticalMoves<descriptorDynamics, generatorType>>();
-			this->template addCommand<command_debugCriticalMoves<descriptorDynamics, generatorType>>();
 			this->template addCommand<command_debugDynamics<descriptorDynamics, generatorType>>();
 			this->template addCommand<command_debugPerft<descriptorDynamics, generatorType>>();
 			this->template addCommand<command_debugPasses<descriptorDynamics, generatorType>>();
-			this->template addCommand<command_debugCriticals<descriptorDynamics, generatorType>>();
 			this->template addCommand<command_debugIsCritical<descriptorDynamics, generatorType>>();
 			std::deque<std::shared_ptr<pygmalion::intrinsics::command>> list{ generatorType::commands() };
 			for (auto& cmd : list)

@@ -50,8 +50,8 @@ namespace pygmalion::chess::dynamics
 				testset("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - -", 4, UINTMAX_C(43238)),
 				testset("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - -", 5, UINTMAX_C(674624)),
 				testset("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - -", 6, UINTMAX_C(11030083)),
-				testset("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - -", 7, UINTMAX_C(178633661)),
-				testset("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - -", 8, UINTMAX_C(3009794393)),
+			//	testset("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - -", 7, UINTMAX_C(178633661)),
+			//	testset("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - -", 8, UINTMAX_C(3009794393)),
 				testset("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1", 1, UINTMAX_C(6)),
 				testset("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1", 2, UINTMAX_C(264)),
 				testset("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1", 3, UINTMAX_C(9467)),
@@ -75,9 +75,9 @@ namespace pygmalion::chess::dynamics
 				testset("r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10", 4, UINTMAX_C(3894594)),
 				testset("r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10", 5, UINTMAX_C(164075551)),
 				testset("r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10", 6, UINTMAX_C(6923051137)),
-				testset("r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10", 7, UINTMAX_C(287188994746)),
-				testset("r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10", 8, UINTMAX_C(11923589843526)),
-				testset("r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10", 9, UINTMAX_C(490154852788714))
+		//		testset("r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10", 7, UINTMAX_C(287188994746)),
+		//		testset("r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10", 8, UINTMAX_C(11923589843526)),
+		//		testset("r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10", 9, UINTMAX_C(490154852788714))
 		};
 		template<size_t PLAYER>
 		bool test(const testset& set, std::uintmax_t& nodes, typename profiler::durationType& duration) noexcept
