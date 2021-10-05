@@ -35,12 +35,12 @@ namespace pygmalion::search
 	public:
 		virtual void onMakeMove(const movebitsType movebits) noexcept override
 		{
-			static_cast<pygmalion::evaluation::engine<typename GAMETREE::evaluatorType>*>(this)->onMakeMove(movebits);
+			pygmalion::evaluation::engine<typename GAMETREE::evaluatorType>::onMakeMove(movebits);
 			m_Heuristics.age(this->position().movingPlayer());
 		}
 		virtual void onUnMakeMove() noexcept override
 		{
-			static_cast<pygmalion::evaluation::engine<typename GAMETREE::evaluatorType>*>(this)->onUnMakeMove();
+			pygmalion::evaluation::engine<typename GAMETREE::evaluatorType>::onUnMakeMove();
 			m_Heuristics.unAge(this->position().movingPlayer());
 		}
 		constexpr contextType* rootContext() noexcept

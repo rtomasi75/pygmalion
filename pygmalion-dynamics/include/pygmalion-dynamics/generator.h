@@ -722,15 +722,15 @@ namespace pygmalion
 					{
 						if (m_CurrentTacticalStage < countCriticalEvasionTacticalStages)
 						{
-							if (m_CurrentTacticalPass < countMovegenPasses[static_cast<size_t>(m_CriticalEvasionTacticalStages[static_cast<size_t>(m_CurrentTacticalStage)])])
+							if (m_CurrentTacticalPass < countCriticalEvasionTacticalPasses[m_CurrentTacticalStage])
 							{
-								generatorType::generateMoves(m_CriticalEvasionTacticalStages[static_cast<size_t>(m_CurrentTacticalStage)], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->tacticalMoves(), feedback.index(m_CriticalEvasionTacticalStages[static_cast<size_t>(m_CurrentTacticalStage)], m_CurrentTacticalPass, depth));
+								generatorType::generateMoves(m_CriticalEvasionTacticalStages[m_CurrentTacticalStage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->tacticalMoves(), feedback.index(m_CriticalEvasionTacticalStages[m_CurrentTacticalStage], m_CurrentTacticalPass, depth));
 								const auto start{ m_pContext->tacticalPasses().length() };
 								while (m_pContext->tacticalPasses().length() < m_pContext->tacticalMoves().length())
 								{
 									m_pContext->tacticalScores().add(lambda(m_pContext->tacticalMoves()[m_pContext->tacticalPasses().length()]));
 									m_pContext->tacticalPasses().add(m_CurrentTacticalPass);
-									m_pContext->tacticalStages().add(m_CriticalEvasionTacticalStages[static_cast<size_t>(m_CurrentTacticalStage)]);
+									m_pContext->tacticalStages().add(m_CriticalEvasionTacticalStages[m_CurrentTacticalStage]);
 								}
 								++m_CurrentTacticalPass;
 							}
@@ -747,15 +747,15 @@ namespace pygmalion
 					{
 						if (m_CurrentTacticalStage < countTacticalStages)
 						{
-							if (m_CurrentTacticalPass < countMovegenPasses[static_cast<size_t>(m_TacticalStages[static_cast<size_t>(m_CurrentTacticalStage)])])
+							if (m_CurrentTacticalPass < countTacticalPasses[m_CurrentTacticalStage])
 							{
-								generatorType::generateMoves(m_TacticalStages[static_cast<size_t>(m_CurrentTacticalStage)], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->tacticalMoves(), feedback.index(m_TacticalStages[static_cast<size_t>(m_CurrentTacticalStage)], m_CurrentTacticalPass, depth));
+								generatorType::generateMoves(m_TacticalStages[m_CurrentTacticalStage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->tacticalMoves(), feedback.index(m_TacticalStages[m_CurrentTacticalStage], m_CurrentTacticalPass, depth));
 								const auto start{ m_pContext->tacticalPasses().length() };
 								while (m_pContext->tacticalPasses().length() < m_pContext->tacticalMoves().length())
 								{
 									m_pContext->tacticalScores().add(lambda(m_pContext->tacticalMoves()[m_pContext->tacticalPasses().length()]));
 									m_pContext->tacticalPasses().add(m_CurrentTacticalPass);
-									m_pContext->tacticalStages().add(m_TacticalStages[static_cast<size_t>(m_CurrentTacticalStage)]);
+									m_pContext->tacticalStages().add(m_TacticalStages[m_CurrentTacticalStage]);
 								}
 								++m_CurrentTacticalPass;
 							}
