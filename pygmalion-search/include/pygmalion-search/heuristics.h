@@ -22,35 +22,18 @@ namespace pygmalion
 		class killerslots
 		{
 		private:
-			std::array<std::uintmax_t, generatorType::countMoveBuckets()> m_Counter;
-			std::array<scoreType, generatorType::countMoveBuckets()> m_Score;
 			std::array<movebitsType, killerMoves> m_Killers;
 			std::array<movebitsType, killerMoves> m_TacticalKillers;
 			size_t m_KillerCount;
 			size_t m_TacticalKillerCount;
 		public:
 			constexpr killerslots() noexcept :
-				m_Counter{ arrayhelper::make<generatorType::countMoveBuckets(),std::uint64_t>(0) },
-				m_Score{ arrayhelper::make<generatorType::countMoveBuckets(),scoreType>(scoreType::zero()) },
 				m_Killers{ arrayhelper::make<killerMoves,movebitsType>(movebitsType(0)) },
 				m_TacticalKillers{ arrayhelper::make<killerMoves,movebitsType>(movebitsType(0)) },
 				m_KillerCount{ 0 },
 				m_TacticalKillerCount{ 0 }
 			{
 
-			}
-			constexpr std::uint64_t counter(const boardType& position, const movebitsType moveBits) const noexcept
-			{
-				return m_Counter[generatorType::moveBucket(position, moveBits)];
-			}
-			template<size_t PLAYER>
-			constexpr scoreType score(const stackType<PLAYER>& stack, const movebitsType moveBits) const noexcept
-			{
-				constexpr const scoreType minimum{ scoreType::minimum() };
-				const size_t bucket{ generatorType::moveBucket(stack.position(), moveBits) };
-				if (m_Counter[bucket] == 0)
-					return minimum;
-				return m_Score[bucket] / static_cast<typename scoreType::valueType>(m_Counter[bucket]);
 			}
 			template<size_t PLAYER>
 			constexpr void killers(const stackType<PLAYER>& stack, killermovesType& killerMoves) const noexcept
@@ -70,13 +53,13 @@ namespace pygmalion
 						killerMoves.add(m_TacticalKillers[i]);
 				}
 			}
-			template<size_t PLAYER>
+			template<size_t PLAYER, bool TACTICAL>
 			constexpr void refuted(const stackType<PLAYER>& stack, const movebitsType moveBits, const scoreType score, const scoreType eval) noexcept
 			{
-				const boardType& position{ stack.position() };
 				bool contains{ false };
-				if (generatorType::isMoveTactical(stack, moveBits))
+				if constexpr (TACTICAL)
 				{
+					const boardType& position{ stack.position() };
 					for (size_t i = 0; i < m_TacticalKillerCount; i++)
 					{
 						if (m_TacticalKillers[i] == moveBits)
@@ -109,61 +92,79 @@ namespace pygmalion
 				}
 				else
 				{
-					if (score.isOpen())
+					const boardType& position{ stack.position() };
+					if (generatorType::isMoveTactical(stack, moveBits))
 					{
-						const size_t index{ generatorType::moveBucket(position,moveBits) };
-						m_Counter[index]++;
-						m_Score[index] += score - eval;
-					}
-					for (size_t i = 0; i < m_KillerCount; i++)
-					{
-						if (m_Killers[i] == moveBits)
+						for (size_t i = 0; i < m_TacticalKillerCount; i++)
 						{
-							if (i != 0)
+							if (m_TacticalKillers[i] == moveBits)
 							{
-								for (size_t k = 0; k < i; k++)
+								if (i != 0)
+								{
+									for (size_t k = 0; k < i; k++)
+									{
+										const size_t idx{ killerMoves - k - 1 };
+										m_TacticalKillers[idx] = m_TacticalKillers[idx - 1];
+									}
+									m_TacticalKillers[0] = moveBits;
+								}
+								contains = true;
+							}
+						}
+						if (!contains)
+						{
+							if constexpr (killerMoves > 0)
+							{
+								for (size_t k = 0; k < killerMoves - 1; k++)
+								{
+									const size_t idx{ killerMoves - k - 1 };
+									m_TacticalKillers[idx] = m_TacticalKillers[idx - 1];
+								}
+								m_TacticalKillers[0] = moveBits;
+								m_TacticalKillerCount = std::min(m_TacticalKillerCount + 1, killerMoves);
+							}
+						}
+					}
+					else
+					{
+						for (size_t i = 0; i < m_KillerCount; i++)
+						{
+							if (m_Killers[i] == moveBits)
+							{
+								if (i != 0)
+								{
+									for (size_t k = 0; k < i; k++)
+									{
+										const size_t idx{ killerMoves - k - 1 };
+										m_Killers[idx] = m_Killers[idx - 1];
+									}
+									m_Killers[0] = moveBits;
+								}
+								contains = true;
+							}
+						}
+						if (!contains)
+						{
+							if constexpr (killerMoves > 0)
+							{
+								for (size_t k = 0; k < killerMoves - 1; k++)
 								{
 									const size_t idx{ killerMoves - k - 1 };
 									m_Killers[idx] = m_Killers[idx - 1];
 								}
 								m_Killers[0] = moveBits;
+								m_KillerCount = std::min(m_KillerCount + 1, killerMoves);
 							}
-							contains = true;
-						}
-					}
-					if (!contains)
-					{
-						if constexpr (killerMoves > 0)
-						{
-							for (size_t k = 0; k < killerMoves - 1; k++)
-							{
-								const size_t idx{ killerMoves - k - 1 };
-								m_Killers[idx] = m_Killers[idx - 1];
-							}
-							m_Killers[0] = moveBits;
-							m_KillerCount = std::min(m_KillerCount + 1, killerMoves);
 						}
 					}
 				}
 			}
-			template<size_t PLAYER>
+			template<size_t PLAYER, bool TACTICAL>
 			constexpr void accepted(const stackType<PLAYER>& stack, const movebitsType moveBits, const scoreType score, const scoreType eval) noexcept
 			{
-				const boardType& position{ stack.position() };
-				if (!generatorType::isMoveTactical(stack, moveBits))
-				{
-					const size_t index{ generatorType::moveBucket(position,moveBits) };
-					if (score.isOpen())
-					{
-						m_Counter[index]++;
-						m_Score[index] += score - eval;
-					}
-				}
 			}
 			constexpr void clear() noexcept
 			{
-				m_Counter = arrayhelper::make<generatorType::countMoveBuckets(), std::uint64_t>(0);
-				m_Score = arrayhelper::make<generatorType::countMoveBuckets(), scoreType>(scoreType::zero());
 				m_Killers = arrayhelper::make<killerMoves, movebitsType>(movebitsType(0));
 				m_TacticalKillers = arrayhelper::make<killerMoves, movebitsType>(movebitsType(0));
 				m_KillerCount = 0;
@@ -176,6 +177,8 @@ namespace pygmalion
 		int m_NodeDepth;
 		int m_MoveDepth;
 #endif
+		std::array < std::array<std::uintmax_t, generatorType::countMoveBuckets()>, countPlayers> m_CutCounter;
+		std::array < std::array<std::uintmax_t, generatorType::countMoveBuckets()>, countPlayers> m_TotalCounter;
 		profiler m_SearchProfiler;
 		std::uintmax_t m_NodeCounter;
 		transpositiontable<descriptorSearch> m_TranspositionTable;
@@ -204,24 +207,24 @@ namespace pygmalion
 		void onEndNodeLate(const stackType<PLAYER>& stack) noexcept
 		{
 		}
-		template<size_t PLAYER>
-		void onBeginMove(const stackType<PLAYER>& stack, const movebitsType moveBits, const bool isTactical, const size_t depth) noexcept
+		template<size_t PLAYER, bool TACTICAL>
+		void onBeginMove(const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth) noexcept
 		{
 		}
-		template<size_t PLAYER>
-		void onEndMoveRefuted(const stackType<PLAYER>& stack, const movebitsType moveBits, const bool isTactical, const size_t depth, const scoreType score) noexcept
+		template<size_t PLAYER, bool TACTICAL>
+		void onEndMoveRefuted(const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth, const scoreType score) noexcept
 		{
 		}
-		template<size_t PLAYER>
-		void onEndMoveSilent(const stackType<PLAYER>& stack, const movebitsType moveBits, const bool isTactical, const size_t depth) noexcept
+		template<size_t PLAYER, bool TACTICAL>
+		void onEndMoveSilent(const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth) noexcept
 		{
 		}
-		template<size_t PLAYER>
-		void onEndMoveFutile(const stackType<PLAYER>& stack, const movebitsType moveBits, const bool isTactical, const size_t depth) noexcept
+		template<size_t PLAYER, bool TACTICAL>
+		void onEndMoveFutile(const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth) noexcept
 		{
 		}
-		template<size_t PLAYER>
-		void onEndMoveAccepted(const stackType<PLAYER>& stack, const movebitsType moveBits, const bool isTactical, const size_t depth, const scoreType score) noexcept
+		template<size_t PLAYER, bool TACTICAL>
+		void onEndMoveAccepted(const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth, const scoreType score) noexcept
 		{
 		}
 		template<size_t PLAYER>
@@ -257,15 +260,30 @@ namespace pygmalion
 			}
 			m_Feedback.expandToDepth(depth);
 		}
+		constexpr static int shift(const depthType depthRemaining) noexcept
+		{
+			return 4 * (1 + static_cast<int>(depthRemaining));
+		}
+		constexpr static std::uintmax_t weight(const depthType depthRemaining) noexcept
+		{
+			return UINTMAX_C(1) << 2 * (1 + static_cast<int>(depthRemaining));
+		}
 	public:
 		template<size_t PLAYER>
 		constexpr scoreType moveScore(const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth) noexcept
 		{
-			if (depth >= 2)
-				return m_KillerSlots[depth - 2].score(stack, moveBits);
+			constexpr const scoreType minimum{ scoreType::minimum() };
+			if constexpr (heuristicMoves)
+			{
+				const size_t bucket{ generatorType::moveBucket(stack.position(),moveBits) };
+				constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
+				if (m_CutCounter[movingPlayer][bucket])
+					return scoreType::quota(m_CutCounter[movingPlayer][bucket], m_TotalCounter[movingPlayer][bucket]);
+				else
+					return minimum;
+			}
 			else
 			{
-				constexpr const scoreType minimum{ scoreType::minimum() };
 				return minimum;
 			}
 		}
@@ -345,6 +363,14 @@ namespace pygmalion
 		{
 			for (size_t i = 0; i < m_KillerSlots.size(); i++)
 				m_KillerSlots[i].clear();
+			for (const auto pl : playerType::range)
+			{
+				for (size_t bucket = 0; bucket < generatorType::countMoveBuckets(); bucket++)
+				{
+					m_CutCounter[pl][bucket] = 0;
+					m_TotalCounter[pl][bucket] = 0;
+				}
+			}
 		}
 		void beginSearch() noexcept
 		{
@@ -420,17 +446,17 @@ namespace pygmalion
 #endif
 			static_cast<instanceType*>(this)->template onEndNodeFutile<PLAYER>(stack);
 		}
-		template<size_t PLAYER>
-		void beginMove(const stackType<PLAYER>& stack, const movebitsType moveBits, const bool isTactical, const size_t depth) noexcept
+		template<size_t PLAYER, bool TACTICAL>
+		void beginMove(const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth) noexcept
 		{
 #if !defined(NDEBUG)
 			PYGMALION_ASSERT(m_IsSearching);
 			m_MoveDepth++;
 #endif
-			static_cast<instanceType*>(this)->template onBeginMove<PLAYER>(stack, moveBits, isTactical, depth);
+			static_cast<instanceType*>(this)->template onBeginMove<PLAYER, TACTICAL>(stack, moveBits, depth);
 		}
-		template<size_t PLAYER, bool PRUNED>
-		void endMoveAccepted(const stackType<PLAYER>& stack, const movebitsType moveBits, const bool isTactical, const size_t depth, const scoreType score, const scoreType eval, const bool fromStack) noexcept
+		template<size_t PLAYER, bool PRUNED, bool TACTICAL>
+		void endMoveAccepted(const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth, const scoreType score, const scoreType eval, const bool fromStack, const depthType depthRemaining) noexcept
 		{
 #if !defined(NDEBUG)
 			PYGMALION_ASSERT(m_IsSearching);
@@ -440,7 +466,7 @@ namespace pygmalion
 			{
 				if constexpr (!PRUNED)
 				{
-					if (isTactical)
+					if constexpr (TACTICAL)
 						stack.tacticalAllMove(m_Feedback, depth, score, eval);
 					else
 						stack.normalAllMove(m_Feedback, depth, score, eval);
@@ -448,14 +474,28 @@ namespace pygmalion
 				else
 					stack.criticalAllMove(m_Feedback, depth, score, eval);
 			}
+			if constexpr (killerMoves > 0)
+			{
+				m_KillerSlots[depth].template accepted<PLAYER, TACTICAL>(stack, moveBits, score, eval);
+			}
 			if constexpr (heuristicMoves)
 			{
-				m_KillerSlots[depth].accepted(stack, moveBits, score, eval);
+				if constexpr (!TACTICAL)
+				{
+					if (!generatorType::isMoveTactical(stack, moveBits))
+					{
+						const size_t bucket{ generatorType::moveBucket(stack.position(),moveBits) };
+						constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
+						const uintmax_t weightValue{ weight(depthRemaining) };
+						m_CutCounter[movingPlayer][bucket] += weightValue;
+						m_TotalCounter[movingPlayer][bucket] += weightValue;
+					}
+				}
 			}
-			static_cast<instanceType*>(this)->template onEndMoveAccepted<PLAYER>(stack, moveBits, isTactical, depth, score);
+			static_cast<instanceType*>(this)->template onEndMoveAccepted<PLAYER, TACTICAL>(stack, moveBits, depth, score);
 		}
-		template<size_t PLAYER, bool PRUNED>
-		void endMoveRefuted(const stackType<PLAYER>& stack, const movebitsType moveBits, const bool isTactical, const size_t depth, const scoreType score, const scoreType eval, const bool fromStack) noexcept
+		template<size_t PLAYER, bool PRUNED, bool TACTICAL>
+		void endMoveRefuted(const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth, const scoreType score, const scoreType eval, const bool fromStack, const depthType depthRemaining) noexcept
 		{
 #if !defined(NDEBUG)
 			PYGMALION_ASSERT(m_IsSearching);
@@ -465,7 +505,7 @@ namespace pygmalion
 			{
 				if constexpr (!PRUNED)
 				{
-					if (isTactical)
+					if constexpr (TACTICAL)
 						stack.tacticalCutMove(m_Feedback, depth, score, eval);
 					else
 						stack.normalCutMove(m_Feedback, depth, score, eval);
@@ -473,29 +513,56 @@ namespace pygmalion
 				else
 					stack.criticalCutMove(m_Feedback, depth, score, eval);
 			}
+			if constexpr (killerMoves > 0)
+			{
+				m_KillerSlots[depth].template refuted<PLAYER, TACTICAL>(stack, moveBits, score, eval);
+			}
 			if constexpr (heuristicMoves)
 			{
-				m_KillerSlots[depth].refuted(stack, moveBits, score, eval);
+				if constexpr (!TACTICAL)
+				{
+					if (!generatorType::isMoveTactical(stack, moveBits))
+					{
+						const size_t bucket{ generatorType::moveBucket(stack.position(),moveBits) };
+						constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
+						const uintmax_t weightValue{ weight(depthRemaining) };
+						m_CutCounter[movingPlayer][bucket] += weightValue;
+						m_TotalCounter[movingPlayer][bucket] += weightValue;
+					}
+				}
 			}
-			static_cast<instanceType*>(this)->template onEndMoveRefuted<PLAYER>(stack, moveBits, isTactical, depth, score);
+			static_cast<instanceType*>(this)->template onEndMoveRefuted<PLAYER, TACTICAL>(stack, moveBits, depth, score);
 		}
-		template<size_t PLAYER>
-		void endMoveSilent(const stackType<PLAYER>& stack, const movebitsType moveBits, const bool isTactical, const size_t depth) noexcept
+		template<size_t PLAYER, bool TACTICAL>
+		void endMoveSilent(const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth, const depthType depthRemaining) noexcept
 		{
 #if !defined(NDEBUG)
 			PYGMALION_ASSERT(m_IsSearching);
 			m_MoveDepth--;
 #endif
-			static_cast<instanceType*>(this)->template onEndMoveSilent<PLAYER>(stack, moveBits, isTactical, depth);
+			if constexpr (heuristicMoves)
+			{
+				if constexpr (!TACTICAL)
+				{
+					if (!generatorType::isMoveTactical(stack, moveBits))
+					{
+						const size_t bucket{ generatorType::moveBucket(stack.position(),moveBits) };
+						constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
+						const uintmax_t weightValue{ weight(depthRemaining) };
+						m_TotalCounter[movingPlayer][bucket] += weightValue;
+					}
+				}
+			}
+			static_cast<instanceType*>(this)->template onEndMoveSilent<PLAYER, TACTICAL>(stack, moveBits, depth);
 		}
-		template<size_t PLAYER>
-		void endMoveFutile(const stackType<PLAYER>& stack, const movebitsType moveBits, const bool isTactical, const size_t depth) noexcept
+		template<size_t PLAYER, bool TACTICAL>
+		void endMoveFutile(const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth) noexcept
 		{
 #if !defined(NDEBUG)
 			PYGMALION_ASSERT(m_IsSearching);
 			m_MoveDepth--;
 #endif
-			static_cast<instanceType*>(this)->template onEndMoveFutile<PLAYER>(stack, moveBits, isTactical, depth);
+			static_cast<instanceType*>(this)->template onEndMoveFutile<PLAYER, TACTICAL>(stack, moveBits, depth);
 		}
 		template<size_t PLAYER>
 		void endNodeCut(const stackType<PLAYER>& stack) noexcept
@@ -527,8 +594,40 @@ namespace pygmalion
 			m_KillerSlots{ std::vector<killerslots>(0) }
 		{
 			expandToDepth(countSearchPlies);
+			for (const auto pl : playerType::range)
+			{
+				for (size_t bucket = 0; bucket < generatorType::countMoveBuckets(); bucket++)
+				{
+					m_CutCounter[pl][bucket] = 0;
+					m_TotalCounter[pl][bucket] = 0;
+				}
+			}
 		}
 		~heuristics() noexcept = default;
+		constexpr void age(const playerType movingPlayer) noexcept
+		{
+			if constexpr (heuristicMoves)
+			{
+				for (size_t bucket = 0; bucket < generatorType::countMoveBuckets(); bucket++)
+				{
+					const int shiftValue{ shift(-1) };
+					m_CutCounter[movingPlayer][bucket] >>= shiftValue;
+					m_TotalCounter[movingPlayer][bucket] >>= shiftValue;
+				}
+			}
+		}
+		constexpr void unAge(const playerType movingPlayer) noexcept
+		{
+			if constexpr (heuristicMoves)
+			{
+				for (size_t bucket = 0; bucket < generatorType::countMoveBuckets(); bucket++)
+				{
+					const int shiftValue{ shift(-1) };
+					m_CutCounter[movingPlayer][bucket] <<= shiftValue;
+					m_TotalCounter[movingPlayer][bucket] <<= shiftValue;
+				}
+			}
+		}
 	};
 
 	template<typename DESCRIPTION_SEARCH, typename INSTANCE>

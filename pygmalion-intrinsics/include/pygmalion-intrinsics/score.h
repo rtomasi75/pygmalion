@@ -78,6 +78,10 @@ namespace pygmalion
 
 		}
 	public:
+		constexpr static score quota(const std::uintmax_t dividend, const std::uintmax_t divisor) noexcept
+		{
+			return score(static_cast<valueType>((dividend << countShiftBits) / divisor), 0);
+		}
 		constexpr valueType get_Value() const noexcept
 		{
 			return m_Value;

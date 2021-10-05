@@ -12,6 +12,14 @@ namespace pygmalion::mechanics
 	private:
 		historyType m_History;
 	public:
+		virtual void onMakeMove(const movebitsType movebits) noexcept
+		{
+
+		}
+		virtual void onUnMakeMove() noexcept
+		{
+
+		}
 		constexpr const historyType& history() const noexcept
 		{
 			return m_History;
@@ -20,15 +28,17 @@ namespace pygmalion::mechanics
 		{
 			return m_History;
 		}
-		constexpr void makeMove(const movebitsType& movebits) noexcept
+		constexpr void makeMove(const movebitsType movebits) noexcept
 		{
-			this->currentGame().makeMove(this->position().movingPlayer());
+			this->onMakeMove(movebits);
 			m_History.template makeMove<motorType>(this->position(), movebits);
+			this->currentGame().makeMove(this->position().movingPlayer());
 		}
 		constexpr void unmakeMove() noexcept
 		{
 			this->currentGame().unmakeMove(this->position().movingPlayer());
 			m_History.template unmakeMove<motorType>(this->position());
+			this->onUnMakeMove();
 		}
 		engine() noexcept = delete;
 		engine(const engine&) = delete;

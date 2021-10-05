@@ -33,6 +33,16 @@ namespace pygmalion::search
 			return "";
 		}
 	public:
+		virtual void onMakeMove(const movebitsType movebits) noexcept override
+		{
+			static_cast<pygmalion::evaluation::engine<typename GAMETREE::evaluatorType>*>(this)->onMakeMove(movebits);
+			m_Heuristics.age(this->position().movingPlayer());
+		}
+		virtual void onUnMakeMove() noexcept override
+		{
+			static_cast<pygmalion::evaluation::engine<typename GAMETREE::evaluatorType>*>(this)->onUnMakeMove();
+			m_Heuristics.unAge(this->position().movingPlayer());
+		}
 		constexpr contextType* rootContext() noexcept
 		{
 			return m_pContexts;
