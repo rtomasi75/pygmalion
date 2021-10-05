@@ -1199,7 +1199,6 @@ namespace pygmalion
 				m_EvalBeta = minimum;
 				m_Eval = zero;
 				m_FutileGap = zero;
-				m_Heuristics.expandToDepth(m_Depth);
 			}
 			node(const parentType& parent, const movebitsType moveBits) noexcept :
 				m_Stack(parent.m_Stack, moveBits),
@@ -1232,7 +1231,6 @@ namespace pygmalion
 				m_EvalBeta = minimum;
 				m_Eval = zero;
 				m_FutileGap = zero;
-				m_Heuristics.expandToDepth(m_Depth);
 			}
 			~node() noexcept = default;
 			template<bool VERBOSE>

@@ -19,7 +19,7 @@ namespace pygmalion
 		using movegenFeedback = typename generatorType::movegenFeedback;
 		template<size_t PLAYER>
 		using stackType = typename generatorType::template stackType<PLAYER>;
-		class movebucket
+		class killerslots
 		{
 		private:
 			std::array<std::uintmax_t, generatorType::countMoveBuckets()> m_Counter;
@@ -29,7 +29,7 @@ namespace pygmalion
 			size_t m_KillerCount;
 			size_t m_TacticalKillerCount;
 		public:
-			constexpr movebucket() noexcept :
+			constexpr killerslots() noexcept :
 				m_Counter{ arrayhelper::make<generatorType::countMoveBuckets(),std::uint64_t>(0) },
 				m_Score{ arrayhelper::make<generatorType::countMoveBuckets(),scoreType>(scoreType::zero()) },
 				m_Killers{ arrayhelper::make<killerMoves,movebitsType>(movebitsType(0)) },
@@ -160,6 +160,15 @@ namespace pygmalion
 					}
 				}
 			}
+			constexpr void clear() noexcept
+			{
+				m_Counter = arrayhelper::make<generatorType::countMoveBuckets(), std::uint64_t>(0);
+				m_Score = arrayhelper::make<generatorType::countMoveBuckets(), scoreType>(scoreType::zero());
+				m_Killers = arrayhelper::make<killerMoves, movebitsType>(movebitsType(0));
+				m_TacticalKillers = arrayhelper::make<killerMoves, movebitsType>(movebitsType(0));
+				m_KillerCount = 0;
+				m_TacticalKillerCount = 0;
+			}
 		};
 	private:
 #if !defined(NDEBUG)
@@ -171,7 +180,7 @@ namespace pygmalion
 		std::uintmax_t m_NodeCounter;
 		transpositiontable<descriptorSearch> m_TranspositionTable;
 		movegenFeedback& m_Feedback;
-		std::vector<movebucket> m_MoveBuckets;
+		std::vector<killerslots> m_KillerSlots;
 	protected:
 		void onBeginSearch() noexcept
 		{
@@ -240,20 +249,20 @@ namespace pygmalion
 			const indexType length{ static_cast<indexType>(moves.length() - fromMoveIndex) };
 			sort<movebitsType, scoreType>::sortValues(moves.ptr() + static_cast<size_t>(fromMoveIndex), scores.data() + static_cast<size_t>(fromScoreIndex), length);
 		}
-	public:
 		constexpr void expandToDepth(const size_t depth) noexcept
 		{
-			while (depth >= m_MoveBuckets.size())
+			while (depth >= m_KillerSlots.size())
 			{
-				m_MoveBuckets.emplace_back(movebucket());
+				m_KillerSlots.emplace_back(killerslots());
 			}
 			m_Feedback.expandToDepth(depth);
 		}
+	public:
 		template<size_t PLAYER>
 		constexpr scoreType moveScore(const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth) noexcept
 		{
 			if (depth >= 2)
-				return m_MoveBuckets[depth - 2].score(stack, moveBits);
+				return m_KillerSlots[depth - 2].score(stack, moveBits);
 			else
 			{
 				constexpr const scoreType minimum{ scoreType::minimum() };
@@ -268,12 +277,12 @@ namespace pygmalion
 		template<size_t PLAYER>
 		constexpr void killers(const stackType<PLAYER>& stack, const size_t depth, killermovesType& killermoves) noexcept
 		{
-			return m_MoveBuckets[depth].killers(stack, killermoves);
+			return m_KillerSlots[depth].killers(stack, killermoves);
 		}
 		template<size_t PLAYER>
 		constexpr void tacticalKillers(const stackType<PLAYER>& stack, const size_t depth, killermovesType& killermoves) noexcept
 		{
-			return m_MoveBuckets[depth].tacticalKillers(stack, killermoves);
+			return m_KillerSlots[depth].tacticalKillers(stack, killermoves);
 		}
 		template<size_t PLAYER>
 		void sortMoves(const stackType<PLAYER>& stack, movelistType& moves, const indexType fromMoveIndex, const size_t depth) noexcept
@@ -334,7 +343,8 @@ namespace pygmalion
 		}
 		void clear() noexcept
 		{
-			m_MoveBuckets.clear();
+			for (size_t i = 0; i < m_KillerSlots.size(); i++)
+				m_KillerSlots[i].clear();
 		}
 		void beginSearch() noexcept
 		{
@@ -440,11 +450,7 @@ namespace pygmalion
 			}
 			if constexpr (heuristicMoves)
 			{
-				while (depth >= m_MoveBuckets.size())
-				{
-					m_MoveBuckets.emplace_back(movebucket());
-				}
-				m_MoveBuckets[depth].accepted(stack, moveBits, score, eval);
+				m_KillerSlots[depth].accepted(stack, moveBits, score, eval);
 			}
 			static_cast<instanceType*>(this)->template onEndMoveAccepted<PLAYER>(stack, moveBits, isTactical, depth, score);
 		}
@@ -469,11 +475,7 @@ namespace pygmalion
 			}
 			if constexpr (heuristicMoves)
 			{
-				while (depth >= m_MoveBuckets.size())
-				{
-					m_MoveBuckets.emplace_back(movebucket());
-				}
-				m_MoveBuckets[depth].refuted(stack, moveBits, score, eval);
+				m_KillerSlots[depth].refuted(stack, moveBits, score, eval);
 			}
 			static_cast<instanceType*>(this)->template onEndMoveRefuted<PLAYER>(stack, moveBits, isTactical, depth, score);
 		}
@@ -522,9 +524,9 @@ namespace pygmalion
 			m_NodeCounter{ 0 },
 			m_TranspositionTable{ transpositiontable<descriptorSearch>() },
 			m_Feedback{ feedback },
-			m_MoveBuckets{ std::vector<movebucket>(0) }
+			m_KillerSlots{ std::vector<killerslots>(0) }
 		{
-
+			expandToDepth(countSearchPlies);
 		}
 		~heuristics() noexcept = default;
 	};

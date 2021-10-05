@@ -17,7 +17,7 @@ namespace pygmalion::search
 				this->output() << "depth:              " << std::setw(4) << sizeof(depthType) << " = " << sizeof(depthType) * CHAR_BIT << "bit" << std::endl;
 				this->output() << "variation:          " << std::setw(4) << sizeof(variationType) << " = " << sizeof(variationType) * CHAR_BIT << "bit" << std::endl;
 				this->output() << "transposition:      " << std::setw(4) << sizeof(typename transpositiontable<descriptorSearch>::transposition) << " = " << sizeof(typename transpositiontable<descriptorSearch>::transposition) * CHAR_BIT << "bit" << std::endl;
-				this->output() << "movebucket:         " << std::setw(4) << sizeof(typename heuristicsType::movebucket) << " = " << sizeof(typename heuristicsType::movebucket) * CHAR_BIT << "bit" << std::endl;
+				this->output() << "killerslots:        " << std::setw(4) << sizeof(typename heuristicsType::killerslots) << " = " << sizeof(typename heuristicsType::killerslots) * CHAR_BIT << "bit" << std::endl;
 				this->output() << "heuristics:         " << std::setw(4) << sizeof(heuristicsType) << " = " << sizeof(heuristicsType) * CHAR_BIT << "bit" << std::endl;
 				this->output() << "killemoves:         " << std::setw(4) << sizeof(killermovesType) << " = " << sizeof(killermovesType) * CHAR_BIT << "bit" << std::endl;
 				this->output() << "TTmoves:            " << std::setw(4) << sizeof(ttmovesType) << " = " << sizeof(ttmovesType) * CHAR_BIT << "bit" << std::endl;
