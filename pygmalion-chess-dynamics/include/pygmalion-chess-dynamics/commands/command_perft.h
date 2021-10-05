@@ -92,6 +92,7 @@ namespace pygmalion::chess::dynamics
 				constexpr const playerType player{ static_cast<playerType>(PLAYER) };
 				if (player == this->position().movingPlayer())
 				{
+					this->feedback().expandToDepth(depth);
 					if (depth > 0)
 					{
 						this->output() << std::endl;

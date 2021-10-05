@@ -545,7 +545,7 @@ namespace pygmalion
 						{
 							if (m_CurrentNormalPass < countNormalPasses[m_CurrentNormalStage])
 							{
-								std::cout << "generating stage " << m_CurrentNormalStage << ", pass " << m_CurrentNormalPass << " (" << generatorType::passToString(normalStage(m_CurrentNormalStage), normalPass(feedback, m_CurrentNormalStage, m_CurrentNormalPass)) << ")" << std::endl;
+//								std::cout << "generating stage " << m_CurrentNormalStage << ", pass " << m_CurrentNormalPass << " (" << generatorType::passToString(normalStage(m_CurrentNormalStage), normalPass(feedback, m_CurrentNormalStage, m_CurrentNormalPass)) << ")" << std::endl;
 								generatorType::generateMoves(m_NormalStages[m_CurrentNormalStage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->normalMoves(), feedback.index(m_NormalStages[m_CurrentNormalStage], m_CurrentNormalPass, depth));
 								while (m_pContext->normalPasses().length() < m_pContext->normalMoves().length())
 								{

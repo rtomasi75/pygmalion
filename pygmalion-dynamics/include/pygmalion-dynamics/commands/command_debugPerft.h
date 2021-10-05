@@ -18,6 +18,7 @@ namespace pygmalion::dynamics
 			constexpr const playerType nextPlayer{ static_cast<playerType>(PLAYER).next() };
 			movebitsType moveBits;
 			std::uintmax_t counter{ 0 };
+			feedback.expandToDepth(depth);
 			if (depth == maxDepth)
 			{
 				while (stack.nextMove(moveBits, depth, feedback))

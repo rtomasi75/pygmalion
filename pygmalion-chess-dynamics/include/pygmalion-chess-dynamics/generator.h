@@ -4421,7 +4421,7 @@ namespace pygmalion::chess
 			switch (phase)
 			{
 			case movegenPhase::normal:
-				return 4;
+				return 1;
 			case movegenPhase::tactical:
 				return 3;
 			case movegenPhase::criticalEvasion:
@@ -4466,21 +4466,8 @@ namespace pygmalion::chess
 			switch (phase)
 			{
 			case movegenPhase::normal:
-				switch (stageIndex)
-				{
-				case 0:
-					return movegenStage_WinningMoves;
-				case 1:
-					return movegenStage_QuietMoves;
-				case 2:
-					return movegenStage_EqualMoves;
-				case 3:
-					return movegenStage_LosingMoves;
-				default:
-					PYGMALION_UNREACHABLE;
-					return 0;
-				}
-				break;
+				PYGMALION_ASSERT(stageIndex == 0);
+				return movegenStage_AllMoves;
 			case movegenPhase::tactical:
 				switch (stageIndex)
 				{
