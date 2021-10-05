@@ -252,14 +252,6 @@ namespace pygmalion
 			const indexType length{ static_cast<indexType>(moves.length() - fromMoveIndex) };
 			sort<movebitsType, scoreType>::sortValues(moves.ptr() + static_cast<size_t>(fromMoveIndex), scores.data() + static_cast<size_t>(fromScoreIndex), length);
 		}
-		constexpr void expandToDepth(const size_t depth) noexcept
-		{
-			while (depth >= m_KillerSlots.size())
-			{
-				m_KillerSlots.emplace_back(killerslots());
-			}
-			m_Feedback.expandToDepth(depth);
-		}
 		constexpr static int shift(const depthType depthRemaining) noexcept
 		{
 			return 4 * (1 + static_cast<int>(depthRemaining));
@@ -269,6 +261,14 @@ namespace pygmalion
 			return UINTMAX_C(1) << 2 * (1 + static_cast<int>(depthRemaining));
 		}
 	public:
+		constexpr void expandToDepth(const size_t depth) noexcept
+		{
+			while (depth >= m_KillerSlots.size())
+			{
+				m_KillerSlots.emplace_back(killerslots());
+			}
+			m_Feedback.expandToDepth(depth);
+		}
 		template<size_t PLAYER>
 		constexpr scoreType moveScore(const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth) noexcept
 		{
@@ -361,8 +361,7 @@ namespace pygmalion
 		}
 		void clear() noexcept
 		{
-			for (size_t i = 0; i < m_KillerSlots.size(); i++)
-				m_KillerSlots[i].clear();
+			m_KillerSlots.clear();
 			for (const auto pl : playerType::range)
 			{
 				for (size_t bucket = 0; bucket < generatorType::countMoveBuckets(); bucket++)
@@ -593,7 +592,6 @@ namespace pygmalion
 			m_Feedback{ feedback },
 			m_KillerSlots{ std::vector<killerslots>(0) }
 		{
-			expandToDepth(countSearchPlies);
 			for (const auto pl : playerType::range)
 			{
 				for (size_t bucket = 0; bucket < generatorType::countMoveBuckets(); bucket++)
