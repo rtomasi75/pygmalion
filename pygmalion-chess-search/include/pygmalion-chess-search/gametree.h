@@ -16,8 +16,8 @@ namespace pygmalion::chess
 			using parentType = node< static_cast<size_t>(movingPlayer.previous())>;
 			using childType = node< static_cast<size_t>(movingPlayer.next())>;
 			using stackType = typename generatorType::template stackType<PLAYER>;
-			node(const stackType& stack, std::atomic_bool& isRunning, heuristicsType& heuristics) noexcept :
-				pygmalion::gametree<descriptor_search, gametree>::node<PLAYER, node<PLAYER>>(stack, isRunning, heuristics)
+			node(const stackType& stack, std::atomic_bool& isRunning, heuristicsType& heuristics, const size_t depth) noexcept :
+				pygmalion::gametree<descriptor_search, gametree>::node<PLAYER, node<PLAYER>>(stack, isRunning, heuristics, depth)
 			{
 
 			}

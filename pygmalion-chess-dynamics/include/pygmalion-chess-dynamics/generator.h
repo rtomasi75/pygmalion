@@ -3738,7 +3738,7 @@ namespace pygmalion::chess
 
 			// if we're moving the king, we need to do some extra work
 			constexpr const squaresType all{ squaresType::all() };
-			if (isKingMove||stack.isPositionCritical())
+			if (isKingMove || stack.isPositionCritical())
 			{
 				// Does our king live on a square that is guarded by the other king?
 				const squaresType attackedByOtherKing{ movegenKing.attacks(otherking,all) };
@@ -4392,6 +4392,122 @@ namespace pygmalion::chess
 			constexpr const playerType player{ static_cast<playerType>(PLAYER) };
 			constexpr const playerType attacker{ player.next() };
 			return generatorType::template isAttacked<static_cast<size_t>(attacker)>(stack.position(), stack.kingSquare(player));
+		}
+		template<size_t PLAYER>
+		constexpr static scoreType makeSubjective(const scoreType score) noexcept
+		{
+			constexpr const playerType player{ static_cast<playerType>(PLAYER) };
+			if constexpr (player == whitePlayer)
+				return score;
+			else
+				return -score;
+		}
+		constexpr static const size_t movegenStage_AllMoves{ 0 };
+		constexpr static const size_t movegenStage_TacticalMoves{ 1 };
+		constexpr static const size_t movegenStage_CriticalMoves{ 2 };
+		constexpr static const size_t movegenStage_QuietCriticalMoves{ 3 };
+		constexpr static const size_t movegenStage_CriticalEvasionMoves{ 4 };
+		constexpr static const size_t movegenStage_TacticalCriticalEvasionMoves{ 5 };
+		constexpr static const size_t movegenStage_WinningMoves{ 6 };
+		constexpr static const size_t movegenStage_EqualMoves{ 7 };
+		constexpr static const size_t movegenStage_LosingMoves{ 8 };
+		constexpr static const size_t movegenStage_QuietMoves{ 9 };
+		constexpr static size_t countTotalMovegenStages_Implementation() noexcept
+		{
+			return 10;
+		}
+		constexpr static size_t countMovegenStages_Implementation(const movegenPhase phase) noexcept
+		{
+			switch (phase)
+			{
+			case movegenPhase::normal:
+				return 4;
+			case movegenPhase::tactical:
+				return 3;
+			case movegenPhase::criticalEvasion:
+				return 1;
+			case movegenPhase::tacticalCrtiticalEvasion:
+				return 1;
+			case movegenPhase::critical:
+				return 1;
+			}
+		}
+		constexpr static size_t countMovegenPasses_Implementation(const size_t stage) noexcept
+		{
+			switch (stage)
+			{
+			case movegenStage_AllMoves:
+				return 15;
+			case movegenStage_TacticalMoves:
+				return 7;
+			case movegenStage_CriticalMoves:
+				return 4;
+			case movegenStage_QuietCriticalMoves:
+				return 4;
+			case movegenStage_CriticalEvasionMoves:
+				return 1;
+			case movegenStage_TacticalCriticalEvasionMoves:
+				return 6;
+			case movegenStage_WinningMoves:
+				return 6;
+			case movegenStage_EqualMoves:
+				return 5;
+			case movegenStage_LosingMoves:
+				return 3;
+			case movegenStage_QuietMoves:
+				return 8;
+			default:
+				PYGMALION_UNREACHABLE;
+				return 0;
+			}
+		}
+		constexpr static size_t movegenStage_Implementation(const movegenPhase phase, const size_t stageIndex) noexcept
+		{
+			switch (phase)
+			{
+			case movegenPhase::normal:
+				switch (stageIndex)
+				{
+				case 0:
+					return movegenStage_WinningMoves;
+				case 1:
+					return movegenStage_QuietMoves;
+				case 2:
+					return movegenStage_EqualMoves;
+				case 3:
+					return movegenStage_LosingMoves;
+				default:
+					PYGMALION_UNREACHABLE;
+					return 0;
+				}
+				break;
+			case movegenPhase::tactical:
+				switch (stageIndex)
+				{
+				case 0:
+					return movegenStage_WinningMoves;
+				case 1:
+					return movegenStage_EqualMoves;
+				case 2:
+					return movegenStage_LosingMoves;
+				default:
+					PYGMALION_UNREACHABLE;
+					return 0;
+				}
+				break;
+			case movegenPhase::criticalEvasion:
+				PYGMALION_ASSERT(stageIndex == 0);
+				return movegenStage_CriticalEvasionMoves;
+			case movegenPhase::tacticalCrtiticalEvasion:
+				PYGMALION_ASSERT(stageIndex == 0);
+				return movegenStage_TacticalCriticalEvasionMoves;
+			case movegenPhase::critical:
+				PYGMALION_ASSERT(stageIndex == 0);
+				return movegenStage_CriticalMoves;
+			default:
+				PYGMALION_UNREACHABLE;
+				return 0;
+			}
 		}
 	};
 }

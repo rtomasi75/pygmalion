@@ -144,8 +144,8 @@ namespace pygmalion::chess
 			constexpr const materialScore zero{ materialScore::zero() };
 			if (motorType::move().isCapture(move))
 			{
-				const squaresType captureSquare{ motorType::move().captureSquare(position, move) };
-				const pieceType capPiece = position.getPiece(to);
+				const squareType captureSquare{ motorType::move().captureSquare(position, move) };
+				const pieceType capPiece = position.getPiece(captureSquare);
 				gain[0] = boardType::materialValue(capPiece, whitePlayer);
 			}
 			else

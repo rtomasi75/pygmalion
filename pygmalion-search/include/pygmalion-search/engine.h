@@ -69,9 +69,9 @@ namespace pygmalion::search
 					stackType<PLAYER> stack{ stackType<PLAYER>(this->position(), this->history(), this->rootContext()) };
 					std::atomic_bool isRunning{ true };
 					m_Heuristics.beginSearch();
-					nodeType<static_cast<size_t>(static_cast<playerType>(PLAYER))> node(stack, isRunning, m_Heuristics);
+					nodeType<static_cast<size_t>(static_cast<playerType>(PLAYER))> node(stack, isRunning, m_Heuristics, this->history().length());
 					principalVariation.clear();
-					const scoreType score{ node.template searchRoot<false>(depthRemaining, this->history().length(), principalVariation, this->outputStream()) };
+					const scoreType score{ node.template searchRoot<false>(depthRemaining, principalVariation, this->outputStream()) };
 					m_Heuristics.endSearch();
 					return score;
 				}

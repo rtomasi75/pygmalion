@@ -19,6 +19,7 @@ namespace pygmalion::dynamics
 				constexpr const playerType player{ static_cast<playerType>(PLAYER) };
 				if (player == this->position().movingPlayer())
 				{
+					this->dynamicsEngine().feedback().sortIndices(this->history().length());
 					typename generatorType::contextType context;
 					stackType<PLAYER> stack{ stackType<PLAYER>(this->position(), this->history(), &context) };
 					this->output() << std::endl;
@@ -27,7 +28,7 @@ namespace pygmalion::dynamics
 					{
 						for (size_t i = 0; i < stack.normalPassesCount(stage); i++)
 						{
-							this->output() << "    " << std::setw(3) << stage << ", " << std::setw(3) << i << std::setw(8) << this->dynamicsEngine().feedback().counter(stack.normalStage(stage), stack.normalPass(this->dynamicsEngine().feedback(), stage, i), this->history().length()) << std::setw(12) << this->dynamicsEngine().feedback().score(stack.normalStage(stage), stack.normalPass(this->dynamicsEngine().feedback(), stage, i), this->history().length()) << " " << generatorType::passToString(stack.normalStage(stage), stack.normalPass(this->dynamicsEngine().feedback(), stage, i)) << std::endl;
+							this->output() << "    " << std::setw(3) << stage << ", " << std::setw(3) << i << std::setw(8) << this->dynamicsEngine().feedback().counter(stack.normalStage(stage), i, this->history().length()) << std::setw(12) << this->dynamicsEngine().feedback().score(stack.normalStage(stage), i, this->history().length()) << " " << generatorType::passToString(stack.normalStage(stage), stack.normalPass(this->dynamicsEngine().feedback(), stage, i)) << std::endl;
 						}
 					}
 					this->output() << std::endl;
@@ -36,7 +37,7 @@ namespace pygmalion::dynamics
 					{
 						for (size_t i = 0; i < stack.tacticalPassesCount(stage); i++)
 						{
-							this->output() << "    " << std::setw(3) << stage << ", " << std::setw(3) << i << std::setw(8) << this->dynamicsEngine().feedback().counter(stack.tacticalStage(stage), stack.tacticalPass(this->dynamicsEngine().feedback(), stage, i), this->history().length()) << std::setw(12) << this->dynamicsEngine().feedback().score(stack.tacticalStage(stage), i, this->history().length()) << " " << generatorType::passToString(stack.tacticalStage(stage), stack.tacticalPass(this->dynamicsEngine().feedback(), stage, i)) << std::endl;
+							this->output() << "    " << std::setw(3) << stage << ", " << std::setw(3) << i << std::setw(8) << this->dynamicsEngine().feedback().counter(stack.tacticalStage(stage), i, this->history().length()) << std::setw(12) << this->dynamicsEngine().feedback().score(stack.tacticalStage(stage), i, this->history().length()) << " " << generatorType::passToString(stack.tacticalStage(stage), stack.tacticalPass(this->dynamicsEngine().feedback(), stage, i)) << std::endl;
 						}
 					}
 					this->output() << std::endl;
@@ -45,7 +46,7 @@ namespace pygmalion::dynamics
 					{
 						for (size_t i = 0; i < stack.criticalPassesCount(stage); i++)
 						{
-							this->output() << "    " << std::setw(3) << stage << ", " << std::setw(3) << i << std::setw(8) << this->dynamicsEngine().feedback().counter(stack.criticalStage(stage), stack.criticalPass(this->dynamicsEngine().feedback(), stage, i), this->history().length()) << std::setw(12) << this->dynamicsEngine().feedback().score(stack.criticalStage(stage), i, this->history().length()) << " " << generatorType::passToString(stack.criticalStage(stage), stack.criticalPass(this->dynamicsEngine().feedback(), stage, i)) << std::endl;
+							this->output() << "    " << std::setw(3) << stage << ", " << std::setw(3) << i << std::setw(8) << this->dynamicsEngine().feedback().counter(stack.criticalStage(stage), i, this->history().length()) << std::setw(12) << this->dynamicsEngine().feedback().score(stack.criticalStage(stage), i, this->history().length()) << " " << generatorType::passToString(stack.criticalStage(stage), stack.criticalPass(this->dynamicsEngine().feedback(), stage, i)) << std::endl;
 						}
 					}
 					this->output() << std::endl;

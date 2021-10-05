@@ -12,7 +12,7 @@ namespace pygmalion::search
 		template<size_t PLAYER>
 		using stackType = typename generatorType::template stackType<PLAYER>;
 		template<size_t PLAYERINDEX>
-		bool debugSubNode(const size_t depthFromRoot, const depthType depth, typename gametreeType::template nodeType<static_cast<size_t>(static_cast<playerType>(PLAYERINDEX).previous())>& parentNode, const std::string& remainder, scoreType& score, variationType& principalVariation)
+		bool debugSubNode(const depthType depth, typename gametreeType::template nodeType<static_cast<size_t>(static_cast<playerType>(PLAYERINDEX).previous())>& parentNode, const std::string& remainder, scoreType& score, variationType& principalVariation)
 		{
 			std::string token;
 			std::string newRemainder;
@@ -25,7 +25,7 @@ namespace pygmalion::search
 				{
 					this->output() << "performed move " << motorType::moveToString(parentNode.stack().position(), movebits) << ", hash=" << std::hex << static_cast<std::uint64_t>(parentNode.stack().position().hash()) << std::dec << std::endl;
 					nodeType node{ nodeType(parentNode, movebits) };
-					return this->template debugSubNode<static_cast<size_t>(static_cast<playerType>(PLAYERINDEX).next())>(depthFromRoot + 1, depth, node, newRemainder, score, principalVariation);
+					return this->template debugSubNode<static_cast<size_t>(static_cast<playerType>(PLAYERINDEX).next())>(depth, node, newRemainder, score, principalVariation);
 				}
 				else
 				{
@@ -35,7 +35,7 @@ namespace pygmalion::search
 			}
 			else
 			{
-				score = parentNode.template searchRoot<false>(depth, depthFromRoot, principalVariation, this->output());
+				score = parentNode.template searchRoot<false>(depth, principalVariation, this->output());
 				return true;
 			}
 		}
@@ -51,10 +51,10 @@ namespace pygmalion::search
 					std::atomic_bool isRunning{ true };
 					this->searchEngine().heuristics().beginSearch();
 					stackType<PLAYERINDEX> stack{ stackType<PLAYERINDEX>(this->position(), this->history(), this->rootContext()) };
-					nodeType node{ nodeType(stack, isRunning, this->searchEngine().heuristics()) };
+					nodeType node{ nodeType(stack, isRunning, this->searchEngine().heuristics(), this->history().length()) };
 					variationType principalVariation;
 					scoreType score;
-					bool bOk{ debugSubNode<static_cast<size_t>(static_cast<playerType>(PLAYERINDEX).next())>(this->history().length(), depth, node,remainder,score,principalVariation) };
+					bool bOk{ debugSubNode<static_cast<size_t>(static_cast<playerType>(PLAYERINDEX).next())>(depth, node,remainder,score,principalVariation) };
 					if (bOk)
 					{
 						uint64_t nodeCount{ this->searchEngine().heuristics().nodeCount() };

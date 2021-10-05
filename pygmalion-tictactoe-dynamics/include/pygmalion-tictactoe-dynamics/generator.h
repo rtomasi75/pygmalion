@@ -1,7 +1,7 @@
 namespace pygmalion::tictactoe
 {
 	class descriptor_dynamics :
-		public pygmalion::descriptor_dynamics<motor, 9, 7, 0, 10, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0>
+		public pygmalion::descriptor_dynamics<motor, 9, 7, 0, 10>
 	{
 	public:
 		static inline movetable<descriptor_dynamics> moveTable{ movetable<descriptor_dynamics>(0x0095,9) };
@@ -130,6 +130,33 @@ namespace pygmalion::tictactoe
 		constexpr static bool isPositionCritical_Implementation(const stackType<PLAYER>& stack) noexcept
 		{
 			return false;
+		}
+		template<size_t PLAYER>
+		constexpr static scoreType makeSubjective(const scoreType score) noexcept
+		{
+			if constexpr (PLAYER == 0)
+				return score;
+			else
+				return -score;
+		}
+		constexpr static size_t countMovegenStages_Implementation(const movegenPhase phase) noexcept
+		{
+			if (phase == movegenPhase::normal)
+				return 1;
+			else
+				return 0;
+		}
+		constexpr static size_t countMovegenPasses_Implementation(const size_t stage) noexcept
+		{
+			return 0;
+		}
+		constexpr static size_t movegenStage_Implementation(const movegenPhase phase, const size_t stageIndex) noexcept
+		{
+			return 0;
+		}
+		constexpr static size_t countTotalMovegenStages_Implementation() noexcept
+		{
+			return 1;
 		}
 	};
 }

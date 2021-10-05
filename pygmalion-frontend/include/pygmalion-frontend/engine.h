@@ -36,11 +36,11 @@ namespace pygmalion::frontend
 		bool principalVariationSearch(const typename descriptorFrontend::template stackType<PLAYER>& stack, const depthType& depthRemaining, variationType& finalVariation, std::atomic_bool& isRunning) noexcept
 		{
 			using nodeType = typename gametreeType::template nodeType<PLAYER>;
-			nodeType node(stack, isRunning, this->heuristics());
+			nodeType node(stack, isRunning, this->heuristics(), this->history().length());
 			variationType principalVariation{ variationType() };
 			this->feedback().sortIndices(this->history().length());
 			this->heuristics().beginSearch();
-			const scoreType score{ node.template searchRoot<false>(depthRemaining, this->history().length(), principalVariation, this->outputStream()) };
+			const scoreType score{ node.template searchRoot<false>(depthRemaining, principalVariation, this->outputStream()) };
 			this->heuristics().endSearch();
 			if (isRunning)
 			{

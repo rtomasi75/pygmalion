@@ -1,5 +1,14 @@
 namespace pygmalion
 {
+	enum class movegenPhase
+	{
+		normal,
+		tactical,
+		criticalEvasion,
+		tacticalCrtiticalEvasion,
+		critical
+	};
+
 	template<typename DESCRIPTOR_DYNAMICS, typename INSTANCE >
 	class generator :
 		public DESCRIPTOR_DYNAMICS
@@ -14,60 +23,54 @@ namespace pygmalion
 			class feedback
 			{
 			private:
-				std::array<std::array<std::uint64_t, maxCountPasses>, countMovegenStages> m_MoveCounters;
-				std::array<std::array<scoreType, maxCountPasses>, countMovegenStages> m_ScoreCounters;
-				std::array<std::array<passType, maxCountPasses>, countMovegenStages> m_Indices;
+				std::array<std::array<std::uint64_t, generatorType::countMaxMovegenPasses()>, generatorType::countTotalMovegenStages()> m_MoveCounters;
+				std::array<std::array<passType, generatorType::countMaxMovegenPasses()>, generatorType::countTotalMovegenStages()> m_Indices;
+				std::array<std::array<scoreType, generatorType::countMaxMovegenPasses()>, generatorType::countTotalMovegenStages()> m_ScoreCounters;
 				constexpr static bool USE_SCORE{ true };
-				constexpr void sortIndicesStage(const stageType stage) noexcept
+				constexpr void sortIndicesStage(const stageType stage, const movegenFeedback& mf, const size_t depth) noexcept
 				{
 					if constexpr (!USE_SCORE)
-						sort<passType, std::uint64_t>::sortValues(m_Indices[stage].data(), m_MoveCounters[static_cast<size_t>(stage)].data(), countMovegenPasses[static_cast<size_t>(stage)]);
+						sort<passType, std::uint64_t>::sortValues(m_Indices[stage].data(), m_MoveCounters[static_cast<size_t>(stage)].data(), generatorType::countMovegenPasses(stage));
 					else
 					{
-						std::array <scoreType, maxCountPasses> scores;
-						for (size_t pass = 0; pass < countMovegenPasses[static_cast<size_t>(stage)]; pass++)
+						std::array <scoreType, generatorType::countMaxMovegenPasses()> scores;
+						for (size_t pass = 0; pass < generatorType::countMovegenPasses(stage); pass++)
 						{
-							scores[pass] = score(stage, static_cast<passType>(pass));
+							scores[pass] = mf.score(stage, static_cast<passType>(pass), depth);
 						}
-						sort<passType, scoreType>::sortValues(m_Indices[static_cast<size_t>(stage)].data(), scores.data(), countMovegenPasses[static_cast<size_t>(stage)]);
+						sort<passType, scoreType>::sortValues(m_Indices[static_cast<size_t>(stage)].data(), scores.data(), generatorType::countMovegenPasses(stage));
 					}
 				}
 				constexpr void resetStage(const stageType stage) noexcept
 				{
 					constexpr const scoreType zero{ scoreType::zero() };
-					for (size_t i = 0; i < countMovegenPasses[static_cast<size_t>(stage)]; i++)
+					for (size_t i = 0; i < generatorType::countMaxMovegenPasses(); i++)
 					{
-						m_MoveCounters[static_cast<size_t>(stage)][i] = 0;
-						m_ScoreCounters[static_cast<size_t>(stage)][i] = zero;
-						m_Indices[static_cast<size_t>(stage)][i] = i;
+						m_MoveCounters[stage][i] = 0;
+						m_ScoreCounters[stage][i] = zero;
+						m_Indices[stage][i] = i;
 					}
 				}
 			public:
-				constexpr void sortIndices() noexcept
+				constexpr void sortIndices(const movegenFeedback& mf, const size_t depth) noexcept
 				{
-					for (size_t stage = 0; stage < countMovegenStages; stage++)
-						sortIndicesStage(static_cast<stageType>(stage));
+					for (size_t stage = 0; stage < generatorType::countTotalMovegenStages(); stage++)
+						sortIndicesStage(stage, mf, depth);
 				}
 				constexpr passType index(const stageType stage, const passType pass) const noexcept
 				{
-					PYGMALION_ASSERT(stage < countMovegenStages);
-					PYGMALION_ASSERT(pass < countMovegenPasses[static_cast<size_t>(stage)]);
-					return m_Indices[static_cast<size_t>(stage)][static_cast<size_t>(pass)];
+					return m_Indices[stage][pass];
 				}
 				constexpr passType moveIndex(const stageType stage, const passType pass) const noexcept
 				{
-					PYGMALION_ASSERT(stage < countMovegenStages);
-					PYGMALION_ASSERT(pass < countMovegenPasses[static_cast<size_t>(stage)]);
 					if constexpr (!USE_SCORE)
 						return pass;
 					else
-						return m_Indices[static_cast<size_t>(stage)][static_cast<size_t>(pass)];
+						return m_Indices[stage][pass];
 				}
 				constexpr passType scoreIndex(const stageType stage, const passType pass) const noexcept
 				{
-					PYGMALION_ASSERT(stage < countMovegenStages);
-					PYGMALION_ASSERT(pass < countMovegenPasses[static_cast<size_t>(stage)]);
-					return m_Indices[static_cast<size_t>(stage)][static_cast<size_t>(pass)];
+					return m_Indices[stage][pass];
 				}
 				constexpr feedback() noexcept
 				{
@@ -75,8 +78,6 @@ namespace pygmalion
 				}
 				constexpr scoreType score(const stageType stage, const passType pass) const noexcept
 				{
-					PYGMALION_ASSERT(stage < countMovegenStages);
-					PYGMALION_ASSERT(pass < countMovegenPasses[static_cast<size_t>(stage)]);
 					const passType indexMove{ moveIndex(stage, pass) };
 					const passType indexScore{ scoreIndex(stage, pass) };
 					if (m_MoveCounters[static_cast<size_t>(stage)][static_cast<size_t>(indexMove)] == 0)
@@ -84,37 +85,28 @@ namespace pygmalion
 						constexpr const scoreType minimum{ scoreType::minimum() };
 						return minimum;
 					}
-					if (m_ScoreCounters[static_cast<size_t>(stage)][static_cast<size_t>(indexScore)].isOpen())
-						return m_ScoreCounters[static_cast<size_t>(stage)][static_cast<size_t>(indexScore)] / static_cast<typename scoreType::valueType>(m_MoveCounters[static_cast<size_t>(stage)][static_cast<size_t>(indexMove)]);
-					else
-						return m_ScoreCounters[static_cast<size_t>(stage)][static_cast<size_t>(indexScore)];
+					const scoreType score{ m_ScoreCounters[static_cast<size_t>(stage)][static_cast<size_t>(indexScore)] };
+					if (!score.isOpen())
+						return score;
+					return score / static_cast<typename scoreType::valueType>(m_MoveCounters[static_cast<size_t>(stage)][static_cast<size_t>(indexMove)]);
 				}
 				constexpr const std::uint64_t& counter(const stageType stage, const passType pass) const noexcept
 				{
-					PYGMALION_ASSERT(stage < countMovegenStages);
-					PYGMALION_ASSERT(pass < countMovegenPasses[static_cast<size_t>(stage)]);
-					return m_MoveCounters[static_cast<size_t>(stage)][static_cast<size_t>(moveIndex(stage, pass))];
+					return m_MoveCounters[stage][static_cast<size_t>(moveIndex(stage, pass))];
 				}
-				constexpr void incrementMove(const stageType stage, const passType pass, const scoreType score) noexcept
+				constexpr void incrementMove(const stageType stage, const passType pass, const scoreType score, const scoreType eval) noexcept
 				{
-					PYGMALION_ASSERT(stage < countMovegenStages);
-					PYGMALION_ASSERT(pass < countMovegenPasses[static_cast<size_t>(stage)]);
 					const passType indexMove{ moveIndex(stage, pass) };
 					const passType indexScore{ scoreIndex(stage, pass) };
 					if (score.isOpen())
 					{
-						if (m_ScoreCounters[static_cast<size_t>(stage)][static_cast<size_t>(indexScore)].isOpen())
-							m_ScoreCounters[static_cast<size_t>(stage)][static_cast<size_t>(indexScore)] += score;
-						else
-							m_ScoreCounters[static_cast<size_t>(stage)][static_cast<size_t>(indexScore)] = scoreType::max(score, m_ScoreCounters[static_cast<size_t>(stage)][static_cast<size_t>(indexScore)]);
+						m_ScoreCounters[stage][indexScore] += score - eval;
+						m_MoveCounters[stage][indexMove]++;
 					}
-					else
-						m_ScoreCounters[static_cast<size_t>(stage)][static_cast<size_t>(indexScore)] = scoreType::max(score, m_ScoreCounters[static_cast<size_t>(stage)][static_cast<size_t>(indexScore)]);
-					m_MoveCounters[static_cast<size_t>(stage)][static_cast<size_t>(indexMove)]++;
 				}
 				constexpr void reset() noexcept
 				{
-					for (size_t stage = 0; stage < countMovegenStages; stage++)
+					for (size_t stage = 0; stage < generatorType::countTotalMovegenStages(); stage++)
 						resetStage(static_cast<stageType>(stage));
 				}
 			};
@@ -129,43 +121,32 @@ namespace pygmalion
 			{
 				for (size_t d = from_depth; d < m_Feedback.size(); d++)
 				{
-					m_Feedback[d].sortIndices();
+					m_Feedback[d].sortIndices(*this, d);
 				}
 			}
 			constexpr const std::uint64_t& counter(const stageType stage, const passType pass, const size_t depth) const noexcept
 			{
-				while (m_Feedback.size() <= depth)
-				{
-					m_Feedback.emplace_back(feedback());
-				}
 				return m_Feedback[depth].counter(stage, pass);
 			}
 			constexpr scoreType score(const stageType stage, const passType pass, const size_t depth) const noexcept
 			{
-				while (m_Feedback.size() <= depth)
-				{
-					m_Feedback.emplace_back(feedback());
-				}
 				if (depth >= 2)
-					return (m_Feedback[depth - 2].score(stage, pass) + (3 * m_Feedback[depth].score(stage, pass))) / 4;
+				{
+					return m_Feedback[depth - 2].score(stage, pass);
+				}
 				else
-					return m_Feedback[depth].score(stage, pass);
-			}
-			constexpr void cutMove(const stageType stage, const passType pass, const size_t depth, const scoreType& score) noexcept
-			{
-				while (m_Feedback.size() <= depth)
 				{
-					m_Feedback.emplace_back(feedback());
+					constexpr const scoreType minimum{ scoreType::minimum() };
+					return minimum;
 				}
-				m_Feedback[depth].incrementMove(stage, pass, score);
 			}
-			constexpr void allMove(const stageType stage, const passType pass, const size_t depth, const scoreType score) noexcept
+			constexpr void cutMove(const stageType stage, const passType pass, const size_t depth, const scoreType score, const scoreType eval) noexcept
 			{
-				while (m_Feedback.size() <= depth)
-				{
-					m_Feedback.emplace_back(feedback());
-				}
-				m_Feedback[depth].incrementMove(stage, pass, score);
+				m_Feedback[depth].incrementMove(stage, pass, score, eval);
+			}
+			constexpr void allMove(const stageType stage, const passType pass, const size_t depth, const scoreType score, const scoreType eval) noexcept
+			{
+				m_Feedback[depth].incrementMove(stage, pass, score, eval);
 			}
 			constexpr void reset() noexcept
 			{
@@ -173,11 +154,14 @@ namespace pygmalion
 			}
 			constexpr passType index(const stageType stage, const passType pass, const size_t depth) const noexcept
 			{
+				return m_Feedback[depth].index(stage, pass);
+			}
+			constexpr void expandToDepth(const size_t depth) const noexcept
+			{
 				while (m_Feedback.size() <= depth)
 				{
 					m_Feedback.emplace_back(feedback());
 				}
-				return m_Feedback[depth].index(stage, pass);
 			}
 		};
 		class context :
@@ -313,60 +297,101 @@ namespace pygmalion
 			mutable bool m_IsPositionCritical{ false };
 			const bool m_IsNullmove;
 			const hashType m_Hash;
-			constexpr static inline const std::array<size_t, 4> m_NormalStages
+			constexpr static inline const size_t countNormalStages{ generatorType::countMovegenStages(movegenPhase::normal) };
+			constexpr static inline const std::array<stageType, countNormalStages> m_NormalStages
 			{
-				movegenStage_WinningMoves,
-				movegenStage_QuietMoves,
-				movegenStage_EqualMoves,
-				movegenStage_LosingMoves
+				arrayhelper::generate< countNormalStages, stageType>([](const size_t index) {return generatorType::movegenStage(movegenPhase::normal, index); })
 			};
-			constexpr static inline const size_t countNormalStages{ 4 };
-			constexpr static inline const std::array<size_t, 3> m_TacticalStages
+			constexpr static inline const size_t countTacticalStages{ generatorType::countMovegenStages(movegenPhase::tactical) };
+			constexpr static inline const std::array<stageType, countTacticalStages> m_TacticalStages
 			{
-				movegenStage_WinningMoves,
-				movegenStage_EqualMoves,
-				movegenStage_LosingMoves
+				arrayhelper::generate< countTacticalStages, stageType>([](const size_t index) {return generatorType::movegenStage(movegenPhase::tactical, index); })
 			};
-			constexpr static inline const size_t countTacticalStages{ 3 };
-			constexpr static inline const std::array<size_t, 1> m_CriticalEvasionStages
+			constexpr static inline const size_t countCriticalEvasionStages{ generatorType::countMovegenStages(movegenPhase::criticalEvasion) };
+			constexpr static inline const std::array<stageType, countCriticalEvasionStages> m_CriticalEvasionStages
 			{
-				movegenStage_CriticalEvasionMoves
+				arrayhelper::generate< countCriticalEvasionStages, stageType>([](const size_t index) {return generatorType::movegenStage(movegenPhase::criticalEvasion, index); })
 			};
-			constexpr static inline const size_t countCriticalEvasionStages{ 1 };
-			constexpr static inline const std::array<size_t, 1> m_CriticalEvasionTacticalStages
+			constexpr static inline const size_t countCriticalEvasionTacticalStages{ generatorType::countMovegenStages(movegenPhase::tacticalCrtiticalEvasion) };
+			constexpr static inline const std::array<stageType, countCriticalEvasionTacticalStages> m_CriticalEvasionTacticalStages
 			{
-				movegenStage_TacticalCriticalEvasionMoves
+				arrayhelper::generate< countCriticalEvasionTacticalStages, stageType>([](const size_t index) {return generatorType::movegenStage(movegenPhase::tacticalCrtiticalEvasion, index); })
 			};
-			constexpr static inline const size_t countCriticalEvasionTacticalStages{ 1 };
-			constexpr static inline const std::array<size_t, 4> m_CriticalStages
+			constexpr static inline const size_t countCriticalStages{ generatorType::countMovegenStages(movegenPhase::critical) };
+			constexpr static inline const std::array<stageType, countCriticalStages> m_CriticalStages
 			{
-				movegenStage_CriticalMoves
+				arrayhelper::generate< countCriticalStages, stageType>([](const size_t index) {return generatorType::movegenStage(movegenPhase::critical, index); })
 			};
-			constexpr static inline const size_t countCriticalStages{ 1 };
+			constexpr static inline const std::array<size_t, countNormalStages> countNormalPasses
+			{
+				arrayhelper::generate< countNormalStages, stageType>([](const size_t index) {return generatorType::countMovegenPasses(generatorType::movegenStage(movegenPhase::normal, index)); })
+			};
+			constexpr static inline const std::array<size_t, countTacticalStages> countTacticalPasses
+			{
+				arrayhelper::generate< countTacticalStages, stageType>([](const size_t index) {return generatorType::countMovegenPasses(generatorType::movegenStage(movegenPhase::tactical, index)); })
+			};
+			constexpr static inline const std::array<size_t, countCriticalEvasionStages> countCriticalEvasionPasses
+			{
+				arrayhelper::generate< countCriticalEvasionStages, stageType>([](const size_t index) {return generatorType::countMovegenPasses(generatorType::movegenStage(movegenPhase::criticalEvasion, index)); })
+			};
+			constexpr static inline const std::array<size_t, countCriticalEvasionTacticalStages> countCriticalEvasionTacticalPasses
+			{
+				arrayhelper::generate< countCriticalEvasionTacticalStages, stageType>([](const size_t index) {return generatorType::countMovegenPasses(generatorType::movegenStage(movegenPhase::tacticalCrtiticalEvasion, index)); })
+			};
+			constexpr static inline const std::array<size_t, countCriticalStages> countCriticalPasses
+			{
+				arrayhelper::generate< countCriticalStages, stageType>([](const size_t index) {return generatorType::countMovegenPasses(generatorType::movegenStage(movegenPhase::critical, index)); })
+			};
 			bool computeHasLegalMove(const size_t depth, movegenFeedback& feedback) const
 			{
 				while (m_CurrentLegalMove >= m_pContext->normalMoves().length())
 				{
-					if (m_CurrentNormalStage < countNormalStages)
+					if (isPositionCritical())
 					{
-						if (m_CurrentNormalPass < countMovegenPasses[static_cast<size_t>(m_NormalStages[static_cast<size_t>(m_CurrentNormalStage)])])
+						if (m_CurrentNormalStage < countCriticalEvasionStages)
 						{
-							generatorType::generateMoves(m_NormalStages[static_cast<size_t>(m_CurrentNormalStage)], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->normalMoves(), feedback.index(m_NormalStages[static_cast<size_t>(m_CurrentNormalStage)], m_CurrentNormalPass, depth));
-							while (m_pContext->normalPasses().length() < m_pContext->normalMoves().length())
+							if (m_CurrentNormalPass < countCriticalEvasionPasses[m_CurrentNormalStage])
 							{
-								m_pContext->normalPasses().add(m_CurrentNormalPass);
-								m_pContext->normalStages().add(m_NormalStages[static_cast<size_t>(m_CurrentNormalStage)]);
+								generatorType::generateMoves(m_CriticalEvasionStages[m_CurrentNormalStage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->normalMoves(), feedback.index(m_CriticalEvasionStages[m_CurrentNormalStage], m_CurrentNormalPass, depth));
+								while (m_pContext->normalPasses().length() < m_pContext->normalMoves().length())
+								{
+									m_pContext->normalPasses().add(m_CurrentNormalPass);
+									m_pContext->normalStages().add(m_CriticalEvasionStages[m_CurrentNormalStage]);
+								}
+								++m_CurrentNormalPass;
 							}
-							++m_CurrentNormalPass;
+							else
+							{
+								++m_CurrentNormalStage;
+								m_CurrentNormalPass = 0;
+							}
 						}
 						else
-						{
-							++m_CurrentNormalStage;
-							m_CurrentNormalPass = 0;
-						}
+							return false;
 					}
 					else
-						return false;
+					{
+						if (m_CurrentNormalStage < countNormalStages)
+						{
+							if (m_CurrentNormalPass < countNormalPasses[m_CurrentNormalStage])
+							{
+								generatorType::generateMoves(m_NormalStages[m_CurrentNormalStage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->normalMoves(), feedback.index(m_NormalStages[m_CurrentNormalStage], m_CurrentNormalPass, depth));
+								while (m_pContext->normalPasses().length() < m_pContext->normalMoves().length())
+								{
+									m_pContext->normalPasses().add(m_CurrentNormalPass);
+									m_pContext->normalStages().add(m_NormalStages[m_CurrentNormalStage]);
+								}
+								++m_CurrentNormalPass;
+							}
+							else
+							{
+								++m_CurrentNormalStage;
+								m_CurrentNormalPass = 0;
+							}
+						}
+						else
+							return false;
+					}
 				}
 				while (m_CurrentLegalMove < m_pContext->normalMoves().length())
 				{
@@ -387,7 +412,7 @@ namespace pygmalion
 			constexpr size_t normalPassesCount(const stageType stage) const noexcept
 			{
 				PYGMALION_ASSERT(stage < countNormalStages);
-				return countMovegenPasses[static_cast<size_t>(m_NormalStages[static_cast<size_t>(stage)])];
+				return countNormalPasses[stage];
 			}
 			constexpr stageType normalStage(const size_t stageIndex) const noexcept
 			{
@@ -406,7 +431,7 @@ namespace pygmalion
 			constexpr size_t tacticalPassesCount(const stageType stage) const noexcept
 			{
 				PYGMALION_ASSERT(stage < countTacticalStages);
-				return countMovegenPasses[static_cast<size_t>(m_TacticalStages[static_cast<size_t>(stage)])];
+				return countTacticalPasses[stage];
 			}
 			constexpr stageType tacticalStage(const size_t stageIndex) const noexcept
 			{
@@ -425,7 +450,7 @@ namespace pygmalion
 			constexpr size_t criticalPassesCount(const stageType stage) const noexcept
 			{
 				PYGMALION_ASSERT(stage < countCriticalStages);
-				return countMovegenPasses[static_cast<size_t>(m_CriticalStages[static_cast<size_t>(stage)])];
+				return countCriticalPasses[stage];
 			}
 			constexpr stageType criticalStage(const size_t stageIndex) const noexcept
 			{
@@ -446,29 +471,29 @@ namespace pygmalion
 				}
 				return m_IsPositionCritical;
 			}
-			constexpr void normalAllMove(movegenFeedback& feedback, const size_t depth, const scoreType score) const noexcept
+			constexpr void normalAllMove(movegenFeedback& feedback, const size_t depth, const scoreType score, const scoreType eval) const noexcept
 			{
-				feedback.allMove(m_LastNormalStage, m_LastNormalPass, depth, score);
+				feedback.allMove(m_LastNormalStage, m_LastNormalPass, depth, generatorType::template makeSubjective<PLAYER>(score), generatorType::template makeSubjective<PLAYER>(eval));
 			}
-			constexpr void normalCutMove(movegenFeedback& feedback, const size_t depth, const scoreType score) const noexcept
+			constexpr void normalCutMove(movegenFeedback& feedback, const size_t depth, const scoreType score, const scoreType eval) const noexcept
 			{
-				feedback.cutMove(m_LastNormalStage, m_LastNormalPass, depth, score);
+				feedback.cutMove(m_LastNormalStage, m_LastNormalPass, depth, generatorType::template makeSubjective<PLAYER>(score), generatorType::template makeSubjective<PLAYER>(eval));
 			}
-			constexpr void tacticalAllMove(movegenFeedback& feedback, const size_t depth, const scoreType score) const noexcept
+			constexpr void tacticalAllMove(movegenFeedback& feedback, const size_t depth, const scoreType score, const scoreType eval) const noexcept
 			{
-				feedback.allMove(m_LastTacticalStage, m_LastTacticalPass, depth, score);
+				feedback.allMove(m_LastTacticalStage, m_LastTacticalPass, depth, generatorType::template makeSubjective<PLAYER>(score), generatorType::template makeSubjective<PLAYER>(eval));
 			}
-			constexpr void tacticalCutMove(movegenFeedback& feedback, const size_t depth, const scoreType score) const noexcept
+			constexpr void tacticalCutMove(movegenFeedback& feedback, const size_t depth, const scoreType score, const scoreType eval) const noexcept
 			{
-				feedback.cutMove(m_LastTacticalStage, m_LastTacticalPass, depth, score);
+				feedback.cutMove(m_LastTacticalStage, m_LastTacticalPass, depth, generatorType::template makeSubjective<PLAYER>(score), generatorType::template makeSubjective<PLAYER>(eval));
 			}
-			constexpr void criticalAllMove(movegenFeedback& feedback, const size_t depth, const scoreType score) const noexcept
+			constexpr void criticalAllMove(movegenFeedback& feedback, const size_t depth, const scoreType score, const scoreType eval) const noexcept
 			{
-				feedback.allMove(m_LastCriticalStage, m_LastCriticalPass, depth, score);
+				feedback.allMove(m_LastCriticalStage, m_LastCriticalPass, depth, generatorType::template makeSubjective<PLAYER>(score), generatorType::template makeSubjective<PLAYER>(eval));
 			}
-			constexpr void criticalCutMove(movegenFeedback& feedback, const size_t depth, const scoreType score) const noexcept
+			constexpr void criticalCutMove(movegenFeedback& feedback, const size_t depth, const scoreType score, const scoreType eval) const noexcept
 			{
-				feedback.cutMove(m_LastCriticalStage, m_LastCriticalPass, depth, score);
+				feedback.cutMove(m_LastCriticalStage, m_LastCriticalPass, depth, generatorType::template makeSubjective<PLAYER>(score), generatorType::template makeSubjective<PLAYER>(eval));
 			}
 			bool hasLegalMove(const size_t depth, movegenFeedback& feedback) const
 			{
@@ -495,13 +520,13 @@ namespace pygmalion
 					{
 						if (m_CurrentNormalStage < countCriticalEvasionStages)
 						{
-							if (m_CurrentNormalPass < countMovegenPasses[static_cast<size_t>(m_CriticalEvasionStages[static_cast<size_t>(m_CurrentNormalStage)])])
+							if (m_CurrentNormalPass < countCriticalEvasionPasses[m_CurrentNormalStage])
 							{
-								generatorType::generateMoves(m_CriticalEvasionStages[static_cast<size_t>(m_CurrentNormalStage)], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->normalMoves(), feedback.index(m_CriticalEvasionStages[static_cast<size_t>(m_CurrentNormalStage)], m_CurrentNormalPass, depth));
+								generatorType::generateMoves(m_CriticalEvasionStages[m_CurrentNormalStage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->normalMoves(), feedback.index(m_CriticalEvasionStages[m_CurrentNormalStage], m_CurrentNormalPass, depth));
 								while (m_pContext->normalPasses().length() < m_pContext->normalMoves().length())
 								{
 									m_pContext->normalPasses().add(m_CurrentNormalPass);
-									m_pContext->normalStages().add(m_CriticalEvasionStages[static_cast<size_t>(m_CurrentNormalStage)]);
+									m_pContext->normalStages().add(m_CriticalEvasionStages[m_CurrentNormalStage]);
 								}
 								++m_CurrentNormalPass;
 							}
@@ -518,13 +543,14 @@ namespace pygmalion
 					{
 						if (m_CurrentNormalStage < countNormalStages)
 						{
-							if (m_CurrentNormalPass < countMovegenPasses[static_cast<size_t>(m_NormalStages[static_cast<size_t>(m_CurrentNormalStage)])])
+							if (m_CurrentNormalPass < countNormalPasses[m_CurrentNormalStage])
 							{
-								generatorType::generateMoves(m_NormalStages[static_cast<size_t>(m_CurrentNormalStage)], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->normalMoves(), feedback.index(m_NormalStages[static_cast<size_t>(m_CurrentNormalStage)], m_CurrentNormalPass, depth));
+								std::cout << "generating stage " << m_CurrentNormalStage << ", pass " << m_CurrentNormalPass << " (" << generatorType::passToString(normalStage(m_CurrentNormalStage), normalPass(feedback, m_CurrentNormalStage, m_CurrentNormalPass)) << ")" << std::endl;
+								generatorType::generateMoves(m_NormalStages[m_CurrentNormalStage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->normalMoves(), feedback.index(m_NormalStages[m_CurrentNormalStage], m_CurrentNormalPass, depth));
 								while (m_pContext->normalPasses().length() < m_pContext->normalMoves().length())
 								{
 									m_pContext->normalPasses().add(m_CurrentNormalPass);
-									m_pContext->normalStages().add(m_NormalStages[static_cast<size_t>(m_CurrentNormalStage)]);
+									m_pContext->normalStages().add(m_NormalStages[m_CurrentNormalStage]);
 								}
 								++m_CurrentNormalPass;
 							}
@@ -561,15 +587,15 @@ namespace pygmalion
 					{
 						if (m_CurrentNormalStage < countCriticalEvasionStages)
 						{
-							if (m_CurrentNormalPass < countMovegenPasses[static_cast<size_t>(m_CriticalEvasionStages[static_cast<size_t>(m_CurrentNormalStage)])])
+							if (m_CurrentNormalPass < countCriticalEvasionPasses[m_CurrentNormalStage])
 							{
-								generatorType::generateMoves(m_CriticalEvasionStages[static_cast<size_t>(m_CurrentNormalStage)], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->normalMoves(), feedback.index(m_CriticalEvasionStages[static_cast<size_t>(m_CurrentNormalStage)], m_CurrentNormalPass, depth));
+								generatorType::generateMoves(m_CriticalEvasionStages[m_CurrentNormalStage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->normalMoves(), feedback.index(m_CriticalEvasionStages[m_CurrentNormalStage], m_CurrentNormalPass, depth));
 								const auto start{ m_pContext->normalPasses().length() };
 								while (m_pContext->normalPasses().length() < m_pContext->normalMoves().length())
 								{
 									m_pContext->normalScores().add(lambda(m_pContext->normalMoves()[m_pContext->normalPasses().length()]));
 									m_pContext->normalPasses().add(m_CurrentNormalPass);
-									m_pContext->normalStages().add(m_CriticalEvasionStages[static_cast<size_t>(m_CurrentNormalStage)]);
+									m_pContext->normalStages().add(m_CriticalEvasionStages[m_CurrentNormalStage]);
 								}
 								++m_CurrentNormalPass;
 							}
@@ -586,15 +612,15 @@ namespace pygmalion
 					{
 						if (m_CurrentNormalStage < countNormalStages)
 						{
-							if (m_CurrentNormalPass < countMovegenPasses[static_cast<size_t>(m_NormalStages[static_cast<size_t>(m_CurrentNormalStage)])])
+							if (m_CurrentNormalPass < countNormalPasses[m_CurrentNormalStage])
 							{
-								generatorType::generateMoves(m_NormalStages[static_cast<size_t>(m_CurrentNormalStage)], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->normalMoves(), feedback.index(m_NormalStages[static_cast<size_t>(m_CurrentNormalStage)], m_CurrentNormalPass, depth));
+								generatorType::generateMoves(m_NormalStages[m_CurrentNormalStage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->normalMoves(), feedback.index(m_NormalStages[m_CurrentNormalStage], m_CurrentNormalPass, depth));
 								const auto start{ m_pContext->normalPasses().length() };
 								while (m_pContext->normalPasses().length() < m_pContext->normalMoves().length())
 								{
 									m_pContext->normalScores().add(lambda(m_pContext->normalMoves()[m_pContext->normalPasses().length()]));
 									m_pContext->normalPasses().add(m_CurrentNormalPass);
-									m_pContext->normalStages().add(m_NormalStages[static_cast<size_t>(m_CurrentNormalStage)]);
+									m_pContext->normalStages().add(m_NormalStages[m_CurrentNormalStage]);
 								}
 								++m_CurrentNormalPass;
 							}
@@ -630,13 +656,13 @@ namespace pygmalion
 					{
 						if (m_CurrentTacticalStage < countCriticalEvasionTacticalStages)
 						{
-							if (m_CurrentTacticalPass < countMovegenPasses[static_cast<size_t>(m_CriticalEvasionTacticalStages[static_cast<size_t>(m_CurrentTacticalStage)])])
+							if (m_CurrentTacticalPass < countCriticalEvasionTacticalPasses[m_CurrentTacticalStage])
 							{
-								generatorType::generateMoves(m_CriticalEvasionTacticalStages[static_cast<size_t>(m_CurrentTacticalStage)], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->tacticalMoves(), feedback.index(m_CriticalEvasionTacticalStages[static_cast<size_t>(m_CurrentTacticalStage)], m_CurrentTacticalPass, depth));
+								generatorType::generateMoves(m_CriticalEvasionTacticalStages[m_CurrentTacticalStage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->tacticalMoves(), feedback.index(m_CriticalEvasionTacticalStages[m_CurrentTacticalStage], m_CurrentTacticalPass, depth));
 								while (m_pContext->tacticalPasses().length() < m_pContext->tacticalMoves().length())
 								{
 									m_pContext->tacticalPasses().add(m_CurrentTacticalPass);
-									m_pContext->tacticalStages().add(m_CriticalEvasionTacticalStages[static_cast<size_t>(m_CurrentTacticalStage)]);
+									m_pContext->tacticalStages().add(m_CriticalEvasionTacticalStages[m_CurrentTacticalStage]);
 								}
 								++m_CurrentTacticalPass;
 							}
@@ -653,13 +679,13 @@ namespace pygmalion
 					{
 						if (m_CurrentTacticalStage < countTacticalStages)
 						{
-							if (m_CurrentTacticalPass < countMovegenPasses[static_cast<size_t>(m_TacticalStages[static_cast<size_t>(m_CurrentTacticalStage)])])
+							if (m_CurrentTacticalPass < countTacticalPasses[m_CurrentTacticalStage])
 							{
-								generatorType::generateMoves(m_TacticalStages[static_cast<size_t>(m_CurrentTacticalStage)], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->tacticalMoves(), feedback.index(m_TacticalStages[static_cast<size_t>(m_CurrentTacticalStage)], m_CurrentTacticalPass, depth));
+								generatorType::generateMoves(m_TacticalStages[m_CurrentTacticalStage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->tacticalMoves(), feedback.index(m_TacticalStages[m_CurrentTacticalStage], m_CurrentTacticalPass, depth));
 								while (m_pContext->tacticalPasses().length() < m_pContext->tacticalMoves().length())
 								{
 									m_pContext->tacticalPasses().add(m_CurrentTacticalPass);
-									m_pContext->tacticalStages().add(m_TacticalStages[static_cast<size_t>(m_CurrentTacticalStage)]);
+									m_pContext->tacticalStages().add(m_TacticalStages[m_CurrentTacticalStage]);
 								}
 								++m_CurrentTacticalPass;
 							}
@@ -803,15 +829,15 @@ namespace pygmalion
 				{
 					if (m_CurrentCriticalStage < countCriticalStages)
 					{
-						if (m_CurrentCriticalPass < countMovegenPasses[static_cast<size_t>(m_CriticalStages[static_cast<size_t>(m_CurrentCriticalStage)])])
+						if (m_CurrentCriticalPass < countCriticalPasses[m_CurrentCriticalStage])
 						{
-							generatorType::generateMoves(m_CriticalStages[static_cast<size_t>(m_CurrentCriticalStage)], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->criticalMoves(), feedback.index(m_CriticalStages[static_cast<size_t>(m_CurrentCriticalStage)], m_CurrentCriticalPass, depth));
+							generatorType::generateMoves(m_CriticalStages[m_CurrentCriticalStage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->criticalMoves(), feedback.index(m_CriticalStages[m_CurrentCriticalStage], m_CurrentCriticalPass, depth));
 							const auto start{ m_pContext->criticalPasses().length() };
 							while (m_pContext->criticalPasses().length() < m_pContext->criticalMoves().length())
 							{
 								m_pContext->criticalScores().add(lambda(m_pContext->criticalMoves()[m_pContext->criticalPasses().length()]));
 								m_pContext->criticalPasses().add(m_CurrentCriticalPass);
-								m_pContext->criticalStages().add(m_CriticalStages[static_cast<size_t>(m_CurrentCriticalStage)]);
+								m_pContext->criticalStages().add(m_CriticalStages[m_CurrentCriticalStage]);
 							}
 							++m_CurrentCriticalPass;
 						}
@@ -1084,6 +1110,53 @@ namespace pygmalion
 			}
 			else
 				std::cerr << "(no squares)" << std::endl;
+		}
+		template<size_t PLAYER>
+		constexpr static scoreType makeSubjective(const scoreType score) noexcept
+		{
+			return generatorType::template makeSubjective_Implementation<PLAYER>(score);
+		}
+		constexpr static size_t countMovegenStages(const movegenPhase phase) noexcept
+		{
+			return generatorType::countMovegenStages_Implementation(phase);
+		}
+		constexpr static size_t countMaxMovegenStages() noexcept
+		{
+			size_t n{ countMovegenStages(movegenPhase::normal) };
+			n = std::max(n, countMovegenStages(movegenPhase::tactical));
+			n = std::max(n, countMovegenStages(movegenPhase::criticalEvasion));
+			n = std::max(n, countMovegenStages(movegenPhase::tacticalCrtiticalEvasion));
+			n = std::max(n, countMovegenStages(movegenPhase::critical));
+			return n;
+		}
+		constexpr static size_t countTotalMovegenStages() noexcept
+		{
+			return generatorType::countTotalMovegenStages_Implementation();
+		}
+		constexpr static size_t countMovegenPasses(const size_t stage) noexcept
+		{
+			return generatorType::countMovegenPasses_Implementation(stage);
+		}
+		constexpr static size_t countMaxMovegenPasses(const movegenPhase phase) noexcept
+		{
+			size_t n{ 0 };
+			for (size_t stage = 0; stage < generatorType::countTotalMovegenStages(); stage++)
+				n = std::max(n, countMovegenPasses(stage));
+			return n;
+		}
+		constexpr static size_t countMaxMovegenPasses() noexcept
+		{
+			size_t n{ 0 };
+			n = std::max(n, countMaxMovegenPasses(movegenPhase::normal));
+			n = std::max(n, countMaxMovegenPasses(movegenPhase::tactical));
+			n = std::max(n, countMaxMovegenPasses(movegenPhase::criticalEvasion));
+			n = std::max(n, countMaxMovegenPasses(movegenPhase::tacticalCrtiticalEvasion));
+			n = std::max(n, countMaxMovegenPasses(movegenPhase::critical));
+			return n;
+		}
+		constexpr static size_t movegenStage(const movegenPhase phase, const size_t stageIndex) noexcept
+		{
+			return generatorType::movegenStage_Implementation(phase, stageIndex);
 		}
 	};
 }
