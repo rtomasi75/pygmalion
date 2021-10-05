@@ -7,11 +7,13 @@ using depthType = typename descriptorSearch::depthType;
 using heuristicsType = typename descriptorSearch::heuristicsType;
 using moveinfoType = typename descriptorSearch::moveinfoType;
 using ttmovesType = typename descriptorSearch::ttmovesType;
-using killermovesType = typename descriptorSearch::killermovesType;
+using quietKillermovesType = typename descriptorSearch::quietKillermovesType;
+using tacticalKillermovesType = typename descriptorSearch::tacticalKillermovesType;
 
 constexpr static const size_t countSearchPlies{ descriptorSearch::countSearchPlies };
 constexpr static const bool heuristicMoves{ descriptorSearch::heuristicMoves };
-constexpr static const size_t killerMoves{ descriptorSearch::killerMoves };
+constexpr static const size_t quietKillerMoves{ descriptorSearch::quietKillerMoves };
+constexpr static const size_t tacticalKillerMoves{ descriptorSearch::tacticalKillerMoves };
 constexpr static const bool pruneNullmove{ descriptorSearch::pruneNullmove };
 constexpr static const bool searchScout{ descriptorSearch::searchScout };
 constexpr static const bool searchIterativeDeepening{ descriptorSearch::searchIterativeDeepening };

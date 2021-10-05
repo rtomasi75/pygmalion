@@ -1,6 +1,6 @@
 namespace pygmalion
 {
-	template<typename EVALUATOR, size_t COUNT_SEARCH_PLIES, bool SEARCH_SCOUT, bool SEARCH_ITERATIVEDEEPENING, size_t COUNT_TT_BUCKETS, bool SEARCH_ASPIRATION, bool HEURISTIC_MOVES, size_t KILLER_MOVES, bool PRUNE_NULLMOVE,bool PRUNE_FUTILITY, typename HEURISTICS>
+	template<typename EVALUATOR, size_t COUNT_SEARCH_PLIES, bool SEARCH_SCOUT, bool SEARCH_ITERATIVEDEEPENING, size_t COUNT_TT_BUCKETS, bool SEARCH_ASPIRATION, bool HEURISTIC_MOVES, size_t KILLER_MOVES_QUIET, size_t KILLER_MOVES_TACTICAL, bool PRUNE_NULLMOVE,bool PRUNE_FUTILITY, typename HEURISTICS>
 	class descriptor_search :
 		public EVALUATOR::descriptorEvaluation
 	{
@@ -9,7 +9,8 @@ namespace pygmalion
 		using descriptorEvaluation = typename EVALUATOR::descriptorEvaluation;
 		constexpr static const size_t countSearchPlies{ COUNT_SEARCH_PLIES };
 		constexpr static const bool heuristicMoves{ HEURISTIC_MOVES };
-		constexpr static const size_t killerMoves{ KILLER_MOVES };
+		constexpr static const size_t quietKillerMoves{ KILLER_MOVES_QUIET };
+		constexpr static const size_t tacticalKillerMoves{ KILLER_MOVES_TACTICAL };
 		constexpr static const bool pruneNullmove{ PRUNE_NULLMOVE && evaluatorType::generatorType::hasNullMove() };
 		constexpr static const bool pruneFutility{ PRUNE_FUTILITY };
 		constexpr static const bool searchScout{ SEARCH_SCOUT };
@@ -22,7 +23,8 @@ namespace pygmalion
 		using heuristicsType = HEURISTICS;
 		using moveinfoType = moveinfo<descriptorEvaluation>;
 		using ttmovesType = list<typename descriptorEvaluation::movebitsType, searchTranspositionTableBucketCount>;
-		using killermovesType = list<typename descriptorEvaluation::movebitsType, killerMoves>;
+		using quietKillermovesType = list<typename descriptorEvaluation::movebitsType, quietKillerMoves>;
+		using tacticalKillermovesType = list<typename descriptorEvaluation::movebitsType, tacticalKillerMoves>;
 	};
 
 }
