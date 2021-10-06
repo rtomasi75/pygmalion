@@ -10,7 +10,7 @@ namespace pygmalion
 		constexpr static const size_t countFiles{ COUNT_FILES };
 		constexpr static const size_t countSquares{ countRanks * countFiles };
 		constexpr static const size_t countFlags{ COUNT_FLAGS };
-		constexpr static const size_t countHashBits{ COUNT_HASHBITS };
+		constexpr static const size_t countHashBits{ std::min(sizeof(void*) * CHAR_BIT,COUNT_HASHBITS) };
 		using playerType = pygmalion::state::player<descriptor_state>;
 		using pieceType = pygmalion::state::piece<descriptor_state>;
 		using rankType = pygmalion::state::rank<descriptor_state>;

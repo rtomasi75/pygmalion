@@ -25,7 +25,6 @@ namespace pygmalion::search
 //				this->output() << "node:                " << std::setw(4) << sizeof(nodeType) << " = " << sizeof(nodeType) * CHAR_BIT << "bit" << std::endl;
 				this->output() << std::endl;
 				this->output() << "max. depth: " << std::setw(4) << countSearchPlies << std::endl;
-				this->output() << "TT bits:    " << std::setw(4) << this->searchEngine().transpositionTable().bitCount() << std::endl;
 				this->output() << "TT entries: " << std::setw(4) << this->searchEngine().transpositionTable().countEntries() << std::endl;
 				this->output() << "TT memory:  " << std::setw(4) << parser::valueToString(this->searchEngine().transpositionTable().memoryUsed(), "B") << std::endl;
 				this->output() << std::endl;

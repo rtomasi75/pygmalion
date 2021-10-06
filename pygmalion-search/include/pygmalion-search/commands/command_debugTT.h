@@ -15,7 +15,6 @@ namespace pygmalion::search
 			{
 				this->output() << std::endl;
 				this->output() << "TT entry:   " << std::setw(4) << sizeof(typename transpositiontable<descriptorSearch>::transposition) << " = " << sizeof(typename transpositiontable<descriptorSearch>::transposition) * CHAR_BIT << "bit" << std::endl;
-				this->output() << "TT bits:    " << std::setw(4) << this->searchEngine().transpositionTable().bitCount() << std::endl;
 				this->output() << "TT memory:  " << std::setw(4) << parser::memoryToString(this->searchEngine().transpositionTable().memoryUsed(), "B") << std::endl;
 				this->output() << "TT entries: " << std::setw(4) << this->searchEngine().transpositionTable().countEntries() << std::endl;
 				this->output() << "TT used:    " << std::setw(4) << this->searchEngine().transpositionTable().countUsedEntries() << std::endl;

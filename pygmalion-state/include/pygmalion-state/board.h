@@ -16,7 +16,6 @@ namespace pygmalion
 		flagsType m_Flags;
 		hashType m_Hash;
 		cumulationType m_Cumulation;
-		signatureType m_Signature;
 		static const inline std::array<hashType, countPlayers* countPieces* countSquares> m_HashTable{ arrayhelper::generate< countPlayers* countPieces* countSquares ,hashType>([](const size_t index) {return hashType::random(); }) };
 		constexpr static size_t requiredUnsignedBits(const size_t number) noexcept
 		{
@@ -82,10 +81,6 @@ namespace pygmalion
 			return (first <= last) && (last < countFlags);
 		}
 	public:
-		const signatureType& signature() const noexcept
-		{
-			return m_Signature;
-		}
 		constexpr gamestateType arbitration() const noexcept
 		{
 			return m_Arbitration;
@@ -355,7 +350,6 @@ namespace pygmalion
 #endif
 			m_PlayerOccupancy[player] |= square;
 			m_PieceOccupancy[piece] |= square;
-			m_Signature.addPiece(piece, player);
 			onAddedPiece(piece, square, player);
 		}
 		constexpr void removePiece(const pieceType piece, const squareType square, const playerType player) noexcept
@@ -369,7 +363,6 @@ namespace pygmalion
 #endif
 			m_PlayerOccupancy[player] -= square;
 			m_PieceOccupancy[piece] -= square;
-			m_Signature.removePiece(piece, player);
 			onRemovedPiece(piece, square, player);
 		}
 		constexpr pieceType getPiece(const squareType sq) const noexcept
@@ -406,7 +399,6 @@ namespace pygmalion
 			m_Flags.clear();
 			m_MovingPlayer = 0;
 			m_Arbitration = gamestateType::open();
-			m_Signature.clear();
 			onClear();
 		}
 		constexpr board() noexcept :

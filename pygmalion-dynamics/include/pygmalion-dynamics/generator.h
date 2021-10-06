@@ -504,10 +504,6 @@ namespace pygmalion
 				}
 				return m_HasLegalMove;
 			}
-			signatureType signature() const noexcept
-			{
-				return this->position().signature();
-			}
 			bool isMoveLegal(const movebitsType moveBits) const noexcept
 			{
 				return generatorType::isMoveLegal(*static_cast<const typename generatorType::stackType*>(this), moveBits);

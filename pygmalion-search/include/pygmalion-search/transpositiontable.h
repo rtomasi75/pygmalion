@@ -14,11 +14,8 @@ namespace pygmalion
 		{
 		public:
 			hashType m_Hash;
-			flagsType m_BoardFlags;
-			playerType m_MovingPlayer;
 			scoreType m_Value;
 			movebitsType m_Move;
-			signatureType m_Signature;
 			depthType m_Draft;
 			std::uint8_t m_Flags;
 			constexpr static const scoreType m_Minimum{ scoreType::minimum() };
@@ -28,17 +25,14 @@ namespace pygmalion
 				m_Value{ m_Minimum },
 				m_Flags{ transpositiontable::flags_unused },
 				m_Move{ movebitsType(0) },
-				m_Draft{ depthType(0) },
-				m_MovingPlayer{ playerType(0) },
-				m_BoardFlags{ flagsType(0) },
-				m_Signature{ signatureType() }
+				m_Draft{ depthType(0) }
 			{
 			}
 			~transposition() = default;
 			template<size_t PLAYER>
 			constexpr bool isValid(const stackType<PLAYER>& stack) const noexcept
 			{
-				const bool bOk{ ((m_Hash == stack.position().hash()) && (m_MovingPlayer == stack.position().movingPlayer())) && ((m_BoardFlags == stack.position().flags()) && (m_Signature == stack.signature())) };
+				const bool bOk{ m_Hash == stack.position().hash() };
 				if (bOk)
 				{
 					if (m_Flags & transpositiontable::flags_move)
@@ -66,18 +60,6 @@ namespace pygmalion
 			constexpr depthType draft() const noexcept
 			{
 				return m_Draft;
-			}
-			constexpr const signatureType& signature() const noexcept
-			{
-				return m_Signature;
-			}
-			constexpr flagsType boardFlags() const noexcept
-			{
-				return m_BoardFlags;
-			}
-			constexpr playerType movingPlayer() const noexcept
-			{
-				return m_MovingPlayer;
 			}
 			constexpr std::uint8_t flags() const noexcept
 			{
@@ -111,9 +93,6 @@ namespace pygmalion
 			void reset(const stackType<PLAYER>& stack, const scoreType value, const depthType draft, const std::uint8_t flags, const movebitsType move)
 			{
 				m_Hash = stack.position().hash();
-				m_MovingPlayer = stack.position().movingPlayer();
-				m_BoardFlags = stack.position().flags();
-				m_Signature = stack.signature();
 				m_Draft = draft;
 				m_Flags = flags_unused;
 				if (flags & transpositiontable::flags_lower)
@@ -148,17 +127,55 @@ namespace pygmalion
 		constexpr static inline std::uint8_t flags_hit{ flags_upper | flags_lower | flags_exact };
 		constexpr static inline size_t countBuckets{ searchTranspositionTableBucketCount };
 	private:
-		size_t m_BitCount;
+		size_t m_EntryCount;
+		uint_t<128, false> m_WideEntryCount;
 		mutable std::uint64_t m_Probes;
 		mutable std::uint64_t m_Hits;
 		mutable std::uint64_t m_AlphaHits;
 		mutable std::uint64_t m_BetaHits;
 		mutable std::uint64_t m_ExactHits;
 		std::vector<transposition> m_Entry;
-		constexpr hashType computeKey(const hashType& hash) const noexcept
+		constexpr size_t computeMaxEntries() const noexcept
 		{
-			const hashType mask{ (hashType(1) << m_BitCount) - hashType(1) };
-			return hash & mask;
+			return static_cast<size_t>(std::min(static_cast<std::uint64_t>(std::numeric_limits<std::size_t>::max() / (sizeof(transposition) * countBuckets)), ((UINT64_C(1) << std::min(static_cast<size_t>(63), countHashBits)) / (sizeof(transposition) * countBuckets))));
+		}
+		size_t computeIndex(const hashType& hash) const noexcept
+		{
+			if constexpr ((countHashBits > 32) && (static_cast<std::uint64_t>(std::numeric_limits<std::size_t>::max()) >= UINT64_C(0x100000000)))
+			{
+				if constexpr (uint_t<128, false>::countWords <= 2)
+				{
+					const uint_t<128, false> wideHash{ static_cast<uint_t<128,false>>(hash) };
+					const uint_t<128, false> wideIndex{ wideHash * m_WideEntryCount };
+					const std::uint64_t index{ static_cast<std::uint64_t>(wideIndex.extractBits<64,64>()) };
+					return static_cast<size_t>(index);
+				}
+				else
+				{
+					if constexpr ((sizeof(long double) * CHAR_BIT >= 80) && (LDBL_MANT_DIG == 64) && (sizeof(std::uint64_t) < sizeof(long double)))
+					{
+						const long double floatHash{ static_cast<long double>(static_cast<std::uint64_t>(hash)) };
+						const long double floatIndex{ static_cast<long double>(m_EntryCount) * floatHash };
+						std::uint64_t index;
+						memcpy(&index, &floatIndex, sizeof(std::uint64_t));
+						return static_cast<size_t>(index);
+					}
+					else
+					{
+						const uint_t<128, false> wideHash{ static_cast<uint_t<128,false>>(hash) };
+						const uint_t<128, false> wideIndex{ wideHash * m_WideEntryCount };
+						const std::uint64_t index{ static_cast<std::uint64_t>(wideIndex.extractBits<64,64>()) };
+						return static_cast<size_t>(index);
+					}
+				}
+			}
+			else
+			{
+				const std::uint64_t wideHash{ static_cast<std::uint64_t>(hash) & UINT64_C(0xffffffff) };
+				const std::uint64_t wideIndex{ wideHash * static_cast<std::uint64_t>(m_EntryCount) };
+				const std::uint64_t index{ wideIndex >> 32 };
+				return static_cast<size_t>(index);
+			}
 		}
 	public:
 		constexpr void hitAlpha() const noexcept
@@ -199,7 +216,7 @@ namespace pygmalion
 		constexpr size_t countUsedEntries() const noexcept
 		{
 			size_t count{ 0 };
-			const size_t n{ (size_t(1) << m_BitCount) * countBuckets };
+			const size_t n{ m_EntryCount * countBuckets };
 			for (size_t i = 0; i < n; i++)
 			{
 				if ((m_Entry[i].flags() & flags_upper) || (m_Entry[i].flags() & flags_lower))
@@ -212,7 +229,7 @@ namespace pygmalion
 		constexpr size_t countRangeEntries() const noexcept
 		{
 			size_t count{ 0 };
-			const size_t n{ (size_t(1) << m_BitCount) * countBuckets };
+			const size_t n{ m_EntryCount * countBuckets };
 			for (size_t i = 0; i < n; i++)
 			{
 				if ((m_Entry[i].flags() & flags_upper) && (m_Entry[i].flags() & flags_lower))
@@ -225,7 +242,7 @@ namespace pygmalion
 		constexpr size_t countExactEntries() const noexcept
 		{
 			size_t count{ 0 };
-			const size_t n{ (size_t(1) << m_BitCount) * countBuckets };
+			const size_t n{ m_EntryCount * countBuckets };
 			for (size_t i = 0; i < n; i++)
 			{
 				if (m_Entry[i].flags() & flags_exact)
@@ -238,7 +255,7 @@ namespace pygmalion
 		constexpr size_t countMoveEntries() const noexcept
 		{
 			size_t count{ 0 };
-			const size_t n{ (size_t(1) << m_BitCount) * countBuckets };
+			const size_t n{ m_EntryCount * countBuckets };
 			for (size_t i = 0; i < n; i++)
 			{
 				if (m_Entry[i].flags() & flags_move)
@@ -251,7 +268,7 @@ namespace pygmalion
 		constexpr size_t countUpperBoundEntries() const noexcept
 		{
 			size_t count{ 0 };
-			const size_t n{ (size_t(1) << m_BitCount) * countBuckets };
+			const size_t n{ m_EntryCount * countBuckets };
 			for (size_t i = 0; i < n; i++)
 			{
 				if (m_Entry[i].flags() & flags_upper)
@@ -264,7 +281,7 @@ namespace pygmalion
 		constexpr size_t countLowerBoundEntries() const noexcept
 		{
 			size_t count{ 0 };
-			const size_t n{ (size_t(1) << m_BitCount) * countBuckets };
+			const size_t n{ m_EntryCount * countBuckets };
 			for (size_t i = 0; i < n; i++)
 			{
 				if (m_Entry[i].flags() & flags_lower)
@@ -274,13 +291,10 @@ namespace pygmalion
 			}
 			return count;
 		}
-		constexpr size_t bitCount() const noexcept
-		{
-			return m_BitCount;
-		}
-		constexpr transpositiontable(const size_t countBits = 21) noexcept :
-			m_BitCount{ countBits },
-			m_Entry{ (size_t(1) << m_BitCount) * countBuckets },
+		constexpr transpositiontable(const size_t sizeInBytes = 128 * 1024 * 1024) noexcept :
+			m_EntryCount{ std::min(computeMaxEntries(),sizeInBytes / (sizeof(transposition) * countBuckets)) },
+			m_Entry{ m_EntryCount * countBuckets },
+			m_WideEntryCount{ static_cast<uint_t<128,false>>(static_cast<uint_t<64,false>>(static_cast<std::uint64_t>(m_EntryCount))) },
 			m_Probes{ 0 },
 			m_Hits{ 0 },
 			m_AlphaHits{ 0 },
@@ -290,22 +304,23 @@ namespace pygmalion
 		}
 		constexpr size_t countEntries() const noexcept
 		{
-			return m_Entry.size();
+			return m_EntryCount;
 		}
 		constexpr size_t memoryUsed() const noexcept
 		{
-			return m_Entry.size() * sizeof(transposition);
+			return m_EntryCount * sizeof(transposition) * countBuckets;
 		}
 		template<size_t PLAYER>
 		constexpr void probeMoves(const stackType<PLAYER>& stack, const depthType depthRemaining, ttmovesType& moves) const noexcept
 		{
 			if constexpr (countBuckets > 0)
 			{
-				const hashType i = { computeKey(stack.position().hash()) };
+				const size_t idx{ computeIndex(stack.position().hash()) };
 				depthType score[countBuckets];
+				const size_t base{ idx * countBuckets };
 				for (size_t j = 0; j < countBuckets; j++)
 				{
-					const size_t index = static_cast<std::uint64_t>(i) * countBuckets + j;
+					const size_t index{ base + j };
 					if (m_Entry[index].isValid(stack))
 					{
 						if (m_Entry[index].flags() & flags_move)
@@ -326,11 +341,12 @@ namespace pygmalion
 		{
 			if constexpr (countBuckets > 0)
 			{
-				const hashType i = { computeKey(stack.position().hash()) };
+				const size_t idx{ computeIndex(stack.position().hash()) };
 				depthType score[countBuckets];
+				const size_t base{ idx * countBuckets };
 				for (size_t j = 0; j < countBuckets; j++)
 				{
-					const size_t index = static_cast<std::uint64_t>(i) * countBuckets + j;
+					const size_t index{ base + j };
 					if (m_Entry[index].isValid(stack))
 					{
 						if (m_Entry[index].flags() & flags_move)
@@ -356,12 +372,13 @@ namespace pygmalion
 			m_Probes++;
 			if constexpr (UseDeepHits)
 			{
-				const hashType i = { computeKey(stack.position().hash()) };
+				const size_t idx{ computeIndex(stack.position().hash()) };
 				depthType best{ countSearchPlies + 1 };
 				size_t bestidx{ 0 };
+				const size_t base{ idx * countBuckets };
 				for (size_t j = 0; j < countBuckets; j++)
 				{
-					const size_t index2 = static_cast<std::uint64_t>(i) * countBuckets + j;
+					const size_t index2 = base + j;
 					if (m_Entry[index2].draft() < best)
 					{
 						best = m_Entry[index2].draft();
@@ -373,8 +390,7 @@ namespace pygmalion
 						break;
 					}
 				}
-				const size_t j{ bestidx };
-				const size_t index = static_cast<std::uint64_t>(i) * countBuckets + j;
+				const size_t index = base + bestidx;
 				if (m_Entry[index].isValid(stack))
 				{
 					if (m_Entry[index].draft() >= depth)
@@ -425,10 +441,11 @@ namespace pygmalion
 			}
 			else
 			{
-				const hashType i = { computeKey(stack.position().hash()) };
+				const size_t idx{ computeIndex(stack.position().hash()) };
+				const size_t base{ idx * countBuckets };
 				for (size_t j = 0; j < countBuckets; j++)
 				{
-					const size_t index = static_cast<std::uint64_t>(i) * countBuckets + j;
+					const size_t index = base + j;
 					if (m_Entry[index].isValid(stack))
 					{
 						if (m_Entry[index].draft() == depth)
@@ -483,12 +500,13 @@ namespace pygmalion
 		template<size_t PLAYER>
 		constexpr void store(const stackType<PLAYER>& stack, const depthType depth, const scoreType score, const std::uint8_t flags, const movebitsType move) noexcept
 		{
-			const hashType i = { computeKey(stack.position().hash()) };
+			const size_t idx{ computeIndex(stack.position().hash()) };
 			depthType best{ countSearchPlies + 1 };
 			size_t bestidx{ 0 };
+			const size_t base{ idx * countBuckets };
 			for (size_t j = 0; j < countBuckets; j++)
 			{
-				const size_t index = static_cast<std::uint64_t>(i) * countBuckets + j;
+				const size_t index = base + j;
 				if (m_Entry[index].draft() < best)
 				{
 					best = m_Entry[index].draft();
@@ -500,15 +518,15 @@ namespace pygmalion
 					return;
 				}
 			}
-			const size_t index2 = static_cast<std::uint64_t>(i) * countBuckets + bestidx;
+			const size_t index2 = base + bestidx;
 			m_Entry[index2].reset(stack, score, depth, flags, move);
 		}
 		template<size_t PLAYER>
 		constexpr void prefetch(const stackType<PLAYER>& stack) const noexcept
 		{
-			const hashType i = { computeKey(stack.position().hash()) };
-			const size_t index = static_cast<std::uint64_t>(i) * countBuckets;
-			memory::prefetchRead(&(m_Entry[index]));
+			const size_t idx{ computeIndex(stack.position().hash()) };
+			const size_t base{ idx * countBuckets };
+			memory::prefetchRead(&(m_Entry[base]));
 		}
 	};
 }
