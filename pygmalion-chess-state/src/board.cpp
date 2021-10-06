@@ -338,7 +338,7 @@ namespace pygmalion::chess
 	void board::onAddedPiece_Implementation(const pieceType piece, const squareType square, const playerType player) noexcept
 	{
 		cumulation().score() += m_Material.material(player, piece);
-		switch(piece)
+		switch (piece)
 		{
 		case pawn:
 			cumulation().pawnHash() ^= pieceHash(pawn, square, player);
@@ -689,6 +689,99 @@ namespace pygmalion::chess
 				setEnPassantFile(fileType(epfile));
 			}
 		}
+		else
+			pos++;
+		pos++;
+		std::string revCountStr = "";
+		while (pos < fen.length())
+		{
+			bool bBreak = false;
+			switch (fen[pos])
+			{
+			case '0':
+				revCountStr += fen[pos];
+				break;
+			case '1':
+				revCountStr += fen[pos];
+				break;
+			case '2':
+				revCountStr += fen[pos];
+				break;
+			case '3':
+				revCountStr += fen[pos];
+				break;
+			case '4':
+				revCountStr += fen[pos];
+				break;
+			case '5':
+				revCountStr += fen[pos];
+				break;
+			case '6':
+				revCountStr += fen[pos];
+				break;
+			case '7':
+				revCountStr += fen[pos];
+				break;
+			case '8':
+				revCountStr += fen[pos];
+				break;
+			case '9':
+				revCountStr += fen[pos];
+				break;
+			default:
+				bBreak = true;
+				break;
+			}
+			pos++;
+			if (bBreak)
+				break;
+		}
+		if (revCountStr != "")
+			cumulation().reversiblePlies() = static_cast<std::uint16_t>(parser::parseInt(revCountStr));
+		std::string mvCountStr = "";
+		while (pos < fen.length())
+		{
+			bool bBreak = false;
+			switch (fen[pos])
+			{
+			case '0':
+				mvCountStr += fen[pos];
+				break;
+			case '1':
+				mvCountStr += fen[pos];
+				break;
+			case '2':
+				mvCountStr += fen[pos];
+				break;
+			case '3':
+				mvCountStr += fen[pos];
+				break;
+			case '4':
+				mvCountStr += fen[pos];
+				break;
+			case '5':
+				mvCountStr += fen[pos];
+				break;
+			case '6':
+				mvCountStr += fen[pos];
+				break;
+			case '7':
+				mvCountStr += fen[pos];
+				break;
+			case '8':
+				mvCountStr += fen[pos];
+				break;
+			case '9':
+				mvCountStr += fen[pos];
+				break;
+			default:
+				bBreak = true;
+				break;
+			}
+			pos++;
+			if (bBreak)
+				break;
+		}
 		return true;
 	}
 
@@ -905,8 +998,8 @@ namespace pygmalion::chess
 		str << "Material: " << position.material() << std::endl;
 		str << std::endl;
 		str << "Hash: " << std::setw(8) << std::hex << static_cast<std::uint64_t>(position.hash()) << std::dec << std::endl;
-//		str << std::endl;
-//		str << "Signature: " << position.signature().toString() << std::endl;
+		str << std::endl;
+		str << "Half-move clock: " << static_cast<std::uint64_t>(position.cumulation().reversiblePlies()) << std::endl;
 		str << std::endl;
 		str << "Player " << boardType::playerToString(position.movingPlayer()) << " is on the move." << std::endl;
 		return str;
