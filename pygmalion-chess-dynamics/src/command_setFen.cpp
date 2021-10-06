@@ -12,6 +12,7 @@ namespace pygmalion::chess::dynamics
 			std::string error;
 			if (this->position().setFen(remainder,error))
 			{
+				this->stateEngine().positionChanged();
 				this->output() << "New position: " << this->position().getFen() << std::endl;
 			}
 			else

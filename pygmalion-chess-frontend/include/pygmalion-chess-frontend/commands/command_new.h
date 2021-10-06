@@ -13,7 +13,11 @@ namespace pygmalion::chess::frontend
 		{
 			if ((cmd == "new") && this->front().isXBoard())
 			{
-				this->frontendEngine().cancelMove();
+				bool analyzeMode{ this->frontendEngine().front().analyzeMode() };
+				if (analyzeMode)
+					this->frontendEngine().stopAnalysis();
+				else
+					this->frontendEngine().cancelMove();
 				this->stateEngine().currentGame().initialize();
 				this->mechanicsEngine().history().clear();
 				this->dynamicsEngine().feedback().reset();
@@ -22,12 +26,15 @@ namespace pygmalion::chess::frontend
 				this->front().clearTimeLimit();
 				this->front().forceMode() = false;
 				this->front().enginePlayer() = descriptorFrontend::blackPlayer;
+				this->stateEngine().positionChanged();
 				for (const auto pl : playerType::range)
 				{
 					this->searchEngine().currentGame().playerClock(pl).stop();
 					this->searchEngine().currentGame().playerClock(pl).set(this->frontendEngine().currentGame().baseTime());
 				}
 				this->output() << std::endl;
+				if (analyzeMode)
+					this->frontendEngine().template startAnalysis<0>();
 				return true;
 			}
 			else

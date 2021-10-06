@@ -394,9 +394,6 @@ namespace pygmalion
 		}
 		auto duration() const noexcept
 		{
-#if !defined(NDEBUG)
-			PYGMALION_ASSERT(!m_IsSearching);
-#endif
 			return m_SearchProfiler.duration();
 		}
 		auto nodesPerSecond() const noexcept

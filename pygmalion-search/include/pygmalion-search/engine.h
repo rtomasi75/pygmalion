@@ -81,7 +81,9 @@ namespace pygmalion::search
 					m_Heuristics.beginSearch();
 					nodeType<static_cast<size_t>(static_cast<playerType>(PLAYER))> node(stack, isRunning, m_Heuristics, this->history().length());
 					principalVariation.clear();
-					const scoreType score{ node.template searchRoot<false>(depthRemaining, principalVariation, this->outputStream()) };
+					indexType currentMove;
+					indexType countMoves;
+					const scoreType score{ node.template searchRoot<false, false>(depthRemaining, principalVariation, this->outputStream(), currentMove, countMoves) };
 					m_Heuristics.endSearch();
 					return score;
 				}

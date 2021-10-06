@@ -22,141 +22,160 @@ namespace pygmalion
 		bool m_ForceMode;
 		bool m_PostMode;
 		bool m_PonderMode;
+		bool m_AnalyzeMode;
+		bool m_HasHint;
+		movebitsType m_HintMove;
 		std::string m_OpponentName;
 	public:
 		static std::string gamestateToString(const boardType& position, const gamestateType& gs) noexcept
 		{
 			return frontType::gamestateToString_Implementation(position, gs);
 		}
-		constexpr const std::string& opponentName() const noexcept
+		const std::string& opponentName() const noexcept
 		{
 			return m_OpponentName;
 		}
-		constexpr std::string& opponentName() noexcept
+		std::string& opponentName() noexcept
 		{
 			return m_OpponentName;
 		}
-		constexpr std::uint16_t playerRating(const playerType& pl) const noexcept
+		std::uint16_t playerRating(const playerType& pl) const noexcept
 		{
 			return m_Rating[pl];
 		}
-		constexpr std::uint16_t& playerRating(const playerType& pl) noexcept
+		std::uint16_t& playerRating(const playerType& pl) noexcept
 		{
 			return m_Rating[pl];
 		}
-		constexpr depthType depthLimit() const noexcept
+		depthType depthLimit() const noexcept
 		{
 			return m_MaxDepth;
 		}
-		constexpr std::chrono::seconds timeLimit() const noexcept
+		std::chrono::seconds timeLimit() const noexcept
 		{
 			return m_MaxTime;
 		}
-		constexpr bool isDepthLimited() const noexcept
+		bool isDepthLimited() const noexcept
 		{
 			return m_MaxDepth >= 0;
 		}
-		constexpr bool isTimeLimited() const noexcept
+		bool isTimeLimited() const noexcept
 		{
 			return m_MaxTime >= std::chrono::seconds(0);
 		}
-		constexpr bool exceedsDepthLimit(const depthType& depth) const noexcept
+		bool exceedsDepthLimit(const depthType& depth) const noexcept
 		{
 			return isDepthLimited() && (depth > m_MaxDepth);
 		}
-		constexpr bool exceedsTimeLimit(const std::chrono::seconds duration) const noexcept
+		bool exceedsTimeLimit(const std::chrono::seconds duration) const noexcept
 		{
 			return isTimeLimited() && (duration > timeLimit());
 		}
-		constexpr void setDepthLimit(const depthType& limit) noexcept
+		void setDepthLimit(const depthType& limit) noexcept
 		{
 			m_MaxDepth = limit;
 		}
-		constexpr void setTimeLimit(const std::chrono::seconds limit) noexcept
+		void setTimeLimit(const std::chrono::seconds limit) noexcept
 		{
 			m_MaxTime = limit;
 		}
-		constexpr void clearDepthLimit() noexcept
+		void clearDepthLimit() noexcept
 		{
 			m_MaxDepth = static_cast<depthType>(-1);
 		}
-		constexpr void clearTimeLimit() noexcept
+		void clearTimeLimit() noexcept
 		{
 			m_MaxTime = std::chrono::seconds(-1);
 		}
-		constexpr int& protocolVersion() noexcept
+		int& protocolVersion() noexcept
 		{
 			return m_ProtocolVersion;
 		}
-		constexpr int protocolVersion() const noexcept
+		int protocolVersion() const noexcept
 		{
 			return m_ProtocolVersion;
 		}
-		constexpr bool& isXBoard() noexcept
+		bool& isXBoard() noexcept
 		{
 			return m_IsXBoard;
 		}
-		constexpr bool& isUCI() noexcept
+		bool& isUCI() noexcept
 		{
 			return m_IsUCI;
 		}
-		constexpr bool& isDebug() noexcept
+		bool& isDebug() noexcept
 		{
 			return m_IsDebug;
 		}
-		constexpr bool isXBoard() const noexcept
+		bool& hasHint() noexcept
+		{
+			return m_HasHint;
+		}
+		movebitsType& hintMove() noexcept
+		{
+			return m_HintMove;
+		}
+		bool isXBoard() const noexcept
 		{
 			return m_IsXBoard;
 		}
-		constexpr bool& isRandom() noexcept
+		bool& isRandom() noexcept
 		{
 			return m_IsRandom;
 		}
-		constexpr bool isRandom() const noexcept
+		bool isRandom() const noexcept
 		{
 			return m_IsRandom;
 		}
-		constexpr bool ponderMode() const noexcept
+		bool ponderMode() const noexcept
 		{
 			return m_PonderMode;
 		}
-		constexpr bool& ponderMode() noexcept
+		bool& ponderMode() noexcept
 		{
 			return m_PonderMode;
 		}
-		constexpr bool forceMode() const noexcept
+		bool analyzeMode() const noexcept
+		{
+			return m_AnalyzeMode;
+		}
+		bool& analyzeMode() noexcept
+		{
+			return m_AnalyzeMode;
+		}
+		bool forceMode() const noexcept
 		{
 			return m_ForceMode;
 		}
-		constexpr bool& forceMode() noexcept
+		bool& forceMode() noexcept
 		{
 			return m_ForceMode;
 		}
-		constexpr bool postMode() const noexcept
+		bool postMode() const noexcept
 		{
 			return m_PostMode;
 		}
-		constexpr bool& postMode() noexcept
+		bool& postMode() noexcept
 		{
 			return m_PostMode;
 		}
-		constexpr bool& playingComputer() noexcept
+		bool& playingComputer() noexcept
 		{
 			return m_PlayingComputer;
 		}
-		constexpr bool playingComputer() const noexcept
+		bool playingComputer() const noexcept
 		{
 			return m_PlayingComputer;
 		}
-		constexpr playerType enginePlayer() const noexcept
+		playerType enginePlayer() const noexcept
 		{
 			return m_EnginePlayer;
 		}
-		constexpr playerType& enginePlayer() noexcept
+		playerType& enginePlayer() noexcept
 		{
 			return m_EnginePlayer;
 		}
-		constexpr front() noexcept :
+		front() noexcept :
 			m_IsXBoard{ false },
 			m_IsDebug{ false },
 			m_IsUCI{ false },
@@ -164,13 +183,15 @@ namespace pygmalion
 			m_ForceMode{ false },
 			m_PostMode{ false },
 			m_PonderMode{ false },
+			m_AnalyzeMode{ false },
 			m_PlayingComputer{ false },
 			m_ProtocolVersion{ 1 },
 			m_MaxDepth{ -1 },
 			m_MaxTime{ -1 },
 			m_EnginePlayer{ 0 },
 			m_Rating{ arrayhelper::make<countPlayers,std::uint16_t>(0) },
-			m_OpponentName{ std::string("<unknown>") }
+			m_OpponentName{ std::string("<unknown>") },
+			m_HasHint{ false }
 		{
 
 		}

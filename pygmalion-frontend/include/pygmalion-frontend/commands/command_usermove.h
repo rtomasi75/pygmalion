@@ -15,15 +15,21 @@ namespace pygmalion::frontend
 			if constexpr (PLAYER < countPlayers)
 			{
 				constexpr const playerType player{ static_cast<playerType>(PLAYER) };
+				constexpr const playerType nextPlayer{ player.next() };
 				if (player == this->position().movingPlayer())
 				{
-					this->frontendEngine().cancelMove();
+					bool analyzeMode{ this->front().analyzeMode() };
+					this->front().hasHint() = false;
+					if (analyzeMode)
+						this->frontendEngine().stopAnalysis();
+					else
+						this->frontendEngine().cancelMove();
 					this->frontendEngine().currentGame().playerClock(this->frontendEngine().currentGame().position().movingPlayer()).stop();
 					this->frontendEngine().doMove(movebits);
 					this->output() << std::endl;
-					const typename descriptorFrontend::template stackType<PLAYER> stack{ typename descriptorFrontend::template stackType<PLAYER>(this->position(), this->history(), this->rootContext()) };
+					const typename descriptorFrontend::template stackType<static_cast<size_t>(nextPlayer)> stack{ typename descriptorFrontend::template stackType<static_cast<size_t>(nextPlayer)>(this->position(), this->history(), this->rootContext()) };
 					bool allowStoreTT;
-					const gamestateType result{ evaluatorType::template earlyResult<PLAYER, false>(stack, allowStoreTT) };
+					const gamestateType result{ evaluatorType::template earlyResult<static_cast<size_t>(nextPlayer), false>(stack, allowStoreTT) };
 					if (!gamestateType::isOpen(result))
 					{
 						this->output() << "result " << frontType::gamestateToString(this->frontendEngine().currentGame().position(), result) << std::endl;
@@ -31,7 +37,10 @@ namespace pygmalion::frontend
 					}
 					if (gamestateType::isOpen(this->position().arbitration()) && (!this->front().forceMode()))
 					{
-						this->frontendEngine().template thinkMove<static_cast<size_t>(player.next())>();
+						if (analyzeMode)
+							this->frontendEngine().template startAnalysis<static_cast<size_t>(nextPlayer)>();
+						else
+							this->frontendEngine().template thinkMove<static_cast<size_t>(nextPlayer)>();
 					}
 				}
 				else

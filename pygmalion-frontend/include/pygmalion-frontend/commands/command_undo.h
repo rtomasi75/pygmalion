@@ -8,14 +8,37 @@ namespace pygmalion::frontend
 		using frontType = FRONT;
 		using descriptorFrontend = DESCRIPTION_FRONTEND;
 #include "../include_frontend.h"	
+	private:
+		template<size_t PLAYER>
+		void process() noexcept
+		{
+			if constexpr (PLAYER < countPlayers)
+			{
+				constexpr const playerType player{ static_cast<playerType>(PLAYER) };
+				if (player == this->position().movingPlayer())
+				{
+					bool analyzeMode{ this->front().analyzeMode() };
+					if (analyzeMode)
+						this->frontendEngine().stopAnalysis();
+					else
+						this->frontendEngine().cancelMove();
+					this->frontendEngine().undoMove();
+					this->output() << std::endl;
+					if (analyzeMode)
+						this->frontendEngine().template startAnalysis<PLAYER>();
+				}
+				else
+					this->template process<PLAYER + 1>();
+			}
+			else
+				PYGMALION_ASSERT(false);
+		}
 	protected:
 		virtual bool onProcess(const std::string& cmd) noexcept override
 		{
 			if ((cmd == "undo") && this->front().isXBoard())
 			{
-				this->frontendEngine().cancelMove();
-				this->frontendEngine().undoMove();
-				this->output() << std::endl;
+				this->template process<0>();
 				return true;
 			}
 			else

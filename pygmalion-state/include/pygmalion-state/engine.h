@@ -13,6 +13,14 @@ namespace pygmalion::state
 	private:
 		gameType m_Game;
 	public:
+		virtual void onPositionChanged() noexcept
+		{
+
+		}
+		void positionChanged() noexcept
+		{
+			this->onPositionChanged();
+		}
 		gameType& currentGame() noexcept
 		{
 			return m_Game;
