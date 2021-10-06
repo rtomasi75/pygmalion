@@ -264,7 +264,7 @@ namespace pygmalion
 	public:
 		constexpr void expandToDepth(const size_t depth) noexcept
 		{
-			if constexpr ((quietKillerMoves > 0)|| (tacticalKillerMoves > 0))
+			if constexpr ((quietKillerMoves > 0) || (tacticalKillerMoves > 0))
 			{
 				while (depth >= m_KillerSlots.size())
 				{
@@ -299,14 +299,56 @@ namespace pygmalion
 		template<size_t PLAYER>
 		constexpr void quietKillers(const stackType<PLAYER>& stack, const size_t depth, quietKillermovesType& killermoves) noexcept
 		{
-			if constexpr(quietKillerMoves >0)
-				return m_KillerSlots[depth].quietKillers(stack, killermoves);
+			if constexpr (quietKillerMoves > 0)
+			{
+				m_KillerSlots[depth].quietKillers(stack, killermoves);
+				if constexpr (killerLookBackDistance > 0)
+				{
+					quietKillermovesType lookBackKillers;
+					for (size_t i = 1; i <= killerLookBackDistance; i++)
+					{
+						const size_t offset{ countPlayers * i };
+						if (depth >= offset)
+						{
+							m_KillerSlots[depth - offset].quietKillers(stack, lookBackKillers);
+						}
+						else
+							break;
+					}
+					for (size_t i = 0; i < lookBackKillers.length(); i++)
+					{
+						if (!killermoves.contains(lookBackKillers[i]))
+							killermoves.add(lookBackKillers[i]);
+					}
+				}
+			}
 		}
 		template<size_t PLAYER>
 		constexpr void tacticalKillers(const stackType<PLAYER>& stack, const size_t depth, tacticalKillermovesType& killermoves) noexcept
 		{
 			if constexpr (tacticalKillerMoves > 0)
+			{
 				return m_KillerSlots[depth].tacticalKillers(stack, killermoves);
+				if constexpr (killerLookBackDistance > 0)
+				{
+					tacticalKillermovesType lookBackKillers;
+					for (size_t i = 1; i <= killerLookBackDistance; i++)
+					{
+						const size_t offset{ countPlayers * i };
+						if (depth >= offset)
+						{
+							m_KillerSlots[depth - offset].tacticalKillers(stack, lookBackKillers);
+						}
+						else
+							break;
+					}
+					for (size_t i = 0; i < lookBackKillers.length(); i++)
+					{
+						if (!killermoves.contains(lookBackKillers[i]))
+							killermoves.add(lookBackKillers[i]);
+					}
+				}
+			}
 		}
 		template<size_t PLAYER>
 		void sortMoves(const stackType<PLAYER>& stack, movelistType& moves, const indexType fromMoveIndex, const size_t depth) noexcept

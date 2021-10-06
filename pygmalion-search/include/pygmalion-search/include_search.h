@@ -21,5 +21,6 @@ constexpr static const bool searchTranspositionTable{ descriptorSearch::searchTr
 constexpr static const bool searchAspiration{ descriptorSearch::searchAspiration };
 constexpr static const size_t searchTranspositionTableBucketCount{ descriptorSearch::searchTranspositionTableBucketCount };
 constexpr static const bool pruneFutility{ descriptorSearch::pruneFutility };
+constexpr static const size_t killerLookBackDistance{ descriptorSearch::killerLookBackDistance };
 
 #include <pygmalion-evaluation/include_evaluation.h>
