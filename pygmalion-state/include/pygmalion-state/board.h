@@ -369,25 +369,51 @@ namespace pygmalion
 		{
 			PYGMALION_ASSERT(sq.isValid());
 			PYGMALION_ASSERT(totalOccupancy()[sq]);
-			for (const auto pc : pieceType::range)
+			if constexpr (countPieces < 8)
 			{
-				if (m_PieceOccupancy[pc][sq])
-					return pc;
+				typename pieceType::baseType result{ typename pieceType::baseType(0) };
+				for (const auto pc : pieceType::range)
+				{
+					const bool bHit{ m_PieceOccupancy[pc][sq] };
+					result |= bHit * static_cast<typename pieceType::baseType>(pc);
+				}
+				return static_cast<pieceType>(result);
 			}
-			PYGMALION_ASSERT(false);
-			return pieceType::invalid;
+			else
+			{
+				for (const auto pc : pieceType::range)
+				{
+					if (m_PieceOccupancy[pc][sq])
+						return pc;
+				}
+				PYGMALION_ASSERT(false);
+				return pieceType::invalid;
+			}
 		}
 		constexpr playerType getPlayer(const squareType sq) const noexcept
 		{
 			PYGMALION_ASSERT(sq.isValid());
 			PYGMALION_ASSERT(totalOccupancy()[sq]);
-			for (const auto p : playerType::range)
+			if constexpr (countPlayers < 8)
 			{
-				if (m_PlayerOccupancy[p][sq])
-					return p;
+				typename playerType::baseType result{ typename playerType::baseType(0) };
+				for (const auto p : playerType::range)
+				{
+					const bool bHit{ m_PlayerOccupancy[p][sq] };
+					result |= bHit * static_cast<typename playerType::baseType>(p);
+				}
+				return static_cast<playerType>(result);
 			}
-			PYGMALION_ASSERT(false);
-			return playerType::invalid;
+			else
+			{
+				for (const auto p : playerType::range)
+				{
+					if (m_PlayerOccupancy[p][sq])
+						return p;
+				}
+				PYGMALION_ASSERT(false);
+				return playerType::invalid;
+			}
 		}
 		constexpr void clear() noexcept
 		{
