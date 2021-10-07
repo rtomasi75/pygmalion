@@ -1,9 +1,10 @@
 namespace pygmalion
 {
-	template<size_t COUNT_PIECES, size_t COUNT_RANKS, size_t COUNT_FILES, size_t COUNT_FLAGS, size_t COUNT_HASHBITS, typename CUMULATION>
+	template<size_t COUNT_PIECES, size_t COUNT_RANKS, size_t COUNT_FILES, size_t COUNT_FLAGS, size_t COUNT_HASHBITS,bool CUSTOM_HASHING_ENABLED, typename CUMULATION>
 	class descriptor_state
 	{
 	public:
+		constexpr static const bool hasCustomHashing{ CUSTOM_HASHING_ENABLED };
 		constexpr static const size_t countPlayers{ 2 };
 		constexpr static const size_t countPieces{ COUNT_PIECES };
 		constexpr static const size_t countRanks{ COUNT_RANKS };

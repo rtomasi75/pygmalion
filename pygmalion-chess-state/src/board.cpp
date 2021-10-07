@@ -1,8 +1,6 @@
 #include <pygmalion-chess-state.h>
 namespace pygmalion::chess
 {
-	state::materialTables<state::descriptor_state> board::m_Material;
-
 	typename board::squareType board::kingSquare(const playerType player) const noexcept
 	{
 		return *(pieceOccupancy(king) & playerOccupancy(player)).begin();

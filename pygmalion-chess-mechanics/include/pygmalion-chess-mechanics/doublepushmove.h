@@ -71,13 +71,13 @@ namespace pygmalion::chess
 			movebits.template storeBits<0, countFileBits>(static_cast<typename std::make_unsigned<typename fileType::baseType>::type>(f));
 		}
 	public:
-		constexpr doublepushmove() noexcept = default;
+		doublepushmove() noexcept = default;
 		~doublepushmove() noexcept = default;
-		constexpr doublepushmove(doublepushmove&&) noexcept = default;
-		constexpr doublepushmove(const doublepushmove&) noexcept = default;
-		constexpr doublepushmove& operator=(doublepushmove&&) noexcept = default;
-		constexpr doublepushmove& operator=(const doublepushmove&) noexcept = default;
-		constexpr typename doublepushmove::movedataType doMove_Implementation(boardType& position, const typename doublepushmove::movebitsType& moveBits) const noexcept
+		doublepushmove(doublepushmove&&) noexcept = default;
+		doublepushmove(const doublepushmove&) noexcept = default;
+		doublepushmove& operator=(doublepushmove&&) noexcept = default;
+		doublepushmove& operator=(const doublepushmove&) noexcept = default;
+		typename doublepushmove::movedataType doMove_Implementation(boardType& position, const typename doublepushmove::movebitsType& moveBits) const noexcept
 		{
 			const playerType p{ position.movingPlayer() };
 			const fileType f{ doublepushmove::extractFile(moveBits) };
@@ -112,7 +112,7 @@ namespace pygmalion::chess
 				return typename doublepushmove::movedataType(from, to, oldFlags, reversiblePlies);
 			}
 		}
-		constexpr void undoMove_Implementation(boardType& position, const typename doublepushmove::movedataType& data) const noexcept
+		void undoMove_Implementation(boardType& position, const typename doublepushmove::movedataType& data) const noexcept
 		{
 			const playerType p{ --position.movingPlayer() };
 			position.setMovingPlayer(p);
@@ -121,7 +121,7 @@ namespace pygmalion::chess
 			position.storeFlagRange<4, 11>(data.oldFlags());
 			position.cumulation().reversiblePlies() = data.reversiblePlies();
 		}
-		constexpr typename doublepushmove::movebitsType create(const fileType file) const noexcept
+		typename doublepushmove::movebitsType create(const fileType file) const noexcept
 		{
 			typename doublepushmove::movebitsType bits{ doublepushmove::movebitsType::zero() };
 			doublepushmove::encodeFile(bits, file);
@@ -198,12 +198,12 @@ namespace pygmalion::chess
 				return boardType::squareToString(from) + boardType::squareToString(to);
 			}
 		}
-		constexpr squaresType otherOccupancyDelta_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
+		squaresType otherOccupancyDelta_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
 		{
 			constexpr const squaresType none{ squaresType::none() };
 			return none;
 		}
-		constexpr squaresType ownOccupancyDelta_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
+		squaresType ownOccupancyDelta_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
 		{
 			const playerType p{ position.movingPlayer() };
 			const fileType f{ doublepushmove::extractFile(moveBits) };
@@ -224,7 +224,7 @@ namespace pygmalion::chess
 				return squaresType(from) ^ squaresType(to);
 			}
 		}
-		constexpr squaresType pieceOccupancyDelta_Implementation(const boardType& position, const pieceType piece, const movebitsType moveBits) const noexcept
+		squaresType pieceOccupancyDelta_Implementation(const boardType& position, const pieceType piece, const movebitsType moveBits) const noexcept
 		{
 			constexpr const squaresType none{ squaresType::none() };
 			if (piece == pawn)
@@ -251,7 +251,7 @@ namespace pygmalion::chess
 			else
 				return none;
 		}
-		constexpr squareType fromSquare_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
+		squareType fromSquare_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
 		{
 			const playerType p{ position.movingPlayer() };
 			const fileType f{ doublepushmove::extractFile(moveBits) };
@@ -268,7 +268,7 @@ namespace pygmalion::chess
 				return from;
 			}
 		}
-		constexpr squareType toSquare_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
+		squareType toSquare_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
 		{
 			const playerType p{ position.movingPlayer() };
 			const fileType f{ doublepushmove::extractFile(moveBits) };

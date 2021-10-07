@@ -362,7 +362,7 @@ namespace pygmalion
 					return sc;
 			}
 			template<bool VERBOSE, bool ANALYZE>
-			constexpr scoreType searchMove(const movebitsType move, const scoreType alpha, const scoreType beta, const depthType depthRemaining, variationType& principalVariation, std::ostream& str, bool& allowStoreTT, indexType* pCurrentMove) const noexcept
+			constexpr scoreType searchMove(const movebitsType move, const scoreType alpha, const scoreType beta, const depthType depthRemaining, variationType& principalVariation, std::ostream& str, bool& allowStoreTT, indexType* pCurrentMove) noexcept
 			{
 				if constexpr (searchIterativeDeepening && !(ANALYZE))
 				{
@@ -370,20 +370,20 @@ namespace pygmalion
 					childType subnode(childType(*static_cast<const instanceType*>(this), move));
 					if (depthRemaining >= 0)
 					{
-						sc = -subnode.template search<VERBOSE>(-beta.plyDown(), -alpha.plyDown(), depthType(-1), principalVariation, str, allowStoreTT).plyUp();
-						for (depthType d = 0; d < depthRemaining; ++d)
+						if constexpr (searchAspiration)
 						{
-							if constexpr (searchAspiration)
+							sc = evaluate(alpha, beta);
+							scoreType lowAspiration{ sc };
+							scoreType highAspiration{ sc };
+							for (depthType d = -1; d < depthRemaining; ++d)
 							{
 								bool bExact{ false };
 								bool bLow{ true };
 								bool bHigh{ true };
-								scoreType lowAspiration{ sc };
-								scoreType highAspiration{ sc };
 								for (size_t i = 0; i < evaluatorType::countAspirationWindows(); i++)
 								{
-									lowAspiration = scoreType::max(alpha, bLow ? createAspiration(scoreType::min(sc, lowAspiration), -evaluatorType::aspirationWindowSize(i)) : lowAspiration);
-									highAspiration = scoreType::min(beta, bHigh ? createAspiration(scoreType::max(sc, highAspiration), evaluatorType::aspirationWindowSize(i)) : highAspiration);
+									lowAspiration = scoreType::min(bLow ? createAspiration(sc, -evaluatorType::aspirationWindowSize(i)) : lowAspiration, alpha);
+									highAspiration = scoreType::max(bHigh ? createAspiration(sc, evaluatorType::aspirationWindowSize(i)) : highAspiration, beta);
 									if (lowAspiration.isLosing())
 										lowAspiration = scoreType::minimum();
 									if (highAspiration.isWinning())
@@ -394,12 +394,7 @@ namespace pygmalion
 										bExact = true;
 										break;
 									}
-									if (sc <= alpha)
-									{
-										bExact = true;
-										break;
-									}
-									if (sc >= beta)
+									if ((sc <= alpha) || (sc >= beta))
 									{
 										bExact = true;
 										break;
@@ -418,7 +413,11 @@ namespace pygmalion
 									sc = -subnode.template search<VERBOSE>(-beta.plyDown(), -alpha.plyDown(), d, principalVariation, str, allowStoreTT).plyUp();
 								}
 							}
-							else
+							return sc;
+						}
+						else
+						{
+							for (depthType d = -1; d < depthRemaining; ++d)
 							{
 								sc = -subnode.template search<VERBOSE>(-beta.plyDown(), -alpha.plyDown(), d, principalVariation, str, allowStoreTT).plyUp();
 							}
@@ -1255,7 +1254,7 @@ namespace pygmalion
 			}
 			~node() noexcept = default;
 			template<bool VERBOSE, bool ANALYZE>
-			scoreType searchRoot(const depthType depthRemaining, variationType& principalVariation, std::ostream& str, indexType& currentMove, indexType& countMoves) noexcept
+			scoreType searchRoot(const depthType depthRemaining, variationType& principalVariation, const scoreType scoreFromPreviousDepth, std::ostream& str, indexType& currentMove, indexType& countMoves) noexcept
 			{
 				bool allowStoreTT;
 				constexpr const scoreType minimum{ scoreType::minimum() };
@@ -1272,7 +1271,47 @@ namespace pygmalion
 					return this->template analyze<VERBOSE>(minimum, maximum, depthRemaining, principalVariation, str, allowStoreTT, currentMove);
 				}
 				else
-					return this->template search<VERBOSE>(minimum, maximum, depthRemaining, principalVariation, str, allowStoreTT);
+				{
+					if constexpr (searchAspiration)
+					{
+						bool bExact{ false };
+						bool bLow{ true };
+						bool bHigh{ true };
+						scoreType sc{ scoreFromPreviousDepth };
+						scoreType lowAspiration{ sc };
+						scoreType highAspiration{ sc };
+						for (size_t i = 0; i < evaluatorType::countAspirationWindows(); i++)
+						{
+							lowAspiration = bLow ? createAspiration(sc, -evaluatorType::aspirationWindowSize(i)) : lowAspiration;
+							highAspiration = bHigh ? createAspiration(sc, evaluatorType::aspirationWindowSize(i)) : highAspiration;
+							if (lowAspiration.isLosing())
+								lowAspiration = scoreType::minimum();
+							if (highAspiration.isWinning())
+								highAspiration = scoreType::maximum();
+							sc = this->template search<VERBOSE>(lowAspiration, highAspiration, depthRemaining, principalVariation, str, allowStoreTT);
+							if ((sc > lowAspiration) && (sc < highAspiration))
+							{
+								bExact = true;
+								break;
+							}
+							if (sc <= lowAspiration)
+								bLow = true;
+							else
+								bLow = false;
+							if (sc >= highAspiration)
+								bHigh = true;
+							else
+								bHigh = false;
+						}
+						if (!bExact)
+						{
+							sc = this->template search<VERBOSE>(minimum, maximum, depthRemaining, principalVariation, str, allowStoreTT);
+						}
+						return sc;
+					}
+					else
+						return this->template search<VERBOSE>(minimum, maximum, depthRemaining, principalVariation, str, allowStoreTT);
+				}
 			}
 			constexpr const stackType& stack() const noexcept
 			{

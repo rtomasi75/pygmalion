@@ -343,7 +343,7 @@ namespace pygmalion::chess
 			squares |= static_cast<squaresType>(static_cast<rankType>(1));
 			return squares;
 		}
-		constexpr static const movebitsType m_NullMove{ motorType::move().createNull() };
+		static inline const movebitsType m_NullMove{ motorType::move().createNull() };
 		constexpr static const std::array<squaresType, 64> m_KingArea
 		{
 			arrayhelper::generate<64,squaresType>([](const size_t index)
@@ -356,12 +356,12 @@ namespace pygmalion::chess
 				})
 		};
 	public:
-		constexpr static squaresType kingArea(const squareType sq) noexcept
+		static squaresType kingArea(const squareType sq) noexcept
 		{
 			return m_KingArea[sq];
 		}
 		template<size_t PLAYER>
-		constexpr static squaresType pawnPushTargets(const squareType sq, const squaresType& allowed) noexcept
+		static squaresType pawnPushTargets(const squareType sq, const squaresType& allowed) noexcept
 		{
 			constexpr const playerType player{ static_cast<playerType>(PLAYER) };
 			if constexpr (player == whitePlayer)
@@ -370,7 +370,7 @@ namespace pygmalion::chess
 				return movegenPawnPushBlack.targets(sq, allowed);
 		}
 		template<size_t PLAYER>
-		constexpr static squaresType pawnCaptureTargets(const squaresType& squares, const squaresType& allowed) noexcept
+		static squaresType pawnCaptureTargets(const squaresType& squares, const squaresType& allowed) noexcept
 		{
 			constexpr const playerType player{ static_cast<playerType>(PLAYER) };
 			if constexpr (player == whitePlayer)
@@ -379,7 +379,7 @@ namespace pygmalion::chess
 				return movegenPawnCaptureBlack.attacks(squares, allowed);
 		}
 		template<size_t PLAYER>
-		constexpr static squaresType pawnDoublePushTargets(const squareType sq, const squaresType& allowed) noexcept
+		static squaresType pawnDoublePushTargets(const squareType sq, const squaresType& allowed) noexcept
 		{
 			constexpr const playerType player{ static_cast<playerType>(PLAYER) };
 			if constexpr (player == whitePlayer)
@@ -712,7 +712,7 @@ namespace pygmalion::chess
 			}
 		}
 		template<size_t PLAYER>
-		constexpr static void generateKnightMoves(const stackType<PLAYER>& stack, movelistType& moves) noexcept
+		static void generateKnightMoves(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			for (const squareType from : stack.position().pieceOccupancy(knight)& stack.position().playerOccupancy(movingPlayer))
@@ -722,7 +722,7 @@ namespace pygmalion::chess
 			}
 		}
 		template<size_t PLAYER>
-		constexpr static void generateSliderMovesHV(const stackType<PLAYER>& stack, movelistType& moves) noexcept
+		static void generateSliderMovesHV(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			for (const squareType from : (stack.position().pieceOccupancy(rook) | stack.position().pieceOccupancy(queen))& stack.position().playerOccupancy(movingPlayer))
@@ -732,7 +732,7 @@ namespace pygmalion::chess
 			}
 		}
 		template<size_t PLAYER>
-		constexpr static void generateSliderMovesDiag(const stackType<PLAYER>& stack, movelistType& moves) noexcept
+		static void generateSliderMovesDiag(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			for (const squareType from : (stack.position().pieceOccupancy(bishop) | stack.position().pieceOccupancy(queen))& stack.position().playerOccupancy(movingPlayer))
@@ -742,7 +742,7 @@ namespace pygmalion::chess
 			}
 		}
 		template<size_t PLAYER>
-		constexpr static void generateSliderCapturesHV(const stackType<PLAYER>& stack, movelistType& moves) noexcept
+		static void generateSliderCapturesHV(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			constexpr const playerType nextPlayer{ movingPlayer.next() };
@@ -753,7 +753,7 @@ namespace pygmalion::chess
 			}
 		}
 		template<size_t PLAYER>
-		constexpr static void generateSliderWinningCapturesHV(const stackType<PLAYER>& stack, movelistType& moves) noexcept
+		static void generateSliderWinningCapturesHV(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			constexpr const playerType nextPlayer{ movingPlayer.next() };
@@ -764,7 +764,7 @@ namespace pygmalion::chess
 			}
 		}
 		template<size_t PLAYER>
-		constexpr static void generateSliderEqualCapturesHV(const stackType<PLAYER>& stack, movelistType& moves) noexcept
+		static void generateSliderEqualCapturesHV(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			constexpr const playerType nextPlayer{ movingPlayer.next() };
@@ -780,7 +780,7 @@ namespace pygmalion::chess
 			}
 		}
 		template<size_t PLAYER>
-		constexpr static void generateSliderLosingCapturesHV(const stackType<PLAYER>& stack, movelistType& moves) noexcept
+		static void generateSliderLosingCapturesHV(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			constexpr const playerType nextPlayer{ movingPlayer.next() };
@@ -798,7 +798,7 @@ namespace pygmalion::chess
 			}
 		}
 		template<size_t PLAYER>
-		constexpr static void generateSliderCapturesDiag(const stackType<PLAYER>& stack, movelistType& moves) noexcept
+		static void generateSliderCapturesDiag(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			constexpr const playerType nextPlayer{ movingPlayer.next() };
@@ -809,7 +809,7 @@ namespace pygmalion::chess
 			}
 		}
 		template<size_t PLAYER>
-		constexpr static void generateSliderWinningCapturesDiag(const stackType<PLAYER>& stack, movelistType& moves) noexcept
+		static void generateSliderWinningCapturesDiag(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			constexpr const playerType nextPlayer{ movingPlayer.next() };
@@ -821,7 +821,7 @@ namespace pygmalion::chess
 			}
 		}
 		template<size_t PLAYER>
-		constexpr static void generateSliderEqualCapturesDiag(const stackType<PLAYER>& stack, movelistType& moves) noexcept
+		static void generateSliderEqualCapturesDiag(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			constexpr const playerType nextPlayer{ movingPlayer.next() };
@@ -838,7 +838,7 @@ namespace pygmalion::chess
 			}
 		}
 		template<size_t PLAYER>
-		constexpr static void generateSliderLosingCapturesDiag(const stackType<PLAYER>& stack, movelistType& moves) noexcept
+		static void generateSliderLosingCapturesDiag(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			constexpr const playerType nextPlayer{ movingPlayer.next() };
@@ -856,7 +856,7 @@ namespace pygmalion::chess
 			}
 		}
 		template<size_t PLAYER>
-		constexpr static void generateKnightCaptures(const stackType<PLAYER>& stack, movelistType& moves) noexcept
+		static void generateKnightCaptures(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			constexpr const playerType nextPlayer{ movingPlayer.next() };
@@ -867,7 +867,7 @@ namespace pygmalion::chess
 			}
 		}
 		template<size_t PLAYER>
-		constexpr static void generateKnightWinningCaptures(const stackType<PLAYER>& stack, movelistType& moves) noexcept
+		static void generateKnightWinningCaptures(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			constexpr const playerType nextPlayer{ movingPlayer.next() };
@@ -879,7 +879,7 @@ namespace pygmalion::chess
 			}
 		}
 		template<size_t PLAYER>
-		constexpr static void generateKnightEqualCaptures(const stackType<PLAYER>& stack, movelistType& moves) noexcept
+		static void generateKnightEqualCaptures(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			constexpr const playerType nextPlayer{ movingPlayer.next() };
@@ -891,7 +891,7 @@ namespace pygmalion::chess
 			}
 		}
 		template<size_t PLAYER>
-		constexpr static void generateKnightLosingCaptures(const stackType<PLAYER>& stack, movelistType& moves) noexcept
+		static void generateKnightLosingCaptures(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			constexpr const playerType nextPlayer{ movingPlayer.next() };
@@ -902,21 +902,21 @@ namespace pygmalion::chess
 			}
 		}
 		template<size_t PLAYER>
-		constexpr static void generatePawnPushesWhite(const stackType<PLAYER>& stack, movelistType& moves) noexcept
+		static void generatePawnPushesWhite(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			const squaresType whitePawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(whitePlayer) };
 			for (const squareType to : movegenPawnPushWhite.targets(whitePawns, ~stack.position().totalOccupancy()))
 				moves.add(motorType::move().createQuiet(to.down(), to));
 		}
 		template<size_t PLAYER>
-		constexpr static void generatePawnPushesBlack(const stackType<PLAYER>& stack, movelistType& moves) noexcept
+		static void generatePawnPushesBlack(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			const squaresType blackPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(blackPlayer) };
 			for (const squareType to : movegenPawnPushBlack.targets(blackPawns, ~stack.position().totalOccupancy()))
 				moves.add(motorType::move().createQuiet(to.up(), to));
 		}
 		template<size_t PLAYER>
-		constexpr static void generatePawnPushes(const stackType<PLAYER>& stack, movelistType& moves) noexcept
+		static void generatePawnPushes(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			if constexpr (movingPlayer == whitePlayer)
@@ -925,7 +925,7 @@ namespace pygmalion::chess
 				generatePawnPushesBlack(stack, moves);
 		}
 		template<size_t PLAYER>
-		constexpr static void generatePawnPromotionsWhite(const stackType<PLAYER>& stack, movelistType& moves) noexcept
+		static void generatePawnPromotionsWhite(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			const squaresType whitePawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(whitePlayer) };
 			for (const squareType to : movegenPawnPromotionWhite.targets(whitePawns, ~stack.position().totalOccupancy()))
@@ -938,7 +938,7 @@ namespace pygmalion::chess
 			}
 		}
 		template<size_t PLAYER>
-		constexpr static void generatePawnPromotionsBlack(const stackType<PLAYER>& stack, movelistType& moves) noexcept
+		static void generatePawnPromotionsBlack(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			const squaresType blackPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(blackPlayer) };
 			for (const squareType to : movegenPawnPromotionBlack.targets(blackPawns, ~stack.position().totalOccupancy()))
@@ -951,7 +951,7 @@ namespace pygmalion::chess
 			}
 		}
 		template<size_t PLAYER>
-		constexpr static void generatePawnPromotions(const stackType<PLAYER>& stack, movelistType& moves) noexcept
+		static void generatePawnPromotions(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			if constexpr (movingPlayer == whitePlayer)
@@ -960,7 +960,7 @@ namespace pygmalion::chess
 				generatePawnPromotionsBlack(stack, moves);
 		}
 		template<size_t PLAYER>
-		constexpr static void generatePawnCapturesWhite(const stackType<PLAYER>& stack, movelistType& moves) noexcept
+		static void generatePawnCapturesWhite(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			const squaresType whitePawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(whitePlayer) };
 			for (const squareType to : movegenPawnCaptureWhite.attacks(whitePawns, ~stack.position().totalOccupancy())& stack.position().playerOccupancy(blackPlayer))
@@ -980,7 +980,7 @@ namespace pygmalion::chess
 			}
 		}
 		template<size_t PLAYER>
-		constexpr static void generatePawnWinningCapturesWhite(const stackType<PLAYER>& stack, movelistType& moves) noexcept
+		static void generatePawnWinningCapturesWhite(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			const squaresType whitePawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(whitePlayer) };
 			const squaresType betterThanPawn{ ~stack.position().pieceOccupancy(pawn) };
@@ -1001,7 +1001,7 @@ namespace pygmalion::chess
 			}
 		}
 		template<size_t PLAYER>
-		constexpr static void generatePawnWinningCapturesBlack(const stackType<PLAYER>& stack, movelistType& moves) noexcept
+		static void generatePawnWinningCapturesBlack(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			const squaresType blackPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(blackPlayer) };
 			const squaresType betterThanPawn{ ~stack.position().pieceOccupancy(pawn) };
@@ -1022,7 +1022,7 @@ namespace pygmalion::chess
 			}
 		}
 		template<size_t PLAYER>
-		constexpr static void generatePawnWinningCaptures(const stackType<PLAYER>& stack, movelistType& moves) noexcept
+		static void generatePawnWinningCaptures(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			if constexpr (movingPlayer == whitePlayer)
@@ -1031,7 +1031,7 @@ namespace pygmalion::chess
 				generatePawnWinningCapturesBlack(stack, moves);
 		}
 		template<size_t PLAYER>
-		constexpr static void generatePawnEqualCapturesWhite(const stackType<PLAYER>& stack, movelistType& moves) noexcept
+		static void generatePawnEqualCapturesWhite(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			const squaresType whitePawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(whitePlayer) };
 			for (const squareType to : movegenPawnCaptureWhite.attacks(whitePawns, ~stack.position().totalOccupancy())& stack.position().pieceOccupancy(pawn)& stack.position().playerOccupancy(blackPlayer))
@@ -1051,7 +1051,7 @@ namespace pygmalion::chess
 			}
 		}
 		template<size_t PLAYER>
-		constexpr static void generatePawnEqualCapturesBlack(const stackType<PLAYER>& stack, movelistType& moves) noexcept
+		static void generatePawnEqualCapturesBlack(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			const squaresType blackPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(blackPlayer) };
 			for (const squareType to : movegenPawnCaptureBlack.attacks(blackPawns, ~stack.position().totalOccupancy())& stack.position().pieceOccupancy(pawn)& stack.position().playerOccupancy(whitePlayer))
@@ -1071,7 +1071,7 @@ namespace pygmalion::chess
 			}
 		}
 		template<size_t PLAYER>
-		constexpr static void generatePawnEqualCaptures(const stackType<PLAYER>& stack, movelistType& moves) noexcept
+		static void generatePawnEqualCaptures(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			if constexpr (movingPlayer == whitePlayer)
@@ -1080,7 +1080,7 @@ namespace pygmalion::chess
 				generatePawnEqualCapturesBlack(stack, moves);
 		}
 		template<size_t PLAYER>
-		constexpr static void generatePawnCapturesBlack(const stackType<PLAYER>& stack, movelistType& moves) noexcept
+		static void generatePawnCapturesBlack(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			const squaresType blackPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(blackPlayer) };
 			for (const squareType to : movegenPawnCaptureBlack.attacks(blackPawns, ~stack.position().totalOccupancy())& stack.position().playerOccupancy(whitePlayer))
@@ -1100,7 +1100,7 @@ namespace pygmalion::chess
 			}
 		}
 		template<size_t PLAYER>
-		constexpr static void generatePawnCaptures(const stackType<PLAYER>& stack, movelistType& moves) noexcept
+		static void generatePawnCaptures(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			if constexpr (movingPlayer == whitePlayer)
@@ -1109,7 +1109,7 @@ namespace pygmalion::chess
 				generatePawnCapturesBlack(stack, moves);
 		}
 		template<size_t PLAYER>
-		constexpr static void generatePawnPromoCapturesWhite(const stackType<PLAYER>& stack, movelistType& moves) noexcept
+		static void generatePawnPromoCapturesWhite(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			const squaresType whitePawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(whitePlayer) };
 			for (const squareType to : movegenPawnPromoCaptureWhite.attacks(whitePawns, ~stack.position().totalOccupancy())& stack.position().playerOccupancy(blackPlayer))
@@ -1139,7 +1139,7 @@ namespace pygmalion::chess
 			}
 		}
 		template<size_t PLAYER>
-		constexpr static void generatePawnPromoCapturesBlack(const stackType<PLAYER>& stack, movelistType& moves) noexcept
+		static void generatePawnPromoCapturesBlack(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			const squaresType blackPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(blackPlayer) };
 			for (const squareType to : movegenPawnPromoCaptureBlack.attacks(blackPawns, ~stack.position().totalOccupancy())& stack.position().playerOccupancy(whitePlayer))
@@ -1169,7 +1169,7 @@ namespace pygmalion::chess
 			}
 		}
 		template<size_t PLAYER>
-		constexpr static void generatePawnPromoCaptures(const stackType<PLAYER>& stack, movelistType& moves) noexcept
+		static void generatePawnPromoCaptures(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			if constexpr (movingPlayer == whitePlayer)
@@ -1178,21 +1178,21 @@ namespace pygmalion::chess
 				generatePawnPromoCapturesBlack(stack, moves);
 		}
 		template<size_t PLAYER>
-		constexpr static void generatePawnDoublePushesWhite(const stackType<PLAYER>& stack, movelistType& moves) noexcept
+		static void generatePawnDoublePushesWhite(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			const squaresType whitePawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(whitePlayer) };
 			for (const squareType to : movegenPawnDoublePushWhite.targets(whitePawns, ~stack.position().totalOccupancy()))
 				moves.add(motorType::move().createDoublePush(to.file()));
 		}
 		template<size_t PLAYER>
-		constexpr static void generatePawnDoublePushesBlack(const stackType<PLAYER>& stack, movelistType& moves) noexcept
+		static void generatePawnDoublePushesBlack(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			const squaresType blackPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(blackPlayer) };
 			for (const squareType to : movegenPawnDoublePushBlack.targets(blackPawns, ~stack.position().totalOccupancy()))
 				moves.add(motorType::move().createDoublePush(to.file()));
 		}
 		template<size_t PLAYER>
-		constexpr static void generatePawnDoublePushes(const stackType<PLAYER>& stack, movelistType& moves) noexcept
+		static void generatePawnDoublePushes(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			if constexpr (movingPlayer == whitePlayer)
@@ -3519,7 +3519,7 @@ namespace pygmalion::chess
 			else
 				return countSquares * countSquares;
 		}
-		constexpr static size_t moveBucket_Implementation(const boardType& position, const movebitsType& mv) noexcept
+		static size_t moveBucket_Implementation(const boardType& position, const movebitsType& mv) noexcept
 		{
 			const squareType to{ motorType::move().toSquare(position, mv) };
 			const squareType from{ motorType::move().fromSquare(position,mv) };
@@ -4526,7 +4526,7 @@ namespace pygmalion::chess
 		{
 			return true;
 		}
-		constexpr static movebitsType nullMove_Implementation() noexcept
+		static movebitsType nullMove_Implementation() noexcept
 		{
 			return m_NullMove;
 		}
@@ -4608,7 +4608,7 @@ namespace pygmalion::chess
 			return generatorType::template isAttacked<static_cast<size_t>(attacker)>(stack.position(), stack.kingSquare(player));
 		}
 		template<size_t PLAYER>
-		constexpr static scoreType makeSubjective(const scoreType score) noexcept
+		static scoreType makeSubjective(const scoreType score) noexcept
 		{
 			constexpr const playerType player{ static_cast<playerType>(PLAYER) };
 			if constexpr (player == whitePlayer)

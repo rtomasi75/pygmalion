@@ -43,24 +43,24 @@ namespace pygmalion::tictactoe
 			sstr << "" << sizeof(typename move::movedataType) << ":" << move::countBits << "drop";
 			return sstr.str();
 		}
-		constexpr static squareType extractSquare(const typename move::movebitsType& movebits) noexcept
+		static squareType extractSquare(const typename move::movebitsType& movebits) noexcept
 		{
 			const squareType sq{ squareType(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(movebits.template extractBits<0,countSquareBits>())) };
 			return sq;
 		}
 	private:
-		constexpr static void encodeSquare(typename move::movebitsType& movebits, const squareType sq) noexcept
+		static void encodeSquare(typename move::movebitsType& movebits, const squareType sq) noexcept
 		{
 			movebits.template storeBits<0, countSquareBits>(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(sq));
 		}
 	public:
-		constexpr move() noexcept = default;
+		move() noexcept = default;
 		~move() noexcept = default;
-		constexpr move(move&&) noexcept = default;
-		constexpr move(const move&) noexcept = default;
-		constexpr move& operator=(move&&) noexcept = default;
-		constexpr move& operator=(const move&) noexcept = default;
-		constexpr typename move::movedataType doMove_Implementation(boardType& position, const typename move::movebitsType& moveBits) const noexcept
+		move(move&&) noexcept = default;
+		move(const move&) noexcept = default;
+		move& operator=(move&&) noexcept = default;
+		move& operator=(const move&) noexcept = default;
+		typename move::movedataType doMove_Implementation(boardType& position, const typename move::movebitsType& moveBits) const noexcept
 		{
 			const squareType sq{ move::extractSquare(moveBits) };
 			constexpr const pieceType pc{ 0 };
@@ -70,14 +70,14 @@ namespace pygmalion::tictactoe
 			position.addPiece(pc, sq, p);
 			return typename move::movedataType(sq);
 		}
-		constexpr void undoMove_Implementation(boardType& position, const typename move::movedataType& data) const noexcept
+		void undoMove_Implementation(boardType& position, const typename move::movedataType& data) const noexcept
 		{
 			const playerType p{ --position.movingPlayer() };
 			constexpr const pieceType pc{ 0 };
 			position.setMovingPlayer(p);
 			position.removePiece(pc, data.square(), p);
 		}
-		constexpr typename move::movebitsType create(const squareType square) const noexcept
+		typename move::movebitsType create(const squareType square) const noexcept
 		{
 			typename move::movebitsType bits{ move::movebitsType::zero() };
 			move::encodeSquare(bits, square);

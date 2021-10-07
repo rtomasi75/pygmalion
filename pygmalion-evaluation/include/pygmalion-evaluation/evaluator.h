@@ -41,16 +41,6 @@ namespace pygmalion
 			}
 			return sc2;
 		}
-		constexpr static scoreType rootDelta() noexcept
-		{
-			if constexpr (sizeof...(STAGES) > 0)
-				return computeDelta<STAGES...>();
-			else
-			{
-				constexpr const scoreType zero{ scoreType::zero() };
-				return zero;
-			}
-		}
 		template<typename STAGE, typename... STAGES2>
 		static std::string stageNames(const size_t index, const size_t counter) noexcept
 		{
@@ -96,6 +86,16 @@ namespace pygmalion
 			return (approx + delta <= alpha) && (approx + delta < beta);
 		}
 	public:
+		constexpr static scoreType rootDelta() noexcept
+		{
+			if constexpr (sizeof...(STAGES) > 0)
+				return computeDelta<STAGES...>();
+			else
+			{
+				constexpr const scoreType zero{ scoreType::zero() };
+				return zero;
+			}
+		}
 		template<size_t PLAYER>
 		static scoreType computeMaterial(const typename generatorType::template stackType<PLAYER>& stack) noexcept
 		{

@@ -68,32 +68,32 @@ namespace pygmalion::chess
 			return sstr.str();
 		}
 	private:
-		constexpr static fileType extractFile2(const typename enpassantmove::movebitsType movebits) noexcept
+		static fileType extractFile2(const typename enpassantmove::movebitsType movebits) noexcept
 		{
 			const fileType f{ fileType(static_cast<typename std::make_unsigned<typename fileType::baseType>::type>(movebits.template extractBits<countFileBits, countFileBits>())) };
 			return f;
 		}
-		constexpr static void encodeFile2(typename enpassantmove::movebitsType& movebits, const fileType f) noexcept
+		static void encodeFile2(typename enpassantmove::movebitsType& movebits, const fileType f) noexcept
 		{
 			movebits.template storeBits<countFileBits, countFileBits>(static_cast<typename std::make_unsigned<typename fileType::baseType>::type>(f));
 		}
-		constexpr static fileType extractFile1(const typename enpassantmove::movebitsType movebits) noexcept
+		static fileType extractFile1(const typename enpassantmove::movebitsType movebits) noexcept
 		{
 			const fileType f{ fileType(static_cast<typename std::make_unsigned<typename fileType::baseType>::type>(movebits.template extractBits<0, countFileBits>())) };
 			return f;
 		}
-		constexpr static void encodeFile1(typename enpassantmove::movebitsType& movebits, const fileType f) noexcept
+		static void encodeFile1(typename enpassantmove::movebitsType& movebits, const fileType f) noexcept
 		{
 			movebits.template storeBits<0, countFileBits>(static_cast<typename std::make_unsigned<typename fileType::baseType>::type>(f));
 		}
 	public:
-		constexpr enpassantmove() noexcept = default;
+		enpassantmove() noexcept = default;
 		~enpassantmove() noexcept = default;
-		constexpr enpassantmove(enpassantmove&&) noexcept = default;
-		constexpr enpassantmove(const enpassantmove&) noexcept = default;
-		constexpr enpassantmove& operator=(enpassantmove&&) noexcept = default;
-		constexpr enpassantmove& operator=(const enpassantmove&) noexcept = default;
-		constexpr typename enpassantmove::movedataType doMove_Implementation(boardType& position, const typename enpassantmove::movebitsType moveBits) const noexcept
+		enpassantmove(enpassantmove&&) noexcept = default;
+		enpassantmove(const enpassantmove&) noexcept = default;
+		enpassantmove& operator=(enpassantmove&&) noexcept = default;
+		enpassantmove& operator=(const enpassantmove&) noexcept = default;
+		typename enpassantmove::movedataType doMove_Implementation(boardType& position, const typename enpassantmove::movebitsType moveBits) const noexcept
 		{
 			const playerType p{ position.movingPlayer() };
 			const playerType p2{ ++position.movingPlayer() };
@@ -132,7 +132,7 @@ namespace pygmalion::chess
 				return typename enpassantmove::movedataType(from, to, oldFlags, capture, reversiblePlies);
 			}
 		}
-		constexpr void undoMove_Implementation(boardType& position, const typename enpassantmove::movedataType& data) const noexcept
+		void undoMove_Implementation(boardType& position, const typename enpassantmove::movedataType& data) const noexcept
 		{
 			const playerType p2{ position.movingPlayer() };
 			const playerType p{ --position.movingPlayer() };
@@ -143,7 +143,7 @@ namespace pygmalion::chess
 			position.storeFlagRange<4, 11>(data.oldFlags());
 			position.cumulation().reversiblePlies() = data.reversiblePlies();
 		}
-		constexpr typename enpassantmove::movebitsType create(const fileType file1, const fileType file2) const noexcept
+		typename enpassantmove::movebitsType create(const fileType file1, const fileType file2) const noexcept
 		{
 			typename enpassantmove::movebitsType bits{ enpassantmove::movebitsType::zero() };
 			enpassantmove::encodeFile1(bits, file1);
@@ -222,7 +222,7 @@ namespace pygmalion::chess
 				return boardType::squareToString(from) + boardType::squareToString(to);
 			}
 		}
-		constexpr squaresType otherOccupancyDelta_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
+		squaresType otherOccupancyDelta_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
 		{
 			const playerType p{ position.movingPlayer() };
 			const fileType f2{ enpassantmove::extractFile2(moveBits) };
@@ -241,7 +241,7 @@ namespace pygmalion::chess
 				return squaresType(cap);
 			}
 		}
-		constexpr squaresType ownOccupancyDelta_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
+		squaresType ownOccupancyDelta_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
 		{
 			const playerType p{ position.movingPlayer() };
 			const fileType f1{ enpassantmove::extractFile1(moveBits) };
@@ -263,7 +263,7 @@ namespace pygmalion::chess
 				return squaresType(from) ^ squaresType(to);
 			}
 		}
-		constexpr squaresType pieceOccupancyDelta_Implementation(const boardType& position, const pieceType piece, const movebitsType moveBits) const noexcept
+		squaresType pieceOccupancyDelta_Implementation(const boardType& position, const pieceType piece, const movebitsType moveBits) const noexcept
 		{
 			constexpr const squaresType none{ squaresType::none() };
 			if (piece == pawn)
@@ -293,7 +293,7 @@ namespace pygmalion::chess
 			else
 				return none;
 		}
-		constexpr squareType fromSquare_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
+		squareType fromSquare_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
 		{
 			const playerType p{ position.movingPlayer() };
 			const fileType f1{ enpassantmove::extractFile1(moveBits) };
@@ -310,7 +310,7 @@ namespace pygmalion::chess
 				return from;
 			}
 		}
-		constexpr squareType toSquare_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
+		squareType toSquare_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
 		{
 			const playerType p{ position.movingPlayer() };
 			const fileType f2{ enpassantmove::extractFile2(moveBits) };

@@ -6,6 +6,7 @@ constexpr static const size_t countFiles{ descriptorState::countFiles };
 constexpr static const size_t countSquares{ descriptorState::countSquares };
 constexpr static const size_t countFlags{ descriptorState::countFlags };
 constexpr static const size_t countHashBits{ descriptorState::countHashBits };
+constexpr static const bool hasCustomHashing{ descriptorState::hasCustomHashing };
 using playerType = typename descriptorState::playerType;
 using pieceType = typename descriptorState::pieceType;
 using rankType = typename descriptorState::rankType;

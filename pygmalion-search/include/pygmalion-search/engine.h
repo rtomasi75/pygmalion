@@ -62,7 +62,7 @@ namespace pygmalion::search
 			return variationToStringFromDepth(stack, variation, 0);
 		}
 		template<size_t PLAYER>
-		scoreType pvs(variationType& principalVariation, const depthType& depthRemaining) noexcept
+		scoreType pvs(variationType& principalVariation, const depthType& depthRemaining, const scoreType scoreFromPreviousDepth) noexcept
 		{
 			if constexpr (PLAYER >= countPlayers)
 			{
@@ -83,12 +83,12 @@ namespace pygmalion::search
 					principalVariation.clear();
 					indexType currentMove;
 					indexType countMoves;
-					const scoreType score{ node.template searchRoot<false, false>(depthRemaining, principalVariation, this->outputStream(), currentMove, countMoves) };
+					const scoreType score{ node.template searchRoot<false, false>(depthRemaining, principalVariation,scoreFromPreviousDepth, this->outputStream(), currentMove, countMoves) };
 					m_Heuristics.endSearch();
 					return score;
 				}
 				else
-					return pvs<PLAYER + 1>(principalVariation, depthRemaining);
+					return pvs<PLAYER + 1>(principalVariation, depthRemaining, scoreFromPreviousDepth);
 			}
 		}
 		const heuristicsType& heuristics() const noexcept

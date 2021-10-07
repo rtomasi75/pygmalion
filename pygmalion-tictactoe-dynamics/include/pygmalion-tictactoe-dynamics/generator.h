@@ -108,7 +108,7 @@ namespace pygmalion::tictactoe
 		{
 			return countSquares;
 		}
-		constexpr static size_t moveBucket_Implementation(const boardType& position, const movebitsType& mv) noexcept
+		static size_t moveBucket_Implementation(const boardType& position, const movebitsType& mv) noexcept
 		{
 			const squareType sq{ moveType::extractSquare(mv) };
 			return static_cast<size_t>(sq);
@@ -117,22 +117,22 @@ namespace pygmalion::tictactoe
 		{
 			return false;
 		}
-		constexpr static movebitsType nullMove_Implementation() noexcept
+		static movebitsType nullMove_Implementation() noexcept
 		{
 			return movebitsType(0);
 		}
 		template<size_t PLAYER>
-		constexpr static bool isMoveCritical_Implementation(const stackType<PLAYER>& stack, const movebitsType& moveBits) noexcept
+		static bool isMoveCritical_Implementation(const stackType<PLAYER>& stack, const movebitsType& moveBits) noexcept
 		{
 			return false;
 		}
 		template<size_t PLAYER>
-		constexpr static bool isPositionCritical_Implementation(const stackType<PLAYER>& stack) noexcept
+		static bool isPositionCritical_Implementation(const stackType<PLAYER>& stack) noexcept
 		{
 			return false;
 		}
 		template<size_t PLAYER>
-		constexpr static scoreType makeSubjective(const scoreType score) noexcept
+		static scoreType makeSubjective(const scoreType score) noexcept
 		{
 			if constexpr (PLAYER == 0)
 				return score;

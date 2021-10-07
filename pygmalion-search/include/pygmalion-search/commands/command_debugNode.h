@@ -37,7 +37,7 @@ namespace pygmalion::search
 			{
 				indexType currentMove;
 				indexType countMoves;
-				score = parentNode.template searchRoot<false, false>(depth, principalVariation, this->output(), currentMove, countMoves);
+				score = parentNode.template searchRoot<false, false>(depth, principalVariation, scoreType::zero(), this->output(), currentMove, countMoves);
 				return true;
 			}
 		}

@@ -51,13 +51,13 @@ namespace pygmalion::chess
 		}
 	private:
 	public:
-		constexpr nullmove() noexcept = default;
+		nullmove() noexcept = default;
 		~nullmove() noexcept = default;
-		constexpr nullmove(nullmove&&) noexcept = default;
-		constexpr nullmove(const nullmove&) noexcept = default;
-		constexpr nullmove& operator=(nullmove&&) noexcept = default;
-		constexpr nullmove& operator=(const nullmove&) noexcept = default;
-		constexpr typename nullmove::movedataType doMove_Implementation(boardType& position, const typename nullmove::movebitsType moveBits) const noexcept
+		nullmove(nullmove&&) noexcept = default;
+		nullmove(const nullmove&) noexcept = default;
+		nullmove& operator=(nullmove&&) noexcept = default;
+		nullmove& operator=(const nullmove&) noexcept = default;
+		typename nullmove::movedataType doMove_Implementation(boardType& position, const typename nullmove::movebitsType moveBits) const noexcept
 		{
 			const uint_t<countFlags, false> oldFlags{ position.extractFlagRange<0, 11>() };
 			const std::uint16_t reversiblePlies{ position.cumulation().reversiblePlies() };
@@ -66,14 +66,14 @@ namespace pygmalion::chess
 			position.cumulation().reversiblePlies() = 0;
 			return typename nullmove::movedataType(oldFlags, reversiblePlies);
 		}
-		constexpr void undoMove_Implementation(boardType& position, const typename nullmove::movedataType& data) const noexcept
+		void undoMove_Implementation(boardType& position, const typename nullmove::movedataType& data) const noexcept
 		{
 			const playerType p{ --position.movingPlayer() };
 			position.setMovingPlayer(p);
 			position.storeFlagRange<0, 11>(data.oldFlags());
 			position.cumulation().reversiblePlies() = data.reversiblePlies();
 		}
-		constexpr typename nullmove::movebitsType create() const noexcept
+		typename nullmove::movebitsType create() const noexcept
 		{
 			typename nullmove::movebitsType bits{ nullmove::movebitsType::zero() };
 			return bits;
@@ -91,26 +91,26 @@ namespace pygmalion::chess
 		{
 			return "@@@@";
 		}
-		constexpr squaresType otherOccupancyDelta_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
+		squaresType otherOccupancyDelta_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
 		{
 			constexpr const squaresType none{ squaresType::none() };
 			return none;
 		}
-		constexpr squaresType ownOccupancyDelta_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
+		squaresType ownOccupancyDelta_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
 		{
 			constexpr const squaresType none{ squaresType::none() };
 			return none;
 		}
-		constexpr squaresType pieceOccupancyDelta_Implementation(const boardType& position, const pieceType piece, const movebitsType moveBits) const noexcept
+		squaresType pieceOccupancyDelta_Implementation(const boardType& position, const pieceType piece, const movebitsType moveBits) const noexcept
 		{
 			constexpr const squaresType none{ squaresType::none() };
 			return none;
 		}
-		constexpr squareType fromSquare_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
+		squareType fromSquare_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
 		{
 			return squareType(0);
 		}
-		constexpr squareType toSquare_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
+		squareType toSquare_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
 		{
 			return squareType(0);
 		}

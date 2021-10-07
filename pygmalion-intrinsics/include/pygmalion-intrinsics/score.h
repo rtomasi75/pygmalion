@@ -309,12 +309,10 @@ namespace pygmalion
 		}
 		constexpr auto operator*(const valueType& i) const noexcept
 		{
-			PYGMALION_ASSERT(isOpen());
 			return score(static_cast<valueType>(m_Value * i), 0);
 		}
 		constexpr auto operator/(const valueType& i) const noexcept
 		{
-			PYGMALION_ASSERT(isOpen());
 			return score(static_cast<valueType>(m_Value / i), 0);
 		}
 		constexpr auto operator*(const score sc) const noexcept

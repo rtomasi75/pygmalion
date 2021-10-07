@@ -1,7 +1,7 @@
 namespace pygmalion::chess::state
 {
 	class descriptor_state :
-		public pygmalion::descriptor_state<6, 8, 8, 12, 32, pygmalion::chess::state::cumulation>
+		public pygmalion::descriptor_state<6, 8, 8, 12, 32, true, pygmalion::chess::state::cumulation>
 	{
 	public:
 		constexpr static const playerType whitePlayer{ 0 };
@@ -100,10 +100,10 @@ namespace pygmalion::chess::state
 		constexpr static const squaresType queensideCastleWalkBlack{ squareE8 | squareD8 | squareC8 };
 		constexpr static const squaresType kingsideCastleWalkWhite{ squareE1 | squareF1 | squareG1 };
 		constexpr static const squaresType kingsideCastleWalkBlack{ squareE8 | squareF8 | squareG8 };
-		constexpr static const flagType castleRightQueensideWhite{ 0 };
-		constexpr static const flagType castleRightQueensideBlack{ 1 };
-		constexpr static const flagType castleRightKingsideWhite{ 2 };
-		constexpr static const flagType castleRightKingsideBlack{ 3 };
+		constexpr static const flagType castleRightKingsideWhite{ 0 };
+		constexpr static const flagType castleRightQueensideWhite{ 1 };
+		constexpr static const flagType castleRightKingsideBlack{ 2 };
+		constexpr static const flagType castleRightQueensideBlack{ 3 };
 		constexpr static const flagType enPassantFileA{ 4 };
 		constexpr static const flagType enPassantFileB{ 5 };
 		constexpr static const flagType enPassantFileC{ 6 };

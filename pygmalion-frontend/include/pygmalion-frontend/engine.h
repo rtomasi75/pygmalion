@@ -35,6 +35,7 @@ namespace pygmalion::frontend
 		indexType m_CurrentMove;
 		indexType m_CountMoves;
 		depthType m_CurrentDepth;
+		scoreType m_ScoreFromPreviousDepth;
 		template<size_t PLAYER>
 		bool principalVariationSearch(const typename descriptorFrontend::template stackType<PLAYER>& stack, const depthType& depthRemaining, variationType& finalVariation, std::atomic_bool& isRunning) noexcept
 		{
@@ -45,9 +46,9 @@ namespace pygmalion::frontend
 			this->heuristics().beginSearch();
 			scoreType score;
 			if (this->front().analyzeMode())
-				score = node.template searchRoot<false, true>(depthRemaining, principalVariation, this->outputStream(), m_CurrentMove, m_CountMoves);
+				score = node.template searchRoot<false, true>(depthRemaining, principalVariation, m_ScoreFromPreviousDepth, this->outputStream(), m_CurrentMove, m_CountMoves);
 			else
-				score = node.template searchRoot<false, false>(depthRemaining, principalVariation, this->outputStream(), m_CurrentMove, m_CountMoves);
+				score = node.template searchRoot<false, false>(depthRemaining, principalVariation, m_ScoreFromPreviousDepth, this->outputStream(), m_CurrentMove, m_CountMoves);
 			this->heuristics().endSearch();
 			if (isRunning)
 			{
@@ -75,6 +76,7 @@ namespace pygmalion::frontend
 			durationType timeRemaining{ this->currentGame().playerClock(this->position().movingPlayer()).timeRemaining() };
 			durationType searchTime{ durationType(0) };
 			double factor[]{ 0.0,0.0 };
+			m_ScoreFromPreviousDepth = evaluatorType::evaluate(scoreType::minimum(), scoreType::maximum(), stack);
 			while (principalVariationSearch(stack, m_CurrentDepth, finalVariation, m_MoveThreadIsRunning))
 			{
 				if ((finalVariation.length() > 0) && this->front().analyzeMode())

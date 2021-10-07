@@ -137,6 +137,10 @@ namespace pygmalion::state
 			m_Bits = bitsType::zero();
 		}
 		~flags() noexcept = default;
+		constexpr bitsType bits() const noexcept
+		{
+			return m_Bits;
+		}
 		class iterator
 		{
 			friend class flags;

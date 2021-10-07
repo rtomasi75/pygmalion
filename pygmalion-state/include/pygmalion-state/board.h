@@ -16,60 +16,72 @@ namespace pygmalion
 		flagsType m_Flags;
 		hashType m_Hash;
 		cumulationType m_Cumulation;
-		static const inline std::array<hashType, countPlayers* countPieces* countSquares> m_HashTable{ arrayhelper::generate< countPlayers* countPieces* countSquares ,hashType>([](const size_t index) {return hashType::random(); }) };
-		constexpr static size_t requiredUnsignedBits(const size_t number) noexcept
+		static inline std::array<hashType, 1 << flagType::countValues> m_FlagsHash
 		{
-			size_t n = 1;
-			size_t k = 0;
-			while (number > n)
-			{
-				n *= 2;
-				k++;
-			}
-			return k;
-		}
+			arrayhelper::generate<1 << flagType::countValues,hashType>([](const size_t index)
+				{
+					const flagsType flags{flagsType(static_cast<uintmax_t>(index))};
+					hashType hash{hashType(0)};
+					for (size_t i = 0; i < flagType::countValues; i++)
+					{
+						if (flags[i])
+							hash ^= flagType::hash(i);
+					}
+					return hash;
+				})
+		};
+		static inline std::array<std::array<std::array<hashType, countSquares>, countPieces>, countPlayers> m_PlayerPieceSquareHash
+		{
+			arrayhelper::generate<countPlayers, std::array<std::array<hashType, countSquares>, countPieces>>([](const size_t player) { return arrayhelper::generate<countPieces, std::array<hashType, countSquares>>([player](const size_t piece) {return arrayhelper::generate<countSquares, hashType>([player, piece](const size_t square) {return pieceType::hash(static_cast<pieceType>(piece)) ^ squareType::hash(static_cast<squareType>(square)) ^ playerType::hash(static_cast<playerType>(player)); }); }); })
+		};
 	protected:
-		constexpr static const hashType& playerHash(const playerType player) noexcept
+		static const hashType& playerHash(const playerType player) noexcept
 		{
-			return playerType::hash(player);
+			if constexpr (hasCustomHashing)
+				return boardType::customPlayerHash(player);
+			else
+				return playerType::hash(player);
 		}
-		constexpr static const hashType& flagHash(const flagType flag) noexcept
+		static const hashType& flagsHash(const flagsType flags) noexcept
 		{
-			return flagType::hash(flag);
+			if constexpr (hasCustomHashing)
+				return boardType::customFlagsHash(flags);
+			else
+			{
+				const typename flagsType::bitsType bits{ flags.bits() };
+				const size_t index{ static_cast<size_t>(static_cast<std::uintmax_t>(bits)) };
+				return m_FlagsHash[index];
+			}
 		}
-		constexpr static hashType pieceHash(const pieceType piece, const squareType square, const playerType player) noexcept
+		static const hashType& pieceHash(const pieceType piece, const squareType square, const playerType player) noexcept
 		{
-			//	return pieceType::hash(piece) ^ squareType::hash(square) ^ playerType::hash(player);
-			return m_HashTable[static_cast<size_t>(player) * countSquares * countPieces + static_cast<size_t>(piece) * countSquares + static_cast<size_t>(square)];
+			if constexpr (hasCustomHashing)
+				return boardType::customPieceHash(piece, square, player);
+			else
+				return m_PlayerPieceSquareHash[player][piece][square];
 		}
 		void onClear() noexcept
 		{
-			m_Hash = playerHash(m_MovingPlayer);
 			static_cast<boardType*>(this)->onClear_Implementation();
 		}
 		void onAddedPiece(const pieceType piece, const squareType square, const playerType player) noexcept
 		{
-			m_Hash ^= pieceHash(piece, square, player);
 			static_cast<boardType*>(this)->onAddedPiece_Implementation(piece, square, player);
 		}
 		void onSetMovingPlayer(const playerType player) noexcept
 		{
-			m_Hash ^= playerHash(m_MovingPlayer);
 			static_cast<boardType*>(this)->onSetMovingPlayer_Implementation(player);
 		}
 		void onRemovedPiece(const pieceType piece, const squareType square, const playerType player) noexcept
 		{
-			m_Hash ^= pieceHash(piece, square, player);
 			static_cast<boardType*>(this)->onRemovedPiece_Implementation(piece, square, player);
 		}
 		void onSetFlag(const flagType& flag) noexcept
 		{
-			m_Hash ^= flagHash(flag);
 			static_cast<boardType*>(this)->onSetFlag_Implementation(flag);
 		}
 		void onClearedFlag(const flagType& flag) noexcept
 		{
-			m_Hash ^= flagHash(flag);
 			static_cast<boardType*>(this)->onClearedFlag_Implementation(flag);
 		}
 		void onInitialize() noexcept
@@ -81,15 +93,15 @@ namespace pygmalion
 			return (first <= last) && (last < countFlags);
 		}
 	public:
-		constexpr gamestateType arbitration() const noexcept
+		gamestateType arbitration() const noexcept
 		{
 			return m_Arbitration;
 		}
-		constexpr gamestateType& arbitration() noexcept
+		gamestateType& arbitration() noexcept
 		{
 			return m_Arbitration;
 		}
-		constexpr bool operator==(const boardType& other) const noexcept
+		bool operator==(const boardType& other) const noexcept
 		{
 			if (m_Hash != other.m_Hash)
 				return false;
@@ -107,15 +119,15 @@ namespace pygmalion
 				return false;
 			return true;
 		}
-		constexpr const hashType hash() const noexcept
+		const hashType hash() const noexcept
 		{
 			return m_Hash;
 		}
-		constexpr cumulationType& cumulation() noexcept
+		cumulationType& cumulation() noexcept
 		{
 			return m_Cumulation;
 		}
-		constexpr const cumulationType& cumulation() const noexcept
+		const cumulationType& cumulation() const noexcept
 		{
 			return m_Cumulation;
 		}
@@ -193,75 +205,89 @@ namespace pygmalion
 			}
 			return false;
 		}
-		constexpr void setFlag(const flagType flag) noexcept
+		void setFlag(const flagType flag) noexcept
 		{
 			if (!m_Flags[flag])
 			{
+				const flagsType oldFlags{ m_Flags };
 				m_Flags.set(flag);
 				onSetFlag(flag);
+				m_Hash ^= flagsHash(oldFlags) ^ flagsHash(m_Flags);
 			}
 		}
-		constexpr void toggleFlag(const flagType flag) noexcept
+		void toggleFlag(const flagType flag) noexcept
 		{
+			const flagsType oldFlags{ m_Flags };
 			m_Flags.toggle(flag);
 			if (m_Flags[flag])
 				onSetFlag(flag);
 			else
 				onClearedFlag(flag);
+			m_Hash ^= flagsHash(oldFlags) ^ flagsHash(m_Flags);
 		}
-		constexpr void clearFlag(const flagType flag) noexcept
+		void clearFlag(const flagType flag) noexcept
 		{
 			if (m_Flags[flag])
 			{
+				const flagsType oldFlags{ m_Flags };
 				m_Flags.clear(flag);
 				onClearedFlag(flag);
+				m_Hash ^= flagsHash(oldFlags) ^ flagsHash(m_Flags);
 			}
 		}
-		constexpr bool checkFlag(const flagType flag) const noexcept
+		bool checkFlag(const flagType flag) const noexcept
 		{
 			return m_Flags[flag];
 		}
-		constexpr void setFlags(const flagsType flags) noexcept
+		void setFlags(const flagsType flags) noexcept
 		{
+			const flagsType oldFlags{ m_Flags };
 			for (const auto f : flags & ~m_Flags)
 			{
 				m_Flags.set(f);
 				onSetFlag(f);
 			}
+			m_Hash ^= flagsHash(oldFlags) ^ flagsHash(m_Flags);
 		}
-		constexpr void clearFlags(const flagsType flags) noexcept
+		void clearFlags(const flagsType flags) noexcept
 		{
+			const flagsType oldFlags{ m_Flags };
 			for (const auto f : flags & m_Flags)
 			{
 				m_Flags.clear(f);
 				onClearedFlag(f);
 			}
+			m_Hash ^= flagsHash(oldFlags) ^ flagsHash(m_Flags);
 		}
 		template<size_t FIRST, size_t LAST, typename = typename std::enable_if<board::enableRange(FIRST, LAST)>::type>
-		constexpr void clearFlagRange() noexcept
+		void clearFlagRange() noexcept
 		{
+			flagsType oldFlags{ m_Flags };
 			for (const auto f : m_Flags.template extractRange<FIRST, LAST>())
 			{
 				onClearedFlag(f);
 			}
 			m_Flags.template clearRange<FIRST, LAST>();
+			m_Hash ^= flagsHash(oldFlags) ^ flagsHash(m_Flags);
 		}
 		template<size_t FIRST, size_t LAST, typename = typename std::enable_if<board::enableRange(FIRST, LAST)>::type>
-		constexpr void setFlagRange() noexcept
+		void setFlagRange() noexcept
 		{
+			flagsType oldFlags{ m_Flags };
 			for (const auto f : ~m_Flags.template extractRange<FIRST, LAST>())
 			{
 				onSetFlag(f);
 			}
 			m_Flags.template setRange<FIRST, LAST>();
+			m_Hash ^= flagsHash(oldFlags) ^ flagsHash(m_Flags);
 		}
 		template<size_t FIRST, size_t LAST, typename = typename std::enable_if<board::enableRange(FIRST, LAST)>::type>
-		constexpr uint_t<1 + LAST - FIRST, false> extractFlagRange() const noexcept
+		uint_t<1 + LAST - FIRST, false> extractFlagRange() const noexcept
 		{
 			return m_Flags.template extractRange<FIRST, LAST>();
 		}
 		template<size_t FIRST, size_t LAST, typename = typename std::enable_if<board::enableRange(FIRST, LAST)>::type>
-		constexpr void storeFlagRange(const uint_t<1 + LAST - FIRST, false>& flags) noexcept
+		void storeFlagRange(const uint_t<1 + LAST - FIRST, false>& flags) noexcept
 		{
 			flagsType oldFlags{ m_Flags };
 			m_Flags.template storeRange<FIRST, LAST>(flags);
@@ -272,47 +298,34 @@ namespace pygmalion
 				else
 					onClearedFlag(f);
 			}
+			m_Hash ^= flagsHash(oldFlags) ^ flagsHash(m_Flags);
 		}
-		constexpr const flagsType flags() const noexcept
+		const flagsType flags() const noexcept
 		{
 			return m_Flags;
 		}
-		constexpr void setMovingPlayer(const playerType movingPlayer) noexcept
+		void setMovingPlayer(const playerType movingPlayer) noexcept
 		{
-			PYGMALION_ASSERT(movingPlayer.isValid());
-			m_Hash ^= playerHash(m_MovingPlayer);
+			const playerType oldPlayer{ m_MovingPlayer };
 			m_MovingPlayer = movingPlayer;
 			onSetMovingPlayer(m_MovingPlayer);
+			m_Hash ^= playerHash(m_MovingPlayer) ^ playerHash(oldPlayer);
 		}
-		constexpr playerType movingPlayer() const noexcept
+		playerType movingPlayer() const noexcept
 		{
 			return m_MovingPlayer;
 		}
-		constexpr playerType& movingPlayer() noexcept
-		{
-			return m_MovingPlayer;
-		}
-		constexpr const squaresType& pieceOccupancy(const pieceType pc) const noexcept
+		const squaresType& pieceOccupancy(const pieceType pc) const noexcept
 		{
 			PYGMALION_ASSERT(pc.isValid());
 			return m_PieceOccupancy[pc];
 		}
-		constexpr squaresType& pieceOccupancy(const pieceType pc) noexcept
-		{
-			PYGMALION_ASSERT(pc.isValid());
-			return m_PieceOccupancy[pc];
-		}
-		constexpr const squaresType& playerOccupancy(const playerType p) const noexcept
+		const squaresType& playerOccupancy(const playerType p) const noexcept
 		{
 			PYGMALION_ASSERT(p.isValid());
 			return m_PlayerOccupancy[p];
 		}
-		constexpr squaresType& playerOccupancy(const playerType p) noexcept
-		{
-			PYGMALION_ASSERT(p.isValid());
-			return m_PlayerOccupancy[p];
-		}
-		constexpr squaresType totalOccupancy() const noexcept
+		squaresType totalOccupancy() const noexcept
 		{
 			constexpr const squaresType none{ squaresType::none() };
 			squaresType value{ none };
@@ -328,18 +341,18 @@ namespace pygmalion
 			}
 			return value;
 		}
-		constexpr bool isOccupied(const squareType sq) const noexcept
+		bool isOccupied(const squareType sq) const noexcept
 		{
 			PYGMALION_ASSERT(sq.isValid());
 			return totalOccupancy()[sq];
 		}
-		constexpr bool isOccupied(const squareType sq, const playerType p) const noexcept
+		bool isOccupied(const squareType sq, const playerType p) const noexcept
 		{
 			PYGMALION_ASSERT(sq.isValid());
 			PYGMALION_ASSERT(p.isValid());
 			return playerOccupancy(p)[sq];
 		}
-		constexpr void addPiece(const pieceType piece, const squareType square, const playerType player) noexcept
+		void addPiece(const pieceType piece, const squareType square, const playerType player) noexcept
 		{
 			PYGMALION_ASSERT(player.isValid());
 			PYGMALION_ASSERT(piece.isValid());
@@ -350,9 +363,10 @@ namespace pygmalion
 #endif
 			m_PlayerOccupancy[player] |= square;
 			m_PieceOccupancy[piece] |= square;
+			m_Hash ^= pieceHash(piece, square, player);
 			onAddedPiece(piece, square, player);
 		}
-		constexpr void removePiece(const pieceType piece, const squareType square, const playerType player) noexcept
+		void removePiece(const pieceType piece, const squareType square, const playerType player) noexcept
 		{
 			PYGMALION_ASSERT(player.isValid());
 			PYGMALION_ASSERT(piece.isValid());
@@ -363,9 +377,10 @@ namespace pygmalion
 #endif
 			m_PlayerOccupancy[player] -= square;
 			m_PieceOccupancy[piece] -= square;
+			m_Hash ^= pieceHash(piece, square, player);
 			onRemovedPiece(piece, square, player);
 		}
-		constexpr pieceType getPiece(const squareType sq) const noexcept
+		pieceType getPiece(const squareType sq) const noexcept
 		{
 			PYGMALION_ASSERT(sq.isValid());
 			PYGMALION_ASSERT(totalOccupancy()[sq]);
@@ -390,7 +405,7 @@ namespace pygmalion
 				return pieceType::invalid;
 			}
 		}
-		constexpr playerType getPlayer(const squareType sq) const noexcept
+		playerType getPlayer(const squareType sq) const noexcept
 		{
 			PYGMALION_ASSERT(sq.isValid());
 			PYGMALION_ASSERT(totalOccupancy()[sq]);
@@ -415,7 +430,7 @@ namespace pygmalion
 				return playerType::invalid;
 			}
 		}
-		constexpr void clear() noexcept
+		void clear() noexcept
 		{
 			constexpr const squaresType none{ squaresType::none() };
 			for (const auto p : playerType::range)
@@ -426,8 +441,9 @@ namespace pygmalion
 			m_MovingPlayer = 0;
 			m_Arbitration = gamestateType::open();
 			onClear();
+			m_Hash = playerHash(m_MovingPlayer) ^ flagsHash(m_Flags);
 		}
-		constexpr board() noexcept :
+		board() noexcept :
 			m_PieceOccupancy{ },
 			m_PlayerOccupancy{ },
 			m_MovingPlayer{ 0 },
@@ -436,15 +452,15 @@ namespace pygmalion
 		{
 			clear();
 		}
-		constexpr void initialize() noexcept
+		void initialize() noexcept
 		{
 			clear();
 			onInitialize();
 		}
-		constexpr board(board&&) noexcept = default;
-		constexpr board(const board&) noexcept = default;
-		constexpr board& operator=(board&&) noexcept = default;
-		constexpr board& operator=(const board&) noexcept = default;
+		board(board&&) noexcept = default;
+		board(const board&) noexcept = default;
+		board& operator=(board&&) noexcept = default;
+		board& operator=(const board&) noexcept = default;
 		~board() noexcept = default;
 	};
 

@@ -49,13 +49,13 @@ namespace pygmalion::chess
 			sstr << "" << sizeof(typename queensidecastlemove::movedataType) << ":" << queensidecastlemove::countBits << "@queensidecastle";
 			return sstr.str();
 		}
-		constexpr queensidecastlemove() noexcept = default;
+		queensidecastlemove() noexcept = default;
 		~queensidecastlemove() noexcept = default;
-		constexpr queensidecastlemove(queensidecastlemove&&) noexcept = default;
-		constexpr queensidecastlemove(const queensidecastlemove&) noexcept = default;
-		constexpr queensidecastlemove& operator=(queensidecastlemove&&) noexcept = default;
-		constexpr queensidecastlemove& operator=(const queensidecastlemove&) noexcept = default;
-		constexpr typename queensidecastlemove::movedataType doMove_Implementation(boardType& position, const typename queensidecastlemove::movebitsType moveBits) const noexcept
+		queensidecastlemove(queensidecastlemove&&) noexcept = default;
+		queensidecastlemove(const queensidecastlemove&) noexcept = default;
+		queensidecastlemove& operator=(queensidecastlemove&&) noexcept = default;
+		queensidecastlemove& operator=(const queensidecastlemove&) noexcept = default;
+		typename queensidecastlemove::movedataType doMove_Implementation(boardType& position, const typename queensidecastlemove::movebitsType moveBits) const noexcept
 		{
 			const playerType p{ position.movingPlayer() };
 			const uint_t<countFlags, false> oldFlags{ position.extractFlagRange<0, 11>() };
@@ -91,7 +91,7 @@ namespace pygmalion::chess
 				return typename queensidecastlemove::movedataType(oldFlags, reversiblePlies);
 			}
 		}
-		constexpr void undoMove_Implementation(boardType& position, const typename queensidecastlemove::movedataType& data) const noexcept
+		void undoMove_Implementation(boardType& position, const typename queensidecastlemove::movedataType& data) const noexcept
 		{
 			const playerType p{ --position.movingPlayer() };
 			position.setMovingPlayer(p);
@@ -120,7 +120,7 @@ namespace pygmalion::chess
 			}
 			position.cumulation().reversiblePlies() = data.reversiblePlies();
 		}
-		constexpr typename queensidecastlemove::movebitsType create() const noexcept
+		typename queensidecastlemove::movebitsType create() const noexcept
 		{
 			constexpr const typename queensidecastlemove::movebitsType bits{ queensidecastlemove::movebitsType::zero() };
 			return bits;
@@ -197,19 +197,19 @@ namespace pygmalion::chess
 				return boardType::squareToString(kingFrom) + boardType::squareToString(kingTo);
 			}
 		}
-		constexpr squaresType otherOccupancyDelta_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
+		squaresType otherOccupancyDelta_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
 		{
 			constexpr const squaresType none{ squaresType::none() };
 			return none;
 		}
-		constexpr squaresType ownOccupancyDelta_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
+		squaresType ownOccupancyDelta_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
 		{
 			if (position.movingPlayer() == whitePlayer)
 				return squaresType(squareE1) ^ squaresType(squareC1) ^ squaresType(squareA1) ^ squaresType(squareD1);
 			else
 				return squaresType(squareE8) ^ squaresType(squareC8) ^ squaresType(squareA8) ^ squaresType(squareD8);
 		}
-		constexpr squaresType pieceOccupancyDelta_Implementation(const boardType& position, const pieceType piece, const movebitsType moveBits) const noexcept
+		squaresType pieceOccupancyDelta_Implementation(const boardType& position, const pieceType piece, const movebitsType moveBits) const noexcept
 		{
 			constexpr const squaresType none{ squaresType::none() };
 			switch (piece)
@@ -228,14 +228,14 @@ namespace pygmalion::chess
 					return squaresType(squareA8) ^ squaresType(squareD8);
 			}
 		}
-		constexpr squareType fromSquare_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
+		squareType fromSquare_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
 		{
 			if (position.movingPlayer() == whitePlayer)
 				return squareE1;
 			else
 				return squareE8;
 		}
-		constexpr squareType toSquare_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
+		squareType toSquare_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
 		{
 			if (position.movingPlayer() == whitePlayer)
 				return squareC1;

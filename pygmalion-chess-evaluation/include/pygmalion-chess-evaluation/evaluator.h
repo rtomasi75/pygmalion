@@ -13,18 +13,30 @@ namespace pygmalion::chess
 		}
 		constexpr static scoreType aspirationWindowSize_Implementation(const size_t index) noexcept
 		{
+			constexpr const scoreType delta{ rootDelta() };
 			constexpr const scoreType windows[]
 			{
-				static_cast<scoreType>(0.75 * 0.015625),
-				static_cast<scoreType>(3.0 * 0.015625),
-				static_cast<scoreType>(12.0 * 0.015625),
-				static_cast<scoreType>(48.0 * 0.015625),
+//				static_cast<scoreType>(0.03125),
+//				static_cast<scoreType>(0.0625),
+/*				static_cast<scoreType>(0.125),
+				static_cast<scoreType>(0.125),
+				static_cast<scoreType>(0.125),
+				static_cast<scoreType>(0.125),
+				static_cast<scoreType>(0.125),
+				static_cast<scoreType>(0.125),
+				static_cast<scoreType>(0.125),*/
+				static_cast<scoreType>(8.0),
 			};
+/*			constexpr static materialScore materialValue(const pieceType pc, const playerType pl) noexcept
+			{
+				return m_Material.material(pl, pc);
+			}*/
+
 			return windows[index];
 		}
 		constexpr static size_t countAspirationWindows_Implementation() noexcept
 		{
-			return 4;
+			return 1;
 		}
 		static std::deque<std::shared_ptr<pygmalion::intrinsics::command>> commandsImplementation() noexcept;
 		template<size_t PLAYER, bool LAZY>
