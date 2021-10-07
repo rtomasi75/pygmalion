@@ -370,7 +370,7 @@ namespace pygmalion
 					childType subnode(childType(*static_cast<const instanceType*>(this), move));
 					if (depthRemaining >= 0)
 					{
-						if constexpr (searchAspiration)
+						if constexpr (false)
 						{
 							sc = evaluate(alpha, beta);
 							scoreType lowAspiration{ sc };
@@ -461,63 +461,84 @@ namespace pygmalion
 					bool bEnded{ false };
 					scoreType sc;
 					bool allowStoreTTsubnode{ true };
-					const scoreType oldAlpha{ alpha };
 					if constexpr (searchScout && !ANALYZE)
 					{
 						sc = this->zwsearchMove<VERBOSE>(move, alpha, depthRemaining, m_EmptyNullMoveHistory, str, allowStoreTTsubnode);
 						if (sc > alpha && sc < beta)
 						{
 							sc = this->searchMove<VERBOSE, false>(move, alpha, beta, depthRemaining, subVariation, str, allowStoreTTsubnode, nullptr);
+						}
+						if (sc > best)
+						{
+							allowStoreTT &= allowStoreTTsubnode;
+							best = sc;
 							if (sc > alpha)
 							{
-								alpha = sc;
+								if (sc >= beta)
+								{
+									if constexpr (searchTranspositionTable)
+									{
+										if (allowStoreTT)
+											m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, best, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
+									}
+									m_Heuristics.template endMoveRefuted<PLAYER, false, false>(m_Stack, move, m_Depth, best, evaluate(alpha, best), fromStack, depthRemaining);
+									m_Heuristics.endNodeCut(m_Stack);
+									return true;
+								}
 								allowStoreTT &= allowStoreTTsubnode;
 								if constexpr (searchTranspositionTable)
 								{
 									if (allowStoreTT)
 										m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, sc, transpositiontable<descriptorSearch>::flags_upper | transpositiontable<descriptorSearch>::flags_move, move);
 								}
-								bEnded = true;
+								m_Heuristics.template endMoveAccepted<PLAYER, false, false>(m_Stack, move, m_Depth, sc, evaluate(alpha, best), fromStack, depthRemaining);
+								alpha = sc;
 							}
+							else
+								m_Heuristics.template endMoveSilent<PLAYER, false>(m_Stack, move, m_Depth, depthRemaining);
+							principalVariation.combine(move, subVariation);
+							bestmove = move;
 						}
+						else
+							m_Heuristics.template endMoveSilent<PLAYER, false>(m_Stack, move, m_Depth, depthRemaining);
 					}
 					else
 					{
 						sc = this->searchMove<VERBOSE, ANALYZE>(move, alpha, beta, depthRemaining, subVariation, str, allowStoreTTsubnode, pCurrentMove);
-						if (sc > alpha && sc < beta)
+						if (sc > best)
 						{
-							alpha = sc;
 							allowStoreTT &= allowStoreTTsubnode;
-							if constexpr (searchTranspositionTable)
+							best = sc;
+							if (sc > alpha)
 							{
-								if (allowStoreTT)
-									m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, sc, transpositiontable<descriptorSearch>::flags_upper | transpositiontable<descriptorSearch>::flags_move, move);
+								if (sc >= beta)
+								{
+									if constexpr (searchTranspositionTable)
+									{
+										if (allowStoreTT)
+											m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, best, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
+									}
+									m_Heuristics.template endMoveRefuted<PLAYER, false, false>(m_Stack, move, m_Depth, best, evaluate(alpha, best), fromStack, depthRemaining);
+									m_Heuristics.endNodeCut(m_Stack);
+									return true;
+								}
+								allowStoreTT &= allowStoreTTsubnode;
+								if constexpr (searchTranspositionTable)
+								{
+									if (allowStoreTT)
+										m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, sc, transpositiontable<descriptorSearch>::flags_upper | transpositiontable<descriptorSearch>::flags_move, move);
+								}
+								m_Heuristics.template endMoveAccepted<PLAYER, false, false>(m_Stack, move, m_Depth, sc, evaluate(alpha, best), fromStack, depthRemaining);
+								alpha = sc;
 							}
-							bEnded = true;
+							else
+								m_Heuristics.template endMoveSilent<PLAYER, false>(m_Stack, move, m_Depth, depthRemaining);
+							principalVariation.combine(move, subVariation);
+							bestmove = move;
 						}
+						else
+							m_Heuristics.template endMoveSilent<PLAYER, false>(m_Stack, move, m_Depth, depthRemaining);
 					}
-					if (sc > best)
-					{
-						allowStoreTT &= allowStoreTTsubnode;
-						best = sc;
-						if (sc >= beta)
-						{
-							if constexpr (searchTranspositionTable)
-							{
-								if (allowStoreTT)
-									m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, best, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
-							}
-							m_Heuristics.template endMoveRefuted<PLAYER, false, false>(m_Stack, move, m_Depth, best, evaluate(oldAlpha, best), fromStack, depthRemaining);
-							m_Heuristics.endNodeCut(m_Stack);
-							return true;
-						}
-						principalVariation.combine(move, subVariation);
-						bestmove = move;
-					}
-					if (!bEnded)
-						m_Heuristics.template endMoveSilent<PLAYER, false>(m_Stack, move, m_Depth, depthRemaining);
-					else
-						m_Heuristics.template endMoveAccepted<PLAYER, false, false>(m_Stack, move, m_Depth, alpha, evaluate(oldAlpha, best), fromStack, depthRemaining);
 					return false;
 				}
 				else
