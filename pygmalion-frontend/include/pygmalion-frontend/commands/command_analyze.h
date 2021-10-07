@@ -65,6 +65,11 @@ namespace pygmalion::frontend
 		{
 			return "ANALYZE";
 		}
+		virtual void getXBoardFeatures(std::deque<std::string>& optionList) const noexcept override
+		{
+			const std::string feature{ "analyze=1" };
+			optionList.emplace_back(feature);
+		}
 	};
 
 }

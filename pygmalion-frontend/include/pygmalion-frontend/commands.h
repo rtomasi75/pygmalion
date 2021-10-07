@@ -25,3 +25,4 @@
 #include "commands/command_easy.h"
 #include "commands/command_undo.h"
 #include "commands/command_usermove.h"
+#include "commands/command_ping.h"

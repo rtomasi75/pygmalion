@@ -113,7 +113,7 @@ namespace pygmalion::frontend
 				{
 					const std::string moveString{ motorType::moveToString(this->currentGame().position(), finalVariation[0]) };
 					this->doMove(finalVariation[0]);
-					if (finalVariation.length() > 0)
+					if (finalVariation.length() > 1)
 					{
 						this->front().hintMove() = finalVariation[1];
 						this->front().hasHint() = true;
@@ -211,6 +211,7 @@ namespace pygmalion::frontend
 			this->template addCommand<command_bk<descriptorFrontend, frontType>>();
 			this->template addCommand<command_hint<descriptorFrontend, frontType>>();
 			this->template addCommand<command_analyze<descriptorFrontend, frontType>>();
+			this->template addCommand<command_ping<descriptorFrontend, frontType>>();
 		}
 		virtual ~engine() noexcept
 		{
@@ -355,12 +356,12 @@ namespace pygmalion::frontend
 				m_pMoveThread = nullptr;
 			}
 		}
-		constexpr void doMove(const movebitsType& movebits) noexcept
+		void doMove(const movebitsType& movebits) noexcept
 		{
 			this->currentGame().playerClock(this->position().movingPlayer()).set(this->currentGame().playerClock(this->position().movingPlayer()).timeRemaining() + std::chrono::duration_cast<durationType>(this->currentGame().incrementTime()));
 			this->makeMove(movebits);
 		}
-		constexpr void undoMove() noexcept
+		void undoMove() noexcept
 		{
 			this->unmakeMove();
 		}

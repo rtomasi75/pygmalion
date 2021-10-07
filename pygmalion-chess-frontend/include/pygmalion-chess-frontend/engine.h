@@ -18,6 +18,7 @@ namespace pygmalion::chess::frontend
 			this->template addCommand<command_rating<typename pygmalion::frontend::engine<FRONT>::descriptorFrontend, typename pygmalion::frontend::engine<FRONT>::frontType>>();
 			this->template addCommand<command_new<typename pygmalion::frontend::engine<FRONT>::descriptorFrontend, typename pygmalion::frontend::engine<FRONT>::frontType>>();
 			this->template addCommand<command_result<typename pygmalion::frontend::engine<FRONT>::descriptorFrontend, typename pygmalion::frontend::engine<FRONT>::frontType>>();
+			this->template addCommand<command_setBoard<typename pygmalion::frontend::engine<FRONT>::descriptorFrontend, typename pygmalion::frontend::engine<FRONT>::frontType>>();
 		}
 		virtual double timeSkew() const noexcept override
 		{
@@ -40,5 +41,10 @@ namespace pygmalion::chess::frontend
 		{
 			return "Roland Tomasi";
 		}
+		virtual void getXBoardVariants(std::deque<std::string>& variants) const noexcept override
+		{
+			variants.emplace_back(std::string("normal"));
+		}
+
 	};
 }

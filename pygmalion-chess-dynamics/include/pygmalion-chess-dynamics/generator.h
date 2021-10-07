@@ -3426,12 +3426,12 @@ namespace pygmalion::chess
 				const fileType rankFrom{ from.rank() };
 				if constexpr (movingPlayer == whitePlayer)
 				{
-					if (rank7 == rankFrom)
+					if (rank7 != rankFrom)
 						return false;
 				}
 				else
 				{
-					if (rank2 == rankFrom)
+					if (rank2 != rankFrom)
 						return false;
 				}
 
@@ -3439,12 +3439,12 @@ namespace pygmalion::chess
 				const fileType rankTo{ to.rank() };
 				if constexpr (movingPlayer == whitePlayer)
 				{
-					if (rank8 == rankTo)
+					if (rank8 != rankTo)
 						return false;
 				}
 				else
 				{
-					if (rank1 == rankTo)
+					if (rank1 != rankTo)
 						return false;
 				}
 
@@ -3578,7 +3578,17 @@ namespace pygmalion::chess
 					PYGMALION_UNREACHABLE;
 					break;
 				case pawn:
-					return false;
+					if constexpr (movingPlayer == whitePlayer)
+					{
+						if (!movegenPawnPushWhite.targets(from, ~position.playerOccupancy(movingPlayer))[to])
+							return false;
+					}
+					else
+					{
+						if (!movegenPawnPushBlack.targets(from, ~position.playerOccupancy(movingPlayer))[to])
+							return false;
+					}
+					break;
 				case king:
 					if (!movegenKing.targets(from, ~position.playerOccupancy(movingPlayer))[to])
 						return false;

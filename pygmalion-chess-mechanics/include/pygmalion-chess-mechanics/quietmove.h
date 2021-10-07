@@ -180,6 +180,26 @@ namespace pygmalion::chess
 					{
 						if (!position.totalOccupancy()[to])
 						{
+							pieceType piece{ position.getPiece(from) };
+							if (piece == pawn)
+							{
+								if (from.file() != to.file())
+									return false;
+								const rankType toRank{ to.rank() };
+								if (toRank == rank1 || toRank == rank8)
+									return false;
+								const rankType fromRank{ from.rank() };
+								if (position.movingPlayer() == whitePlayer)
+								{
+									if (toRank != fromRank.up())
+										return false;
+								}
+								else
+								{
+									if (toRank != fromRank.down())
+										return false;
+								}
+							}
 							moveBits = create(from, to);
 							text = temp;
 							return true;

@@ -18,6 +18,46 @@ namespace pygmalion::frontend
 			{
 				int version = parser::parseInt(remainder);
 				this->front().protocolVersion() = version;
+				std::deque<std::string> features;
+				if (version > 1)
+				{
+					this->frontendEngine().getXBoardFeatures(features);
+					if (features.size() > 0)
+					{
+						this->output() << "feature done=0" << std::endl;
+						this->output() << "feature";
+						this->output() << " sigint=0";
+						this->output() << " sigterm=0";
+						this->output() << " reuse=1";
+						this->output() << " colors=0";
+						this->output() << " nps=0";
+						this->output() << " san=0";
+						this->output() << " debug=0";
+						this->output() << " time=0";
+						this->output() << " myname=\"" << this->frontendEngine().version() << " by " << this->frontendEngine().author() << "\"";
+						std::deque<std::string> variants;
+						this->frontendEngine().getXBoardVariants(variants);
+						if (variants.size() > 0)
+						{
+							this->output() << " variants=\"";
+							for (size_t i = 0; i < variants.size(); i++)
+							{
+								this->output() << variants[i];
+								if (i < (variants.size() - 1))
+								{
+									this->output() << ",";
+								}
+							}
+							this->output() << "\"";
+						}
+						for (const auto feature : features)
+						{
+							this->output() << "" << feature;
+						}
+						this->output() << std::endl;
+						this->output() << "feature done=1" << std::endl;
+					}
+				}
 				this->output() << std::endl;
 				return true;
 			}

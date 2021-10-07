@@ -85,9 +85,29 @@ namespace pygmalion::intrinsics
 	{
 		return m_Input;
 	}
+
 	std::ostream& engine::outputStream() noexcept
 	{
 		return m_Output;
+	}
+
+	void engine::addCommand(std::shared_ptr<command> pCommand) noexcept
+	{
+		pCommand->m_pEngine = this;
+		m_Commands.emplace_back(std::move(pCommand));
+	}
+
+	void engine::getXBoardFeatures(std::deque<std::string>& features) const noexcept
+	{
+		for (auto& cmd : m_Commands)
+		{
+			cmd->getXBoardFeatures(features);
+		}
+	}
+
+	void engine::getXBoardVariants(std::deque<std::string>& variants) const noexcept
+	{
+
 	}
 
 }

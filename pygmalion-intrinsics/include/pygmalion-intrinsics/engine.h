@@ -12,11 +12,7 @@ namespace pygmalion::intrinsics
 	private:
 		std::deque<std::shared_ptr<command>> m_Commands;
 	protected:
-		void addCommand(std::shared_ptr<command> pCommand) noexcept
-		{
-			pCommand->m_pEngine = this;
-			m_Commands.emplace_back(std::move(pCommand));
-		}
+		void addCommand(std::shared_ptr<command> pCommand) noexcept;
 		template<typename T>
 		void addCommand() noexcept
 		{
@@ -28,6 +24,8 @@ namespace pygmalion::intrinsics
 			this->addCommand(pCommand);
 		}
 	public:
+		void getXBoardFeatures(std::deque<std::string>& features) const noexcept;
+		virtual void getXBoardVariants(std::deque<std::string>& variants) const noexcept;
 		virtual std::string version() const noexcept;
 		virtual std::string author() const noexcept;
 		engine() noexcept = delete;

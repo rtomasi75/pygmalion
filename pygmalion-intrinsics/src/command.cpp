@@ -43,4 +43,9 @@ namespace pygmalion::intrinsics
 		return "<TODO: implement help>";
 	}
 
+	void command::getXBoardFeatures(std::deque<std::string>& optionList) const noexcept
+	{
+
+	}
+
 }

@@ -210,7 +210,7 @@ namespace pygmalion::chess
 				{
 					if (boardType::parseSquare(temp, to))
 					{
-						if (position.playerOccupancy(++position.movingPlayer())[to])
+						if (position.playerOccupancy(position.movingPlayer().next())[to])
 						{
 							moveBits = create(from, to);
 							text = temp;

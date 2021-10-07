@@ -17,5 +17,6 @@ namespace pygmalion::intrinsics
 		command() noexcept;
 		bool process(const std::string& cmd) noexcept;
 		virtual std::string help() noexcept;
+		virtual void getXBoardFeatures(std::deque<std::string>& optionList) const noexcept;
 	};
 }

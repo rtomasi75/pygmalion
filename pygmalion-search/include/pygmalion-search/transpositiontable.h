@@ -20,7 +20,7 @@ namespace pygmalion
 			std::uint8_t m_Flags;
 			constexpr static const scoreType m_Minimum{ scoreType::minimum() };
 		public:
-			constexpr transposition() noexcept :
+			transposition() noexcept :
 				m_Hash{ hashType(0) },
 				m_Value{ m_Minimum },
 				m_Flags{ transpositiontable::flags_unused },
@@ -30,7 +30,7 @@ namespace pygmalion
 			}
 			~transposition() = default;
 			template<size_t PLAYER>
-			constexpr bool isValid(const stackType<PLAYER>& stack) const noexcept
+			bool isValid(const stackType<PLAYER>& stack) const noexcept
 			{
 				const bool bOk{ m_Hash == stack.position().hash() };
 				if (bOk)
@@ -45,28 +45,28 @@ namespace pygmalion
 				else
 					return false;
 			}
-			constexpr hashType hash() const noexcept
+			hashType hash() const noexcept
 			{
 				return m_Hash;
 			}
-			constexpr scoreType value() const noexcept
+			scoreType value() const noexcept
 			{
 				return m_Value;
 			}
-			constexpr movebitsType move() const noexcept
+			movebitsType move() const noexcept
 			{
 				return m_Move;
 			}
-			constexpr depthType draft() const noexcept
+			depthType draft() const noexcept
 			{
 				return m_Draft;
 			}
-			constexpr std::uint8_t flags() const noexcept
+			std::uint8_t flags() const noexcept
 			{
 				return m_Flags;
 			}
 			template<size_t PLAYER>
-			constexpr void update(const stackType<PLAYER>& stack, const std::uint8_t flags, const scoreType value, const movebitsType move)
+			void update(const stackType<PLAYER>& stack, const std::uint8_t flags, const scoreType value, const movebitsType move)
 			{
 				if (flags & transpositiontable::flags_lower)
 				{
@@ -135,7 +135,7 @@ namespace pygmalion
 		mutable std::uint64_t m_BetaHits;
 		mutable std::uint64_t m_ExactHits;
 		std::vector<transposition> m_Entry;
-		constexpr size_t computeMaxEntries() const noexcept
+		size_t computeMaxEntries() const noexcept
 		{
 			return static_cast<size_t>(std::min(static_cast<std::uint64_t>(std::numeric_limits<std::size_t>::max() / (sizeof(transposition) * countBuckets)), ((UINT64_C(1) << std::min(static_cast<size_t>(63), countHashBits)) / (sizeof(transposition) * countBuckets))));
 		}
@@ -178,42 +178,42 @@ namespace pygmalion
 			}
 		}
 	public:
-		constexpr void hitAlpha() const noexcept
+		void hitAlpha() const noexcept
 		{
 			m_Hits++;
 			m_AlphaHits++;
 		}
-		constexpr void hitBeta() const noexcept
+		void hitBeta() const noexcept
 		{
 			m_Hits++;
 			m_BetaHits++;
 		}
-		constexpr void hitExact() const noexcept
+		void hitExact() const noexcept
 		{
 			m_Hits++;
 			m_ExactHits++;
 		}
-		constexpr std::uint64_t countHits() const noexcept
+		std::uint64_t countHits() const noexcept
 		{
 			return m_Hits;
 		}
-		constexpr std::uint64_t countAlphaHits() const noexcept
+		std::uint64_t countAlphaHits() const noexcept
 		{
 			return m_AlphaHits;
 		}
-		constexpr std::uint64_t countBetaHits() const noexcept
+		std::uint64_t countBetaHits() const noexcept
 		{
 			return m_BetaHits;
 		}
-		constexpr std::uint64_t countExactHits() const noexcept
+		std::uint64_t countExactHits() const noexcept
 		{
 			return m_ExactHits;
 		}
-		constexpr std::uint64_t countProbes() const noexcept
+		std::uint64_t countProbes() const noexcept
 		{
 			return m_Probes;
 		}
-		constexpr size_t countUsedEntries() const noexcept
+		size_t countUsedEntries() const noexcept
 		{
 			size_t count{ 0 };
 			const size_t n{ m_EntryCount * countBuckets };
@@ -226,7 +226,7 @@ namespace pygmalion
 			}
 			return count;
 		}
-		constexpr size_t countRangeEntries() const noexcept
+		size_t countRangeEntries() const noexcept
 		{
 			size_t count{ 0 };
 			const size_t n{ m_EntryCount * countBuckets };
@@ -239,7 +239,7 @@ namespace pygmalion
 			}
 			return count;
 		}
-		constexpr size_t countExactEntries() const noexcept
+		size_t countExactEntries() const noexcept
 		{
 			size_t count{ 0 };
 			const size_t n{ m_EntryCount * countBuckets };
@@ -252,7 +252,7 @@ namespace pygmalion
 			}
 			return count;
 		}
-		constexpr size_t countMoveEntries() const noexcept
+		size_t countMoveEntries() const noexcept
 		{
 			size_t count{ 0 };
 			const size_t n{ m_EntryCount * countBuckets };
@@ -265,7 +265,7 @@ namespace pygmalion
 			}
 			return count;
 		}
-		constexpr size_t countUpperBoundEntries() const noexcept
+		size_t countUpperBoundEntries() const noexcept
 		{
 			size_t count{ 0 };
 			const size_t n{ m_EntryCount * countBuckets };
@@ -278,7 +278,7 @@ namespace pygmalion
 			}
 			return count;
 		}
-		constexpr size_t countLowerBoundEntries() const noexcept
+		size_t countLowerBoundEntries() const noexcept
 		{
 			size_t count{ 0 };
 			const size_t n{ m_EntryCount * countBuckets };
@@ -291,7 +291,7 @@ namespace pygmalion
 			}
 			return count;
 		}
-		constexpr transpositiontable(const size_t sizeInBytes = 128 * 1024 * 1024) noexcept :
+		transpositiontable(const size_t sizeInBytes = 128 * 1024 * 1024) noexcept :
 			m_EntryCount{ std::min(computeMaxEntries(),sizeInBytes / (sizeof(transposition) * countBuckets)) },
 			m_Entry{ m_EntryCount * countBuckets },
 			m_WideEntryCount{ static_cast<uint_t<128,false>>(static_cast<uint_t<64,false>>(static_cast<std::uint64_t>(m_EntryCount))) },
@@ -302,16 +302,16 @@ namespace pygmalion
 			m_ExactHits{ 0 }
 		{
 		}
-		constexpr size_t countEntries() const noexcept
+		size_t countEntries() const noexcept
 		{
 			return m_EntryCount;
 		}
-		constexpr size_t memoryUsed() const noexcept
+		size_t memoryUsed() const noexcept
 		{
 			return m_EntryCount * sizeof(transposition) * countBuckets;
 		}
 		template<size_t PLAYER>
-		constexpr void probeMoves(const stackType<PLAYER>& stack, const depthType depthRemaining, ttmovesType& moves) const noexcept
+		void probeMoves(const stackType<PLAYER>& stack, const depthType depthRemaining, ttmovesType& moves) const noexcept
 		{
 			if constexpr (countBuckets > 0)
 			{
@@ -337,7 +337,7 @@ namespace pygmalion
 			}
 		}
 		template<size_t PLAYER>
-		constexpr void probeTacticalMoves(const stackType<PLAYER>& stack, ttmovesType& moves) const noexcept
+		void probeTacticalMoves(const stackType<PLAYER>& stack, ttmovesType& moves) const noexcept
 		{
 			if constexpr (countBuckets > 0)
 			{
@@ -366,7 +366,7 @@ namespace pygmalion
 			}
 		}
 		template<size_t PLAYER>
-		constexpr std::uint8_t probe(const stackType<PLAYER>& stack, const depthType depth, scoreType& alpha, scoreType& beta, scoreType& score, movebitsType& move) const noexcept
+		std::uint8_t probe(const stackType<PLAYER>& stack, const depthType depth, scoreType& alpha, scoreType& beta, scoreType& score, movebitsType& move) const noexcept
 		{
 			bool doNMP{ true };
 			m_Probes++;
@@ -498,7 +498,7 @@ namespace pygmalion
 			return doNMP ? flags_unused : flags_noNMP;
 		}
 		template<size_t PLAYER>
-		constexpr void store(const stackType<PLAYER>& stack, const depthType depth, const scoreType score, const std::uint8_t flags, const movebitsType move) noexcept
+		void store(const stackType<PLAYER>& stack, const depthType depth, const scoreType score, const std::uint8_t flags, const movebitsType move) noexcept
 		{
 			const size_t idx{ computeIndex(stack.position().hash()) };
 			depthType best{ countSearchPlies + 1 };
@@ -522,7 +522,7 @@ namespace pygmalion
 			m_Entry[index2].reset(stack, score, depth, flags, move);
 		}
 		template<size_t PLAYER>
-		constexpr void prefetch(const stackType<PLAYER>& stack) const noexcept
+		void prefetch(const stackType<PLAYER>& stack) const noexcept
 		{
 			const size_t idx{ computeIndex(stack.position().hash()) };
 			const size_t base{ idx * countBuckets };

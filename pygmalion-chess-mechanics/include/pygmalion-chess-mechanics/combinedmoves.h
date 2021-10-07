@@ -47,36 +47,36 @@ namespace pygmalion::chess
 			default:
 				PYGMALION_UNREACHABLE;
 				break;
-			case indexQueenPromoCapture:
-				return 0;
-			case indexQueenPromo:
-				return 1;
-			case indexRookPromoCapture:
-				return 2;
-			case indexRookPromo:
-				return 3;
-			case indexBishopPromoCapture:
-				return 4;
-			case indexBishopPromo:
-				return 5;
-			case indexKnightPromoCapture:
-				return 6;
-			case indexKnightPromo:
-				return 7;
-			case indexDoublePush:
-				return 8;
-			case indexEnPassant:
-				return 9;
-			case indexKingside:
-				return 10;
-			case indexQueenside:
-				return 11;
-			case indexCapture:
-				return 12;
-			case indexQuiet:
-				return 13;
-			case indexNull:
-				return 14;
+			case 0:
+				return indexQueenPromoCapture;
+			case 1:
+				return indexQueenPromo;
+			case 2:
+				return indexRookPromoCapture;
+			case 3:
+				return indexRookPromo;
+			case 4:
+				return indexBishopPromoCapture;
+			case 5:
+				return indexBishopPromo;
+			case 6:
+				return indexKnightPromoCapture;
+			case 7:
+				return indexKnightPromo;
+			case 8:
+				return indexDoublePush;
+			case 9:
+				return indexEnPassant;
+			case 10:
+				return indexKingside;
+			case 11:
+				return indexQueenside;
+			case 12:
+				return indexCapture;
+			case 13:
+				return indexQuiet;
+			case 14:
+				return indexNull;
 			}
 			return 0;
 		}
