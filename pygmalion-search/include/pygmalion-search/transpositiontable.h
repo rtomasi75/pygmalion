@@ -1,5 +1,7 @@
 namespace pygmalion
 {
+//#define PYGMALION_TTSTATISTICS
+
 	template<typename DESCRIPTION_SEARCH>
 	class transpositiontable :
 		public DESCRIPTION_SEARCH
@@ -131,13 +133,15 @@ namespace pygmalion
 		constexpr static inline std::uint8_t flags_hit{ flags_upper | flags_lower | flags_exact };
 		constexpr static inline size_t countBuckets{ searchTranspositionTableBucketCount };
 	private:
-		size_t m_EntryCount;
-		uint_t<128, false> m_WideEntryCount;
+#if defined(PYGMALION_TTSTATISTICS)
 		mutable std::uint64_t m_Probes;
 		mutable std::uint64_t m_Hits;
 		mutable std::uint64_t m_AlphaHits;
 		mutable std::uint64_t m_BetaHits;
 		mutable std::uint64_t m_ExactHits;
+#endif
+		size_t m_EntryCount;
+		uint_t<128, false> m_WideEntryCount;
 		std::vector<transposition> m_Entry;
 		std::uint64_t computeMaxEntries() const noexcept
 		{
@@ -182,6 +186,7 @@ namespace pygmalion
 			}
 		}
 	public:
+#if defined(PYGMALION_TTSTATISTICS)
 		void hitAlpha() const noexcept
 		{
 			m_Hits++;
@@ -217,6 +222,7 @@ namespace pygmalion
 		{
 			return m_Probes;
 		}
+#endif
 		size_t countUsedEntries() const noexcept
 		{
 			size_t count{ 0 };
@@ -296,14 +302,16 @@ namespace pygmalion
 			return count;
 		}
 		transpositiontable(const std::uint64_t sizeInBytes = 128 * 1024 * 1024) noexcept :
-			m_EntryCount{ static_cast<size_t>(std::min(computeMaxEntries(),static_cast<std::uint64_t>(sizeInBytes / (sizeof(transposition) * countBuckets)))) },
-			m_Entry{ std::vector<transposition>(m_EntryCount * countBuckets) },
-			m_WideEntryCount{ static_cast<uint_t<128,false>>(static_cast<uint_t<64,false>>(static_cast<std::uint64_t>(m_EntryCount))) },
+#if defined(PYGMALION_TTSTATISTICS)
 			m_Probes{ 0 },
 			m_Hits{ 0 },
 			m_AlphaHits{ 0 },
 			m_BetaHits{ 0 },
-			m_ExactHits{ 0 }
+			m_ExactHits{ 0 },
+#endif
+			m_EntryCount{ static_cast<size_t>(std::min(computeMaxEntries(),static_cast<std::uint64_t>(sizeInBytes / (sizeof(transposition) * countBuckets)))) },
+			m_Entry{ std::vector<transposition>(m_EntryCount * countBuckets) },
+			m_WideEntryCount{ static_cast<uint_t<128,false>>(static_cast<uint_t<64,false>>(static_cast<std::uint64_t>(m_EntryCount))) }
 		{
 		}
 		void resize(const std::uint64_t sizeInBytes) noexcept
@@ -381,7 +389,9 @@ namespace pygmalion
 		std::uint8_t probe(const stackType<PLAYER>& stack, const depthType depth, scoreType& alpha, scoreType& beta, scoreType& score, movebitsType& move) const noexcept
 		{
 			bool doNMP{ true };
+#if defined(PYGMALION_TTSTATISTICS)
 			m_Probes++;
+#endif
 			if constexpr (UseDeepHits)
 			{
 				const size_t idx{ computeIndex(stack.position().hash()) };
@@ -414,7 +424,9 @@ namespace pygmalion
 								if (m_Entry[index].value() >= beta)
 								{
 									score = m_Entry[index].value();
+#if defined(PYGMALION_TTSTATISTICS)
 									hitBeta();
+#endif
 									if (m_Entry[index].flags() & flags_move)
 									{
 										move = m_Entry[index].move();
@@ -425,7 +437,9 @@ namespace pygmalion
 								score = m_Entry[index].value();
 								if (m_Entry[index].flags() & flags_exact)
 								{
+#if defined(PYGMALION_TTSTATISTICS)
 									hitExact();
+#endif
 									if (m_Entry[index].flags() & flags_move)
 									{
 										move = m_Entry[index].move();
@@ -433,7 +447,9 @@ namespace pygmalion
 									}
 									return flags_exact | flags_return;
 								}
+#if defined(PYGMALION_TTSTATISTICS)
 								hitAlpha();
+#endif
 								alpha = m_Entry[index].value();
 								if (m_Entry[index].flags() & flags_move)
 								{
@@ -469,7 +485,9 @@ namespace pygmalion
 									if (m_Entry[index].value() >= beta)
 									{
 										score = m_Entry[index].value();
+#if defined(PYGMALION_TTSTATISTICS)
 										hitBeta();
+#endif
 										if (m_Entry[index].flags() & flags_move)
 										{
 											move = m_Entry[index].move();
@@ -480,7 +498,9 @@ namespace pygmalion
 									score = m_Entry[index].value();
 									if (m_Entry[index].flags() & flags_exact)
 									{
+#if defined(PYGMALION_TTSTATISTICS)
 										hitExact();
+#endif
 										if (m_Entry[index].flags() & flags_move)
 										{
 											move = m_Entry[index].move();
@@ -488,7 +508,9 @@ namespace pygmalion
 										}
 										return flags_exact | flags_return;
 									}
+#if defined(PYGMALION_TTSTATISTICS)
 									hitAlpha();
+#endif
 									alpha = m_Entry[index].value();
 									if (m_Entry[index].flags() & flags_move)
 									{

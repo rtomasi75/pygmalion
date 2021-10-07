@@ -18,6 +18,7 @@ namespace pygmalion::chess::frontend
 			{
 				std::int64_t sizeInMegaBytes = parser::parseInt(remainder);
 				this->frontendEngine().heuristics().transpositionTable().resize(sizeInMegaBytes * 1024 * 1024);
+				generatorType::pawnTable().resize(0);
 				this->output() << std::endl;
 				return true;
 			}

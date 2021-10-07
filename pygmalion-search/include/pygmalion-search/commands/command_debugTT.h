@@ -23,6 +23,7 @@ namespace pygmalion::search
 				this->output() << "TT move:    " << std::setw(4) << this->searchEngine().transpositionTable().countMoveEntries() << std::endl;
 				this->output() << "TT lower:   " << std::setw(4) << this->searchEngine().transpositionTable().countLowerBoundEntries() << std::endl;
 				this->output() << "TT upper:   " << std::setw(4) << this->searchEngine().transpositionTable().countUpperBoundEntries() << std::endl;
+#if defined(PYGMALION_TTSTATISTICS)
 				this->output() << std::endl;
 				this->output() << "Probes: " << std::setw(4) << this->searchEngine().transpositionTable().countProbes() << std::endl;
 				this->output() << "Hits:   " << std::setw(4) << this->searchEngine().transpositionTable().countHits() << std::endl;
@@ -30,6 +31,7 @@ namespace pygmalion::search
 				this->output() << "Hits B: " << std::setw(4) << this->searchEngine().transpositionTable().countBetaHits() << std::endl;
 				this->output() << "Hits E: " << std::setw(4) << this->searchEngine().transpositionTable().countExactHits() << std::endl;
 				this->output() << std::endl;
+#endif
 				return true;
 			}
 			else

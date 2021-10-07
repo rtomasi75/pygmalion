@@ -1,6 +1,6 @@
 namespace pygmalion::chess
 {
-	class evaluationstage_kingsafety :
+/*	class evaluationstage_kingsafety :
 		public pygmalion::evaluationstage<descriptor_evaluation, evaluationstage_kingsafety>
 	{
 	public:
@@ -84,5 +84,5 @@ namespace pygmalion::chess
 		{
 			return "king safety";
 		}
-	};
+	};*/
 }

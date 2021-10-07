@@ -1,15 +1,14 @@
-namespace pygmalion::search
+namespace pygmalion::chess::dynamics
 {
-	template<typename DESCRIPTION_SEARCH, typename GAMETREE>
-	class command_debugResizeTT :
-		public pygmalion::search::command<DESCRIPTION_SEARCH, GAMETREE>
+	class command_debugResizePT :
+		public pygmalion::dynamics::command<descriptor_dynamics, generator>
 	{
 	public:
-		using gametreeType = GAMETREE;
-		using descriptorSearch = DESCRIPTION_SEARCH;
-#include "../include_search.h"	
+		using generatorType = generator;
 		template<size_t PLAYER>
 		using stackType = typename generatorType::template stackType<PLAYER>;
+		using descriptorDynamics = descriptor_dynamics;
+#include <pygmalion-dynamics/include_dynamics.h>
 	private:
 		template<size_t PLAYER>
 		void process(const std::int64_t sizeInMegaBytes) noexcept
@@ -19,8 +18,8 @@ namespace pygmalion::search
 				constexpr const playerType player{ static_cast<playerType>(PLAYER) };
 				if (player == this->position().movingPlayer())
 				{
-					this->searchEngine().heuristics().transpositionTable().resize(sizeInMegaBytes * 1024 * 1024);
-					this->output() << "Transposition table resized to " << std::setw(4) << parser::memoryToString(this->searchEngine().transpositionTable().memoryUsed(), "B") << std::endl;
+					generatorType::pawnTable().resize(sizeInMegaBytes * 1024 * 1024);
+					this->output() << "Transposition table resized to " << std::setw(4) << parser::memoryToString(generatorType::pawnTable().memoryUsed(), "B") << std::endl;
 				}
 				else
 					this->template process<PLAYER + 1>(sizeInMegaBytes);
@@ -34,7 +33,7 @@ namespace pygmalion::search
 			std::string token;
 			std::string remainder;
 			parser::parseToken(cmd, token, remainder);
-			if (token == "debug-resizett")
+			if (token == "debug-resizept")
 			{
 				this->output() << std::endl;
 				std::int64_t sizeInMegaBytes = parser::parseInt(remainder);
@@ -47,7 +46,7 @@ namespace pygmalion::search
 		}
 		virtual std::string help() noexcept override
 		{
-			return "DEBUG-RESIZETT";
+			return "DEBUG-RESIZEPT";
 		}
 	};
 

@@ -1,14 +1,14 @@
-namespace pygmalion::chess::evaluation
+namespace pygmalion::chess::dynamics
 {
 	class command_debugPawntable :
-		public pygmalion::evaluation::command<descriptor_evaluation, evaluator>
+		public pygmalion::dynamics::command<descriptor_dynamics, generator>
 	{
 	public:
-		using evaluatorType = evaluator;
+		using generatorType = generator;
 		template<size_t PLAYER>
 		using stackType = typename generatorType::template stackType<PLAYER>;
-		using descriptorEvaluation = descriptor_evaluation;
-#include <pygmalion-evaluation/include_evaluation.h>
+		using descriptorDynamics = descriptor_dynamics;
+#include <pygmalion-dynamics/include_dynamics.h>
 	protected:
 		virtual bool onProcess(const std::string& cmd) noexcept override;
 		virtual std::string help() noexcept override

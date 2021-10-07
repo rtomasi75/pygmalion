@@ -1,6 +1,7 @@
 #include <pygmalion-chess-dynamics.h>
 namespace pygmalion::chess
 {
+
 	std::deque<std::shared_ptr<pygmalion::intrinsics::command>> generator::commandsImplementation() noexcept
 	{
 		std::deque<std::shared_ptr<pygmalion::intrinsics::command>> list{ std::deque<std::shared_ptr<pygmalion::intrinsics::command>>() };
@@ -17,6 +18,8 @@ namespace pygmalion::chess
 		generatorType::addCommand<pygmalion::chess::dynamics::command_debugKingArea>(list);
 		generatorType::addCommand<pygmalion::chess::dynamics::command_debugTropism>(list);
 		generatorType::addCommand<pygmalion::chess::dynamics::command_debugMoveStats>(list);
+		generatorType::addCommand<pygmalion::chess::dynamics::command_debugPawntable>(list);
+		generatorType::addCommand<pygmalion::chess::dynamics::command_debugResizePT>(list);
 		return list;
 	}
 

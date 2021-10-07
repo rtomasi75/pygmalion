@@ -90,13 +90,217 @@ namespace pygmalion::chess
 			stack(const parentType& parent, const movebitsType movebits) noexcept :
 				pygmalion::generator<descriptor_dynamics, generator>::stack<PLAYER>(parent, movebits)
 			{
+				generatorType::pawnTable().template prefetch<PLAYER>(*this);
 			}
 			stack(boardType& position, historyType& history, contextType* pContext) noexcept :
 				pygmalion::generator<descriptor_dynamics, generator>::stack<PLAYER>(position, history, pContext)
 			{
+				generatorType::pawnTable().template prefetch<PLAYER>(*this);
 			}
 			~stack() noexcept = default;
 		};
+		class pawntable
+		{
+		public:
+			using descriptorDynamics = descriptor_dynamics;
+			using generatorType = generator;
+			template<size_t PLAYER>
+			using stack = typename generatorType::template stack<PLAYER>;
+#include <pygmalion-dynamics/include_dynamics.h>
+			constexpr static inline const size_t countPawnHashBits{ /*16*/0 };
+			constexpr static inline const size_t countPawnTableEntries{ static_cast<size_t>(1) << countPawnHashBits };
+		private:
+			constexpr static inline const hashType m_Mask{ hashType(countPawnTableEntries - 1) };
+		public:
+			class pawnentry
+			{
+			private:
+				std::array<typename generatorType::tropismType, countPlayers> m_KingTropism;
+				std::array<typename generatorType::tropismType, countPlayers> m_KingAreaTropism;
+				std::array<squaresType, countPlayers> m_Pawns;
+				std::array<squareType, countPlayers> m_KingSquare;
+				std::uint8_t m_Flags;
+				constexpr static inline std::uint8_t flagsNone{ UINT8_C(0x00) };
+				constexpr static inline std::uint8_t flagsUsed{ UINT8_C(0x01) };
+				constexpr static inline std::uint8_t flagsKingTropismWhite{ UINT8_C(0x02) };
+				constexpr static inline std::uint8_t flagsKingTropismBlack{ UINT8_C(0x04) };
+				constexpr static inline std::uint8_t flagsKingAreaTropismWhite{ UINT8_C(0x08) };
+				constexpr static inline std::uint8_t flagsKingAreaTropismBlack{ UINT8_C(0x10) };
+				constexpr static inline std::uint8_t flagsKingTropism[]{ flagsKingTropismWhite ,flagsKingTropismBlack };
+				constexpr static inline std::uint8_t flagsKingAreaTropism[]{ flagsKingAreaTropismWhite ,flagsKingAreaTropismBlack };
+			public:
+				const squaresType& pawns(const playerType& pl) const noexcept
+				{
+					return m_Pawns[pl];
+				}
+				const squareType& kingSquare(const playerType& pl) const noexcept
+				{
+					return m_KingSquare[pl];
+				}
+				const typename generatorType::tropismType& kingTropism(const playerType& pl) noexcept
+				{
+					if (!(m_Flags & flagsKingTropism[pl]))
+					{
+						m_KingTropism[pl].compute(m_KingSquare[pl], pl.next(), m_Pawns[blackPlayer], m_Pawns[whitePlayer], m_KingSquare[blackPlayer], m_KingSquare[whitePlayer]);
+						m_Flags |= flagsKingTropism[pl];
+					}
+					return m_KingTropism[pl];
+				}
+				const typename generatorType::tropismType& kingAreaTropism(const playerType& pl) noexcept
+				{
+					if (!(m_Flags & flagsKingTropism[pl]))
+					{
+						constexpr const squaresType all{ squaresType::all() };
+						const squaresType kingArea{ generatorType::movegenKing.attacks(m_KingSquare[pl],all) & ~m_Pawns[pl] };
+						m_KingAreaTropism[pl].compute(kingArea, pl.next(), m_Pawns[blackPlayer], m_Pawns[whitePlayer], m_KingSquare[blackPlayer], m_KingSquare[whitePlayer]);
+						m_Flags |= flagsKingAreaTropism[pl];
+					}
+					return m_KingAreaTropism[pl];
+				}
+				pawnentry() noexcept :
+					m_KingTropism{ arrayhelper::make<countPlayers,typename generatorType::tropismType>(typename generatorType::tropismType()) },
+					m_KingAreaTropism{ arrayhelper::make<countPlayers,typename generatorType::tropismType>(typename generatorType::tropismType()) },
+					m_Pawns{ arrayhelper::make<countPlayers,squaresType>(squaresType::none()) },
+					m_KingSquare{ arrayhelper::make<countPlayers,squareType>(squareType::invalid) },
+					m_Flags{ flagsNone }
+				{
+				}
+				bool isUsed() const noexcept
+				{
+					return m_Flags & flagsUsed;
+				}
+				void clear() noexcept
+				{
+					m_Pawns = arrayhelper::make<countPlayers, squaresType>(squaresType::none());
+					m_KingSquare = arrayhelper::make<countPlayers, squareType>(squareType::invalid);
+					m_Flags = flagsNone;
+				}
+				~pawnentry() noexcept = default;
+				template<size_t PLAYER>
+				void update(const stack<PLAYER>& stack) noexcept
+				{
+					const squaresType whitePawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(whitePlayer) };
+					const squaresType blackPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(blackPlayer) };
+					const squareType whiteKing{ stack.kingSquare(whitePlayer) };
+					const squareType blackKing{ stack.kingSquare(blackPlayer) };
+					if ((m_Pawns[whitePlayer] == whitePawns) & (m_Pawns[blackPlayer] == blackPawns) & (m_KingSquare[whitePlayer] == whiteKing) & (m_KingSquare[blackPlayer] == blackKing))
+						return;
+					m_Pawns[whitePlayer] = whitePawns;
+					m_Pawns[blackPlayer] = blackPawns;
+					m_KingSquare[whitePlayer] = whiteKing;
+					m_KingSquare[blackPlayer] = blackKing;
+					m_Flags = flagsUsed;
+				}
+				template<size_t PLAYER>
+				void prefetch(const stack<PLAYER>& stack) const noexcept
+				{
+					const size_t idx{ computeIndex(stack.position().pawnHash()) };
+					memory::prefetchRead(&(m_Entry[idx]));
+				}
+			};
+		private:
+			size_t m_EntryCount;
+			uint_t<128, false> m_WideEntryCount;
+			std::vector<pawnentry> m_Entry;
+			std::uint64_t computeMaxEntries() const noexcept
+			{
+				return std::min(static_cast<std::uint64_t>(std::numeric_limits<std::size_t>::max()) / static_cast<std::uint64_t>(sizeof(pawnentry)), ((UINT64_C(1) << std::min(static_cast<size_t>(63), countHashBits)) / static_cast<std::uint64_t>(sizeof(pawnentry))));
+			}
+			size_t computeIndex(const hashType& hash) const noexcept
+			{
+				if constexpr ((countHashBits > 32) && (static_cast<std::uint64_t>(std::numeric_limits<std::size_t>::max()) >= UINT64_C(0x100000000)))
+				{
+					if constexpr (uint_t<128, false>::countWords <= 2)
+					{
+						const uint_t<128, false> wideHash{ static_cast<uint_t<128,false>>(hash) };
+						const uint_t<128, false> wideIndex{ wideHash * m_WideEntryCount };
+						const std::uint64_t index{ static_cast<std::uint64_t>(wideIndex.extractBits<64,64>()) };
+						return static_cast<size_t>(index);
+					}
+					else
+					{
+						if constexpr ((sizeof(long double) * CHAR_BIT >= 80) && (LDBL_MANT_DIG == 64) && (sizeof(std::uint64_t) < sizeof(long double)))
+						{
+							const long double floatHash{ static_cast<long double>(static_cast<std::uint64_t>(hash)) };
+							const long double floatIndex{ static_cast<long double>(m_EntryCount) * floatHash };
+							std::uint64_t index;
+							memcpy(&index, &floatIndex, sizeof(std::uint64_t));
+							return static_cast<size_t>(index);
+						}
+						else
+						{
+							const uint_t<128, false> wideHash{ static_cast<uint_t<128,false>>(hash) };
+							const uint_t<128, false> wideIndex{ wideHash * m_WideEntryCount };
+							const std::uint64_t index{ static_cast<std::uint64_t>(wideIndex.extractBits<64,64>()) };
+							return static_cast<size_t>(index);
+						}
+					}
+				}
+				else
+				{
+					const std::uint64_t wideHash{ static_cast<std::uint64_t>(hash) & UINT64_C(0xffffffff) };
+					const std::uint64_t wideIndex{ wideHash * static_cast<std::uint64_t>(m_EntryCount) };
+					const std::uint64_t index{ wideIndex >> 32 };
+					return static_cast<size_t>(index);
+				}
+			}
+		public:
+			void resize(const std::uint64_t sizeInBytes) noexcept
+			{
+				m_EntryCount = std::max(UINT64_C(1), static_cast<size_t>(std::min(computeMaxEntries(), static_cast<std::uint64_t>(sizeInBytes / (sizeof(pawnentry))))));
+				m_WideEntryCount = static_cast<uint_t<128, false>>(static_cast<uint_t<64, false>>(static_cast<std::uint64_t>(m_EntryCount)));
+				m_Entry.resize(m_EntryCount);
+				for (size_t i = 0; i < m_EntryCount; i++)
+					m_Entry[i].clear();
+			}
+			size_t countUsedEntries() const noexcept
+			{
+				size_t count{ 0 };
+				const size_t n{ m_EntryCount };
+				for (size_t i = 0; i < n; i++)
+				{
+					if (m_Entry[i].isUsed())
+					{
+						count++;
+					}
+				}
+				return count;
+			}
+			size_t countEntries() const noexcept
+			{
+				return m_EntryCount;
+			}
+			size_t memoryUsed() const noexcept
+			{
+				return m_EntryCount * sizeof(pawnentry);
+			}
+			template<size_t PLAYER>
+			pawnentry& entry(const stack<PLAYER>& stack) noexcept
+			{
+				const size_t idx{ computeIndex(stack.position().cumulation().pawnHash()) };
+				m_Entry[idx].update(stack);
+				return m_Entry[idx];
+			}
+			pawntable(const std::uint64_t sizeInBytes) noexcept :
+				m_EntryCount{ std::max(UINT64_C(1),static_cast<size_t>(std::min(computeMaxEntries(),static_cast<std::uint64_t>(sizeInBytes / (sizeof(pawnentry)))))) },
+				m_Entry{ std::vector<pawnentry>(m_EntryCount) },
+				m_WideEntryCount{ static_cast<uint_t<128,false>>(static_cast<uint_t<64,false>>(static_cast<std::uint64_t>(m_EntryCount))) }
+			{
+			}
+			template<size_t PLAYER>
+			void prefetch(const stack<PLAYER>& stack) const noexcept
+			{
+				const size_t idx{ computeIndex(stack.position().pawnHash()) };
+				memory::prefetchRead(&(m_Entry[idx]));
+			}
+		};
+	private:
+		static inline pawntable m_PawnTable{ pawntable(0) };
+	public:
+		static pawntable& pawnTable() noexcept
+		{
+			return m_PawnTable;
+		}
 		template<size_t PLAYER>
 		using stackType = stack<PLAYER>;
 	private:
@@ -187,6 +391,8 @@ namespace pygmalion::chess
 		template<size_t PLAYER>
 		static void control(const stackType<PLAYER>& stack, squaresType& whiteControl, squaresType& blackControl) noexcept
 		{
+			constexpr const squaresType all{ squaresType::all() };
+			constexpr const squaresType none{ squaresType::none() };
 			const squaresType unoccupied{ ~stack.position().totalOccupancy() };
 			const squaresType whiteOcc{ stack.position().playerOccupancy(whitePlayer) };
 			const squaresType blackOcc{ stack.position().playerOccupancy(blackPlayer) };
@@ -201,9 +407,7 @@ namespace pygmalion::chess
 			const squaresType whiteDoubleAttacks{ whiteLeftAttacks & whiteRightAttacks };
 			const squaresType blackSingleAttacks{ blackLeftAttacks ^ blackRightAttacks };
 			const squaresType blackDoubleAttacks{ blackLeftAttacks & blackRightAttacks };
-			constexpr const squaresType all{ squaresType::all() };
 			squaresType open{ all };
-			constexpr const squaresType none{ squaresType::none() };
 			whiteControl = none;
 			blackControl = none;
 			const squaresType balancedDoubleAttacks{ ~(whiteDoubleAttacks & blackDoubleAttacks) };

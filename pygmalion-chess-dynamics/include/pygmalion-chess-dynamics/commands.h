@@ -11,3 +11,5 @@
 #include "commands/command_getFen.h"
 #include "commands/command_testMovegen.h"
 #include "commands/command_debugMoveStats.h"
+#include "commands/command_debugPawntable.h"
+#include "commands/command_debugResizePT.h"
