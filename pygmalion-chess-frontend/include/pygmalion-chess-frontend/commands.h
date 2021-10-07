@@ -6,3 +6,4 @@
 #include "commands/command_new.h"
 #include "commands/command_result.h"
 #include "commands/command_setBoard.h"
+#include "commands/command_memory.h"

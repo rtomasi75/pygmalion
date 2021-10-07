@@ -12,7 +12,7 @@ namespace pygmalion::search
 		using stackType = typename generatorType::template stackType<PLAYER>;
 	private:
 		template<size_t PLAYER>
-		void process(const size_t sizeInMegaBytes) noexcept
+		void process(const std::int64_t sizeInMegaBytes) noexcept
 		{
 			if constexpr (PLAYER < countPlayers)
 			{
@@ -20,6 +20,7 @@ namespace pygmalion::search
 				if (player == this->position().movingPlayer())
 				{
 					this->searchEngine().heuristics().transpositionTable().resize(sizeInMegaBytes * 1024 * 1024);
+					this->output() << "Transposition table resized to " << std::setw(4) << parser::memoryToString(this->searchEngine().transpositionTable().memoryUsed(), "B") << std::endl;
 				}
 				else
 					this->template process<PLAYER + 1>(sizeInMegaBytes);
@@ -36,7 +37,7 @@ namespace pygmalion::search
 			if (token == "debug-resizett")
 			{
 				this->output() << std::endl;
-				size_t sizeInMegaBytes = parser::parseInt(remainder);
+				std::int64_t sizeInMegaBytes = parser::parseInt(remainder);
 				this->template process<0>(sizeInMegaBytes);
 				this->output() << std::endl;
 				return true;

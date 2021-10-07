@@ -110,6 +110,7 @@ namespace pygmalion::search
 			this->template addCommand<command_debugSearch<descriptorSearch, gametreeType>>();
 			this->template addCommand<command_debugPvs<descriptorSearch, gametreeType>>();
 			this->template addCommand<command_debugTT<descriptorSearch, gametreeType>>();
+			this->template addCommand<command_debugResizeTT<descriptorSearch, gametreeType>>();
 			this->template addCommand<command_debugNode<descriptorSearch, gametreeType>>();
 		}
 		virtual ~engine() noexcept
