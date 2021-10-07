@@ -156,7 +156,7 @@ namespace pygmalion::intrinsics
 		}
 		size_t cast(const bitsType& bitboard) const noexcept
 		{
-			return static_cast<size_t>(bitboard.extractPattern(m_Premask));
+			return static_cast<size_t>(static_cast<std::uintmax_t>(bitboard.extractPattern(m_Premask)));
 		}
 	public:
 		void find(bitsType& premask, bitsType& factor, size_t& countIndexBits) const noexcept
@@ -167,7 +167,7 @@ namespace pygmalion::intrinsics
 	protected:
 		constexpr static size_t castMagic(const bitsType& bits, const bitsType& premask, const bitsType& factor, const size_t countIndexBits) noexcept
 		{
-			return static_cast<size_t>((((bits & premask) * factor) >> (bitsType::countBits - countIndexBits)));
+			return static_cast<size_t>(static_cast<std::uintmax_t>((((bits & premask) * factor) >> (bitsType::countBits - countIndexBits))));
 		}
 	private:
 		static void findMagic(const bitsType& premask, bitsType& factor, size_t& countIndexBits) noexcept
@@ -197,7 +197,7 @@ namespace pygmalion::intrinsics
 						break;
 					}
 					pUsed[idx] = true;
-					pIndices[idx] = static_cast<size_t>(static_cast<typename std::make_unsigned<size_t>::type>(k));
+					pIndices[idx] = static_cast<size_t>(static_cast<typename std::make_unsigned<std::uintmax_t>::type>(k));
 				}
 				if (bFound)
 					break;

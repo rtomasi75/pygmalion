@@ -44,14 +44,11 @@ namespace pygmalion
 	private:
 		constexpr static size_t requiredSignedBytes(const std::uintmax_t number) noexcept
 		{
-			if (number >= (size_t(1) << 31))
-			{
-				PYGMALION_ASSERT(sizeof(size_t) > 4);
+			if (number >= (UINTMAX_C(1) << 31))
 				return 8;
-			}
-			if (number >= (size_t(1) << 15))
+			if (number >= (UINTMAX_C(1) << 15))
 				return 4;
-			if (number >= (size_t(1) << 7))
+			if (number >= (UINTMAX_C(1) << 7))
 				return 2;
 			return 1;
 		}

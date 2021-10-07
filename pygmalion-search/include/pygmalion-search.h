@@ -2,7 +2,7 @@
 #define PYGMALION_SEARCH
 
 #include <atomic>
-
+#include <cfloat>
 #include <pygmalion-evaluation.h>
 
 #include "pygmalion-search/moveinfo.h"

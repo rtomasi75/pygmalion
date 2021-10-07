@@ -66,7 +66,7 @@ namespace pygmalion
 				return m_Flags;
 			}
 			template<size_t PLAYER>
-			void update(const stackType<PLAYER>& stack, const std::uint8_t flags, const scoreType value, const movebitsType move)
+			void update(const stackType<PLAYER>& stack, const std::uint8_t flags, const scoreType value, const movebitsType move) noexcept
 			{
 				if (flags & transpositiontable::flags_lower)
 				{
@@ -90,7 +90,7 @@ namespace pygmalion
 				}
 			}
 			template<size_t PLAYER>
-			void reset(const stackType<PLAYER>& stack, const scoreType value, const depthType draft, const std::uint8_t flags, const movebitsType move)
+			void reset(const stackType<PLAYER>& stack, const scoreType value, const depthType draft, const std::uint8_t flags, const movebitsType move) noexcept
 			{
 				m_Hash = stack.position().hash();
 				m_Draft = draft;
@@ -116,6 +116,10 @@ namespace pygmalion
 					m_Flags |= transpositiontable::flags_move;
 				}
 			}
+			void clear() noexcept
+			{
+				m_Flags = flags_unused;
+			}
 		};
 		constexpr static inline std::uint8_t flags_unused{ 0 };
 		constexpr static inline std::uint8_t flags_upper{ 1 };
@@ -135,9 +139,9 @@ namespace pygmalion
 		mutable std::uint64_t m_BetaHits;
 		mutable std::uint64_t m_ExactHits;
 		std::vector<transposition> m_Entry;
-		size_t computeMaxEntries() const noexcept
+		std::uint64_t computeMaxEntries() const noexcept
 		{
-			return static_cast<size_t>(std::min(static_cast<std::uint64_t>(std::numeric_limits<std::size_t>::max() / (sizeof(transposition) * countBuckets)), ((UINT64_C(1) << std::min(static_cast<size_t>(63), countHashBits)) / (sizeof(transposition) * countBuckets))));
+			return std::min(static_cast<std::uint64_t>(std::numeric_limits<std::size_t>::max()) / static_cast<std::uint64_t>(sizeof(transposition) * countBuckets), ((UINT64_C(1) << std::min(static_cast<size_t>(63), countHashBits)) / static_cast<std::uint64_t>(sizeof(transposition) * countBuckets)));
 		}
 		size_t computeIndex(const hashType& hash) const noexcept
 		{
@@ -291,9 +295,9 @@ namespace pygmalion
 			}
 			return count;
 		}
-		transpositiontable(const size_t sizeInBytes = 128 * 1024 * 1024) noexcept :
-			m_EntryCount{ std::min(computeMaxEntries(),sizeInBytes / (sizeof(transposition) * countBuckets)) },
-			m_Entry{ m_EntryCount * countBuckets },
+		transpositiontable(const std::uint64_t sizeInBytes = 128 * 1024 * 1024) noexcept :
+			m_EntryCount{ static_cast<size_t>(std::min(computeMaxEntries(),static_cast<std::uint64_t>(sizeInBytes / (sizeof(transposition) * countBuckets)))) },
+			m_Entry{ std::vector<transposition>(m_EntryCount * countBuckets) },
 			m_WideEntryCount{ static_cast<uint_t<128,false>>(static_cast<uint_t<64,false>>(static_cast<std::uint64_t>(m_EntryCount))) },
 			m_Probes{ 0 },
 			m_Hits{ 0 },
@@ -301,6 +305,14 @@ namespace pygmalion
 			m_BetaHits{ 0 },
 			m_ExactHits{ 0 }
 		{
+		}
+		void resize(const std::uint64_t sizeInBytes) noexcept
+		{
+			m_EntryCount = static_cast<size_t>(std::min(computeMaxEntries(), static_cast<std::uint64_t>(sizeInBytes / (sizeof(transposition) * countBuckets))));
+			m_WideEntryCount = static_cast<uint_t<128, false>>(static_cast<uint_t<64, false>>(static_cast<std::uint64_t>(m_EntryCount)));
+			m_Entry.resize(m_EntryCount * countBuckets);
+			for (size_t i = 0; i < m_EntryCount; i++)
+				m_Entry[i].clear();
 		}
 		size_t countEntries() const noexcept
 		{

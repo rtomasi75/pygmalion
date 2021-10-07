@@ -43,7 +43,7 @@ namespace pygmalion::intrinsics
 #endif
 #if defined(PYGMALION_INTRINSICS_MSC) && defined(PYGMALION_CPU_X86)
 				if constexpr (compiler::supports(compiler::flags::MSC) && cpu::supports(cpu::flags::X86))
-					return __popcnt(*(static_cast<const unsigned int*>(&bits) + 1)) + __popcnt(*static_cast<const unsigned int*>(&bits));
+					return __popcnt(*(reinterpret_cast<const unsigned int*>(&bits) + 1)) + __popcnt(*reinterpret_cast<const unsigned int*>(&bits));
 #endif
 				return popcnt_reference<COUNT_BITS, refType>(bits);
 			}
@@ -636,7 +636,7 @@ namespace pygmalion::intrinsics
 #endif
 #if defined(PYGMALION_INTRINSICS_MSC) && defined(PYGMALION_CPU_X86)
 				if constexpr (compiler::supports(compiler::flags::MSC) && cpu::supports(cpu::flags::X86))
-					return __popcnt(*(static_cast<const unsigned int*>(&bits) + 1)) + __popcnt(*static_cast<const unsigned int*>(&bits));
+					return __popcnt(*(reinterpret_cast<const unsigned int*>(&bits) + 1)) + __popcnt(*reinterpret_cast<const unsigned int*>(&bits));
 #endif
 				return popcount_ref<SLICE, 0>(bits);
 			};

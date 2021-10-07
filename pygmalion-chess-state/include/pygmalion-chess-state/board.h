@@ -129,7 +129,7 @@ namespace pygmalion::chess
 		void onClearedFlag_Implementation(const flagType flag) noexcept;
 		void onInitialize_Implementation() noexcept;
 		static std::string cumulationToString_Implementation(const cumulationType&) noexcept;
-		constexpr const hashType& pawnHash() const noexcept
+		constexpr hashType pawnHash() const noexcept
 		{
 			return cumulation().pawnHash();
 		}
