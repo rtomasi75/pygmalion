@@ -1,11 +1,6 @@
 #include <pygmalion-chess-state.h>
 namespace pygmalion::chess
 {
-	typename board::squareType board::kingSquare(const playerType player) const noexcept
-	{
-		return *(pieceOccupancy(king) & playerOccupancy(player)).begin();
-	}
-
 	std::string board::flagToString_Implementation(const flagType flag) noexcept
 	{
 		switch (flag)
@@ -326,87 +321,6 @@ namespace pygmalion::chess
 		}
 		else
 			return false;
-	}
-
-	void board::onClear_Implementation() noexcept
-	{
-		cumulation().clear();
-	}
-
-	void board::onAddedPiece_Implementation(const pieceType piece, const squareType square, const playerType player) noexcept
-	{
-		cumulation().score() += m_Material.material(player, piece);
-		switch (piece)
-		{
-		case pawn:
-			cumulation().pawnHash() ^= pieceHash(pawn, square, player);
-			break;
-		case king:
-			cumulation().pawnHash() ^= pieceHash(king, square, player);
-			break;
-		}
-	}
-
-	void board::onSetMovingPlayer_Implementation(const playerType player) noexcept
-	{
-	}
-
-	void board::onRemovedPiece_Implementation(const pieceType piece, const squareType square, const playerType player) noexcept
-	{
-		cumulation().score() -= m_Material.material(player, piece);
-		switch (piece)
-		{
-		case pawn:
-			cumulation().pawnHash() ^= pieceHash(pawn, square, player);
-			break;
-		case king:
-			cumulation().pawnHash() ^= pieceHash(king, square, player);
-			break;
-		}
-	}
-
-	void board::onSetFlag_Implementation(const flagType flag) noexcept
-	{
-	}
-
-	void board::onClearedFlag_Implementation(const flagType flag) noexcept
-	{
-	}
-
-	void board::onInitialize_Implementation() noexcept
-	{
-		setMovingPlayer(whitePlayer);
-		// pawns
-		for (const auto f : fileType::range)
-		{
-			addPiece(pawn, rank2 & f, whitePlayer);
-			addPiece(pawn, rank7 & f, blackPlayer);
-		}
-		clearEnPassantFiles();
-		addPiece(king, squareE1, whitePlayer);
-		addPiece(king, squareE8, blackPlayer);
-		// rooks
-		addPiece(rook, squareA1, whitePlayer);
-		addPiece(rook, squareH1, whitePlayer);
-		addPiece(rook, squareA8, blackPlayer);
-		addPiece(rook, squareH8, blackPlayer);
-		setCastleRightQueensideBlack();
-		setCastleRightQueensideWhite();
-		setCastleRightKingsideBlack();
-		setCastleRightKingsideWhite();
-		// knights
-		addPiece(knight, squareB1, whitePlayer);
-		addPiece(knight, squareG1, whitePlayer);
-		addPiece(knight, squareB8, blackPlayer);
-		addPiece(knight, squareG8, blackPlayer);
-		// bishops
-		addPiece(bishop, squareC1, whitePlayer);
-		addPiece(bishop, squareF1, whitePlayer);
-		addPiece(bishop, squareC8, blackPlayer);
-		addPiece(bishop, squareF8, blackPlayer);
-		// queens
-		addPiece(queen, squareD1, whitePlayer);
-		addPiece(queen, squareD8, blackPlayer);
 	}
 
 	bool board::setFen(const std::string& fen, std::string& error) noexcept
@@ -911,6 +825,41 @@ namespace pygmalion::chess
 		return fen;
 	}
 
+	void board::onInitialize_Implementation() noexcept
+	{
+		setMovingPlayer(whitePlayer);
+		// pawns
+		for (const auto f : fileType::range)
+		{
+			addPiece(pawn, rank2 & f, whitePlayer);
+			addPiece(pawn, rank7 & f, blackPlayer);
+		}
+		clearEnPassantFiles();
+		addPiece(king, squareE1, whitePlayer);
+		addPiece(king, squareE8, blackPlayer);
+		// rooks
+		addPiece(rook, squareA1, whitePlayer);
+		addPiece(rook, squareH1, whitePlayer);
+		addPiece(rook, squareA8, blackPlayer);
+		addPiece(rook, squareH8, blackPlayer);
+		setCastleRightQueensideBlack();
+		setCastleRightQueensideWhite();
+		setCastleRightKingsideBlack();
+		setCastleRightKingsideWhite();
+		// knights
+		addPiece(knight, squareB1, whitePlayer);
+		addPiece(knight, squareG1, whitePlayer);
+		addPiece(knight, squareB8, blackPlayer);
+		addPiece(knight, squareG8, blackPlayer);
+		// bishops
+		addPiece(bishop, squareC1, whitePlayer);
+		addPiece(bishop, squareF1, whitePlayer);
+		addPiece(bishop, squareC8, blackPlayer);
+		addPiece(bishop, squareF8, blackPlayer);
+		// queens
+		addPiece(queen, squareD1, whitePlayer);
+		addPiece(queen, squareD8, blackPlayer);
+	}
 
 	std::ostream& operator<<(std::ostream& str, const board& position) noexcept
 	{

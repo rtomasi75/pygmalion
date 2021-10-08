@@ -9,28 +9,28 @@ namespace pygmalion::state
 		using parentType = enumeration<DESCRIPTION_STATE::countFlags, DESCRIPTION_STATE::countHashBits, flag<DESCRIPTION_STATE>>;
 		using descriptorState = DESCRIPTION_STATE;
 #include "include_state.h"	
-		constexpr flag(const flag&) noexcept = default;
-		constexpr flag(flag&&) noexcept = default;
-		constexpr flag() noexcept :
+		PYGMALION_INLINE constexpr flag(const flag&) noexcept = default;
+		PYGMALION_INLINE constexpr flag(flag&&) noexcept = default;
+		PYGMALION_INLINE constexpr flag() noexcept :
 			parentType()
 		{
 
 		}
-		constexpr flag(const typename parentType::baseType value) noexcept :
+		PYGMALION_INLINE constexpr flag(const typename parentType::baseType value) noexcept :
 			parentType(value)
 		{
 		}
-		constexpr flag(const typename parentType::valueType value) noexcept :
+		PYGMALION_INLINE constexpr flag(const typename parentType::valueType value) noexcept :
 			parentType(value)
 		{
 		}
-		constexpr flag& operator=(flag&&) noexcept = default;
-		constexpr flag& operator=(const flag&) noexcept = default;
-		constexpr flagsType operator|(const flag other) const noexcept
+		PYGMALION_INLINE constexpr flag& operator=(flag&&) noexcept = default;
+		PYGMALION_INLINE constexpr flag& operator=(const flag&) noexcept = default;
+		PYGMALION_INLINE constexpr flagsType operator|(const flag other) const noexcept
 		{
 			return static_cast<flagsType>(*this) | flagsType(other);
 		}
-		constexpr operator flagsType() const noexcept
+		PYGMALION_INLINE constexpr operator flagsType() const noexcept
 		{
 			flagsType f{ flagsType(0) };
 			f.set(*this);

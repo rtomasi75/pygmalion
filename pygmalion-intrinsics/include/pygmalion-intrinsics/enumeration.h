@@ -108,68 +108,68 @@ namespace pygmalion
 	private:
 		valueType m_Value;
 	protected:
-		constexpr enumeration(const enumeration&) noexcept = default;
-		constexpr enumeration(enumeration&&) noexcept = default;
-		constexpr enumeration() noexcept :
+		PYGMALION_INLINE constexpr enumeration(const enumeration&) noexcept = default;
+		PYGMALION_INLINE constexpr enumeration(enumeration&&) noexcept = default;
+		PYGMALION_INLINE constexpr enumeration() noexcept :
 			m_Value(valueType::invalid)
 		{
 
 		}
-		constexpr enumeration(const baseType& value) noexcept :
+		PYGMALION_INLINE constexpr enumeration(const baseType& value) noexcept :
 			m_Value(static_cast<valueType>(value))
 		{
 		}
-		constexpr enumeration(const valueType value) noexcept :
+		PYGMALION_INLINE constexpr enumeration(const valueType value) noexcept :
 			m_Value(value)
 		{
 		}
-		constexpr enumeration& operator=(enumeration&&) noexcept = default;
-		constexpr enumeration& operator=(const enumeration&) noexcept = default;
+		PYGMALION_INLINE constexpr enumeration& operator=(enumeration&&) noexcept = default;
+		PYGMALION_INLINE constexpr enumeration& operator=(const enumeration&) noexcept = default;
 	public:
-		constexpr static const hashValue& hash(const instanceType& instance) noexcept
+		PYGMALION_INLINE constexpr static const hashValue& hash(const instanceType& instance) noexcept
 		{
 			return m_HashTable[instance];
 		}
-		~enumeration() noexcept = default;
-		constexpr operator baseType() const noexcept
+		PYGMALION_INLINE ~enumeration() noexcept = default;
+		PYGMALION_INLINE constexpr operator baseType() const noexcept
 		{
 			return static_cast<baseType>(m_Value);
 		}
-		constexpr instanceType next() const noexcept
+		PYGMALION_INLINE constexpr instanceType next() const noexcept
 		{
 			return instanceType(static_cast<valueType>(((static_cast<baseType>(m_Value) + 1) % static_cast<baseType>(countValues))));
 		}
-		constexpr instanceType previous() const noexcept
+		PYGMALION_INLINE constexpr instanceType previous() const noexcept
 		{
 			return instanceType(static_cast<valueType>(((static_cast<baseType>(m_Value) + countValues - 1) % static_cast<baseType>(countValues))));
 		}
-		constexpr bool isValid() const noexcept
+		PYGMALION_INLINE constexpr bool isValid() const noexcept
 		{
 			return (static_cast<baseType>(m_Value) >= 0) && (static_cast<baseType>(m_Value) < COUNT);
 		}
-		constexpr instanceType operator++(int) noexcept
+		PYGMALION_INLINE constexpr instanceType operator++(int) noexcept
 		{
 			const instanceType temp{ m_Value };
 			m_Value = static_cast<valueType>((static_cast<baseType>(m_Value) + 1) % countValues);
 			return temp;
 		}
-		constexpr instanceType& operator++() noexcept
+		PYGMALION_INLINE constexpr instanceType& operator++() noexcept
 		{
 			m_Value = static_cast<valueType>((static_cast<baseType>(m_Value) + 1) % countValues);
 			return *static_cast<instanceType*>(this);
 		}
-		constexpr instanceType operator--(int) noexcept
+		PYGMALION_INLINE constexpr instanceType operator--(int) noexcept
 		{
 			const instanceType temp{ m_Value };
 			m_Value = static_cast<valueType>((static_cast<baseType>(m_Value) + countValues - 1) % countValues);
 			return temp;
 		}
-		constexpr instanceType& operator--() noexcept
+		PYGMALION_INLINE constexpr instanceType& operator--() noexcept
 		{
 			m_Value = static_cast<valueType>((static_cast<baseType>(m_Value) + countValues - 1) % countValues);
 			return *static_cast<instanceType*>(this);
 		}
-		constexpr instanceType& operator|=(const instanceType& other) noexcept
+		PYGMALION_INLINE constexpr instanceType& operator|=(const instanceType& other) noexcept
 		{
 			m_Value = static_cast<valueType>(static_cast<baseType>(m_Value) | other);
 			return *static_cast<instanceType*>(this);
@@ -184,33 +184,32 @@ namespace pygmalion
 			typedef value_type* pointer;
 			typedef value_type& reference;
 			typedef std::input_iterator_tag iterator_category;
-			constexpr iterator(const baseType& start) noexcept :
+			PYGMALION_INLINE constexpr iterator(const baseType& start) noexcept :
 				m_Current{ start }
 			{
 
 			}
-			~iterator() noexcept = default;
-			constexpr auto operator++(int) noexcept
+			PYGMALION_INLINE ~iterator() noexcept = default;
+			PYGMALION_INLINE constexpr auto operator++(int) noexcept
 			{
 				iterator ret(m_Current);
 				++(*this);
 				return std::move(ret);
 			}
-			constexpr iterator& operator++() noexcept
+			PYGMALION_INLINE constexpr iterator& operator++() noexcept
 			{
-				PYGMALION_ASSERT(m_Current < COUNT);
 				++m_Current;
 				return *this;
 			}
-			constexpr value_type operator*() const noexcept
+			PYGMALION_INLINE constexpr value_type operator*() const noexcept
 			{
 				return m_Current;
 			}
-			constexpr bool operator==(const iterator& other) const noexcept
+			PYGMALION_INLINE constexpr bool operator==(const iterator& other) const noexcept
 			{
 				return m_Current == other.m_Current;
 			}
-			constexpr bool operator!=(const iterator& other) const noexcept
+			PYGMALION_INLINE constexpr bool operator!=(const iterator& other) const noexcept
 			{
 				return m_Current != other.m_Current;
 			}
@@ -218,13 +217,13 @@ namespace pygmalion
 		struct enumerationRange
 		{
 		public:
-			constexpr enumerationRange() noexcept = default;
-			~enumerationRange() noexcept = default;
-			constexpr auto begin() const noexcept
+			PYGMALION_INLINE constexpr enumerationRange() noexcept = default;
+			PYGMALION_INLINE ~enumerationRange() noexcept = default;
+			PYGMALION_INLINE constexpr auto begin() const noexcept
 			{
 				return iterator(0);
 			}
-			constexpr auto end() const noexcept
+			PYGMALION_INLINE constexpr auto end() const noexcept
 			{
 				constexpr iterator endValue{ iterator(COUNT) };
 				return endValue;

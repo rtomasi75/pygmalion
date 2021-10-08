@@ -75,11 +75,11 @@ namespace pygmalion
 
 		}
 	public:
-		constexpr static score quota(const std::uintmax_t dividend, const std::uintmax_t divisor) noexcept
+		PYGMALION_INLINE constexpr static score quota(const std::uintmax_t dividend, const std::uintmax_t divisor) noexcept
 		{
 			return score(static_cast<valueType>((dividend << countShiftBits) / divisor), 0);
 		}
-		constexpr valueType get_Value() const noexcept
+		PYGMALION_INLINE constexpr valueType get_Value() const noexcept
 		{
 			return m_Value;
 		}
@@ -87,35 +87,33 @@ namespace pygmalion
 		{
 			return toString();
 		}
-		constexpr bool isPositive() const noexcept
+		PYGMALION_INLINE constexpr bool isPositive() const noexcept
 		{
 			return m_Value > 0;
 		}
-		constexpr bool isNegative() const noexcept
+		PYGMALION_INLINE constexpr bool isNegative() const noexcept
 		{
 			return m_Value < 0;
 		}
-		static constexpr score distantWin(const valueType& distance) noexcept
+		PYGMALION_INLINE static constexpr score distantWin(const valueType& distance) noexcept
 		{
 			return score(WINVALUE - distance, 0);
 		}
-		static constexpr score distantLoss(const valueType& distance) noexcept
+		PYGMALION_INLINE static constexpr score distantLoss(const valueType& distance) noexcept
 		{
 			return score(LOSSVALUE + distance, 0);
 		}
-		constexpr valueType winDistance() const noexcept
+		PYGMALION_INLINE constexpr valueType winDistance() const noexcept
 		{
-			PYGMALION_ASSERT(isWinning());
 			return WINVALUE - m_Value;
 		}
-		constexpr valueType lossDistance() const noexcept
+		PYGMALION_INLINE constexpr valueType lossDistance() const noexcept
 		{
-			PYGMALION_ASSERT(isLosing());
 			return m_Value - LOSSVALUE;
 		}
-		~score() = default;
+		PYGMALION_INLINE ~score() = default;
 		template<size_t otherMantissa, size_t otherShift, size_t otherMaxDistance>
-		explicit constexpr score(const score<otherMantissa, otherShift, otherMaxDistance> other) noexcept :
+		PYGMALION_INLINE explicit constexpr score(const score<otherMantissa, otherShift, otherMaxDistance> other) noexcept :
 			m_Value{ 0 }
 		{
 			if (other.isWinning())
@@ -148,209 +146,199 @@ namespace pygmalion
 				}
 			}
 		}
-		explicit constexpr score(const double value) noexcept :
+		PYGMALION_INLINE explicit constexpr score(const double value) noexcept :
 			m_Value(static_cast<valueType>(value* static_cast<double>(granularity)))
 		{
 
 		}
-		explicit constexpr score(const valueType& value) noexcept :
+		PYGMALION_INLINE explicit constexpr score(const valueType& value) noexcept :
 			m_Value(static_cast<valueType>(value* granularity))
 		{
 
 		}
-		explicit constexpr operator valueType() const noexcept
+		PYGMALION_INLINE explicit constexpr operator valueType() const noexcept
 		{
-			PYGMALION_ASSERT(isOpen());
 			return static_cast<valueType>(m_Value / granularity);
 		}
-		explicit constexpr operator double() const noexcept
+		PYGMALION_INLINE explicit constexpr operator double() const noexcept
 		{
-			PYGMALION_ASSERT(isOpen());
 			return static_cast<double>(m_Value) / static_cast<double>(granularity);
 		}
-		explicit constexpr score(const float value) noexcept :
+		PYGMALION_INLINE explicit constexpr score(const float value) noexcept :
 			score(static_cast<double>(value))
 		{
 
 		}
-		explicit constexpr operator float() const noexcept
+		PYGMALION_INLINE explicit constexpr operator float() const noexcept
 		{
-			PYGMALION_ASSERT(isOpen());
 			return static_cast<float>(m_Value) / static_cast<float>(granularity);
 		}
-		constexpr score(score&&) noexcept = default;
-		constexpr score(const score&) noexcept = default;
-		constexpr score& operator=(score&&) noexcept = default;
-		constexpr score& operator=(const score&) noexcept = default;
-		static constexpr score max(const score sc1, const score sc2) noexcept
+		PYGMALION_INLINE constexpr score(score&&) noexcept = default;
+		PYGMALION_INLINE constexpr score(const score&) noexcept = default;
+		PYGMALION_INLINE constexpr score& operator=(score&&) noexcept = default;
+		PYGMALION_INLINE constexpr score& operator=(const score&) noexcept = default;
+		constexpr static score max(const score sc1, const score sc2) noexcept
 		{
 			//return score(sc1.m_Value > sc2.m_Value ? sc1.m_Value : sc2.m_Value, 0);
 			//return score(sc1.m_Value ^ ((sc1.m_Value ^ sc2.m_Value) & -(sc1.m_Value < sc2.m_Value)), 0);
 			return score(std::max(sc1.m_Value, sc2.m_Value), 0);
 		}
-		static constexpr score min(const score sc1, const score sc2) noexcept
+		constexpr static score min(const score sc1, const score sc2) noexcept
 		{
 			//return score(sc1.m_Value < sc2.m_Value ? sc1.m_Value : sc2.m_Value, 0);
 			//return score(sc1.m_Value ^ ((sc2.m_Value ^ sc1.m_Value) & -(sc2.m_Value < sc1.m_Value)), 0);
 			return score(std::min(sc1.m_Value, sc2.m_Value), 0);
 		}
-		static constexpr score atom() noexcept
+		constexpr static score atom() noexcept
 		{
 			return score(1, 0);
 		};
-		static constexpr score one() noexcept
+		constexpr static score one() noexcept
 		{
 			return score(granularity, 0);
 		};
-		static constexpr score zero() noexcept
+		constexpr static score zero() noexcept
 		{
 			return score(0, 0);
 		}
-		static constexpr score win() noexcept
+		constexpr static score win() noexcept
 		{
 			return distantWin(0);
 		}
-		static constexpr score winning() noexcept
+		constexpr static score winning() noexcept
 		{
 			return score(WINNINGVALUE, 0);
 		}
-		static constexpr score losing() noexcept
+		constexpr static score losing() noexcept
 		{
 			return score(LOSINGVALUE, 0);
 		}
-		static constexpr score loss() noexcept
+		constexpr static score loss() noexcept
 		{
 			return distantLoss(0);
 		}
-		static constexpr score maximum() noexcept
+		constexpr static score maximum() noexcept
 		{
 			return score(MAXVALUE, 0);
 		}
-		static constexpr score minimum() noexcept
+		constexpr static score minimum() noexcept
 		{
 			return score(MINVALUE, 0);
 		}
-		constexpr score() noexcept :
+		PYGMALION_INLINE constexpr score() noexcept :
 			score(0, 0)
 		{
 
 		}
-		constexpr score zeroWindow() const noexcept
+		PYGMALION_INLINE constexpr score zeroWindow() const noexcept
 		{
 			return score(m_Value - 1, 0);
 		}
-		constexpr bool isLosing() const noexcept
+		PYGMALION_INLINE constexpr bool isLosing() const noexcept
 		{
 			return m_Value <= LOSINGVALUE;
 		}
-		constexpr bool isWinning() const noexcept
+		PYGMALION_INLINE constexpr bool isWinning() const noexcept
 		{
 			return m_Value >= WINNINGVALUE;
 		}
-		constexpr bool isForced() const noexcept
+		PYGMALION_INLINE constexpr bool isForced() const noexcept
 		{
 			return std::abs(m_Value) >= WINNINGVALUE;
 		}
-		constexpr bool isOpen() const noexcept
+		PYGMALION_INLINE constexpr bool isOpen() const noexcept
 		{
 			return std::abs(m_Value) < WINNINGVALUE;
 		}
-		constexpr bool isWon() const noexcept
+		PYGMALION_INLINE constexpr bool isWon() const noexcept
 		{
 			return std::max(m_Value) >= WINVALUE;
 		}
-		constexpr bool isLost() const noexcept
+		PYGMALION_INLINE constexpr bool isLost() const noexcept
 		{
 			return std::max(m_Value) <= LOSSVALUE;
 		}
-		constexpr bool isPositiveInfinity() const noexcept
+		PYGMALION_INLINE constexpr bool isPositiveInfinity() const noexcept
 		{
 			return std::max(m_Value) >= MAXVALUE;
 		}
-		constexpr bool isNegativeInfinity() const noexcept
+		PYGMALION_INLINE constexpr bool isNegativeInfinity() const noexcept
 		{
 			return std::max(m_Value) <= MINVALUE;
 		}
-		constexpr bool operator==(const score sc) const noexcept
+		PYGMALION_INLINE constexpr bool operator==(const score sc) const noexcept
 		{
 			return m_Value == sc.m_Value;
 		}
-		constexpr bool operator!=(const score sc) const noexcept
+		PYGMALION_INLINE constexpr bool operator!=(const score sc) const noexcept
 		{
 			return m_Value != sc.m_Value;
 		}
-		constexpr bool operator>(const score sc) const noexcept
+		PYGMALION_INLINE constexpr bool operator>(const score sc) const noexcept
 		{
 			return m_Value > sc.m_Value;
 		}
-		constexpr bool operator<(const score sc) const noexcept
+		PYGMALION_INLINE constexpr bool operator<(const score sc) const noexcept
 		{
 			return m_Value < sc.m_Value;
 		}
-		constexpr bool operator>=(const score sc) const noexcept
+		PYGMALION_INLINE constexpr bool operator>=(const score sc) const noexcept
 		{
 			return m_Value >= sc.m_Value;
 		}
-		constexpr bool operator<=(const score sc) const noexcept
+		PYGMALION_INLINE constexpr bool operator<=(const score sc) const noexcept
 		{
 			return m_Value <= sc.m_Value;
 		}
-		constexpr auto operator+(const score sc) const noexcept
+		PYGMALION_INLINE constexpr auto operator+(const score sc) const noexcept
 		{
 			return score(m_Value + sc.m_Value, 0);
 		}
-		constexpr auto operator-(const score sc) const noexcept
+		PYGMALION_INLINE constexpr auto operator-(const score sc) const noexcept
 		{
 			return score(m_Value - sc.m_Value, 0);
 		}
-		constexpr auto operator-() const noexcept
+		PYGMALION_INLINE constexpr auto operator-() const noexcept
 		{
 			return score(-m_Value, 0);
 		}
-		constexpr auto operator*(const valueType& i) const noexcept
+		PYGMALION_INLINE constexpr auto operator*(const valueType& i) const noexcept
 		{
 			return score(static_cast<valueType>(m_Value * i), 0);
 		}
-		constexpr auto operator/(const valueType& i) const noexcept
+		PYGMALION_INLINE constexpr auto operator/(const valueType& i) const noexcept
 		{
 			return score(static_cast<valueType>(m_Value / i), 0);
 		}
-		constexpr auto operator*(const score sc) const noexcept
+		PYGMALION_INLINE constexpr auto operator*(const score sc) const noexcept
 		{
-			PYGMALION_ASSERT(isOpen());
 			return score(static_cast<valueType>((static_cast<longType>(m_Value) * static_cast<longType>(sc.m_Value)) / granularity), 0);
 		}
-		constexpr auto operator+=(const score sc) noexcept
+		PYGMALION_INLINE constexpr auto operator+=(const score sc) noexcept
 		{
 			m_Value += sc.m_Value;
 		}
-		constexpr auto operator-=(const score sc) noexcept
+		PYGMALION_INLINE constexpr auto operator-=(const score sc) noexcept
 		{
-			PYGMALION_ASSERT(isOpen());
-			PYGMALION_ASSERT(sc.isOpen());
 			m_Value -= sc.m_Value;
 		}
-		constexpr auto operator*=(const score sc) noexcept
+		PYGMALION_INLINE constexpr auto operator*=(const score sc) noexcept
 		{
-			PYGMALION_ASSERT(isOpen());
-			PYGMALION_ASSERT(sc.isOpen());
 			m_Value = static_cast<valueType>((static_cast<longType>(m_Value) * static_cast<longType>(sc.m_Value)) / granularity);
 		}
-		constexpr auto operator*=(const valueType& i) noexcept
+		PYGMALION_INLINE constexpr auto operator*=(const valueType& i) noexcept
 		{
-			PYGMALION_ASSERT(isOpen());
 			m_Value *= i;
 		}
-		constexpr auto operator/=(const valueType& i) noexcept
+		PYGMALION_INLINE constexpr auto operator/=(const valueType& i) noexcept
 		{
-			PYGMALION_ASSERT(isOpen());
 			m_Value /= i;
 		}
-		constexpr auto plyUp() const noexcept
+		PYGMALION_INLINE constexpr auto plyUp() const noexcept
 		{
 			return score(m_Value + ((m_Value < LOSINGVALUE) & (m_Value > MINVALUE)) - ((m_Value > WINNINGVALUE) & (m_Value < MAXVALUE)), 0);
 		}
-		constexpr auto plyDown() const noexcept
+		PYGMALION_INLINE constexpr auto plyDown() const noexcept
 		{
 			return score(m_Value - ((m_Value < LOSINGVALUE) & (m_Value > (MINVALUE + 1))) + ((m_Value > WINNINGVALUE) & (m_Value < (MAXVALUE - 1))), 0);
 		}

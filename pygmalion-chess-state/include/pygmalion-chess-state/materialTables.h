@@ -39,7 +39,7 @@ namespace pygmalion::chess::state
 		{
 		}
 		~materialTables() noexcept = default;
-		constexpr materialScore material(const playerType p, const pieceType pc) const noexcept
+		PYGMALION_INLINE constexpr materialScore material(const playerType p, const pieceType pc) const noexcept
 		{
 			return p == descriptorState::whitePlayer ? m_LazyMaterial[pc] : -m_LazyMaterial[pc];
 		}

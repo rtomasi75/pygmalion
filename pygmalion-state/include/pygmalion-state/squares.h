@@ -33,6 +33,32 @@ namespace pygmalion::state
 		constexpr static const bitsType firstRankBits{ fromRank(0) };
 		constexpr static const bitsType lastRankBits{ fromRank(countRanks - 1) };
 	public:
+		PYGMALION_INLINE squareType first() const noexcept
+		{
+			size_t bit;
+#if defined(_DEBUG)
+			const bool bResult{ m_Bits.bitscanForward(bit) };
+			PYGMALION_ASSERT(bResult);
+#else
+			m_Bits.bitscanForward(bit);
+#endif
+			return static_cast<squareType>(bit);
+		}
+		PYGMALION_INLINE squareType last() const noexcept
+		{
+			size_t bit;
+#if defined(_DEBUG)
+			const bool bResult{ m_Bits.bitscanReverse(bit) };
+			PYGMALION_ASSERT(bResult);
+#else
+			m_Bits.bitscanReverse(bit);
+#endif
+			return static_cast<squareType>(bit);
+		}
+		PYGMALION_INLINE const bitsType& bits() const noexcept
+		{
+			return m_Bits;
+		}
 		constexpr static squares none()
 		{
 			return squares(bitsType::zero());
@@ -41,235 +67,235 @@ namespace pygmalion::state
 		{
 			return ~none();
 		}
-		constexpr squares right() const noexcept
+		PYGMALION_INLINE constexpr squares right() const noexcept
 		{
 			return static_cast<squares>((this->m_Bits & (~lastFileBits)) << 1);
 		}
-		constexpr squares left() const noexcept
+		PYGMALION_INLINE constexpr squares left() const noexcept
 		{
 			return static_cast<squares>((this->m_Bits & (~firstFileBits)) >> 1);
 		}
-		constexpr squares down() const noexcept
+		PYGMALION_INLINE constexpr squares down() const noexcept
 		{
 			return static_cast<squares>(this->m_Bits >> countFiles);
 		}
-		constexpr squares up() const noexcept
+		PYGMALION_INLINE constexpr squares up() const noexcept
 		{
 			return static_cast<squares>(this->m_Bits << countFiles);
 		}
-		constexpr squares downRight() const noexcept
+		PYGMALION_INLINE constexpr squares downRight() const noexcept
 		{
 			return down().right();
 		}
-		constexpr squares upRight() const noexcept
+		PYGMALION_INLINE constexpr squares upRight() const noexcept
 		{
 			return up().right();
 		}
-		constexpr squares downLeft() const noexcept
+		PYGMALION_INLINE constexpr squares downLeft() const noexcept
 		{
 			return left().down();
 		}
-		constexpr squares upLeft() const noexcept
+		PYGMALION_INLINE constexpr squares upLeft() const noexcept
 		{
 			return left().up();
 		}
-		constexpr squares upUpLeft() const noexcept
+		PYGMALION_INLINE constexpr squares upUpLeft() const noexcept
 		{
 			return up().upLeft();
 		}
-		constexpr squares upUpRight() const noexcept
+		PYGMALION_INLINE constexpr squares upUpRight() const noexcept
 		{
 			return up().upRight();
 		}
-		constexpr squares downDownLeft() const noexcept
+		PYGMALION_INLINE constexpr squares downDownLeft() const noexcept
 		{
 			return down().downLeft();
 		}
-		constexpr squares downDownRight() const noexcept
+		PYGMALION_INLINE constexpr squares downDownRight() const noexcept
 		{
 			return down().downRight();
 		}
-		constexpr squares upLeftLeft() const noexcept
+		PYGMALION_INLINE constexpr squares upLeftLeft() const noexcept
 		{
 			return upLeft().left();
 		}
-		constexpr squares downLeftLeft() const noexcept
+		PYGMALION_INLINE constexpr squares downLeftLeft() const noexcept
 		{
 			return downLeft().left();
 		}
-		constexpr squares upRightRight() const noexcept
+		PYGMALION_INLINE constexpr squares upRightRight() const noexcept
 		{
 			return upRight().right();
 		}
-		constexpr squares downRightRight() const noexcept
+		PYGMALION_INLINE constexpr squares downRightRight() const noexcept
 		{
 			return downRight().right();
 		}
-		constexpr explicit squares(const bitsType& bits) noexcept :
+		PYGMALION_INLINE constexpr explicit squares(const bitsType& bits) noexcept :
 			m_Bits{ bits }
 		{
 
 		}
-		constexpr explicit operator bitsType() const noexcept
+		PYGMALION_INLINE constexpr explicit operator bitsType() const noexcept
 		{
 			return m_Bits;
 		}
-		constexpr squares operator*(const bool value) const noexcept
+		PYGMALION_INLINE constexpr squares operator*(const bool value) const noexcept
 		{
 			const bitsType bits{ m_Bits };
 			const bitsType valueBits{ bitsType(static_cast<unsigned int>(value)) };
 			return squares(bits * valueBits);
 		}
-		constexpr squares operator|(const squares other) const noexcept
+		PYGMALION_INLINE constexpr squares operator|(const squares other) const noexcept
 		{
 			const bitsType bits{ m_Bits | other.m_Bits };
 			return squares(std::move(bits));
 		}
-		constexpr squares operator-(const squares other) const noexcept
+		PYGMALION_INLINE constexpr squares operator-(const squares other) const noexcept
 		{
 			return squares(m_Bits & ~other.m_Bits);
 		}
-		constexpr squares operator&(const squares other) const noexcept
+		PYGMALION_INLINE constexpr squares operator&(const squares other) const noexcept
 		{
 			return squares(m_Bits & other.m_Bits);
 		}
-		constexpr squares operator^(const squares other) const noexcept
+		PYGMALION_INLINE constexpr squares operator^(const squares other) const noexcept
 		{
 			return squares(m_Bits ^ other.m_Bits);
 		}
-		constexpr squares operator~() const noexcept
+		PYGMALION_INLINE constexpr squares operator~() const noexcept
 		{
 			return squares(~m_Bits);
 		}
-		constexpr squares& operator|=(const squares other) noexcept
+		PYGMALION_INLINE constexpr squares& operator|=(const squares other) noexcept
 		{
 			m_Bits |= other.m_Bits;
 			return *this;
 		}
-		constexpr squares& operator-=(const squares other) noexcept
+		PYGMALION_INLINE constexpr squares& operator-=(const squares other) noexcept
 		{
 			m_Bits &= ~other.m_Bits;
 			return *this;
 		}
-		constexpr squares& operator&=(const squares other) noexcept
+		PYGMALION_INLINE constexpr squares& operator&=(const squares other) noexcept
 		{
 			m_Bits &= other.m_Bits;
 			return *this;
 		}
-		constexpr squares& operator^=(const squares other) noexcept
+		PYGMALION_INLINE constexpr squares& operator^=(const squares other) noexcept
 		{
 			m_Bits ^= other.m_Bits;
 			return *this;
 		}
-		constexpr bool operator==(const squares other) const noexcept
+		PYGMALION_INLINE constexpr bool operator==(const squares other) const noexcept
 		{
 			return m_Bits == other.m_Bits;
 		}
-		constexpr bool operator!=(const squares other) const noexcept
+		PYGMALION_INLINE constexpr bool operator!=(const squares other) const noexcept
 		{
 			return m_Bits != other.m_Bits;
 		}
-		constexpr squares& operator|=(const squareType square) noexcept
+		PYGMALION_INLINE constexpr squares& operator|=(const squareType square) noexcept
 		{
 			m_Bits.set(static_cast<typename squareType::baseType>(square));
 			return *this;
 		}
-		constexpr squares& operator&=(const squareType square) noexcept
+		PYGMALION_INLINE constexpr squares& operator&=(const squareType square) noexcept
 		{
 			m_Bits &= bitsType::setMask(static_cast<typename squareType::baseType>(square));
 			return *this;
 		}
-		constexpr squares& operator-=(const squareType square) noexcept
+		PYGMALION_INLINE constexpr squares& operator-=(const squareType square) noexcept
 		{
 			m_Bits.clear(static_cast<typename squareType::baseType>(square));
 			return *this;
 		}
-		constexpr squares& operator^=(const squareType square) noexcept
+		PYGMALION_INLINE constexpr squares& operator^=(const squareType square) noexcept
 		{
 			m_Bits.toggle(static_cast<typename squareType::baseType>(square));
 			return *this;
 		}
-		constexpr squares& operator|=(const fileType file) noexcept
+		PYGMALION_INLINE constexpr squares& operator|=(const fileType file) noexcept
 		{
 			m_Bits |= squares(file);
 			return *this;
 		}
-		constexpr squares& operator&=(const fileType file) noexcept
+		PYGMALION_INLINE constexpr squares& operator&=(const fileType file) noexcept
 		{
 			m_Bits &= squares(file);
 			return *this;
 		}
-		constexpr squares& operator-=(const fileType file) noexcept
+		PYGMALION_INLINE constexpr squares& operator-=(const fileType file) noexcept
 		{
 			m_Bits &= ~squares(file);
 			return *this;
 		}
-		constexpr squares& operator^=(const fileType file) noexcept
+		PYGMALION_INLINE constexpr squares& operator^=(const fileType file) noexcept
 		{
 			m_Bits ^= squares(file);
 			return *this;
 		}
-		constexpr squares& operator|=(const rankType rank) noexcept
+		PYGMALION_INLINE constexpr squares& operator|=(const rankType rank) noexcept
 		{
 			m_Bits |= squares(rank);
 			return *this;
 		}
-		constexpr squares& operator&=(const rankType rank) noexcept
+		PYGMALION_INLINE constexpr squares& operator&=(const rankType rank) noexcept
 		{
 			m_Bits &= squares(rank);
 			return *this;
 		}
-		constexpr squares& operator-=(const rankType rank) noexcept
+		PYGMALION_INLINE constexpr squares& operator-=(const rankType rank) noexcept
 		{
 			m_Bits &= ~squares(rank);
 			return *this;
 		}
-		constexpr squares& operator^=(const rankType rank) noexcept
+		PYGMALION_INLINE constexpr squares& operator^=(const rankType rank) noexcept
 		{
 			m_Bits ^= squares(rank);
 			return *this;
 		}
-		constexpr squares singlePiece() const noexcept
+		PYGMALION_INLINE constexpr squares singlePiece() const noexcept
 		{
 			assert((*this) != squares::none());
-			return squares(m_Bits & m_Bits.twosComplement());
+			return squares(m_Bits.singleBit());
 		}
-		constexpr bool operator[](const squareType& square) const noexcept
+		PYGMALION_INLINE constexpr bool operator[](const squareType& square) const noexcept
 		{
 			return m_Bits[static_cast<typename squareType::baseType>(square)];
 		}
-		constexpr auto operator[](const squareType& square) noexcept
+		PYGMALION_INLINE constexpr auto operator[](const squareType& square) noexcept
 		{
 			return m_Bits[static_cast<typename squareType::baseType>(square)];
 		}
-		constexpr operator bool() const noexcept
+		PYGMALION_INLINE constexpr operator bool() const noexcept
 		{
 			return static_cast<bool>(m_Bits);
 		}
-		constexpr squares() noexcept :
+		PYGMALION_INLINE constexpr squares() noexcept :
 			m_Bits{ bitsType::zero() }
 		{
 
 		}
-		constexpr squares(const rankType rank) noexcept :
+		PYGMALION_INLINE constexpr squares(const rankType rank) noexcept :
 			m_Bits{ firstRankBits << (rank * countFiles) }
 		{
 		}
-		constexpr squares(const fileType file) noexcept :
+		PYGMALION_INLINE constexpr squares(const fileType file) noexcept :
 			m_Bits{ firstFileBits << file }
 		{
 		}
-		constexpr squares(const squareType square) noexcept :
+		PYGMALION_INLINE constexpr squares(const squareType square) noexcept :
 			m_Bits{ bitsType::zero() }
 		{
 			m_Bits.set(square);
 		}
-		constexpr squares(const squares&) noexcept = default;
-		constexpr squares(squares&&) noexcept = default;
-		constexpr squares& operator=(const squares&) = default;
-		constexpr squares& operator=(squares&&) = default;
-		~squares() noexcept = default;
-		size_t count() const noexcept
+		PYGMALION_INLINE constexpr squares(const squares&) noexcept = default;
+		PYGMALION_INLINE constexpr squares(squares&&) noexcept = default;
+		PYGMALION_INLINE constexpr squares& operator=(const squares&) = default;
+		PYGMALION_INLINE constexpr squares& operator=(squares&&) = default;
+		PYGMALION_INLINE ~squares() noexcept = default;
+		PYGMALION_INLINE size_t count() const noexcept
 		{
 			return m_Bits.populationCount();
 		}
@@ -280,7 +306,7 @@ namespace pygmalion::state
 			using value_type = squareType;
 		private:
 			typename bitsType::iterator m_Iterator;
-			constexpr iterator(const typename bitsType::iterator& it) noexcept :
+			PYGMALION_INLINE constexpr iterator(const typename bitsType::iterator& it) noexcept :
 				m_Iterator{ it }
 			{
 			}
@@ -289,28 +315,28 @@ namespace pygmalion::state
 			using pointer = value_type*;
 			using reference = value_type&;
 			using iterator_category = std::input_iterator_tag;
-			constexpr iterator(const iterator&) noexcept = default;
-			~iterator() noexcept = default;
-			constexpr iterator&& operator++(int) noexcept
+			PYGMALION_INLINE constexpr iterator(const iterator&) noexcept = default;
+			PYGMALION_INLINE ~iterator() noexcept = default;
+			PYGMALION_INLINE constexpr iterator&& operator++(int) noexcept
 			{
 				iterator ret(m_Iterator);
 				++(*this);
 				return std::move(ret);
 			}
-			constexpr iterator& operator++() noexcept
+			PYGMALION_INLINE constexpr iterator& operator++() noexcept
 			{
 				++m_Iterator;
 				return *this;
 			}
-			constexpr value_type operator*() const noexcept
+			PYGMALION_INLINE constexpr value_type operator*() const noexcept
 			{
 				return static_cast<squareType>(*m_Iterator);
 			}
-			constexpr bool operator==(const iterator& other) const noexcept
+			PYGMALION_INLINE constexpr bool operator==(const iterator& other) const noexcept
 			{
 				return m_Iterator == other.m_Iterator;
 			}
-			constexpr bool operator!=(const iterator& other) const noexcept
+			PYGMALION_INLINE constexpr bool operator!=(const iterator& other) const noexcept
 			{
 				return m_Iterator != other.m_Iterator;
 			}
@@ -320,32 +346,32 @@ namespace pygmalion::state
 			friend class squares;
 		private:
 			typename bitsType::counterType m_Counter;
-			constexpr counterType(const squares& it) noexcept :
+			PYGMALION_INLINE constexpr counterType(const squares& it) noexcept :
 				m_Counter{ it.counter() }
 			{
 			}
 		public:
-			constexpr counterType(const counterType&) noexcept = default;
-			~counterType() noexcept = default;
-			constexpr bool next() noexcept
+			PYGMALION_INLINE constexpr counterType(const counterType&) noexcept = default;
+			PYGMALION_INLINE ~counterType() noexcept = default;
+			PYGMALION_INLINE constexpr bool next() noexcept
 			{
 				return m_Counter.next();
 			}
 		};
-		constexpr auto begin() const noexcept
+		PYGMALION_INLINE constexpr auto begin() const noexcept
 		{
 			return iterator(m_Bits.begin());
 		}
-		constexpr auto end() const noexcept
+		PYGMALION_INLINE constexpr auto end() const noexcept
 		{
 			return iterator(m_Bits.end());
 		}
-		constexpr auto counter() const noexcept
+		PYGMALION_INLINE constexpr auto counter() const noexcept
 		{
 			return counterType(*this);
 		}
 		template<typename LAMBDA>
-		constexpr void foreach(const LAMBDA& lambda) const noexcept
+		PYGMALION_INLINE constexpr void foreach(const LAMBDA& lambda) const noexcept
 		{
 			m_Bits.foreach([lambda](const size_t index) {lambda(static_cast<squareType>(index)); });
 		}

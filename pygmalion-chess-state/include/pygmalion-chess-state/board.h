@@ -243,19 +243,21 @@ namespace pygmalion::chess
 				UINT8_C(10),
 			}
 		};
-		static size_t piecePlayerSquareIndex(const pieceType piece, const squareType square, const playerType player) noexcept
+		constexpr static inline std::array<std::array<std::array<hashType, countSquares>, countPieces>, countPlayers> m_PlayerPieceSquareHash
 		{
-			const rankType rank{ square.rank() };
-			const fileType file{ square.file() };
-			const std::uint8_t kind_of_piece{ m_PiecePlayerIndex[player][piece] };
-			const size_t offset_piece{ static_cast<size_t>(64 * kind_of_piece + 8 * static_cast<rankType::baseType>(rank) + static_cast<fileType::baseType>(file)) };
-			return offset_piece;
-		}
-		static inline std::array<std::array<std::array<hashType, countSquares>, countPieces>, countPlayers> m_PlayerPieceSquareHash
-		{
-			arrayhelper::generate<countPlayers, std::array<std::array<hashType, countSquares>, countPieces>>([](const size_t player) { return arrayhelper::generate<countPieces, std::array<hashType, countSquares>>([player](const size_t piece) {return arrayhelper::generate<countSquares, hashType>([player, piece](const size_t square) {return m_PieceHash[piecePlayerSquareIndex(static_cast<pieceType>(piece), static_cast<squareType>(square), static_cast<playerType>(player))]; }); }); })
+			arrayhelper::generate<countPlayers, std::array<std::array<hashType, countSquares>, countPieces>>([](const size_t player) { return arrayhelper::generate<countPieces, std::array<hashType, countSquares>>([player](const size_t piece) {return arrayhelper::generate<countSquares, hashType>([player, piece](const size_t square) 
+				{
+					const playerType player_t{ static_cast<playerType>(player) };
+					const pieceType piece_t{ static_cast<pieceType>(piece) };
+					const squareType square_t{ static_cast<squareType>(square) };
+					const rankType rank{ square_t.rank() };
+					const fileType file{ square_t.file() };
+					const std::uint8_t kind_of_piece{ m_PiecePlayerIndex[player_t][piece_t] };
+					const size_t offset_piece{ static_cast<size_t>(64 * kind_of_piece + 8 * static_cast<rankType::baseType>(rank) + static_cast<fileType::baseType>(file)) };
+					return m_PieceHash[offset_piece];
+				}); }); })
 		};
-		static inline std::array<hashType, 1 << countFlags> m_FlagsHash
+		constexpr static inline std::array<hashType, 1 << countFlags> m_FlagsHash
 		{
 			arrayhelper::generate<1 << countFlags,hashType>([](const size_t index)
 				{
@@ -282,92 +284,92 @@ namespace pygmalion::chess
 		board() noexcept
 		{
 		}
-		static const hashType& customPlayerHash(const playerType player) noexcept
+		PYGMALION_INLINE static const hashType& customPlayerHash(const playerType player) noexcept
 		{
 			return m_PlayerHash[player];
 		}
-		static const hashType& customFlagsHash(const flagsType flags) noexcept
+		PYGMALION_INLINE static const hashType& customFlagsHash(const flagsType flags) noexcept
 		{
 			const size_t index{ static_cast<size_t>(static_cast<std::uintmax_t>(flags.bits())) };
 			return m_FlagsHash[index];
 		}
-		static const hashType& customPieceHash(const pieceType piece, const squareType square, const playerType player) noexcept
+		PYGMALION_INLINE static const hashType& customPieceHash(const pieceType piece, const squareType square, const playerType player) noexcept
 		{
 			return m_PlayerPieceSquareHash[player][piece][square];
 		}
-		constexpr static materialScore materialValue(const pieceType pc, const playerType pl) noexcept
+		PYGMALION_INLINE constexpr static materialScore materialValue(const pieceType pc, const playerType pl) noexcept
 		{
 			return m_Material.material(pl, pc);
 		}
-		void clearCastleRightQueensideBlack() noexcept
+		PYGMALION_INLINE void clearCastleRightQueensideBlack() noexcept
 		{
 			clearFlag(castleRightQueensideBlack);
 		}
-		void clearCastleRightQueensideWhite() noexcept
+		PYGMALION_INLINE void clearCastleRightQueensideWhite() noexcept
 		{
 			clearFlag(castleRightQueensideWhite);
 		}
-		void clearCastleRightKingsideBlack() noexcept
+		PYGMALION_INLINE void clearCastleRightKingsideBlack() noexcept
 		{
 			clearFlag(castleRightKingsideBlack);
 		}
-		void clearCastleRightKingsideWhite() noexcept
+		PYGMALION_INLINE void clearCastleRightKingsideWhite() noexcept
 		{
 			clearFlag(castleRightKingsideWhite);
 		}
-		void setCastleRightQueensideBlack() noexcept
+		PYGMALION_INLINE void setCastleRightQueensideBlack() noexcept
 		{
 			setFlag(castleRightQueensideBlack);
 		}
-		void setCastleRightQueensideWhite() noexcept
+		PYGMALION_INLINE void setCastleRightQueensideWhite() noexcept
 		{
 			setFlag(castleRightQueensideWhite);
 		}
-		void setCastleRightKingsideBlack() noexcept
+		PYGMALION_INLINE void setCastleRightKingsideBlack() noexcept
 		{
 			setFlag(castleRightKingsideBlack);
 		}
-		void setCastleRightKingsideWhite() noexcept
+		PYGMALION_INLINE void setCastleRightKingsideWhite() noexcept
 		{
 			setFlag(castleRightKingsideWhite);
 		}
-		bool checkCastleRightQueensideBlack() const noexcept
+		PYGMALION_INLINE bool checkCastleRightQueensideBlack() const noexcept
 		{
 			return checkFlag(castleRightQueensideBlack);
 		}
-		bool checkCastleRightQueensideWhite() const noexcept
+		PYGMALION_INLINE bool checkCastleRightQueensideWhite() const noexcept
 		{
 			return checkFlag(castleRightQueensideWhite);
 		}
-		bool checkCastleRightKingsideBlack() const noexcept
+		PYGMALION_INLINE bool checkCastleRightKingsideBlack() const noexcept
 		{
 			return checkFlag(castleRightKingsideBlack);
 		}
-		bool checkCastleRightKingsideWhite() const noexcept
+		PYGMALION_INLINE bool checkCastleRightKingsideWhite() const noexcept
 		{
 			return checkFlag(castleRightKingsideWhite);
 		}
-		bool checkCastleRightQueenside(const playerType player) const noexcept
+		PYGMALION_INLINE bool checkCastleRightQueenside(const playerType player) const noexcept
 		{
 			return (player == whitePlayer) ? checkCastleRightQueensideWhite() : checkCastleRightQueensideBlack();
 		}
-		bool checkCastleRightKingside(const playerType player) const noexcept
+		PYGMALION_INLINE bool checkCastleRightKingside(const playerType player) const noexcept
 		{
 			return (player == whitePlayer) ? checkCastleRightKingsideWhite() : checkCastleRightKingsideBlack();
 		}
-		void clearCastleRightsBlack() noexcept
+		PYGMALION_INLINE void clearCastleRightsBlack() noexcept
 		{
 			clearFlags(castleFlagsBlack);
 		}
-		void clearCastleRightsWhite() noexcept
+		PYGMALION_INLINE void clearCastleRightsWhite() noexcept
 		{
 			clearFlags(castleFlagsWhite);
 		}
-		void setEnPassantFile(const fileType file) noexcept
+		PYGMALION_INLINE void setEnPassantFile(const fileType file) noexcept
 		{
 			setFlag(enPassantFlag(file));
 		}
-		bool getEnPassantFile(fileType& file) noexcept
+		PYGMALION_INLINE bool getEnPassantFile(fileType& file) noexcept
 		{
 			const auto epFlags{ this->template extractFlagRange<4, 8>() };
 			size_t epBit;
@@ -379,22 +381,25 @@ namespace pygmalion::chess
 			else
 				return false;
 		}
-		void clearEnPassantFile(const fileType file) noexcept
+		PYGMALION_INLINE void clearEnPassantFile(const fileType file) noexcept
 		{
 			clearFlag(enPassantFlag(file));
 		}
-		bool checkEnPassantFile(const fileType file) const noexcept
+		PYGMALION_INLINE bool checkEnPassantFile(const fileType file) const noexcept
 		{
 			return checkFlag(enPassantFlag(file));
 		}
-		void clearEnPassantFiles() noexcept
+		PYGMALION_INLINE void clearEnPassantFiles() noexcept
 		{
 			clearFlags(enPassantFlags);
 		}
-		squareType kingSquare(const playerType player) const noexcept;
+		PYGMALION_INLINE squareType kingSquare(const playerType player) const noexcept
+		{
+			return (pieceOccupancy(king) & playerOccupancy(player)).first();
+		}
 		bool setFen(const std::string& fen, std::string& error) noexcept;
 		std::string getFen() const noexcept;
-		constexpr materialScore material() const noexcept
+		PYGMALION_INLINE constexpr materialScore material() const noexcept
 		{
 			return cumulation().score();
 		}
@@ -409,15 +414,48 @@ namespace pygmalion::chess
 		static bool parsePlayer_Implementation(std::string& text, playerType& player) noexcept;
 		static std::string pieceToString_Implementation(const pieceType piece, const playerType player) noexcept;
 		static bool parsePiece_Implementation(std::string& text, pieceType& piece, playerType& player) noexcept;
-		void onClear_Implementation() noexcept;
-		void onAddedPiece_Implementation(const pieceType piece, const squareType square, const playerType player) noexcept;
-		void onSetMovingPlayer_Implementation(const playerType player) noexcept;
-		void onRemovedPiece_Implementation(const pieceType piece, const squareType square, const playerType player) noexcept;
-		void onSetFlag_Implementation(const flagType flag) noexcept;
-		void onClearedFlag_Implementation(const flagType flag) noexcept;
+		PYGMALION_INLINE void onClear_Implementation() noexcept
+		{
+			cumulation().clear();
+		}
+		PYGMALION_INLINE void onAddedPiece_Implementation(const pieceType piece, const squareType square, const playerType player) noexcept
+		{
+			cumulation().score() += m_Material.material(player, piece);
+			switch (piece)
+			{
+			case pawn:
+				cumulation().pawnHash() ^= pieceHash(pawn, square, player);
+				break;
+			case king:
+				cumulation().pawnHash() ^= pieceHash(king, square, player);
+				break;
+			}
+		}
+		PYGMALION_INLINE void onSetMovingPlayer_Implementation(const playerType player) noexcept
+		{
+		}
+		PYGMALION_INLINE void onRemovedPiece_Implementation(const pieceType piece, const squareType square, const playerType player) noexcept
+		{
+			cumulation().score() -= m_Material.material(player, piece);
+			switch (piece)
+			{
+			case pawn:
+				cumulation().pawnHash() ^= pieceHash(pawn, square, player);
+				break;
+			case king:
+				cumulation().pawnHash() ^= pieceHash(king, square, player);
+				break;
+			}
+		}
+		PYGMALION_INLINE void onSetFlag_Implementation(const flagType flag) noexcept
+		{
+		}
+		PYGMALION_INLINE void onClearedFlag_Implementation(const flagType flag) noexcept
+		{
+		}
 		void onInitialize_Implementation() noexcept;
 		static std::string cumulationToString_Implementation(const cumulationType&) noexcept;
-		hashType pawnHash() const noexcept
+		PYGMALION_INLINE hashType pawnHash() const noexcept
 		{
 			return cumulation().pawnHash();
 		}

@@ -3,7 +3,7 @@ namespace pygmalion
 	class memory
 	{
 	public:
-		static void prefetchRead(const void* pAddr) noexcept
+		PYGMALION_INLINE static void prefetchRead(const void* pAddr) noexcept
 		{
 /*			if constexpr (compiler::supports(compiler::GNU))
 			{

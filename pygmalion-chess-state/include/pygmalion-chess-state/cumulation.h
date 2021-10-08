@@ -12,33 +12,33 @@ namespace pygmalion::chess::state
 		std::uint16_t m_ReversiblePlies;
 		constexpr static const materialScore m_Zero{ materialScore::zero() };
 	public:
-		constexpr void clear() noexcept
+		PYGMALION_INLINE constexpr void clear() noexcept
 		{
 			m_Material = m_Zero;
 			m_ReversiblePlies = 0;
 			m_PawnHash = 0;
 		}
-		constexpr const hashType& pawnHash() const noexcept
+		PYGMALION_INLINE constexpr const hashType& pawnHash() const noexcept
 		{
 			return m_PawnHash;
 		}
-		constexpr hashType& pawnHash() noexcept
+		PYGMALION_INLINE constexpr hashType& pawnHash() noexcept
 		{
 			return m_PawnHash;
 		}
-		constexpr const materialScore& score() const noexcept
+		PYGMALION_INLINE constexpr const materialScore& score() const noexcept
 		{
 			return m_Material;
 		}
-		constexpr materialScore& score() noexcept
+		PYGMALION_INLINE constexpr materialScore& score() noexcept
 		{
 			return m_Material;
 		}
-		constexpr const std::uint16_t& reversiblePlies() const noexcept
+		PYGMALION_INLINE constexpr const std::uint16_t& reversiblePlies() const noexcept
 		{
 			return m_ReversiblePlies;
 		}
-		constexpr std::uint16_t& reversiblePlies() noexcept
+		PYGMALION_INLINE constexpr std::uint16_t& reversiblePlies() noexcept
 		{
 			return m_ReversiblePlies;
 		}
@@ -52,11 +52,11 @@ namespace pygmalion::chess::state
 		constexpr cumulation(const cumulation&) noexcept = default;
 		constexpr cumulation& operator=(cumulation&&) noexcept = default;
 		constexpr cumulation& operator=(const cumulation&) noexcept = default;
-		constexpr bool operator==(const cumulation& other) const noexcept
+		PYGMALION_INLINE constexpr bool operator==(const cumulation& other) const noexcept
 		{
 			return m_Material == other.m_Material && m_ReversiblePlies == other.reversiblePlies();
 		}
-		constexpr bool operator!=(const cumulation& other) const noexcept
+		PYGMALION_INLINE constexpr bool operator!=(const cumulation& other) const noexcept
 		{
 			return m_Material != other.m_Material || m_ReversiblePlies != other.reversiblePlies();
 		}

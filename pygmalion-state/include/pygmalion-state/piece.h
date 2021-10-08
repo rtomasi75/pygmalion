@@ -9,22 +9,22 @@ namespace pygmalion::state
 		using parentType = enumeration<DESCRIPTION_STATE::countPieces, DESCRIPTION_STATE::countHashBits, piece<DESCRIPTION_STATE>>;
 		using descriptorState = DESCRIPTION_STATE;
 #include "include_state.h"	
-		constexpr piece(const piece&) noexcept = default;
-		constexpr piece(piece&&) noexcept = default;
-		constexpr piece() noexcept :
+		PYGMALION_INLINE constexpr piece(const piece&) noexcept = default;
+		PYGMALION_INLINE constexpr piece(piece&&) noexcept = default;
+		PYGMALION_INLINE constexpr piece() noexcept :
 			parentType()
 		{
 
 		}
-		constexpr piece(const typename parentType::baseType value) noexcept :
+		PYGMALION_INLINE constexpr piece(const typename parentType::baseType value) noexcept :
 			parentType(value)
 		{
 		}
-		constexpr piece(const typename parentType::valueType value) noexcept :
+		PYGMALION_INLINE constexpr piece(const typename parentType::valueType value) noexcept :
 			parentType(value)
 		{
 		}
-		constexpr piece& operator=(piece&&) noexcept = default;
-		constexpr piece& operator=(const piece&) noexcept = default;
+		PYGMALION_INLINE constexpr piece& operator=(piece&&) noexcept = default;
+		PYGMALION_INLINE constexpr piece& operator=(const piece&) noexcept = default;
 	};
 }

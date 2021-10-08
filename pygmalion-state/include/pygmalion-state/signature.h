@@ -14,36 +14,36 @@ namespace pygmalion::state
 		std::array<storageType, countPieces> m_PieceCounts;
 		std::array<storageType, countPlayers> m_PlayerCounts;
 	public:
-		constexpr signature(const signature&) noexcept = default;
-		constexpr signature(signature&&) noexcept = default;
-		constexpr signature() noexcept :
+		PYGMALION_INLINE constexpr signature(const signature&) noexcept = default;
+		PYGMALION_INLINE constexpr signature(signature&&) noexcept = default;
+		PYGMALION_INLINE constexpr signature() noexcept :
 			m_PieceCounts{ arrayhelper::make<countPieces,storageType>(storageType(0)) },
 			m_PlayerCounts{ arrayhelper::make<countPlayers,storageType>(storageType(0)) }
 		{
 
 		}
-		constexpr void clear() noexcept
+		PYGMALION_INLINE constexpr void clear() noexcept
 		{
 			for (const auto pc : pieceType::range)
 				m_PieceCounts[pc] = storageType(0);
 			for (const auto pl : playerType::range)
 				m_PlayerCounts[pl] = storageType(0);
 		}
-		constexpr void addPiece(const pieceType pc, const playerType pl) noexcept
+		PYGMALION_INLINE constexpr void addPiece(const pieceType pc, const playerType pl) noexcept
 		{
 			m_PieceCounts[pc]++;
 			m_PlayerCounts[pl]++;
 		}
-		constexpr void removePiece(const pieceType pc, const playerType pl) noexcept
+		PYGMALION_INLINE constexpr void removePiece(const pieceType pc, const playerType pl) noexcept
 		{
 			m_PieceCounts[pc]--;
 			m_PlayerCounts[pl]--;
 		}
-		constexpr storageType count(const pieceType pc) const noexcept
+		PYGMALION_INLINE constexpr storageType count(const pieceType pc) const noexcept
 		{
 			return m_PieceCounts[pc];
 		}
-		constexpr storageType count(const playerType pl) const noexcept
+		PYGMALION_INLINE constexpr storageType count(const playerType pl) const noexcept
 		{
 			return m_PlayerCounts[pl];
 		}
@@ -62,9 +62,9 @@ namespace pygmalion::state
 			}
 			return str.str();
 		}
-		constexpr signature& operator=(signature&&) noexcept = default;
-		constexpr signature& operator=(const signature&) noexcept = default;
-		constexpr bool operator==(const signature& other) const noexcept
+		PYGMALION_INLINE constexpr signature& operator=(signature&&) noexcept = default;
+		PYGMALION_INLINE constexpr signature& operator=(const signature&) noexcept = default;
+		PYGMALION_INLINE constexpr bool operator==(const signature& other) const noexcept
 		{
 			for (const auto pl : playerType::range)
 				if (m_PlayerCounts[pl] != other.m_PlayerCounts[pl]) return false;
@@ -72,7 +72,7 @@ namespace pygmalion::state
 				if (m_PieceCounts[pc] != other.m_PieceCounts[pc]) return false;
 			return true;
 		}
-		constexpr bool operator!=(const signature& other) const noexcept
+		PYGMALION_INLINE constexpr bool operator!=(const signature& other) const noexcept
 		{
 			for (const auto pl : playerType::range)
 				if (m_PlayerCounts[pl] != other.m_PlayerCounts[pl]) return true;

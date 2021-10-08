@@ -9,52 +9,52 @@ namespace pygmalion::state
 		using parentType = enumeration<DESCRIPTION_STATE::countRanks, DESCRIPTION_STATE::countHashBits, rank<DESCRIPTION_STATE>>;
 		using descriptorState = DESCRIPTION_STATE;
 #include "include_state.h"	
-		constexpr rank(const rank&) noexcept = default;
-		constexpr rank(rank&&) noexcept = default;
-		constexpr rank() noexcept :
+		PYGMALION_INLINE constexpr rank(const rank&) noexcept = default;
+		PYGMALION_INLINE constexpr rank(rank&&) noexcept = default;
+		PYGMALION_INLINE constexpr rank() noexcept :
 			parentType()
 		{
 
 		}
-		constexpr rank(const typename parentType::baseType value) noexcept :
+		PYGMALION_INLINE constexpr rank(const typename parentType::baseType value) noexcept :
 			parentType(value)
 		{
 		}
-		constexpr rank(const typename parentType::valueType value) noexcept :
+		PYGMALION_INLINE constexpr rank(const typename parentType::valueType value) noexcept :
 			parentType(value)
 		{
 		}
-		constexpr rank& operator=(rank&&) noexcept = default;
-		constexpr rank& operator=(const rank&) noexcept = default;
-		constexpr rank operator-() const noexcept
+		PYGMALION_INLINE constexpr rank& operator=(rank&&) noexcept = default;
+		PYGMALION_INLINE constexpr rank& operator=(const rank&) noexcept = default;
+		PYGMALION_INLINE constexpr rank operator-() const noexcept
 		{
 			return rank(countRanks - 1 - (*this));
 		}
-		constexpr squareType operator&(const fileType file) const noexcept
+		PYGMALION_INLINE constexpr squareType operator&(const fileType file) const noexcept
 		{
 			return squareType::fromRankFile(*this, file);
 		}
-		constexpr squaresType operator|(const rankType other) const noexcept
+		PYGMALION_INLINE constexpr squaresType operator|(const rankType other) const noexcept
 		{
 			return static_cast<squaresType>(*this) | static_cast<squaresType>(other);
 		}
-		constexpr squaresType operator&(const rankType other) const noexcept
+		PYGMALION_INLINE constexpr squaresType operator&(const rankType other) const noexcept
 		{
 			return static_cast<squaresType>(*this) & static_cast<squaresType>(other);
 		}
-		constexpr squaresType operator^(const rankType other) const noexcept
+		PYGMALION_INLINE constexpr squaresType operator^(const rankType other) const noexcept
 		{
 			return static_cast<squaresType>(*this) ^ static_cast<squaresType>(other);
 		}
-		constexpr squaresType operator~() const noexcept
+		PYGMALION_INLINE constexpr squaresType operator~() const noexcept
 		{
 			return ~static_cast<squaresType>(*this);
 		}
-		constexpr rank down() const noexcept
+		PYGMALION_INLINE constexpr rank down() const noexcept
 		{
 			return (*this) - 1;
 		}
-		constexpr rank up() const noexcept
+		PYGMALION_INLINE constexpr rank up() const noexcept
 		{
 			return (*this) + 1;
 		}
