@@ -2,6 +2,7 @@
 
 namespace pygmalion::intrinsics
 {
+
 	engine::engine(std::istream& input, std::ostream& output) noexcept :
 		m_IsRunning(false),
 		m_Input(input),
@@ -35,6 +36,7 @@ namespace pygmalion::intrinsics
 		{
 			std::string input;
 			std::getline(m_Input, input);
+			input = parser::trim_copy(input);
 			bool processed{ false };
 			while (!processed)
 			{
@@ -53,9 +55,12 @@ namespace pygmalion::intrinsics
 			}
 			if (!processed)
 			{
-				m_Output << std::endl;
-				m_Output << "Error (invalid command): " << input << std::endl;
-				m_Output << std::endl;
+				if (input.size() == 0)
+				{
+					m_Output << std::endl;
+					m_Output << "Error (invalid command): " << input << std::endl;
+					m_Output << std::endl;
+				}
 			}
 			m_Output.flush();
 		}

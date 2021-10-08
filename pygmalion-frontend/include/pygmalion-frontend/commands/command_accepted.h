@@ -11,7 +11,10 @@ namespace pygmalion::frontend
 	protected:
 		virtual bool onProcess(const std::string& cmd) noexcept override
 		{
-			if ((cmd == "accepted")&& this->front().isXBoard())
+			std::string token;
+			std::string remainder;
+			parser::parseToken(cmd, token, remainder);
+			if ((token == "accepted")&& this->front().isXBoard())
 			{
 				this->output() << std::endl;
 				return true;

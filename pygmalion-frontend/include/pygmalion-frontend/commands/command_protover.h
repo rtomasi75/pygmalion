@@ -25,21 +25,20 @@ namespace pygmalion::frontend
 					if (features.size() > 0)
 					{
 						this->output() << "feature done=0" << std::endl;
-						this->output() << "feature";
-						this->output() << " sigint=0";
-						this->output() << " sigterm=0";
-						this->output() << " reuse=1";
-						this->output() << " colors=0";
-						this->output() << " nps=0";
-						this->output() << " san=0";
-						this->output() << " debug=0";
-						this->output() << " time=0";
-						this->output() << " myname=\"" << this->frontendEngine().version() << " by " << this->frontendEngine().author() << "\"";
+						this->output() << "feature sigint=0" << std::endl;
+						this->output() << "feature sigterm=0" << std::endl;
+						this->output() << "feature reuse=1" << std::endl;
+						this->output() << "feature colors=0" << std::endl;
+						this->output() << "feature nps=0" << std::endl;
+						this->output() << "feature san=0" << std::endl;
+						this->output() << "feature debug=0" << std::endl;
+						this->output() << "feature time=0" << std::endl;
+						this->output() << "feature myname=\"" << this->frontendEngine().version() << "\"" << std::endl;
 						std::deque<std::string> variants;
 						this->frontendEngine().getXBoardVariants(variants);
 						if (variants.size() > 0)
 						{
-							this->output() << " variants=\"";
+							this->output() << "feature variants=\"";
 							for (size_t i = 0; i < variants.size(); i++)
 							{
 								this->output() << variants[i];
@@ -48,13 +47,12 @@ namespace pygmalion::frontend
 									this->output() << ",";
 								}
 							}
-							this->output() << "\"";
+							this->output() << "\"" << std::endl;;
 						}
 						for (const auto feature : features)
 						{
-							this->output() << "" << feature;
+							this->output() << "feature " << feature << std::endl;
 						}
-						this->output() << std::endl;
 						this->output() << "feature done=1" << std::endl;
 					}
 				}
