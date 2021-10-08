@@ -16,7 +16,8 @@ namespace pygmalion::chess
 			using parentType = node< static_cast<size_t>(movingPlayer.previous())>;
 			using childType = node< static_cast<size_t>(movingPlayer.next())>;
 			using stackType = typename generatorType::template stackType<PLAYER>;
-			node(const stackType& stack, std::atomic_bool& isRunning, heuristicsType& heuristics, const size_t depth) noexcept :
+			PYGMALION_INLINE ~node() noexcept = default;
+			PYGMALION_INLINE node(const stackType& stack, std::atomic_bool& isRunning, heuristicsType& heuristics, const size_t depth) noexcept :
 				pygmalion::gametree<descriptor_search, gametree>::node<PLAYER, node<PLAYER>>(stack, isRunning, heuristics, depth)
 			{
 
@@ -26,7 +27,7 @@ namespace pygmalion::chess
 //				return depthRemaining <= 5;
 				return depthRemaining <= 3;
 			}
-			node(const parentType& parent, const movebitsType moveBits) noexcept :
+			PYGMALION_INLINE node(const parentType& parent, const movebitsType moveBits) noexcept :
 				pygmalion::gametree<descriptor_search, gametree>::node<PLAYER, node<PLAYER>>(parent, moveBits)
 			{
 			}

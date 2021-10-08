@@ -10,23 +10,23 @@ namespace pygmalion
 	private:
 		movebitsType m_MoveBits;
 	public:
-		moveinfo() noexcept
+		PYGMALION_INLINE moveinfo() noexcept
 		{
 
 		}
-		constexpr moveinfo(const movebitsType moveBits) noexcept :
+		PYGMALION_INLINE moveinfo(const movebitsType moveBits) noexcept :
 			m_MoveBits{ moveBits }
 		{
 
 		}
-		constexpr const movebitsType moveBits() const noexcept
+		PYGMALION_INLINE const movebitsType moveBits() const noexcept
 		{
 			return m_MoveBits;
 		}
-		~moveinfo() noexcept = default;
-		constexpr moveinfo(const moveinfo&) noexcept = default;
-		constexpr moveinfo(moveinfo&&) noexcept = default;
-		constexpr moveinfo& operator=(const moveinfo&) noexcept = default;
-		constexpr moveinfo& operator=(moveinfo&&) noexcept = default;
+		PYGMALION_INLINE ~moveinfo() noexcept = default;
+		PYGMALION_INLINE moveinfo(const moveinfo&) noexcept = default;
+		PYGMALION_INLINE moveinfo(moveinfo&&) noexcept = default;
+		PYGMALION_INLINE moveinfo& operator=(const moveinfo&) noexcept = default;
+		PYGMALION_INLINE moveinfo& operator=(moveinfo&&) noexcept = default;
 	};
 }

@@ -32,7 +32,7 @@ namespace pygmalion
 			}
 			~transposition() = default;
 			template<size_t PLAYER>
-			bool isValid(const stackType<PLAYER>& stack) const noexcept
+			PYGMALION_INLINE bool isValid(const stackType<PLAYER>& stack) const noexcept
 			{
 				const bool bOk{ m_Hash == stack.position().hash() };
 				if (bOk)
@@ -47,28 +47,28 @@ namespace pygmalion
 				else
 					return false;
 			}
-			hashType hash() const noexcept
+			PYGMALION_INLINE const hashType& hash() const noexcept
 			{
 				return m_Hash;
 			}
-			scoreType value() const noexcept
+			PYGMALION_INLINE scoreType value() const noexcept
 			{
 				return m_Value;
 			}
-			movebitsType move() const noexcept
+			PYGMALION_INLINE movebitsType move() const noexcept
 			{
 				return m_Move;
 			}
-			depthType draft() const noexcept
+			PYGMALION_INLINE depthType draft() const noexcept
 			{
 				return m_Draft;
 			}
-			std::uint8_t flags() const noexcept
+			PYGMALION_INLINE std::uint8_t flags() const noexcept
 			{
 				return m_Flags;
 			}
 			template<size_t PLAYER>
-			void update(const stackType<PLAYER>& stack, const std::uint8_t flags, const scoreType value, const movebitsType move) noexcept
+			PYGMALION_INLINE void update(const stackType<PLAYER>& stack, const std::uint8_t flags, const scoreType value, const movebitsType move) noexcept
 			{
 				if (flags & transpositiontable::flags_lower)
 				{
@@ -92,7 +92,7 @@ namespace pygmalion
 				}
 			}
 			template<size_t PLAYER>
-			void reset(const stackType<PLAYER>& stack, const scoreType value, const depthType draft, const std::uint8_t flags, const movebitsType move) noexcept
+			PYGMALION_INLINE void reset(const stackType<PLAYER>& stack, const scoreType value, const depthType draft, const std::uint8_t flags, const movebitsType move) noexcept
 			{
 				m_Hash = stack.position().hash();
 				m_Draft = draft;
@@ -118,7 +118,7 @@ namespace pygmalion
 					m_Flags |= transpositiontable::flags_move;
 				}
 			}
-			void clear() noexcept
+			PYGMALION_INLINE void clear() noexcept
 			{
 				m_Flags = flags_unused;
 			}
@@ -147,7 +147,7 @@ namespace pygmalion
 		{
 			return std::min(static_cast<std::uint64_t>(std::numeric_limits<std::size_t>::max()) / static_cast<std::uint64_t>(sizeof(transposition) * countBuckets), ((UINT64_C(1) << std::min(static_cast<size_t>(63), countHashBits)) / static_cast<std::uint64_t>(sizeof(transposition) * countBuckets)));
 		}
-		size_t computeIndex(const hashType& hash) const noexcept
+		PYGMALION_INLINE size_t computeIndex(const hashType& hash) const noexcept
 		{
 			if constexpr ((countHashBits > 32) && (static_cast<std::uint64_t>(std::numeric_limits<std::size_t>::max()) >= UINT64_C(0x100000000)))
 			{
@@ -187,20 +187,24 @@ namespace pygmalion
 		}
 	public:
 #if defined(PYGMALION_TTSTATISTICS)
-		void hitAlpha() const noexcept
+		PYGMALION_INLINE void hitAlpha() const noexcept
 		{
 			m_Hits++;
 			m_AlphaHits++;
 		}
-		void hitBeta() const noexcept
+		PYGMALION_INLINE void hitBeta() const noexcept
 		{
 			m_Hits++;
 			m_BetaHits++;
 		}
-		void hitExact() const noexcept
+		PYGMALION_INLINE void hitExact() const noexcept
 		{
 			m_Hits++;
 			m_ExactHits++;
+		}
+		PYGMALION_INLINE void probe() const noexcept
+		{
+			m_Probes++;
 		}
 		std::uint64_t countHits() const noexcept
 		{
@@ -390,7 +394,7 @@ namespace pygmalion
 		{
 			bool doNMP{ true };
 #if defined(PYGMALION_TTSTATISTICS)
-			m_Probes++;
+			probe();
 #endif
 			if constexpr (UseDeepHits)
 			{
@@ -556,7 +560,7 @@ namespace pygmalion
 			m_Entry[index2].reset(stack, score, depth, flags, move);
 		}
 		template<size_t PLAYER>
-		void prefetch(const stackType<PLAYER>& stack) const noexcept
+		PYGMALION_INLINE void prefetch(const stackType<PLAYER>& stack) const noexcept
 		{
 			const size_t idx{ computeIndex(stack.position().hash()) };
 			const size_t base{ idx * countBuckets };

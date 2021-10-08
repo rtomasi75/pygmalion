@@ -1204,10 +1204,7 @@ namespace pygmalion
 				}
 			}
 			node() = delete;
-			constexpr node(const node&) = default;
-			constexpr node(node&&) = default;
-			constexpr node& operator=(const node&) = default;
-			node(const stackType& stack, std::atomic_bool& isRunning, heuristicsType& heuristics, const size_t depth) noexcept :
+			PYGMALION_INLINE node(const stackType& stack, std::atomic_bool& isRunning, heuristicsType& heuristics, const size_t depth) noexcept :
 				m_Stack{ stack },
 				m_IsRunning{ isRunning },
 				m_Heuristics{ heuristics },
@@ -1241,7 +1238,7 @@ namespace pygmalion
 				m_Eval = zero;
 				m_FutileGap = zero;
 			}
-			node(const parentType& parent, const movebitsType moveBits) noexcept :
+			PYGMALION_INLINE node(const parentType& parent, const movebitsType moveBits) noexcept :
 				m_Stack(parent.m_Stack, moveBits),
 				m_IsRunning{ parent.m_IsRunning },
 				m_Heuristics{ parent.m_Heuristics },
@@ -1273,7 +1270,7 @@ namespace pygmalion
 				m_Eval = zero;
 				m_FutileGap = zero;
 			}
-			~node() noexcept = default;
+			PYGMALION_INLINE ~node() noexcept = default;
 			template<bool VERBOSE, bool ANALYZE>
 			scoreType searchRoot(const depthType depthRemaining, variationType& principalVariation, const scoreType scoreFromPreviousDepth, std::ostream& str, indexType& currentMove, indexType& countMoves) noexcept
 			{
