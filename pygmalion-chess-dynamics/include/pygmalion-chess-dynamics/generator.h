@@ -80,17 +80,17 @@ namespace pygmalion::chess
 				}
 				return m_SquaresAttackedByPlayer[attacker];
 			}
-			stack(const parentType& parent, const movebitsType movebits) noexcept :
+			PYGMALION_INLINE stack(const parentType& parent, const movebitsType movebits) noexcept :
 				pygmalion::generator<descriptor_dynamics, generator>::stack<PLAYER>(parent, movebits)
 			{
 				generatorType::pawnTable().template prefetch<PLAYER>(*this);
 			}
-			stack(boardType& position, historyType& history, contextType* pContext) noexcept :
+			PYGMALION_INLINE stack(boardType& position, historyType& history, contextType* pContext) noexcept :
 				pygmalion::generator<descriptor_dynamics, generator>::stack<PLAYER>(position, history, pContext)
 			{
 				generatorType::pawnTable().template prefetch<PLAYER>(*this);
 			}
-			~stack() noexcept = default;
+			PYGMALION_INLINE ~stack() noexcept = default;
 		};
 		class pawntable
 		{
@@ -122,15 +122,15 @@ namespace pygmalion::chess
 				constexpr static inline std::uint8_t flagsKingTropism[]{ flagsKingTropismWhite ,flagsKingTropismBlack };
 				constexpr static inline std::uint8_t flagsKingAreaTropism[]{ flagsKingAreaTropismWhite ,flagsKingAreaTropismBlack };
 			public:
-				const squaresType& pawns(const playerType& pl) const noexcept
+				PYGMALION_INLINE const squaresType& pawns(const playerType& pl) const noexcept
 				{
 					return m_Pawns[pl];
 				}
-				const squareType& kingSquare(const playerType& pl) const noexcept
+				PYGMALION_INLINE const squareType& kingSquare(const playerType& pl) const noexcept
 				{
 					return m_KingSquare[pl];
 				}
-				const typename generatorType::tropismType& kingTropism(const playerType& pl) noexcept
+				PYGMALION_INLINE const typename generatorType::tropismType& kingTropism(const playerType& pl) noexcept
 				{
 					if (!(m_Flags & flagsKingTropism[pl]))
 					{
@@ -139,7 +139,7 @@ namespace pygmalion::chess
 					}
 					return m_KingTropism[pl];
 				}
-				const typename generatorType::tropismType& kingAreaTropism(const playerType& pl) noexcept
+				PYGMALION_INLINE const typename generatorType::tropismType& kingAreaTropism(const playerType& pl) noexcept
 				{
 					if (!(m_Flags & flagsKingTropism[pl]))
 					{
@@ -158,7 +158,7 @@ namespace pygmalion::chess
 					m_Flags{ flagsNone }
 				{
 				}
-				bool isUsed() const noexcept
+				PYGMALION_INLINE bool isUsed() const noexcept
 				{
 					return m_Flags & flagsUsed;
 				}
@@ -170,7 +170,7 @@ namespace pygmalion::chess
 				}
 				~pawnentry() noexcept = default;
 				template<size_t PLAYER>
-				void update(const stack<PLAYER>& stack) noexcept
+				PYGMALION_INLINE void update(const stack<PLAYER>& stack) noexcept
 				{
 					const squaresType whitePawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(whitePlayer) };
 					const squaresType blackPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(blackPlayer) };
@@ -185,7 +185,7 @@ namespace pygmalion::chess
 					m_Flags = flagsUsed;
 				}
 				template<size_t PLAYER>
-				void prefetch(const stack<PLAYER>& stack) const noexcept
+				PYGMALION_INLINE void prefetch(const stack<PLAYER>& stack) const noexcept
 				{
 					const size_t idx{ computeIndex(stack.position().pawnHash()) };
 					memory::prefetchRead(&(m_Entry[idx]));
@@ -199,7 +199,7 @@ namespace pygmalion::chess
 			{
 				return std::min(static_cast<std::uint64_t>(std::numeric_limits<std::size_t>::max()) / static_cast<std::uint64_t>(sizeof(pawnentry)), ((UINT64_C(1) << std::min(static_cast<size_t>(63), countHashBits)) / static_cast<std::uint64_t>(sizeof(pawnentry))));
 			}
-			size_t computeIndex(const hashType& hash) const noexcept
+			PYGMALION_INLINE size_t computeIndex(const hashType& hash) const noexcept
 			{
 				if constexpr ((countHashBits > 32) && (static_cast<std::uint64_t>(std::numeric_limits<std::size_t>::max()) >= UINT64_C(0x100000000)))
 				{
@@ -268,7 +268,7 @@ namespace pygmalion::chess
 				return m_EntryCount * sizeof(pawnentry);
 			}
 			template<size_t PLAYER>
-			pawnentry& entry(const stack<PLAYER>& stack) noexcept
+			PYGMALION_INLINE pawnentry& entry(const stack<PLAYER>& stack) noexcept
 			{
 				const size_t idx{ computeIndex(stack.position().cumulation().pawnHash()) };
 				m_Entry[idx].update(stack);
@@ -281,7 +281,7 @@ namespace pygmalion::chess
 			{
 			}
 			template<size_t PLAYER>
-			void prefetch(const stack<PLAYER>& stack) const noexcept
+			PYGMALION_INLINE void prefetch(const stack<PLAYER>& stack) const noexcept
 			{
 				const size_t idx{ computeIndex(stack.position().pawnHash()) };
 				memory::prefetchRead(&(m_Entry[idx]));
@@ -290,7 +290,7 @@ namespace pygmalion::chess
 	private:
 		static inline pawntable m_PawnTable{ pawntable(0) };
 	public:
-		static pawntable& pawnTable() noexcept
+		PYGMALION_INLINE static pawntable& pawnTable() noexcept
 		{
 			return m_PawnTable;
 		}
