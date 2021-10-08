@@ -68,7 +68,7 @@ namespace pygmalion
 				}
 			}
 			template<bool LAZY>
-			bool earlyScore(scoreType& score, bool& allowStoreTT) const noexcept
+			PYGMALION_INLINE bool earlyScore(scoreType& score, bool& allowStoreTT) const noexcept
 			{
 				const gamestateType earlyState{ evaluatorType::template earlyResult<PLAYER, LAZY>(m_Stack,allowStoreTT) };
 				if (!gamestateType::isOpen(earlyState))
@@ -89,7 +89,7 @@ namespace pygmalion
 				}
 				return false;
 			}
-			constexpr void resetMoveGen()
+			PYGMALION_INLINE void resetMoveGen()
 			{
 				m_Move = 0;
 				m_CriticalMove = 0;
@@ -100,7 +100,7 @@ namespace pygmalion
 				m_NeedsTacticalSorting = true;
 			}
 			template<bool PRUNED>
-			constexpr bool nextMove(const depthType depthRemaining, movebitsType& movebits, bool& fromStack) noexcept
+			bool nextMove(const depthType depthRemaining, movebitsType& movebits, bool& fromStack) noexcept
 			{
 				fromStack = false;
 				if (m_MoveGeneratorStage < 0)
@@ -294,7 +294,7 @@ namespace pygmalion
 				}
 				return false;
 			}
-			constexpr bool nextTacticalMove(movebitsType& movebits, bool& fromStack) noexcept
+			bool nextTacticalMove(movebitsType& movebits, bool& fromStack) noexcept
 			{
 				fromStack = false;
 				if (m_TacticalMoveGeneratorStage < 0)
@@ -354,7 +354,7 @@ namespace pygmalion
 				}
 				return false;
 			}
-			constexpr static scoreType createAspiration(const scoreType sc, const scoreType window) noexcept
+			PYGMALION_INLINE static scoreType createAspiration(const scoreType sc, const scoreType window) noexcept
 			{
 				if (sc.isOpen())
 					return sc + window;
@@ -362,7 +362,7 @@ namespace pygmalion
 					return sc;
 			}
 			template<bool VERBOSE, bool ANALYZE>
-			constexpr scoreType searchMove(const movebitsType move, const scoreType alpha, const scoreType beta, const depthType depthRemaining, variationType& principalVariation, std::ostream& str, bool& allowStoreTT, indexType* pCurrentMove) noexcept
+			PYGMALION_INLINE scoreType searchMove(const movebitsType move, const scoreType alpha, const scoreType beta, const depthType depthRemaining, variationType& principalVariation, std::ostream& str, bool& allowStoreTT, indexType* pCurrentMove) noexcept
 			{
 				if constexpr (searchIterativeDeepening && !(ANALYZE))
 				{
@@ -438,13 +438,13 @@ namespace pygmalion
 				}
 			}
 			template<bool VERBOSE>
-			constexpr scoreType zwsearchMove(const movebitsType move, const scoreType alpha, const depthType& depthRemaining, const uint_t<countPlayers, false> nullMoveHistory, std::ostream& str, bool& allowStoreTT) const noexcept
+			PYGMALION_INLINE scoreType zwsearchMove(const movebitsType move, const scoreType alpha, const depthType& depthRemaining, const uint_t<countPlayers, false> nullMoveHistory, std::ostream& str, bool& allowStoreTT) const noexcept
 			{
 				childType subnode{ childType(*this, move) };
 				return -subnode.template zwsearch<VERBOSE>(-alpha.plyDown(), depthRemaining - depthType(1), nullMoveHistory, str, allowStoreTT).plyUp();
 			}
 			template<bool VERBOSE, bool SCOUT, bool ANALYZE>
-			constexpr bool searchSubNode(const movebitsType move, scoreType& alpha, scoreType& beta, scoreType& best, movebitsType& bestmove, const depthType depthRemaining, variationType& principalVariation, std::ostream& str, const bool fromStack, bool& allowStoreTT, indexType* pCurrentMove)  noexcept
+			PYGMALION_INLINE bool searchSubNode(const movebitsType move, scoreType& alpha, scoreType& beta, scoreType& best, movebitsType& bestmove, const depthType depthRemaining, variationType& principalVariation, std::ostream& str, const bool fromStack, bool& allowStoreTT, indexType* pCurrentMove)  noexcept
 			{
 				m_Heuristics.template beginMove<PLAYER, false>(m_Stack, move, m_Depth);
 				variationType subVariation;
@@ -576,7 +576,7 @@ namespace pygmalion
 				}
 			}
 			template<bool VERBOSE, bool PRUNED>
-			constexpr bool zwsearchSubNode(const movebitsType move, scoreType& alpha, scoreType& beta, scoreType& best, movebitsType& bestmove, const depthType depthRemaining, const uint_t<countPlayers, false> nullMoveHistory, std::ostream& str, const bool fromStack, bool& allowStoreTT) noexcept
+			PYGMALION_INLINE bool zwsearchSubNode(const movebitsType move, scoreType& alpha, scoreType& beta, scoreType& best, movebitsType& bestmove, const depthType depthRemaining, const uint_t<countPlayers, false> nullMoveHistory, std::ostream& str, const bool fromStack, bool& allowStoreTT) noexcept
 			{
 				m_Heuristics.template beginMove<PLAYER, false>(m_Stack, move, m_Depth);
 				if constexpr (!PRUNED)
@@ -613,7 +613,7 @@ namespace pygmalion
 				return false;
 			}
 			template<bool VERBOSE, bool USE_TT>
-			constexpr bool qsearchSubNode(const movebitsType move, scoreType& alpha, scoreType& beta, scoreType& best, movebitsType& bestmove, variationType& principalVariation, std::ostream& str, const bool fromStack, bool& allowStoreTT) noexcept
+			PYGMALION_INLINE bool qsearchSubNode(const movebitsType move, scoreType& alpha, scoreType& beta, scoreType& best, movebitsType& bestmove, variationType& principalVariation, std::ostream& str, const bool fromStack, bool& allowStoreTT) noexcept
 			{
 				m_Heuristics.template beginMove<PLAYER, true>(m_Stack, move, m_Depth);
 				variationType subVariation;
@@ -661,7 +661,7 @@ namespace pygmalion
 				return false;
 			}
 			template<bool VERBOSE, bool USE_TT>
-			constexpr bool qzwsearchSubNode(const movebitsType move, scoreType& alpha, scoreType& beta, scoreType& best, movebitsType& bestmove, std::ostream& str, const bool fromStack, bool& allowStoreTT) noexcept
+			PYGMALION_INLINE bool qzwsearchSubNode(const movebitsType move, scoreType& alpha, scoreType& beta, scoreType& best, movebitsType& bestmove, std::ostream& str, const bool fromStack, bool& allowStoreTT) noexcept
 			{
 				m_Heuristics.template beginMove<PLAYER, true>(m_Stack, move, m_Depth);
 				bool allowStoreTTsubnode{ true };
@@ -686,27 +686,27 @@ namespace pygmalion
 				m_Heuristics.template endMoveSilent<PLAYER, true>(m_Stack, move, m_Depth, -1);
 				return false;
 			}
-			constexpr static uint_t<countPlayers, false> noNullMove(const uint_t<countPlayers, false> nullMoveHistory) noexcept
+			PYGMALION_INLINE static uint_t<countPlayers, false> noNullMove(const uint_t<countPlayers, false> nullMoveHistory) noexcept
 			{
 				return nullMoveHistory << 1;
 			}
-			constexpr static uint_t<countPlayers, false> doNullMove(uint_t<countPlayers, false> nullMoveHistory) noexcept
+			PYGMALION_INLINE static uint_t<countPlayers, false> doNullMove(uint_t<countPlayers, false> nullMoveHistory) noexcept
 			{
 				nullMoveHistory <<= 1;
 				nullMoveHistory[0] = true;
 				return nullMoveHistory;
 			}
-			constexpr static bool checkNullMove(const uint_t<countPlayers, false> nullMoveHistory) noexcept
+			PYGMALION_INLINE static bool checkNullMove(const uint_t<countPlayers, false> nullMoveHistory) noexcept
 			{
 				return !nullMoveHistory[countPlayers - 1];
 			}
 			constexpr static inline uint_t<countPlayers, false> m_EmptyNullMoveHistory{ uint_t<countPlayers, false>(0) };
-			constexpr void printIndentation(std::ostream& str) const noexcept
+			void printIndentation(std::ostream& str) const noexcept
 			{
 				for (int i = 0; i < m_DistanceFromRoot; i++)
 					str << "    ";
 			}
-			constexpr scoreType evaluate(const scoreType alpha, const scoreType beta) noexcept
+			PYGMALION_INLINE scoreType evaluate(const scoreType alpha, const scoreType beta) noexcept
 			{
 				if ((alpha < m_EvalAlpha) || (beta > m_EvalBeta))
 				{
@@ -716,43 +716,43 @@ namespace pygmalion
 				}
 				return m_Eval;
 			}
-			constexpr scoreType futileGap() const noexcept
+			PYGMALION_INLINE scoreType futileGap() const noexcept
 			{
 				return m_FutileGap;
 			}
-			constexpr scoreType moveFutilityValue(const movebitsType& move) const noexcept
+			PYGMALION_INLINE scoreType moveFutilityValue(const movebitsType& move) const noexcept
 			{
 				return static_cast<const instanceType*>(this)->moveFutilityValue_Implementation(move);
 			}
-			constexpr bool canPruneMove(const movebitsType& move) const noexcept
+			PYGMALION_INLINE bool canPruneMove(const movebitsType& move) const noexcept
 			{
 				return !generatorType::template isMoveCritical<PLAYER>(this->stack(), move);
 			}
-			constexpr bool canFutilityPruneMove(const movebitsType move) const noexcept
+			PYGMALION_INLINE bool canFutilityPruneMove(const movebitsType move) const noexcept
 			{
 				return moveFutilityValue(move) < this->futileGap();
 			}
-			constexpr static bool futilityPruningEnabled(const size_t depthRemaining) noexcept
+			PYGMALION_INLINE static bool futilityPruningEnabled(const size_t depthRemaining) noexcept
 			{
 				return instanceType::futilityPruningEnabled_Implementation(depthRemaining);
 			}
-			constexpr static scoreType futilityMargin(const size_t depthRemaining, const stackType& stack) noexcept
+			PYGMALION_INLINE static scoreType futilityMargin(const size_t depthRemaining, const stackType& stack) noexcept
 			{
 				return instanceType::futilityMargin_Implementation(depthRemaining, stack);
 			}
-			constexpr static scoreType futilityGlobalMargin(const size_t depthRemaining, const stackType& stack) noexcept
+			PYGMALION_INLINE static scoreType futilityGlobalMargin(const size_t depthRemaining, const stackType& stack) noexcept
 			{
 				return instanceType::futilityGlobalMargin_Implementation(depthRemaining, stack);
 			}
-			constexpr bool pruningAllowed(const scoreType alpha, const scoreType beta) const noexcept
+			PYGMALION_INLINE bool pruningAllowed(const scoreType alpha, const scoreType beta) const noexcept
 			{
 				return alpha.isOpen() && beta.isOpen() && !this->stack().isPositionCritical();
 			}
-			constexpr static depthType nullMoveReduction(const size_t depthRemaining) noexcept
+			PYGMALION_INLINE static depthType nullMoveReduction(const size_t depthRemaining) noexcept
 			{
 				return instanceType::nullMoveReduction_Implementation(depthRemaining);
 			}
-			constexpr bool nullMoveAllowed() const noexcept
+			PYGMALION_INLINE bool nullMoveAllowed() const noexcept
 			{
 				return static_cast<const instanceType*>(this)->nullMoveAllowed_Implementation();
 			}
@@ -936,7 +936,7 @@ namespace pygmalion
 				return alpha;
 			}
 			template<bool VERBOSE, bool PRUNED>
-			scoreType zwsearchLoop(bool& hasLegalMove, const depthType depthRemaining, scoreType& alpha, scoreType& beta, scoreType& best, movebitsType& bestmove, const uint_t<countPlayers, false> nullMoveHistory, std::ostream& str, bool& allowStoreTT) noexcept
+			PYGMALION_INLINE scoreType zwsearchLoop(bool& hasLegalMove, const depthType depthRemaining, scoreType& alpha, scoreType& beta, scoreType& best, movebitsType& bestmove, const uint_t<countPlayers, false> nullMoveHistory, std::ostream& str, bool& allowStoreTT) noexcept
 			{
 				movebitsType move;
 				bool fromStack;
@@ -973,7 +973,7 @@ namespace pygmalion
 				return alpha;
 			}
 			template<bool VERBOSE, bool ANALYZE>
-			scoreType searchLoop(const depthType depthRemaining, scoreType& alpha, scoreType& beta, variationType& principalVariation, std::ostream& str, bool& allowStoreTT, indexType* pCurrentMove) noexcept
+			PYGMALION_INLINE scoreType searchLoop(const depthType depthRemaining, scoreType& alpha, scoreType& beta, variationType& principalVariation, std::ostream& str, bool& allowStoreTT, indexType* pCurrentMove) noexcept
 			{
 				bool hasLegalMove{ false };
 				movebitsType move;
@@ -1331,7 +1331,7 @@ namespace pygmalion
 						return this->template search<VERBOSE>(minimum, maximum, depthRemaining, principalVariation, str, allowStoreTT);
 				}
 			}
-			constexpr const stackType& stack() const noexcept
+			PYGMALION_INLINE const stackType& stack() const noexcept
 			{
 				return m_Stack;
 			}
