@@ -14,34 +14,34 @@ namespace pygmalion::chess
 			squareType m_To;
 			std::uint16_t m_ReversiblePlies{ 0 };
 		public:
-			constexpr std::uint16_t reversiblePlies() const noexcept
+			PYGMALION_INLINE std::uint16_t reversiblePlies() const noexcept
 			{
 				return m_ReversiblePlies;
 			}
-			constexpr const uint_t<countFiles, false> oldFlags() const noexcept
+			PYGMALION_INLINE const uint_t<countFiles, false> oldFlags() const noexcept
 			{
 				return m_OldFlags;
 			}
-			constexpr squareType from() const noexcept
+			PYGMALION_INLINE squareType from() const noexcept
 			{
 				return m_From;
 			}
-			constexpr squareType to() const noexcept
+			PYGMALION_INLINE squareType to() const noexcept
 			{
 				return m_To;
 			}
-			constexpr doublepushMovedata(const squareType from_, const squareType to_, const uint_t<countFiles, false>& oldFlags_, const std::uint16_t reversiblePlies_) noexcept :
+			PYGMALION_INLINE doublepushMovedata(const squareType from_, const squareType to_, const uint_t<countFiles, false>& oldFlags_, const std::uint16_t reversiblePlies_) noexcept :
 				m_From{ from_ },
 				m_To{ to_ },
 				m_OldFlags{ oldFlags_ },
 				m_ReversiblePlies{ reversiblePlies_ }
 			{}
-			constexpr doublepushMovedata() noexcept = default;
-			constexpr doublepushMovedata(doublepushMovedata&&) noexcept = default;
-			constexpr doublepushMovedata(const doublepushMovedata&) noexcept = default;
-			constexpr doublepushMovedata& operator=(doublepushMovedata&&) noexcept = default;
-			constexpr doublepushMovedata& operator=(const doublepushMovedata&) noexcept = default;
-			~doublepushMovedata() noexcept = default;
+			PYGMALION_INLINE doublepushMovedata() noexcept = default;
+			PYGMALION_INLINE doublepushMovedata(doublepushMovedata&&) noexcept = default;
+			PYGMALION_INLINE doublepushMovedata(const doublepushMovedata&) noexcept = default;
+			PYGMALION_INLINE doublepushMovedata& operator=(doublepushMovedata&&) noexcept = default;
+			PYGMALION_INLINE doublepushMovedata& operator=(const doublepushMovedata&) noexcept = default;
+			PYGMALION_INLINE ~doublepushMovedata() noexcept = default;
 		};
 	}
 
@@ -61,23 +61,23 @@ namespace pygmalion::chess
 			return sstr.str();
 		}
 	private:
-		constexpr static fileType extractFile(const typename doublepushmove::movebitsType movebits) noexcept
+		PYGMALION_INLINE static fileType extractFile(const typename doublepushmove::movebitsType movebits) noexcept
 		{
 			const fileType f{ fileType(static_cast<typename std::make_unsigned<typename fileType::baseType>::type>(movebits.template extractBits<0, countFileBits>())) };
 			return f;
 		}
-		constexpr static void encodeFile(typename doublepushmove::movebitsType& movebits, const fileType f) noexcept
+		PYGMALION_INLINE static void encodeFile(typename doublepushmove::movebitsType& movebits, const fileType f) noexcept
 		{
 			movebits.template storeBits<0, countFileBits>(static_cast<typename std::make_unsigned<typename fileType::baseType>::type>(f));
 		}
 	public:
-		doublepushmove() noexcept = default;
-		~doublepushmove() noexcept = default;
-		doublepushmove(doublepushmove&&) noexcept = default;
-		doublepushmove(const doublepushmove&) noexcept = default;
-		doublepushmove& operator=(doublepushmove&&) noexcept = default;
-		doublepushmove& operator=(const doublepushmove&) noexcept = default;
-		typename doublepushmove::movedataType doMove_Implementation(boardType& position, const typename doublepushmove::movebitsType& moveBits) const noexcept
+		PYGMALION_INLINE constexpr doublepushmove() noexcept = default;
+		PYGMALION_INLINE ~doublepushmove() noexcept = default;
+		PYGMALION_INLINE constexpr doublepushmove(doublepushmove&&) noexcept = default;
+		PYGMALION_INLINE constexpr doublepushmove(const doublepushmove&) noexcept = default;
+		PYGMALION_INLINE constexpr doublepushmove& operator=(doublepushmove&&) noexcept = default;
+		PYGMALION_INLINE constexpr doublepushmove& operator=(const doublepushmove&) noexcept = default;
+		PYGMALION_INLINE void doMove_Implementation(boardType& position, const typename doublepushmove::movebitsType& moveBits, typename doublepushmove::movedataType& movedata) const noexcept
 		{
 			const playerType p{ position.movingPlayer() };
 			const fileType f{ doublepushmove::extractFile(moveBits) };
@@ -95,7 +95,7 @@ namespace pygmalion::chess
 				position.setEnPassantFile(f);
 				position.setMovingPlayer(++position.movingPlayer());
 				position.cumulation().reversiblePlies() = 0;
-				return typename doublepushmove::movedataType(from, to, oldFlags, reversiblePlies);
+				movedata = doublepushmove::movedataType(from, to, oldFlags, reversiblePlies);
 			}
 			else
 			{
@@ -109,10 +109,10 @@ namespace pygmalion::chess
 				position.setEnPassantFile(f);
 				position.setMovingPlayer(++position.movingPlayer());
 				position.cumulation().reversiblePlies() = 0;
-				return typename doublepushmove::movedataType(from, to, oldFlags, reversiblePlies);
+				movedata = typename doublepushmove::movedataType(from, to, oldFlags, reversiblePlies);
 			}
 		}
-		void undoMove_Implementation(boardType& position, const typename doublepushmove::movedataType& data) const noexcept
+		PYGMALION_INLINE void undoMove_Implementation(boardType& position, const typename doublepushmove::movedataType& data) const noexcept
 		{
 			const playerType p{ --position.movingPlayer() };
 			position.setMovingPlayer(p);
@@ -121,7 +121,7 @@ namespace pygmalion::chess
 			position.storeFlagRange<4, 11>(data.oldFlags());
 			position.cumulation().reversiblePlies() = data.reversiblePlies();
 		}
-		typename doublepushmove::movebitsType create(const fileType file) const noexcept
+		PYGMALION_INLINE typename doublepushmove::movebitsType create(const fileType file) const noexcept
 		{
 			typename doublepushmove::movebitsType bits{ doublepushmove::movebitsType::zero() };
 			doublepushmove::encodeFile(bits, file);
@@ -198,12 +198,12 @@ namespace pygmalion::chess
 				return boardType::squareToString(from) + boardType::squareToString(to);
 			}
 		}
-		squaresType otherOccupancyDelta_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
+		PYGMALION_INLINE squaresType otherOccupancyDelta_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
 		{
 			constexpr const squaresType none{ squaresType::none() };
 			return none;
 		}
-		squaresType ownOccupancyDelta_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
+		PYGMALION_INLINE squaresType ownOccupancyDelta_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
 		{
 			const playerType p{ position.movingPlayer() };
 			const fileType f{ doublepushmove::extractFile(moveBits) };
@@ -224,7 +224,7 @@ namespace pygmalion::chess
 				return squaresType(from) ^ squaresType(to);
 			}
 		}
-		squaresType pieceOccupancyDelta_Implementation(const boardType& position, const pieceType piece, const movebitsType moveBits) const noexcept
+		PYGMALION_INLINE squaresType pieceOccupancyDelta_Implementation(const boardType& position, const pieceType piece, const movebitsType moveBits) const noexcept
 		{
 			constexpr const squaresType none{ squaresType::none() };
 			if (piece == pawn)
@@ -251,7 +251,7 @@ namespace pygmalion::chess
 			else
 				return none;
 		}
-		squareType fromSquare_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
+		PYGMALION_INLINE squareType fromSquare_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
 		{
 			const playerType p{ position.movingPlayer() };
 			const fileType f{ doublepushmove::extractFile(moveBits) };
@@ -268,7 +268,7 @@ namespace pygmalion::chess
 				return from;
 			}
 		}
-		squareType toSquare_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
+		PYGMALION_INLINE squareType toSquare_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
 		{
 			const playerType p{ position.movingPlayer() };
 			const fileType f{ doublepushmove::extractFile(moveBits) };

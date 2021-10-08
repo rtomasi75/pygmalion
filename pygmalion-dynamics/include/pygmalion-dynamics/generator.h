@@ -274,7 +274,7 @@ namespace pygmalion
 			contextType* m_pContext;
 			boardType& m_Position;
 			historyType& m_History;
-			const movedataType m_MoveData;
+			movedataType m_MoveData;
 			mutable stageType m_LastNormalStage;
 			mutable stageType m_CurrentNormalStage;
 			mutable stageType m_LastTacticalStage;
@@ -541,7 +541,7 @@ namespace pygmalion
 						{
 							if (m_CurrentNormalPass < countNormalPasses[m_CurrentNormalStage])
 							{
-//								std::cout << "generating stage " << m_CurrentNormalStage << ", pass " << m_CurrentNormalPass << " (" << generatorType::passToString(normalStage(m_CurrentNormalStage), normalPass(feedback, m_CurrentNormalStage, m_CurrentNormalPass)) << ")" << std::endl;
+								//								std::cout << "generating stage " << m_CurrentNormalStage << ", pass " << m_CurrentNormalPass << " (" << generatorType::passToString(normalStage(m_CurrentNormalStage), normalPass(feedback, m_CurrentNormalStage, m_CurrentNormalPass)) << ")" << std::endl;
 								generatorType::generateMoves(m_NormalStages[m_CurrentNormalStage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->normalMoves(), feedback.index(m_NormalStages[m_CurrentNormalStage], m_CurrentNormalPass, depth));
 								while (m_pContext->normalPasses().length() < m_pContext->normalMoves().length())
 								{
@@ -883,10 +883,10 @@ namespace pygmalion
 				m_CurrentCriticalStage{ 0 },
 				m_LastCriticalPass{ 0 },
 				m_LastCriticalStage{ 0 },
-				m_MoveData(motorType::move().doMove(m_Position, moveBits)),
 				m_IsNullmove{ false },
 				m_Hash{ m_Position.hash() }
 			{
+				motorType::move().doMove(m_Position, moveBits, m_MoveData);
 				m_pContext->clearMovegenLists();
 			}
 			stack(boardType& position, historyType& history, contextType* pContext) noexcept :
@@ -912,7 +912,6 @@ namespace pygmalion
 				m_CurrentCriticalStage{ 0 },
 				m_LastCriticalPass{ 0 },
 				m_LastCriticalStage{ 0 },
-				m_MoveData(),
 				m_IsNullmove{ true },
 				m_Hash{ m_Position.hash() }
 			{

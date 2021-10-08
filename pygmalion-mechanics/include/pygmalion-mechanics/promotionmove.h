@@ -16,39 +16,39 @@ namespace pygmalion::mechanics
 			pieceType m_PromotedPiece;
 			playerType m_Player;
 		public:
-			constexpr playerType player() const noexcept
+			PYGMALION_INLINE playerType player() const noexcept
 			{
 				return m_Player;
 			}
-			constexpr pieceType initialPiece() const noexcept
+			PYGMALION_INLINE pieceType initialPiece() const noexcept
 			{
 				return m_InitialPiece;
 			}
-			constexpr pieceType promotedPiece() const noexcept
+			PYGMALION_INLINE pieceType promotedPiece() const noexcept
 			{
 				return m_PromotedPiece;
 			}
-			constexpr squareType from() const noexcept
+			PYGMALION_INLINE squareType from() const noexcept
 			{
 				return m_From;
 			}
-			constexpr squareType to() const noexcept
+			PYGMALION_INLINE squareType to() const noexcept
 			{
 				return m_To;
 			}
-			constexpr promotionMovedata(const pieceType initialPiece_, const squareType fromSquare, const squareType toSquare, const playerType owner, const pieceType promotedPiece_) noexcept :
+			PYGMALION_INLINE promotionMovedata(const pieceType initialPiece_, const squareType fromSquare, const squareType toSquare, const playerType owner, const pieceType promotedPiece_) noexcept :
 				m_InitialPiece{ initialPiece_ },
 				m_PromotedPiece{ promotedPiece_ },
 				m_From{ fromSquare },
 				m_To{ toSquare },
 				m_Player{ owner }
 			{}
-			constexpr promotionMovedata() noexcept = default;
-			constexpr promotionMovedata(promotionMovedata&&) noexcept = default;
-			constexpr promotionMovedata(const promotionMovedata&) noexcept = default;
-			constexpr promotionMovedata& operator=(promotionMovedata&&) noexcept = default;
-			constexpr promotionMovedata& operator=(const promotionMovedata&) noexcept = default;
-			~promotionMovedata() noexcept = default;
+			PYGMALION_INLINE promotionMovedata() noexcept = default;
+			PYGMALION_INLINE promotionMovedata(promotionMovedata&&) noexcept = default;
+			PYGMALION_INLINE promotionMovedata(const promotionMovedata&) noexcept = default;
+			PYGMALION_INLINE promotionMovedata& operator=(promotionMovedata&&) noexcept = default;
+			PYGMALION_INLINE promotionMovedata& operator=(const promotionMovedata&) noexcept = default;
+			PYGMALION_INLINE ~promotionMovedata() noexcept = default;
 		};
 	}
 
@@ -70,41 +70,41 @@ namespace pygmalion::mechanics
 			return sstr.str();
 		}
 	private:
-		constexpr static pieceType extractPiece(const typename promotionmove::movebitsType movebits) noexcept
+		PYGMALION_INLINE static pieceType extractPiece(const typename promotionmove::movebitsType movebits) noexcept
 		{
 			const pieceType pc{ pieceType(static_cast<typename std::make_unsigned<typename pieceType::baseType>::type>(movebits.template extractBits<countFromBits + countToBits,countPieceBits>())) };
 			return pc;
 		}
-		constexpr static void encodePiece(typename promotionmove::movebitsType& movebits, const pieceType pc) noexcept
+		PYGMALION_INLINE static void encodePiece(typename promotionmove::movebitsType& movebits, const pieceType pc) noexcept
 		{
 			movebits.template storeBits<countFromBits + countToBits, countPieceBits>(static_cast<typename std::make_unsigned<typename pieceType::baseType>::type>(pc));
 		}
-		constexpr static squareType extractTo(const typename promotionmove::movebitsType movebits) noexcept
+		PYGMALION_INLINE static squareType extractTo(const typename promotionmove::movebitsType movebits) noexcept
 		{
 			const squareType sq{ squareType(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(movebits.template extractBits<countFromBits,countToBits>())) };
 			return sq;
 		}
-		constexpr static void encodeTo(typename promotionmove::movebitsType& movebits, const squareType sq) noexcept
+		PYGMALION_INLINE static void encodeTo(typename promotionmove::movebitsType& movebits, const squareType sq) noexcept
 		{
 			movebits.template storeBits<countFromBits, countToBits>(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(sq));
 		}
-		constexpr static squareType extractFrom(const typename promotionmove::movebitsType movebits) noexcept
+		PYGMALION_INLINE static squareType extractFrom(const typename promotionmove::movebitsType movebits) noexcept
 		{
 			const squareType sq{ squareType(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(movebits.template extractBits<0,countFromBits>())) };
 			return sq;
 		}
-		constexpr static void encodeFrom(typename promotionmove::movebitsType& movebits, const squareType sq) noexcept
+		PYGMALION_INLINE static void encodeFrom(typename promotionmove::movebitsType& movebits, const squareType sq) noexcept
 		{
 			movebits.template storeBits<0, countFromBits>(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(sq));
 		}
 	public:
-		constexpr promotionmove() noexcept = default;
-		~promotionmove() noexcept = default;
-		constexpr promotionmove(promotionmove&&) noexcept = default;
-		constexpr promotionmove(const promotionmove&) noexcept = default;
-		constexpr promotionmove& operator=(promotionmove&&) noexcept = default;
-		constexpr promotionmove& operator=(const promotionmove&) noexcept = default;
-		constexpr typename promotionmove::movedataType doMove_Implementation(boardType& position, const typename promotionmove::movebitsType moveBits) const noexcept
+		PYGMALION_INLINE constexpr promotionmove() noexcept = default;
+		PYGMALION_INLINE ~promotionmove() noexcept = default;
+		PYGMALION_INLINE constexpr promotionmove(promotionmove&&) noexcept = default;
+		PYGMALION_INLINE constexpr promotionmove(const promotionmove&) noexcept = default;
+		PYGMALION_INLINE constexpr promotionmove& operator=(promotionmove&&) noexcept = default;
+		PYGMALION_INLINE constexpr promotionmove& operator=(const promotionmove&) noexcept = default;
+		PYGMALION_INLINE void doMove_Implementation(boardType& position, const typename promotionmove::movebitsType moveBits, typename promotionmove::movedataType& movedata) const noexcept
 		{
 			const squareType from{ promotionmove::extractFrom(moveBits) };
 			const squareType to{ promotionmove::extractTo(moveBits) };
@@ -113,14 +113,14 @@ namespace pygmalion::mechanics
 			const playerType p{ position.getPlayer(from) };
 			position.removePiece(pc, from, p);
 			position.addPiece(pc2, to, p);
-			return typename promotionmove::movedataType(pc, from, to, p, pc2);
+			movedata = typename promotionmove::movedataType(pc, from, to, p, pc2);
 		}
-		constexpr void undoMove_Implementation(boardType& position, const typename promotionmove::movedataType& data) const noexcept
+		PYGMALION_INLINE void undoMove_Implementation(boardType& position, const typename promotionmove::movedataType& data) const noexcept
 		{
 			position.removePiece(data.promotedPiece(), data.to(), data.player());
 			position.addPiece(data.initialPiece(), data.from(), data.player());
 		}
-		constexpr typename promotionmove::movebitsType create(const squareType from, const squareType to, const pieceType pc) const noexcept
+		PYGMALION_INLINE typename promotionmove::movebitsType create(const squareType from, const squareType to, const pieceType pc) const noexcept
 		{
 			typename promotionmove::movebitsType bits{ promotionmove::movebitsType::zero() };
 			promotionmove::encodeFrom(bits, from);

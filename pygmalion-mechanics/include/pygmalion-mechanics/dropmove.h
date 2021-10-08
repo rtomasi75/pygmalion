@@ -14,29 +14,29 @@ namespace pygmalion::mechanics
 			pieceType m_Piece;
 			playerType m_Owner;
 		public:
-			constexpr playerType owner() const noexcept
+			PYGMALION_INLINE playerType owner() const noexcept
 			{
 				return m_Owner;
 			}
-			constexpr squareType square() const noexcept
+			PYGMALION_INLINE squareType square() const noexcept
 			{
 				return m_Square;
 			}
-			constexpr pieceType piece() const noexcept
+			PYGMALION_INLINE pieceType piece() const noexcept
 			{
 				return m_Piece;
 			}
-			constexpr dropMovedata() noexcept = default;
-			constexpr dropMovedata(const pieceType pc, const squareType sq, const playerType p) noexcept :
+			PYGMALION_INLINE dropMovedata() noexcept = default;
+			PYGMALION_INLINE dropMovedata(const pieceType pc, const squareType sq, const playerType p) noexcept :
 				m_Square{ sq },
 				m_Piece{ pc },
 				m_Owner{ p }
 			{}
-			constexpr dropMovedata(dropMovedata&&) noexcept = default;
-			constexpr dropMovedata(const dropMovedata&) noexcept = default;
-			constexpr dropMovedata& operator=(dropMovedata&&) noexcept = default;
-			constexpr dropMovedata& operator=(const dropMovedata&) noexcept = default;
-			~dropMovedata() noexcept = default;
+			PYGMALION_INLINE dropMovedata(dropMovedata&&) noexcept = default;
+			PYGMALION_INLINE dropMovedata(const dropMovedata&) noexcept = default;
+			PYGMALION_INLINE dropMovedata& operator=(dropMovedata&&) noexcept = default;
+			PYGMALION_INLINE dropMovedata& operator=(const dropMovedata&) noexcept = default;
+			PYGMALION_INLINE ~dropMovedata() noexcept = default;
 		};
 	}
 
@@ -57,54 +57,54 @@ namespace pygmalion::mechanics
 			sstr << "" << sizeof(typename dropmove::movedataType) << ":" << dropmove::countBits << "@drop";
 			return sstr.str();
 		}
-		constexpr static playerType extractOwner(const typename dropmove::movebitsType movebits) noexcept
+		PYGMALION_INLINE static playerType extractOwner(const typename dropmove::movebitsType movebits) noexcept
 		{
 			const playerType p{ playerType(static_cast<typename std::make_unsigned<typename playerType::baseType>::type>(movebits.template extractBits<countSquareBits + countPieceBits,countOwnerBits>())) };
 			return p;
 		}
-		constexpr static pieceType extractPiece(const typename dropmove::movebitsType movebits) noexcept
+		PYGMALION_INLINE static pieceType extractPiece(const typename dropmove::movebitsType movebits) noexcept
 		{
 			const pieceType pc{ pieceType(static_cast<typename std::make_unsigned<typename pieceType::baseType>::type>(movebits.template extractBits<countSquareBits,countPieceBits>())) };
 			return pc;
 		}
-		constexpr static squareType extractSquare(const typename dropmove::movebitsType movebits) noexcept
+		PYGMALION_INLINE static squareType extractSquare(const typename dropmove::movebitsType movebits) noexcept
 		{
 			const squareType sq{ squareType(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(movebits.template extractBits<0,countSquareBits>())) };
 			return sq;
 		}
 	private:
-		constexpr static void encodeOwner(typename dropmove::movebitsType& movebits, const playerType p) noexcept
+		PYGMALION_INLINE static void encodeOwner(typename dropmove::movebitsType& movebits, const playerType p) noexcept
 		{
 			movebits.template storeBits<countSquareBits + countPieceBits, countOwnerBits>(static_cast<typename std::make_unsigned<typename playerType::baseType>::type>(p));
 		}
-		constexpr static void encodePiece(typename dropmove::movebitsType& movebits, const pieceType pc) noexcept
+		PYGMALION_INLINE static void encodePiece(typename dropmove::movebitsType& movebits, const pieceType pc) noexcept
 		{
 			movebits.template storeBits<countSquareBits, countPieceBits>(static_cast<typename std::make_unsigned<typename pieceType::baseType>::type>(pc));
 		}
-		constexpr static void encodeSquare(typename dropmove::movebitsType& movebits, const squareType sq) noexcept
+		PYGMALION_INLINE static void encodeSquare(typename dropmove::movebitsType& movebits, const squareType sq) noexcept
 		{
 			movebits.template storeBits<0, countSquareBits>(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(sq));
 		}
 	public:
-		constexpr dropmove() noexcept = default;
-		~dropmove() noexcept = default;
-		constexpr dropmove(dropmove&&) noexcept = default;
-		constexpr dropmove(const dropmove&) noexcept = default;
-		constexpr dropmove& operator=(dropmove&&) noexcept = default;
-		constexpr dropmove& operator=(const dropmove&) noexcept = default;
-		constexpr typename dropmove::movedataType doMove_Implementation(boardType& position, const typename dropmove::movebitsType moveBits) const noexcept
+		PYGMALION_INLINE constexpr dropmove() noexcept = default;
+		PYGMALION_INLINE ~dropmove() noexcept = default;
+		PYGMALION_INLINE constexpr dropmove(dropmove&&) noexcept = default;
+		PYGMALION_INLINE constexpr dropmove(const dropmove&) noexcept = default;
+		PYGMALION_INLINE constexpr dropmove& operator=(dropmove&&) noexcept = default;
+		PYGMALION_INLINE constexpr dropmove& operator=(const dropmove&) noexcept = default;
+		PYGMALION_INLINE void doMove_Implementation(boardType& position, const typename dropmove::movebitsType moveBits, typename dropmove::movedataType& movedata) const noexcept
 		{
 			const squareType sq{ dropmove::extractSquare(moveBits) };
 			const pieceType pc{ dropmove::extractPiece(moveBits) };
 			const playerType p{ dropmove::extractOwner(moveBits) };
 			position.addPiece(pc, sq, p);
-			return typename dropmove::movedataType(pc, sq, p);
+			movedata = typename dropmove::movedataType(pc, sq, p);
 		}
-		constexpr void undoMove_Implementation(boardType& position, const typename dropmove::movedataType data) const noexcept
+		PYGMALION_INLINE void undoMove_Implementation(boardType& position, const typename dropmove::movedataType data) const noexcept
 		{
 			position.removePiece(data.piece(), data.square(), data.owner());
 		}
-		constexpr typename dropmove::movebitsType create(const pieceType piece, const squareType square, const playerType owner) const noexcept
+		PYGMALION_INLINE typename dropmove::movebitsType create(const pieceType piece, const squareType square, const playerType owner) const noexcept
 		{
 			typename dropmove::movebitsType bits{ dropmove::movebitsType::zero() };
 			dropmove::encodeSquare(bits, square);

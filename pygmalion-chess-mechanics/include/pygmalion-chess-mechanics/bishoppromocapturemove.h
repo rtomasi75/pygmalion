@@ -4,15 +4,15 @@ namespace pygmalion::chess
 		public promocapturemove<0x1>
 	{
 	public:
-		constexpr bishoppromocapturemove() noexcept :
+		PYGMALION_INLINE constexpr bishoppromocapturemove() noexcept :
 			promocapturemove<0x1>()
 		{
 
 		}
-		~bishoppromocapturemove() noexcept = default;
-		constexpr bishoppromocapturemove(bishoppromocapturemove&&) noexcept = default;
-		constexpr bishoppromocapturemove(const bishoppromocapturemove&) noexcept = default;
-		constexpr bishoppromocapturemove& operator=(bishoppromocapturemove&&) noexcept = default;
-		constexpr bishoppromocapturemove& operator=(const bishoppromocapturemove&) noexcept = default;
+		PYGMALION_INLINE ~bishoppromocapturemove() noexcept = default;
+		PYGMALION_INLINE constexpr bishoppromocapturemove(bishoppromocapturemove&&) noexcept = default;
+		PYGMALION_INLINE constexpr bishoppromocapturemove(const bishoppromocapturemove&) noexcept = default;
+		PYGMALION_INLINE constexpr bishoppromocapturemove& operator=(bishoppromocapturemove&&) noexcept = default;
+		PYGMALION_INLINE constexpr bishoppromocapturemove& operator=(const bishoppromocapturemove&) noexcept = default;
 	};
 }

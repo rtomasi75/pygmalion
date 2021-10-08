@@ -12,32 +12,31 @@ namespace pygmalion
 	private:
 		constexpr static const inline moveType m_Move{ moveType() };
 	public:
-		constexpr static const moveType& move() noexcept
+		PYGMALION_INLINE static const moveType& move() noexcept
 		{
 			return m_Move;
 		}
-		static movedataType makeMove(boardType& position, const movebitsType movebits) noexcept
+		PYGMALION_INLINE static void makeMove(boardType& position, const movebitsType movebits, movedataType& data) noexcept
 		{
-			movedataType data{ m_Move.doMove(position, movebits) };
-			return data;
+			m_Move.doMove(position, movebits, data);
 		}
 
-		static void unmakeMove(boardType& position, const movedataType& data) noexcept
+		PYGMALION_INLINE static void unmakeMove(boardType& position, const movedataType& data) noexcept
 		{
 			m_Move.undoMove(position, data);
 		}
 
-		static bool parseMove(const boardType& position, std::string& text, movebitsType& movebits) noexcept
+		PYGMALION_INLINE static bool parseMove(const boardType& position, std::string& text, movebitsType& movebits) noexcept
 		{
 			return m_Move.parse(position, text, movebits);
 		}
 
-		static std::string moveToString(const boardType& position, const movebitsType movebits) noexcept
+		PYGMALION_INLINE static std::string moveToString(const boardType& position, const movebitsType movebits) noexcept
 		{
 			return m_Move.toString(position, movebits);
 		}
 
-		static bool isTacticalMove(const movebitsType movebits) noexcept
+		PYGMALION_INLINE static bool isTacticalMove(const movebitsType movebits) noexcept
 		{
 			return motorType::isTacticalMove_Implementation(movebits);
 		}

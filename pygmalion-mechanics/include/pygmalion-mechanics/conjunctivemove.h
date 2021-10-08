@@ -30,22 +30,22 @@ namespace pygmalion::mechanics
 		private:
 			std::array<unsigned char, payloadSize> m_Data;
 		public:
-			constexpr unsigned char* dataPtr() noexcept
+			PYGMALION_INLINE unsigned char* dataPtr() noexcept
 			{
 				return m_Data.data();
 			}
-			constexpr const unsigned char* dataPtr() const noexcept
+			PYGMALION_INLINE const unsigned char* dataPtr() const noexcept
 			{
 				return m_Data.data();
 			}
-			constexpr conjunctiveMovedata() noexcept :
+			PYGMALION_INLINE conjunctiveMovedata() noexcept :
 				m_Data{ arrayhelper::make<payloadSize, unsigned char>(0) }
 			{}
-			constexpr conjunctiveMovedata(conjunctiveMovedata&&) noexcept = default;
-			constexpr conjunctiveMovedata(const conjunctiveMovedata&) noexcept = default;
-			constexpr conjunctiveMovedata& operator=(conjunctiveMovedata&&) noexcept = default;
-			constexpr conjunctiveMovedata& operator=(const conjunctiveMovedata&) noexcept = default;
-			~conjunctiveMovedata() noexcept = default;
+			PYGMALION_INLINE conjunctiveMovedata(conjunctiveMovedata&&) noexcept = default;
+			PYGMALION_INLINE conjunctiveMovedata(const conjunctiveMovedata&) noexcept = default;
+			PYGMALION_INLINE conjunctiveMovedata& operator=(conjunctiveMovedata&&) noexcept = default;
+			PYGMALION_INLINE conjunctiveMovedata& operator=(const conjunctiveMovedata&) noexcept = default;
+			PYGMALION_INLINE ~conjunctiveMovedata() noexcept = default;
 		};
 
 	}
@@ -81,31 +81,29 @@ namespace pygmalion::mechanics
 			return sstr.str();
 		}
 		template<size_t INDEX>
-		const auto& component() const noexcept
+		PYGMALION_INLINE constexpr auto& component() const noexcept
 		{
 			return std::get<INDEX>(this->m_Moves);
 		}
 	private:
 		template<size_t BITSPOS, size_t DATAPOS, size_t INDEX, typename MOVE, typename... MOVES2>
-		constexpr void doMovePack(boardType& position, const typename conjunctivemove::movebitsType moveBits, typename conjunctivemove::movedataType& combinedData) const noexcept
+		PYGMALION_INLINE void doMovePack(boardType& position, const typename conjunctivemove::movebitsType moveBits, typename conjunctivemove::movedataType& combinedData) const noexcept
 		{
 			typename MOVE::movebitsType bits{ moveBits.template extractBits<BITSPOS,MOVE::countBits>() };
 			typename MOVE::movedataType& data{ *static_cast<typename MOVE::movedataType*>(combinedData.dataPtr() + DATAPOS) };
-			data = std::get<INDEX>(this->m_Moves).doMove(position, bits);
+			std::get<INDEX>(this->m_Moves).doMove(position, bits, data);
 			if constexpr (sizeof...(MOVES2) > 0)
 				this->template doMovePack<BITSPOS + MOVE::countBits, DATAPOS + sizeof(typename MOVE::movedataType), INDEX + 1, MOVES2...>(position, moveBits, combinedData);
 		}
 	public:
-		constexpr typename conjunctivemove::movedataType doMove_Implementation(boardType& position, const typename conjunctivemove::movebitsType moveBits) const noexcept
+		PYGMALION_INLINE typename conjunctivemove::movedataType doMove_Implementation(boardType& position, const typename conjunctivemove::movebitsType moveBits, typename conjunctivemove::movedataType& movedata) const noexcept
 		{
-			typename conjunctivemove::movedataType data;
 			if constexpr (sizeof...(MOVES) > 0)
-				this->template doMovePack<0, 0, 0, MOVES...>(position, moveBits, data);
-			return data;
+				this->template doMovePack<0, 0, 0, MOVES...>(position, moveBits, movedata);
 		}
 	private:
 		template<size_t DATAPOS, size_t INDEX, typename MOVE, typename... MOVES2>
-		constexpr void undoMovePack(boardType& position, const typename conjunctivemove::movedataType& combinedData) const noexcept
+		PYGMALION_INLINE void undoMovePack(boardType& position, const typename conjunctivemove::movedataType& combinedData) const noexcept
 		{
 			const typename MOVE::movedataType& data{ *static_cast<const typename MOVE::movedataType*>(combinedData.dataPtr() + DATAPOS) };
 			if constexpr (sizeof...(MOVES2) > 0)
@@ -113,7 +111,7 @@ namespace pygmalion::mechanics
 			std::get<INDEX>(this->m_Moves).undoMove(position, data);
 		}
 	public:
-		constexpr void undoMove_Implementation(boardType& position, const typename conjunctivemove::movedataType& data) const noexcept
+		PYGMALION_INLINE void undoMove_Implementation(boardType& position, const typename conjunctivemove::movedataType& data) const noexcept
 		{
 			if constexpr (sizeof...(MOVES) > 0)
 				this->template undoMovePack<0, 0, MOVES...>(position, data);
@@ -169,14 +167,14 @@ namespace pygmalion::mechanics
 		}
 	private:
 		template<size_t BITSPOS, typename MOVE, typename... MOVES2>
-		constexpr void encodePack(typename conjunctivemove::movebitsType& moveBits, typename MOVE::movebitsType& bit, typename MOVES2::movebitsType&... bits) const noexcept
+		PYGMALION_INLINE void encodePack(typename conjunctivemove::movebitsType& moveBits, typename MOVE::movebitsType& bit, typename MOVES2::movebitsType&... bits) const noexcept
 		{
 			moveBits.template storeBits<BITSPOS, MOVE::countBits>(bit);
 			if constexpr (sizeof...(MOVES2) > 0)
 				this->template encodePack<BITSPOS + MOVE::countBits, MOVES2...>(moveBits, bits...);
 		}
 	public:
-		constexpr typename conjunctivemove::movebitsType create(typename MOVES::movebitsType... bits) const noexcept
+		PYGMALION_INLINE typename conjunctivemove::movebitsType create(typename MOVES::movebitsType... bits) const noexcept
 		{
 			typename conjunctivemove::movebitsType moveBits;
 			if constexpr (sizeof...(MOVES) > 0)
@@ -184,15 +182,15 @@ namespace pygmalion::mechanics
 			return moveBits;
 		}
 	public:
-		constexpr conjunctivemove() noexcept :
+		PYGMALION_INLINE constexpr conjunctivemove() noexcept :
 			m_Moves{ std::tuple<MOVES...>(MOVES()...) }
 		{
 
 		}
-		~conjunctivemove() noexcept = default;
-		constexpr conjunctivemove(conjunctivemove&&) noexcept = default;
-		constexpr conjunctivemove(const conjunctivemove&) noexcept = default;
-		constexpr conjunctivemove& operator=(conjunctivemove&&) noexcept = default;
-		constexpr conjunctivemove& operator=(const conjunctivemove&) noexcept = default;
+		PYGMALION_INLINE ~conjunctivemove() noexcept = default;
+		PYGMALION_INLINE constexpr conjunctivemove(conjunctivemove&&) noexcept = default;
+		PYGMALION_INLINE constexpr conjunctivemove(const conjunctivemove&) noexcept = default;
+		PYGMALION_INLINE constexpr conjunctivemove& operator=(conjunctivemove&&) noexcept = default;
+		PYGMALION_INLINE constexpr conjunctivemove& operator=(const conjunctivemove&) noexcept = default;
 	};
 }

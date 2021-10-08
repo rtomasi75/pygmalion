@@ -16,31 +16,31 @@ namespace pygmalion::chess
 			pieceType m_CapturedPiece;
 			std::uint16_t m_ReversiblePlies{ 0 };
 		public:
-			constexpr std::uint16_t reversiblePlies() const noexcept
+			PYGMALION_INLINE std::uint16_t reversiblePlies() const noexcept
 			{
 				return m_ReversiblePlies;
 			}
-			constexpr const uint_t<countFlags, false> oldFlags() const noexcept
+			PYGMALION_INLINE const uint_t<countFlags, false> oldFlags() const noexcept
 			{
 				return m_OldFlags;
 			}
-			constexpr pieceType piece() const noexcept
+			PYGMALION_INLINE pieceType piece() const noexcept
 			{
 				return m_Piece;
 			}
-			constexpr pieceType capturedPiece() const noexcept
+			PYGMALION_INLINE pieceType capturedPiece() const noexcept
 			{
 				return m_CapturedPiece;
 			}
-			constexpr squareType from() const noexcept
+			PYGMALION_INLINE squareType from() const noexcept
 			{
 				return m_From;
 			}
-			constexpr squareType to() const noexcept
+			PYGMALION_INLINE squareType to() const noexcept
 			{
 				return m_To;
 			}
-			constexpr captureMovedata(const pieceType transportedPiece, const squareType fromSquare, const squareType toSquare, const uint_t<countFlags, false> oldFlags_, const pieceType capturedPiece_, const std::uint16_t reversiblePlies_) noexcept :
+			PYGMALION_INLINE captureMovedata(const pieceType transportedPiece, const squareType fromSquare, const squareType toSquare, const uint_t<countFlags, false> oldFlags_, const pieceType capturedPiece_, const std::uint16_t reversiblePlies_) noexcept :
 				m_Piece{ transportedPiece },
 				m_From{ fromSquare },
 				m_To{ toSquare },
@@ -48,12 +48,12 @@ namespace pygmalion::chess
 				m_CapturedPiece{ capturedPiece_ },
 				m_ReversiblePlies{ reversiblePlies_ }
 			{}
-			constexpr captureMovedata() noexcept = default;
-			constexpr captureMovedata(captureMovedata&&) noexcept = default;
-			constexpr captureMovedata(const captureMovedata&) noexcept = default;
-			constexpr captureMovedata& operator=(captureMovedata&&) noexcept = default;
-			constexpr captureMovedata& operator=(const captureMovedata&) noexcept = default;
-			~captureMovedata() noexcept = default;
+			PYGMALION_INLINE captureMovedata() noexcept = default;
+			PYGMALION_INLINE captureMovedata(captureMovedata&&) noexcept = default;
+			PYGMALION_INLINE captureMovedata(const captureMovedata&) noexcept = default;
+			PYGMALION_INLINE captureMovedata& operator=(captureMovedata&&) noexcept = default;
+			PYGMALION_INLINE captureMovedata& operator=(const captureMovedata&) noexcept = default;
+			PYGMALION_INLINE ~captureMovedata() noexcept = default;
 		};
 	}
 
@@ -93,13 +93,13 @@ namespace pygmalion::chess
 			movebits.template storeBits<0, countFromBits>(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(sq));
 		}
 	public:
-		capturemove() noexcept = default;
-		~capturemove() noexcept = default;
-		capturemove(capturemove&&) noexcept = default;
-		capturemove(const capturemove&) noexcept = default;
-		capturemove& operator=(capturemove&&) noexcept = default;
-		capturemove& operator=(const capturemove&) noexcept = default;
-		typename capturemove::movedataType doMove_Implementation(boardType& position, const typename capturemove::movebitsType moveBits) const noexcept
+		PYGMALION_INLINE constexpr capturemove() noexcept = default;
+		PYGMALION_INLINE ~capturemove() noexcept = default;
+		PYGMALION_INLINE constexpr capturemove(capturemove&&) noexcept = default;
+		PYGMALION_INLINE constexpr capturemove(const capturemove&) noexcept = default;
+		PYGMALION_INLINE constexpr capturemove& operator=(capturemove&&) noexcept = default;
+		PYGMALION_INLINE constexpr capturemove& operator=(const capturemove&) noexcept = default;
+		PYGMALION_INLINE void doMove_Implementation(boardType& position, const typename capturemove::movebitsType moveBits, typename capturemove::movedataType& movedata) const noexcept
 		{
 			const squareType from{ capturemove::extractFrom(moveBits) };
 			const squareType to{ capturemove::extractTo(moveBits) };
@@ -179,9 +179,9 @@ namespace pygmalion::chess
 					}
 				}
 			}
-			return typename capturemove::movedataType(pc, from, to, oldFlags, pc2, reversiblePlies);
+			movedata = typename capturemove::movedataType(pc, from, to, oldFlags, pc2, reversiblePlies);
 		}
-		void undoMove_Implementation(boardType& position, const typename capturemove::movedataType& data) const noexcept
+		PYGMALION_INLINE void undoMove_Implementation(boardType& position, const typename capturemove::movedataType& data) const noexcept
 		{
 			const playerType p2{ position.movingPlayer() };
 			const playerType p1{ --position.movingPlayer() };
@@ -192,7 +192,7 @@ namespace pygmalion::chess
 			position.storeFlagRange<0, 11>(data.oldFlags());
 			position.cumulation().reversiblePlies() = data.reversiblePlies();
 		}
-		typename capturemove::movebitsType create(const squareType from, const squareType to) const noexcept
+		PYGMALION_INLINE typename capturemove::movebitsType create(const squareType from, const squareType to) const noexcept
 		{
 			typename capturemove::movebitsType bits{ capturemove::movebitsType::zero() };
 			capturemove::encodeFrom(bits, from);
@@ -227,15 +227,15 @@ namespace pygmalion::chess
 			const squareType to{ capturemove::extractTo(moveBits) };
 			return boardType::squareToString(from) + boardType::squareToString(to);
 		}
-		squaresType otherOccupancyDelta_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
+		PYGMALION_INLINE squaresType otherOccupancyDelta_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
 		{
 			return squaresType(capturemove::extractTo(moveBits));
 		}
-		squaresType ownOccupancyDelta_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
+		PYGMALION_INLINE squaresType ownOccupancyDelta_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
 		{
 			return squaresType(capturemove::extractFrom(moveBits)) ^ squaresType(capturemove::extractTo(moveBits));
 		}
-		squaresType pieceOccupancyDelta_Implementation(const boardType& position, const pieceType piece, const movebitsType moveBits) const noexcept
+		PYGMALION_INLINE squaresType pieceOccupancyDelta_Implementation(const boardType& position, const pieceType piece, const movebitsType moveBits) const noexcept
 		{
 			const squareType to{ capturemove::extractTo(moveBits) };
 			const squareType from{ capturemove::extractFrom(moveBits) };
@@ -250,11 +250,11 @@ namespace pygmalion::chess
 				delta ^= to;
 			return delta;
 		}
-		squareType fromSquare_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
+		PYGMALION_INLINE squareType fromSquare_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
 		{
 			return capturemove::extractFrom(moveBits);
 		}
-		squareType toSquare_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
+		PYGMALION_INLINE squareType toSquare_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
 		{
 			return capturemove::extractTo(moveBits);
 		}

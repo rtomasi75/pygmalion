@@ -4,15 +4,15 @@ namespace pygmalion::chess
 		public promotionmove<0x2>
 	{
 	public:
-		constexpr rookpromotionmove() noexcept :
+		PYGMALION_INLINE constexpr rookpromotionmove() noexcept :
 			promotionmove<0x2>()
 		{
 
 		}
-		~rookpromotionmove() noexcept = default;
-		constexpr rookpromotionmove(rookpromotionmove&&) noexcept = default;
-		constexpr rookpromotionmove(const rookpromotionmove&) noexcept = default;
-		constexpr rookpromotionmove& operator=(rookpromotionmove&&) noexcept = default;
-		constexpr rookpromotionmove& operator=(const rookpromotionmove&) noexcept = default;
+		PYGMALION_INLINE ~rookpromotionmove() noexcept = default;
+		PYGMALION_INLINE constexpr rookpromotionmove(rookpromotionmove&&) noexcept = default;
+		PYGMALION_INLINE constexpr rookpromotionmove(const rookpromotionmove&) noexcept = default;
+		PYGMALION_INLINE constexpr rookpromotionmove& operator=(rookpromotionmove&&) noexcept = default;
+		PYGMALION_INLINE constexpr rookpromotionmove& operator=(const rookpromotionmove&) noexcept = default;
 	};
 }

@@ -64,8 +64,10 @@ namespace pygmalion
 		{
 			m_Boards.push_back(position);
 			m_Bloomfilter.increment(position.hash());
-			m_MovedataHistory.push_back(motorType::makeMove(position, movebits));
-			m_MoveHistory.push_back(movebits);
+			movedataType data;
+			motorType::makeMove(position, movebits, data);
+			m_MovedataHistory.push_back(std::move(data));
+			m_MoveHistory.push_back(std::move(movebits));
 		}
 		template<typename motorType>
 		void unmakeMove(boardType& position) noexcept

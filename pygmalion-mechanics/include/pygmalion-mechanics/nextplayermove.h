@@ -12,19 +12,19 @@ namespace pygmalion::mechanics
 		private:
 			playerType m_MovingPlayer;
 		public:
-			constexpr playerType movingPlayer() const noexcept
+			PYGMALION_INLINE playerType movingPlayer() const noexcept
 			{
 				return m_MovingPlayer;
 			}
-			constexpr nextplayermoveMovedata(const playerType p) noexcept :
+			PYGMALION_INLINE nextplayermoveMovedata(const playerType p) noexcept :
 				m_MovingPlayer{ p }
 			{}
-			constexpr nextplayermoveMovedata() noexcept = default;
-			constexpr nextplayermoveMovedata(nextplayermoveMovedata&&) noexcept = default;
-			constexpr nextplayermoveMovedata(const nextplayermoveMovedata&) noexcept = default;
-			constexpr nextplayermoveMovedata& operator=(nextplayermoveMovedata&&) noexcept = default;
-			constexpr nextplayermoveMovedata& operator=(const nextplayermoveMovedata&) noexcept = default;
-			~nextplayermoveMovedata() noexcept = default;
+			PYGMALION_INLINE nextplayermoveMovedata() noexcept = default;
+			PYGMALION_INLINE nextplayermoveMovedata(nextplayermoveMovedata&&) noexcept = default;
+			PYGMALION_INLINE nextplayermoveMovedata(const nextplayermoveMovedata&) noexcept = default;
+			PYGMALION_INLINE nextplayermoveMovedata& operator=(nextplayermoveMovedata&&) noexcept = default;
+			PYGMALION_INLINE nextplayermoveMovedata& operator=(const nextplayermoveMovedata&) noexcept = default;
+			PYGMALION_INLINE ~nextplayermoveMovedata() noexcept = default;
 		};
 	}
 
@@ -36,27 +36,27 @@ namespace pygmalion::mechanics
 		using boardType = BOARD;
 		using descriptorState = typename boardType::descriptorState;
 #include <pygmalion-state/include_state.h>
-		constexpr nextplayermove() noexcept = default;
-		~nextplayermove() noexcept = default;
-		constexpr nextplayermove(nextplayermove&&) noexcept = default;
-		constexpr nextplayermove(const nextplayermove&) noexcept = default;
-		constexpr nextplayermove& operator=(nextplayermove&&) noexcept = default;
-		constexpr nextplayermove& operator=(const nextplayermove&) noexcept = default;
+		PYGMALION_INLINE constexpr nextplayermove() noexcept = default;
+		PYGMALION_INLINE ~nextplayermove() noexcept = default;
+		PYGMALION_INLINE constexpr nextplayermove(nextplayermove&&) noexcept = default;
+		PYGMALION_INLINE constexpr nextplayermove(const nextplayermove&) noexcept = default;
+		PYGMALION_INLINE constexpr nextplayermove& operator=(nextplayermove&&) noexcept = default;
+		PYGMALION_INLINE constexpr nextplayermove& operator=(const nextplayermove&) noexcept = default;
 		static std::string name_Implementation() noexcept
 		{
 			std::stringstream sstr;
 			sstr << "" << sizeof(typename nextplayermove::movedataType) << ":" << nextplayermove::countBits << "@nextplayer";
 			return sstr.str();
 		}
-		constexpr typename nextplayermove::movedataType doMove_Implementation(boardType& position, const typename nextplayermove::movebitsType moveBits) const noexcept
+		PYGMALION_INLINE void doMove_Implementation(boardType& position, const typename nextplayermove::movebitsType moveBits, typename nextplayermove::movedataType& movedata) const noexcept
 		{
-			return typename nextplayermove::movedataType(position.movingPlayer()++);
+			movedata = typename nextplayermove::movedataType(position.movingPlayer()++);
 		}
-		constexpr void undoMove_Implementation(boardType& position, const typename nextplayermove::movedataType& data) const noexcept
+		PYGMALION_INLINE void undoMove_Implementation(boardType& position, const typename nextplayermove::movedataType& data) const noexcept
 		{
 			position.movingPlayer() = data.movingPlayer();
 		}
-		constexpr typename nextplayermove::movebitsType create() const noexcept
+		PYGMALION_INLINE typename nextplayermove::movebitsType create() const noexcept
 		{
 			constexpr const typename nextplayermove::movebitsType bits{ nextplayermove::movebitsType::zero() };
 			return bits;

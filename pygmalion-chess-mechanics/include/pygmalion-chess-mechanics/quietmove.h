@@ -15,39 +15,39 @@ namespace pygmalion::chess
 			pieceType m_Piece;
 			std::uint16_t m_ReversiblePlies{ 0 };
 		public:
-			constexpr std::uint16_t reversiblePlies() const noexcept
+			PYGMALION_INLINE std::uint16_t reversiblePlies() const noexcept
 			{
 				return m_ReversiblePlies;
 			}
-			constexpr const uint_t<countFlags, false> oldFlags() const noexcept
+			PYGMALION_INLINE const uint_t<countFlags, false> oldFlags() const noexcept
 			{
 				return m_OldFlags;
 			}
-			constexpr pieceType piece() const noexcept
+			PYGMALION_INLINE pieceType piece() const noexcept
 			{
 				return m_Piece;
 			}
-			constexpr squareType from() const noexcept
+			PYGMALION_INLINE squareType from() const noexcept
 			{
 				return m_From;
 			}
-			constexpr squareType to() const noexcept
+			PYGMALION_INLINE squareType to() const noexcept
 			{
 				return m_To;
 			}
-			constexpr quietMovedata(const pieceType transportedPiece, const squareType fromSquare, const squareType toSquare, const uint_t<countFlags, false> oldFlags_, const std::uint16_t reversiblePlies_) noexcept :
+			PYGMALION_INLINE quietMovedata(const pieceType transportedPiece, const squareType fromSquare, const squareType toSquare, const uint_t<countFlags, false> oldFlags_, const std::uint16_t reversiblePlies_) noexcept :
 				m_Piece{ transportedPiece },
 				m_From{ fromSquare },
 				m_To{ toSquare },
 				m_OldFlags{ oldFlags_ },
 				m_ReversiblePlies{ reversiblePlies_ }
 			{}
-			constexpr quietMovedata() noexcept = default;
-			constexpr quietMovedata(quietMovedata&&) noexcept = default;
-			constexpr quietMovedata(const quietMovedata&) noexcept = default;
-			constexpr quietMovedata& operator=(quietMovedata&&) noexcept = default;
-			constexpr quietMovedata& operator=(const quietMovedata&) noexcept = default;
-			~quietMovedata() noexcept = default;
+			PYGMALION_INLINE quietMovedata() noexcept = default;
+			PYGMALION_INLINE quietMovedata(quietMovedata&&) noexcept = default;
+			PYGMALION_INLINE quietMovedata(const quietMovedata&) noexcept = default;
+			PYGMALION_INLINE quietMovedata& operator=(quietMovedata&&) noexcept = default;
+			PYGMALION_INLINE quietMovedata& operator=(const quietMovedata&) noexcept = default;
+			PYGMALION_INLINE ~quietMovedata() noexcept = default;
 		};
 	}
 
@@ -68,32 +68,32 @@ namespace pygmalion::chess
 			return sstr.str();
 		}
 	private:
-		static squareType extractTo(const typename quietmove::movebitsType movebits) noexcept
+		PYGMALION_INLINE static squareType extractTo(const typename quietmove::movebitsType movebits) noexcept
 		{
 			const squareType sq{ squareType(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(movebits.template extractBits<countFromBits,countToBits>())) };
 			return sq;
 		}
-		static squareType extractFrom(const typename quietmove::movebitsType movebits) noexcept
+		PYGMALION_INLINE static squareType extractFrom(const typename quietmove::movebitsType movebits) noexcept
 		{
 			const squareType sq{ squareType(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(movebits.template extractBits<0,countFromBits>())) };
 			return sq;
 		}
-		static void encodeTo(typename quietmove::movebitsType& movebits, const squareType sq) noexcept
+		PYGMALION_INLINE constexpr static void encodeTo(typename quietmove::movebitsType& movebits, const squareType sq) noexcept
 		{
 			movebits.template storeBits<countFromBits, countToBits>(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(sq));
 		}
-		static void encodeFrom(typename quietmove::movebitsType& movebits, const squareType sq) noexcept
+		PYGMALION_INLINE constexpr static void encodeFrom(typename quietmove::movebitsType& movebits, const squareType sq) noexcept
 		{
 			movebits.template storeBits<0, countFromBits>(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(sq));
 		}
 	public:
-		quietmove() noexcept = default;
-		~quietmove() noexcept = default;
-		quietmove(quietmove&&) noexcept = default;
-		quietmove(const quietmove&) noexcept = default;
-		quietmove& operator=(quietmove&&) noexcept = default;
-		quietmove& operator=(const quietmove&) noexcept = default;
-		typename quietmove::movedataType doMove_Implementation(boardType& position, const typename quietmove::movebitsType moveBits) const noexcept
+		PYGMALION_INLINE constexpr quietmove() noexcept = default;
+		PYGMALION_INLINE ~quietmove() noexcept = default;
+		PYGMALION_INLINE constexpr quietmove(quietmove&&) noexcept = default;
+		PYGMALION_INLINE constexpr quietmove(const quietmove&) noexcept = default;
+		PYGMALION_INLINE constexpr quietmove& operator=(quietmove&&) noexcept = default;
+		PYGMALION_INLINE constexpr quietmove& operator=(const quietmove&) noexcept = default;
+		PYGMALION_INLINE void doMove_Implementation(boardType& position, const typename quietmove::movebitsType moveBits, typename quietmove::movedataType& movedata) const noexcept
 		{
 			const squareType from{ quietmove::extractFrom(moveBits) };
 			const squareType to{ quietmove::extractTo(moveBits) };
@@ -149,9 +149,9 @@ namespace pygmalion::chess
 					break;
 				}
 			}
-			return typename quietmove::movedataType(pc, from, to, oldFlags, reversiblePlies);
+			movedata = typename quietmove::movedataType(pc, from, to, oldFlags, reversiblePlies);
 		}
-		void undoMove_Implementation(boardType& position, const typename quietmove::movedataType& data) const noexcept
+		PYGMALION_INLINE void undoMove_Implementation(boardType& position, const typename quietmove::movedataType& data) const noexcept
 		{
 			const playerType p{ --position.movingPlayer() };
 			position.setMovingPlayer(p);
@@ -160,7 +160,7 @@ namespace pygmalion::chess
 			position.storeFlagRange<0, 11>(data.oldFlags());
 			position.cumulation().reversiblePlies() = data.reversiblePlies();
 		}
-		typename quietmove::movebitsType create(const squareType from, const squareType to) const noexcept
+		PYGMALION_INLINE constexpr typename quietmove::movebitsType create(const squareType from, const squareType to) const noexcept
 		{
 			typename quietmove::movebitsType bits{ quietmove::movebitsType::zero() };
 			quietmove::encodeFrom(bits, from);
@@ -215,16 +215,16 @@ namespace pygmalion::chess
 			const squareType to{ quietmove::extractTo(moveBits) };
 			return boardType::squareToString(from) + boardType::squareToString(to);
 		}
-		squaresType otherOccupancyDelta_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
+		PYGMALION_INLINE squaresType otherOccupancyDelta_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
 		{
 			constexpr const squaresType none{ squaresType::none() };
 			return none;
 		}
-		squaresType ownOccupancyDelta_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
+		PYGMALION_INLINE squaresType ownOccupancyDelta_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
 		{
 			return squaresType(quietmove::extractFrom(moveBits)) ^ squaresType(quietmove::extractTo(moveBits));
 		}
-		squaresType pieceOccupancyDelta_Implementation(const boardType& position, const pieceType piece, const movebitsType moveBits) const noexcept
+		PYGMALION_INLINE squaresType pieceOccupancyDelta_Implementation(const boardType& position, const pieceType piece, const movebitsType moveBits) const noexcept
 		{
 			constexpr const squaresType none{ squaresType::none() };
 			const squareType from{ quietmove::extractFrom(moveBits) };
@@ -233,11 +233,11 @@ namespace pygmalion::chess
 			else
 				return none;
 		}
-		squareType fromSquare_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
+		PYGMALION_INLINE squareType fromSquare_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
 		{
 			return quietmove::extractFrom(moveBits);
 		}
-		squareType toSquare_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
+		PYGMALION_INLINE squareType toSquare_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
 		{
 			return quietmove::extractTo(moveBits);
 		}

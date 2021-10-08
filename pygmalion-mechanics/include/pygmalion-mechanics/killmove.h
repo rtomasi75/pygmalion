@@ -14,29 +14,29 @@ namespace pygmalion::mechanics
 			pieceType m_Piece;
 			playerType m_Owner;
 		public:
-			constexpr playerType owner() const noexcept
+			PYGMALION_INLINE playerType owner() const noexcept
 			{
 				return m_Owner;
 			}
-			constexpr squareType square() const noexcept
+			PYGMALION_INLINE squareType square() const noexcept
 			{
 				return m_Square;
 			}
-			constexpr pieceType piece() const noexcept
+			PYGMALION_INLINE pieceType piece() const noexcept
 			{
 				return m_Piece;
 			}
-			constexpr killMovedata() noexcept = default;
-			constexpr killMovedata(const pieceType pc, const squareType sq, const playerType p) noexcept :
+			PYGMALION_INLINE killMovedata() noexcept = default;
+			PYGMALION_INLINE killMovedata(const pieceType pc, const squareType sq, const playerType p) noexcept :
 				m_Square{ sq },
 				m_Piece{ pc },
 				m_Owner{ p }
 			{}
-			constexpr killMovedata(killMovedata&&) noexcept = default;
-			constexpr killMovedata(const killMovedata&) noexcept = default;
-			constexpr killMovedata& operator=(killMovedata&&) noexcept = default;
-			constexpr killMovedata& operator=(const killMovedata&) noexcept = default;
-			~killMovedata() noexcept = default;
+			PYGMALION_INLINE killMovedata(killMovedata&&) noexcept = default;
+			PYGMALION_INLINE killMovedata(const killMovedata&) noexcept = default;
+			PYGMALION_INLINE killMovedata& operator=(killMovedata&&) noexcept = default;
+			PYGMALION_INLINE killMovedata& operator=(const killMovedata&) noexcept = default;
+			PYGMALION_INLINE ~killMovedata() noexcept = default;
 		};
 	}
 
@@ -56,35 +56,35 @@ namespace pygmalion::mechanics
 			return sstr.str();
 		}
 	private:
-		constexpr static squareType extractSquare(const typename killmove::movebitsType movebits) noexcept
+		PYGMALION_INLINE static squareType extractSquare(const typename killmove::movebitsType movebits) noexcept
 		{
 			const squareType sq{ squareType(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(movebits.template extractBits<0,countSquareBits>())) };
 			return sq;
 		}
-		constexpr static void encodeSquare(typename killmove::movebitsType& movebits, const squareType sq) noexcept
+		PYGMALION_INLINE static void encodeSquare(typename killmove::movebitsType& movebits, const squareType sq) noexcept
 		{
 			movebits.template storeBits<0, countSquareBits>(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(sq));
 		}
 	public:
-		constexpr killmove() noexcept = default;
-		~killmove() noexcept = default;
-		constexpr killmove(killmove&&) noexcept = default;
-		constexpr killmove(const killmove&) noexcept = default;
-		constexpr killmove& operator=(killmove&&) noexcept = default;
-		constexpr killmove& operator=(const killmove&) noexcept = default;
-		constexpr typename killmove::movedataType doMove_Implementation(boardType& position, const typename killmove::movebitsType moveBits) const noexcept
+		PYGMALION_INLINE constexpr killmove() noexcept = default;
+		PYGMALION_INLINE ~killmove() noexcept = default;
+		PYGMALION_INLINE constexpr killmove(killmove&&) noexcept = default;
+		PYGMALION_INLINE constexpr killmove(const killmove&) noexcept = default;
+		PYGMALION_INLINE constexpr killmove& operator=(killmove&&) noexcept = default;
+		PYGMALION_INLINE constexpr killmove& operator=(const killmove&) noexcept = default;
+		PYGMALION_INLINE void doMove_Implementation(boardType& position, const typename killmove::movebitsType moveBits, typename killmove::movedataType& movedata) const noexcept
 		{
 			const squareType sq{ killmove::extractSquare(moveBits) };
 			const pieceType pc{ position.getPiece(sq) };
 			const playerType p{ position.getPlayer(sq) };
 			position.removePiece(pc, sq, p);
-			return typename killmove::movedataType(pc, sq, p);
+			movedata = typename killmove::movedataType(pc, sq, p);
 		}
-		constexpr void undoMove_Implementation(boardType& position, const typename killmove::movedataType& data) const noexcept
+		PYGMALION_INLINE void undoMove_Implementation(boardType& position, const typename killmove::movedataType& data) const noexcept
 		{
 			position.addPiece(data.piece(), data.square(), data.owner());
 		}
-		constexpr typename killmove::movebitsType create(const squareType square) const noexcept
+		PYGMALION_INLINE typename killmove::movebitsType create(const squareType square) const noexcept
 		{
 			typename killmove::movebitsType bits{ killmove::movebitsType::zero() };
 			killmove::encodeSquare(bits, square);

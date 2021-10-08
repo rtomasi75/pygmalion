@@ -15,19 +15,19 @@ namespace pygmalion::mechanics
 		private:
 			uint_t<countAffectedFlags, false> m_OldFlags;
 		public:
-			constexpr const uint_t<countAffectedFlags, false>& oldFlags() const noexcept
+			PYGMALION_INLINE const uint_t<countAffectedFlags, false>& oldFlags() const noexcept
 			{
 				return m_OldFlags;
 			}
-			constexpr clearflagsMovedata() noexcept = default;
-			constexpr clearflagsMovedata(const uint_t<countAffectedFlags, false> oldFlags_) noexcept :
+			PYGMALION_INLINE clearflagsMovedata() noexcept = default;
+			PYGMALION_INLINE clearflagsMovedata(const uint_t<countAffectedFlags, false> oldFlags_) noexcept :
 				m_OldFlags{ oldFlags_ }
 			{}
-			constexpr clearflagsMovedata(clearflagsMovedata&&) noexcept = default;
-			constexpr clearflagsMovedata(const clearflagsMovedata&) noexcept = default;
-			constexpr clearflagsMovedata& operator=(clearflagsMovedata&&) noexcept = default;
-			constexpr clearflagsMovedata& operator=(const clearflagsMovedata&) noexcept = default;
-			~clearflagsMovedata() noexcept = default;
+			PYGMALION_INLINE clearflagsMovedata(clearflagsMovedata&&) noexcept = default;
+			PYGMALION_INLINE clearflagsMovedata(const clearflagsMovedata&) noexcept = default;
+			PYGMALION_INLINE clearflagsMovedata& operator=(clearflagsMovedata&&) noexcept = default;
+			PYGMALION_INLINE clearflagsMovedata& operator=(const clearflagsMovedata&) noexcept = default;
+			PYGMALION_INLINE ~clearflagsMovedata() noexcept = default;
 		};
 	}
 
@@ -48,23 +48,23 @@ namespace pygmalion::mechanics
 			sstr << "" << sizeof(typename clearflagsmove::movedataType) << ":" << clearflagsmove::countBits << "@clearflags(" << boardType::flagToString(firstFlag) << ":" << boardType::flagToString(lastFlag) << ")";
 			return sstr.str();
 		}
-		constexpr clearflagsmove() noexcept = default;
-		~clearflagsmove() noexcept = default;
-		constexpr clearflagsmove(clearflagsmove&&) noexcept = default;
-		constexpr clearflagsmove(const clearflagsmove&) noexcept = default;
-		constexpr clearflagsmove& operator=(clearflagsmove&&) noexcept = default;
-		constexpr clearflagsmove& operator=(const clearflagsmove&) noexcept = default;
-		constexpr typename clearflagsmove::movedataType doMove_Implementation(boardType& position, const typename clearflagsmove::movebitsType moveBits) const noexcept
+		PYGMALION_INLINE constexpr clearflagsmove() noexcept = default;
+		PYGMALION_INLINE ~clearflagsmove() noexcept = default;
+		PYGMALION_INLINE constexpr clearflagsmove(clearflagsmove&&) noexcept = default;
+		PYGMALION_INLINE constexpr clearflagsmove(const clearflagsmove&) noexcept = default;
+		PYGMALION_INLINE constexpr clearflagsmove& operator=(clearflagsmove&&) noexcept = default;
+		PYGMALION_INLINE constexpr clearflagsmove& operator=(const clearflagsmove&) noexcept = default;
+		PYGMALION_INLINE void doMove_Implementation(boardType& position, const typename clearflagsmove::movebitsType moveBits, typename clearflagsmove::movedataType& movedata) const noexcept
 		{
 			const uint_t<countAffectedFlags, false> oldFlags{ position.template extractFlagRange<FIRST,LAST>() };
 			position.template clearFlagRange<FIRST, LAST>();
-			return typename clearflagsmove::movedataType(oldFlags);
+			movedata= typename clearflagsmove::movedataType(oldFlags);
 		}
-		constexpr void undoMove_Implementation(boardType& position, const typename clearflagsmove::movedataType& data) const noexcept
+		PYGMALION_INLINE void undoMove_Implementation(boardType& position, const typename clearflagsmove::movedataType& data) const noexcept
 		{
 			position.template storeFlagRange<FIRST, LAST>(data.oldFlags());
 		}
-		constexpr typename clearflagsmove::movebitsType create() const noexcept
+		PYGMALION_INLINE typename clearflagsmove::movebitsType create() const noexcept
 		{
 			constexpr const typename clearflagsmove::movebitsType bits{ clearflagsmove::movebitsType::zero() };
 			return bits;

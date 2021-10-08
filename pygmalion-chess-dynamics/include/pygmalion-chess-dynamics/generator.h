@@ -349,12 +349,12 @@ namespace pygmalion::chess
 				})
 		};
 	public:
-		static squaresType kingArea(const squareType sq) noexcept
+		PYGMALION_INLINE static squaresType kingArea(const squareType sq) noexcept
 		{
 			return m_KingArea[sq];
 		}
 		template<size_t PLAYER>
-		static squaresType pawnPushTargets(const squareType sq, const squaresType& allowed) noexcept
+		PYGMALION_INLINE static squaresType pawnPushTargets(const squareType sq, const squaresType& allowed) noexcept
 		{
 			constexpr const playerType player{ static_cast<playerType>(PLAYER) };
 			if constexpr (player == whitePlayer)
@@ -363,7 +363,7 @@ namespace pygmalion::chess
 				return movegenPawnPushBlack.targets(sq, allowed);
 		}
 		template<size_t PLAYER>
-		static squaresType pawnCaptureTargets(const squaresType& squares, const squaresType& allowed) noexcept
+		PYGMALION_INLINE static squaresType pawnCaptureTargets(const squaresType& squares, const squaresType& allowed) noexcept
 		{
 			constexpr const playerType player{ static_cast<playerType>(PLAYER) };
 			if constexpr (player == whitePlayer)
@@ -372,7 +372,7 @@ namespace pygmalion::chess
 				return movegenPawnCaptureBlack.attacks(squares, allowed);
 		}
 		template<size_t PLAYER>
-		static squaresType pawnDoublePushTargets(const squareType sq, const squaresType& allowed) noexcept
+		PYGMALION_INLINE static squaresType pawnDoublePushTargets(const squareType sq, const squaresType& allowed) noexcept
 		{
 			constexpr const playerType player{ static_cast<playerType>(PLAYER) };
 			if constexpr (player == whitePlayer)
@@ -381,160 +381,6 @@ namespace pygmalion::chess
 				return movegenPawnDoublePushBlack.targets(sq, allowed);
 		}
 	private:
-		template<size_t PLAYER>
-		static void controlRef(const stackType<PLAYER>& stack, squaresType& whiteControl, squaresType& blackControl) noexcept
-		{
-			constexpr const squaresType all{ squaresType::all() };
-			constexpr const squaresType none{ squaresType::none() };
-			const squaresType unoccupied{ ~stack.position().totalOccupancy() };
-			const squaresType whiteOcc{ stack.position().playerOccupancy(whitePlayer) };
-			const squaresType blackOcc{ stack.position().playerOccupancy(blackPlayer) };
-			const squaresType pawnOcc{ stack.position().pieceOccupancy(pawn) };
-			const squaresType whitePawns{ whiteOcc & pawnOcc };
-			const squaresType blackPawns{ blackOcc & pawnOcc };
-			const squaresType whiteRightAttacks{ whitePawns.upRight() };
-			const squaresType whiteLeftAttacks{ whitePawns.upLeft() };
-			const squaresType blackRightAttacks{ blackPawns.downRight() };
-			const squaresType blackLeftAttacks{ blackPawns.downLeft() };
-			const squaresType whiteSingleAttacks{ whiteLeftAttacks ^ whiteRightAttacks };
-			const squaresType whiteDoubleAttacks{ whiteLeftAttacks & whiteRightAttacks };
-			const squaresType blackSingleAttacks{ blackLeftAttacks ^ blackRightAttacks };
-			const squaresType blackDoubleAttacks{ blackLeftAttacks & blackRightAttacks };
-			squaresType open{ all };
-			whiteControl = none;
-			blackControl = none;
-			const squaresType balancedDoubleAttacks{ ~(whiteDoubleAttacks & blackDoubleAttacks) };
-			whiteControl |= open & whiteDoubleAttacks & balancedDoubleAttacks;
-			blackControl |= open & blackDoubleAttacks & balancedDoubleAttacks;
-			open &= ~(whiteControl | blackControl);
-			const squaresType balancedSingleAttacks{ ~(whiteSingleAttacks & blackSingleAttacks) };
-			whiteControl |= open & whiteSingleAttacks & balancedSingleAttacks;
-			blackControl |= open & blackSingleAttacks & balancedSingleAttacks;
-			open &= ~(whiteControl | blackControl);
-
-			const squaresType knightOcc{ stack.position().pieceOccupancy(knight) };
-			const squaresType whiteKnights{ whiteOcc & knightOcc };
-			const squaresType blackKnights{ blackOcc & knightOcc };
-			const squaresType bishopOcc{ stack.position().pieceOccupancy(bishop) };
-			const squaresType whiteBishops{ whiteOcc & bishopOcc };
-			const squaresType blackBishops{ blackOcc & bishopOcc };
-			squaresType attackedBy1WhiteKnightOrBishop{ none };
-			squaresType attackedBy2WhiteKnightOrBishop{ none };
-			squaresType attackedBy3WhiteKnightOrBishop{ none };
-			squaresType attackedBy4WhiteKnightOrBishop{ none };
-			squaresType attackedBy1BlackKnightOrBishop{ none };
-			squaresType attackedBy2BlackKnightOrBishop{ none };
-			squaresType attackedBy3BlackKnightOrBishop{ none };
-			squaresType attackedBy4BlackKnightOrBishop{ none };
-			for (squareType sq : whiteKnights)
-			{
-				const squaresType attacks{ generatorType::movegenKnight.attacks(sq,all) };
-				attackedBy4WhiteKnightOrBishop |= attacks & attackedBy3WhiteKnightOrBishop;
-				attackedBy3WhiteKnightOrBishop |= attacks & attackedBy2WhiteKnightOrBishop;
-				attackedBy2WhiteKnightOrBishop |= attacks & attackedBy1WhiteKnightOrBishop;
-				attackedBy1WhiteKnightOrBishop |= attacks;
-			}
-			for (squareType sq : whiteBishops)
-			{
-				const squaresType attacks{ generatorType::movegenSlidersDiag.attacks(sq,unoccupied) };
-				attackedBy4WhiteKnightOrBishop |= attacks & attackedBy3WhiteKnightOrBishop;
-				attackedBy3WhiteKnightOrBishop |= attacks & attackedBy2WhiteKnightOrBishop;
-				attackedBy2WhiteKnightOrBishop |= attacks & attackedBy1WhiteKnightOrBishop;
-				attackedBy1WhiteKnightOrBishop |= attacks;
-			}
-			attackedBy3WhiteKnightOrBishop &= ~attackedBy4WhiteKnightOrBishop;
-			attackedBy2WhiteKnightOrBishop &= ~attackedBy3WhiteKnightOrBishop;
-			attackedBy1WhiteKnightOrBishop &= ~attackedBy2WhiteKnightOrBishop;
-			for (squareType sq : blackKnights)
-			{
-				const squaresType attacks{ generatorType::movegenKnight.attacks(sq,all) };
-				attackedBy4BlackKnightOrBishop |= attacks & attackedBy3BlackKnightOrBishop;
-				attackedBy3BlackKnightOrBishop |= attacks & attackedBy2BlackKnightOrBishop;
-				attackedBy2BlackKnightOrBishop |= attacks & attackedBy1BlackKnightOrBishop;
-				attackedBy1BlackKnightOrBishop |= attacks;
-			}
-			for (squareType sq : blackBishops)
-			{
-				const squaresType attacks{ generatorType::movegenSlidersDiag.attacks(sq,unoccupied) };
-				attackedBy4BlackKnightOrBishop |= attacks & attackedBy3BlackKnightOrBishop;
-				attackedBy3BlackKnightOrBishop |= attacks & attackedBy2BlackKnightOrBishop;
-				attackedBy2BlackKnightOrBishop |= attacks & attackedBy1BlackKnightOrBishop;
-				attackedBy1BlackKnightOrBishop |= attacks;
-			}
-			attackedBy3BlackKnightOrBishop &= ~attackedBy4BlackKnightOrBishop;
-			attackedBy2BlackKnightOrBishop &= ~attackedBy3BlackKnightOrBishop;
-			attackedBy1BlackKnightOrBishop &= ~attackedBy2BlackKnightOrBishop;
-			const squaresType balanced4KnightOrBishopAttacks{ ~(attackedBy4WhiteKnightOrBishop & attackedBy4BlackKnightOrBishop) };
-			whiteControl |= open & attackedBy4WhiteKnightOrBishop & balanced4KnightOrBishopAttacks;
-			blackControl |= open & attackedBy4BlackKnightOrBishop & balanced4KnightOrBishopAttacks;
-			open &= ~(whiteControl | blackControl);
-			const squaresType balanced3KnightOrBishopAttacks{ ~(attackedBy3WhiteKnightOrBishop & attackedBy3BlackKnightOrBishop) };
-			whiteControl |= open & attackedBy3WhiteKnightOrBishop & balanced3KnightOrBishopAttacks;
-			blackControl |= open & attackedBy3BlackKnightOrBishop & balanced3KnightOrBishopAttacks;
-			open &= ~(whiteControl | blackControl);
-			const squaresType balanced2KnightOrBishopAttacks{ ~(attackedBy2WhiteKnightOrBishop & attackedBy2BlackKnightOrBishop) };
-			whiteControl |= open & attackedBy2WhiteKnightOrBishop & balanced2KnightOrBishopAttacks;
-			blackControl |= open & attackedBy2BlackKnightOrBishop & balanced2KnightOrBishopAttacks;
-			open &= ~(whiteControl | blackControl);
-			const squaresType balanced1KnightOrBishopAttacks{ ~(attackedBy1WhiteKnightOrBishop & attackedBy1BlackKnightOrBishop) };
-			whiteControl |= open & attackedBy1WhiteKnightOrBishop & balanced1KnightOrBishopAttacks;
-			blackControl |= open & attackedBy1BlackKnightOrBishop & balanced1KnightOrBishopAttacks;
-			open &= ~(whiteControl | blackControl);
-
-			const squaresType rookOcc{ stack.position().pieceOccupancy(rook) };
-			const squaresType whiteRooks{ whiteOcc & rookOcc };
-			const squaresType blackRooks{ blackOcc & rookOcc };
-			squaresType attackedBy2WhiteRook{ none };
-			squaresType attackedBy2BlackRook{ none };
-			squaresType attackedBy1WhiteRook{ none };
-			squaresType attackedBy1BlackRook{ none };
-			for (squareType sq : whiteRooks)
-			{
-				const squaresType attacks{ generatorType::movegenSlidersHV.attacks(sq,unoccupied) };
-				attackedBy2WhiteRook |= attacks & attackedBy1WhiteRook;
-				attackedBy1WhiteRook |= attacks;
-			}
-			for (squareType sq : blackRooks)
-			{
-				const squaresType attacks{ generatorType::movegenSlidersHV.attacks(sq,unoccupied) };
-				attackedBy2BlackRook |= attacks & attackedBy1BlackRook;
-				attackedBy1BlackRook |= attacks;
-			}
-			const squaresType balanced2RookAttacks{ ~(attackedBy2WhiteRook & attackedBy2BlackRook) };
-			whiteControl |= open & attackedBy2WhiteRook & balanced2RookAttacks;
-			blackControl |= open & attackedBy2BlackRook & balanced2RookAttacks;
-			open &= ~(whiteControl | blackControl);
-			const squaresType balanced1RookAttacks{ ~(attackedBy1WhiteRook & attackedBy1BlackRook) };
-			whiteControl |= open & attackedBy1WhiteRook & balanced1RookAttacks;
-			blackControl |= open & attackedBy1BlackRook & balanced1RookAttacks;
-			open &= ~(whiteControl | blackControl);
-
-			const squaresType queenOcc{ stack.position().pieceOccupancy(queen) };
-			const squaresType whiteQueens{ whiteOcc & queenOcc };
-			const squaresType blackQueens{ blackOcc & queenOcc };
-			squaresType attackedByWhiteQueen{ none };
-			squaresType attackedByBlackQueen{ none };
-			for (squareType sq : whiteQueens)
-			{
-				const squaresType attacks{ generatorType::movegenSlidersDiag.attacks(sq,unoccupied) | generatorType::movegenSlidersHV.attacks(sq,unoccupied) };
-				attackedByWhiteQueen |= attacks;
-			}
-			for (squareType sq : blackQueens)
-			{
-				const squaresType attacks{ generatorType::movegenSlidersDiag.attacks(sq,unoccupied) | generatorType::movegenSlidersHV.attacks(sq,unoccupied) };
-				attackedByBlackQueen |= attacks;
-			}
-			const squaresType balancedQueenAttacks{ ~(attackedByWhiteQueen & attackedByBlackQueen) };
-			whiteControl |= open & attackedByWhiteQueen & balancedQueenAttacks;
-			blackControl |= open & attackedByBlackQueen & balancedQueenAttacks;
-			open &= ~(whiteControl | blackControl);
-
-			const squaresType whiteKingAttacks{ generatorType::movegenKing.attacks(stack.kingSquare(whitePlayer),all) };
-			const squaresType blackKingAttacks{ generatorType::movegenKing.attacks(stack.kingSquare(blackPlayer),all) };
-			const squaresType balancedKingAttacks{ ~(whiteKingAttacks & blackKingAttacks) };
-			whiteControl |= open & whiteKingAttacks & balancedKingAttacks;
-			blackControl |= open & blackKingAttacks & balancedKingAttacks;
-		}
 		template<size_t PLAYER>
 		static void control(const stackType<PLAYER>& stack, squaresType& whiteControl, squaresType& blackControl) noexcept
 		{
@@ -3790,7 +3636,7 @@ namespace pygmalion::chess
 				}
 			}
 		}
-		static const rays& getRays() noexcept
+		PYGMALION_INLINE static const rays& getRays() noexcept
 		{
 			return m_Rays;
 		}
@@ -3848,7 +3694,7 @@ namespace pygmalion::chess
 			else
 				return countSquares * countSquares;
 		}
-		static size_t moveBucket_Implementation(const boardType& position, const movebitsType& mv) noexcept
+		PYGMALION_INLINE static size_t moveBucket_Implementation(const boardType& position, const movebitsType& mv) noexcept
 		{
 			const squareType to{ motorType::move().toSquare(position, mv) };
 			const squareType from{ motorType::move().fromSquare(position,mv) };
@@ -3864,7 +3710,7 @@ namespace pygmalion::chess
 		}
 		static std::deque<std::shared_ptr<pygmalion::intrinsics::command>> commandsImplementation() noexcept;
 		template<size_t PLAYER>
-		static bool isMoveLegal_Implementation(const stackType<PLAYER>& stack, const movebitsType moveBits) noexcept
+		PYGMALION_INLINE static bool isMoveLegal_Implementation(const stackType<PLAYER>& stack, const movebitsType moveBits) noexcept
 		{
 			const boardType& position{ stack.position() };
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
@@ -4250,12 +4096,12 @@ namespace pygmalion::chess
 			return true;
 		}
 		template<size_t PLAYER>
-		static bool isMoveTactical_Implementation(const stackType<PLAYER>& stack, const movebitsType moveBits) noexcept
+		PYGMALION_INLINE static bool isMoveTactical_Implementation(const stackType<PLAYER>& stack, const movebitsType moveBits) noexcept
 		{
 			return motorType::move().isCapture(moveBits);
 		}
 		template<size_t PLAYER>
-		static bool isGeneratedMoveLegal_Implementation(const stackType<PLAYER>& stack, const movebitsType moveBits) noexcept
+		PYGMALION_INLINE static bool isGeneratedMoveLegal_Implementation(const stackType<PLAYER>& stack, const movebitsType moveBits) noexcept
 		{
 			const boardType& position{ stack.position() };
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
@@ -4372,7 +4218,7 @@ namespace pygmalion::chess
 			return true;
 		}
 		template<size_t PLAYER>
-		static void generateMoves_Implementation(const stageType stage, const stackType<PLAYER>& stack, movelistType& moves, const passType currentPass) noexcept
+		PYGMALION_INLINE static void generateMoves_Implementation(const stageType stage, const stackType<PLAYER>& stack, movelistType& moves, const passType currentPass) noexcept
 		{
 			switch (static_cast<size_t>(stage))
 			{
@@ -4839,13 +4685,13 @@ namespace pygmalion::chess
 		static std::string criticalPassToString_Implementation(const passType criticalPass) noexcept;
 		static std::string criticalEvasionPassToString_Implementation(const passType criticalEvasionPass) noexcept;
 		static std::string quietCriticalPassToString_Implementation(const passType quietCriticalPass) noexcept;
-		static squaresType attacksXrayDiag(const squareType square, const squaresType& occ, const squaresType& xrays) noexcept
+		PYGMALION_INLINE static squaresType attacksXrayDiag(const squareType square, const squaresType& occ, const squaresType& xrays) noexcept
 		{
 			PYGMALION_ASSERT(square.isValid());
 			const squaresType attmask{ movegenSlidersDiag.attacks(square, ~occ) };
 			return attmask & xrays;
 		}
-		static squaresType attacksXrayHV(const squareType square, const squaresType& occ, const squaresType& xrays) noexcept
+		PYGMALION_INLINE static squaresType attacksXrayHV(const squareType square, const squaresType& occ, const squaresType& xrays) noexcept
 		{
 			PYGMALION_ASSERT(square.isValid());
 			const squaresType attmask{ movegenSlidersHV.attacks(square, ~occ) };
@@ -4855,12 +4701,12 @@ namespace pygmalion::chess
 		{
 			return true;
 		}
-		static movebitsType nullMove_Implementation() noexcept
+		PYGMALION_INLINE static movebitsType nullMove_Implementation() noexcept
 		{
 			return m_NullMove;
 		}
 		template<size_t PLAYER>
-		static bool isMoveCritical_Implementation(const stackType<PLAYER>& stack, const movebitsType moveBits) noexcept
+		PYGMALION_INLINE static bool isMoveCritical_Implementation(const stackType<PLAYER>& stack, const movebitsType moveBits) noexcept
 		{
 			constexpr const squaresType all{ squaresType::all() };
 			const boardType& position{ stack.position() };
@@ -4930,14 +4776,14 @@ namespace pygmalion::chess
 			return false;
 		}
 		template<size_t PLAYER>
-		static bool isPositionCritical_Implementation(const stackType<PLAYER>& stack) noexcept
+		PYGMALION_INLINE static bool isPositionCritical_Implementation(const stackType<PLAYER>& stack) noexcept
 		{
 			constexpr const playerType player{ static_cast<playerType>(PLAYER) };
 			constexpr const playerType attacker{ player.next() };
 			return generatorType::template isAttacked<static_cast<size_t>(attacker)>(stack.position(), stack.kingSquare(player));
 		}
 		template<size_t PLAYER>
-		static scoreType makeSubjective(const scoreType score) noexcept
+		PYGMALION_INLINE static scoreType makeSubjective(const scoreType score) noexcept
 		{
 			constexpr const playerType player{ static_cast<playerType>(PLAYER) };
 			if constexpr (player == whitePlayer)

@@ -4,15 +4,15 @@ namespace pygmalion::chess
 		public promotionmove<0x0>
 	{
 	public:
-		constexpr knightpromotionmove() noexcept :
+		PYGMALION_INLINE constexpr knightpromotionmove() noexcept :
 			promotionmove<0x0>()
 		{
 
 		}
-		~knightpromotionmove() noexcept = default;
-		constexpr knightpromotionmove(knightpromotionmove&&) noexcept = default;
-		constexpr knightpromotionmove(const knightpromotionmove&) noexcept = default;
-		constexpr knightpromotionmove& operator=(knightpromotionmove&&) noexcept = default;
-		constexpr knightpromotionmove& operator=(const knightpromotionmove&) noexcept = default;
+		PYGMALION_INLINE ~knightpromotionmove() noexcept = default;
+		PYGMALION_INLINE constexpr knightpromotionmove(knightpromotionmove&&) noexcept = default;
+		PYGMALION_INLINE constexpr knightpromotionmove(const knightpromotionmove&) noexcept = default;
+		PYGMALION_INLINE constexpr knightpromotionmove& operator=(knightpromotionmove&&) noexcept = default;
+		PYGMALION_INLINE constexpr knightpromotionmove& operator=(const knightpromotionmove&) noexcept = default;
 	};
 }

@@ -40,7 +40,7 @@ namespace pygmalion::chess
 		constexpr static const muxbitsType muxQueenside{ indexQueenside };
 		constexpr static const muxbitsType muxNull{ indexNull };
 	public:
-		constexpr static size_t getParseIndex_Implementation(const size_t index) noexcept
+		PYGMALION_INLINE constexpr static size_t getParseIndex_Implementation(const size_t index) noexcept
 		{
 			switch (index)
 			{
@@ -80,17 +80,17 @@ namespace pygmalion::chess
 			}
 			return 0;
 		}
-		constexpr static bool isNull(const movebitsType movebits) noexcept
+		PYGMALION_INLINE static bool isNull(const movebitsType movebits) noexcept
 		{
 			const muxbitsType mux{ combinedmoves::muxbits(movebits) };
 			return mux == muxNull;
 		}
-		constexpr static bool isPromotion(const movebitsType movebits) noexcept
+		PYGMALION_INLINE static bool isPromotion(const movebitsType movebits) noexcept
 		{
 			const muxbitsType mux{ combinedmoves::muxbits(movebits) };
 			return (mux == muxQueenPromo) || (mux == muxQueenPromoCapture) || (mux == muxKnightPromo) || (mux == muxKnightPromoCapture) || (mux == muxRookPromo) || (mux == muxRookPromoCapture) || (mux == muxBishopPromo) || (mux == muxBishopPromoCapture);
 		}
-		static pieceType promotedPiece(const movebitsType movebits) noexcept
+		PYGMALION_INLINE static pieceType promotedPiece(const movebitsType movebits) noexcept
 		{
 			const muxbitsType mux{ combinedmoves::muxbits(movebits) };
 			assert(isPromotion(movebits));
@@ -114,12 +114,12 @@ namespace pygmalion::chess
 				return knight;
 			}
 		}
-		constexpr static bool isCapture(const movebitsType movebits) noexcept
+		PYGMALION_INLINE static bool isCapture(const movebitsType movebits) noexcept
 		{
 			const muxbitsType mux{ combinedmoves::muxbits(movebits) };
 			return (mux == muxCapture) || (mux == muxQueenPromoCapture) || (mux == muxKnightPromoCapture) || (mux == muxRookPromoCapture) || (mux == muxBishopPromoCapture) || (mux == muxEnPassant);
 		}
-		constexpr squareType captureSquare(const boardType& position, const movebitsType movebits) const noexcept
+		PYGMALION_INLINE squareType captureSquare(const boardType& position, const movebitsType movebits) const noexcept
 		{
 			const muxbitsType mux{ combinedmoves::muxbits(movebits) };
 			if ((mux == muxCapture) || (mux == muxQueenPromoCapture) || (mux == muxKnightPromoCapture) || (mux == muxRookPromoCapture) || (mux == muxBishopPromoCapture))
@@ -132,88 +132,88 @@ namespace pygmalion::chess
 			}
 			return squareType::invalid;
 		}
-		constexpr static bool isEnPassant(const movebitsType movebits) noexcept
+		PYGMALION_INLINE static bool isEnPassant(const movebitsType movebits) noexcept
 		{
 			const muxbitsType mux{ combinedmoves::muxbits(movebits) };
 			return (mux == muxEnPassant);
 		}
-		constexpr static bool isDoublePush(const movebitsType movebits) noexcept
+		PYGMALION_INLINE static bool isDoublePush(const movebitsType movebits) noexcept
 		{
 			const muxbitsType mux{ combinedmoves::muxbits(movebits) };
 			return (mux == muxDoublePush);
 		}
-		constexpr static bool isKingsideCastle(const movebitsType movebits) noexcept
+		PYGMALION_INLINE static bool isKingsideCastle(const movebitsType movebits) noexcept
 		{
 			const muxbitsType mux{ combinedmoves::muxbits(movebits) };
 			return (mux == muxKingside);
 		}
-		constexpr static bool isQueensideCastle(const movebitsType movebits) noexcept
+		PYGMALION_INLINE static bool isQueensideCastle(const movebitsType movebits) noexcept
 		{
 			const muxbitsType mux{ combinedmoves::muxbits(movebits) };
 			return (mux == muxQueenside);
 		}
-		constexpr static bool isCastle(const movebitsType movebits) noexcept
+		PYGMALION_INLINE static bool isCastle(const movebitsType movebits) noexcept
 		{
 			const muxbitsType mux{ combinedmoves::muxbits(movebits) };
 			return (mux == muxQueenside) || (mux == muxKingside);
 		}
-		constexpr movebitsType createCapture(const squareType from, const squareType to) const noexcept
+		PYGMALION_INLINE movebitsType createCapture(const squareType from, const squareType to) const noexcept
 		{
 			return create<indexCapture>(this->component<indexCapture>().create(from, to));
 		}
-		constexpr movebitsType createQuiet(const squareType from, const squareType to) const noexcept
+		PYGMALION_INLINE movebitsType createQuiet(const squareType from, const squareType to) const noexcept
 		{
 			return create<indexQuiet>(this->component<indexQuiet>().create(from, to));
 		}
-		constexpr movebitsType createDoublePush(const fileType file) const noexcept
+		PYGMALION_INLINE movebitsType createDoublePush(const fileType file) const noexcept
 		{
 			return create<indexDoublePush>(this->component<indexDoublePush>().create(file));
 		}
-		constexpr movebitsType createEnPassant(const fileType file1, const fileType file2) const noexcept
+		PYGMALION_INLINE movebitsType createEnPassant(const fileType file1, const fileType file2) const noexcept
 		{
 			return create<indexEnPassant>(this->component<indexEnPassant>().create(file1, file2));
 		}
-		constexpr movebitsType createKingsideCastle() const noexcept
+		PYGMALION_INLINE movebitsType createKingsideCastle() const noexcept
 		{
 			return create<indexKingside>(this->component<indexKingside>().create());
 		}
-		constexpr movebitsType createQueensideCastle() const noexcept
+		PYGMALION_INLINE movebitsType createQueensideCastle() const noexcept
 		{
 			return create<indexQueenside>(this->component<indexQueenside>().create());
 		}
-		constexpr movebitsType createPromotionQueen(const squareType from, const squareType to) const noexcept
+		PYGMALION_INLINE movebitsType createPromotionQueen(const squareType from, const squareType to) const noexcept
 		{
 			return create<indexQueenPromo>(this->component<indexQueenPromo>().create(from, to));
 		}
-		constexpr movebitsType createPromotionRook(const squareType from, const squareType to) const noexcept
+		PYGMALION_INLINE movebitsType createPromotionRook(const squareType from, const squareType to) const noexcept
 		{
 			return create<indexRookPromo>(this->component<indexRookPromo>().create(from, to));
 		}
-		constexpr movebitsType createPromotionBishop(const squareType from, const squareType to) const noexcept
+		PYGMALION_INLINE movebitsType createPromotionBishop(const squareType from, const squareType to) const noexcept
 		{
 			return create<indexBishopPromo>(this->component<indexBishopPromo>().create(from, to));
 		}
-		constexpr movebitsType createPromotionKnight(const squareType from, const squareType to) const noexcept
+		PYGMALION_INLINE movebitsType createPromotionKnight(const squareType from, const squareType to) const noexcept
 		{
 			return create<indexKnightPromo>(this->component<indexKnightPromo>().create(from, to));
 		}
-		constexpr movebitsType createPromoCaptureQueen(const squareType from, const squareType to) const noexcept
+		PYGMALION_INLINE movebitsType createPromoCaptureQueen(const squareType from, const squareType to) const noexcept
 		{
 			return create<indexQueenPromoCapture>(this->component<indexQueenPromoCapture>().create(from, to));
 		}
-		constexpr movebitsType createPromoCaptureRook(const squareType from, const squareType to) const noexcept
+		PYGMALION_INLINE movebitsType createPromoCaptureRook(const squareType from, const squareType to) const noexcept
 		{
 			return create<indexRookPromoCapture>(this->component<indexRookPromoCapture>().create(from, to));
 		}
-		constexpr movebitsType createPromoCaptureBishop(const squareType from, const squareType to) const noexcept
+		PYGMALION_INLINE movebitsType createPromoCaptureBishop(const squareType from, const squareType to) const noexcept
 		{
 			return create<indexBishopPromoCapture>(this->component<indexBishopPromoCapture>().create(from, to));
 		}
-		constexpr movebitsType createPromoCaptureKnight(const squareType from, const squareType to) const noexcept
+		PYGMALION_INLINE movebitsType createPromoCaptureKnight(const squareType from, const squareType to) const noexcept
 		{
 			return create<indexKnightPromoCapture>(this->component<indexKnightPromoCapture>().create(from, to));
 		}
-		constexpr movebitsType createNull() const noexcept
+		PYGMALION_INLINE constexpr movebitsType createNull() const noexcept
 		{
 			return create<indexNull>(this->component<indexNull>().create());
 		}

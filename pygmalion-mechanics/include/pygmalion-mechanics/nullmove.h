@@ -11,12 +11,12 @@ namespace pygmalion::mechanics
 #include <pygmalion-state/include_state.h>
 		private:
 		public:
-			constexpr nullmoveMovedata() noexcept = default;
-			constexpr nullmoveMovedata(nullmoveMovedata&&) noexcept = default;
-			constexpr nullmoveMovedata(const nullmoveMovedata&) noexcept = default;
-			constexpr nullmoveMovedata& operator=(nullmoveMovedata&&) noexcept = default;
-			constexpr nullmoveMovedata& operator=(const nullmoveMovedata&) noexcept = default;
-			~nullmoveMovedata() noexcept = default;
+			PYGMALION_INLINE nullmoveMovedata() noexcept = default;
+			PYGMALION_INLINE nullmoveMovedata(nullmoveMovedata&&) noexcept = default;
+			PYGMALION_INLINE nullmoveMovedata(const nullmoveMovedata&) noexcept = default;
+			PYGMALION_INLINE nullmoveMovedata& operator=(nullmoveMovedata&&) noexcept = default;
+			PYGMALION_INLINE nullmoveMovedata& operator=(const nullmoveMovedata&) noexcept = default;
+			PYGMALION_INLINE ~nullmoveMovedata() noexcept = default;
 		};
 	}
 
@@ -28,26 +28,26 @@ namespace pygmalion::mechanics
 		using boardType = BOARD;
 		using descriptorState = typename boardType::descriptorState;
 #include <pygmalion-state/include_state.h>
-		constexpr nullmove() noexcept = default;
-		~nullmove() noexcept = default;
-		constexpr nullmove(nullmove&&) noexcept = default;
-		constexpr nullmove(const nullmove&) noexcept = default;
-		constexpr nullmove& operator=(nullmove&&) noexcept = default;
-		constexpr nullmove& operator=(const nullmove&) noexcept = default;
+		PYGMALION_INLINE constexpr nullmove() noexcept = default;
+		PYGMALION_INLINE ~nullmove() noexcept = default;
+		PYGMALION_INLINE constexpr nullmove(nullmove&&) noexcept = default;
+		PYGMALION_INLINE constexpr nullmove(const nullmove&) noexcept = default;
+		PYGMALION_INLINE constexpr nullmove& operator=(nullmove&&) noexcept = default;
+		PYGMALION_INLINE constexpr nullmove& operator=(const nullmove&) noexcept = default;
 		static std::string name_Implementation() noexcept
 		{
 			std::stringstream sstr;
 			sstr << "" << sizeof(typename nullmove::movedataType) << ":" << nullmove::countBits << "@null";
 			return sstr.str();
 		}
-		constexpr typename nullmove::movedataType doMove_Implementation(boardType& position, const typename nullmove::movebitsType moveBits) const noexcept
+		PYGMALION_INLINE typename nullmove::movedataType doMove_Implementation(boardType& position, const typename nullmove::movebitsType moveBits, typename nullmove::movedataType& movedata) const noexcept
 		{
-			return typename nullmove::movedataType();
+			movedata = typename nullmove::movedataType();
 		}
-		constexpr void undoMove_Implementation(boardType& position, const typename nullmove::movedataType& data) const noexcept
+		PYGMALION_INLINE void undoMove_Implementation(boardType& position, const typename nullmove::movedataType& data) const noexcept
 		{
 		}
-		constexpr typename nullmove::movebitsType create() const noexcept
+		PYGMALION_INLINE typename nullmove::movebitsType create() const noexcept
 		{
 			constexpr const typename nullmove::movebitsType bits{ nullmove::movebitsType::zero() };
 			return bits;

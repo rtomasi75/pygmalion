@@ -11,19 +11,19 @@ namespace pygmalion::tictactoe
 		private:
 			squareType m_Square;
 		public:
-			constexpr squareType square() const noexcept
+			PYGMALION_INLINE squareType square() const noexcept
 			{
 				return m_Square;
 			}
-			constexpr movedata() noexcept = default;
-			constexpr movedata(const squareType sq) noexcept :
+			PYGMALION_INLINE movedata() noexcept = default;
+			PYGMALION_INLINE movedata(const squareType sq) noexcept :
 				m_Square{ sq }
 			{}
-			constexpr movedata(movedata&&) noexcept = default;
-			constexpr movedata(const movedata&) noexcept = default;
-			constexpr movedata& operator=(movedata&&) noexcept = default;
-			constexpr movedata& operator=(const movedata&) noexcept = default;
-			~movedata() noexcept = default;
+			PYGMALION_INLINE movedata(movedata&&) noexcept = default;
+			PYGMALION_INLINE movedata(const movedata&) noexcept = default;
+			PYGMALION_INLINE movedata& operator=(movedata&&) noexcept = default;
+			PYGMALION_INLINE movedata& operator=(const movedata&) noexcept = default;
+			PYGMALION_INLINE ~movedata() noexcept = default;
 		};
 	}
 
@@ -54,13 +54,13 @@ namespace pygmalion::tictactoe
 			movebits.template storeBits<0, countSquareBits>(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(sq));
 		}
 	public:
-		move() noexcept = default;
-		~move() noexcept = default;
-		move(move&&) noexcept = default;
-		move(const move&) noexcept = default;
-		move& operator=(move&&) noexcept = default;
-		move& operator=(const move&) noexcept = default;
-		typename move::movedataType doMove_Implementation(boardType& position, const typename move::movebitsType& moveBits) const noexcept
+		PYGMALION_INLINE constexpr move() noexcept = default;
+		PYGMALION_INLINE ~move() noexcept = default;
+		PYGMALION_INLINE constexpr move(move&&) noexcept = default;
+		PYGMALION_INLINE constexpr move(const move&) noexcept = default;
+		PYGMALION_INLINE constexpr move& operator=(move&&) noexcept = default;
+		PYGMALION_INLINE constexpr move& operator=(const move&) noexcept = default;
+		PYGMALION_INLINE void doMove_Implementation(boardType& position, const typename move::movebitsType& moveBits, typename move::movedataType& movedata) const noexcept
 		{
 			const squareType sq{ move::extractSquare(moveBits) };
 			constexpr const pieceType pc{ 0 };
@@ -68,16 +68,16 @@ namespace pygmalion::tictactoe
 			const playerType p2{ ++position.movingPlayer() };
 			position.setMovingPlayer(p2);
 			position.addPiece(pc, sq, p);
-			return typename move::movedataType(sq);
+			movedata = typename move::movedataType(sq);
 		}
-		void undoMove_Implementation(boardType& position, const typename move::movedataType& data) const noexcept
+		PYGMALION_INLINE void undoMove_Implementation(boardType& position, const typename move::movedataType& data) const noexcept
 		{
 			const playerType p{ --position.movingPlayer() };
 			constexpr const pieceType pc{ 0 };
 			position.setMovingPlayer(p);
 			position.removePiece(pc, data.square(), p);
 		}
-		typename move::movebitsType create(const squareType square) const noexcept
+		PYGMALION_INLINE typename move::movebitsType create(const squareType square) const noexcept
 		{
 			typename move::movebitsType bits{ move::movebitsType::zero() };
 			move::encodeSquare(bits, square);

@@ -21,25 +21,26 @@ namespace pygmalion::chess
 			{
 
 			}
-			constexpr static bool futilityPruningEnabled_Implementation(const size_t depthRemaining) noexcept
+			PYGMALION_INLINE static bool futilityPruningEnabled_Implementation(const size_t depthRemaining) noexcept
 			{
-				return depthRemaining <= 5;
+//				return depthRemaining <= 5;
+				return depthRemaining <= 3;
 			}
 			node(const parentType& parent, const movebitsType moveBits) noexcept :
 				pygmalion::gametree<descriptor_search, gametree>::node<PLAYER, node<PLAYER>>(parent, moveBits)
 			{
 			}
-			constexpr static depthType nullMoveReduction_Implementation(const size_t depthRemaining) noexcept
+			PYGMALION_INLINE constexpr static depthType nullMoveReduction_Implementation(const size_t depthRemaining) noexcept
 			{
 				return depthType(2) + depthRemaining / depthType(4);
 			}
-			bool nullMoveAllowed_Implementation() const noexcept
+			PYGMALION_INLINE bool nullMoveAllowed_Implementation() const noexcept
 			{
 				const squaresType pieces{ this->stack().position().pieceOccupancy(descriptorSearch::knight) | this->stack().position().pieceOccupancy(descriptorSearch::bishop) | this->stack().position().pieceOccupancy(descriptorSearch::rook) | this->stack().position().pieceOccupancy(descriptorSearch::queen) };
 				const squaresType playerPieces{ pieces & this->stack().position().playerOccupancy(movingPlayer) };
 				return playerPieces;
 			}
-			constexpr static scoreType futilityMargin_Implementation(const size_t depthRemaining, const stackType& stack) noexcept
+			PYGMALION_INLINE static scoreType futilityMargin_Implementation(const size_t depthRemaining, const stackType& stack) noexcept
 			{
 				constexpr const scoreType zero{ scoreType::zero() };
 				switch (depthRemaining)
@@ -182,7 +183,7 @@ namespace pygmalion::chess
 					}
 					return positionalValue + captureValue + promotionValue;
 				}
-				case 4:
+/*				case 4:
 				{
 					const squaresType ownPawns{ stack.position().pieceOccupancy(descriptorSearch::pawn) & stack.position().playerOccupancy(movingPlayer) };
 					constexpr const squaresType promotionsMask{ movingPlayer == descriptorSearch::whitePlayer ? descriptorSearch::rank7 : descriptorSearch::rank2 };
@@ -345,13 +346,13 @@ namespace pygmalion::chess
 						}
 					}
 					return positionalValue + captureValue + promotionValue;
-				}
+				}*/
 				default:
 					PYGMALION_UNREACHABLE;
 					return zero;
 				}
 			}
-			constexpr static scoreType futilityGlobalMargin_Implementation(const size_t depthRemaining, const stackType& stack) noexcept
+			PYGMALION_INLINE static scoreType futilityGlobalMargin_Implementation(const size_t depthRemaining, const stackType& stack) noexcept
 			{
 				constexpr const scoreType zero{ scoreType::zero() };
 				switch (depthRemaining)
@@ -648,7 +649,7 @@ namespace pygmalion::chess
 					}
 					return positionalValue + captureValue + promotionValue;
 				}
-				case 4:
+				/*case 4:
 				{
 					const squaresType ownPawns{ stack.position().pieceOccupancy(descriptorSearch::pawn) & stack.position().playerOccupancy(movingPlayer) };
 					constexpr const squaresType promotionsMask{ movingPlayer == descriptorSearch::whitePlayer ? descriptorSearch::rank7 : descriptorSearch::rank2 };
@@ -831,13 +832,13 @@ namespace pygmalion::chess
 						}
 					}
 					return positionalValue + captureValue + promotionValue;
-				}
+				}*/
 				default:
 					PYGMALION_UNREACHABLE;
 					return zero;
 				}
 			}
-			scoreType moveFutilityValue_Implementation(const movebitsType move) const noexcept
+			PYGMALION_INLINE scoreType moveFutilityValue_Implementation(const movebitsType move) const noexcept
 			{
 				constexpr const scoreType zero{ scoreType::zero() };
 				if (motorType::move().isCapture(move))
