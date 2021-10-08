@@ -402,7 +402,6 @@ namespace pygmalion
 			}
 			constexpr size_t normalPassesCount(const stageType stage) const noexcept
 			{
-				PYGMALION_ASSERT(stage < countNormalStages);
 				return countNormalPasses[stage];
 			}
 			PYGMALION_INLINE stageType normalStage(const size_t stageIndex) const noexcept
@@ -421,7 +420,6 @@ namespace pygmalion
 			}
 			constexpr size_t tacticalPassesCount(const stageType stage) const noexcept
 			{
-				PYGMALION_ASSERT(stage < countTacticalStages);
 				return countTacticalPasses[stage];
 			}
 			PYGMALION_INLINE stageType tacticalStage(const size_t stageIndex) const noexcept
@@ -440,7 +438,6 @@ namespace pygmalion
 			}
 			constexpr size_t criticalPassesCount(const stageType stage) const noexcept
 			{
-				PYGMALION_ASSERT(stage < countCriticalStages);
 				return countCriticalPasses[stage];
 			}
 			PYGMALION_INLINE stageType criticalStage(const size_t stageIndex) const noexcept
@@ -462,27 +459,27 @@ namespace pygmalion
 				}
 				return m_IsPositionCritical;
 			}
-			constexpr void normalAllMove(movegenFeedback& feedback, const size_t depth, const scoreType score, const scoreType eval) const noexcept
+			PYGMALION_INLINE void normalAllMove(movegenFeedback& feedback, const size_t depth, const scoreType score, const scoreType eval) const noexcept
 			{
 				feedback.allMove(m_LastNormalStage, m_LastNormalPass, depth, generatorType::template makeSubjective<PLAYER>(score), generatorType::template makeSubjective<PLAYER>(eval));
 			}
-			constexpr void normalCutMove(movegenFeedback& feedback, const size_t depth, const scoreType score, const scoreType eval) const noexcept
+			PYGMALION_INLINE void normalCutMove(movegenFeedback& feedback, const size_t depth, const scoreType score, const scoreType eval) const noexcept
 			{
 				feedback.cutMove(m_LastNormalStage, m_LastNormalPass, depth, generatorType::template makeSubjective<PLAYER>(score), generatorType::template makeSubjective<PLAYER>(eval));
 			}
-			constexpr void tacticalAllMove(movegenFeedback& feedback, const size_t depth, const scoreType score, const scoreType eval) const noexcept
+			PYGMALION_INLINE void tacticalAllMove(movegenFeedback& feedback, const size_t depth, const scoreType score, const scoreType eval) const noexcept
 			{
 				feedback.allMove(m_LastTacticalStage, m_LastTacticalPass, depth, generatorType::template makeSubjective<PLAYER>(score), generatorType::template makeSubjective<PLAYER>(eval));
 			}
-			constexpr void tacticalCutMove(movegenFeedback& feedback, const size_t depth, const scoreType score, const scoreType eval) const noexcept
+			PYGMALION_INLINE void tacticalCutMove(movegenFeedback& feedback, const size_t depth, const scoreType score, const scoreType eval) const noexcept
 			{
 				feedback.cutMove(m_LastTacticalStage, m_LastTacticalPass, depth, generatorType::template makeSubjective<PLAYER>(score), generatorType::template makeSubjective<PLAYER>(eval));
 			}
-			constexpr void criticalAllMove(movegenFeedback& feedback, const size_t depth, const scoreType score, const scoreType eval) const noexcept
+			PYGMALION_INLINE void criticalAllMove(movegenFeedback& feedback, const size_t depth, const scoreType score, const scoreType eval) const noexcept
 			{
 				feedback.allMove(m_LastCriticalStage, m_LastCriticalPass, depth, generatorType::template makeSubjective<PLAYER>(score), generatorType::template makeSubjective<PLAYER>(eval));
 			}
-			constexpr void criticalCutMove(movegenFeedback& feedback, const size_t depth, const scoreType score, const scoreType eval) const noexcept
+			PYGMALION_INLINE void criticalCutMove(movegenFeedback& feedback, const size_t depth, const scoreType score, const scoreType eval) const noexcept
 			{
 				feedback.cutMove(m_LastCriticalStage, m_LastCriticalPass, depth, generatorType::template makeSubjective<PLAYER>(score), generatorType::template makeSubjective<PLAYER>(eval));
 			}
@@ -851,7 +848,7 @@ namespace pygmalion
 				}
 				return nextCriticalMove(moveBits, depth, feedback, lambda);
 			}
-			stack(const parentType& parent, const movebitsType moveBits) noexcept :
+			PYGMALION_INLINE stack(const parentType& parent, const movebitsType moveBits) noexcept :
 				m_pContext{ parent.m_pContext + 1 },
 				m_pParent{ &parent },
 				m_Position{ parent.m_Position },
@@ -862,8 +859,6 @@ namespace pygmalion
 				m_CurrentNormalPass{ 0 },
 				m_CurrentNormalMove{ 0 },
 				m_CurrentNormalStage{ 0 },
-				m_LastNormalPass{ 0 },
-				m_LastNormalStage{ 0 },
 				m_CurrentTacticalPass{ 0 },
 				m_CurrentTacticalMove{ 0 },
 				m_CurrentTacticalStage{ 0 },
@@ -872,15 +867,13 @@ namespace pygmalion
 				m_CurrentCriticalPass{ 0 },
 				m_CurrentCriticalMove{ 0 },
 				m_CurrentCriticalStage{ 0 },
-				m_LastCriticalPass{ 0 },
-				m_LastCriticalStage{ 0 },
 				m_IsNullmove{ false },
 				m_Hash{ m_Position.hash() }
 			{
 				motorType::move().doMove(m_Position, moveBits, m_MoveData);
 				m_pContext->clearMovegenLists();
 			}
-			stack(boardType& position, historyType& history, contextType* pContext) noexcept :
+			PYGMALION_INLINE stack(boardType& position, historyType& history, contextType* pContext) noexcept :
 				m_pContext{ pContext },
 				m_pParent{ nullptr },
 				m_Position{ position },
@@ -891,8 +884,6 @@ namespace pygmalion
 				m_CurrentNormalPass{ 0 },
 				m_CurrentNormalMove{ 0 },
 				m_CurrentNormalStage{ 0 },
-				m_LastNormalPass{ 0 },
-				m_LastNormalStage{ 0 },
 				m_CurrentTacticalPass{ 0 },
 				m_CurrentTacticalMove{ 0 },
 				m_CurrentTacticalStage{ 0 },
@@ -901,35 +892,33 @@ namespace pygmalion
 				m_CurrentCriticalPass{ 0 },
 				m_CurrentCriticalMove{ 0 },
 				m_CurrentCriticalStage{ 0 },
-				m_LastCriticalPass{ 0 },
-				m_LastCriticalStage{ 0 },
 				m_IsNullmove{ true },
 				m_Hash{ m_Position.hash() }
 			{
 				m_pContext->clearMovegenLists();
 				PYGMALION_ASSERT(position.movingPlayer() == m_MovingPlayer);
 			}
-			constexpr contextType* getContext() const noexcept
+			PYGMALION_INLINE contextType* getContext() const noexcept
 			{
 				return m_pContext;
 			}
-			constexpr const boardType& position() const noexcept
+			PYGMALION_INLINE const boardType& position() const noexcept
 			{
 				return m_Position;
 			}
-			playerType movingPlayer() const noexcept
+			PYGMALION_INLINE playerType movingPlayer() const noexcept
 			{
 				return m_MovingPlayer;
 			}
-			playerType nextPlayer() const noexcept
+			PYGMALION_INLINE playerType nextPlayer() const noexcept
 			{
 				return m_NextPlayer;
 			}
-			playerType previousPlayer() const noexcept
+			PYGMALION_INLINE playerType previousPlayer() const noexcept
 			{
 				return m_MoveData.movingPlayer();
 			}
-			~stack() noexcept
+			PYGMALION_INLINE ~stack() noexcept
 			{
 				if (!m_IsNullmove)
 					motorType::move().undoMove(m_Position, m_MoveData);
@@ -938,7 +927,7 @@ namespace pygmalion
 			{
 				return generatorType::moveToString(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits, depth);
 			}
-			constexpr bool occurs(const boardType& position, const int times, const int start, const int frequency) const noexcept
+			bool occurs(const boardType& position, const int times, const int start, const int frequency) const noexcept
 			{
 				if (m_pParent != nullptr)
 				{
@@ -1051,12 +1040,12 @@ namespace pygmalion
 			}
 		}
 		template<typename stackType>
-		constexpr static bool isMoveTactical(const stackType& stack, const movebitsType mv) noexcept
+		static bool isMoveTactical(const stackType& stack, const movebitsType mv) noexcept
 		{
 			return generatorType::isMoveTactical_Implementation(stack, mv);
 		}
 		template<typename stackType>
-		constexpr static bool isPositionCritical(const stackType& stack) noexcept
+		static bool isPositionCritical(const stackType& stack) noexcept
 		{
 			return generatorType::isPositionCritical_Implementation(stack);
 		}
@@ -1064,7 +1053,7 @@ namespace pygmalion
 		{
 			return generatorType::countMoveBuckets_Implementation();
 		}
-		constexpr static size_t moveBucket(const boardType& position, const movebitsType mv) noexcept
+		static size_t moveBucket(const boardType& position, const movebitsType mv) noexcept
 		{
 			return generatorType::moveBucket_Implementation(position, mv);
 		}
@@ -1077,7 +1066,7 @@ namespace pygmalion
 			return generatorType::nullMove_Implementation();
 		}
 		template<size_t PLAYER, typename stackType>
-		constexpr static bool isMoveCritical(const stackType& stack, const movebitsType moveBits) noexcept
+		static bool isMoveCritical(const stackType& stack, const movebitsType moveBits) noexcept
 		{
 			return generatorType::template isMoveCritical_Implementation<PLAYER>(stack, moveBits);
 		}
@@ -1098,7 +1087,7 @@ namespace pygmalion
 				std::cerr << "(no squares)" << std::endl;
 		}
 		template<size_t PLAYER>
-		constexpr static scoreType makeSubjective(const scoreType score) noexcept
+		PYGMALION_INLINE static scoreType makeSubjective(const scoreType score) noexcept
 		{
 			return generatorType::template makeSubjective_Implementation<PLAYER>(score);
 		}
