@@ -105,22 +105,22 @@ namespace pygmalion::intrinsics
 		bitsType m_Premask;
 		using shiftType = uint_t<requiredUnsignedBits(bitsType::countBits), true>;
 		shiftType m_CountBits;
-		constexpr static shiftType toShift(const size_t sz) noexcept
+		static shiftType toShift(const size_t sz) noexcept
 		{
 			return shiftType(static_cast<typename std::make_unsigned<size_t>::type>(sz));
 		}
-		constexpr static size_t toSize(const shiftType& s) noexcept
+		static size_t toSize(const shiftType& s) noexcept
 		{
 			return static_cast<size_t>(static_cast<typename std::make_unsigned<size_t>::type>(s));
 		}
 	protected:
-		constexpr void setPremask(const bitsType& premask) noexcept
+		void setPremask(const bitsType& premask) noexcept
 		{
 			m_Premask = premask;
 			m_CountBits = toShift(m_Premask.populationCount());
 			PYGMALION_ASSERT(m_Premask.populationCount() <= countMaxPatternBits);
 		}
-		constexpr magic(const bitsType& premask, const size_t countValueBits) noexcept :
+		magic(const bitsType& premask, const size_t countValueBits) noexcept :
 			m_Premask{ premask },
 			m_CountBits{ toShift(countValueBits) }
 		{
@@ -133,28 +133,28 @@ namespace pygmalion::intrinsics
 		{
 			PYGMALION_ASSERT(m_Premask.populationCount() <= countMaxPatternBits);
 		}
-		constexpr magic(const magic&) = default;
-		constexpr magic(magic&&) = default;
-		constexpr magic(const bitsType& premask, const bitsType&, const sizeType& bits) noexcept :
+		magic(const magic&) = default;
+		magic(magic&&) = default;
+		magic(const bitsType& premask, const bitsType&, const sizeType& bits) noexcept :
 			magic<countMaxPatternBits, VALUE, true>(premask, bits)
 		{
 		}
 		constexpr magic& operator=(const magic&) noexcept = default;
-		constexpr magic& operator=(magic&&) noexcept = default;
+		magic& operator=(magic&&) noexcept = default;
 		~magic() noexcept = default;
-		constexpr const bitsType& premask() const noexcept
+		PYGMALION_INLINE const bitsType& premask() const noexcept
 		{
 			return m_Premask;
 		}
-		constexpr size_t countBits() const noexcept
+		size_t countBits() const noexcept
 		{
 			return toSize(m_CountBits);
 		}
-		constexpr size_t countValues() const noexcept
+		size_t countValues() const noexcept
 		{
 			return static_cast<size_t>(size_t(1) << toSize(m_CountBits));
 		}
-		size_t cast(const bitsType& bitboard) const noexcept
+		PYGMALION_INLINE size_t cast(const bitsType& bitboard) const noexcept
 		{
 			return static_cast<size_t>(static_cast<std::uintmax_t>(bitboard.extractPattern(m_Premask)));
 		}
@@ -165,7 +165,7 @@ namespace pygmalion::intrinsics
 			magic::findMagic(m_Premask, factor, countIndexBits);
 		}
 	protected:
-		constexpr static size_t castMagic(const bitsType& bits, const bitsType& premask, const bitsType& factor, const size_t countIndexBits) noexcept
+		PYGMALION_INLINE static size_t castMagic(const bitsType& bits, const bitsType& premask, const bitsType& factor, const size_t countIndexBits) noexcept
 		{
 			return static_cast<size_t>(static_cast<std::uintmax_t>((((bits & premask) * factor) >> (bitsType::countBits - countIndexBits))));
 		}
@@ -233,21 +233,21 @@ namespace pygmalion::intrinsics
 		{
 			this->find(premask, m_Factor);
 		}
-		constexpr magic(const magic&) = default;
-		constexpr magic(magic&&) = default;
-		constexpr magic(const bitsType& premask, const bitsType& factor, const size_t bits) noexcept :
+		magic(const magic&) = default;
+		magic(magic&&) = default;
+		magic(const bitsType& premask, const bitsType& factor, const size_t bits) noexcept :
 			magic<countMaxPatternBits, VALUE, true>(premask, bits),
 			m_Factor{ factor }
 		{
 		}
-		constexpr magic& operator=(const magic&) noexcept = default;
-		constexpr magic& operator=(magic&&) noexcept = default;
+		magic& operator=(const magic&) noexcept = default;
+		magic& operator=(magic&&) noexcept = default;
 		~magic() noexcept = default;
-		size_t cast(const bitsType& bitboard) const noexcept
+		PYGMALION_INLINE size_t cast(const bitsType& bitboard) const noexcept
 		{
 			return magic::castMagic(bitboard, this->premask(), m_Factor, this->countBits());
 		}
-		constexpr const bitsType& factor() const noexcept
+		PYGMALION_INLINE const bitsType& factor() const noexcept
 		{
 			return m_Factor;
 		}

@@ -20,11 +20,11 @@ namespace pygmalion
 			static_cast<const instanceType*>(this)->initializeValue_Implementation(value, m_Info, bitboard, m_Magic.premask(), pData);
 		}
 	protected:
-		constexpr const infoType& info() const noexcept
+		PYGMALION_INLINE  const infoType& info() const noexcept
 		{
 			return m_Info;
 		}
-		constexpr magictable(const infoType& info, const bitsType& factor, const size_t shift) noexcept :
+		magictable(const infoType& info, const bitsType& factor, const size_t shift) noexcept :
 			m_Info{ info },
 			m_Magic(instanceType::calculatePremask(info), factor, shift),
 			m_pValues{ new valueType[m_Magic.countValues()] }
@@ -78,21 +78,21 @@ namespace pygmalion
 					m_pValues[i] = other.m_pValues[i];
 			}
 		}
-		constexpr magictable(magictable&& other) noexcept :
+		magictable(magictable&& other) noexcept :
 			m_Magic{ std::move(other.m_Magic) },
 			m_pValues{ other.m_pValues },
 			m_Info{ std::move(other.m_Info) }
 		{
 			other.m_pValues = nullptr;
 		}
-		constexpr const valueType& value(const bitsType& bitboard) const noexcept
+		PYGMALION_INLINE const valueType& value(const bitsType& bitboard) const noexcept
 		{
 			PYGMALION_ASSERT(m_pValues != nullptr);
 			const size_t i{ m_Magic.cast(bitboard) };
 			return m_pValues[i];
 		}
 	public:
-		const auto& magic() const noexcept
+		PYGMALION_INLINE const auto& magic() const noexcept
 		{
 			return m_Magic;
 		}
@@ -113,7 +113,7 @@ namespace pygmalion
 				m_pValues = nullptr;
 			return *this;
 		}
-		constexpr magictable& operator=(magictable&& other) noexcept
+		magictable& operator=(magictable&& other) noexcept
 		{
 			m_Info = std::move(other.m_Info);
 			m_Magic = std::move(other.m_Magic);

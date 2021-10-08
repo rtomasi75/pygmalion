@@ -11,7 +11,7 @@ namespace pygmalion::dynamics
 		constexpr static const size_t countRays{ sizeof...(RAYS) };
 	private:
 		template<typename RAY>
-		constexpr static void computeRayStep(const squaresType& seeds, squaresType& destinations) noexcept
+		PYGMALION_INLINE constexpr static void computeRayStep(const squaresType& seeds, squaresType& destinations) noexcept
 		{
 			squaresType pattern{ seeds };
 			if constexpr (RAY::fileIncrement > 0)
@@ -45,7 +45,7 @@ namespace pygmalion::dynamics
 			destinations |= pattern;
 		}
 		template<typename RAY>
-		constexpr static void computeInverseRayStep(const squaresType& seeds, squaresType& destinations) noexcept
+		PYGMALION_INLINE constexpr static void computeInverseRayStep(const squaresType& seeds, squaresType& destinations) noexcept
 		{
 			squaresType pattern{ seeds };
 			if constexpr (RAY::fileIncrement > 0)
@@ -79,7 +79,7 @@ namespace pygmalion::dynamics
 			destinations |= pattern;
 		}
 		template<typename RAY, size_t DISTANCE>
-		constexpr static void computeAttackRay(const squaresType& seeds, const squaresType& allowed, squaresType& destinations) noexcept
+		PYGMALION_INLINE constexpr static void computeAttackRay(const squaresType& seeds, const squaresType& allowed, squaresType& destinations) noexcept
 		{
 			if constexpr (DISTANCE < RANGE)
 			{
@@ -91,7 +91,7 @@ namespace pygmalion::dynamics
 			}
 		}
 		template<typename RAY, size_t DISTANCE>
-		constexpr static void computeInverseAttackRay(const squaresType& seeds, const squaresType& allowed, squaresType& destinations) noexcept
+		PYGMALION_INLINE constexpr static void computeInverseAttackRay(const squaresType& seeds, const squaresType& allowed, squaresType& destinations) noexcept
 		{
 			if constexpr (DISTANCE < RANGE)
 			{
@@ -103,7 +103,7 @@ namespace pygmalion::dynamics
 			}
 		}
 		template<typename RAY, size_t DISTANCE>
-		constexpr static void computeTargetRay(const squaresType& seeds, const squaresType& allowed, squaresType& destinations) noexcept
+		PYGMALION_INLINE constexpr static void computeTargetRay(const squaresType& seeds, const squaresType& allowed, squaresType& destinations) noexcept
 		{
 			if constexpr (DISTANCE < RANGE)
 			{
@@ -116,7 +116,7 @@ namespace pygmalion::dynamics
 			}
 		}
 		template<typename RAY, size_t DISTANCE>
-		constexpr static void computeInverseTargetRay(const squaresType& seeds, const squaresType& allowed, squaresType& destinations) noexcept
+		PYGMALION_INLINE constexpr static void computeInverseTargetRay(const squaresType& seeds, const squaresType& allowed, squaresType& destinations) noexcept
 		{
 			if constexpr (DISTANCE < RANGE)
 			{
@@ -185,14 +185,14 @@ namespace pygmalion::dynamics
 			return 0;
 		}
 		template<typename RAY, typename... RAYS2>
-		constexpr static void computeTargets(const squaresType& seeds, const squaresType& allowed, squaresType& targets) noexcept
+		PYGMALION_INLINE constexpr static void computeTargets(const squaresType& seeds, const squaresType& allowed, squaresType& targets) noexcept
 		{
 			propagator::computeTargetRay<RAY, 0>(seeds, allowed, targets);
 			if constexpr (sizeof...(RAYS2) > 0)
 				propagator::computeTargets<RAYS2...>(seeds, allowed, targets);
 		}
 		template<typename RAY, typename... RAYS2>
-		constexpr static void computeInverseTargets(const squaresType& seeds, const squaresType& allowed, squaresType& targets) noexcept
+		PYGMALION_INLINE constexpr static void computeInverseTargets(const squaresType& seeds, const squaresType& allowed, squaresType& targets) noexcept
 		{
 			propagator::computeInverseTargetRay<RAY, 0>(seeds, allowed, targets);
 			if constexpr (sizeof...(RAYS2) > 0)
@@ -257,14 +257,14 @@ namespace pygmalion::dynamics
 				return rayPossibilities;
 		}
 		template<typename RAY, typename... RAYS2>
-		constexpr static void computeAttacks(const squaresType& seeds, const squaresType& allowed, squaresType& targets) noexcept
+		PYGMALION_INLINE constexpr static void computeAttacks(const squaresType& seeds, const squaresType& allowed, squaresType& targets) noexcept
 		{
 			propagator::computeAttackRay<RAY, 0>(seeds, allowed, targets);
 			if constexpr (sizeof...(RAYS2) > 0)
 				propagator::computeAttacks<RAYS2...>(seeds, allowed, targets);
 		}
 		template<typename RAY, typename... RAYS2>
-		constexpr static void computeInverseAttacks(const squaresType& seeds, const squaresType& allowed, squaresType& targets) noexcept
+		PYGMALION_INLINE constexpr static void computeInverseAttacks(const squaresType& seeds, const squaresType& allowed, squaresType& targets) noexcept
 		{
 			propagator::computeInverseAttackRay<RAY, 0>(seeds, allowed, targets);
 			if constexpr (sizeof...(RAYS2) > 0)
@@ -301,7 +301,7 @@ namespace pygmalion::dynamics
 				return 1;
 		}
 	public:
-		constexpr static squaresType targets(const squaresType& seeds, const squaresType& allowed) noexcept
+		PYGMALION_INLINE constexpr static squaresType targets(const squaresType& seeds, const squaresType& allowed) noexcept
 		{
 			constexpr const squaresType none{ squaresType::none() };
 			squaresType targets{ none };
@@ -309,7 +309,7 @@ namespace pygmalion::dynamics
 				propagator::computeTargets<RAYS...>(seeds, allowed, targets);
 			return targets;
 		}
-		constexpr static squaresType inverseTargets(const squaresType& seeds, const squaresType& allowed) noexcept
+		PYGMALION_INLINE constexpr static squaresType inverseTargets(const squaresType& seeds, const squaresType& allowed) noexcept
 		{
 			constexpr const squaresType none{ squaresType::none() };
 			squaresType targets{ none };
@@ -317,7 +317,7 @@ namespace pygmalion::dynamics
 				propagator::computeInverseTargets<RAYS...>(seeds, allowed, targets);
 			return targets;
 		}
-		constexpr static squaresType attacks(const squaresType& seeds, const squaresType& allowed) noexcept
+		PYGMALION_INLINE constexpr static squaresType attacks(const squaresType& seeds, const squaresType& allowed) noexcept
 		{
 			constexpr const squaresType none{ squaresType::none() };
 			squaresType attacks{ none };
@@ -325,7 +325,7 @@ namespace pygmalion::dynamics
 				propagator::computeAttacks<RAYS...>(seeds, allowed, attacks);
 			return attacks;
 		}
-		constexpr static squaresType inverseAttacks(const squaresType& seeds, const squaresType& allowed) noexcept
+		PYGMALION_INLINE constexpr static squaresType inverseAttacks(const squaresType& seeds, const squaresType& allowed) noexcept
 		{
 			constexpr const squaresType none{ squaresType::none() };
 			squaresType attacks{ none };
@@ -394,22 +394,22 @@ namespace pygmalion::dynamics
 			return n;
 		}
 	private:
-		constexpr static typename squaresType::bitsType magicFactor(const size_t index) noexcept
+		PYGMALION_INLINE constexpr static typename squaresType::bitsType magicFactor(const size_t index) noexcept
 		{
 			return instanceType::magicFactor(index);
 		}
-		constexpr static typename squaresType::bitsType inverseMagicFactor(const size_t index) noexcept
+		PYGMALION_INLINE constexpr static typename squaresType::bitsType inverseMagicFactor(const size_t index) noexcept
 		{
 			return instanceType::inverseMagicFactor(index);
 		}
 		static inline std::array<slidermagic<descriptorDynamics, propagator>, countSquares> m_Magic{ arrayhelper::generate<countSquares, slidermagic<descriptorDynamics, propagator>>([](const size_t index)->slidermagic<descriptorDynamics, propagator> { return slidermagic<descriptorDynamics, propagator>(slidermagicinfo<descriptorDynamics>(static_cast<squareType>(index)),propagator::magicFactor(index),propagator::relevant(squaresType(static_cast<squareType>(static_cast<typename squareType::baseType>(index)))).count()); }) };
 		static inline std::array<inverseSlidermagic<descriptorDynamics, propagator>, countSquares> m_InverseMagic{ arrayhelper::generate<countSquares, inverseSlidermagic<descriptorDynamics, propagator>>([](const size_t index)->inverseSlidermagic<descriptorDynamics, propagator> { return inverseSlidermagic<descriptorDynamics, propagator>(inverseSlidermagicinfo<descriptorDynamics>(static_cast<squareType>(index)),propagator::inverseMagicFactor(index),propagator::inverseRelevant(squaresType(static_cast<squareType>(static_cast<typename squareType::baseType>(index)))).count()); }) };
 	public:
-		constexpr static slidermagic<descriptorDynamics, propagator>& magic(const squareType sq) noexcept
+		PYGMALION_INLINE constexpr static slidermagic<descriptorDynamics, propagator>& magic(const squareType sq) noexcept
 		{
 			return m_Magic[sq];
 		}
-		constexpr static inverseSlidermagic<descriptorDynamics, propagator>& inverseMagic(const squareType sq) noexcept
+		PYGMALION_INLINE constexpr static inverseSlidermagic<descriptorDynamics, propagator>& inverseMagic(const squareType sq) noexcept
 		{
 			return m_InverseMagic[sq];
 		}
@@ -419,11 +419,11 @@ namespace pygmalion::dynamics
 		constexpr propagator& operator=(const propagator&) noexcept = default;
 		constexpr propagator& operator=(propagator&&) noexcept = default;
 		~propagator() noexcept = default;
-		constexpr static squaresType targets(const squareType seed, const squaresType& allowed) noexcept
+		PYGMALION_INLINE constexpr static squaresType targets(const squareType seed, const squaresType& allowed) noexcept
 		{
 			return m_Magic[seed][~allowed] & allowed;
 		}
-		constexpr static squaresType attacks(const squareType seed, const squaresType& allowed) noexcept
+		PYGMALION_INLINE constexpr static squaresType attacks(const squareType seed, const squaresType& allowed) noexcept
 		{
 			return m_Magic[seed][~allowed];
 		}
@@ -448,7 +448,7 @@ namespace pygmalion::dynamics
 		constexpr static const size_t countRays{ sizeof...(RAYS) };
 	private:
 		template<typename RAY>
-		constexpr static void propagateRayStep(const squaresType& seeds, squaresType& destinations) noexcept
+		PYGMALION_INLINE constexpr static void propagateRayStep(const squaresType& seeds, squaresType& destinations) noexcept
 		{
 			squaresType pattern{ seeds };
 			if constexpr (RAY::fileIncrement > 0)
@@ -482,7 +482,7 @@ namespace pygmalion::dynamics
 			destinations |= pattern;
 		}
 		template<typename RAY>
-		constexpr static void propagateInverseRayStep(const squaresType& seeds, squaresType& destinations) noexcept
+		PYGMALION_INLINE constexpr static void propagateInverseRayStep(const squaresType& seeds, squaresType& destinations) noexcept
 		{
 			squaresType pattern{ seeds };
 			if constexpr (RAY::fileIncrement > 0)
@@ -556,7 +556,7 @@ namespace pygmalion::dynamics
 		constexpr propagator& operator=(const propagator&) noexcept = default;
 		constexpr propagator& operator=(propagator&&) noexcept = default;
 		~propagator() noexcept = default;
-		constexpr static squaresType targets(const squaresType& seeds, const squaresType& allowed) noexcept
+		PYGMALION_INLINE constexpr static squaresType targets(const squaresType& seeds, const squaresType& allowed) noexcept
 		{
 			constexpr const squaresType none{ squaresType::none() };
 			squaresType targets{ none };
@@ -564,7 +564,7 @@ namespace pygmalion::dynamics
 				propagator::computeTargets<RAYS...>(seeds, allowed, targets);
 			return targets;
 		}
-		constexpr static squaresType inverseTargets(const squaresType& seeds, const squaresType& allowed) noexcept
+		PYGMALION_INLINE constexpr static squaresType inverseTargets(const squaresType& seeds, const squaresType& allowed) noexcept
 		{
 			constexpr const squaresType none{ squaresType::none() };
 			squaresType targets{ none };
@@ -572,7 +572,7 @@ namespace pygmalion::dynamics
 				propagator::computeInverseTargets<RAYS...>(seeds, allowed, targets);
 			return targets;
 		}
-		constexpr static squaresType attacks(const squaresType& seeds, const squaresType& allowed) noexcept
+		PYGMALION_INLINE constexpr static squaresType attacks(const squaresType& seeds, const squaresType& allowed) noexcept
 		{
 			constexpr const squaresType none{ squaresType::none() };
 			squaresType attacks{ none };
@@ -580,7 +580,7 @@ namespace pygmalion::dynamics
 				propagator::computeAttacks<RAYS...>(seeds, allowed, attacks);
 			return attacks;
 		}
-		constexpr static squaresType inverseAttacks(const squaresType& seeds, const squaresType& allowed) noexcept
+		PYGMALION_INLINE constexpr static squaresType inverseAttacks(const squaresType& seeds, const squaresType& allowed) noexcept
 		{
 			constexpr const squaresType none{ squaresType::none() };
 			squaresType attacks{ none };
@@ -592,19 +592,19 @@ namespace pygmalion::dynamics
 		constexpr static const inline std::array<squaresType, countSquares> m_PropagationTable{ arrayhelper::generate<countSquares,squaresType>([](const size_t index)->squaresType { return attacks(static_cast<squaresType>(static_cast<squareType>(static_cast<typename std::make_unsigned<size_t>::type>(index))),squaresType::all()); }) };
 		constexpr static const inline std::array<squaresType, countSquares> m_InversePropagationTable{ arrayhelper::generate<countSquares,squaresType>([](const size_t index)->squaresType { return inverseAttacks(static_cast<squaresType>(static_cast<squareType>(static_cast<typename std::make_unsigned<size_t>::type>(index))),squaresType::all()); }) };
 	public:
-		constexpr static squaresType targets(const squareType seed, const squaresType& allowed) noexcept
+		PYGMALION_INLINE constexpr static squaresType targets(const squareType seed, const squaresType& allowed) noexcept
 		{
 			return m_PropagationTable[seed] & allowed;
 		}
-		constexpr static squaresType inverseTargets(const squareType seed, const squaresType& allowed) noexcept
+		PYGMALION_INLINE constexpr static squaresType inverseTargets(const squareType seed, const squaresType& allowed) noexcept
 		{
 			return m_InversePropagationTable[seed] & allowed;
 		}
-		constexpr static squaresType attacks(const squareType seed, const squaresType& allowed) noexcept
+		PYGMALION_INLINE constexpr static squaresType attacks(const squareType seed, const squaresType& allowed) noexcept
 		{
 			return m_PropagationTable[seed];
 		}
-		constexpr static squaresType inverseAttacks(const squareType seed, const squaresType& allowed) noexcept
+		PYGMALION_INLINE constexpr static squaresType inverseAttacks(const squareType seed, const squaresType& allowed) noexcept
 		{
 			return m_InversePropagationTable[seed];
 		}

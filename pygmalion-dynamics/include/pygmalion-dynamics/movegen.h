@@ -29,11 +29,11 @@ namespace pygmalion::dynamics
 		constexpr movegen(movegen&&) noexcept = default;
 		constexpr movegen& operator=(const movegen&) noexcept = default;
 		constexpr movegen& operator=(movegen&&) noexcept = default;
-		constexpr squaresType targets(const squareType seed, const squaresType& allowed) const noexcept
+		PYGMALION_INLINE squaresType targets(const squareType seed, const squaresType& allowed) const noexcept
 		{
 			return (propagatorType::targets(seed, allowed) & m_AllowedToSquares) * m_AllowedFromSquares[seed];
 		}
-		constexpr squaresType inverseTargets(const squareType seed, const squaresType& allowed) const noexcept
+		PYGMALION_INLINE squaresType inverseTargets(const squareType seed, const squaresType& allowed) const noexcept
 		{
 			return (propagatorType::inverseTargets(seed, allowed) & m_AllowedFromSquares) * m_AllowedToSquares[seed];
 		}
@@ -45,11 +45,11 @@ namespace pygmalion::dynamics
 		{
 			return (propagatorType::inverseTargets(squaresType(seed), allowed) & m_AllowedFromSquares) * m_AllowedToSquares[seed];
 		}
-		constexpr squaresType attacks(const squareType seed, const squaresType& allowed) const noexcept
+		PYGMALION_INLINE squaresType attacks(const squareType seed, const squaresType& allowed) const noexcept
 		{
 			return (propagatorType::attacks(seed, allowed) & m_AllowedToSquares) * m_AllowedFromSquares[seed];
 		}
-		constexpr squaresType inverseAttacks(const squareType seed, const squaresType& allowed) const noexcept
+		PYGMALION_INLINE squaresType inverseAttacks(const squareType seed, const squaresType& allowed) const noexcept
 		{
 			return (propagatorType::inverseAttacks(seed, allowed) & m_AllowedFromSquares) * m_AllowedToSquares[seed];
 		}
@@ -61,19 +61,19 @@ namespace pygmalion::dynamics
 		{
 			return (propagatorType::inverseAttacks(squaresType(seed), allowed) & m_AllowedFromSquares) * m_AllowedToSquares[seed];
 		}
-		constexpr squaresType targets(const squaresType& seeds, const squaresType& allowed) const noexcept
+		PYGMALION_INLINE squaresType targets(const squaresType& seeds, const squaresType& allowed) const noexcept
 		{
 			return propagatorType::targets(seeds & m_AllowedFromSquares, allowed) & m_AllowedToSquares;
 		}
-		constexpr squaresType inverseTargets(const squaresType& seeds, const squaresType& allowed) const noexcept
+		PYGMALION_INLINE squaresType inverseTargets(const squaresType& seeds, const squaresType& allowed) const noexcept
 		{
 			return propagatorType::inverseTargets(seeds & m_AllowedToSquares, allowed) & m_AllowedFromSquares;
 		}
-		constexpr squaresType attacks(const squaresType& seeds, const squaresType& allowed) const noexcept
+		PYGMALION_INLINE squaresType attacks(const squaresType& seeds, const squaresType& allowed) const noexcept
 		{
 			return propagatorType::attacks(seeds & m_AllowedFromSquares, allowed) & m_AllowedToSquares;
 		}
-		constexpr squaresType inverseAttacks(const squaresType& seeds, const squaresType& allowed) const noexcept
+		PYGMALION_INLINE squaresType inverseAttacks(const squaresType& seeds, const squaresType& allowed) const noexcept
 		{
 			return propagatorType::inverseAttacks(seeds & m_AllowedToSquares, allowed) & m_AllowedFromSquares;
 		}

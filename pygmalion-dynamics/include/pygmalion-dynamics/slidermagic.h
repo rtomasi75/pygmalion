@@ -12,21 +12,21 @@ namespace pygmalion::dynamics
 	private:
 		squareType m_Square;
 	public:
-		constexpr slidermagicinfo() noexcept :
+		slidermagicinfo() noexcept :
 			m_Square{ squareType::invalid }
 		{
 		}
-		constexpr slidermagicinfo(const squareType square) noexcept :
+		slidermagicinfo(const squareType square) noexcept :
 			m_Square{ square }
 		{
 
 		}
-		constexpr slidermagicinfo(const slidermagicinfo&) noexcept = default;
-		constexpr slidermagicinfo(slidermagicinfo&&) noexcept = default;
+		slidermagicinfo(const slidermagicinfo&) noexcept = default;
+		slidermagicinfo(slidermagicinfo&&) noexcept = default;
 		~slidermagicinfo() noexcept = default;
-		constexpr slidermagicinfo& operator=(const slidermagicinfo&) noexcept = default;
-		constexpr slidermagicinfo& operator=(slidermagicinfo&&) noexcept = default;
-		constexpr auto square() const noexcept
+		slidermagicinfo& operator=(const slidermagicinfo&) noexcept = default;
+		slidermagicinfo& operator=(slidermagicinfo&&) noexcept = default;
+		PYGMALION_INLINE auto square() const noexcept
 		{
 			return m_Square;
 		}
@@ -109,7 +109,7 @@ namespace pygmalion::dynamics
 #if defined(PYGMALION_SLIDERMAGIC_COMPACT)&&defined(PYGMALION_CPU_BMI2)
 		bitsType m_Mask;
 #endif
-		constexpr squaresType decodeSquares(const valueType& value) const noexcept
+		PYGMALION_INLINE squaresType decodeSquares(const valueType& value) const noexcept
 		{
 #if defined(PYGMALION_SLIDERMAGIC_COMPACT)&&defined(PYGMALION_CPU_BMI2)
 			const bitsType extracted{ static_cast<bitsType>(value) };
@@ -120,7 +120,7 @@ namespace pygmalion::dynamics
 			return value;
 #endif
 		}
-		constexpr valueType encodeSquares(const squaresType& squares) const noexcept
+		PYGMALION_INLINE valueType encodeSquares(const squaresType& squares) const noexcept
 		{
 #if defined(PYGMALION_SLIDERMAGIC_COMPACT)&&defined(PYGMALION_CPU_BMI2)
 			const bitsType squarebits{ static_cast<bitsType>(squares) };
@@ -247,7 +247,7 @@ namespace pygmalion::dynamics
 				delete[] m_Table;
 #endif
 		}
-		const squaresType operator[](const squaresType& blockers) const
+		PYGMALION_INLINE const squaresType operator[](const squaresType& blockers) const
 		{
 #if defined(PYGMALION_SLIDERMAGIC_INDIRECT)
 			const entryType idx{ slidermagic::value(static_cast<bitsType>(blockers)) };
