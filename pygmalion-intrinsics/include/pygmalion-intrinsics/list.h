@@ -90,7 +90,7 @@ namespace pygmalion
 		{
 			return &m_Items[0];
 		}
-		void replace(const counterType& idx, const itemType& item) noexcept
+		PYGMALION_INLINE void replace(const counterType& idx, const itemType& item) noexcept
 		{
 			PYGMALION_ASSERT(idx >= 0);
 			PYGMALION_ASSERT(idx < maxLength);
@@ -99,7 +99,7 @@ namespace pygmalion
 			m_Items[idx] = item;
 			m_Length = std::max(m_Length, static_cast<counterType>(idx + 1));
 		}
-		void replace(const counterType& idx, itemType&& item) noexcept
+		PYGMALION_INLINE void replace(const counterType& idx, itemType&& item) noexcept
 		{
 			PYGMALION_ASSERT(idx >= 0);
 			PYGMALION_ASSERT(idx < maxLength);
@@ -176,39 +176,39 @@ namespace pygmalion
 			for (counterType i = 0; i < m_Length; ++i)
 				m_Items[i] = other.m_Items[i];
 		}
-		list() noexcept :
+		PYGMALION_INLINE list() noexcept :
 			m_Length(0)
 		{
 
 		}
-		list(const itemType& item) noexcept :
+		PYGMALION_INLINE list(const itemType& item) noexcept :
 			m_Length(1)
 		{
 			m_Items[0] = item;
 		}
-		~list() noexcept = default;
-		counterType length() const noexcept
+		PYGMALION_INLINE ~list() noexcept = default;
+		PYGMALION_INLINE counterType length() const noexcept
 		{
 			return m_Length;
 		}
-		const itemType& operator[](const counterType& idx) const noexcept
+		PYGMALION_INLINE const itemType& operator[](const counterType& idx) const noexcept
 		{
 			PYGMALION_ASSERT(idx >= 0);
 			PYGMALION_ASSERT(idx < maxLength);
 			PYGMALION_ASSERT(idx < m_Length);
 			return m_Items[idx];
 		}
-		void clear() noexcept
+		PYGMALION_INLINE void clear() noexcept
 		{
 			m_Length = 0;
 		}
-		void add(const itemType& item) noexcept
+		PYGMALION_INLINE void add(const itemType& item) noexcept
 		{
 			PYGMALION_ASSERT(m_Length >= 0);
 			PYGMALION_ASSERT(m_Length < maxLength);
 			m_Items[m_Length++] = item;
 		}
-		void add(itemType&& item) noexcept
+		PYGMALION_INLINE void add(itemType&& item) noexcept
 		{
 			PYGMALION_ASSERT(m_Length >= 0);
 			PYGMALION_ASSERT(m_Length < maxLength);

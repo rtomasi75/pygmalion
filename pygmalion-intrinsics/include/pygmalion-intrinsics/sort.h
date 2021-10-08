@@ -112,7 +112,7 @@ namespace pygmalion
 		{
 		public:
 			template<size_t IDX1, size_t IDX2>
-			constexpr static void scalar(VALUE* pValues, SCORE* pScores) noexcept
+			PYGMALION_INLINE static void scalar(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				if (pScores[IDX1] < pScores[IDX2])
 				{
@@ -121,43 +121,43 @@ namespace pygmalion
 				}
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b>
-			constexpr static void vector2(VALUE* pValues, SCORE* pScores) noexcept
+			PYGMALION_INLINE static void vector2(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				scalar<IDX1a, IDX2a>(pValues, pScores);
 				scalar<IDX1b, IDX2b>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c>
-			constexpr static void vector3(VALUE* pValues, SCORE* pScores) noexcept
+			PYGMALION_INLINE static void vector3(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				vector2<IDX1a, IDX2a, IDX1b, IDX2b>(pValues, pScores);
 				scalar<IDX1c, IDX2c>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d>
-			constexpr static void vector4(VALUE* pValues, SCORE* pScores) noexcept
+			PYGMALION_INLINE static void vector4(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				vector2<IDX1a, IDX2a, IDX1b, IDX2b>(pValues, pScores);
 				vector2<IDX1c, IDX2c, IDX1d, IDX2d>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e>
-			constexpr static void vector5(VALUE* pValues, SCORE* pScores) noexcept
+			PYGMALION_INLINE static void vector5(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				vector4<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d>(pValues, pScores);
 				scalar<IDX1e, IDX2e>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f>
-			constexpr static void vector6(VALUE* pValues, SCORE* pScores) noexcept
+			PYGMALION_INLINE static void vector6(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				vector4<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d>(pValues, pScores);
 				vector2<IDX1e, IDX2e, IDX1f, IDX2f>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g>
-			constexpr static void vector7(VALUE* pValues, SCORE* pScores) noexcept
+			PYGMALION_INLINE static void vector7(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				vector4<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d>(pValues, pScores);
 				vector3<IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h>
-			constexpr static void vector8(VALUE* pValues, SCORE* pScores) noexcept
+			PYGMALION_INLINE static void vector8(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				vector4<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d>(pValues, pScores);
 				vector4<IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h>(pValues, pScores);
@@ -172,7 +172,7 @@ namespace pygmalion
 			using SCORE = std::int32_t;
 		private:
 			template<size_t IDX1, size_t IDX2>
-			constexpr static void scalar_Vanilla(VALUE* pValues, SCORE* pScores) noexcept
+			PYGMALION_INLINE static void scalar_Vanilla(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				if (pScores[IDX1] < pScores[IDX2])
 				{
@@ -181,50 +181,50 @@ namespace pygmalion
 				}
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b>
-			constexpr static void vector2_Vanilla(VALUE* pValues, SCORE* pScores) noexcept
+			PYGMALION_INLINE static void vector2_Vanilla(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				scalar<IDX1a, IDX2a>(pValues, pScores);
 				scalar<IDX1b, IDX2b>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c>
-			constexpr static void vector3_Vanilla(VALUE* pValues, SCORE* pScores) noexcept
+			PYGMALION_INLINE static void vector3_Vanilla(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				vector2<IDX1a, IDX2a, IDX1b, IDX2b>(pValues, pScores);
 				scalar<IDX1c, IDX2c>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d>
-			constexpr static void vector4_Vanilla(VALUE* pValues, SCORE* pScores) noexcept
+			PYGMALION_INLINE static void vector4_Vanilla(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				vector2<IDX1a, IDX2a, IDX1b, IDX2b>(pValues, pScores);
 				vector2<IDX1c, IDX2c, IDX1d, IDX2d>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e>
-			constexpr static void vector5_Vanilla(VALUE* pValues, SCORE* pScores) noexcept
+			PYGMALION_INLINE static void vector5_Vanilla(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				vector3<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c>(pValues, pScores);
 				vector2<IDX1d, IDX2d, IDX1e, IDX2e>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f>
-			constexpr static void vector6_Vanilla(VALUE* pValues, SCORE* pScores) noexcept
+			PYGMALION_INLINE static void vector6_Vanilla(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				vector3<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c>(pValues, pScores);
 				vector3<IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g>
-			constexpr static void vector7_Vanilla(VALUE* pValues, SCORE* pScores) noexcept
+			PYGMALION_INLINE static void vector7_Vanilla(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				vector4<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d>(pValues, pScores);
 				vector3<IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h>
-			constexpr static void vector8_Vanilla(VALUE* pValues, SCORE* pScores) noexcept
+			PYGMALION_INLINE static void vector8_Vanilla(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				vector4<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d>(pValues, pScores);
 				vector4<IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h>(pValues, pScores);
 			}
 #if defined(PYGMALION_CPU_SSE2)
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d>
-			constexpr static void vector4_SSE2(VALUE* pValues, SCORE* pScores) noexcept
+			PYGMALION_INLINE static void vector4_SSE2(VALUE* pValues, SCORE* pScores) noexcept
 			{
 #if defined(PYGMALION_CPU_SSE41)
 				const __m128i score1{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_undefined_si128(), pScores[IDX1a],0), pScores[IDX1b], 1), pScores[IDX1c], 2), pScores[IDX1d], 3) };
@@ -261,7 +261,7 @@ namespace pygmalion
 				pValues[IDX2d] = _mm_extract_epi16(resultValue2, 7);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c>
-			constexpr static void vector3_SSE2(VALUE* pValues, SCORE* pScores) noexcept
+			PYGMALION_INLINE static void vector3_SSE2(VALUE* pValues, SCORE* pScores) noexcept
 			{
 #if defined(PYGMALION_CPU_SSE41)
 				const __m128i score1{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_undefined_si128(), pScores[IDX1a],0), pScores[IDX1b], 1), pScores[IDX1c], 2) };
@@ -294,7 +294,7 @@ namespace pygmalion
 				pValues[IDX2c] = _mm_extract_epi16(resultValue2, 6);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b>
-			constexpr static void vector2_SSE2(VALUE* pValues, SCORE* pScores) noexcept
+			PYGMALION_INLINE static void vector2_SSE2(VALUE* pValues, SCORE* pScores) noexcept
 			{
 #if defined(PYGMALION_CPU_SSE41)
 				const __m128i score1{ _mm_insert_epi32(_mm_insert_epi32(_mm_undefined_si128(), pScores[IDX1a],0), pScores[IDX1b], 1) };
@@ -325,7 +325,7 @@ namespace pygmalion
 #endif
 #if defined PYGMALION_CPU_AVX2
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e>
-			constexpr static void vector5_AVX2(VALUE* pValues, SCORE* pScores) noexcept
+			PYGMALION_INLINE static void vector5_AVX2(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				const __m128i score1low{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_undefined_si128(), pScores[IDX1a],0), pScores[IDX1b], 1), pScores[IDX1c], 2), pScores[IDX1d], 3) };
 				const __m128i score2low{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_undefined_si128(), pScores[IDX2a],0), pScores[IDX2b], 1), pScores[IDX2c], 2), pScores[IDX2d], 3) };
@@ -377,7 +377,7 @@ namespace pygmalion
 				pValues[IDX2e] = _mm_extract_epi16(resultValue2high, 0);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f>
-			constexpr static void vector6_AVX2(VALUE* pValues, SCORE* pScores) noexcept
+			PYGMALION_INLINE static void vector6_AVX2(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				const __m128i score1low{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_undefined_si128(), pScores[IDX1a],0), pScores[IDX1b], 1), pScores[IDX1c], 2), pScores[IDX1d], 3) };
 				const __m128i score2low{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_undefined_si128(), pScores[IDX2a],0), pScores[IDX2b], 1), pScores[IDX2c], 2), pScores[IDX2d], 3) };
@@ -433,7 +433,7 @@ namespace pygmalion
 				pValues[IDX2f] = _mm_extract_epi16(resultValue2high, 1);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g>
-			constexpr static void vector7_AVX2(VALUE* pValues, SCORE* pScores) noexcept
+			PYGMALION_INLINE static void vector7_AVX2(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				const __m128i score1low{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_undefined_si128(), pScores[IDX1a],0), pScores[IDX1b], 1), pScores[IDX1c], 2), pScores[IDX1d], 3) };
 				const __m128i score2low{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_undefined_si128(), pScores[IDX2a],0), pScores[IDX2b], 1), pScores[IDX2c], 2), pScores[IDX2d], 3) };
@@ -493,7 +493,7 @@ namespace pygmalion
 				pValues[IDX2g] = _mm_extract_epi16(resultValue2high, 6);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h>
-			constexpr static void vector8_AVX2(VALUE* pValues, SCORE* pScores) noexcept
+			PYGMALION_INLINE static void vector8_AVX2(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				const __m128i score1low{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_undefined_si128(), pScores[IDX1a],0), pScores[IDX1b], 1), pScores[IDX1c], 2), pScores[IDX1d], 3) };
 				const __m128i score2low{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_undefined_si128(), pScores[IDX2a],0), pScores[IDX2b], 1), pScores[IDX2c], 2), pScores[IDX2d], 3) };
@@ -559,12 +559,12 @@ namespace pygmalion
 #endif
 		public:
 			template<size_t IDX1, size_t IDX2>
-			constexpr static void scalar(VALUE* pValues, SCORE* pScores) noexcept
+			PYGMALION_INLINE static void scalar(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				scalar_Vanilla<IDX1, IDX2>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b>
-			constexpr static void vector2(VALUE* pValues, SCORE* pScores) noexcept
+			PYGMALION_INLINE static void vector2(VALUE* pValues, SCORE* pScores) noexcept
 			{
 #if defined(PYGMALION_CPU_SSE2)
 				if constexpr (cpu::supports(cpu::SSE2))
@@ -574,7 +574,7 @@ namespace pygmalion
 					vector2_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c>
-			constexpr static void vector3(VALUE* pValues, SCORE* pScores) noexcept
+			PYGMALION_INLINE static void vector3(VALUE* pValues, SCORE* pScores) noexcept
 			{
 #if defined(PYGMALION_CPU_SSE2)
 				if constexpr (cpu::supports(cpu::SSE2))
@@ -584,7 +584,7 @@ namespace pygmalion
 					vector3_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d>
-			constexpr static void vector4(VALUE* pValues, SCORE* pScores) noexcept
+			PYGMALION_INLINE static void vector4(VALUE* pValues, SCORE* pScores) noexcept
 			{
 #if defined(PYGMALION_CPU_SSE2)
 				if constexpr (cpu::supports(cpu::SSE2))
@@ -594,7 +594,7 @@ namespace pygmalion
 					vector4_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e>
-			constexpr static void vector5(VALUE* pValues, SCORE* pScores) noexcept
+			PYGMALION_INLINE static void vector5(VALUE* pValues, SCORE* pScores) noexcept
 			{
 #if defined(PYGMALION_CPU_AVX2)
 				if constexpr (cpu::supports(cpu::AVX2))
@@ -604,7 +604,7 @@ namespace pygmalion
 					vector5_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f>
-			constexpr static void vector6(VALUE* pValues, SCORE* pScores) noexcept
+			PYGMALION_INLINE static void vector6(VALUE* pValues, SCORE* pScores) noexcept
 			{
 #if defined(PYGMALION_CPU_AVX2)
 				if constexpr (cpu::supports(cpu::AVX2))
@@ -614,7 +614,7 @@ namespace pygmalion
 					vector6_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g>
-			constexpr static void vector7(VALUE* pValues, SCORE* pScores) noexcept
+			PYGMALION_INLINE static void vector7(VALUE* pValues, SCORE* pScores) noexcept
 			{
 #if defined(PYGMALION_CPU_AVX2)
 				if constexpr (cpu::supports(cpu::AVX2))
@@ -624,7 +624,7 @@ namespace pygmalion
 					vector7_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h>
-			constexpr static void vector8(VALUE* pValues, SCORE* pScores) noexcept
+			PYGMALION_INLINE static void vector8(VALUE* pValues, SCORE* pScores) noexcept
 			{
 #if defined(PYGMALION_CPU_AVX2)
 				if constexpr (cpu::supports(cpu::AVX2))
@@ -639,13 +639,13 @@ namespace pygmalion
 		class sortAlgorithm
 		{
 		private:
-			constexpr static void quickSort(const int low, const int high, VALUE* pValues, SCORE* pScores) noexcept
+			PYGMALION_INLINE static void quickSort(const int low, const int high, VALUE* pValues, SCORE* pScores) noexcept
 			{
 				const int pi{ partition(low, high, pValues, pScores) };
 				sortValues(&pValues[low], &pScores[low], pi - low);
 				sortValues(&pValues[pi + 1], &pScores[pi + 1], high - pi);
 			}
-			constexpr static int partition(const int low, const int high, VALUE* pValues, SCORE* pScores) noexcept
+			PYGMALION_INLINE static int partition(const int low, const int high, VALUE* pValues, SCORE* pScores) noexcept
 			{
 				const SCORE pivotScore{ pScores[high] };
 				int i{ low - 1 };
@@ -663,113 +663,113 @@ namespace pygmalion
 				return (i + 1);
 			}
 			template<size_t IDX1, size_t IDX2>
-			constexpr static void comparator(VALUE* pValues, SCORE* pScores) noexcept
+			PYGMALION_INLINE static void comparator(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				compare<VALUE, SCORE>::template scalar<IDX1, IDX2>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b>
-			constexpr static void comparator(VALUE* pValues, SCORE* pScores) noexcept
+			PYGMALION_INLINE static void comparator(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				compare<VALUE, SCORE>::template vector2<IDX1a, IDX2a, IDX1b, IDX2b>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c>
-			constexpr static void comparator(VALUE* pValues, SCORE* pScores) noexcept
+			PYGMALION_INLINE static void comparator(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				compare<VALUE, SCORE>::template vector3<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d>
-			constexpr static void comparator(VALUE* pValues, SCORE* pScores) noexcept
+			PYGMALION_INLINE static void comparator(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				compare<VALUE, SCORE>::template vector4<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e>
-			constexpr static void comparator(VALUE* pValues, SCORE* pScores) noexcept
+			PYGMALION_INLINE static void comparator(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				compare<VALUE, SCORE>::template vector5<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f>
-			constexpr static void comparator(VALUE* pValues, SCORE* pScores) noexcept
+			PYGMALION_INLINE static void comparator(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				compare<VALUE, SCORE>::template vector6<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g>
-			constexpr static void comparator(VALUE* pValues, SCORE* pScores) noexcept
+			PYGMALION_INLINE static void comparator(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				compare<VALUE, SCORE>::template vector7<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h>
-			constexpr static void comparator(VALUE* pValues, SCORE* pScores) noexcept
+			PYGMALION_INLINE static void comparator(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				compare<VALUE, SCORE>::template vector8<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j>
-			constexpr static void comparator(VALUE* pValues, SCORE* pScores) noexcept
+			PYGMALION_INLINE static void comparator(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e>(pValues, pScores);
 				comparator<IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k>
-			constexpr static void comparator(VALUE* pValues, SCORE* pScores) noexcept
+			PYGMALION_INLINE static void comparator(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e>(pValues, pScores);
 				comparator<IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l>
-			constexpr static void comparator(VALUE* pValues, SCORE* pScores) noexcept
+			PYGMALION_INLINE static void comparator(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f>(pValues, pScores);
 				comparator<IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l, size_t IDX1m, size_t IDX2m>
-			constexpr static void comparator(VALUE* pValues, SCORE* pScores) noexcept
+			PYGMALION_INLINE static void comparator(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f>(pValues, pScores);
 				comparator<IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l, size_t IDX1m, size_t IDX2m, size_t IDX1n, size_t IDX2n>
-			constexpr static void comparator(VALUE* pValues, SCORE* pScores) noexcept
+			PYGMALION_INLINE static void comparator(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g>(pValues, pScores);
 				comparator<IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l, size_t IDX1m, size_t IDX2m, size_t IDX1n, size_t IDX2n, size_t IDX1o, size_t IDX2o>
-			constexpr static void comparator(VALUE* pValues, SCORE* pScores) noexcept
+			PYGMALION_INLINE static void comparator(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g>(pValues, pScores);
 				comparator<IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n, IDX1o, IDX2o>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l, size_t IDX1m, size_t IDX2m, size_t IDX1n, size_t IDX2n, size_t IDX1o, size_t IDX2o, size_t IDX1p, size_t IDX2p>
-			constexpr static void comparator(VALUE* pValues, SCORE* pScores) noexcept
+			PYGMALION_INLINE static void comparator(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h>(pValues, pScores);
 				comparator<IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n, IDX1o, IDX2o, IDX1p, IDX2p>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l, size_t IDX1m, size_t IDX2m, size_t IDX1n, size_t IDX2n, size_t IDX1o, size_t IDX2o, size_t IDX1p, size_t IDX2p, size_t IDX1q, size_t IDX2q>
-			constexpr static void comparator(VALUE* pValues, SCORE* pScores) noexcept
+			static void comparator(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h>(pValues, pScores);
 				comparator<IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n, IDX1o, IDX2o, IDX1p, IDX2p, IDX1q, IDX2q>(pValues, pScores);
 			}
-			constexpr static void sort_N1(VALUE* pValues, SCORE* pScores) noexcept
+			static void sort_N1(VALUE* pValues, SCORE* pScores) noexcept
 			{
 			}
-			constexpr static void sort_N2(VALUE* pValues, SCORE* pScores) noexcept
+			static void sort_N2(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<0, 1>(pValues, pScores); // FIRST 1-Lane
 			}
-			constexpr static void sort_N3(VALUE* pValues, SCORE* pScores) noexcept
+			static void sort_N3(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<1, 2>(pValues, pScores);
 				comparator<0, 2>(pValues, pScores);
 				comparator<0, 1>(pValues, pScores);
 			}
-			constexpr static void sort_N4(VALUE* pValues, SCORE* pScores) noexcept
+			static void sort_N4(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<0, 1, 2, 3>(pValues, pScores); // FIRST 2-Lane
 				comparator<0, 2, 1, 3>(pValues, pScores);
 				comparator<1, 2>(pValues, pScores);
 			}
-			constexpr static void sort_N5(VALUE* pValues, SCORE* pScores) noexcept
+			static void sort_N5(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<0, 4, 1, 3>(pValues, pScores);
 				comparator<0, 2>(pValues, pScores);
@@ -777,7 +777,7 @@ namespace pygmalion
 				comparator<2, 3, 1, 4>(pValues, pScores);
 				comparator<1, 2, 3, 4>(pValues, pScores);
 			}
-			constexpr static void sort_N6(VALUE* pValues, SCORE* pScores) noexcept
+			static void sort_N6(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<0, 4, 1, 5>(pValues, pScores);
 				comparator<0, 2, 1, 3>(pValues, pScores);
@@ -786,7 +786,7 @@ namespace pygmalion
 				comparator<1, 4>(pValues, pScores);
 				comparator<1, 2, 3, 4 >(pValues, pScores);
 			}
-			constexpr static void sort_N7(VALUE* pValues, SCORE* pScores) noexcept
+			static void sort_N7(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<0, 4, 1, 5, 2, 6>(pValues, pScores);
 				comparator<0, 2, 1, 3, 4, 6>(pValues, pScores);
@@ -795,7 +795,7 @@ namespace pygmalion
 				comparator<1, 4, 3, 6>(pValues, pScores);
 				comparator<1, 2, 3, 4, 5, 6>(pValues, pScores);
 			}
-			constexpr static void sort_N8(VALUE* pValues, SCORE* pScores) noexcept
+			static void sort_N8(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<0, 4, 1, 5, 2, 6, 3, 7>(pValues, pScores); // FIRST 4-Lane
 				comparator<0, 2, 1, 3, 4, 6, 5, 7>(pValues, pScores);
@@ -804,7 +804,7 @@ namespace pygmalion
 				comparator<1, 4, 3, 6>(pValues, pScores);
 				comparator<1, 2, 3, 4, 5, 6>(pValues, pScores);
 			}
-			constexpr static void sort_N9(VALUE* pValues, SCORE* pScores) noexcept
+			static void sort_N9(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<0, 8, 1, 5, 2, 6, 3, 7>(pValues, pScores);
 				comparator<0, 4, 1, 3, 5, 7>(pValues, pScores);
@@ -815,7 +815,7 @@ namespace pygmalion
 				comparator<1, 4, 3, 6, 5, 8>(pValues, pScores);
 				comparator<1, 2, 3, 4, 5, 6, 7, 8>(pValues, pScores);
 			}
-			constexpr static void sort_N10(VALUE* pValues, SCORE* pScores) noexcept
+			static void sort_N10(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<4, 9, 3, 8, 2, 7, 1, 6, 0, 5>(pValues, pScores);
 				comparator<1, 4, 6, 9, 0, 3, 5, 8>(pValues, pScores);
@@ -827,7 +827,7 @@ namespace pygmalion
 				comparator<3, 4, 5, 6>(pValues, pScores);
 				comparator<4, 5>(pValues, pScores);
 			}
-			constexpr static void sort_N11(VALUE* pValues, SCORE* pScores) noexcept
+			static void sort_N11(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<0, 1, 2, 3, 4, 5, 6, 7, 8, 9>(pValues, pScores);
 				comparator<1, 3, 5, 7, 0, 2, 4, 6, 8, 10>(pValues, pScores);
@@ -839,7 +839,7 @@ namespace pygmalion
 				comparator<2, 4, 7, 9, 5, 6>(pValues, pScores);
 				comparator<3, 4, 7, 8>(pValues, pScores);
 			}
-			constexpr static void sort_N12(VALUE* pValues, SCORE* pScores) noexcept
+			static void sort_N12(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11>(pValues, pScores);
 				comparator<1, 3, 5, 7, 9, 11, 0, 2, 4, 6, 8, 10>(pValues, pScores);
@@ -851,7 +851,7 @@ namespace pygmalion
 				comparator<2, 4, 7, 9, 5, 6>(pValues, pScores);
 				comparator<3, 4, 7, 8>(pValues, pScores);
 			}
-			constexpr static void sort_N13(VALUE* pValues, SCORE* pScores) noexcept
+			static void sort_N13(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<1, 7, 9, 11, 3, 4, 5, 8, 0, 12, 2, 6>(pValues, pScores);
 				comparator<0, 1, 2, 3, 4, 6, 8, 11, 7, 12, 5, 9>(pValues, pScores);
@@ -864,7 +864,7 @@ namespace pygmalion
 				comparator<2, 3, 4, 5, 6, 7, 8, 9>(pValues, pScores);
 				comparator<3, 4, 5, 6>(pValues, pScores);
 			}
-			constexpr static void sort_N14(VALUE* pValues, SCORE* pScores) noexcept
+			static void sort_N14(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13>(pValues, pScores);
 				comparator<0, 2, 4, 6, 8, 10, 1, 3, 5, 7, 9, 11>(pValues, pScores);
@@ -877,7 +877,7 @@ namespace pygmalion
 				comparator<3, 4, 5, 6, 7, 8, 9, 10, 11, 12>(pValues, pScores);
 				comparator<6, 7, 8, 9>(pValues, pScores);
 			}
-			constexpr static void sort_N15(VALUE* pValues, SCORE* pScores) noexcept
+			static void sort_N15(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13>(pValues, pScores);
 				comparator<0, 2, 4, 6, 8, 10, 12, 14, 1, 3, 5, 7, 9, 11>(pValues, pScores);
@@ -890,7 +890,7 @@ namespace pygmalion
 				comparator<3, 4, 5, 6, 7, 8, 9, 10, 11, 12>(pValues, pScores);
 				comparator<6, 7, 8, 9>(pValues, pScores);
 			}
-			constexpr static void sort_N16(VALUE* pValues, SCORE* pScores) noexcept
+			static void sort_N16(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15>(pValues, pScores);
 				comparator<0, 2, 4, 6, 8, 10, 12, 14, 1, 3, 5, 7, 9, 11, 13, 15>(pValues, pScores);
@@ -903,7 +903,7 @@ namespace pygmalion
 				comparator<3, 4, 5, 6, 7, 8, 9, 10, 11, 12>(pValues, pScores);
 				comparator<6, 7, 8, 9>(pValues, pScores);
 			}
-			constexpr static void sort_N17(VALUE* pValues, SCORE* pScores) noexcept
+			static void sort_N17(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<0, 16, 1, 9, 2, 10, 3, 11, 4, 12, 5, 13, 6, 14, 7, 15>(pValues, pScores);
 				comparator<0, 8, 1, 5, 2, 6, 3, 7, 9, 13, 10, 14, 11, 15>(pValues, pScores);
@@ -918,7 +918,7 @@ namespace pygmalion
 				comparator<1, 4, 3, 6, 5, 8, 7, 10, 9, 12, 11, 14, 13, 16>(pValues, pScores);
 				comparator<1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16>(pValues, pScores);
 			}
-			constexpr static void sort_N18(VALUE* pValues, SCORE* pScores) noexcept
+			static void sort_N18(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<0, 16, 1, 17, 2, 10, 3, 11, 4, 12, 5, 13, 6, 14, 7, 15>(pValues, pScores);
 				comparator<0, 8, 1, 9, 2, 6, 3, 7, 10, 14, 11, 15>(pValues, pScores);
@@ -934,7 +934,7 @@ namespace pygmalion
 				comparator<1, 4, 5, 8, 9, 12, 13, 16>(pValues, pScores);
 				comparator<1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16>(pValues, pScores);
 			}
-			constexpr static void sort_N19(VALUE* pValues, SCORE* pScores) noexcept
+			static void sort_N19(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<0, 16, 1, 17, 2, 18, 3, 11, 4, 12, 5, 13, 6, 14, 7, 15>(pValues, pScores);
 				comparator<0, 8, 1, 9, 2, 10, 3, 7, 11, 15>(pValues, pScores);
@@ -951,7 +951,7 @@ namespace pygmalion
 				comparator<1, 4, 3, 6, 5, 8, 7, 10, 9, 12, 11, 14, 13, 16, 15, 18>(pValues, pScores);
 				comparator<1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18>(pValues, pScores);
 			}
-			constexpr static void sort_N20(VALUE* pValues, SCORE* pScores) noexcept
+			static void sort_N20(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<0, 16, 1, 17, 2, 18, 3, 19, 4, 12, 5, 13, 6, 14, 7, 15>(pValues, pScores);
 				comparator<0, 8, 1, 9, 2, 10, 3, 11>(pValues, pScores);
@@ -968,7 +968,7 @@ namespace pygmalion
 				comparator<1, 4, 3, 6, 5, 8, 7, 10, 9, 12, 11, 14, 13, 16, 15, 18>(pValues, pScores);
 				comparator<1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18>(pValues, pScores);
 			}
-			constexpr static void sort_N21(VALUE* pValues, SCORE* pScores) noexcept
+			static void sort_N21(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<0, 16, 1, 17, 2, 18, 3, 19, 4, 20, 5, 13, 6, 14, 7, 15>(pValues, pScores);
 				comparator<0, 8, 1, 9, 2, 10, 3, 11, 4, 12>(pValues, pScores);
@@ -986,7 +986,7 @@ namespace pygmalion
 				comparator<1, 4, 3, 6, 5, 8, 7, 10, 9, 12, 11, 14, 13, 16, 15, 18, 17, 20>(pValues, pScores);
 				comparator<1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20>(pValues, pScores);
 			}
-			constexpr static void sort_N22(VALUE* pValues, SCORE* pScores) noexcept
+			static void sort_N22(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<0, 16, 1, 17, 2, 18, 3, 19, 4, 20, 5, 21, 6, 14, 7, 15>(pValues, pScores);
 				comparator<0, 8, 1, 9, 2, 10, 3, 11, 4, 12, 5, 13>(pValues, pScores);
@@ -1004,7 +1004,7 @@ namespace pygmalion
 				comparator<1, 4, 3, 6, 5, 8, 7, 10, 9, 12, 11, 14, 13, 16, 15, 18, 17, 20>(pValues, pScores);
 				comparator<1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20>(pValues, pScores);
 			}
-			constexpr static void sort_N23(VALUE* pValues, SCORE* pScores) noexcept
+			static void sort_N23(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<0, 16, 1, 17, 2, 18, 3, 19, 4, 20, 5, 21, 6, 22, 7, 15>(pValues, pScores);
 				comparator<0, 8, 1, 9, 2, 10, 3, 11, 4, 12, 5, 13, 6, 14>(pValues, pScores);
@@ -1022,7 +1022,7 @@ namespace pygmalion
 				comparator<1, 4, 3, 6, 5, 8, 7, 10, 9, 12, 11, 14, 13, 16, 15, 18, 17, 20, 19, 22>(pValues, pScores);
 				comparator<1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22>(pValues, pScores);
 			}
-			constexpr static void sort_N24(VALUE* pValues, SCORE* pScores) noexcept
+			static void sort_N24(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<0, 16, 1, 17, 2, 18, 3, 19, 4, 20, 5, 21, 6, 22, 7, 23>(pValues, pScores);
 				comparator<0, 8, 1, 9, 2, 10, 3, 11, 4, 12, 5, 13, 6, 14, 7, 15>(pValues, pScores);
@@ -1040,7 +1040,7 @@ namespace pygmalion
 				comparator<1, 4, 3, 6, 5, 8, 7, 10, 9, 12, 11, 14, 13, 16, 15, 18, 17, 20, 19, 22>(pValues, pScores);
 				comparator<1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22>(pValues, pScores);
 			}
-			constexpr static void sort_N25(VALUE* pValues, SCORE* pScores) noexcept
+			static void sort_N25(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<0, 16, 1, 17, 2, 18, 3, 19, 4, 20, 5, 21, 6, 22, 7, 23, 8, 24>(pValues, pScores);
 				comparator<0, 8, 1, 9, 2, 10, 3, 11, 4, 12, 5, 13, 6, 14, 7, 15, 16, 24>(pValues, pScores);
@@ -1058,7 +1058,7 @@ namespace pygmalion
 				comparator<1, 4, 3, 6, 5, 8, 7, 10, 9, 12, 11, 14, 13, 16, 15, 18, 17, 20, 19, 22, 21, 24>(pValues, pScores);
 				comparator<1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24>(pValues, pScores);
 			}
-			constexpr static void sort_N26(VALUE* pValues, SCORE* pScores) noexcept
+			static void sort_N26(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<0, 16, 1, 17, 2, 18, 3, 19, 4, 20, 5, 21, 6, 22, 7, 23, 8, 24, 9, 25>(pValues, pScores);
 				comparator<0, 8, 1, 9, 2, 10, 3, 11, 4, 12, 5, 13, 6, 14, 7, 15, 16, 24, 17, 25>(pValues, pScores);
@@ -1076,7 +1076,7 @@ namespace pygmalion
 				comparator<1, 4, 3, 6, 5, 8, 7, 10, 9, 12, 11, 14, 13, 16, 15, 18, 17, 20, 19, 22, 21, 24>(pValues, pScores);
 				comparator<1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24>(pValues, pScores);
 			}
-			constexpr static void sort_N27(VALUE* pValues, SCORE* pScores) noexcept
+			static void sort_N27(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<0, 16, 1, 17, 2, 18, 3, 19, 4, 20, 5, 21, 6, 22, 7, 23, 8, 24, 9, 25, 10, 26>(pValues, pScores);
 				comparator<0, 8, 1, 9, 2, 10, 3, 11, 4, 12, 5, 13, 6, 14, 7, 15, 16, 24, 17, 25, 18, 26>(pValues, pScores);
@@ -1094,7 +1094,7 @@ namespace pygmalion
 				comparator<1, 4, 3, 6, 5, 8, 7, 10, 9, 12, 11, 14, 13, 16, 15, 18, 17, 20, 19, 22, 21, 24, 23, 26>(pValues, pScores);
 				comparator<1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26>(pValues, pScores);
 			}
-			constexpr static void sort_N28(VALUE* pValues, SCORE* pScores) noexcept
+			static void sort_N28(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<0, 16, 1, 17, 2, 18, 3, 19, 4, 20, 5, 21, 6, 22, 7, 23, 8, 24, 9, 25, 10, 26, 11, 27>(pValues, pScores);
 				comparator<0, 8, 1, 9, 2, 10, 3, 11, 4, 12, 5, 13, 6, 14, 7, 15, 16, 24, 17, 25, 18, 26, 19, 27>(pValues, pScores);
@@ -1112,7 +1112,7 @@ namespace pygmalion
 				comparator<1, 4, 3, 6, 5, 8, 7, 10, 9, 12, 11, 14, 13, 16, 15, 18, 17, 20, 19, 22, 21, 24, 23, 26>(pValues, pScores);
 				comparator<1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26>(pValues, pScores);
 			}
-			constexpr static void sort_N29(VALUE* pValues, SCORE* pScores) noexcept
+			static void sort_N29(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<0, 16, 1, 17, 2, 18, 3, 19, 4, 20, 5, 21, 6, 22, 7, 23, 8, 24, 9, 25, 10, 26, 11, 27, 12, 28>(pValues, pScores);
 				comparator<0, 8, 1, 9, 2, 10, 3, 11, 4, 12, 5, 13, 6, 14, 7, 15, 16, 24, 17, 25, 18, 26, 19, 27, 20, 28>(pValues, pScores);
@@ -1130,7 +1130,7 @@ namespace pygmalion
 				comparator<1, 4, 3, 6, 5, 8, 7, 10, 9, 12, 11, 14, 13, 16, 15, 18, 17, 20, 19, 22, 21, 24, 23, 26, 25, 28>(pValues, pScores);
 				comparator<1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28>(pValues, pScores);
 			}
-			constexpr static void sort_N30(VALUE* pValues, SCORE* pScores) noexcept
+			static void sort_N30(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<0, 16, 1, 17, 2, 18, 3, 19, 4, 20, 5, 21, 6, 22, 7, 23, 8, 24, 9, 25, 10, 26, 11, 27, 12, 28, 13, 29>(pValues, pScores);
 				comparator<0, 8, 1, 9, 2, 10, 3, 11, 4, 12, 5, 13, 6, 14, 7, 15, 16, 24, 17, 25, 18, 26, 19, 27, 20, 28, 21, 29>(pValues, pScores);
@@ -1148,7 +1148,7 @@ namespace pygmalion
 				comparator<1, 4, 3, 6, 5, 8, 7, 10, 9, 12, 11, 14, 13, 16, 15, 18, 17, 20, 19, 22, 21, 24, 23, 26, 25, 28>(pValues, pScores);
 				comparator<1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28>(pValues, pScores);
 			}
-			constexpr static void sort_N31(VALUE* pValues, SCORE* pScores) noexcept
+			static void sort_N31(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<0, 16, 1, 17, 2, 18, 3, 19, 4, 20, 5, 21, 6, 22, 7, 23, 8, 24, 9, 25, 10, 26, 11, 27, 12, 28, 13, 29, 14, 30>(pValues, pScores);
 				comparator<0, 8, 1, 9, 2, 10, 3, 11, 4, 12, 5, 13, 6, 14, 7, 15, 16, 24, 17, 25, 18, 26, 19, 27, 20, 28, 21, 29, 22, 30>(pValues, pScores);
@@ -1166,7 +1166,7 @@ namespace pygmalion
 				comparator<1, 4, 3, 6, 5, 8, 7, 10, 9, 12, 11, 14, 13, 16, 15, 18, 17, 20, 19, 22, 21, 24, 23, 26, 25, 28, 27, 30>(pValues, pScores);
 				comparator<1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30>(pValues, pScores);
 			}
-			constexpr static void sort_N32(VALUE* pValues, SCORE* pScores) noexcept
+			static void sort_N32(VALUE* pValues, SCORE* pScores) noexcept
 			{
 				comparator<0, 16, 1, 17, 2, 18, 3, 19, 4, 20, 5, 21, 6, 22, 7, 23, 8, 24, 9, 25, 10, 26, 11, 27, 12, 28, 13, 29, 14, 30, 15, 31>(pValues, pScores);
 				comparator<0, 8, 1, 9, 2, 10, 3, 11, 4, 12, 5, 13, 6, 14, 7, 15, 16, 24, 17, 25, 18, 26, 19, 27, 20, 28, 21, 29, 22, 30, 23, 31>(pValues, pScores);
@@ -1189,7 +1189,7 @@ namespace pygmalion
 				return 32;
 			}
 		public:
-			constexpr static void sortValues(VALUE* pValues, SCORE* pScores, const size_t length) noexcept
+			static void sortValues(VALUE* pValues, SCORE* pScores, const size_t length) noexcept
 			{
 				constexpr const auto tail{ sort_tail() };
 				if (length <= tail)
@@ -1311,7 +1311,7 @@ namespace pygmalion
 	class sort
 	{
 	public:
-		constexpr static void sortValues(VALUE* pValues, SCORE* pScores, const size_t length) noexcept
+		PYGMALION_INLINE static void sortValues(VALUE* pValues, SCORE* pScores, const size_t length) noexcept
 		{
 			if constexpr (sizeof(VALUE) == sizeof(std::uint8_t) && sizeof(SCORE) == sizeof(std::int8_t))
 				detail::sortAlgorithm<std::uint8_t, std::int8_t>::sortValues(reinterpret_cast<std::uint8_t*>(pValues), reinterpret_cast<std::int8_t*>(pScores), length);

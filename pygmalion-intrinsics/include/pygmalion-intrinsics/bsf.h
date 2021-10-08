@@ -395,7 +395,7 @@ namespace pygmalion::intrinsics
 		}
 
 		template <size_t COUNT_CHANNELS, typename UINT, size_t... CHANNEL, typename = typename std::enable_if<enable_empty<COUNT_CHANNELS, UINT>()>::type>
-		constexpr static bool impl(tag_best, const std::array<UINT, COUNT_CHANNELS>& bits, size_t& bit, std::index_sequence<CHANNEL...>) noexcept
+		PYGMALION_INLINE static bool impl(tag_best, const std::array<UINT, COUNT_CHANNELS>& bits, size_t& bit, std::index_sequence<CHANNEL...>) noexcept
 		{
 			return false;
 		}
@@ -413,7 +413,7 @@ namespace pygmalion::intrinsics
 		}
 
 		template <size_t COUNT_CHANNELS, typename UINT, size_t... CHANNEL, typename = typename std::enable_if<enable_bool<COUNT_CHANNELS, UINT>()>::type>
-		constexpr static bool impl(tag_bool, const std::array<UINT, COUNT_CHANNELS>& bits, size_t& bit, std::index_sequence<CHANNEL...>) noexcept
+		PYGMALION_INLINE static bool impl(tag_bool, const std::array<UINT, COUNT_CHANNELS>& bits, size_t& bit, std::index_sequence<CHANNEL...>) noexcept
 		{
 			constexpr const size_t countSlices{ COUNT_CHANNELS * sizeof(UINT) / sizeof(unsigned char) };
 			constexpr const size_t countTransformedChannels{ countSlices * sizeof(unsigned char) / sizeof(UINT) };
@@ -466,7 +466,7 @@ namespace pygmalion::intrinsics
 		}
 
 		template <size_t COUNT_CHANNELS, typename UINT, size_t... CHANNEL, typename = typename std::enable_if<enable_char<COUNT_CHANNELS, UINT>()>::type>
-		constexpr static bool impl(tag_char, const std::array<UINT, COUNT_CHANNELS>& bits, size_t& bit, std::index_sequence<CHANNEL...>) noexcept
+		PYGMALION_INLINE static bool impl(tag_char, const std::array<UINT, COUNT_CHANNELS>& bits, size_t& bit, std::index_sequence<CHANNEL...>) noexcept
 		{
 			using SLICE = unsigned char;
 			constexpr const size_t countSlices{ COUNT_CHANNELS * sizeof(UINT) / sizeof(SLICE) };
@@ -557,7 +557,7 @@ namespace pygmalion::intrinsics
 		}
 
 		template <size_t COUNT_CHANNELS, typename UINT, size_t... CHANNEL, typename = typename std::enable_if<enable_short<COUNT_CHANNELS, UINT>()>::type>
-		constexpr static bool impl(tag_short, const std::array<UINT, COUNT_CHANNELS>& bits, size_t& bit, std::index_sequence<CHANNEL...>) noexcept
+		PYGMALION_INLINE static bool impl(tag_short, const std::array<UINT, COUNT_CHANNELS>& bits, size_t& bit, std::index_sequence<CHANNEL...>) noexcept
 		{
 			using SLICE = unsigned short;
 			constexpr const size_t countSlices{ COUNT_CHANNELS * sizeof(UINT) / sizeof(SLICE) };
@@ -648,7 +648,7 @@ namespace pygmalion::intrinsics
 		}
 
 		template <size_t COUNT_CHANNELS, typename UINT, size_t... CHANNEL, typename = typename std::enable_if<enable_int<COUNT_CHANNELS, UINT>()>::type>
-		constexpr static bool impl(tag_int, const std::array<UINT, COUNT_CHANNELS>& bits, size_t& bit, std::index_sequence<CHANNEL...>) noexcept
+		PYGMALION_INLINE static bool impl(tag_int, const std::array<UINT, COUNT_CHANNELS>& bits, size_t& bit, std::index_sequence<CHANNEL...>) noexcept
 		{
 			using SLICE = unsigned int;
 			constexpr const size_t countSlices{ COUNT_CHANNELS * sizeof(UINT) / sizeof(SLICE) };
@@ -739,7 +739,7 @@ namespace pygmalion::intrinsics
 		}
 
 		template <size_t COUNT_CHANNELS, typename UINT, size_t... CHANNEL, typename = typename std::enable_if<enable_long<COUNT_CHANNELS, UINT>()>::type>
-		constexpr static bool impl(tag_long, const std::array<UINT, COUNT_CHANNELS>& bits, size_t& bit, std::index_sequence<CHANNEL...>) noexcept
+		PYGMALION_INLINE static bool impl(tag_long, const std::array<UINT, COUNT_CHANNELS>& bits, size_t& bit, std::index_sequence<CHANNEL...>) noexcept
 		{
 			using SLICE = unsigned long;
 			constexpr const size_t countSlices{ COUNT_CHANNELS * sizeof(UINT) / sizeof(SLICE) };
@@ -830,7 +830,7 @@ namespace pygmalion::intrinsics
 		}
 
 		template <size_t COUNT_CHANNELS, typename UINT, size_t... CHANNEL, typename = typename std::enable_if<enable_long_long<COUNT_CHANNELS, UINT>()>::type>
-		constexpr static bool impl(tag_long_long, const std::array<UINT, COUNT_CHANNELS>& bits, size_t& bit, std::index_sequence<CHANNEL...>) noexcept
+		PYGMALION_INLINE static bool impl(tag_long_long, const std::array<UINT, COUNT_CHANNELS>& bits, size_t& bit, std::index_sequence<CHANNEL...>) noexcept
 		{
 			using SLICE = unsigned long long;
 			constexpr const size_t countSlices{ COUNT_CHANNELS * sizeof(UINT) / sizeof(SLICE) };
@@ -950,7 +950,7 @@ namespace pygmalion::intrinsics
 		}
 
 		template <size_t COUNT_CHANNELS, typename UINT>
-		static bool implementation(const std::array<UINT, COUNT_CHANNELS>& bits, size_t& bit) noexcept
+		PYGMALION_INLINE static bool implementation(const std::array<UINT, COUNT_CHANNELS>& bits, size_t& bit) noexcept
 		{
 			constexpr const compiler::flags comp{ compiler::computeFlags() };
 			constexpr const cpu::flags cpu{ cpu::computeFlags() };

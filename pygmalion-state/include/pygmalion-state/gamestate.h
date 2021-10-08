@@ -2,11 +2,11 @@ namespace pygmalion::state
 {
 	template<typename DESCRIPTION_STATE>
 	class gamestate : 
-		public enumeration<1 + detail::requiredUnsignedBits(DESCRIPTION_STATE::countPlayers), DESCRIPTION_STATE::countHashBits, gamestate<DESCRIPTION_STATE>>,
+		public enumeration<1 + arrayhelper::requiredUnsignedBits(DESCRIPTION_STATE::countPlayers), DESCRIPTION_STATE::countHashBits, gamestate<DESCRIPTION_STATE>>,
 		public DESCRIPTION_STATE
 	{
 	public:
-		using parentType = enumeration<1 + detail::requiredUnsignedBits(DESCRIPTION_STATE::countPlayers), DESCRIPTION_STATE::countHashBits, gamestate<DESCRIPTION_STATE>>;
+		using parentType = enumeration<1 + arrayhelper::requiredUnsignedBits(DESCRIPTION_STATE::countPlayers), DESCRIPTION_STATE::countHashBits, gamestate<DESCRIPTION_STATE>>;
 		using descriptorState = DESCRIPTION_STATE;
 #include "include_state.h"	
 		PYGMALION_INLINE constexpr gamestate(const gamestate&) noexcept = default;

@@ -1,21 +1,6 @@
 
 namespace pygmalion
 {
-	namespace detail
-	{
-		constexpr static size_t requiredUnsignedBits(const size_t number) noexcept
-		{
-			size_t n = 1;
-			size_t k = 0;
-			while (number > n)
-			{
-				n *= 2;
-				k++;
-			}
-			return k;
-		}
-	}
-
 	class arrayhelper
 	{
 	private:
@@ -50,7 +35,16 @@ namespace pygmalion
 			return make_impl<SIZE>(std::forward<T>(value), std::make_index_sequence<SIZE - 1>{});
 		}
 	public:
-		constexpr static size_t requiredUnsignedBits(const size_t number) noexcept
+		constexpr static size_t requiredSignedBytes(const std::uintmax_t number) noexcept
+		{
+			if (number >= (size_t(1) << 31))
+				return 8;
+			if (number >= (size_t(1) << 15))
+				return 4;
+			if (number >= (size_t(1) << 7))
+				return 2;
+			return 1;
+		}		constexpr static size_t requiredUnsignedBits(const std::uintmax_t number) noexcept
 		{
 			size_t n = 1;
 			size_t k = 0;
@@ -60,6 +54,10 @@ namespace pygmalion
 				k++;
 			}
 			return k;
+		}
+		constexpr static size_t requiredSignedBits(const std::uintmax_t number) noexcept
+		{
+			return requiredUnsignedBits(number + 1);
 		}
 		template<size_t SIZE, typename T>
 		constexpr static auto make(T&& value) noexcept

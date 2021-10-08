@@ -29,7 +29,7 @@ namespace pygmalion
 				return sc2;
 		}
 		template<size_t PLAYER, typename STAGE, typename... STAGES2>
-		static scoreType computeStages(const scoreType alpha, const scoreType beta, const scoreType sc, const typename generatorType::template stackType<PLAYER>& stack) noexcept
+		PYGMALION_INLINE static scoreType computeStages(const scoreType alpha, const scoreType beta, const scoreType sc, const typename generatorType::template stackType<PLAYER>& stack) noexcept
 		{
 			scoreType sc2{ sc };
 			constexpr const scoreType delta{ computeDelta<STAGE,STAGES2...>() };
@@ -58,7 +58,7 @@ namespace pygmalion
 			}
 		}
 		template<size_t PLAYER, typename STAGE, typename... STAGES2>
-		static scoreType stageScores(const size_t index, const size_t counter, const typename generatorType::template stackType<PLAYER>& stack) noexcept
+		PYGMALION_INLINE static scoreType stageScores(const size_t index, const size_t counter, const typename generatorType::template stackType<PLAYER>& stack) noexcept
 		{
 			if (index == counter)
 				return STAGE::template evaluate<PLAYER>(stack);
@@ -81,7 +81,7 @@ namespace pygmalion
 			std::shared_ptr<pygmalion::intrinsics::command> pCommand{ createCommand<COMMAND>() };
 			list.emplace_back(std::move(pCommand));
 		}
-		constexpr static bool isFutile(const scoreType alpha, const scoreType beta, const scoreType approx, const scoreType delta) noexcept
+		PYGMALION_INLINE static bool isFutile(const scoreType alpha, const scoreType beta, const scoreType approx, const scoreType delta) noexcept
 		{
 			return (approx + delta <= alpha) && (approx + delta < beta);
 		}
@@ -152,15 +152,15 @@ namespace pygmalion
 		{
 			return evaluatorType::template lateResult_Implementation<PLAYER>(stack);
 		}
-		constexpr static scoreType aspirationWindowSize(const size_t index) noexcept
+		PYGMALION_INLINE constexpr static scoreType aspirationWindowSize(const size_t index) noexcept
 		{
 			return evaluatorType::aspirationWindowSize_Implementation(index);
 		}
-		constexpr static size_t countAspirationWindows() noexcept
+		PYGMALION_INLINE constexpr static size_t countAspirationWindows() noexcept
 		{
 			return evaluatorType::countAspirationWindows_Implementation();
 		}
-		constexpr static scoreType staticTacticalMoveScore(const boardType& position, const movebitsType move) noexcept
+		static scoreType staticTacticalMoveScore(const boardType& position, const movebitsType move) noexcept
 		{
 			return evaluatorType::staticTacticalMoveScore_Implementation(position, move);
 		}

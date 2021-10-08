@@ -5,13 +5,13 @@ namespace pygmalion::chess
 	{
 	public:
 		template<size_t PLAYER>
-		static scoreType computeMaterial_Implementation(const typename generatorType::template stackType<PLAYER>& stack) noexcept
+		PYGMALION_INLINE static scoreType computeMaterial_Implementation(const typename generatorType::template stackType<PLAYER>& stack) noexcept
 		{
 			const scoreType mat{ static_cast<scoreType>(stack.position().material()) };
 			const bool invert{ stack.movingPlayer() == blackPlayer };
 			return invert ? -mat : mat;
 		}
-		constexpr static scoreType aspirationWindowSize_Implementation(const size_t index) noexcept
+		PYGMALION_INLINE constexpr static scoreType aspirationWindowSize_Implementation(const size_t index) noexcept
 		{
 			constexpr const scoreType delta{ rootDelta() };
 			constexpr const scoreType windows[]
@@ -28,7 +28,7 @@ namespace pygmalion::chess
 			};
 			return windows[index];
 		}
-		constexpr static size_t countAspirationWindows_Implementation() noexcept
+		PYGMALION_INLINE constexpr static size_t countAspirationWindows_Implementation() noexcept
 		{
 			return 8;
 		}
@@ -114,14 +114,14 @@ namespace pygmalion::chess
 			return gamestateType::open();
 		}
 		template<size_t PLAYER>
-		static gamestateType lateResult_Implementation(const typename generatorType::template stackType<PLAYER>& stack) noexcept
+		PYGMALION_INLINE static gamestateType lateResult_Implementation(const typename generatorType::template stackType<PLAYER>& stack) noexcept
 		{
 			if (stack.isPositionCritical())
 				return gamestateType::loss(stack.position().movingPlayer());
 			else
 				return gamestateType::draw();
 		}
-		static squaresType leastValuablePiece(const boardType& position, const squaresType mask, const playerType side) noexcept
+		PYGMALION_INLINE static squaresType leastValuablePiece(const boardType& position, const squaresType mask, const playerType side) noexcept
 		{
 			const squaresType occ{ position.playerOccupancy(side) & mask };
 			squaresType subset{ position.pieceOccupancy(pawn) & occ };
@@ -139,7 +139,7 @@ namespace pygmalion::chess
 			subset = position.pieceOccupancy(king) & occ;
 			return subset;
 		}
-		static materialScore staticExchange(const movebitsType move, const boardType& position) noexcept
+		PYGMALION_INLINE static materialScore staticExchange(const movebitsType move, const boardType& position) noexcept
 		{
 			const squareType to{ motorType::move().toSquare(position, move) };
 			const squareType from{ motorType::move().fromSquare(position, move) };
@@ -205,7 +205,7 @@ namespace pygmalion::chess
 			}
 			return gain[0];
 		}
-		static scoreType staticTacticalMoveScore_Implementation(const boardType& position, const movebitsType move) noexcept
+		PYGMALION_INLINE static scoreType staticTacticalMoveScore_Implementation(const boardType& position, const movebitsType move) noexcept
 		{
 			return static_cast<scoreType>(staticExchange(move, position));
 		}

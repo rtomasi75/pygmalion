@@ -28,7 +28,7 @@ namespace pygmalion::mechanics
 			using boardType = BOARD;
 			using descriptorState = typename boardType::descriptorState;
 #include <pygmalion-state/include_state.h>
-			constexpr static const size_t countMuxBits{ pygmalion::detail::requiredUnsignedBits(sizeof...(MOVES)) };
+			constexpr static const size_t countMuxBits{ arrayhelper::requiredUnsignedBits(sizeof...(MOVES)) };
 			constexpr static const size_t countDataBits{ detail::computeDisjunctiveBitsRequired<MOVES...>() };
 			constexpr static const size_t countMoveBits{ countMuxBits + countDataBits };
 			constexpr static size_t payloadSize{ detail::computeDisjunctiveDataSize<MOVES...>() };
@@ -80,12 +80,12 @@ namespace pygmalion::mechanics
 
 	template<typename BOARD, typename INSTANCE, typename... MOVES>
 	class disjunctivemove :
-		public move<BOARD, detail::computeDisjunctiveBitsRequired<MOVES...>() + pygmalion::detail::requiredUnsignedBits(sizeof...(MOVES)), detail::disjunctiveMovedata<BOARD, MOVES...>, disjunctivemove<BOARD, INSTANCE, MOVES...>>
+		public move<BOARD, detail::computeDisjunctiveBitsRequired<MOVES...>() + arrayhelper::requiredUnsignedBits(sizeof...(MOVES)), detail::disjunctiveMovedata<BOARD, MOVES...>, disjunctivemove<BOARD, INSTANCE, MOVES...>>
 	{
 	public:
 		using instanceType = INSTANCE;
 		constexpr static const size_t countDataBits{ detail::computeDisjunctiveBitsRequired<MOVES...>() };
-		constexpr static const size_t countMuxBits{ pygmalion::detail::requiredUnsignedBits(sizeof...(MOVES)) };
+		constexpr static const size_t countMuxBits{ arrayhelper::requiredUnsignedBits(sizeof...(MOVES)) };
 		constexpr static const size_t countChannels{ sizeof...(MOVES) };
 		using muxbitsType = uint_t<countMuxBits, false>;
 		using boardType = BOARD;
@@ -140,7 +140,7 @@ namespace pygmalion::mechanics
 	public:
 		static std::string name_Implementation() noexcept
 		{
-			constexpr size_t N{ pygmalion::detail::requiredUnsignedBits(sizeof...(MOVES)) };
+			constexpr size_t N{ arrayhelper::requiredUnsignedBits(sizeof...(MOVES)) };
 			std::stringstream sstr;
 			sstr << sizeof(typename disjunctivemove::movedataType) << ":" << disjunctivemove::countBits << "@[";
 			sstr << "" << sizeof(muxbitsType) << ":" << disjunctivemove::countMuxBits << "@mux&" << disjunctivemove::movedataType::payloadSize << ":" << disjunctivemove::countDataBits << "@[";
