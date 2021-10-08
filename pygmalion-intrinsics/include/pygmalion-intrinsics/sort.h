@@ -641,7 +641,6 @@ namespace pygmalion
 		private:
 			constexpr static void quickSort(const int low, const int high, VALUE* pValues, SCORE* pScores) noexcept
 			{
-				PYGMALION_ASSERT(low < high);
 				const int pi{ partition(low, high, pValues, pScores) };
 				sortValues(&pValues[low], &pScores[low], pi - low);
 				sortValues(&pValues[pi + 1], &pScores[pi + 1], high - pi);

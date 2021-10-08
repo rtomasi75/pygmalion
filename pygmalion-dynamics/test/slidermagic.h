@@ -126,7 +126,6 @@ namespace pygmalion::dynamics
 			const bitsType squarebits{ static_cast<bitsType>(squares) };
 			const bitsType extracted{ squarebits.extractPattern(m_Mask) };
 			const valueType value{ static_cast<valueType>(extracted) };
-			PYGMALION_ASSERT(squarebits.populationCount() == value.populationCount());
 			return value;
 #else
 			return squares;

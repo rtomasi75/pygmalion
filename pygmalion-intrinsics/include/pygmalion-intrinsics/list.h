@@ -78,23 +78,10 @@ namespace pygmalion
 	class list
 	{
 	private:
-		constexpr static size_t requiredSignedBytes(const std::uintmax_t number) noexcept
-		{
-			if (number >= (size_t(1) << 31))
-			{
-				PYGMALION_ASSERT(sizeof(size_t) > 4);
-				return 8;
-			}
-			if (number >= (size_t(1) << 15))
-				return 4;
-			if (number >= (size_t(1) << 7))
-				return 2;
-			return 1;
-		}
 	public:
 		constexpr static int maxLength{ MAXLENGTH };
 		using itemType = ITEM;
-		using counterType = typename detail::list_traits<requiredSignedBytes(maxLength + 1)>::STYPE;
+		using counterType = typename detail::list_traits<arrayhelper::requiredSignedBytes(maxLength + 1)>::STYPE;
 	private:
 		std::array<itemType, maxLength> m_Items;
 		counterType m_Length;

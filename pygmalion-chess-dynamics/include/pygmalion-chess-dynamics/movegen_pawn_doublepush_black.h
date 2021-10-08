@@ -141,14 +141,10 @@ namespace pygmalion::chess
 	public:
 		constexpr static typename squaresType::bitsType magicFactor(const size_t index) noexcept
 		{
-			PYGMALION_ASSERT(index >= 0);
-			PYGMALION_ASSERT(index < 64);
 			return m_MagicFactors[index];
 		}
 		constexpr static typename squaresType::bitsType inverseMagicFactor(const size_t index) noexcept
 		{
-			PYGMALION_ASSERT(index >= 0);
-			PYGMALION_ASSERT(index < 64);
 			return m_InverseMagicFactors[index];
 		}
 	};

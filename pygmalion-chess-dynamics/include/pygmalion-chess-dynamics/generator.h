@@ -4855,7 +4855,6 @@ namespace pygmalion::chess
 			switch (phase)
 			{
 			case movegenPhase::normal:
-				PYGMALION_ASSERT(stageIndex == 0);
 				return movegenStage_AllMoves;
 			case movegenPhase::tactical:
 				switch (stageIndex)
@@ -4872,16 +4871,12 @@ namespace pygmalion::chess
 				}
 				break;
 			case movegenPhase::criticalEvasion:
-				PYGMALION_ASSERT(stageIndex == 0);
 				return movegenStage_CriticalEvasionMoves;
 			case movegenPhase::tacticalCrtiticalEvasion:
-				PYGMALION_ASSERT(stageIndex == 0);
 				return movegenStage_TacticalCriticalEvasionMoves;
 			case movegenPhase::critical:
-				PYGMALION_ASSERT(stageIndex == 0);
 				return movegenStage_CriticalMoves;
 			default:
-				PYGMALION_UNREACHABLE;
 				return 0;
 			}
 		}

@@ -40,8 +40,6 @@ namespace pygmalion::tictactoe
 		~patterns() noexcept = default;
 		constexpr const squaresType line(const int idx) const noexcept
 		{
-			PYGMALION_ASSERT(idx >= 0);
-			PYGMALION_ASSERT(idx < countLines);
 			return m_Lines[idx];
 		}
 	};
