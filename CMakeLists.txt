@@ -2,8 +2,8 @@ cmake_minimum_required (VERSION 3.16)
 
 project (pygmalion)
 
-set (pygmalion_VERSION_MAJOR 1)
-set (pygmalion_VERSION_MINOR 0)
+set (pygmalion_VERSION_MAJOR 0)
+set (pygmalion_VERSION_MINOR 1)
 
 ENABLE_TESTING()
 
@@ -16,7 +16,7 @@ option(OPTIMIZE_FOR_AVX "Build for AVX" OFF)
 option(OPTIMIZE_FOR_NATIVE "Build with -march=native" OFF)
 
 option(USE_COMPACT_SLIDERS "Build with compact slider magics" OFF)
-option(USE_INDIRECT_SLIDERS "Build with compact slider magics" OFF)
+option(USE_INDIRECT_SLIDERS "Build with indirect slider magics" OFF)
 
 if(USE_COMPACT_SLIDERS)
     add_definitions(-DPYGMALION_SLIDERMAGIC_COMPACT)
