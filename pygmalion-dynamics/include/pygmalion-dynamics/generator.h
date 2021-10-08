@@ -26,22 +26,16 @@ namespace pygmalion
 				std::array<std::array<std::uint64_t, generatorType::countMaxMovegenPasses()>, generatorType::countTotalMovegenStages()> m_MoveCounters;
 				std::array<std::array<passType, generatorType::countMaxMovegenPasses()>, generatorType::countTotalMovegenStages()> m_Indices;
 				std::array<std::array<scoreType, generatorType::countMaxMovegenPasses()>, generatorType::countTotalMovegenStages()> m_ScoreCounters;
-				constexpr static bool USE_SCORE{ true };
-				constexpr void sortIndicesStage(const stageType stage, const movegenFeedback& mf, const size_t depth) noexcept
+				void sortIndicesStage(const stageType stage, const movegenFeedback& mf, const size_t depth) noexcept
 				{
-					if constexpr (!USE_SCORE)
-						sort<passType, std::uint64_t>::sortValues(m_Indices[stage].data(), m_MoveCounters[static_cast<size_t>(stage)].data(), generatorType::countMovegenPasses(stage));
-					else
+					std::array <scoreType, generatorType::countMaxMovegenPasses()> scores;
+					for (size_t pass = 0; pass < generatorType::countMovegenPasses(stage); pass++)
 					{
-						std::array <scoreType, generatorType::countMaxMovegenPasses()> scores;
-						for (size_t pass = 0; pass < generatorType::countMovegenPasses(stage); pass++)
-						{
-							scores[pass] = mf.score(stage, static_cast<passType>(pass), depth);
-						}
-						sort<passType, scoreType>::sortValues(m_Indices[static_cast<size_t>(stage)].data(), scores.data(), generatorType::countMovegenPasses(stage));
+						scores[pass] = mf.score(stage, static_cast<passType>(pass), depth);
 					}
+					sort<passType, scoreType>::sortValues(m_Indices[static_cast<size_t>(stage)].data(), scores.data(), generatorType::countMovegenPasses(stage));
 				}
-				constexpr void resetStage(const stageType stage) noexcept
+				void resetStage(const stageType stage) noexcept
 				{
 					constexpr const scoreType zero{ scoreType::zero() };
 					for (size_t i = 0; i < generatorType::countMaxMovegenPasses(); i++)
@@ -52,31 +46,28 @@ namespace pygmalion
 					}
 				}
 			public:
-				constexpr void sortIndices(const movegenFeedback& mf, const size_t depth) noexcept
+				void sortIndices(const movegenFeedback& mf, const size_t depth) noexcept
 				{
 					for (size_t stage = 0; stage < generatorType::countTotalMovegenStages(); stage++)
 						sortIndicesStage(stage, mf, depth);
 				}
-				constexpr passType index(const stageType stage, const passType pass) const noexcept
+				PYGMALION_INLINE passType index(const stageType stage, const passType pass) const noexcept
 				{
 					return m_Indices[stage][pass];
 				}
-				constexpr passType moveIndex(const stageType stage, const passType pass) const noexcept
-				{
-					if constexpr (!USE_SCORE)
-						return pass;
-					else
-						return m_Indices[stage][pass];
-				}
-				constexpr passType scoreIndex(const stageType stage, const passType pass) const noexcept
+				PYGMALION_INLINE passType moveIndex(const stageType stage, const passType pass) const noexcept
 				{
 					return m_Indices[stage][pass];
 				}
-				constexpr feedback() noexcept
+				PYGMALION_INLINE passType scoreIndex(const stageType stage, const passType pass) const noexcept
+				{
+					return m_Indices[stage][pass];
+				}
+				feedback() noexcept
 				{
 					reset();
 				}
-				constexpr scoreType score(const stageType stage, const passType pass) const noexcept
+				scoreType score(const stageType stage, const passType pass) const noexcept
 				{
 					const passType indexMove{ moveIndex(stage, pass) };
 					const passType indexScore{ scoreIndex(stage, pass) };
@@ -90,11 +81,11 @@ namespace pygmalion
 						return score;
 					return score / static_cast<typename scoreType::valueType>(m_MoveCounters[static_cast<size_t>(stage)][static_cast<size_t>(indexMove)]);
 				}
-				constexpr const std::uint64_t& counter(const stageType stage, const passType pass) const noexcept
+				PYGMALION_INLINE const std::uint64_t& counter(const stageType stage, const passType pass) const noexcept
 				{
 					return m_MoveCounters[stage][static_cast<size_t>(moveIndex(stage, pass))];
 				}
-				constexpr void incrementMove(const stageType stage, const passType pass, const scoreType score, const scoreType eval) noexcept
+				PYGMALION_INLINE void incrementMove(const stageType stage, const passType pass, const scoreType score, const scoreType eval) noexcept
 				{
 					const passType indexMove{ moveIndex(stage, pass) };
 					const passType indexScore{ scoreIndex(stage, pass) };
@@ -104,7 +95,7 @@ namespace pygmalion
 						m_MoveCounters[stage][indexMove]++;
 					}
 				}
-				constexpr void reset() noexcept
+				void reset() noexcept
 				{
 					for (size_t stage = 0; stage < generatorType::countTotalMovegenStages(); stage++)
 						resetStage(static_cast<stageType>(stage));
@@ -112,23 +103,23 @@ namespace pygmalion
 			};
 			mutable std::vector<feedback> m_Feedback;
 		public:
-			constexpr movegenFeedback() noexcept :
+			movegenFeedback() noexcept :
 				m_Feedback{ std::vector<feedback>(0) }
 			{
 
 			}
-			constexpr void sortIndices(const size_t from_depth) noexcept
+			void sortIndices(const size_t from_depth) noexcept
 			{
 				for (size_t d = from_depth; d < m_Feedback.size(); d++)
 				{
 					m_Feedback[d].sortIndices(*this, d);
 				}
 			}
-			constexpr const std::uint64_t& counter(const stageType stage, const passType pass, const size_t depth) const noexcept
+			PYGMALION_INLINE  const std::uint64_t& counter(const stageType stage, const passType pass, const size_t depth) const noexcept
 			{
 				return m_Feedback[depth].counter(stage, pass);
 			}
-			constexpr scoreType score(const stageType stage, const passType pass, const size_t depth) const noexcept
+			PYGMALION_INLINE  scoreType score(const stageType stage, const passType pass, const size_t depth) const noexcept
 			{
 				if (depth >= 2)
 				{
@@ -140,23 +131,23 @@ namespace pygmalion
 					return minimum;
 				}
 			}
-			constexpr void cutMove(const stageType stage, const passType pass, const size_t depth, const scoreType score, const scoreType eval) noexcept
+			void cutMove(const stageType stage, const passType pass, const size_t depth, const scoreType score, const scoreType eval) noexcept
 			{
 				m_Feedback[depth].incrementMove(stage, pass, score, eval);
 			}
-			constexpr void allMove(const stageType stage, const passType pass, const size_t depth, const scoreType score, const scoreType eval) noexcept
+			void allMove(const stageType stage, const passType pass, const size_t depth, const scoreType score, const scoreType eval) noexcept
 			{
 				m_Feedback[depth].incrementMove(stage, pass, score, eval);
 			}
-			constexpr void reset() noexcept
+			void reset() noexcept
 			{
 				m_Feedback.clear();
 			}
-			constexpr passType index(const stageType stage, const passType pass, const size_t depth) const noexcept
+			PYGMALION_INLINE  passType index(const stageType stage, const passType pass, const size_t depth) const noexcept
 			{
 				return m_Feedback[depth].index(stage, pass);
 			}
-			constexpr void expandToDepth(const size_t depth) const noexcept
+			void expandToDepth(const size_t depth) const noexcept
 			{
 				while (m_Feedback.size() <= depth)
 				{
@@ -190,51 +181,51 @@ namespace pygmalion
 
 			}
 			~context() noexcept = default;
-			stagelistType& normalStages() noexcept
+			PYGMALION_INLINE stagelistType& normalStages() noexcept
 			{
 				return m_NormalStages;
 			}
-			scorelistType& normalScores() noexcept
+			PYGMALION_INLINE scorelistType& normalScores() noexcept
 			{
 				return m_NormalScores;
 			}
-			movelistType& normalMoves() noexcept
+			PYGMALION_INLINE movelistType& normalMoves() noexcept
 			{
 				return m_NormalMoves;
 			}
-			passlistType& normalPasses() noexcept
+			PYGMALION_INLINE passlistType& normalPasses() noexcept
 			{
 				return m_NormalPasses;
 			}
-			scorelistType& tacticalScores() noexcept
+			PYGMALION_INLINE scorelistType& tacticalScores() noexcept
 			{
 				return m_TacticalScores;
 			}
-			movelistType& tacticalMoves() noexcept
+			PYGMALION_INLINE movelistType& tacticalMoves() noexcept
 			{
 				return m_TacticalMoves;
 			}
-			stagelistType& tacticalStages() noexcept
+			PYGMALION_INLINE stagelistType& tacticalStages() noexcept
 			{
 				return m_TacticalStages;
 			}
-			passlistType& tacticalPasses() noexcept
+			PYGMALION_INLINE passlistType& tacticalPasses() noexcept
 			{
 				return m_TacticalPasses;
 			}
-			stagelistType& criticalStages() noexcept
+			PYGMALION_INLINE stagelistType& criticalStages() noexcept
 			{
 				return m_CriticalStages;
 			}
-			scorelistType& criticalScores() noexcept
+			PYGMALION_INLINE scorelistType& criticalScores() noexcept
 			{
 				return m_CriticalScores;
 			}
-			movelistType& criticalMoves() noexcept
+			PYGMALION_INLINE movelistType& criticalMoves() noexcept
 			{
 				return m_CriticalMoves;
 			}
-			passlistType& criticalPasses() noexcept
+			PYGMALION_INLINE passlistType& criticalPasses() noexcept
 			{
 				return m_CriticalPasses;
 			}
@@ -414,12 +405,12 @@ namespace pygmalion
 				PYGMALION_ASSERT(stage < countNormalStages);
 				return countNormalPasses[stage];
 			}
-			constexpr stageType normalStage(const size_t stageIndex) const noexcept
+			PYGMALION_INLINE stageType normalStage(const size_t stageIndex) const noexcept
 			{
 				PYGMALION_ASSERT(stageIndex < countNormalStages);
 				return m_NormalStages[stageIndex];
 			}
-			constexpr passType normalPass(movegenFeedback& feedback, const size_t stageIndex, const size_t passIndex) const noexcept
+			PYGMALION_INLINE passType normalPass(movegenFeedback& feedback, const size_t stageIndex, const size_t passIndex) const noexcept
 			{
 				PYGMALION_ASSERT(stageIndex < countNormalStages);
 				return feedback.index(m_NormalStages[stageIndex], passIndex, m_History.length());
@@ -433,12 +424,12 @@ namespace pygmalion
 				PYGMALION_ASSERT(stage < countTacticalStages);
 				return countTacticalPasses[stage];
 			}
-			constexpr stageType tacticalStage(const size_t stageIndex) const noexcept
+			PYGMALION_INLINE stageType tacticalStage(const size_t stageIndex) const noexcept
 			{
 				PYGMALION_ASSERT(stageIndex < countTacticalStages);
 				return m_TacticalStages[stageIndex];
 			}
-			constexpr passType tacticalPass(movegenFeedback& feedback, const size_t stageIndex, const size_t passIndex) const noexcept
+			PYGMALION_INLINE passType tacticalPass(movegenFeedback& feedback, const size_t stageIndex, const size_t passIndex) const noexcept
 			{
 				PYGMALION_ASSERT(stageIndex < countTacticalStages);
 				return feedback.index(m_TacticalStages[stageIndex], passIndex, m_History.length());
@@ -452,12 +443,12 @@ namespace pygmalion
 				PYGMALION_ASSERT(stage < countCriticalStages);
 				return countCriticalPasses[stage];
 			}
-			constexpr stageType criticalStage(const size_t stageIndex) const noexcept
+			PYGMALION_INLINE stageType criticalStage(const size_t stageIndex) const noexcept
 			{
 				PYGMALION_ASSERT(stageIndex < countCriticalStages);
 				return m_CriticalStages[stageIndex];
 			}
-			constexpr passType criticalPass(movegenFeedback& feedback, const size_t stageIndex, const size_t passIndex) const noexcept
+			PYGMALION_INLINE passType criticalPass(movegenFeedback& feedback, const size_t stageIndex, const size_t passIndex) const noexcept
 			{
 				PYGMALION_ASSERT(stageIndex < countCriticalStages);
 				return feedback.index(m_CriticalStages[stageIndex], passIndex, m_History.length());
