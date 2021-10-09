@@ -228,32 +228,30 @@ namespace pygmalion::chess
 		{
 			arrayhelper::generate<countPlayers, std::array<std::array<hashType, countSquares>, countPieces>>([](const size_t player) { return arrayhelper::generate<countPieces, std::array<hashType, countSquares>>([player](const size_t piece) {return arrayhelper::generate<countSquares, hashType>([player, piece](const size_t square) 
 				{
-					constexpr const std::uint8_t piecePlayerIndex[2][8]
+					constexpr const size_t piecePlayerIndex[2][8]
 					{
 						{
-							UINT8_C(3),
-							UINT8_C(5),
-							UINT8_C(7),
-							UINT8_C(9),
-							UINT8_C(1),
-							UINT8_C(11),
+							3,
+							5,
+							7,
+							9,
+							1,
+							11,
 						},
 						{
-							UINT8_C(2),
-							UINT8_C(4),
-							UINT8_C(6),
-							UINT8_C(8),
-							UINT8_C(0),
-							UINT8_C(10),
+							2,
+							4,
+							6,
+							8,
+							9,
+							10,
 						}
 					};
-					const playerType player_t{ static_cast<playerType>(player) };
-					const pieceType piece_t{ static_cast<pieceType>(piece) };
 					const squareType square_t{ static_cast<squareType>(square) };
 					const rankType rank{ square_t.rank() };
 					const fileType file{ square_t.file() };
-					const std::uint8_t kind_of_piece{ piecePlayerIndex[player_t][piece_t] };
-					const size_t offset_piece{ static_cast<size_t>(64 * kind_of_piece + 8 * static_cast<rankType::baseType>(rank) + static_cast<fileType::baseType>(file)) };
+					const size_t kind_of_piece{ piecePlayerIndex[player][piece] };
+					const size_t offset_piece{ static_cast<size_t>(64 * kind_of_piece + 8 * static_cast<size_t>(static_cast<rankType::baseType>(rank)) + static_cast<size_t>(static_cast<fileType::baseType>(file))) };
 					return m_PieceHash[offset_piece];
 				}); }); })
 		};

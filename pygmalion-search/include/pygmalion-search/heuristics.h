@@ -277,19 +277,19 @@ namespace pygmalion
 		template<size_t PLAYER>
 		PYGMALION_INLINE heuristicScore moveScore(const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth) noexcept
 		{
-			constexpr const heuristicScore zero{ heuristicScore::zero() };
+			constexpr const heuristicScore minimum{ heuristicScore::minimum() };
 			if constexpr (heuristicMoves)
 			{
 				const size_t bucket{ generatorType::moveBucket(stack.position(),moveBits) };
 				constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
-				if (m_CutCounter[movingPlayer][bucket])
+				if (m_TotalCounter[movingPlayer][bucket])
 					return heuristicScore::quota(m_CutCounter[movingPlayer][bucket], m_TotalCounter[movingPlayer][bucket]);
 				else
-					return zero;
+					return minimum;
 			}
 			else
 			{
-				return zero;
+				return minimum;
 			}
 		}
 		template<size_t PLAYER>
