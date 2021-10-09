@@ -56,10 +56,10 @@ namespace pygmalion
 		using valueType = typename detail::score_traits < requiredSignedBytes((std::uintmax_t(1) << MANTISSA) - 1) > ::STYPE;
 		constexpr static size_t countMantissaBits{ MANTISSA };
 		constexpr static size_t countShiftBits{ SHIFT };
-		constexpr static valueType granularity{ size_t(1) << countShiftBits };
+		constexpr static valueType granularity{ static_cast<valueType>(UINTMAX_C(1) << countShiftBits) };
 		constexpr static size_t maxDistance{ MAXDIST };
 	private:
-		using longType = typename detail::score_traits < requiredSignedBytes((std::uintmax_t(1) << MANTISSA)) > ::STYPE;
+		using longType = typename detail::score_traits < requiredSignedBytes((UINTMAX_C(1) << MANTISSA)) > ::STYPE;
 	public:
 		static constexpr valueType MAXVALUE{ valueType((longType(1) << MANTISSA) - 1) };
 		static constexpr valueType MINVALUE{ valueType(-MAXVALUE) };

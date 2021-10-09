@@ -249,10 +249,10 @@ namespace pygmalion
 		PYGMALION_INLINE void onEndNodeFutile(const stackType<PLAYER>& stack) noexcept
 		{
 		}
-		PYGMALION_INLINE void sortMoves(movelistType& moves, std::array<scoreType, countMaxGeneratedMoves>& scores, const indexType fromMoveIndex, const indexType fromScoreIndex) noexcept
+		PYGMALION_INLINE void sortMoves(movelistType& moves, std::array<heuristicScore, countMaxGeneratedMoves>& scores, const indexType fromMoveIndex, const indexType fromScoreIndex) noexcept
 		{
 			const indexType length{ static_cast<indexType>(moves.length() - fromMoveIndex) };
-			sort<movebitsType, scoreType>::sortValues(moves.ptr() + static_cast<size_t>(fromMoveIndex), scores.data() + static_cast<size_t>(fromScoreIndex), length);
+			sort<movebitsType, heuristicScore>::sortValues(moves.ptr() + static_cast<size_t>(fromMoveIndex), scores.data() + static_cast<size_t>(fromScoreIndex), length);
 		}
 		PYGMALION_INLINE static int shift(const depthType depthRemaining) noexcept
 		{
@@ -275,27 +275,22 @@ namespace pygmalion
 			m_Feedback.expandToDepth(depth);
 		}
 		template<size_t PLAYER>
-		PYGMALION_INLINE scoreType moveScore(const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth) noexcept
+		PYGMALION_INLINE heuristicScore moveScore(const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth) noexcept
 		{
-			constexpr const scoreType minimum{ scoreType::minimum() };
+			constexpr const heuristicScore zero{ heuristicScore::zero() };
 			if constexpr (heuristicMoves)
 			{
 				const size_t bucket{ generatorType::moveBucket(stack.position(),moveBits) };
 				constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 				if (m_CutCounter[movingPlayer][bucket])
-					return scoreType::quota(m_CutCounter[movingPlayer][bucket], m_TotalCounter[movingPlayer][bucket]);
+					return heuristicScore::quota(m_CutCounter[movingPlayer][bucket], m_TotalCounter[movingPlayer][bucket]);
 				else
-					return minimum;
+					return zero;
 			}
 			else
 			{
-				return minimum;
+				return zero;
 			}
-		}
-		template<size_t PLAYER>
-		PYGMALION_INLINE scoreType tacticalMoveScore(const stackType<PLAYER>& stack, const movebitsType movebits, const size_t depth) noexcept
-		{
-			return evaluatorType::staticTacticalMoveScore(stack.position(), movebits);
 		}
 		template<size_t PLAYER>
 		void quietKillers(const stackType<PLAYER>& stack, const size_t depth, quietKillermovesType& killermoves) noexcept
@@ -356,23 +351,10 @@ namespace pygmalion
 		{
 			if constexpr (heuristicMoves)
 			{
-				std::array<scoreType, countMaxGeneratedMoves> scores;
+				std::array<heuristicScore, countMaxGeneratedMoves> scores;
 				for (size_t i = static_cast<size_t>(fromMoveIndex); i < static_cast<size_t>(moves.length()); ++i)
 				{
 					scores[i - fromMoveIndex] = moveScore(stack, moves[i], depth);
-				}
-				this->sortMoves(moves, scores, fromMoveIndex, 0);
-			}
-		}
-		template<size_t PLAYER>
-		void sortTacticalMoves(const stackType<PLAYER>& stack, movelistType& moves, const indexType fromMoveIndex, const size_t depth) noexcept
-		{
-			if constexpr (heuristicMoves)
-			{
-				std::array<scoreType, countMaxGeneratedMoves> scores;
-				for (size_t i = static_cast<size_t>(fromMoveIndex); i < static_cast<size_t>(moves.length()); ++i)
-				{
-					scores[i - fromMoveIndex] = evaluatorType::staticTacticalMoveScore(stack.position(), moves[i]);
 				}
 				this->sortMoves(moves, scores, fromMoveIndex, 0);
 			}
