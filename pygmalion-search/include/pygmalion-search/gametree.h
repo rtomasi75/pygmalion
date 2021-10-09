@@ -370,24 +370,33 @@ namespace pygmalion
 					childType subnode(childType(*static_cast<const instanceType*>(this), move));
 					if (depthRemaining >= 0)
 					{
-						if constexpr (false)
+						if constexpr (searchAspiration)
 						{
+							constexpr const scoreType minimum{ scoreType::minimum() };
+							constexpr const scoreType maximum{ scoreType::maximum() };
 							sc = evaluate(alpha, beta);
 							scoreType lowAspiration{ sc };
 							scoreType highAspiration{ sc };
+							constexpr const scoreType initialAspirationWindow{ evaluatorType::initialAspirationWindowSize() };
+							constexpr const scoreType atom{ scoreType::atom() };
+							scoreType delta{ initialAspirationWindow };
 							for (depthType d = -1; d < depthRemaining; ++d)
 							{
 								bool bExact{ false };
 								bool bLow{ true };
 								bool bHigh{ true };
-								for (size_t i = 0; i < evaluatorType::countAspirationWindows(); i++)
+								constexpr const size_t countWindows{ evaluatorType::countAspirationWindows() };
+								for (size_t i = 0; i < countWindows; i++)
 								{
-									lowAspiration = scoreType::min(bLow ? createAspiration(sc, -evaluatorType::aspirationWindowSize(i)) : lowAspiration, alpha);
-									highAspiration = scoreType::max(bHigh ? createAspiration(sc, evaluatorType::aspirationWindowSize(i)) : highAspiration, beta);
+									const scoreType oldScore{ sc };
+									const scoreType oldLow{ lowAspiration };
+									const scoreType oldHigh{ highAspiration };
+									lowAspiration = scoreType::min(bLow ? (lowAspiration - delta) : (oldHigh - atom), alpha);
+									highAspiration = scoreType::max(bHigh ? (highAspiration + delta) : (oldLow + atom), beta);
 									if (lowAspiration.isLosing())
-										lowAspiration = scoreType::minimum();
+										lowAspiration = minimum;
 									if (highAspiration.isWinning())
-										highAspiration = scoreType::maximum();
+										highAspiration = maximum;
 									sc = -subnode.template search<VERBOSE>(-highAspiration.plyDown(), -lowAspiration.plyDown(), d, principalVariation, str, allowStoreTT).plyUp();
 									if ((sc > lowAspiration) && (sc < highAspiration))
 									{
@@ -400,11 +409,17 @@ namespace pygmalion
 										break;
 									}
 									if (sc <= lowAspiration)
+									{
+										delta = 2 * (oldScore - sc + atom);
 										bLow = true;
+									}
 									else
 										bLow = false;
 									if (sc >= highAspiration)
+									{
+										delta = 2 * (sc - oldScore + atom);
 										bHigh = true;
+									}
 									else
 										bHigh = false;
 								}
@@ -1290,40 +1305,56 @@ namespace pygmalion
 				}
 				else
 				{
-					if constexpr (searchAspiration)
+					if constexpr (false)
 					{
-						bool bExact{ false };
-						bool bLow{ true };
-						bool bHigh{ true };
 						scoreType sc{ scoreFromPreviousDepth };
 						scoreType lowAspiration{ sc };
 						scoreType highAspiration{ sc };
-						for (size_t i = 0; i < evaluatorType::countAspirationWindows(); i++)
+						constexpr const scoreType initialAspirationWindow{ evaluatorType::initialAspirationWindowSize() };
+						constexpr const scoreType atom{ scoreType::atom() };
+						scoreType delta{ initialAspirationWindow };
+						for (depthType d = -1; d < depthRemaining; ++d)
 						{
-							lowAspiration = bLow ? createAspiration(sc, -evaluatorType::aspirationWindowSize(i)) : lowAspiration;
-							highAspiration = bHigh ? createAspiration(sc, evaluatorType::aspirationWindowSize(i)) : highAspiration;
-							if (lowAspiration.isLosing())
-								lowAspiration = scoreType::minimum();
-							if (highAspiration.isWinning())
-								highAspiration = scoreType::maximum();
-							sc = this->template search<VERBOSE>(lowAspiration, highAspiration, depthRemaining, principalVariation, str, allowStoreTT);
-							if ((sc > lowAspiration) && (sc < highAspiration))
+							bool bExact{ false };
+							bool bLow{ true };
+							bool bHigh{ true };
+							constexpr const size_t countWindows{ evaluatorType::countAspirationWindows() };
+							for (size_t i = 0; i < countWindows; i++)
 							{
-								bExact = true;
-								break;
+								const scoreType oldScore{ sc };
+								const scoreType oldLow{ lowAspiration };
+								const scoreType oldHigh{ highAspiration };
+								lowAspiration = bLow ? (lowAspiration - delta) : (oldHigh - atom);
+								highAspiration = bHigh ? (highAspiration + delta) : (oldLow + atom);
+								if (lowAspiration.isLosing())
+									lowAspiration = minimum;
+								if (highAspiration.isWinning())
+									highAspiration = maximum;
+								sc = this->template search<VERBOSE>(lowAspiration, highAspiration, depthRemaining, principalVariation, str, allowStoreTT);
+								if ((sc > lowAspiration) && (sc < highAspiration))
+								{
+									bExact = true;
+									break;
+								}
+								if (sc <= lowAspiration)
+								{
+									delta = 2 * (oldScore - sc + atom);
+									bLow = true;
+								}
+								else
+									bLow = false;
+								if (sc >= highAspiration)
+								{
+									delta = 2 * (sc - oldScore + atom);
+									bHigh = true;
+								}
+								else
+									bHigh = false;
 							}
-							if (sc <= lowAspiration)
-								bLow = true;
-							else
-								bLow = false;
-							if (sc >= highAspiration)
-								bHigh = true;
-							else
-								bHigh = false;
-						}
-						if (!bExact)
-						{
-							sc = this->template search<VERBOSE>(minimum, maximum, depthRemaining, principalVariation, str, allowStoreTT);
+							if (!bExact)
+							{
+								sc = this->template search<VERBOSE>(minimum, maximum, depthRemaining, principalVariation, str, allowStoreTT);
+							}
 						}
 						return sc;
 					}

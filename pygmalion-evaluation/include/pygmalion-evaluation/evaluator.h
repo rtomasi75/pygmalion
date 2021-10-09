@@ -152,13 +152,13 @@ namespace pygmalion
 		{
 			return evaluatorType::template lateResult_Implementation<PLAYER>(stack);
 		}
-		PYGMALION_INLINE constexpr static scoreType aspirationWindowSize(const size_t index) noexcept
+		PYGMALION_INLINE constexpr static scoreType initialAspirationWindowSize() noexcept
 		{
-			return evaluatorType::aspirationWindowSize_Implementation(index);
+			return evaluatorType::initialAspirationWindowSize_Implementation();
 		}
 		PYGMALION_INLINE constexpr static size_t countAspirationWindows() noexcept
 		{
-			return evaluatorType::countAspirationWindows_Implementation();
+			return evaluatorType::countAspirationWindows_Implementation();;
 		}
 		static scoreType staticTacticalMoveScore(const boardType& position, const movebitsType move) noexcept
 		{

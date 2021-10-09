@@ -11,22 +11,10 @@ namespace pygmalion::chess
 			const bool invert{ stack.movingPlayer() == blackPlayer };
 			return invert ? -mat : mat;
 		}
-		PYGMALION_INLINE constexpr static scoreType aspirationWindowSize_Implementation(const size_t index) noexcept
+		PYGMALION_INLINE constexpr static scoreType initialAspirationWindowSize() noexcept
 		{
-			constexpr const scoreType delta{ rootDelta() };
-			constexpr const scoreType windows[]
-			{
-				delta / 4,
-				delta / 2,
-				delta,
-				delta,
-				delta * 2,
-				delta * 4,
-				delta * 8,
-				delta * 16,
-				delta * 32,
-			};
-			return windows[index];
+			constexpr const scoreType delta{ rootDelta()/4 };
+			return delta;
 		}
 		PYGMALION_INLINE constexpr static size_t countAspirationWindows_Implementation() noexcept
 		{

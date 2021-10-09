@@ -10,12 +10,12 @@ namespace pygmalion::tictactoe
 		public pygmalion::evaluator<descriptor_evaluation, evaluator>
 	{
 	public:
-		constexpr static scoreType aspirationWindowSize_Implementation(const size_t index) noexcept
+		constexpr static scoreType initialAspirationWindowSize() noexcept
 		{
 			constexpr const scoreType zero{ scoreType::zero() };
 			return zero;
 		}
-		constexpr static size_t countAspirationWindows_Implementation() noexcept
+		PYGMALION_INLINE constexpr static size_t countAspirationWindows() noexcept
 		{
 			return 0;
 		}

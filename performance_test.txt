@@ -1,50 +1,91 @@
 debug-perft 7
 
-depth:  1 leafs:   20.0    nodes:   1.00    time:   56.0 mcs speed:   17.9 kN/s,    375 kmv/s
-depth:  2 leafs:    400    nodes:   21.0    time:   81.9 mcs speed:    256 kN/s,   5.14 Mmv/s
-depth:  3 leafs:   8.90 k  nodes:    421    time:    481 mcs speed:    876 kN/s,   19.4 Mmv/s
-depth:  4 leafs:    197 k  nodes:   9.32 k  time:   10.2 ms  speed:    915 kN/s,   20.3 Mmv/s
+depth:  1 leafs:   20.0    nodes:   1.00    time:   43.0 mcs speed:   23.3 kN/s,    488 kmv/s
+depth:  2 leafs:    400    nodes:   21.0    time:   73.1 mcs speed:    287 kN/s,   5.76 Mmv/s
+depth:  3 leafs:   8.90 k  nodes:    421    time:    474 mcs speed:    889 kN/s,   19.7 Mmv/s
+depth:  4 leafs:    197 k  nodes:   9.32 k  time:   10.0 ms  speed:    930 kN/s,   20.6 Mmv/s
 depth:  5 leafs:   4.87 M  nodes:    207 k  time:    200 ms  speed:   1.04 MN/s,   25.4 Mmv/s
-depth:  6 leafs:    119 M  nodes:   5.07 M  time:   5.03 s   speed:   1.01 MN/s,   24.7 Mmv/s
-depth:  7 leafs:   3.20 G  nodes:    124 M  time:    129 s   speed:    964 kN/s,   25.8 Mmv/s
+depth:  6 leafs:    119 M  nodes:   5.07 M  time:   4.99 s   speed:   1.02 MN/s,   24.9 Mmv/s
+depth:  7 leafs:   3.20 G  nodes:    124 M  time:    129 s   speed:    959 kN/s,   25.7 Mmv/s
 
 debug-pvs 12
 
 0:            0 -
-  1.00 N   in    291 mcs =>   3.44 kN/s
+  1.00 N   in    215 mcs =>   4.65 kN/s
+
+1:   +0.0527344 - e3
+  24.0 N   in   59.9 mcs =>    401 kN/s
+
+2:            0 - e3 e6
+  82.0 N   in    105 mcs =>    782 kN/s
+
+3:     +0.03125 - e3 d5 Qh5
+   552 N   in    333 mcs =>   1.66 MN/s
+
+4:            0 - Nc3 d5 d4 Nc6
+  2.32 kN  in   1.12 ms  =>   2.08 MN/s
+
+5:   +0.0214844 - Nc3 d5 d4 Nc6 f3
+  4.58 kN  in   1.94 ms  =>   2.36 MN/s
+
+6:            0 - Nc3 d5 d4 Nc6 Nf3 Nf6
+  40.0 kN  in   16.1 ms  =>   2.48 MN/s
+
+7:   +0.0195312 - Nc3 d5 d4 Nc6 Nf3 f6 Qd3
+  94.4 kN  in   37.5 ms  =>   2.52 MN/s
+
+8:            0 - Nc3 d5 d4 Nc6 Nf3 Nf6 Qd3 Qd6
+   742 kN  in    289 ms  =>   2.57 MN/s
+
+9:   +0.0117188 - Nc3 d5 d4 Nc6 f3 e6 g3 h5 a3
+  1.68 MN  in    668 ms  =>   2.51 MN/s
+
+10:  +0.00195312 - d4 d5 f3 Nc6 c3 f6 e4 e5 xd5 Qxd5
+  15.0 MN  in   5.94 s   =>   2.52 MN/s
+
+11:   +0.0175781 - d4 d5 Nc3 Nc6 a3 a6 e4 e6 xd5 xd5 g4
+  20.3 MN  in   8.23 s   =>   2.47 MN/s
+
+12:  +0.00390625 - d4 d5 Nc3 f6 f3 Nc6 e4 e6 xd5 xd5 Qe2 Nge7
+   115 MN  in   47.2 s   =>   2.43 MN/s
+
+debug-pvs 12
+
+0:            0 -
+  1.00 N   in    299 mcs =>   3.34 kN/s
 
 1:   +0.0527344 - e3
   24.0 N   in    146 mcs =>    165 kN/s
 
 2:            0 - e3 e6
-  82.0 N   in    194 mcs =>    422 kN/s
+  82.0 N   in    182 mcs =>    450 kN/s
 
 3:     +0.03125 - e3 d5 Qh5
-   552 N   in    399 mcs =>   1.38 MN/s
+   552 N   in    383 mcs =>   1.44 MN/s
 
 4:            0 - Nc3 d5 d4 Nc6
-  2.31 kN  in   1.24 ms  =>   1.86 MN/s
+  2.32 kN  in   1.28 ms  =>   1.80 MN/s
 
 5:   +0.0214844 - Nc3 d5 d4 Nc6 f3
-  4.56 kN  in   2.33 ms  =>   1.96 MN/s
+  4.58 kN  in   2.31 ms  =>   1.98 MN/s
 
 6:            0 - Nc3 d5 d4 Nc6 Nf3 Nf6
-  39.9 kN  in   17.5 ms  =>   2.28 MN/s
+  40.0 kN  in   16.8 ms  =>   2.38 MN/s
 
 7:   +0.0195312 - Nc3 d5 d4 Nc6 Nf3 f6 Qd3
-  96.2 kN  in   38.3 ms  =>   2.51 MN/s
+  94.4 kN  in   37.3 ms  =>   2.53 MN/s
 
 8:            0 - Nc3 d5 d4 Nc6 Nf3 Nf6 Qd3 Qd6
-   742 kN  in    290 ms  =>   2.56 MN/s
+   742 kN  in    289 ms  =>   2.57 MN/s
 
-9:   +0.0117188 - Nc3 d5 d4 Nc6 f3 e6 g3 f5 a3
-  1.63 MN  in    664 ms  =>   2.46 MN/s
+9:   +0.0117188 - Nc3 d5 d4 Nc6 f3 e6 g3 h5 a3
+  1.68 MN  in    666 ms  =>   2.52 MN/s
 
 10:  +0.00195312 - d4 d5 f3 Nc6 c3 f6 e4 e5 xd5 Qxd5
-  14.7 MN  in   5.86 s   =>   2.52 MN/s
+  15.0 MN  in   5.96 s   =>   2.51 MN/s
 
 11:   +0.0175781 - d4 d5 Nc3 Nc6 a3 a6 e4 e6 xd5 xd5 g4
-  19.7 MN  in   8.01 s   =>   2.46 MN/s
+  20.3 MN  in   8.24 s   =>   2.47 MN/s
 
 12:  +0.00390625 - d4 d5 Nc3 f6 f3 Nc6 e4 e6 xd5 xd5 Qe2 Nge7
-   103 MN  in   42.4 s   =>   2.44 MN/s
+   115 MN  in   47.1 s   =>   2.44 MN/s
