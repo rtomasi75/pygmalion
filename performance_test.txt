@@ -11,81 +11,40 @@ depth:  7 leafs:   3.20 G  nodes:    124 M  time:    129 s   speed:    959 kN/s,
 debug-pvs 12
 
 0:            0 -
-  1.00 N   in    215 mcs =>   4.65 kN/s
+  1.00 N   in    298 mcs =>   3.36 kN/s
 
 1:   +0.0527344 - e3
-  24.0 N   in   59.9 mcs =>    401 kN/s
+  33.0 N   in    128 mcs =>    258 kN/s
 
 2:            0 - e3 e6
-  82.0 N   in    105 mcs =>    782 kN/s
+   130 N   in    206 mcs =>    632 kN/s
 
 3:     +0.03125 - e3 d5 Qh5
-   552 N   in    333 mcs =>   1.66 MN/s
+   551 N   in    410 mcs =>   1.34 MN/s
 
 4:            0 - Nc3 d5 d4 Nc6
-  2.32 kN  in   1.12 ms  =>   2.08 MN/s
+  2.35 kN  in   1.23 ms  =>   1.92 MN/s
 
 5:   +0.0214844 - Nc3 d5 d4 Nc6 f3
-  4.58 kN  in   1.94 ms  =>   2.36 MN/s
+  4.36 kN  in   2.02 ms  =>   2.15 MN/s
 
 6:            0 - Nc3 d5 d4 Nc6 Nf3 Nf6
-  40.0 kN  in   16.1 ms  =>   2.48 MN/s
+  39.4 kN  in   18.0 ms  =>   2.18 MN/s
 
 7:   +0.0195312 - Nc3 d5 d4 Nc6 Nf3 f6 Qd3
-  94.4 kN  in   37.5 ms  =>   2.52 MN/s
+  90.4 kN  in   36.4 ms  =>   2.48 MN/s
 
 8:            0 - Nc3 d5 d4 Nc6 Nf3 Nf6 Qd3 Qd6
-   742 kN  in    289 ms  =>   2.57 MN/s
+   756 kN  in    299 ms  =>   2.53 MN/s
 
-9:   +0.0117188 - Nc3 d5 d4 Nc6 f3 e6 g3 h5 a3
-  1.68 MN  in    668 ms  =>   2.51 MN/s
-
-10:  +0.00195312 - d4 d5 f3 Nc6 c3 f6 e4 e5 xd5 Qxd5
-  15.0 MN  in   5.94 s   =>   2.52 MN/s
-
-11:   +0.0175781 - d4 d5 Nc3 Nc6 a3 a6 e4 e6 xd5 xd5 g4
-  20.3 MN  in   8.23 s   =>   2.47 MN/s
-
-12:  +0.00390625 - d4 d5 Nc3 f6 f3 Nc6 e4 e6 xd5 xd5 Qe2 Nge7
-   115 MN  in   47.2 s   =>   2.43 MN/s
-
-debug-pvs 12
-
-0:            0 -
-  1.00 N   in    299 mcs =>   3.34 kN/s
-
-1:   +0.0527344 - e3
-  24.0 N   in    146 mcs =>    165 kN/s
-
-2:            0 - e3 e6
-  82.0 N   in    182 mcs =>    450 kN/s
-
-3:     +0.03125 - e3 d5 Qh5
-   552 N   in    383 mcs =>   1.44 MN/s
-
-4:            0 - Nc3 d5 d4 Nc6
-  2.32 kN  in   1.28 ms  =>   1.80 MN/s
-
-5:   +0.0214844 - Nc3 d5 d4 Nc6 f3
-  4.58 kN  in   2.31 ms  =>   1.98 MN/s
-
-6:            0 - Nc3 d5 d4 Nc6 Nf3 Nf6
-  40.0 kN  in   16.8 ms  =>   2.38 MN/s
-
-7:   +0.0195312 - Nc3 d5 d4 Nc6 Nf3 f6 Qd3
-  94.4 kN  in   37.3 ms  =>   2.53 MN/s
-
-8:            0 - Nc3 d5 d4 Nc6 Nf3 Nf6 Qd3 Qd6
-   742 kN  in    289 ms  =>   2.57 MN/s
-
-9:   +0.0117188 - Nc3 d5 d4 Nc6 f3 e6 g3 h5 a3
-  1.68 MN  in    666 ms  =>   2.52 MN/s
+9:   +0.0117188 - Nc3 d5 d4 Nc6 f3 e6 g3 f5 a3
+  1.53 MN  in    615 ms  =>   2.49 MN/s
 
 10:  +0.00195312 - d4 d5 f3 Nc6 c3 f6 e4 e5 xd5 Qxd5
-  15.0 MN  in   5.96 s   =>   2.51 MN/s
+  14.5 MN  in   5.88 s   =>   2.47 MN/s
 
-11:   +0.0175781 - d4 d5 Nc3 Nc6 a3 a6 e4 e6 xd5 xd5 g4
-  20.3 MN  in   8.24 s   =>   2.47 MN/s
+11:   +0.0175781 - d4 d5 Nc3 Nc6 a3 e6 Nf3 f6 Qd3 g5 g3
+  18.2 MN  in   7.51 s   =>   2.42 MN/s
 
 12:  +0.00390625 - d4 d5 Nc3 f6 f3 Nc6 e4 e6 xd5 xd5 Qe2 Nge7
-   115 MN  in   47.1 s   =>   2.44 MN/s
+  96.5 MN  in   39.6 s   =>   2.43 MN/s
