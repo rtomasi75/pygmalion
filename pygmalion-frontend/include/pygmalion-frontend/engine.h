@@ -75,7 +75,7 @@ namespace pygmalion::frontend
 			variationType finalVariation{ variationType() };
 			durationType timeRemaining{ this->currentGame().playerClock(this->position().movingPlayer()).timeRemaining() };
 			durationType searchTime{ durationType(0) };
-	//		double factor[]{ 0.0,0.0 };
+			double factor[]{ 0.0,0.0 };
 			m_ScoreFromPreviousDepth = evaluatorType::evaluate(scoreType::minimum(), scoreType::maximum(), stack);
 			while (principalVariationSearch(stack, m_CurrentDepth, finalVariation, m_MoveThreadIsRunning))
 			{
@@ -93,7 +93,7 @@ namespace pygmalion::frontend
 				const durationType plyTime{ timeRemaining - this->currentGame().playerClock(this->position().movingPlayer()).timeRemaining() };
 				timeRemaining = std::chrono::duration_cast<std::chrono::milliseconds>(this->currentGame().playerClock(this->position().movingPlayer()).timeRemaining());
 				searchTime += plyTime;
-		/*		if (m_CurrentDepth > countPlayers)
+				if (m_CurrentDepth > countPlayers)
 				{
 					factor[m_CurrentDepth % countPlayers] = static_cast<double>(searchTime.count()) / static_cast<double>((searchTime - plyTime).count());
 					if (m_CurrentDepth > (2 * countPlayers))
@@ -106,7 +106,7 @@ namespace pygmalion::frontend
 								break;
 						}
 					}
-				}*/
+				}
 			}
 			if (!(this->front().analyzeMode()))
 				this->currentGame().playerClock(this->currentGame().position().movingPlayer()).stop();
