@@ -533,11 +533,10 @@ namespace pygmalion
 #if (defined(PYGMALION_INTRINSICS_MSC)||defined(PYGMALION_INTRINSICS_GNU))&&(defined(PYGMALION_CPU_X86)||defined(PYGMALION_CPU_X64))&&defined(PYGMALION_CPU_BMI2)
 			if constexpr ((sizeof(wordType) <= 4) && cpu::supports(cpu::flags::X86) && cpu::supports(cpu::flags::BMI2) && (compiler::supports(compiler::flags::GNU) || compiler::supports(compiler::flags::MSC)))
 			{
-				const auto lambdaBits = [&mask](const size_t index)->size_t
+				const std::array<size_t, countWords> bitCounts{ arrayhelper::generate<countWords,size_t>([&mask](const size_t index)->size_t
 				{
 					return intrinsics::popcnt::implementation<1, wordType>({ mask.m_Words[index] });
-				};
-				const std::array<size_t, countWords> bitCounts{ arrayhelper::generate<countWords,size_t>(lambdaBits) };
+				}) };
 				std::array<wordType, countWords> indices{ arrayhelper::make<countWords,wordType>(wordType(0)) };
 				size_t w{ 0 };
 				size_t b{ 0 };
@@ -561,11 +560,10 @@ namespace pygmalion
 						}
 					}
 				}
-				const auto lambdaPDEP = [&indices, &mask](const size_t index)->wordType
+				std::array<wordType, countWords> result{ arrayhelper::generate<countWords,wordType>([&indices, &mask](const size_t index)->wordType
 				{
 					return static_cast<wordType>(_pdep_u32(indices[index], mask.m_Words[index]));
-				};
-				std::array<wordType, countWords> result{ arrayhelper::generate<countWords,wordType>(lambdaPDEP) };
+				}) };
 				return uint_t(result, false);
 			}
 			else
@@ -573,11 +571,10 @@ namespace pygmalion
 #if (defined(PYGMALION_INTRINSICS_MSC)||defined(PYGMALION_INTRINSICS_GNU))&&defined(PYGMALION_CPU_X64)&&defined(PYGMALION_CPU_BMI2)
 				if constexpr ((sizeof(wordType) <= 8) && cpu::supports(cpu::flags::X64) && cpu::supports(cpu::flags::BMI2) && (compiler::supports(compiler::flags::GNU) || compiler::supports(compiler::flags::MSC)))
 				{
-					const auto lambdaBits = [&mask](const size_t index)->size_t
+					const std::array<size_t, countWords> bitCounts{ arrayhelper::generate<countWords,size_t>([&mask](const size_t index)->size_t
 					{
 						return intrinsics::popcnt::implementation<1, wordType>({ mask.m_Words[index] });
-					};
-					const std::array<size_t, countWords> bitCounts{ arrayhelper::generate<countWords,size_t>(lambdaBits) };
+					}) };
 					std::array<wordType, countWords> indices{ arrayhelper::make<countWords,wordType>(wordType(0)) };
 					size_t w{ 0 };
 					size_t b{ 0 };
@@ -601,11 +598,10 @@ namespace pygmalion
 							}
 						}
 					}
-					const auto lambdaPDEP = [&indices, &mask](const size_t index)->wordType
+					std::array<wordType, countWords> result{ arrayhelper::generate<countWords,wordType>([&indices, &mask](const size_t index)->wordType
 					{
 						return static_cast<wordType>(_pdep_u64(indices[index], mask.m_Words[index]));
-					};
-					std::array<wordType, countWords> result{ arrayhelper::generate<countWords,wordType>(lambdaPDEP) };
+					}) };
 					return uint_t(result, false);
 				}
 				else
@@ -613,11 +609,10 @@ namespace pygmalion
 #if (defined(PYGMALION_INTRINSICS_MSC)||defined(PYGMALION_INTRINSICS_GNU))&&defined(PYGMALION_CPU_X86)&&defined(PYGMALION_CPU_BMI2)
 					if constexpr ((sizeof(wordType) <= 8) && cpu::supports(cpu::flags::X86) && cpu::supports(cpu::flags::BMI2) && (compiler::supports(compiler::flags::GNU) || compiler::supports(compiler::flags::MSC)))
 					{
-						const auto lambdaBits = [&mask](const size_t index)->size_t
+						const std::array<size_t, countWords> bitCounts{ arrayhelper::generate<countWords,size_t>([&mask](const size_t index)->size_t
 						{
 							return intrinsics::popcnt::implementation<1, wordType>({ mask.m_Words[index] });
-						};
-						const std::array<size_t, countWords> bitCounts{ arrayhelper::generate<countWords,size_t>(lambdaBits) };
+						}) };
 						std::array<wordType, countWords> indices{ arrayhelper::make<countWords,wordType>(wordType(0)) };
 						size_t w{ 0 };
 						size_t b{ 0 };
@@ -641,7 +636,7 @@ namespace pygmalion
 								}
 							}
 						}
-						const auto lambdaPDEP = [&indices, &mask](const size_t index)->wordType
+						std::array<wordType, countWords> result{ arrayhelper::generate<countWords,wordType>([&indices, &mask](const size_t index)->wordType
 						{
 							const std::uint32_t highMask{ static_cast<std::uint32_t>((mask.m_Words[index] & std::uint64_t(0xffffffff00000000)) >> 32) };
 							const std::uint32_t lowMask{ static_cast<std::uint32_t>((mask.m_Words[index] & std::uint64_t(0x00000000ffffffff)) >> 0) };
@@ -652,8 +647,7 @@ namespace pygmalion
 							const std::uint32_t lowVal{ _pdep_u32(lowIndex, lowMask) };
 							const std::uint64_t value{ (static_cast<std::uint64_t>(highVal) << 32) | static_cast<std::uint64_t>(lowVal) };
 							return static_cast<wordType>(value);
-						};
-						std::array<wordType, countWords> result{ arrayhelper::generate<countWords,wordType>(lambdaPDEP) };
+						}) };
 						return uint_t(result, false);
 					}
 					else
@@ -674,16 +668,14 @@ namespace pygmalion
 #if (defined(PYGMALION_INTRINSICS_MSC)||defined(PYGMALION_INTRINSICS_GNU))&&(defined(PYGMALION_CPU_X86)||defined(PYGMALION_CPU_X64))&&defined(PYGMALION_CPU_BMI2)
 			if constexpr ((sizeof(wordType) <= 4) && cpu::supports(cpu::flags::X86) && cpu::supports(cpu::flags::BMI2) && (compiler::supports(compiler::flags::GNU) || compiler::supports(compiler::flags::MSC)))
 			{
-				const auto lambdaPEXT = [this, &mask](const size_t index)->wordType
+				std::array<wordType, countWords> extractedWords{ arrayhelper::generate<countWords,wordType>([this, &mask](const size_t index)->wordType
 				{
 					return static_cast<wordType>(_pext_u32(this->m_Words[index], mask.m_Words[index]));
-				};
-				std::array<wordType, countWords> extractedWords{ arrayhelper::generate<countWords,wordType>(lambdaPEXT) };
-				const auto lambdaBits = [&mask](const size_t index)->size_t
+				}) };
+				const std::array<size_t, countWords> bitCounts{ arrayhelper::generate<countWords,size_t>([&mask](const size_t index)->size_t
 				{
 					return intrinsics::popcnt::implementation<1, wordType>({ mask.m_Words[index] });
-				};
-				const std::array<size_t, countWords> bitCounts{ arrayhelper::generate<countWords,size_t>(lambdaBits) };
+				}) };
 				std::array<wordType, countWords> result{ arrayhelper::make<countWords,wordType>(wordType(0)) };
 				size_t w{ 0 };
 				size_t b{ 0 };
@@ -713,16 +705,14 @@ namespace pygmalion
 #if (defined(PYGMALION_INTRINSICS_MSC)||defined(PYGMALION_INTRINSICS_GNU))&&defined(PYGMALION_CPU_X64)&&defined(PYGMALION_CPU_BMI2)
 				if constexpr ((sizeof(wordType) <= 8) && cpu::supports(cpu::flags::X64) && cpu::supports(cpu::flags::BMI2) && (compiler::supports(compiler::flags::GNU) || compiler::supports(compiler::flags::MSC)))
 				{
-					const auto lambdaPEXT = [this, &mask](const size_t index)->wordType
+					std::array<wordType, countWords> extractedWords{ arrayhelper::generate<countWords,wordType>([this, &mask](const size_t index)->wordType
 					{
 						return static_cast<wordType>(_pext_u64(this->m_Words[index], mask.m_Words[index]));
-					};
-					std::array<wordType, countWords> extractedWords{ arrayhelper::generate<countWords,wordType>(lambdaPEXT) };
-					const auto lambdaBits = [&mask](const size_t index)->size_t
+					}) };
+					const std::array<size_t, countWords> bitCounts{ arrayhelper::generate<countWords,size_t>([&mask](const size_t index)->size_t
 					{
 						return intrinsics::popcnt::implementation<1, wordType>({ mask.m_Words[index] });
-					};
-					const std::array<size_t, countWords> bitCounts{ arrayhelper::generate<countWords,size_t>(lambdaBits) };
+					}) };
 					std::array<wordType, countWords> result{ arrayhelper::make<countWords,wordType>(wordType(0)) };
 					size_t w{ 0 };
 					size_t b{ 0 };
@@ -752,7 +742,7 @@ namespace pygmalion
 #if (defined(PYGMALION_INTRINSICS_MSC)||defined(PYGMALION_INTRINSICS_GNU))&&defined(PYGMALION_CPU_X86)&&defined(PYGMALION_CPU_BMI2)
 					if constexpr ((sizeof(wordType) <= 8) && cpu::supports(cpu::flags::X86) && cpu::supports(cpu::flags::BMI2) && (compiler::supports(compiler::flags::GNU) || compiler::supports(compiler::flags::MSC)))
 					{
-						const auto lambdaPEXT = [this, &mask](const size_t index)->wordType
+						std::array<wordType, countWords> extractedWords{ arrayhelper::generate<countWords,wordType>([this, &mask](const size_t index)->wordType
 						{
 							const std::uint32_t highMask{ static_cast<std::uint32_t>((mask.m_Words[index] & std::uint64_t(0xffffffff00000000)) >> 32) };
 							const std::uint32_t lowMask{ static_cast<std::uint32_t>((mask.m_Words[index] & std::uint64_t(0x00000000ffffffff)) >> 0) };
@@ -763,13 +753,11 @@ namespace pygmalion
 							const std::uint32_t lowIndex{ _pext_u32(lowVal, lowMask) };
 							const std::uint64_t idx{ (static_cast<std::uint64_t>(highIndex) << lowBits) | static_cast<std::uint64_t>(lowIndex) };
 							return idx;
-						};
-						std::array<wordType, countWords> extractedWords{ arrayhelper::generate<countWords,wordType>(lambdaPEXT) };
-						const auto lambdaBits = [&mask](const size_t index)->size_t
+						}) };
+						const std::array<size_t, countWords> bitCounts{ arrayhelper::generate<countWords,size_t>([&mask](const size_t index)->size_t
 						{
 							return intrinsics::popcnt::implementation<1, wordType>({ mask.m_Words[index] });
-						};
-						const std::array<size_t, countWords> bitCounts{ arrayhelper::generate<countWords,size_t>(lambdaBits) };
+						}) };
 						std::array<wordType, countWords> result{ arrayhelper::make<countWords,wordType>(wordType(0)) };
 						size_t w{ 0 };
 						size_t b{ 0 };
@@ -1279,21 +1267,19 @@ namespace pygmalion
 		{
 			const size_t w{ bit / countBitsPerWord };
 			const size_t b{ bit % countBitsPerWord };
-			const auto lambda = [w, b](const size_t index)->wordType
-			{
-				return static_cast<wordType>((index == w) ? (wordType(1) << b) : wordType(0));
-			};
-			return ~uint_t(arrayhelper::generate<countWords, wordType>(lambda), false);
+			return ~uint_t(arrayhelper::generate<countWords, wordType>([w, b](const size_t index)->wordType
+				{
+					return static_cast<wordType>((index == w) ? (wordType(1) << b) : wordType(0));
+				}), false);
 		}
 		constexpr static uint_t setMask(const size_t bit) noexcept
 		{
 			const size_t w{ bit / countBitsPerWord };
 			const size_t b{ bit % countBitsPerWord };
-			const auto lambda = [w, b](const size_t index)->wordType
-			{
-				return static_cast<wordType>((index == w) ? (wordType(1) << b) : wordType(0));
-			};
-			return uint_t(arrayhelper::generate<countWords, wordType>(lambda), false);
+			return uint_t(arrayhelper::generate<countWords, wordType>([w, b](const size_t index)->wordType
+				{
+					return static_cast<wordType>((index == w) ? (wordType(1) << b) : wordType(0));
+				}), false);
 		}
 		static const inline std::string populationCount_Intrinsic{ intrinsics::popcnt::implementationName<countWords,wordType>() };
 		static const inline std::string bitscanForward_Intrinsic{ intrinsics::bsf::implementationName<countWords,wordType>() };

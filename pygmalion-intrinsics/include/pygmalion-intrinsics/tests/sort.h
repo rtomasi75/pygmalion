@@ -163,10 +163,10 @@ namespace intrinsics::test
 		result &= intrinsics::test::sort<std::uint8_t, std::int16_t>(str);
 		result &= intrinsics::test::sort<std::uint8_t, std::int32_t>(str);
 		result &= intrinsics::test::sort<std::uint8_t, std::int64_t>(str);
-		result &= intrinsics::test::sort<std::uint16_t, std::int8_t>(str);
-		result &= intrinsics::test::sort<std::uint16_t, std::int16_t>(str);*/
-		result &= intrinsics::test::sort<std::uint16_t, std::int32_t>(str);
-	/*	result &= intrinsics::test::sort<std::uint16_t, std::int64_t>(str);
+		result &= intrinsics::test::sort<std::uint16_t, std::int8_t>(str);*/
+		result &= intrinsics::test::sort<std::uint16_t, std::int16_t>(str);
+	/*	result &= intrinsics::test::sort<std::uint16_t, std::int32_t>(str);
+		result &= intrinsics::test::sort<std::uint16_t, std::int64_t>(str);
 		result &= intrinsics::test::sort<std::uint32_t, std::int8_t>(str);
 		result &= intrinsics::test::sort<std::uint32_t, std::int16_t>(str);
 		result &= intrinsics::test::sort<std::uint32_t, std::int32_t>(str);

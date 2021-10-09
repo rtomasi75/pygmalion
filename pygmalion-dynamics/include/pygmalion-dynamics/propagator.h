@@ -589,8 +589,8 @@ namespace pygmalion::dynamics
 			return attacks;
 		}
 	private:
-		constexpr static const inline std::array<squaresType, countSquares> m_PropagationTable{ arrayhelper::generate<countSquares,squaresType>([](const size_t index)->squaresType { return attacks(static_cast<squaresType>(static_cast<squareType>(static_cast<typename std::make_unsigned<size_t>::type>(index))),squaresType::all()); }) };
-		constexpr static const inline std::array<squaresType, countSquares> m_InversePropagationTable{ arrayhelper::generate<countSquares,squaresType>([](const size_t index)->squaresType { return inverseAttacks(static_cast<squaresType>(static_cast<squareType>(static_cast<typename std::make_unsigned<size_t>::type>(index))),squaresType::all()); }) };
+		constexpr static const inline std::array<squaresType, countSquares> m_PropagationTable{ arrayhelper::generate<countSquares,squaresType>([](const size_t index)->squaresType { return propagator::attacks(static_cast<squaresType>(static_cast<squareType>(static_cast<typename std::make_unsigned<size_t>::type>(index))),squaresType::all()); }) };
+		constexpr static const inline std::array<squaresType, countSquares> m_InversePropagationTable{ arrayhelper::generate<countSquares,squaresType>([](const size_t index)->squaresType { return propagator::inverseAttacks(static_cast<squaresType>(static_cast<squareType>(static_cast<typename std::make_unsigned<size_t>::type>(index))),squaresType::all()); }) };
 	public:
 		PYGMALION_INLINE constexpr static squaresType targets(const squareType seed, const squaresType& allowed) noexcept
 		{

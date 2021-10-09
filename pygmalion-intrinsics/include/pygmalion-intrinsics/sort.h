@@ -162,6 +162,1425 @@ namespace pygmalion
 				vector4<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d>(pValues, pScores);
 				vector4<IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h>(pValues, pScores);
 			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j>
+			PYGMALION_INLINE static void vector9(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				vector5<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e>(pValues, pScores);
+				vector4<IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k>
+			PYGMALION_INLINE static void vector10(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				vector5<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e>(pValues, pScores);
+				vector5<IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l>
+			PYGMALION_INLINE static void vector11(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				vector6<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f>(pValues, pScores);
+				vector5<IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l, size_t IDX1m, size_t IDX2m>
+			PYGMALION_INLINE static void vector12(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				vector6<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f>(pValues, pScores);
+				vector6<IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l, size_t IDX1m, size_t IDX2m, size_t IDX1n, size_t IDX2n>
+			PYGMALION_INLINE static void vector13(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				vector7<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g>(pValues, pScores);
+				vector6<IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l, size_t IDX1m, size_t IDX2m, size_t IDX1n, size_t IDX2n, size_t IDX1o, size_t IDX2o>
+			PYGMALION_INLINE static void vector14(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				vector7<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g>(pValues, pScores);
+				vector7<IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n, IDX1o, IDX2o>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l, size_t IDX1m, size_t IDX2m, size_t IDX1n, size_t IDX2n, size_t IDX1o, size_t IDX2o, size_t IDX1p, size_t IDX2p>
+			static void vector15(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				vector8<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h>(pValues, pScores);
+				vector7<IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n, IDX1o, IDX2o, IDX1p, IDX2p>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l, size_t IDX1m, size_t IDX2m, size_t IDX1n, size_t IDX2n, size_t IDX1o, size_t IDX2o, size_t IDX1p, size_t IDX2p, size_t IDX1q, size_t IDX2q>
+			PYGMALION_INLINE static void vector16(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				vector8<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h>(pValues, pScores);
+				vector8<IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n, IDX1o, IDX2o, IDX1p, IDX2p, IDX1q, IDX2q>(pValues, pScores);
+			}
+		};
+
+		template<>
+		class compare<std::uint16_t, std::int16_t>
+		{
+		public:
+			using VALUE = std::uint16_t;
+			using SCORE = std::int16_t;
+		private:
+			template<size_t IDX1, size_t IDX2>
+			PYGMALION_INLINE static void scalar_Vanilla(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				if (pScores[IDX1] < pScores[IDX2])
+				{
+					pValues[IDX1] ^= pValues[IDX2];
+					pValues[IDX2] ^= pValues[IDX1];
+					pValues[IDX1] ^= pValues[IDX2];
+					pScores[IDX1] ^= pScores[IDX2];
+					pScores[IDX2] ^= pScores[IDX1];
+					pScores[IDX1] ^= pScores[IDX2];
+				}
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b>
+			PYGMALION_INLINE static void vector2_Vanilla(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				scalar<IDX1a, IDX2a>(pValues, pScores);
+				scalar<IDX1b, IDX2b>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c>
+			PYGMALION_INLINE static void vector3_Vanilla(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				vector2<IDX1a, IDX2a, IDX1b, IDX2b>(pValues, pScores);
+				scalar<IDX1c, IDX2c>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d>
+			PYGMALION_INLINE static void vector4_Vanilla(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				vector2<IDX1a, IDX2a, IDX1b, IDX2b>(pValues, pScores);
+				vector2<IDX1c, IDX2c, IDX1d, IDX2d>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e>
+			PYGMALION_INLINE static void vector5_Vanilla(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				vector3<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c>(pValues, pScores);
+				vector2<IDX1d, IDX2d, IDX1e, IDX2e>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f>
+			PYGMALION_INLINE static void vector6_Vanilla(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				vector3<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c>(pValues, pScores);
+				vector3<IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g>
+			PYGMALION_INLINE static void vector7_Vanilla(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				vector4<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d>(pValues, pScores);
+				vector3<IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h>
+			PYGMALION_INLINE static void vector8_Vanilla(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				vector4<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d>(pValues, pScores);
+				vector4<IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j>
+			PYGMALION_INLINE static void vector9_Vanilla(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				vector5<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e>(pValues, pScores);
+				vector4<IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k>
+			PYGMALION_INLINE static void vector10_Vanilla(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				vector5<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e>(pValues, pScores);
+				vector5<IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l>
+			PYGMALION_INLINE static void vector11_Vanilla(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				vector6<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f>(pValues, pScores);
+				vector5<IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l, size_t IDX1m, size_t IDX2m>
+			PYGMALION_INLINE static void vector12_Vanilla(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				vector6<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f>(pValues, pScores);
+				vector6<IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l, size_t IDX1m, size_t IDX2m, size_t IDX1n, size_t IDX2n>
+			PYGMALION_INLINE static void vector13_Vanilla(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				vector7<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g>(pValues, pScores);
+				vector6<IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l, size_t IDX1m, size_t IDX2m, size_t IDX1n, size_t IDX2n, size_t IDX1o, size_t IDX2o>
+			PYGMALION_INLINE static void vector14_Vanilla(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				vector7<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g>(pValues, pScores);
+				vector7<IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n, IDX1o, IDX2o>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l, size_t IDX1m, size_t IDX2m, size_t IDX1n, size_t IDX2n, size_t IDX1o, size_t IDX2o, size_t IDX1p, size_t IDX2p>
+			PYGMALION_INLINE static void vector15_Vanilla(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				vector8<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h>(pValues, pScores);
+				vector7<IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n, IDX1o, IDX2o, IDX1p, IDX2p>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l, size_t IDX1m, size_t IDX2m, size_t IDX1n, size_t IDX2n, size_t IDX1o, size_t IDX2o, size_t IDX1p, size_t IDX2p, size_t IDX1q, size_t IDX2q>
+			PYGMALION_INLINE static void vector16_Vanilla(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				vector8<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h>(pValues, pScores);
+				vector8<IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n, IDX1o, IDX2o, IDX1p, IDX2p, IDX1q, IDX2q>(pValues, pScores);
+			}
+#if defined(PYGMALION_CPU_SSE2)
+			template<size_t IDX1, size_t IDX2>
+			PYGMALION_INLINE static void scalar_SSE2(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				const __m128i operand1{ _mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1], 0), pScores[IDX1], 1) };
+				const __m128i operand2{ _mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2], 0), pScores[IDX2], 1) };
+				const __m128i mask{ _mm_shufflelo_epi16(_mm_cmpgt_epi16(operand2, operand1), 0b00000101) };
+				const __m128i delta{ _mm_and_si128(_mm_xor_si128(operand1, operand2), mask) };
+				const __m128i result1{ _mm_xor_si128(operand1, delta) };
+				const __m128i result2{ _mm_xor_si128(operand2, delta) };
+				pValues[IDX1] = _mm_extract_epi16(result1, 0);
+				pScores[IDX1] = _mm_extract_epi16(result1, 1);
+				pValues[IDX2] = _mm_extract_epi16(result2, 0);
+				pScores[IDX2] = _mm_extract_epi16(result2, 1);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b>
+			PYGMALION_INLINE static void vector2_SSE2(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				const __m128i operand1{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1a], 0), pScores[IDX1a], 1), pValues[IDX1b], 2), pScores[IDX1b], 3) };
+				const __m128i operand2{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2a], 0), pScores[IDX2a], 1), pValues[IDX2b], 2), pScores[IDX2b], 3) };
+				const __m128i mask{ _mm_shufflelo_epi16(_mm_cmpgt_epi16(operand2, operand1), 0b11110101) };
+				const __m128i delta{ _mm_and_si128(_mm_xor_si128(operand1, operand2), mask) };
+				const __m128i result1{ _mm_xor_si128(operand1, delta) };
+				const __m128i result2{ _mm_xor_si128(operand2, delta) };
+				pValues[IDX1a] = _mm_extract_epi16(result1, 0);
+				pScores[IDX1a] = _mm_extract_epi16(result1, 1);
+				pValues[IDX2a] = _mm_extract_epi16(result2, 0);
+				pScores[IDX2a] = _mm_extract_epi16(result2, 1);
+				pValues[IDX1b] = _mm_extract_epi16(result1, 2);
+				pScores[IDX1b] = _mm_extract_epi16(result1, 3);
+				pValues[IDX2b] = _mm_extract_epi16(result2, 2);
+				pScores[IDX2b] = _mm_extract_epi16(result2, 3);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c>
+			PYGMALION_INLINE static void vector3_SSE2(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				const __m128i operand1{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1a], 0), pScores[IDX1a], 1), pValues[IDX1b], 2), pScores[IDX1b], 3), pValues[IDX1c], 4), pScores[IDX1c], 5) };
+				const __m128i operand2{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2a], 0), pScores[IDX2a], 1), pValues[IDX2b], 2), pScores[IDX2b], 3), pValues[IDX2c], 4), pScores[IDX2c], 5) };
+				const __m128i comparision{ _mm_cmpgt_epi16(operand2, operand1) };
+				const __m128i mask{ _mm_shufflehi_epi16(_mm_shufflelo_epi16(comparision, 0b11110101), 0b11110101) };
+				const __m128i delta{ _mm_and_si128(_mm_xor_si128(operand1, operand2), mask) };
+				const __m128i result1{ _mm_xor_si128(operand1, delta) };
+				const __m128i result2{ _mm_xor_si128(operand2, delta) };
+				pValues[IDX1a] = _mm_extract_epi16(result1, 0);
+				pScores[IDX1a] = _mm_extract_epi16(result1, 1);
+				pValues[IDX2a] = _mm_extract_epi16(result2, 0);
+				pScores[IDX2a] = _mm_extract_epi16(result2, 1);
+				pValues[IDX1b] = _mm_extract_epi16(result1, 2);
+				pScores[IDX1b] = _mm_extract_epi16(result1, 3);
+				pValues[IDX2b] = _mm_extract_epi16(result2, 2);
+				pScores[IDX2b] = _mm_extract_epi16(result2, 3);
+				pValues[IDX1c] = _mm_extract_epi16(result1, 4);
+				pScores[IDX1c] = _mm_extract_epi16(result1, 5);
+				pValues[IDX2c] = _mm_extract_epi16(result2, 4);
+				pScores[IDX2c] = _mm_extract_epi16(result2, 5);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d>
+			PYGMALION_INLINE static void vector4_SSE2(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				const __m128i operand1{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1a], 0), pScores[IDX1a], 1), pValues[IDX1b], 2), pScores[IDX1b], 3), pValues[IDX1c], 4), pScores[IDX1c], 5), pValues[IDX1d], 6), pScores[IDX1d], 7) };
+				const __m128i operand2{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2a], 0), pScores[IDX2a], 1), pValues[IDX2b], 2), pScores[IDX2b], 3), pValues[IDX2c], 4), pScores[IDX2c], 5), pValues[IDX2d], 6), pScores[IDX2d], 7) };
+				const __m128i comparision{ _mm_cmpgt_epi16(operand2, operand1) };
+				const __m128i mask{ _mm_shufflehi_epi16(_mm_shufflelo_epi16(comparision, 0b11110101), 0b11110101) };
+				const __m128i delta{ _mm_and_si128(_mm_xor_si128(operand1, operand2), mask) };
+				const __m128i result1{ _mm_xor_si128(operand1, delta) };
+				const __m128i result2{ _mm_xor_si128(operand2, delta) };
+				pValues[IDX1a] = _mm_extract_epi16(result1, 0);
+				pScores[IDX1a] = _mm_extract_epi16(result1, 1);
+				pValues[IDX2a] = _mm_extract_epi16(result2, 0);
+				pScores[IDX2a] = _mm_extract_epi16(result2, 1);
+				pValues[IDX1b] = _mm_extract_epi16(result1, 2);
+				pScores[IDX1b] = _mm_extract_epi16(result1, 3);
+				pValues[IDX2b] = _mm_extract_epi16(result2, 2);
+				pScores[IDX2b] = _mm_extract_epi16(result2, 3);
+				pValues[IDX1c] = _mm_extract_epi16(result1, 4);
+				pScores[IDX1c] = _mm_extract_epi16(result1, 5);
+				pValues[IDX2c] = _mm_extract_epi16(result2, 4);
+				pScores[IDX2c] = _mm_extract_epi16(result2, 5);
+				pValues[IDX1d] = _mm_extract_epi16(result1, 6);
+				pScores[IDX1d] = _mm_extract_epi16(result1, 7);
+				pValues[IDX2d] = _mm_extract_epi16(result2, 6);
+				pScores[IDX2d] = _mm_extract_epi16(result2, 7);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e>
+			PYGMALION_INLINE static void vector5_SSE2(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				const __m128i score1{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pScores[IDX1a],0), pScores[IDX1b], 1), pScores[IDX1c], 2), pScores[IDX1d], 3), pScores[IDX1e], 4) };
+				const __m128i score2{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pScores[IDX2a],0), pScores[IDX2b], 1), pScores[IDX2c], 2), pScores[IDX2d], 3), pScores[IDX2e], 4) };
+				const __m128i value1{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1a],0), pValues[IDX1b], 1), pValues[IDX1c], 2), pValues[IDX1d], 3), pValues[IDX1e], 4) };
+				const __m128i value2{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2a],0), pValues[IDX2b], 1), pValues[IDX2c], 2), pValues[IDX2d], 3), pValues[IDX2e], 4) };
+				const __m128i comparision{ _mm_cmpgt_epi16(score2, score1) };
+				const __m128i deltaScore{ _mm_and_si128(_mm_xor_si128(score1, score2), comparision) };
+				const __m128i resultScore1{ _mm_xor_si128(score1, deltaScore) };
+				const __m128i resultScore2{ _mm_xor_si128(score2, deltaScore) };
+				const __m128i deltaValue{ _mm_and_si128(_mm_xor_si128(value1, value2), comparision) };
+				const __m128i resultValue1{ _mm_xor_si128(value1, deltaValue) };
+				const __m128i resultValue2{ _mm_xor_si128(value2, deltaValue) };
+				pValues[IDX1a] = _mm_extract_epi16(resultValue1, 0);
+				pValues[IDX1b] = _mm_extract_epi16(resultValue1, 1);
+				pValues[IDX1c] = _mm_extract_epi16(resultValue1, 2);
+				pValues[IDX1d] = _mm_extract_epi16(resultValue1, 3);
+				pValues[IDX1e] = _mm_extract_epi16(resultValue1, 4);
+				pValues[IDX2a] = _mm_extract_epi16(resultValue2, 0);
+				pValues[IDX2b] = _mm_extract_epi16(resultValue2, 1);
+				pValues[IDX2c] = _mm_extract_epi16(resultValue2, 2);
+				pValues[IDX2d] = _mm_extract_epi16(resultValue2, 3);
+				pValues[IDX2e] = _mm_extract_epi16(resultValue2, 4);
+				pScores[IDX1a] = _mm_extract_epi16(resultScore1, 0);
+				pScores[IDX1b] = _mm_extract_epi16(resultScore1, 1);
+				pScores[IDX1c] = _mm_extract_epi16(resultScore1, 2);
+				pScores[IDX1d] = _mm_extract_epi16(resultScore1, 3);
+				pScores[IDX1e] = _mm_extract_epi16(resultScore1, 4);
+				pScores[IDX2a] = _mm_extract_epi16(resultScore2, 0);
+				pScores[IDX2b] = _mm_extract_epi16(resultScore2, 1);
+				pScores[IDX2c] = _mm_extract_epi16(resultScore2, 2);
+				pScores[IDX2d] = _mm_extract_epi16(resultScore2, 3);
+				pScores[IDX2e] = _mm_extract_epi16(resultScore2, 4);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f>
+			PYGMALION_INLINE static void vector6_SSE2(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				const __m128i score1{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pScores[IDX1a],0), pScores[IDX1b], 1), pScores[IDX1c], 2), pScores[IDX1d], 3), pScores[IDX1e], 4), pScores[IDX1f], 5) };
+				const __m128i score2{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pScores[IDX2a],0), pScores[IDX2b], 1), pScores[IDX2c], 2), pScores[IDX2d], 3), pScores[IDX2e], 4), pScores[IDX2f], 5) };
+				const __m128i value1{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1a],0), pValues[IDX1b], 1), pValues[IDX1c], 2), pValues[IDX1d], 3), pValues[IDX1e], 4), pValues[IDX1f], 5) };
+				const __m128i value2{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2a],0), pValues[IDX2b], 1), pValues[IDX2c], 2), pValues[IDX2d], 3), pValues[IDX2e], 4), pValues[IDX2f], 5) };
+				const __m128i comparision{ _mm_cmpgt_epi16(score2, score1) };
+				const __m128i deltaScore{ _mm_and_si128(_mm_xor_si128(score1, score2), comparision) };
+				const __m128i resultScore1{ _mm_xor_si128(score1, deltaScore) };
+				const __m128i resultScore2{ _mm_xor_si128(score2, deltaScore) };
+				const __m128i deltaValue{ _mm_and_si128(_mm_xor_si128(value1, value2), comparision) };
+				const __m128i resultValue1{ _mm_xor_si128(value1, deltaValue) };
+				const __m128i resultValue2{ _mm_xor_si128(value2, deltaValue) };
+				pValues[IDX1a] = _mm_extract_epi16(resultValue1, 0);
+				pValues[IDX1b] = _mm_extract_epi16(resultValue1, 1);
+				pValues[IDX1c] = _mm_extract_epi16(resultValue1, 2);
+				pValues[IDX1d] = _mm_extract_epi16(resultValue1, 3);
+				pValues[IDX1e] = _mm_extract_epi16(resultValue1, 4);
+				pValues[IDX1f] = _mm_extract_epi16(resultValue1, 5);
+				pValues[IDX2a] = _mm_extract_epi16(resultValue2, 0);
+				pValues[IDX2b] = _mm_extract_epi16(resultValue2, 1);
+				pValues[IDX2c] = _mm_extract_epi16(resultValue2, 2);
+				pValues[IDX2d] = _mm_extract_epi16(resultValue2, 3);
+				pValues[IDX2e] = _mm_extract_epi16(resultValue2, 4);
+				pValues[IDX2f] = _mm_extract_epi16(resultValue2, 5);
+				pScores[IDX1a] = _mm_extract_epi16(resultScore1, 0);
+				pScores[IDX1b] = _mm_extract_epi16(resultScore1, 1);
+				pScores[IDX1c] = _mm_extract_epi16(resultScore1, 2);
+				pScores[IDX1d] = _mm_extract_epi16(resultScore1, 3);
+				pScores[IDX1e] = _mm_extract_epi16(resultScore1, 4);
+				pScores[IDX1f] = _mm_extract_epi16(resultScore1, 5);
+				pScores[IDX2a] = _mm_extract_epi16(resultScore2, 0);
+				pScores[IDX2b] = _mm_extract_epi16(resultScore2, 1);
+				pScores[IDX2c] = _mm_extract_epi16(resultScore2, 2);
+				pScores[IDX2d] = _mm_extract_epi16(resultScore2, 3);
+				pScores[IDX2e] = _mm_extract_epi16(resultScore2, 4);
+				pScores[IDX2f] = _mm_extract_epi16(resultScore2, 5);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g>
+			PYGMALION_INLINE static void vector7_SSE2(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				const __m128i score1{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pScores[IDX1a],0), pScores[IDX1b], 1), pScores[IDX1c], 2), pScores[IDX1d], 3), pScores[IDX1e], 4), pScores[IDX1f], 5), pScores[IDX1g], 6) };
+				const __m128i score2{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pScores[IDX2a],0), pScores[IDX2b], 1), pScores[IDX2c], 2), pScores[IDX2d], 3), pScores[IDX2e], 4), pScores[IDX2f], 5), pScores[IDX2g], 6) };
+				const __m128i value1{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1a],0), pValues[IDX1b], 1), pValues[IDX1c], 2), pValues[IDX1d], 3), pValues[IDX1e], 4), pValues[IDX1f], 5), pValues[IDX1g], 6) };
+				const __m128i value2{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2a],0), pValues[IDX2b], 1), pValues[IDX2c], 2), pValues[IDX2d], 3), pValues[IDX2e], 4), pValues[IDX2f], 5), pValues[IDX2g], 6) };
+				const __m128i comparision{ _mm_cmpgt_epi16(score2, score1) };
+				const __m128i deltaScore{ _mm_and_si128(_mm_xor_si128(score1, score2), comparision) };
+				const __m128i resultScore1{ _mm_xor_si128(score1, deltaScore) };
+				const __m128i resultScore2{ _mm_xor_si128(score2, deltaScore) };
+				const __m128i deltaValue{ _mm_and_si128(_mm_xor_si128(value1, value2), comparision) };
+				const __m128i resultValue1{ _mm_xor_si128(value1, deltaValue) };
+				const __m128i resultValue2{ _mm_xor_si128(value2, deltaValue) };
+				pValues[IDX1a] = _mm_extract_epi16(resultValue1, 0);
+				pValues[IDX1b] = _mm_extract_epi16(resultValue1, 1);
+				pValues[IDX1c] = _mm_extract_epi16(resultValue1, 2);
+				pValues[IDX1d] = _mm_extract_epi16(resultValue1, 3);
+				pValues[IDX1e] = _mm_extract_epi16(resultValue1, 4);
+				pValues[IDX1f] = _mm_extract_epi16(resultValue1, 5);
+				pValues[IDX1g] = _mm_extract_epi16(resultValue1, 6);
+				pValues[IDX2a] = _mm_extract_epi16(resultValue2, 0);
+				pValues[IDX2b] = _mm_extract_epi16(resultValue2, 1);
+				pValues[IDX2c] = _mm_extract_epi16(resultValue2, 2);
+				pValues[IDX2d] = _mm_extract_epi16(resultValue2, 3);
+				pValues[IDX2e] = _mm_extract_epi16(resultValue2, 4);
+				pValues[IDX2f] = _mm_extract_epi16(resultValue2, 5);
+				pValues[IDX2g] = _mm_extract_epi16(resultValue2, 6);
+				pScores[IDX1a] = _mm_extract_epi16(resultScore1, 0);
+				pScores[IDX1b] = _mm_extract_epi16(resultScore1, 1);
+				pScores[IDX1c] = _mm_extract_epi16(resultScore1, 2);
+				pScores[IDX1d] = _mm_extract_epi16(resultScore1, 3);
+				pScores[IDX1e] = _mm_extract_epi16(resultScore1, 4);
+				pScores[IDX1f] = _mm_extract_epi16(resultScore1, 5);
+				pScores[IDX1g] = _mm_extract_epi16(resultScore1, 6);
+				pScores[IDX2a] = _mm_extract_epi16(resultScore2, 0);
+				pScores[IDX2b] = _mm_extract_epi16(resultScore2, 1);
+				pScores[IDX2c] = _mm_extract_epi16(resultScore2, 2);
+				pScores[IDX2d] = _mm_extract_epi16(resultScore2, 3);
+				pScores[IDX2e] = _mm_extract_epi16(resultScore2, 4);
+				pScores[IDX2f] = _mm_extract_epi16(resultScore2, 5);
+				pScores[IDX2g] = _mm_extract_epi16(resultScore2, 6);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h>
+			PYGMALION_INLINE static void vector8_SSE2(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				const __m128i score1{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pScores[IDX1a],0), pScores[IDX1b], 1), pScores[IDX1c], 2), pScores[IDX1d], 3), pScores[IDX1e], 4), pScores[IDX1f], 5), pScores[IDX1g], 6), pScores[IDX1h], 7) };
+				const __m128i score2{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pScores[IDX2a],0), pScores[IDX2b], 1), pScores[IDX2c], 2), pScores[IDX2d], 3), pScores[IDX2e], 4), pScores[IDX2f], 5), pScores[IDX2g], 6), pScores[IDX2h], 7) };
+				const __m128i value1{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1a],0), pValues[IDX1b], 1), pValues[IDX1c], 2), pValues[IDX1d], 3), pValues[IDX1e], 4), pValues[IDX1f], 5), pValues[IDX1g], 6), pValues[IDX1h], 7) };
+				const __m128i value2{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2a],0), pValues[IDX2b], 1), pValues[IDX2c], 2), pValues[IDX2d], 3), pValues[IDX2e], 4), pValues[IDX2f], 5), pValues[IDX2g], 6), pValues[IDX2h], 7) };
+				const __m128i comparision{ _mm_cmpgt_epi16(score2, score1) };
+				const __m128i deltaScore{ _mm_and_si128(_mm_xor_si128(score1, score2), comparision) };
+				const __m128i resultScore1{ _mm_xor_si128(score1, deltaScore) };
+				const __m128i resultScore2{ _mm_xor_si128(score2, deltaScore) };
+				const __m128i deltaValue{ _mm_and_si128(_mm_xor_si128(value1, value2), comparision) };
+				const __m128i resultValue1{ _mm_xor_si128(value1, deltaValue) };
+				const __m128i resultValue2{ _mm_xor_si128(value2, deltaValue) };
+				pValues[IDX1a] = _mm_extract_epi16(resultValue1, 0);
+				pValues[IDX1b] = _mm_extract_epi16(resultValue1, 1);
+				pValues[IDX1c] = _mm_extract_epi16(resultValue1, 2);
+				pValues[IDX1d] = _mm_extract_epi16(resultValue1, 3);
+				pValues[IDX1e] = _mm_extract_epi16(resultValue1, 4);
+				pValues[IDX1f] = _mm_extract_epi16(resultValue1, 5);
+				pValues[IDX1g] = _mm_extract_epi16(resultValue1, 6);
+				pValues[IDX1h] = _mm_extract_epi16(resultValue1, 7);
+				pValues[IDX2a] = _mm_extract_epi16(resultValue2, 0);
+				pValues[IDX2b] = _mm_extract_epi16(resultValue2, 1);
+				pValues[IDX2c] = _mm_extract_epi16(resultValue2, 2);
+				pValues[IDX2d] = _mm_extract_epi16(resultValue2, 3);
+				pValues[IDX2e] = _mm_extract_epi16(resultValue2, 4);
+				pValues[IDX2f] = _mm_extract_epi16(resultValue2, 5);
+				pValues[IDX2g] = _mm_extract_epi16(resultValue2, 6);
+				pValues[IDX2h] = _mm_extract_epi16(resultValue2, 7);
+				pScores[IDX1a] = _mm_extract_epi16(resultScore1, 0);
+				pScores[IDX1b] = _mm_extract_epi16(resultScore1, 1);
+				pScores[IDX1c] = _mm_extract_epi16(resultScore1, 2);
+				pScores[IDX1d] = _mm_extract_epi16(resultScore1, 3);
+				pScores[IDX1e] = _mm_extract_epi16(resultScore1, 4);
+				pScores[IDX1f] = _mm_extract_epi16(resultScore1, 5);
+				pScores[IDX1g] = _mm_extract_epi16(resultScore1, 6);
+				pScores[IDX1h] = _mm_extract_epi16(resultScore1, 7);
+				pScores[IDX2a] = _mm_extract_epi16(resultScore2, 0);
+				pScores[IDX2b] = _mm_extract_epi16(resultScore2, 1);
+				pScores[IDX2c] = _mm_extract_epi16(resultScore2, 2);
+				pScores[IDX2d] = _mm_extract_epi16(resultScore2, 3);
+				pScores[IDX2e] = _mm_extract_epi16(resultScore2, 4);
+				pScores[IDX2f] = _mm_extract_epi16(resultScore2, 5);
+				pScores[IDX2g] = _mm_extract_epi16(resultScore2, 6);
+				pScores[IDX2h] = _mm_extract_epi16(resultScore2, 7);
+			}
+#endif
+#if defined(PYGMALION_CPU_AVX2)
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f>
+			PYGMALION_INLINE static void vector5_AVX2(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				const __m128i operand1low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1a], 0), pScores[IDX1a], 1), pValues[IDX1b], 2), pScores[IDX1b], 3), pValues[IDX1c], 4), pScores[IDX1c], 5) };
+				const __m128i operand1high{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1e], 0), pScores[IDX1e], 1), pValues[IDX1f], 2), pScores[IDX1f], 3) };
+				const __m128i operand2low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2a], 0), pScores[IDX2a], 1), pValues[IDX2b], 2), pScores[IDX2b], 3), pValues[IDX2c], 4), pScores[IDX2c], 5) };
+				const __m128i operand2high{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2e], 0), pScores[IDX2e], 1), pValues[IDX2f], 2), pScores[IDX2f], 3) };
+				const __m256i operand1{ _mm256_inserti128_si256(_mm256_castsi128_si256(operand1low),operand1high, 1) };
+				const __m256i operand2{ _mm256_inserti128_si256(_mm256_castsi128_si256(operand2low),operand2high, 1) };
+				const __m256i comparision{ _mm256_cmpgt_epi16(operand2, operand1) };
+				const __m256i mask{ _mm256_shufflehi_epi16(_mm256_shufflelo_epi16(comparision, 0b11110101), 0b11110101) };
+				const __m256i delta{ _mm256_and_si256(_mm256_xor_si256(operand1, operand2), mask) };
+				const __m256i result1{ _mm256_xor_si256(operand1, delta) };
+				const __m256i result2{ _mm256_xor_si256(operand2, delta) };
+				const __m128i result1low{ _mm256_extracti128_si256(result1, 0) };
+				const __m128i result1high{ _mm256_extracti128_si256(result1, 1) };
+				const __m128i result2low{ _mm256_extracti128_si256(result2, 0) };
+				const __m128i result2high{ _mm256_extracti128_si256(result2, 1) };
+				pValues[IDX1a] = _mm_extract_epi16(result1low, 0);
+				pScores[IDX1a] = _mm_extract_epi16(result1low, 1);
+				pValues[IDX2a] = _mm_extract_epi16(result2low, 0);
+				pScores[IDX2a] = _mm_extract_epi16(result2low, 1);
+				pValues[IDX1b] = _mm_extract_epi16(result1low, 2);
+				pScores[IDX1b] = _mm_extract_epi16(result1low, 3);
+				pValues[IDX2b] = _mm_extract_epi16(result2low, 2);
+				pScores[IDX2b] = _mm_extract_epi16(result2low, 3);
+				pValues[IDX1c] = _mm_extract_epi16(result1low, 4);
+				pScores[IDX1c] = _mm_extract_epi16(result1low, 5);
+				pValues[IDX2c] = _mm_extract_epi16(result2low, 4);
+				pScores[IDX2c] = _mm_extract_epi16(result2low, 5);
+				pValues[IDX1e] = _mm_extract_epi16(result1high, 0);
+				pScores[IDX1e] = _mm_extract_epi16(result1high, 1);
+				pValues[IDX2e] = _mm_extract_epi16(result2high, 0);
+				pScores[IDX2e] = _mm_extract_epi16(result2high, 1);
+				pValues[IDX1f] = _mm_extract_epi16(result1high, 2);
+				pScores[IDX1f] = _mm_extract_epi16(result1high, 3);
+				pValues[IDX2f] = _mm_extract_epi16(result2high, 2);
+				pScores[IDX2f] = _mm_extract_epi16(result2high, 3);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g>
+			PYGMALION_INLINE static void vector6_AVX2(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				const __m128i operand1low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1a], 0), pScores[IDX1a], 1), pValues[IDX1b], 2), pScores[IDX1b], 3), pValues[IDX1c], 4), pScores[IDX1c], 5) };
+				const __m128i operand1high{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1e], 0), pScores[IDX1e], 1), pValues[IDX1f], 2), pScores[IDX1f], 3), pValues[IDX1g], 4), pScores[IDX1g], 5) };
+				const __m128i operand2low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2a], 0), pScores[IDX2a], 1), pValues[IDX2b], 2), pScores[IDX2b], 3), pValues[IDX2c], 4), pScores[IDX2c], 5) };
+				const __m128i operand2high{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2e], 0), pScores[IDX2e], 1), pValues[IDX2f], 2), pScores[IDX2f], 3), pValues[IDX2g], 4), pScores[IDX2g], 5) };
+				const __m256i operand1{ _mm256_inserti128_si256(_mm256_castsi128_si256(operand1low),operand1high, 1) };
+				const __m256i operand2{ _mm256_inserti128_si256(_mm256_castsi128_si256(operand2low),operand2high, 1) };
+				const __m256i comparision{ _mm256_cmpgt_epi16(operand2, operand1) };
+				const __m256i mask{ _mm256_shufflehi_epi16(_mm256_shufflelo_epi16(comparision, 0b11110101), 0b11110101) };
+				const __m256i delta{ _mm256_and_si256(_mm256_xor_si256(operand1, operand2), mask) };
+				const __m256i result1{ _mm256_xor_si256(operand1, delta) };
+				const __m256i result2{ _mm256_xor_si256(operand2, delta) };
+				const __m128i result1low{ _mm256_extracti128_si256(result1, 0) };
+				const __m128i result1high{ _mm256_extracti128_si256(result1, 1) };
+				const __m128i result2low{ _mm256_extracti128_si256(result2, 0) };
+				const __m128i result2high{ _mm256_extracti128_si256(result2, 1) };
+				pValues[IDX1a] = _mm_extract_epi16(result1low, 0);
+				pScores[IDX1a] = _mm_extract_epi16(result1low, 1);
+				pValues[IDX2a] = _mm_extract_epi16(result2low, 0);
+				pScores[IDX2a] = _mm_extract_epi16(result2low, 1);
+				pValues[IDX1b] = _mm_extract_epi16(result1low, 2);
+				pScores[IDX1b] = _mm_extract_epi16(result1low, 3);
+				pValues[IDX2b] = _mm_extract_epi16(result2low, 2);
+				pScores[IDX2b] = _mm_extract_epi16(result2low, 3);
+				pValues[IDX1c] = _mm_extract_epi16(result1low, 4);
+				pScores[IDX1c] = _mm_extract_epi16(result1low, 5);
+				pValues[IDX2c] = _mm_extract_epi16(result2low, 4);
+				pScores[IDX2c] = _mm_extract_epi16(result2low, 5);
+				pValues[IDX1e] = _mm_extract_epi16(result1high, 0);
+				pScores[IDX1e] = _mm_extract_epi16(result1high, 1);
+				pValues[IDX2e] = _mm_extract_epi16(result2high, 0);
+				pScores[IDX2e] = _mm_extract_epi16(result2high, 1);
+				pValues[IDX1f] = _mm_extract_epi16(result1high, 2);
+				pScores[IDX1f] = _mm_extract_epi16(result1high, 3);
+				pValues[IDX2f] = _mm_extract_epi16(result2high, 2);
+				pScores[IDX2f] = _mm_extract_epi16(result2high, 3);
+				pValues[IDX1g] = _mm_extract_epi16(result1high, 4);
+				pScores[IDX1g] = _mm_extract_epi16(result1high, 5);
+				pValues[IDX2g] = _mm_extract_epi16(result2high, 4);
+				pScores[IDX2g] = _mm_extract_epi16(result2high, 5);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g>
+			PYGMALION_INLINE static void vector7_AVX2(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				const __m128i operand1low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1a], 0), pScores[IDX1a], 1), pValues[IDX1b], 2), pScores[IDX1b], 3), pValues[IDX1c], 4), pScores[IDX1c], 5), pValues[IDX1d], 6), pScores[IDX1d], 7) };
+				const __m128i operand1high{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1e], 0), pScores[IDX1e], 1), pValues[IDX1f], 2), pScores[IDX1f], 3), pValues[IDX1g], 4), pScores[IDX1g], 5) };
+				const __m128i operand2low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2a], 0), pScores[IDX2a], 1), pValues[IDX2b], 2), pScores[IDX2b], 3), pValues[IDX2c], 4), pScores[IDX2c], 5), pValues[IDX2d], 6), pScores[IDX2d], 7) };
+				const __m128i operand2high{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2e], 0), pScores[IDX2e], 1), pValues[IDX2f], 2), pScores[IDX2f], 3), pValues[IDX2g], 4), pScores[IDX2g], 5) };
+				const __m256i operand1{ _mm256_inserti128_si256(_mm256_castsi128_si256(operand1low),operand1high, 1) };
+				const __m256i operand2{ _mm256_inserti128_si256(_mm256_castsi128_si256(operand2low),operand2high, 1) };
+				const __m256i comparision{ _mm256_cmpgt_epi16(operand2, operand1) };
+				const __m256i mask{ _mm256_shufflehi_epi16(_mm256_shufflelo_epi16(comparision, 0b11110101), 0b11110101) };
+				const __m256i delta{ _mm256_and_si256(_mm256_xor_si256(operand1, operand2), mask) };
+				const __m256i result1{ _mm256_xor_si256(operand1, delta) };
+				const __m256i result2{ _mm256_xor_si256(operand2, delta) };
+				const __m128i result1low{ _mm256_extracti128_si256(result1, 0) };
+				const __m128i result1high{ _mm256_extracti128_si256(result1, 1) };
+				const __m128i result2low{ _mm256_extracti128_si256(result2, 0) };
+				const __m128i result2high{ _mm256_extracti128_si256(result2, 1) };
+				pValues[IDX1a] = _mm_extract_epi16(result1low, 0);
+				pScores[IDX1a] = _mm_extract_epi16(result1low, 1);
+				pValues[IDX2a] = _mm_extract_epi16(result2low, 0);
+				pScores[IDX2a] = _mm_extract_epi16(result2low, 1);
+				pValues[IDX1b] = _mm_extract_epi16(result1low, 2);
+				pScores[IDX1b] = _mm_extract_epi16(result1low, 3);
+				pValues[IDX2b] = _mm_extract_epi16(result2low, 2);
+				pScores[IDX2b] = _mm_extract_epi16(result2low, 3);
+				pValues[IDX1c] = _mm_extract_epi16(result1low, 4);
+				pScores[IDX1c] = _mm_extract_epi16(result1low, 5);
+				pValues[IDX2c] = _mm_extract_epi16(result2low, 4);
+				pScores[IDX2c] = _mm_extract_epi16(result2low, 5);
+				pValues[IDX1d] = _mm_extract_epi16(result1low, 6);
+				pScores[IDX1d] = _mm_extract_epi16(result1low, 7);
+				pValues[IDX2d] = _mm_extract_epi16(result2low, 6);
+				pScores[IDX2d] = _mm_extract_epi16(result2low, 7);
+				pValues[IDX1e] = _mm_extract_epi16(result1high, 0);
+				pScores[IDX1e] = _mm_extract_epi16(result1high, 1);
+				pValues[IDX2e] = _mm_extract_epi16(result2high, 0);
+				pScores[IDX2e] = _mm_extract_epi16(result2high, 1);
+				pValues[IDX1f] = _mm_extract_epi16(result1high, 2);
+				pScores[IDX1f] = _mm_extract_epi16(result1high, 3);
+				pValues[IDX2f] = _mm_extract_epi16(result2high, 2);
+				pScores[IDX2f] = _mm_extract_epi16(result2high, 3);
+				pValues[IDX1g] = _mm_extract_epi16(result1high, 4);
+				pScores[IDX1g] = _mm_extract_epi16(result1high, 5);
+				pValues[IDX2g] = _mm_extract_epi16(result2high, 4);
+				pScores[IDX2g] = _mm_extract_epi16(result2high, 5);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h>
+			PYGMALION_INLINE static void vector8_AVX2(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				const __m128i operand1low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1a], 0), pScores[IDX1a], 1), pValues[IDX1b], 2), pScores[IDX1b], 3), pValues[IDX1c], 4), pScores[IDX1c], 5), pValues[IDX1d], 6), pScores[IDX1d], 7) };
+				const __m128i operand1high{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1e], 0), pScores[IDX1e], 1), pValues[IDX1f], 2), pScores[IDX1f], 3), pValues[IDX1g], 4), pScores[IDX1g], 5), pValues[IDX1h], 6), pScores[IDX1h], 7) };
+				const __m128i operand2low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2a], 0), pScores[IDX2a], 1), pValues[IDX2b], 2), pScores[IDX2b], 3), pValues[IDX2c], 4), pScores[IDX2c], 5), pValues[IDX2d], 6), pScores[IDX2d], 7) };
+				const __m128i operand2high{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2e], 0), pScores[IDX2e], 1), pValues[IDX2f], 2), pScores[IDX2f], 3), pValues[IDX2g], 4), pScores[IDX2g], 5), pValues[IDX2h], 6), pScores[IDX2h], 7) };
+				const __m256i operand1{ _mm256_inserti128_si256(_mm256_castsi128_si256(operand1low),operand1high, 1) };
+				const __m256i operand2{ _mm256_inserti128_si256(_mm256_castsi128_si256(operand2low),operand2high, 1) };
+				const __m256i comparision{ _mm256_cmpgt_epi16(operand2, operand1) };
+				const __m256i mask{ _mm256_shufflehi_epi16(_mm256_shufflelo_epi16(comparision, 0b11110101), 0b11110101) };
+				const __m256i delta{ _mm256_and_si256(_mm256_xor_si256(operand1, operand2), mask) };
+				const __m256i result1{ _mm256_xor_si256(operand1, delta) };
+				const __m256i result2{ _mm256_xor_si256(operand2, delta) };
+				const __m128i result1low{ _mm256_extracti128_si256(result1, 0) };
+				const __m128i result1high{ _mm256_extracti128_si256(result1, 1) };
+				const __m128i result2low{ _mm256_extracti128_si256(result2, 0) };
+				const __m128i result2high{ _mm256_extracti128_si256(result2, 1) };
+				pValues[IDX1a] = _mm_extract_epi16(result1low, 0);
+				pScores[IDX1a] = _mm_extract_epi16(result1low, 1);
+				pValues[IDX2a] = _mm_extract_epi16(result2low, 0);
+				pScores[IDX2a] = _mm_extract_epi16(result2low, 1);
+				pValues[IDX1b] = _mm_extract_epi16(result1low, 2);
+				pScores[IDX1b] = _mm_extract_epi16(result1low, 3);
+				pValues[IDX2b] = _mm_extract_epi16(result2low, 2);
+				pScores[IDX2b] = _mm_extract_epi16(result2low, 3);
+				pValues[IDX1c] = _mm_extract_epi16(result1low, 4);
+				pScores[IDX1c] = _mm_extract_epi16(result1low, 5);
+				pValues[IDX2c] = _mm_extract_epi16(result2low, 4);
+				pScores[IDX2c] = _mm_extract_epi16(result2low, 5);
+				pValues[IDX1d] = _mm_extract_epi16(result1low, 6);
+				pScores[IDX1d] = _mm_extract_epi16(result1low, 7);
+				pValues[IDX2d] = _mm_extract_epi16(result2low, 6);
+				pScores[IDX2d] = _mm_extract_epi16(result2low, 7);
+				pValues[IDX1e] = _mm_extract_epi16(result1high, 0);
+				pScores[IDX1e] = _mm_extract_epi16(result1high, 1);
+				pValues[IDX2e] = _mm_extract_epi16(result2high, 0);
+				pScores[IDX2e] = _mm_extract_epi16(result2high, 1);
+				pValues[IDX1f] = _mm_extract_epi16(result1high, 2);
+				pScores[IDX1f] = _mm_extract_epi16(result1high, 3);
+				pValues[IDX2f] = _mm_extract_epi16(result2high, 2);
+				pScores[IDX2f] = _mm_extract_epi16(result2high, 3);
+				pValues[IDX1g] = _mm_extract_epi16(result1high, 4);
+				pScores[IDX1g] = _mm_extract_epi16(result1high, 5);
+				pValues[IDX2g] = _mm_extract_epi16(result2high, 4);
+				pScores[IDX2g] = _mm_extract_epi16(result2high, 5);
+				pValues[IDX1h] = _mm_extract_epi16(result1high, 6);
+				pScores[IDX1h] = _mm_extract_epi16(result1high, 7);
+				pValues[IDX2h] = _mm_extract_epi16(result2high, 6);
+				pScores[IDX2h] = _mm_extract_epi16(result2high, 7);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1i, size_t IDX2i, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l>
+			PYGMALION_INLINE static void vector9_AVX2(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				const __m128i score1low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pScores[IDX1a],0), pScores[IDX1b], 1), pScores[IDX1c], 2), pScores[IDX1d], 3), pScores[IDX1e], 4) };
+				const __m128i score2low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pScores[IDX2a],0), pScores[IDX2b], 1), pScores[IDX2c], 2), pScores[IDX2d], 3), pScores[IDX2e], 4) };
+				const __m128i value1low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1a],0), pValues[IDX1b], 1), pValues[IDX1c], 2), pValues[IDX1d], 3), pValues[IDX1e], 4) };
+				const __m128i value2low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2a],0), pValues[IDX2b], 1), pValues[IDX2c], 2), pValues[IDX2d], 3), pValues[IDX2e], 4) };
+				const __m128i score1high{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pScores[IDX1i],0), pScores[IDX1j], 1), pScores[IDX1k], 2), pScores[IDX1l], 3) };
+				const __m128i score2high{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pScores[IDX2i],0), pScores[IDX2j], 1), pScores[IDX2k], 2), pScores[IDX2l], 3) };
+				const __m128i value1high{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1i],0), pValues[IDX1j], 1), pValues[IDX1k], 2), pValues[IDX1l], 3) };
+				const __m128i value2high{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2i],0), pValues[IDX2j], 1), pValues[IDX2k], 2), pValues[IDX2l], 3) };
+				const __m256i score1{ _mm256_inserti128_si256(_mm256_castsi128_si256(score1low),score1high, 1) };
+				const __m256i score2{ _mm256_inserti128_si256(_mm256_castsi128_si256(score2low),score2high, 1) };
+				const __m256i value1{ _mm256_inserti128_si256(_mm256_castsi128_si256(value1low),value1high, 1) };
+				const __m256i value2{ _mm256_inserti128_si256(_mm256_castsi128_si256(value2low),value2high, 1) };
+				const __m256i comparision{ _mm256_cmpgt_epi16(score2, score1) };
+				const __m256i deltaScore{ _mm256_and_si256(_mm256_xor_si256(score1, score2), comparision) };
+				const __m256i resultScore1{ _mm256_xor_si256(score1, deltaScore) };
+				const __m256i resultScore2{ _mm256_xor_si256(score2, deltaScore) };
+				const __m256i deltaValue{ _mm256_and_si256(_mm256_xor_si256(value1, value2), comparision) };
+				const __m256i resultValue1{ _mm256_xor_si256(value1, deltaValue) };
+				const __m256i resultValue2{ _mm256_xor_si256(value2, deltaValue) };
+				const __m128i resultScore1low{ _mm256_extracti128_si256(resultScore1, 0) };
+				const __m128i resultScore1high{ _mm256_extracti128_si256(resultScore1, 1) };
+				const __m128i resultScore2low{ _mm256_extracti128_si256(resultScore2, 0) };
+				const __m128i resultScore2high{ _mm256_extracti128_si256(resultScore2, 1) };
+				const __m128i resultValue1low{ _mm256_extracti128_si256(resultValue1, 0) };
+				const __m128i resultValue1high{ _mm256_extracti128_si256(resultValue1, 1) };
+				const __m128i resultValue2low{ _mm256_extracti128_si256(resultValue2, 0) };
+				const __m128i resultValue2high{ _mm256_extracti128_si256(resultValue2, 1) };
+				pValues[IDX1a] = _mm_extract_epi16(resultValue1low, 0);
+				pValues[IDX1b] = _mm_extract_epi16(resultValue1low, 1);
+				pValues[IDX1c] = _mm_extract_epi16(resultValue1low, 2);
+				pValues[IDX1d] = _mm_extract_epi16(resultValue1low, 3);
+				pValues[IDX1e] = _mm_extract_epi16(resultValue1low, 4);
+				pValues[IDX2a] = _mm_extract_epi16(resultValue2low, 0);
+				pValues[IDX2b] = _mm_extract_epi16(resultValue2low, 1);
+				pValues[IDX2c] = _mm_extract_epi16(resultValue2low, 2);
+				pValues[IDX2d] = _mm_extract_epi16(resultValue2low, 3);
+				pValues[IDX2e] = _mm_extract_epi16(resultValue2low, 4);
+				pScores[IDX1a] = _mm_extract_epi16(resultScore1low, 0);
+				pScores[IDX1b] = _mm_extract_epi16(resultScore1low, 1);
+				pScores[IDX1c] = _mm_extract_epi16(resultScore1low, 2);
+				pScores[IDX1d] = _mm_extract_epi16(resultScore1low, 3);
+				pScores[IDX1e] = _mm_extract_epi16(resultScore1low, 4);
+				pScores[IDX2a] = _mm_extract_epi16(resultScore2low, 0);
+				pScores[IDX2b] = _mm_extract_epi16(resultScore2low, 1);
+				pScores[IDX2c] = _mm_extract_epi16(resultScore2low, 2);
+				pScores[IDX2d] = _mm_extract_epi16(resultScore2low, 3);
+				pScores[IDX2e] = _mm_extract_epi16(resultScore2low, 4);
+				pValues[IDX1i] = _mm_extract_epi16(resultValue1high, 0);
+				pValues[IDX1j] = _mm_extract_epi16(resultValue1high, 1);
+				pValues[IDX1k] = _mm_extract_epi16(resultValue1high, 2);
+				pValues[IDX1l] = _mm_extract_epi16(resultValue1high, 3);
+				pValues[IDX2i] = _mm_extract_epi16(resultValue2high, 0);
+				pValues[IDX2j] = _mm_extract_epi16(resultValue2high, 1);
+				pValues[IDX2k] = _mm_extract_epi16(resultValue2high, 2);
+				pValues[IDX2l] = _mm_extract_epi16(resultValue2high, 3);
+				pScores[IDX1i] = _mm_extract_epi16(resultScore1high, 0);
+				pScores[IDX1j] = _mm_extract_epi16(resultScore1high, 1);
+				pScores[IDX1k] = _mm_extract_epi16(resultScore1high, 2);
+				pScores[IDX1l] = _mm_extract_epi16(resultScore1high, 3);
+				pScores[IDX2i] = _mm_extract_epi16(resultScore2high, 0);
+				pScores[IDX2j] = _mm_extract_epi16(resultScore2high, 1);
+				pScores[IDX2k] = _mm_extract_epi16(resultScore2high, 2);
+				pScores[IDX2l] = _mm_extract_epi16(resultScore2high, 3);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1i, size_t IDX2i, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l, size_t IDX1m, size_t IDX2m>
+			PYGMALION_INLINE static void vector10_AVX2(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				const __m128i score1low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pScores[IDX1a],0), pScores[IDX1b], 1), pScores[IDX1c], 2), pScores[IDX1d], 3), pScores[IDX1e], 4) };
+				const __m128i score2low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pScores[IDX2a],0), pScores[IDX2b], 1), pScores[IDX2c], 2), pScores[IDX2d], 3), pScores[IDX2e], 4) };
+				const __m128i value1low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1a],0), pValues[IDX1b], 1), pValues[IDX1c], 2), pValues[IDX1d], 3), pValues[IDX1e], 4) };
+				const __m128i value2low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2a],0), pValues[IDX2b], 1), pValues[IDX2c], 2), pValues[IDX2d], 3), pValues[IDX2e], 4) };
+				const __m128i score1high{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pScores[IDX1i],0), pScores[IDX1j], 1), pScores[IDX1k], 2), pScores[IDX1l], 3), pScores[IDX1m], 4) };
+				const __m128i score2high{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pScores[IDX2i],0), pScores[IDX2j], 1), pScores[IDX2k], 2), pScores[IDX2l], 3), pScores[IDX2m], 4) };
+				const __m128i value1high{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1i],0), pValues[IDX1j], 1), pValues[IDX1k], 2), pValues[IDX1l], 3), pValues[IDX1m], 4) };
+				const __m128i value2high{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2i],0), pValues[IDX2j], 1), pValues[IDX2k], 2), pValues[IDX2l], 3), pValues[IDX2m], 4) };
+				const __m256i score1{ _mm256_inserti128_si256(_mm256_castsi128_si256(score1low),score1high, 1) };
+				const __m256i score2{ _mm256_inserti128_si256(_mm256_castsi128_si256(score2low),score2high, 1) };
+				const __m256i value1{ _mm256_inserti128_si256(_mm256_castsi128_si256(value1low),value1high, 1) };
+				const __m256i value2{ _mm256_inserti128_si256(_mm256_castsi128_si256(value2low),value2high, 1) };
+				const __m256i comparision{ _mm256_cmpgt_epi16(score2, score1) };
+				const __m256i deltaScore{ _mm256_and_si256(_mm256_xor_si256(score1, score2), comparision) };
+				const __m256i resultScore1{ _mm256_xor_si256(score1, deltaScore) };
+				const __m256i resultScore2{ _mm256_xor_si256(score2, deltaScore) };
+				const __m256i deltaValue{ _mm256_and_si256(_mm256_xor_si256(value1, value2), comparision) };
+				const __m256i resultValue1{ _mm256_xor_si256(value1, deltaValue) };
+				const __m256i resultValue2{ _mm256_xor_si256(value2, deltaValue) };
+				const __m128i resultScore1low{ _mm256_extracti128_si256(resultScore1, 0) };
+				const __m128i resultScore1high{ _mm256_extracti128_si256(resultScore1, 1) };
+				const __m128i resultScore2low{ _mm256_extracti128_si256(resultScore2, 0) };
+				const __m128i resultScore2high{ _mm256_extracti128_si256(resultScore2, 1) };
+				const __m128i resultValue1low{ _mm256_extracti128_si256(resultValue1, 0) };
+				const __m128i resultValue1high{ _mm256_extracti128_si256(resultValue1, 1) };
+				const __m128i resultValue2low{ _mm256_extracti128_si256(resultValue2, 0) };
+				const __m128i resultValue2high{ _mm256_extracti128_si256(resultValue2, 1) };
+				pValues[IDX1a] = _mm_extract_epi16(resultValue1low, 0);
+				pValues[IDX1b] = _mm_extract_epi16(resultValue1low, 1);
+				pValues[IDX1c] = _mm_extract_epi16(resultValue1low, 2);
+				pValues[IDX1d] = _mm_extract_epi16(resultValue1low, 3);
+				pValues[IDX1e] = _mm_extract_epi16(resultValue1low, 4);
+				pValues[IDX2a] = _mm_extract_epi16(resultValue2low, 0);
+				pValues[IDX2b] = _mm_extract_epi16(resultValue2low, 1);
+				pValues[IDX2c] = _mm_extract_epi16(resultValue2low, 2);
+				pValues[IDX2d] = _mm_extract_epi16(resultValue2low, 3);
+				pValues[IDX2e] = _mm_extract_epi16(resultValue2low, 4);
+				pScores[IDX1a] = _mm_extract_epi16(resultScore1low, 0);
+				pScores[IDX1b] = _mm_extract_epi16(resultScore1low, 1);
+				pScores[IDX1c] = _mm_extract_epi16(resultScore1low, 2);
+				pScores[IDX1d] = _mm_extract_epi16(resultScore1low, 3);
+				pScores[IDX1e] = _mm_extract_epi16(resultScore1low, 4);
+				pScores[IDX2a] = _mm_extract_epi16(resultScore2low, 0);
+				pScores[IDX2b] = _mm_extract_epi16(resultScore2low, 1);
+				pScores[IDX2c] = _mm_extract_epi16(resultScore2low, 2);
+				pScores[IDX2d] = _mm_extract_epi16(resultScore2low, 3);
+				pScores[IDX2e] = _mm_extract_epi16(resultScore2low, 4);
+				pValues[IDX1i] = _mm_extract_epi16(resultValue1high, 0);
+				pValues[IDX1j] = _mm_extract_epi16(resultValue1high, 1);
+				pValues[IDX1k] = _mm_extract_epi16(resultValue1high, 2);
+				pValues[IDX1l] = _mm_extract_epi16(resultValue1high, 3);
+				pValues[IDX1m] = _mm_extract_epi16(resultValue1high, 4);
+				pValues[IDX2i] = _mm_extract_epi16(resultValue2high, 0);
+				pValues[IDX2j] = _mm_extract_epi16(resultValue2high, 1);
+				pValues[IDX2k] = _mm_extract_epi16(resultValue2high, 2);
+				pValues[IDX2l] = _mm_extract_epi16(resultValue2high, 3);
+				pValues[IDX2m] = _mm_extract_epi16(resultValue2high, 4);
+				pScores[IDX1i] = _mm_extract_epi16(resultScore1high, 0);
+				pScores[IDX1j] = _mm_extract_epi16(resultScore1high, 1);
+				pScores[IDX1k] = _mm_extract_epi16(resultScore1high, 2);
+				pScores[IDX1l] = _mm_extract_epi16(resultScore1high, 3);
+				pScores[IDX1m] = _mm_extract_epi16(resultScore1high, 4);
+				pScores[IDX2i] = _mm_extract_epi16(resultScore2high, 0);
+				pScores[IDX2j] = _mm_extract_epi16(resultScore2high, 1);
+				pScores[IDX2k] = _mm_extract_epi16(resultScore2high, 2);
+				pScores[IDX2l] = _mm_extract_epi16(resultScore2high, 3);
+				pScores[IDX2m] = _mm_extract_epi16(resultScore2high, 4);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1i, size_t IDX2i, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l, size_t IDX1m, size_t IDX2m>
+			PYGMALION_INLINE static void vector11_AVX2(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				const __m128i score1low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pScores[IDX1a],0), pScores[IDX1b], 1), pScores[IDX1c], 2), pScores[IDX1d], 3), pScores[IDX1e], 4), pScores[IDX1f], 5) };
+				const __m128i score2low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pScores[IDX2a],0), pScores[IDX2b], 1), pScores[IDX2c], 2), pScores[IDX2d], 3), pScores[IDX2e], 4), pScores[IDX2f], 5) };
+				const __m128i value1low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1a],0), pValues[IDX1b], 1), pValues[IDX1c], 2), pValues[IDX1d], 3), pValues[IDX1e], 4), pValues[IDX1f], 5) };
+				const __m128i value2low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2a],0), pValues[IDX2b], 1), pValues[IDX2c], 2), pValues[IDX2d], 3), pValues[IDX2e], 4), pValues[IDX2f], 5) };
+				const __m128i score1high{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pScores[IDX1i],0), pScores[IDX1j], 1), pScores[IDX1k], 2), pScores[IDX1l], 3), pScores[IDX1m], 4) };
+				const __m128i score2high{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pScores[IDX2i],0), pScores[IDX2j], 1), pScores[IDX2k], 2), pScores[IDX2l], 3), pScores[IDX2m], 4) };
+				const __m128i value1high{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1i],0), pValues[IDX1j], 1), pValues[IDX1k], 2), pValues[IDX1l], 3), pValues[IDX1m], 4) };
+				const __m128i value2high{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2i],0), pValues[IDX2j], 1), pValues[IDX2k], 2), pValues[IDX2l], 3), pValues[IDX2m], 4) };
+				const __m256i score1{ _mm256_inserti128_si256(_mm256_castsi128_si256(score1low),score1high, 1) };
+				const __m256i score2{ _mm256_inserti128_si256(_mm256_castsi128_si256(score2low),score2high, 1) };
+				const __m256i value1{ _mm256_inserti128_si256(_mm256_castsi128_si256(value1low),value1high, 1) };
+				const __m256i value2{ _mm256_inserti128_si256(_mm256_castsi128_si256(value2low),value2high, 1) };
+				const __m256i comparision{ _mm256_cmpgt_epi16(score2, score1) };
+				const __m256i deltaScore{ _mm256_and_si256(_mm256_xor_si256(score1, score2), comparision) };
+				const __m256i resultScore1{ _mm256_xor_si256(score1, deltaScore) };
+				const __m256i resultScore2{ _mm256_xor_si256(score2, deltaScore) };
+				const __m256i deltaValue{ _mm256_and_si256(_mm256_xor_si256(value1, value2), comparision) };
+				const __m256i resultValue1{ _mm256_xor_si256(value1, deltaValue) };
+				const __m256i resultValue2{ _mm256_xor_si256(value2, deltaValue) };
+				const __m128i resultScore1low{ _mm256_extracti128_si256(resultScore1, 0) };
+				const __m128i resultScore1high{ _mm256_extracti128_si256(resultScore1, 1) };
+				const __m128i resultScore2low{ _mm256_extracti128_si256(resultScore2, 0) };
+				const __m128i resultScore2high{ _mm256_extracti128_si256(resultScore2, 1) };
+				const __m128i resultValue1low{ _mm256_extracti128_si256(resultValue1, 0) };
+				const __m128i resultValue1high{ _mm256_extracti128_si256(resultValue1, 1) };
+				const __m128i resultValue2low{ _mm256_extracti128_si256(resultValue2, 0) };
+				const __m128i resultValue2high{ _mm256_extracti128_si256(resultValue2, 1) };
+				pValues[IDX1a] = _mm_extract_epi16(resultValue1low, 0);
+				pValues[IDX1b] = _mm_extract_epi16(resultValue1low, 1);
+				pValues[IDX1c] = _mm_extract_epi16(resultValue1low, 2);
+				pValues[IDX1d] = _mm_extract_epi16(resultValue1low, 3);
+				pValues[IDX1e] = _mm_extract_epi16(resultValue1low, 4);
+				pValues[IDX1f] = _mm_extract_epi16(resultValue1low, 5);
+				pValues[IDX2a] = _mm_extract_epi16(resultValue2low, 0);
+				pValues[IDX2b] = _mm_extract_epi16(resultValue2low, 1);
+				pValues[IDX2c] = _mm_extract_epi16(resultValue2low, 2);
+				pValues[IDX2d] = _mm_extract_epi16(resultValue2low, 3);
+				pValues[IDX2e] = _mm_extract_epi16(resultValue2low, 4);
+				pValues[IDX2f] = _mm_extract_epi16(resultValue2low, 5);
+				pScores[IDX1a] = _mm_extract_epi16(resultScore1low, 0);
+				pScores[IDX1b] = _mm_extract_epi16(resultScore1low, 1);
+				pScores[IDX1c] = _mm_extract_epi16(resultScore1low, 2);
+				pScores[IDX1d] = _mm_extract_epi16(resultScore1low, 3);
+				pScores[IDX1e] = _mm_extract_epi16(resultScore1low, 4);
+				pScores[IDX1f] = _mm_extract_epi16(resultScore1low, 5);
+				pScores[IDX2a] = _mm_extract_epi16(resultScore2low, 0);
+				pScores[IDX2b] = _mm_extract_epi16(resultScore2low, 1);
+				pScores[IDX2c] = _mm_extract_epi16(resultScore2low, 2);
+				pScores[IDX2d] = _mm_extract_epi16(resultScore2low, 3);
+				pScores[IDX2e] = _mm_extract_epi16(resultScore2low, 4);
+				pScores[IDX2f] = _mm_extract_epi16(resultScore2low, 5);
+				pValues[IDX1i] = _mm_extract_epi16(resultValue1high, 0);
+				pValues[IDX1j] = _mm_extract_epi16(resultValue1high, 1);
+				pValues[IDX1k] = _mm_extract_epi16(resultValue1high, 2);
+				pValues[IDX1l] = _mm_extract_epi16(resultValue1high, 3);
+				pValues[IDX1m] = _mm_extract_epi16(resultValue1high, 4);
+				pValues[IDX2i] = _mm_extract_epi16(resultValue2high, 0);
+				pValues[IDX2j] = _mm_extract_epi16(resultValue2high, 1);
+				pValues[IDX2k] = _mm_extract_epi16(resultValue2high, 2);
+				pValues[IDX2l] = _mm_extract_epi16(resultValue2high, 3);
+				pValues[IDX2m] = _mm_extract_epi16(resultValue2high, 4);
+				pScores[IDX1i] = _mm_extract_epi16(resultScore1high, 0);
+				pScores[IDX1j] = _mm_extract_epi16(resultScore1high, 1);
+				pScores[IDX1k] = _mm_extract_epi16(resultScore1high, 2);
+				pScores[IDX1l] = _mm_extract_epi16(resultScore1high, 3);
+				pScores[IDX1m] = _mm_extract_epi16(resultScore1high, 4);
+				pScores[IDX2i] = _mm_extract_epi16(resultScore2high, 0);
+				pScores[IDX2j] = _mm_extract_epi16(resultScore2high, 1);
+				pScores[IDX2k] = _mm_extract_epi16(resultScore2high, 2);
+				pScores[IDX2l] = _mm_extract_epi16(resultScore2high, 3);
+				pScores[IDX2m] = _mm_extract_epi16(resultScore2high, 4);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1i, size_t IDX2i, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l, size_t IDX1m, size_t IDX2m, size_t IDX1n, size_t IDX2n>
+			PYGMALION_INLINE static void vector12_AVX2(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				const __m128i score1low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pScores[IDX1a],0), pScores[IDX1b], 1), pScores[IDX1c], 2), pScores[IDX1d], 3), pScores[IDX1e], 4), pScores[IDX1f], 5) };
+				const __m128i score2low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pScores[IDX2a],0), pScores[IDX2b], 1), pScores[IDX2c], 2), pScores[IDX2d], 3), pScores[IDX2e], 4), pScores[IDX2f], 5) };
+				const __m128i value1low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1a],0), pValues[IDX1b], 1), pValues[IDX1c], 2), pValues[IDX1d], 3), pValues[IDX1e], 4), pValues[IDX1f], 5) };
+				const __m128i value2low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2a],0), pValues[IDX2b], 1), pValues[IDX2c], 2), pValues[IDX2d], 3), pValues[IDX2e], 4), pValues[IDX2f], 5) };
+				const __m128i score1high{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pScores[IDX1i],0), pScores[IDX1j], 1), pScores[IDX1k], 2), pScores[IDX1l], 3), pScores[IDX1m], 4), pScores[IDX1n], 5) };
+				const __m128i score2high{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pScores[IDX2i],0), pScores[IDX2j], 1), pScores[IDX2k], 2), pScores[IDX2l], 3), pScores[IDX2m], 4), pScores[IDX2n], 5) };
+				const __m128i value1high{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1i],0), pValues[IDX1j], 1), pValues[IDX1k], 2), pValues[IDX1l], 3), pValues[IDX1m], 4), pValues[IDX1n], 5) };
+				const __m128i value2high{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2i],0), pValues[IDX2j], 1), pValues[IDX2k], 2), pValues[IDX2l], 3), pValues[IDX2m], 4), pValues[IDX2n], 5) };
+				const __m256i score1{ _mm256_inserti128_si256(_mm256_castsi128_si256(score1low),score1high, 1) };
+				const __m256i score2{ _mm256_inserti128_si256(_mm256_castsi128_si256(score2low),score2high, 1) };
+				const __m256i value1{ _mm256_inserti128_si256(_mm256_castsi128_si256(value1low),value1high, 1) };
+				const __m256i value2{ _mm256_inserti128_si256(_mm256_castsi128_si256(value2low),value2high, 1) };
+				const __m256i comparision{ _mm256_cmpgt_epi16(score2, score1) };
+				const __m256i deltaScore{ _mm256_and_si256(_mm256_xor_si256(score1, score2), comparision) };
+				const __m256i resultScore1{ _mm256_xor_si256(score1, deltaScore) };
+				const __m256i resultScore2{ _mm256_xor_si256(score2, deltaScore) };
+				const __m256i deltaValue{ _mm256_and_si256(_mm256_xor_si256(value1, value2), comparision) };
+				const __m256i resultValue1{ _mm256_xor_si256(value1, deltaValue) };
+				const __m256i resultValue2{ _mm256_xor_si256(value2, deltaValue) };
+				const __m128i resultScore1low{ _mm256_extracti128_si256(resultScore1, 0) };
+				const __m128i resultScore1high{ _mm256_extracti128_si256(resultScore1, 1) };
+				const __m128i resultScore2low{ _mm256_extracti128_si256(resultScore2, 0) };
+				const __m128i resultScore2high{ _mm256_extracti128_si256(resultScore2, 1) };
+				const __m128i resultValue1low{ _mm256_extracti128_si256(resultValue1, 0) };
+				const __m128i resultValue1high{ _mm256_extracti128_si256(resultValue1, 1) };
+				const __m128i resultValue2low{ _mm256_extracti128_si256(resultValue2, 0) };
+				const __m128i resultValue2high{ _mm256_extracti128_si256(resultValue2, 1) };
+				pValues[IDX1a] = _mm_extract_epi16(resultValue1low, 0);
+				pValues[IDX1b] = _mm_extract_epi16(resultValue1low, 1);
+				pValues[IDX1c] = _mm_extract_epi16(resultValue1low, 2);
+				pValues[IDX1d] = _mm_extract_epi16(resultValue1low, 3);
+				pValues[IDX1e] = _mm_extract_epi16(resultValue1low, 4);
+				pValues[IDX1f] = _mm_extract_epi16(resultValue1low, 5);
+				pValues[IDX2a] = _mm_extract_epi16(resultValue2low, 0);
+				pValues[IDX2b] = _mm_extract_epi16(resultValue2low, 1);
+				pValues[IDX2c] = _mm_extract_epi16(resultValue2low, 2);
+				pValues[IDX2d] = _mm_extract_epi16(resultValue2low, 3);
+				pValues[IDX2e] = _mm_extract_epi16(resultValue2low, 4);
+				pValues[IDX2f] = _mm_extract_epi16(resultValue2low, 5);
+				pScores[IDX1a] = _mm_extract_epi16(resultScore1low, 0);
+				pScores[IDX1b] = _mm_extract_epi16(resultScore1low, 1);
+				pScores[IDX1c] = _mm_extract_epi16(resultScore1low, 2);
+				pScores[IDX1d] = _mm_extract_epi16(resultScore1low, 3);
+				pScores[IDX1e] = _mm_extract_epi16(resultScore1low, 4);
+				pScores[IDX1f] = _mm_extract_epi16(resultScore1low, 5);
+				pScores[IDX2a] = _mm_extract_epi16(resultScore2low, 0);
+				pScores[IDX2b] = _mm_extract_epi16(resultScore2low, 1);
+				pScores[IDX2c] = _mm_extract_epi16(resultScore2low, 2);
+				pScores[IDX2d] = _mm_extract_epi16(resultScore2low, 3);
+				pScores[IDX2e] = _mm_extract_epi16(resultScore2low, 4);
+				pScores[IDX2f] = _mm_extract_epi16(resultScore2low, 5);
+				pValues[IDX1i] = _mm_extract_epi16(resultValue1high, 0);
+				pValues[IDX1j] = _mm_extract_epi16(resultValue1high, 1);
+				pValues[IDX1k] = _mm_extract_epi16(resultValue1high, 2);
+				pValues[IDX1l] = _mm_extract_epi16(resultValue1high, 3);
+				pValues[IDX1m] = _mm_extract_epi16(resultValue1high, 4);
+				pValues[IDX1n] = _mm_extract_epi16(resultValue1high, 5);
+				pValues[IDX2i] = _mm_extract_epi16(resultValue2high, 0);
+				pValues[IDX2j] = _mm_extract_epi16(resultValue2high, 1);
+				pValues[IDX2k] = _mm_extract_epi16(resultValue2high, 2);
+				pValues[IDX2l] = _mm_extract_epi16(resultValue2high, 3);
+				pValues[IDX2m] = _mm_extract_epi16(resultValue2high, 4);
+				pValues[IDX2n] = _mm_extract_epi16(resultValue2high, 5);
+				pScores[IDX1i] = _mm_extract_epi16(resultScore1high, 0);
+				pScores[IDX1j] = _mm_extract_epi16(resultScore1high, 1);
+				pScores[IDX1k] = _mm_extract_epi16(resultScore1high, 2);
+				pScores[IDX1l] = _mm_extract_epi16(resultScore1high, 3);
+				pScores[IDX1m] = _mm_extract_epi16(resultScore1high, 4);
+				pScores[IDX1n] = _mm_extract_epi16(resultScore1high, 5);
+				pScores[IDX2i] = _mm_extract_epi16(resultScore2high, 0);
+				pScores[IDX2j] = _mm_extract_epi16(resultScore2high, 1);
+				pScores[IDX2k] = _mm_extract_epi16(resultScore2high, 2);
+				pScores[IDX2l] = _mm_extract_epi16(resultScore2high, 3);
+				pScores[IDX2m] = _mm_extract_epi16(resultScore2high, 4);
+				pScores[IDX2n] = _mm_extract_epi16(resultScore2high, 5);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1i, size_t IDX2i, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l, size_t IDX1m, size_t IDX2m, size_t IDX1n, size_t IDX2n>
+			PYGMALION_INLINE static void vector13_AVX2(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				const __m128i score1low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pScores[IDX1a],0), pScores[IDX1b], 1), pScores[IDX1c], 2), pScores[IDX1d], 3), pScores[IDX1e], 4), pScores[IDX1f], 5), pScores[IDX1g], 6) };
+				const __m128i score2low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pScores[IDX2a],0), pScores[IDX2b], 1), pScores[IDX2c], 2), pScores[IDX2d], 3), pScores[IDX2e], 4), pScores[IDX2f], 5), pScores[IDX2g], 6) };
+				const __m128i value1low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1a],0), pValues[IDX1b], 1), pValues[IDX1c], 2), pValues[IDX1d], 3), pValues[IDX1e], 4), pValues[IDX1f], 5), pValues[IDX1g], 6) };
+				const __m128i value2low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2a],0), pValues[IDX2b], 1), pValues[IDX2c], 2), pValues[IDX2d], 3), pValues[IDX2e], 4), pValues[IDX2f], 5), pValues[IDX2g], 6) };
+				const __m128i score1high{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pScores[IDX1i],0), pScores[IDX1j], 1), pScores[IDX1k], 2), pScores[IDX1l], 3), pScores[IDX1m], 4), pScores[IDX1n], 5) };
+				const __m128i score2high{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pScores[IDX2i],0), pScores[IDX2j], 1), pScores[IDX2k], 2), pScores[IDX2l], 3), pScores[IDX2m], 4), pScores[IDX2n], 5) };
+				const __m128i value1high{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1i],0), pValues[IDX1j], 1), pValues[IDX1k], 2), pValues[IDX1l], 3), pValues[IDX1m], 4), pValues[IDX1n], 5) };
+				const __m128i value2high{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2i],0), pValues[IDX2j], 1), pValues[IDX2k], 2), pValues[IDX2l], 3), pValues[IDX2m], 4), pValues[IDX2n], 5) };
+				const __m256i score1{ _mm256_inserti128_si256(_mm256_castsi128_si256(score1low),score1high, 1) };
+				const __m256i score2{ _mm256_inserti128_si256(_mm256_castsi128_si256(score2low),score2high, 1) };
+				const __m256i value1{ _mm256_inserti128_si256(_mm256_castsi128_si256(value1low),value1high, 1) };
+				const __m256i value2{ _mm256_inserti128_si256(_mm256_castsi128_si256(value2low),value2high, 1) };
+				const __m256i comparision{ _mm256_cmpgt_epi16(score2, score1) };
+				const __m256i deltaScore{ _mm256_and_si256(_mm256_xor_si256(score1, score2), comparision) };
+				const __m256i resultScore1{ _mm256_xor_si256(score1, deltaScore) };
+				const __m256i resultScore2{ _mm256_xor_si256(score2, deltaScore) };
+				const __m256i deltaValue{ _mm256_and_si256(_mm256_xor_si256(value1, value2), comparision) };
+				const __m256i resultValue1{ _mm256_xor_si256(value1, deltaValue) };
+				const __m256i resultValue2{ _mm256_xor_si256(value2, deltaValue) };
+				const __m128i resultScore1low{ _mm256_extracti128_si256(resultScore1, 0) };
+				const __m128i resultScore1high{ _mm256_extracti128_si256(resultScore1, 1) };
+				const __m128i resultScore2low{ _mm256_extracti128_si256(resultScore2, 0) };
+				const __m128i resultScore2high{ _mm256_extracti128_si256(resultScore2, 1) };
+				const __m128i resultValue1low{ _mm256_extracti128_si256(resultValue1, 0) };
+				const __m128i resultValue1high{ _mm256_extracti128_si256(resultValue1, 1) };
+				const __m128i resultValue2low{ _mm256_extracti128_si256(resultValue2, 0) };
+				const __m128i resultValue2high{ _mm256_extracti128_si256(resultValue2, 1) };
+				pValues[IDX1a] = _mm_extract_epi16(resultValue1low, 0);
+				pValues[IDX1b] = _mm_extract_epi16(resultValue1low, 1);
+				pValues[IDX1c] = _mm_extract_epi16(resultValue1low, 2);
+				pValues[IDX1d] = _mm_extract_epi16(resultValue1low, 3);
+				pValues[IDX1e] = _mm_extract_epi16(resultValue1low, 4);
+				pValues[IDX1f] = _mm_extract_epi16(resultValue1low, 5);
+				pValues[IDX1g] = _mm_extract_epi16(resultValue1low, 6);
+				pValues[IDX2a] = _mm_extract_epi16(resultValue2low, 0);
+				pValues[IDX2b] = _mm_extract_epi16(resultValue2low, 1);
+				pValues[IDX2c] = _mm_extract_epi16(resultValue2low, 2);
+				pValues[IDX2d] = _mm_extract_epi16(resultValue2low, 3);
+				pValues[IDX2e] = _mm_extract_epi16(resultValue2low, 4);
+				pValues[IDX2f] = _mm_extract_epi16(resultValue2low, 5);
+				pValues[IDX2g] = _mm_extract_epi16(resultValue2low, 6);
+				pScores[IDX1a] = _mm_extract_epi16(resultScore1low, 0);
+				pScores[IDX1b] = _mm_extract_epi16(resultScore1low, 1);
+				pScores[IDX1c] = _mm_extract_epi16(resultScore1low, 2);
+				pScores[IDX1d] = _mm_extract_epi16(resultScore1low, 3);
+				pScores[IDX1e] = _mm_extract_epi16(resultScore1low, 4);
+				pScores[IDX1f] = _mm_extract_epi16(resultScore1low, 5);
+				pScores[IDX1g] = _mm_extract_epi16(resultScore1low, 6);
+				pScores[IDX2a] = _mm_extract_epi16(resultScore2low, 0);
+				pScores[IDX2b] = _mm_extract_epi16(resultScore2low, 1);
+				pScores[IDX2c] = _mm_extract_epi16(resultScore2low, 2);
+				pScores[IDX2d] = _mm_extract_epi16(resultScore2low, 3);
+				pScores[IDX2e] = _mm_extract_epi16(resultScore2low, 4);
+				pScores[IDX2f] = _mm_extract_epi16(resultScore2low, 5);
+				pScores[IDX2g] = _mm_extract_epi16(resultScore2low, 6);
+				pValues[IDX1i] = _mm_extract_epi16(resultValue1high, 0);
+				pValues[IDX1j] = _mm_extract_epi16(resultValue1high, 1);
+				pValues[IDX1k] = _mm_extract_epi16(resultValue1high, 2);
+				pValues[IDX1l] = _mm_extract_epi16(resultValue1high, 3);
+				pValues[IDX1m] = _mm_extract_epi16(resultValue1high, 4);
+				pValues[IDX1n] = _mm_extract_epi16(resultValue1high, 5);
+				pValues[IDX2i] = _mm_extract_epi16(resultValue2high, 0);
+				pValues[IDX2j] = _mm_extract_epi16(resultValue2high, 1);
+				pValues[IDX2k] = _mm_extract_epi16(resultValue2high, 2);
+				pValues[IDX2l] = _mm_extract_epi16(resultValue2high, 3);
+				pValues[IDX2m] = _mm_extract_epi16(resultValue2high, 4);
+				pValues[IDX2n] = _mm_extract_epi16(resultValue2high, 5);
+				pScores[IDX1i] = _mm_extract_epi16(resultScore1high, 0);
+				pScores[IDX1j] = _mm_extract_epi16(resultScore1high, 1);
+				pScores[IDX1k] = _mm_extract_epi16(resultScore1high, 2);
+				pScores[IDX1l] = _mm_extract_epi16(resultScore1high, 3);
+				pScores[IDX1m] = _mm_extract_epi16(resultScore1high, 4);
+				pScores[IDX1n] = _mm_extract_epi16(resultScore1high, 5);
+				pScores[IDX2i] = _mm_extract_epi16(resultScore2high, 0);
+				pScores[IDX2j] = _mm_extract_epi16(resultScore2high, 1);
+				pScores[IDX2k] = _mm_extract_epi16(resultScore2high, 2);
+				pScores[IDX2l] = _mm_extract_epi16(resultScore2high, 3);
+				pScores[IDX2m] = _mm_extract_epi16(resultScore2high, 4);
+				pScores[IDX2n] = _mm_extract_epi16(resultScore2high, 5);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1i, size_t IDX2i, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l, size_t IDX1m, size_t IDX2m, size_t IDX1n, size_t IDX2n, size_t IDX1o, size_t IDX2o>
+			PYGMALION_INLINE static void vector14_AVX2(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				const __m128i score1low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pScores[IDX1a],0), pScores[IDX1b], 1), pScores[IDX1c], 2), pScores[IDX1d], 3), pScores[IDX1e], 4), pScores[IDX1f], 5), pScores[IDX1g], 6) };
+				const __m128i score2low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pScores[IDX2a],0), pScores[IDX2b], 1), pScores[IDX2c], 2), pScores[IDX2d], 3), pScores[IDX2e], 4), pScores[IDX2f], 5), pScores[IDX2g], 6) };
+				const __m128i value1low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1a],0), pValues[IDX1b], 1), pValues[IDX1c], 2), pValues[IDX1d], 3), pValues[IDX1e], 4), pValues[IDX1f], 5), pValues[IDX1g], 6) };
+				const __m128i value2low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2a],0), pValues[IDX2b], 1), pValues[IDX2c], 2), pValues[IDX2d], 3), pValues[IDX2e], 4), pValues[IDX2f], 5), pValues[IDX2g], 6) };
+				const __m128i score1high{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pScores[IDX1i],0), pScores[IDX1j], 1), pScores[IDX1k], 2), pScores[IDX1l], 3), pScores[IDX1m], 4), pScores[IDX1n], 5), pScores[IDX1o], 6) };
+				const __m128i score2high{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pScores[IDX2i],0), pScores[IDX2j], 1), pScores[IDX2k], 2), pScores[IDX2l], 3), pScores[IDX2m], 4), pScores[IDX2n], 5), pScores[IDX2o], 6) };
+				const __m128i value1high{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1i],0), pValues[IDX1j], 1), pValues[IDX1k], 2), pValues[IDX1l], 3), pValues[IDX1m], 4), pValues[IDX1n], 5), pValues[IDX1o], 6) };
+				const __m128i value2high{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2i],0), pValues[IDX2j], 1), pValues[IDX2k], 2), pValues[IDX2l], 3), pValues[IDX2m], 4), pValues[IDX2n], 5), pValues[IDX2o], 6) };
+				const __m256i score1{ _mm256_inserti128_si256(_mm256_castsi128_si256(score1low),score1high, 1) };
+				const __m256i score2{ _mm256_inserti128_si256(_mm256_castsi128_si256(score2low),score2high, 1) };
+				const __m256i value1{ _mm256_inserti128_si256(_mm256_castsi128_si256(value1low),value1high, 1) };
+				const __m256i value2{ _mm256_inserti128_si256(_mm256_castsi128_si256(value2low),value2high, 1) };
+				const __m256i comparision{ _mm256_cmpgt_epi16(score2, score1) };
+				const __m256i deltaScore{ _mm256_and_si256(_mm256_xor_si256(score1, score2), comparision) };
+				const __m256i resultScore1{ _mm256_xor_si256(score1, deltaScore) };
+				const __m256i resultScore2{ _mm256_xor_si256(score2, deltaScore) };
+				const __m256i deltaValue{ _mm256_and_si256(_mm256_xor_si256(value1, value2), comparision) };
+				const __m256i resultValue1{ _mm256_xor_si256(value1, deltaValue) };
+				const __m256i resultValue2{ _mm256_xor_si256(value2, deltaValue) };
+				const __m128i resultScore1low{ _mm256_extracti128_si256(resultScore1, 0) };
+				const __m128i resultScore1high{ _mm256_extracti128_si256(resultScore1, 1) };
+				const __m128i resultScore2low{ _mm256_extracti128_si256(resultScore2, 0) };
+				const __m128i resultScore2high{ _mm256_extracti128_si256(resultScore2, 1) };
+				const __m128i resultValue1low{ _mm256_extracti128_si256(resultValue1, 0) };
+				const __m128i resultValue1high{ _mm256_extracti128_si256(resultValue1, 1) };
+				const __m128i resultValue2low{ _mm256_extracti128_si256(resultValue2, 0) };
+				const __m128i resultValue2high{ _mm256_extracti128_si256(resultValue2, 1) };
+				pValues[IDX1a] = _mm_extract_epi16(resultValue1low, 0);
+				pValues[IDX1b] = _mm_extract_epi16(resultValue1low, 1);
+				pValues[IDX1c] = _mm_extract_epi16(resultValue1low, 2);
+				pValues[IDX1d] = _mm_extract_epi16(resultValue1low, 3);
+				pValues[IDX1e] = _mm_extract_epi16(resultValue1low, 4);
+				pValues[IDX1f] = _mm_extract_epi16(resultValue1low, 5);
+				pValues[IDX1g] = _mm_extract_epi16(resultValue1low, 6);
+				pValues[IDX2a] = _mm_extract_epi16(resultValue2low, 0);
+				pValues[IDX2b] = _mm_extract_epi16(resultValue2low, 1);
+				pValues[IDX2c] = _mm_extract_epi16(resultValue2low, 2);
+				pValues[IDX2d] = _mm_extract_epi16(resultValue2low, 3);
+				pValues[IDX2e] = _mm_extract_epi16(resultValue2low, 4);
+				pValues[IDX2f] = _mm_extract_epi16(resultValue2low, 5);
+				pValues[IDX2g] = _mm_extract_epi16(resultValue2low, 6);
+				pScores[IDX1a] = _mm_extract_epi16(resultScore1low, 0);
+				pScores[IDX1b] = _mm_extract_epi16(resultScore1low, 1);
+				pScores[IDX1c] = _mm_extract_epi16(resultScore1low, 2);
+				pScores[IDX1d] = _mm_extract_epi16(resultScore1low, 3);
+				pScores[IDX1e] = _mm_extract_epi16(resultScore1low, 4);
+				pScores[IDX1f] = _mm_extract_epi16(resultScore1low, 5);
+				pScores[IDX1g] = _mm_extract_epi16(resultScore1low, 6);
+				pScores[IDX2a] = _mm_extract_epi16(resultScore2low, 0);
+				pScores[IDX2b] = _mm_extract_epi16(resultScore2low, 1);
+				pScores[IDX2c] = _mm_extract_epi16(resultScore2low, 2);
+				pScores[IDX2d] = _mm_extract_epi16(resultScore2low, 3);
+				pScores[IDX2e] = _mm_extract_epi16(resultScore2low, 4);
+				pScores[IDX2f] = _mm_extract_epi16(resultScore2low, 5);
+				pScores[IDX2g] = _mm_extract_epi16(resultScore2low, 6);
+				pValues[IDX1i] = _mm_extract_epi16(resultValue1high, 0);
+				pValues[IDX1j] = _mm_extract_epi16(resultValue1high, 1);
+				pValues[IDX1k] = _mm_extract_epi16(resultValue1high, 2);
+				pValues[IDX1l] = _mm_extract_epi16(resultValue1high, 3);
+				pValues[IDX1m] = _mm_extract_epi16(resultValue1high, 4);
+				pValues[IDX1n] = _mm_extract_epi16(resultValue1high, 5);
+				pValues[IDX1o] = _mm_extract_epi16(resultValue1high, 6);
+				pValues[IDX2i] = _mm_extract_epi16(resultValue2high, 0);
+				pValues[IDX2j] = _mm_extract_epi16(resultValue2high, 1);
+				pValues[IDX2k] = _mm_extract_epi16(resultValue2high, 2);
+				pValues[IDX2l] = _mm_extract_epi16(resultValue2high, 3);
+				pValues[IDX2m] = _mm_extract_epi16(resultValue2high, 4);
+				pValues[IDX2n] = _mm_extract_epi16(resultValue2high, 5);
+				pValues[IDX2o] = _mm_extract_epi16(resultValue2high, 6);
+				pScores[IDX1i] = _mm_extract_epi16(resultScore1high, 0);
+				pScores[IDX1j] = _mm_extract_epi16(resultScore1high, 1);
+				pScores[IDX1k] = _mm_extract_epi16(resultScore1high, 2);
+				pScores[IDX1l] = _mm_extract_epi16(resultScore1high, 3);
+				pScores[IDX1m] = _mm_extract_epi16(resultScore1high, 4);
+				pScores[IDX1n] = _mm_extract_epi16(resultScore1high, 5);
+				pScores[IDX1o] = _mm_extract_epi16(resultScore1high, 6);
+				pScores[IDX2i] = _mm_extract_epi16(resultScore2high, 0);
+				pScores[IDX2j] = _mm_extract_epi16(resultScore2high, 1);
+				pScores[IDX2k] = _mm_extract_epi16(resultScore2high, 2);
+				pScores[IDX2l] = _mm_extract_epi16(resultScore2high, 3);
+				pScores[IDX2m] = _mm_extract_epi16(resultScore2high, 4);
+				pScores[IDX2n] = _mm_extract_epi16(resultScore2high, 5);
+				pScores[IDX2o] = _mm_extract_epi16(resultScore2high, 6);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1i, size_t IDX2i, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l, size_t IDX1m, size_t IDX2m, size_t IDX1n, size_t IDX2n, size_t IDX1o, size_t IDX2o>
+			PYGMALION_INLINE static void vector15_AVX2(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				const __m128i score1low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pScores[IDX1a],0), pScores[IDX1b], 1), pScores[IDX1c], 2), pScores[IDX1d], 3), pScores[IDX1e], 4), pScores[IDX1f], 5), pScores[IDX1g], 6), pScores[IDX1h], 7) };
+				const __m128i score2low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pScores[IDX2a],0), pScores[IDX2b], 1), pScores[IDX2c], 2), pScores[IDX2d], 3), pScores[IDX2e], 4), pScores[IDX2f], 5), pScores[IDX2g], 6), pScores[IDX2h], 7) };
+				const __m128i value1low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1a],0), pValues[IDX1b], 1), pValues[IDX1c], 2), pValues[IDX1d], 3), pValues[IDX1e], 4), pValues[IDX1f], 5), pValues[IDX1g], 6), pValues[IDX1h], 7) };
+				const __m128i value2low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2a],0), pValues[IDX2b], 1), pValues[IDX2c], 2), pValues[IDX2d], 3), pValues[IDX2e], 4), pValues[IDX2f], 5), pValues[IDX2g], 6), pValues[IDX2h], 7) };
+				const __m128i score1high{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pScores[IDX1i],0), pScores[IDX1j], 1), pScores[IDX1k], 2), pScores[IDX1l], 3), pScores[IDX1m], 4), pScores[IDX1n], 5), pScores[IDX1o], 6) };
+				const __m128i score2high{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pScores[IDX2i],0), pScores[IDX2j], 1), pScores[IDX2k], 2), pScores[IDX2l], 3), pScores[IDX2m], 4), pScores[IDX2n], 5), pScores[IDX2o], 6) };
+				const __m128i value1high{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1i],0), pValues[IDX1j], 1), pValues[IDX1k], 2), pValues[IDX1l], 3), pValues[IDX1m], 4), pValues[IDX1n], 5), pValues[IDX1o], 6) };
+				const __m128i value2high{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2i],0), pValues[IDX2j], 1), pValues[IDX2k], 2), pValues[IDX2l], 3), pValues[IDX2m], 4), pValues[IDX2n], 5), pValues[IDX2o], 6) };
+				const __m256i score1{ _mm256_inserti128_si256(_mm256_castsi128_si256(score1low),score1high, 1) };
+				const __m256i score2{ _mm256_inserti128_si256(_mm256_castsi128_si256(score2low),score2high, 1) };
+				const __m256i value1{ _mm256_inserti128_si256(_mm256_castsi128_si256(value1low),value1high, 1) };
+				const __m256i value2{ _mm256_inserti128_si256(_mm256_castsi128_si256(value2low),value2high, 1) };
+				const __m256i comparision{ _mm256_cmpgt_epi16(score2, score1) };
+				const __m256i deltaScore{ _mm256_and_si256(_mm256_xor_si256(score1, score2), comparision) };
+				const __m256i resultScore1{ _mm256_xor_si256(score1, deltaScore) };
+				const __m256i resultScore2{ _mm256_xor_si256(score2, deltaScore) };
+				const __m256i deltaValue{ _mm256_and_si256(_mm256_xor_si256(value1, value2), comparision) };
+				const __m256i resultValue1{ _mm256_xor_si256(value1, deltaValue) };
+				const __m256i resultValue2{ _mm256_xor_si256(value2, deltaValue) };
+				const __m128i resultScore1low{ _mm256_extracti128_si256(resultScore1, 0) };
+				const __m128i resultScore1high{ _mm256_extracti128_si256(resultScore1, 1) };
+				const __m128i resultScore2low{ _mm256_extracti128_si256(resultScore2, 0) };
+				const __m128i resultScore2high{ _mm256_extracti128_si256(resultScore2, 1) };
+				const __m128i resultValue1low{ _mm256_extracti128_si256(resultValue1, 0) };
+				const __m128i resultValue1high{ _mm256_extracti128_si256(resultValue1, 1) };
+				const __m128i resultValue2low{ _mm256_extracti128_si256(resultValue2, 0) };
+				const __m128i resultValue2high{ _mm256_extracti128_si256(resultValue2, 1) };
+				pValues[IDX1a] = _mm_extract_epi16(resultValue1low, 0);
+				pValues[IDX1b] = _mm_extract_epi16(resultValue1low, 1);
+				pValues[IDX1c] = _mm_extract_epi16(resultValue1low, 2);
+				pValues[IDX1d] = _mm_extract_epi16(resultValue1low, 3);
+				pValues[IDX1e] = _mm_extract_epi16(resultValue1low, 4);
+				pValues[IDX1f] = _mm_extract_epi16(resultValue1low, 5);
+				pValues[IDX1g] = _mm_extract_epi16(resultValue1low, 6);
+				pValues[IDX1h] = _mm_extract_epi16(resultValue1low, 7);
+				pValues[IDX2a] = _mm_extract_epi16(resultValue2low, 0);
+				pValues[IDX2b] = _mm_extract_epi16(resultValue2low, 1);
+				pValues[IDX2c] = _mm_extract_epi16(resultValue2low, 2);
+				pValues[IDX2d] = _mm_extract_epi16(resultValue2low, 3);
+				pValues[IDX2e] = _mm_extract_epi16(resultValue2low, 4);
+				pValues[IDX2f] = _mm_extract_epi16(resultValue2low, 5);
+				pValues[IDX2g] = _mm_extract_epi16(resultValue2low, 6);
+				pValues[IDX2h] = _mm_extract_epi16(resultValue2low, 7);
+				pScores[IDX1a] = _mm_extract_epi16(resultScore1low, 0);
+				pScores[IDX1b] = _mm_extract_epi16(resultScore1low, 1);
+				pScores[IDX1c] = _mm_extract_epi16(resultScore1low, 2);
+				pScores[IDX1d] = _mm_extract_epi16(resultScore1low, 3);
+				pScores[IDX1e] = _mm_extract_epi16(resultScore1low, 4);
+				pScores[IDX1f] = _mm_extract_epi16(resultScore1low, 5);
+				pScores[IDX1g] = _mm_extract_epi16(resultScore1low, 6);
+				pScores[IDX1h] = _mm_extract_epi16(resultScore1low, 7);
+				pScores[IDX2a] = _mm_extract_epi16(resultScore2low, 0);
+				pScores[IDX2b] = _mm_extract_epi16(resultScore2low, 1);
+				pScores[IDX2c] = _mm_extract_epi16(resultScore2low, 2);
+				pScores[IDX2d] = _mm_extract_epi16(resultScore2low, 3);
+				pScores[IDX2e] = _mm_extract_epi16(resultScore2low, 4);
+				pScores[IDX2f] = _mm_extract_epi16(resultScore2low, 5);
+				pScores[IDX2g] = _mm_extract_epi16(resultScore2low, 6);
+				pScores[IDX2h] = _mm_extract_epi16(resultScore2low, 7);
+				pValues[IDX1i] = _mm_extract_epi16(resultValue1high, 0);
+				pValues[IDX1j] = _mm_extract_epi16(resultValue1high, 1);
+				pValues[IDX1k] = _mm_extract_epi16(resultValue1high, 2);
+				pValues[IDX1l] = _mm_extract_epi16(resultValue1high, 3);
+				pValues[IDX1m] = _mm_extract_epi16(resultValue1high, 4);
+				pValues[IDX1n] = _mm_extract_epi16(resultValue1high, 5);
+				pValues[IDX1o] = _mm_extract_epi16(resultValue1high, 6);
+				pValues[IDX2i] = _mm_extract_epi16(resultValue2high, 0);
+				pValues[IDX2j] = _mm_extract_epi16(resultValue2high, 1);
+				pValues[IDX2k] = _mm_extract_epi16(resultValue2high, 2);
+				pValues[IDX2l] = _mm_extract_epi16(resultValue2high, 3);
+				pValues[IDX2m] = _mm_extract_epi16(resultValue2high, 4);
+				pValues[IDX2n] = _mm_extract_epi16(resultValue2high, 5);
+				pValues[IDX2o] = _mm_extract_epi16(resultValue2high, 6);
+				pScores[IDX1i] = _mm_extract_epi16(resultScore1high, 0);
+				pScores[IDX1j] = _mm_extract_epi16(resultScore1high, 1);
+				pScores[IDX1k] = _mm_extract_epi16(resultScore1high, 2);
+				pScores[IDX1l] = _mm_extract_epi16(resultScore1high, 3);
+				pScores[IDX1m] = _mm_extract_epi16(resultScore1high, 4);
+				pScores[IDX1n] = _mm_extract_epi16(resultScore1high, 5);
+				pScores[IDX1o] = _mm_extract_epi16(resultScore1high, 6);
+				pScores[IDX2i] = _mm_extract_epi16(resultScore2high, 0);
+				pScores[IDX2j] = _mm_extract_epi16(resultScore2high, 1);
+				pScores[IDX2k] = _mm_extract_epi16(resultScore2high, 2);
+				pScores[IDX2l] = _mm_extract_epi16(resultScore2high, 3);
+				pScores[IDX2m] = _mm_extract_epi16(resultScore2high, 4);
+				pScores[IDX2n] = _mm_extract_epi16(resultScore2high, 5);
+				pScores[IDX2o] = _mm_extract_epi16(resultScore2high, 6);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1i, size_t IDX2i, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l, size_t IDX1m, size_t IDX2m, size_t IDX1n, size_t IDX2n, size_t IDX1o, size_t IDX2o, size_t IDX1p, size_t IDX2p>
+			PYGMALION_INLINE static void vector16_AVX2(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				const __m128i score1low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pScores[IDX1a],0), pScores[IDX1b], 1), pScores[IDX1c], 2), pScores[IDX1d], 3), pScores[IDX1e], 4), pScores[IDX1f], 5), pScores[IDX1g], 6), pScores[IDX1h], 7) };
+				const __m128i score2low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pScores[IDX2a],0), pScores[IDX2b], 1), pScores[IDX2c], 2), pScores[IDX2d], 3), pScores[IDX2e], 4), pScores[IDX2f], 5), pScores[IDX2g], 6), pScores[IDX2h], 7) };
+				const __m128i value1low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1a],0), pValues[IDX1b], 1), pValues[IDX1c], 2), pValues[IDX1d], 3), pValues[IDX1e], 4), pValues[IDX1f], 5), pValues[IDX1g], 6), pValues[IDX1h], 7) };
+				const __m128i value2low{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2a],0), pValues[IDX2b], 1), pValues[IDX2c], 2), pValues[IDX2d], 3), pValues[IDX2e], 4), pValues[IDX2f], 5), pValues[IDX2g], 6), pValues[IDX2h], 7) };
+				const __m128i score1high{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pScores[IDX1i],0), pScores[IDX1j], 1), pScores[IDX1k], 2), pScores[IDX1l], 3), pScores[IDX1m], 4), pScores[IDX1n], 5), pScores[IDX1o], 6), pScores[IDX1p], 7) };
+				const __m128i score2high{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pScores[IDX2i],0), pScores[IDX2j], 1), pScores[IDX2k], 2), pScores[IDX2l], 3), pScores[IDX2m], 4), pScores[IDX2n], 5), pScores[IDX2o], 6), pScores[IDX2p], 7) };
+				const __m128i value1high{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1i],0), pValues[IDX1j], 1), pValues[IDX1k], 2), pValues[IDX1l], 3), pValues[IDX1m], 4), pValues[IDX1n], 5), pValues[IDX1o], 6), pValues[IDX1p], 7) };
+				const __m128i value2high{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2i],0), pValues[IDX2j], 1), pValues[IDX2k], 2), pValues[IDX2l], 3), pValues[IDX2m], 4), pValues[IDX2n], 5), pValues[IDX2o], 6), pValues[IDX2p], 7) };
+				const __m256i score1{ _mm256_inserti128_si256(_mm256_castsi128_si256(score1low),score1high, 1) };
+				const __m256i score2{ _mm256_inserti128_si256(_mm256_castsi128_si256(score2low),score2high, 1) };
+				const __m256i value1{ _mm256_inserti128_si256(_mm256_castsi128_si256(value1low),value1high, 1) };
+				const __m256i value2{ _mm256_inserti128_si256(_mm256_castsi128_si256(value2low),value2high, 1) };
+				const __m256i comparision{ _mm256_cmpgt_epi16(score2, score1) };
+				const __m256i deltaScore{ _mm256_and_si256(_mm256_xor_si256(score1, score2), comparision) };
+				const __m256i resultScore1{ _mm256_xor_si256(score1, deltaScore) };
+				const __m256i resultScore2{ _mm256_xor_si256(score2, deltaScore) };
+				const __m256i deltaValue{ _mm256_and_si256(_mm256_xor_si256(value1, value2), comparision) };
+				const __m256i resultValue1{ _mm256_xor_si256(value1, deltaValue) };
+				const __m256i resultValue2{ _mm256_xor_si256(value2, deltaValue) };
+				const __m128i resultScore1low{ _mm256_extracti128_si256(resultScore1, 0) };
+				const __m128i resultScore1high{ _mm256_extracti128_si256(resultScore1, 1) };
+				const __m128i resultScore2low{ _mm256_extracti128_si256(resultScore2, 0) };
+				const __m128i resultScore2high{ _mm256_extracti128_si256(resultScore2, 1) };
+				const __m128i resultValue1low{ _mm256_extracti128_si256(resultValue1, 0) };
+				const __m128i resultValue1high{ _mm256_extracti128_si256(resultValue1, 1) };
+				const __m128i resultValue2low{ _mm256_extracti128_si256(resultValue2, 0) };
+				const __m128i resultValue2high{ _mm256_extracti128_si256(resultValue2, 1) };
+				pValues[IDX1a] = _mm_extract_epi16(resultValue1low, 0);
+				pValues[IDX1b] = _mm_extract_epi16(resultValue1low, 1);
+				pValues[IDX1c] = _mm_extract_epi16(resultValue1low, 2);
+				pValues[IDX1d] = _mm_extract_epi16(resultValue1low, 3);
+				pValues[IDX1e] = _mm_extract_epi16(resultValue1low, 4);
+				pValues[IDX1f] = _mm_extract_epi16(resultValue1low, 5);
+				pValues[IDX1g] = _mm_extract_epi16(resultValue1low, 6);
+				pValues[IDX1h] = _mm_extract_epi16(resultValue1low, 7);
+				pValues[IDX2a] = _mm_extract_epi16(resultValue2low, 0);
+				pValues[IDX2b] = _mm_extract_epi16(resultValue2low, 1);
+				pValues[IDX2c] = _mm_extract_epi16(resultValue2low, 2);
+				pValues[IDX2d] = _mm_extract_epi16(resultValue2low, 3);
+				pValues[IDX2e] = _mm_extract_epi16(resultValue2low, 4);
+				pValues[IDX2f] = _mm_extract_epi16(resultValue2low, 5);
+				pValues[IDX2g] = _mm_extract_epi16(resultValue2low, 6);
+				pValues[IDX2h] = _mm_extract_epi16(resultValue2low, 7);
+				pScores[IDX1a] = _mm_extract_epi16(resultScore1low, 0);
+				pScores[IDX1b] = _mm_extract_epi16(resultScore1low, 1);
+				pScores[IDX1c] = _mm_extract_epi16(resultScore1low, 2);
+				pScores[IDX1d] = _mm_extract_epi16(resultScore1low, 3);
+				pScores[IDX1e] = _mm_extract_epi16(resultScore1low, 4);
+				pScores[IDX1f] = _mm_extract_epi16(resultScore1low, 5);
+				pScores[IDX1g] = _mm_extract_epi16(resultScore1low, 6);
+				pScores[IDX1h] = _mm_extract_epi16(resultScore1low, 7);
+				pScores[IDX2a] = _mm_extract_epi16(resultScore2low, 0);
+				pScores[IDX2b] = _mm_extract_epi16(resultScore2low, 1);
+				pScores[IDX2c] = _mm_extract_epi16(resultScore2low, 2);
+				pScores[IDX2d] = _mm_extract_epi16(resultScore2low, 3);
+				pScores[IDX2e] = _mm_extract_epi16(resultScore2low, 4);
+				pScores[IDX2f] = _mm_extract_epi16(resultScore2low, 5);
+				pScores[IDX2g] = _mm_extract_epi16(resultScore2low, 6);
+				pScores[IDX2h] = _mm_extract_epi16(resultScore2low, 7);
+				pValues[IDX1i] = _mm_extract_epi16(resultValue1high, 0);
+				pValues[IDX1j] = _mm_extract_epi16(resultValue1high, 1);
+				pValues[IDX1k] = _mm_extract_epi16(resultValue1high, 2);
+				pValues[IDX1l] = _mm_extract_epi16(resultValue1high, 3);
+				pValues[IDX1m] = _mm_extract_epi16(resultValue1high, 4);
+				pValues[IDX1n] = _mm_extract_epi16(resultValue1high, 5);
+				pValues[IDX1o] = _mm_extract_epi16(resultValue1high, 6);
+				pValues[IDX1p] = _mm_extract_epi16(resultValue1high, 7);
+				pValues[IDX2i] = _mm_extract_epi16(resultValue2high, 0);
+				pValues[IDX2j] = _mm_extract_epi16(resultValue2high, 1);
+				pValues[IDX2k] = _mm_extract_epi16(resultValue2high, 2);
+				pValues[IDX2l] = _mm_extract_epi16(resultValue2high, 3);
+				pValues[IDX2m] = _mm_extract_epi16(resultValue2high, 4);
+				pValues[IDX2n] = _mm_extract_epi16(resultValue2high, 5);
+				pValues[IDX2o] = _mm_extract_epi16(resultValue2high, 6);
+				pValues[IDX2p] = _mm_extract_epi16(resultValue2high, 7);
+				pScores[IDX1i] = _mm_extract_epi16(resultScore1high, 0);
+				pScores[IDX1j] = _mm_extract_epi16(resultScore1high, 1);
+				pScores[IDX1k] = _mm_extract_epi16(resultScore1high, 2);
+				pScores[IDX1l] = _mm_extract_epi16(resultScore1high, 3);
+				pScores[IDX1m] = _mm_extract_epi16(resultScore1high, 4);
+				pScores[IDX1n] = _mm_extract_epi16(resultScore1high, 5);
+				pScores[IDX1o] = _mm_extract_epi16(resultScore1high, 6);
+				pScores[IDX1p] = _mm_extract_epi16(resultScore1high, 7);
+				pScores[IDX2i] = _mm_extract_epi16(resultScore2high, 0);
+				pScores[IDX2j] = _mm_extract_epi16(resultScore2high, 1);
+				pScores[IDX2k] = _mm_extract_epi16(resultScore2high, 2);
+				pScores[IDX2l] = _mm_extract_epi16(resultScore2high, 3);
+				pScores[IDX2m] = _mm_extract_epi16(resultScore2high, 4);
+				pScores[IDX2n] = _mm_extract_epi16(resultScore2high, 5);
+				pScores[IDX2o] = _mm_extract_epi16(resultScore2high, 6);
+				pScores[IDX2p] = _mm_extract_epi16(resultScore2high, 7);
+			}
+#endif
+		public:
+			template<size_t IDX1, size_t IDX2>
+			PYGMALION_INLINE static void scalar(VALUE* pValues, SCORE* pScores) noexcept
+			{
+#if defined(PYGMALION_CPU_SSE2)
+				if constexpr (cpu::supports(cpu::SSE2))
+					scalar_SSE2<IDX1, IDX2>(pValues, pScores);
+				else
+#endif
+					scalar_Vanilla<IDX1, IDX2>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b>
+			PYGMALION_INLINE static void vector2(VALUE* pValues, SCORE* pScores) noexcept
+			{
+#if defined(PYGMALION_CPU_SSE2)
+				if constexpr (cpu::supports(cpu::SSE2))
+					vector2_SSE2<IDX1a, IDX2a, IDX1b, IDX2b>(pValues, pScores);
+				else
+#endif
+					vector2_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c>
+			PYGMALION_INLINE static void vector3(VALUE* pValues, SCORE* pScores) noexcept
+			{
+#if defined(PYGMALION_CPU_SSE2)
+				if constexpr (cpu::supports(cpu::SSE2))
+					vector3_SSE2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c>(pValues, pScores);
+				else
+#endif
+					vector3_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d>
+			PYGMALION_INLINE static void vector4(VALUE* pValues, SCORE* pScores) noexcept
+			{
+#if defined(PYGMALION_CPU_SSE2)
+				if constexpr (cpu::supports(cpu::SSE2))
+					vector4_SSE2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d>(pValues, pScores);
+				else
+#endif
+					vector4_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e>
+			PYGMALION_INLINE static void vector5(VALUE* pValues, SCORE* pScores) noexcept
+			{
+/*#if defined(PYGMALION_CPU_AVX2)
+				if constexpr (cpu::supports(cpu::AVX2))
+					vector5_AVX2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e>(pValues, pScores);
+				else
+#endif*/
+#if defined(PYGMALION_CPU_SSE2)
+				if constexpr (cpu::supports(cpu::SSE2))
+					vector5_SSE2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e>(pValues, pScores);
+				else
+#endif
+					vector5_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f>
+			PYGMALION_INLINE static void vector6(VALUE* pValues, SCORE* pScores) noexcept
+			{
+/*#if defined(PYGMALION_CPU_AVX2)
+				if constexpr (cpu::supports(cpu::AVX2))
+					vector6_AVX2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f>(pValues, pScores);
+				else
+#endif*/
+#if defined(PYGMALION_CPU_SSE2)
+				if constexpr (cpu::supports(cpu::SSE2))
+					vector6_SSE2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f>(pValues, pScores);
+				else
+#endif
+					vector6_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g>
+			PYGMALION_INLINE static void vector7(VALUE* pValues, SCORE* pScores) noexcept
+			{
+/*#if defined(PYGMALION_CPU_AVX2)
+				if constexpr (cpu::supports(cpu::AVX2))
+					vector7_AVX2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g>(pValues, pScores);
+				else
+#endif*/
+#if defined(PYGMALION_CPU_SSE2)
+				if constexpr (cpu::supports(cpu::SSE2))
+					vector7_SSE2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g>(pValues, pScores);
+				else
+#endif
+					vector7_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h>
+			PYGMALION_INLINE static void vector8(VALUE* pValues, SCORE* pScores) noexcept
+			{
+/*#if defined(PYGMALION_CPU_AVX2)
+				if constexpr (cpu::supports(cpu::AVX2))
+					vector8_AVX2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h>(pValues, pScores);
+				else
+#endif*/
+#if defined(PYGMALION_CPU_SSE2)
+				if constexpr (cpu::supports(cpu::SSE2))
+					vector8_SSE2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h>(pValues, pScores);
+				else
+#endif
+					vector8_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j>
+			PYGMALION_INLINE static void vector9(VALUE* pValues, SCORE* pScores) noexcept
+			{
+/*#if defined(PYGMALION_CPU_AVX2)
+				if constexpr (cpu::supports(cpu::AVX2))
+					vector9_AVX2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j>(pValues, pScores);
+				else
+#endif*/
+					vector9_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k>
+			PYGMALION_INLINE static void vector10(VALUE* pValues, SCORE* pScores) noexcept
+			{
+/*#if defined(PYGMALION_CPU_AVX2)
+				if constexpr (cpu::supports(cpu::AVX2))
+					vector10_AVX2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k>(pValues, pScores);
+				else
+#endif*/
+					vector10_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l>
+			PYGMALION_INLINE static void vector11(VALUE* pValues, SCORE* pScores) noexcept
+			{
+/*#if defined(PYGMALION_CPU_AVX2)
+				if constexpr (cpu::supports(cpu::AVX2))
+					vector11_AVX2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l>(pValues, pScores);
+				else
+#endif*/
+					vector11_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l, size_t IDX1m, size_t IDX2m>
+			PYGMALION_INLINE static void vector12(VALUE* pValues, SCORE* pScores) noexcept
+			{
+/*#if defined(PYGMALION_CPU_AVX2)
+				if constexpr (cpu::supports(cpu::AVX2))
+					vector12_AVX2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m>(pValues, pScores);
+				else
+#endif*/
+					vector12_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l, size_t IDX1m, size_t IDX2m, size_t IDX1n, size_t IDX2n>
+			PYGMALION_INLINE static void vector13(VALUE* pValues, SCORE* pScores) noexcept
+			{
+/*#if defined(PYGMALION_CPU_AVX2)
+				if constexpr (cpu::supports(cpu::AVX2))
+					vector13_AVX2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n>(pValues, pScores);
+				else
+#endif*/
+					vector13_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l, size_t IDX1m, size_t IDX2m, size_t IDX1n, size_t IDX2n, size_t IDX1o, size_t IDX2o>
+			PYGMALION_INLINE static void vector14(VALUE* pValues, SCORE* pScores) noexcept
+			{
+/*#if defined(PYGMALION_CPU_AVX2)
+				if constexpr (cpu::supports(cpu::AVX2))
+					vector14_AVX2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n, IDX1o, IDX2o>(pValues, pScores);
+				else
+#endif*/
+					vector14_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n, IDX1o, IDX2o>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l, size_t IDX1m, size_t IDX2m, size_t IDX1n, size_t IDX2n, size_t IDX1o, size_t IDX2o, size_t IDX1p, size_t IDX2p>
+			PYGMALION_INLINE static void vector15(VALUE* pValues, SCORE* pScores) noexcept
+			{
+/*#if defined(PYGMALION_CPU_AVX2)
+				if constexpr (cpu::supports(cpu::AVX2))
+					vector15_AVX2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n, IDX1o, IDX2o, IDX1p, IDX2p>(pValues, pScores);
+				else
+#endif*/
+					vector15_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n, IDX1o, IDX2o, IDX1p, IDX2p>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l, size_t IDX1m, size_t IDX2m, size_t IDX1n, size_t IDX2n, size_t IDX1o, size_t IDX2o, size_t IDX1p, size_t IDX2p, size_t IDX1q, size_t IDX2q>
+			PYGMALION_INLINE static void vector16(VALUE* pValues, SCORE* pScores) noexcept
+			{
+/*#if defined(PYGMALION_CPU_AVX2)
+				if constexpr (cpu::supports(cpu::AVX2))
+					vector16_AVX2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n, IDX1o, IDX2o, IDX1p, IDX2p, IDX1q, IDX2q>(pValues, pScores);
+				else
+#endif*/
+					vector16_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n, IDX1o, IDX2o, IDX1p, IDX2p, IDX1q, IDX2q>(pValues, pScores);
+			}
 		};
 
 		template<>
@@ -223,42 +1642,42 @@ namespace pygmalion
 				vector4<IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h>(pValues, pScores);
 			}
 #if defined(PYGMALION_CPU_SSE2)
-			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d>
-			PYGMALION_INLINE static void vector4_SSE2(VALUE* pValues, SCORE* pScores) noexcept
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b>
+			PYGMALION_INLINE static void vector2_SSE2(VALUE* pValues, SCORE* pScores) noexcept
 			{
 #if defined(PYGMALION_CPU_SSE41)
-				const __m128i score1{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_undefined_si128(), pScores[IDX1a],0), pScores[IDX1b], 1), pScores[IDX1c], 2), pScores[IDX1d], 3) };
-				const __m128i score2{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_undefined_si128(), pScores[IDX2a],0), pScores[IDX2b], 1), pScores[IDX2c], 2), pScores[IDX2d], 3) };
+				const __m128i score1{ _mm_insert_epi32(_mm_insert_epi32(_mm_undefined_si128(), pScores[IDX1a],0), pScores[IDX1b], 1) };
+				const __m128i score2{ _mm_insert_epi32(_mm_insert_epi32(_mm_undefined_si128(), pScores[IDX2a],0), pScores[IDX2b], 1) };
 #else
-				const __m128i score1{ _mm_set_epi32(pScores[IDX1d], pScores[IDX1c], pScores[IDX1b], pScores[IDX1a]) };
-				const __m128i score2{ _mm_set_epi32(pScores[IDX2d], pScores[IDX2c], pScores[IDX2b], pScores[IDX2a]) };
+				const __m128i score1{ _mm_set_epi32(0, 0, pScores[IDX1b], pScores[IDX1a]) };
+				const __m128i score2{ _mm_set_epi32(0, 0, pScores[IDX2b], pScores[IDX2a]) };
 #endif
-				const __m128i value1{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1a],0), pValues[IDX1b], 1), pValues[IDX1c], 6), pValues[IDX1d], 7) };
-				const __m128i value2{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2a],0), pValues[IDX2b], 1), pValues[IDX2c], 6), pValues[IDX2d], 7) };
+				const __m128i value1{ _mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1a],0), pValues[IDX1b], 1) };
+				const __m128i value2{ _mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2a],0), pValues[IDX2b], 1) };
 				const __m128i comparision{ _mm_cmpgt_epi32(score2, score1) };
-				const __m128i maskValue{ _mm_shufflehi_epi16(_mm_shufflelo_epi16(comparision, 0b00001000), 0b00001000) };
+				const __m128i maskValue{ _mm_shufflelo_epi16(comparision, 0b00001000) };
 				const __m128i deltaScore{ _mm_and_si128(_mm_xor_si128(score1, score2), comparision) };
 				const __m128i resultScore1{ _mm_xor_si128(score1, deltaScore) };
 				const __m128i resultScore2{ _mm_xor_si128(score2, deltaScore) };
 				const __m128i deltaValue{ _mm_and_si128(_mm_xor_si128(value1, value2), maskValue) };
 				const __m128i resultValue1{ _mm_xor_si128(value1, deltaValue) };
 				const __m128i resultValue2{ _mm_xor_si128(value2, deltaValue) };
+
+#if defined(PYGMALION_CPU_SSE41)
 				pScores[IDX1a] = _mm_extract_epi32(resultScore1, 0);
 				pScores[IDX1b] = _mm_extract_epi32(resultScore1, 1);
-				pScores[IDX1c] = _mm_extract_epi32(resultScore1, 2);
-				pScores[IDX1d] = _mm_extract_epi32(resultScore1, 3);
 				pScores[IDX2a] = _mm_extract_epi32(resultScore2, 0);
 				pScores[IDX2b] = _mm_extract_epi32(resultScore2, 1);
-				pScores[IDX2c] = _mm_extract_epi32(resultScore2, 2);
-				pScores[IDX2d] = _mm_extract_epi32(resultScore2, 3);
+#else
+				pScores[IDX1a] = _mm_cvtsi128_si32(resultScore1);
+				pScores[IDX1b] = _mm_cvtsi128_si32(_mm_shuffle_epi32(resultScore1, 0b00000001));
+				pScores[IDX2a] = _mm_cvtsi128_si32(resultScore2);
+				pScores[IDX2b] = _mm_cvtsi128_si32(_mm_shuffle_epi32(resultScore2, 0b00000001));
+#endif
 				pValues[IDX1a] = _mm_extract_epi16(resultValue1, 0);
 				pValues[IDX1b] = _mm_extract_epi16(resultValue1, 1);
-				pValues[IDX1c] = _mm_extract_epi16(resultValue1, 6);
-				pValues[IDX1d] = _mm_extract_epi16(resultValue1, 7);
 				pValues[IDX2a] = _mm_extract_epi16(resultValue2, 0);
 				pValues[IDX2b] = _mm_extract_epi16(resultValue2, 1);
-				pValues[IDX2c] = _mm_extract_epi16(resultValue2, 6);
-				pValues[IDX2d] = _mm_extract_epi16(resultValue2, 7);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c>
 			PYGMALION_INLINE static void vector3_SSE2(VALUE* pValues, SCORE* pScores) noexcept
@@ -280,12 +1699,21 @@ namespace pygmalion
 				const __m128i deltaValue{ _mm_and_si128(_mm_xor_si128(value1, value2), maskValue) };
 				const __m128i resultValue1{ _mm_xor_si128(value1, deltaValue) };
 				const __m128i resultValue2{ _mm_xor_si128(value2, deltaValue) };
+#if defined(PYGMALION_CPU_SSE41)
 				pScores[IDX1a] = _mm_extract_epi32(resultScore1, 0);
 				pScores[IDX1b] = _mm_extract_epi32(resultScore1, 1);
 				pScores[IDX1c] = _mm_extract_epi32(resultScore1, 2);
 				pScores[IDX2a] = _mm_extract_epi32(resultScore2, 0);
 				pScores[IDX2b] = _mm_extract_epi32(resultScore2, 1);
 				pScores[IDX2c] = _mm_extract_epi32(resultScore2, 2);
+#else
+				pScores[IDX1a] = _mm_cvtsi128_si32(resultScore1);
+				pScores[IDX1b] = _mm_cvtsi128_si32(_mm_shuffle_epi32(resultScore1, 0b00000001));
+				pScores[IDX1c] = _mm_cvtsi128_si32(_mm_shuffle_epi32(resultScore1, 0b00000010));
+				pScores[IDX2a] = _mm_cvtsi128_si32(resultScore2);
+				pScores[IDX2b] = _mm_cvtsi128_si32(_mm_shuffle_epi32(resultScore2, 0b00000001));
+				pScores[IDX2c] = _mm_cvtsi128_si32(_mm_shuffle_epi32(resultScore2, 0b00000010));
+#endif
 				pValues[IDX1a] = _mm_extract_epi16(resultValue1, 0);
 				pValues[IDX1b] = _mm_extract_epi16(resultValue1, 1);
 				pValues[IDX1c] = _mm_extract_epi16(resultValue1, 6);
@@ -293,34 +1721,53 @@ namespace pygmalion
 				pValues[IDX2b] = _mm_extract_epi16(resultValue2, 1);
 				pValues[IDX2c] = _mm_extract_epi16(resultValue2, 6);
 			}
-			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b>
-			PYGMALION_INLINE static void vector2_SSE2(VALUE* pValues, SCORE* pScores) noexcept
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d>
+			PYGMALION_INLINE static void vector4_SSE2(VALUE* pValues, SCORE* pScores) noexcept
 			{
 #if defined(PYGMALION_CPU_SSE41)
-				const __m128i score1{ _mm_insert_epi32(_mm_insert_epi32(_mm_undefined_si128(), pScores[IDX1a],0), pScores[IDX1b], 1) };
-				const __m128i score2{ _mm_insert_epi32(_mm_insert_epi32(_mm_undefined_si128(), pScores[IDX2a],0), pScores[IDX2b], 1) };
+				const __m128i score1{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_undefined_si128(), pScores[IDX1a],0), pScores[IDX1b], 1), pScores[IDX1c], 2), pScores[IDX1d], 3) };
+				const __m128i score2{ _mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_insert_epi32(_mm_undefined_si128(), pScores[IDX2a],0), pScores[IDX2b], 1), pScores[IDX2c], 2), pScores[IDX2d], 3) };
 #else
-				const __m128i score1{ _mm_set_epi32(0, 0, pScores[IDX1b], pScores[IDX1a]) };
-				const __m128i score2{ _mm_set_epi32(0, 0, pScores[IDX2b], pScores[IDX2a]) };
+				const __m128i score1{ _mm_set_epi32(pScores[IDX1d], pScores[IDX1c], pScores[IDX1b], pScores[IDX1a]) };
+				const __m128i score2{ _mm_set_epi32(pScores[IDX2d], pScores[IDX2c], pScores[IDX2b], pScores[IDX2a]) };
 #endif
-				const __m128i value1{ _mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1a],0), pValues[IDX1b], 1) };
-				const __m128i value2{ _mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2a],0), pValues[IDX2b], 1) };
+				const __m128i value1{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1a],0), pValues[IDX1b], 1), pValues[IDX1c], 6), pValues[IDX1d], 7) };
+				const __m128i value2{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2a],0), pValues[IDX2b], 1), pValues[IDX2c], 6), pValues[IDX2d], 7) };
 				const __m128i comparision{ _mm_cmpgt_epi32(score2, score1) };
-				const __m128i maskValue{ _mm_shufflelo_epi16(comparision, 0b00001000) };
+				const __m128i maskValue{ _mm_shufflehi_epi16(_mm_shufflelo_epi16(comparision, 0b00001000), 0b00001000) };
 				const __m128i deltaScore{ _mm_and_si128(_mm_xor_si128(score1, score2), comparision) };
 				const __m128i resultScore1{ _mm_xor_si128(score1, deltaScore) };
 				const __m128i resultScore2{ _mm_xor_si128(score2, deltaScore) };
 				const __m128i deltaValue{ _mm_and_si128(_mm_xor_si128(value1, value2), maskValue) };
 				const __m128i resultValue1{ _mm_xor_si128(value1, deltaValue) };
 				const __m128i resultValue2{ _mm_xor_si128(value2, deltaValue) };
+#if defined(PYGMALION_CPU_SSE41)
 				pScores[IDX1a] = _mm_extract_epi32(resultScore1, 0);
 				pScores[IDX1b] = _mm_extract_epi32(resultScore1, 1);
+				pScores[IDX1c] = _mm_extract_epi32(resultScore1, 2);
+				pScores[IDX1d] = _mm_extract_epi32(resultScore1, 3);
 				pScores[IDX2a] = _mm_extract_epi32(resultScore2, 0);
 				pScores[IDX2b] = _mm_extract_epi32(resultScore2, 1);
+				pScores[IDX2c] = _mm_extract_epi32(resultScore2, 2);
+				pScores[IDX2d] = _mm_extract_epi32(resultScore2, 3);
+#else
+				pScores[IDX1a] = _mm_cvtsi128_si32(resultScore1);
+				pScores[IDX1b] = _mm_cvtsi128_si32(_mm_shuffle_epi32(resultScore1, 0b00000001));
+				pScores[IDX1c] = _mm_cvtsi128_si32(_mm_shuffle_epi32(resultScore1, 0b00000010));
+				pScores[IDX1d] = _mm_cvtsi128_si32(_mm_shuffle_epi32(resultScore1, 0b00000011));
+				pScores[IDX2a] = _mm_cvtsi128_si32(resultScore2);
+				pScores[IDX2b] = _mm_cvtsi128_si32(_mm_shuffle_epi32(resultScore2, 0b00000001));
+				pScores[IDX2c] = _mm_cvtsi128_si32(_mm_shuffle_epi32(resultScore2, 0b00000010));
+				pScores[IDX2d] = _mm_cvtsi128_si32(_mm_shuffle_epi32(resultScore2, 0b00000011));
+#endif
 				pValues[IDX1a] = _mm_extract_epi16(resultValue1, 0);
 				pValues[IDX1b] = _mm_extract_epi16(resultValue1, 1);
+				pValues[IDX1c] = _mm_extract_epi16(resultValue1, 6);
+				pValues[IDX1d] = _mm_extract_epi16(resultValue1, 7);
 				pValues[IDX2a] = _mm_extract_epi16(resultValue2, 0);
 				pValues[IDX2b] = _mm_extract_epi16(resultValue2, 1);
+				pValues[IDX2c] = _mm_extract_epi16(resultValue2, 6);
+				pValues[IDX2d] = _mm_extract_epi16(resultValue2, 7);
 			}
 #endif
 #if defined PYGMALION_CPU_AVX2
@@ -633,7 +2080,55 @@ namespace pygmalion
 #endif
 					vector8_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h>(pValues, pScores);
 			}
-		};
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j>
+			PYGMALION_INLINE static void vector9(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				vector5<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e>(pValues, pScores);
+				vector4<IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k>
+			PYGMALION_INLINE static void vector10(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				vector5<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e>(pValues, pScores);
+				vector5<IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l>
+			PYGMALION_INLINE static void vector11(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				vector6<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f>(pValues, pScores);
+				vector5<IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l, size_t IDX1m, size_t IDX2m>
+			PYGMALION_INLINE static void vector12(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				vector6<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f>(pValues, pScores);
+				vector6<IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l, size_t IDX1m, size_t IDX2m, size_t IDX1n, size_t IDX2n>
+			PYGMALION_INLINE static void vector13(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				vector7<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g>(pValues, pScores);
+				vector6<IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l, size_t IDX1m, size_t IDX2m, size_t IDX1n, size_t IDX2n, size_t IDX1o, size_t IDX2o>
+			PYGMALION_INLINE static void vector14(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				vector7<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g>(pValues, pScores);
+				vector7<IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n, IDX1o, IDX2o>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l, size_t IDX1m, size_t IDX2m, size_t IDX1n, size_t IDX2n, size_t IDX1o, size_t IDX2o, size_t IDX1p, size_t IDX2p>
+			PYGMALION_INLINE static void vector15(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				vector8<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h>(pValues, pScores);
+				vector7<IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n, IDX1o, IDX2o, IDX1p, IDX2p>(pValues, pScores);
+			}
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l, size_t IDX1m, size_t IDX2m, size_t IDX1n, size_t IDX2n, size_t IDX1o, size_t IDX2o, size_t IDX1p, size_t IDX2p, size_t IDX1q, size_t IDX2q>
+			PYGMALION_INLINE static void vector16(VALUE* pValues, SCORE* pScores) noexcept
+			{
+				vector8<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h>(pValues, pScores);
+				vector8<IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n, IDX1o, IDX2o, IDX1p, IDX2p, IDX1q, IDX2q>(pValues, pScores);
+			}
+			};
 
 		template<typename VALUE, typename SCORE>
 		class sortAlgorithm
@@ -705,50 +2200,42 @@ namespace pygmalion
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j>
 			PYGMALION_INLINE static void comparator(VALUE* pValues, SCORE* pScores) noexcept
 			{
-				comparator<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e>(pValues, pScores);
-				comparator<IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j>(pValues, pScores);
+				compare<VALUE, SCORE>::template vector9<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k>
 			PYGMALION_INLINE static void comparator(VALUE* pValues, SCORE* pScores) noexcept
 			{
-				comparator<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e>(pValues, pScores);
-				comparator<IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k>(pValues, pScores);
+				compare<VALUE, SCORE>::template vector10<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l>
 			PYGMALION_INLINE static void comparator(VALUE* pValues, SCORE* pScores) noexcept
 			{
-				comparator<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f>(pValues, pScores);
-				comparator<IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l>(pValues, pScores);
+				compare<VALUE, SCORE>::template vector11<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l, size_t IDX1m, size_t IDX2m>
 			PYGMALION_INLINE static void comparator(VALUE* pValues, SCORE* pScores) noexcept
 			{
-				comparator<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f>(pValues, pScores);
-				comparator<IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m>(pValues, pScores);
+				compare<VALUE, SCORE>::template vector12<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l, size_t IDX1m, size_t IDX2m, size_t IDX1n, size_t IDX2n>
 			PYGMALION_INLINE static void comparator(VALUE* pValues, SCORE* pScores) noexcept
 			{
-				comparator<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g>(pValues, pScores);
-				comparator<IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n>(pValues, pScores);
+				compare<VALUE, SCORE>::template vector13<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l, size_t IDX1m, size_t IDX2m, size_t IDX1n, size_t IDX2n, size_t IDX1o, size_t IDX2o>
 			PYGMALION_INLINE static void comparator(VALUE* pValues, SCORE* pScores) noexcept
 			{
-				comparator<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g>(pValues, pScores);
-				comparator<IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n, IDX1o, IDX2o>(pValues, pScores);
+				compare<VALUE, SCORE>::template vector14<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n, IDX1o, IDX2o>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l, size_t IDX1m, size_t IDX2m, size_t IDX1n, size_t IDX2n, size_t IDX1o, size_t IDX2o, size_t IDX1p, size_t IDX2p>
 			PYGMALION_INLINE static void comparator(VALUE* pValues, SCORE* pScores) noexcept
 			{
-				comparator<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h>(pValues, pScores);
-				comparator<IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n, IDX1o, IDX2o, IDX1p, IDX2p>(pValues, pScores);
+				compare<VALUE, SCORE>::template vector15<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n, IDX1o, IDX2o, IDX1p, IDX2p>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l, size_t IDX1m, size_t IDX2m, size_t IDX1n, size_t IDX2n, size_t IDX1o, size_t IDX2o, size_t IDX1p, size_t IDX2p, size_t IDX1q, size_t IDX2q>
-			static void comparator(VALUE* pValues, SCORE* pScores) noexcept
+			PYGMALION_INLINE static void comparator(VALUE* pValues, SCORE* pScores) noexcept
 			{
-				comparator<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h>(pValues, pScores);
-				comparator<IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n, IDX1o, IDX2o, IDX1p, IDX2p, IDX1q, IDX2q>(pValues, pScores);
+				compare<VALUE, SCORE>::template vector16<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n, IDX1o, IDX2o, IDX1p, IDX2p, IDX1q, IDX2q>(pValues, pScores);
 			}
 			static void sort_N1(VALUE* pValues, SCORE* pScores) noexcept
 			{
@@ -1304,7 +2791,7 @@ namespace pygmalion
 				}
 			}
 		};
-	}
+			}
 
 
 	template<typename VALUE, typename SCORE>
@@ -1349,4 +2836,4 @@ namespace pygmalion
 				detail::sortAlgorithm<VALUE, SCORE>::sortValues(pValues, pScores, length);
 		}
 	};
-}
+			}

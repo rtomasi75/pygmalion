@@ -32,7 +32,7 @@ namespace pygmalion::frontend
 						this->output() << "feature nps=0" << std::endl;
 						this->output() << "feature san=0" << std::endl;
 						this->output() << "feature debug=0" << std::endl;
-						this->output() << "feature time=0" << std::endl;
+						this->output() << "feature time=1" << std::endl;
 						this->output() << "feature myname=\"" << this->frontendEngine().version() << "\"" << std::endl;
 						std::deque<std::string> variants;
 						this->frontendEngine().getXBoardVariants(variants);

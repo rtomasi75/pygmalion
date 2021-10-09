@@ -399,7 +399,7 @@ namespace pygmalion::chess
 		}
 		bool setFen(const std::string& fen, std::string& error) noexcept;
 		std::string getFen() const noexcept;
-		PYGMALION_INLINE constexpr materialScore material() const noexcept
+		PYGMALION_INLINE materialScore material() const noexcept
 		{
 			return cumulation().score();
 		}

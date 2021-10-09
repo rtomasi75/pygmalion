@@ -22,6 +22,11 @@
           "type": "BOOL"
         },
         {
+          "name": "OPTIMIZE_FOR_AVX2",
+          "value": "True",
+          "type": "BOOL"
+        },
+        {
           "name": "USE_INDIRECT_SLIDERS",
           "value": "True",
           "type": "BOOL"
