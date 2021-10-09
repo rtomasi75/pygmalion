@@ -6,7 +6,7 @@ namespace pygmalion
 	{
 	public:
 		constexpr static size_t countMaxGeneratedMoves{ COUNT_MAX_GENERATED_MOVES };
-		using heuristicScore = score<15, 15, 0>;
+		using heuristicScore = score<15, 14, 0>;
 		using passType = size_t;
 		using passlistType = list<passType, countMaxGeneratedMoves>;
 		using stageType= size_t;

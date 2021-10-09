@@ -282,7 +282,7 @@ namespace pygmalion
 			{
 				const size_t bucket{ generatorType::moveBucket(stack.position(),moveBits) };
 				constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
-				if (m_TotalCounter[movingPlayer][bucket])
+				if (m_CutCounter[movingPlayer][bucket])
 					return heuristicScore::quota(m_CutCounter[movingPlayer][bucket], m_TotalCounter[movingPlayer][bucket]);
 				else
 					return minimum;

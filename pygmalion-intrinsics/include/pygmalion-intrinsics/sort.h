@@ -326,92 +326,125 @@ namespace pygmalion
 			template<size_t IDX1, size_t IDX2>
 			PYGMALION_INLINE static void scalar_SSE2(VALUE* pValues, SCORE* pScores) noexcept
 			{
-				const __m128i operand1{ _mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1], 0), pScores[IDX1], 1) };
-				const __m128i operand2{ _mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2], 0), pScores[IDX2], 1) };
+				std::uint64_t interleaved1{ static_cast<std::uint64_t>(pValues[IDX1]) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX1])) << 16) };
+				std::uint64_t interleaved2{ static_cast<std::uint64_t>(pValues[IDX2]) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX2])) << 16) };
+				const __m128i operand1{ _mm_cvtsi64_si128(interleaved1) };
+				const __m128i operand2{ _mm_cvtsi64_si128(interleaved2) };
 				const __m128i mask{ _mm_shufflelo_epi16(_mm_cmpgt_epi16(operand2, operand1), 0b00000101) };
 				const __m128i delta{ _mm_and_si128(_mm_xor_si128(operand1, operand2), mask) };
 				const __m128i result1{ _mm_xor_si128(operand1, delta) };
 				const __m128i result2{ _mm_xor_si128(operand2, delta) };
-				pValues[IDX1] = _mm_extract_epi16(result1, 0);
-				pScores[IDX1] = _mm_extract_epi16(result1, 1);
-				pValues[IDX2] = _mm_extract_epi16(result2, 0);
-				pScores[IDX2] = _mm_extract_epi16(result2, 1);
+				interleaved1 = _mm_cvtsi128_si64(result1);
+				interleaved2 = _mm_cvtsi128_si64(result2);
+				pValues[IDX1] = static_cast<std::uint16_t>(interleaved1 & UINT64_C(0xffff));
+				pScores[IDX1] = static_cast<std::int16_t>(interleaved1 >> 16);
+				pValues[IDX2] = static_cast<std::uint16_t>(interleaved2 & UINT64_C(0xffff));
+				pScores[IDX2] = static_cast<std::int16_t>(interleaved2 >> 16);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b>
 			PYGMALION_INLINE static void vector2_SSE2(VALUE* pValues, SCORE* pScores) noexcept
 			{
-				const __m128i operand1{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1a], 0), pScores[IDX1a], 1), pValues[IDX1b], 2), pScores[IDX1b], 3) };
-				const __m128i operand2{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2a], 0), pScores[IDX2a], 1), pValues[IDX2b], 2), pScores[IDX2b], 3) };
+				std::uint64_t interleaved1{ static_cast<std::uint64_t>(pValues[IDX1a]) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX1a])) << 16) | (static_cast<std::uint64_t>(pValues[IDX1b]) << 32) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX1b])) << 48) };
+				std::uint64_t interleaved2{ static_cast<std::uint64_t>(pValues[IDX2a]) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX2a])) << 16) | (static_cast<std::uint64_t>(pValues[IDX2b]) << 32) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX2b])) << 48) };
+				const __m128i operand1{ _mm_cvtsi64_si128(interleaved1) };
+				const __m128i operand2{ _mm_cvtsi64_si128(interleaved2) };
 				const __m128i mask{ _mm_shufflelo_epi16(_mm_cmpgt_epi16(operand2, operand1), 0b11110101) };
 				const __m128i delta{ _mm_and_si128(_mm_xor_si128(operand1, operand2), mask) };
 				const __m128i result1{ _mm_xor_si128(operand1, delta) };
 				const __m128i result2{ _mm_xor_si128(operand2, delta) };
-				pValues[IDX1a] = _mm_extract_epi16(result1, 0);
-				pScores[IDX1a] = _mm_extract_epi16(result1, 1);
-				pValues[IDX2a] = _mm_extract_epi16(result2, 0);
-				pScores[IDX2a] = _mm_extract_epi16(result2, 1);
-				pValues[IDX1b] = _mm_extract_epi16(result1, 2);
-				pScores[IDX1b] = _mm_extract_epi16(result1, 3);
-				pValues[IDX2b] = _mm_extract_epi16(result2, 2);
-				pScores[IDX2b] = _mm_extract_epi16(result2, 3);
+				interleaved1 = _mm_cvtsi128_si64(result1);
+				interleaved2 = _mm_cvtsi128_si64(result2);
+				pValues[IDX1a] = static_cast<std::uint16_t>(interleaved1 & UINT64_C(0xffff));
+				pScores[IDX1a] = static_cast<std::int16_t>((interleaved1 >> 16) & UINT64_C(0xffff));
+				pValues[IDX2a] = static_cast<std::uint16_t>(interleaved2 & UINT64_C(0xffff));
+				pScores[IDX2a] = static_cast<std::int16_t>((interleaved2 >> 16) & UINT64_C(0xffff));
+				pValues[IDX1b] = static_cast<std::uint16_t>((interleaved1 >> 32) & UINT64_C(0xffff));
+				pScores[IDX1b] = static_cast<std::int16_t>(interleaved1 >> 48);
+				pValues[IDX2b] = static_cast<std::uint16_t>((interleaved2 >> 32) & UINT64_C(0xffff));
+				pScores[IDX2b] = static_cast<std::int16_t>(interleaved2 >> 48);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c>
 			PYGMALION_INLINE static void vector3_SSE2(VALUE* pValues, SCORE* pScores) noexcept
 			{
-				const __m128i operand1{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1a], 0), pScores[IDX1a], 1), pValues[IDX1b], 2), pScores[IDX1b], 3), pValues[IDX1c], 4), pScores[IDX1c], 5) };
-				const __m128i operand2{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2a], 0), pScores[IDX2a], 1), pValues[IDX2b], 2), pScores[IDX2b], 3), pValues[IDX2c], 4), pScores[IDX2c], 5) };
+				std::uint64_t interleaved1low{ static_cast<std::uint64_t>(pValues[IDX1a]) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX1a])) << 16) | (static_cast<std::uint64_t>(pValues[IDX1b]) << 32) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX1b])) << 48) };
+				std::uint64_t interleaved1high{ static_cast<std::uint64_t>(pValues[IDX1c]) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX1c])) << 16) };
+				std::uint64_t interleaved2low{ static_cast<std::uint64_t>(pValues[IDX2a]) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX2a])) << 16) | (static_cast<std::uint64_t>(pValues[IDX2b]) << 32) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX2b])) << 48) };
+				std::uint64_t interleaved2high{ static_cast<std::uint64_t>(pValues[IDX2c]) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX2c])) << 16) };
+				const __m128i operand1{ _mm_set_epi64x(interleaved1high, interleaved1low) };
+				const __m128i operand2{ _mm_set_epi64x(interleaved2high, interleaved2low) };
 				const __m128i comparision{ _mm_cmpgt_epi16(operand2, operand1) };
 				const __m128i mask{ _mm_shufflehi_epi16(_mm_shufflelo_epi16(comparision, 0b11110101), 0b11110101) };
 				const __m128i delta{ _mm_and_si128(_mm_xor_si128(operand1, operand2), mask) };
 				const __m128i result1{ _mm_xor_si128(operand1, delta) };
 				const __m128i result2{ _mm_xor_si128(operand2, delta) };
-				pValues[IDX1a] = _mm_extract_epi16(result1, 0);
-				pScores[IDX1a] = _mm_extract_epi16(result1, 1);
-				pValues[IDX2a] = _mm_extract_epi16(result2, 0);
-				pScores[IDX2a] = _mm_extract_epi16(result2, 1);
-				pValues[IDX1b] = _mm_extract_epi16(result1, 2);
-				pScores[IDX1b] = _mm_extract_epi16(result1, 3);
-				pValues[IDX2b] = _mm_extract_epi16(result2, 2);
-				pScores[IDX2b] = _mm_extract_epi16(result2, 3);
-				pValues[IDX1c] = _mm_extract_epi16(result1, 4);
-				pScores[IDX1c] = _mm_extract_epi16(result1, 5);
-				pValues[IDX2c] = _mm_extract_epi16(result2, 4);
-				pScores[IDX2c] = _mm_extract_epi16(result2, 5);
+				interleaved1low = _mm_cvtsi128_si64(result1);
+				interleaved1high = _mm_cvtsi128_si64(_mm_shuffle_epi32(result1, 0b00001110));
+				interleaved2low = _mm_cvtsi128_si64(result2);
+				interleaved2high = _mm_cvtsi128_si64(_mm_shuffle_epi32(result2, 0b00001110));
+				pValues[IDX1a] = static_cast<std::uint16_t>(interleaved1low & UINT64_C(0xffff));
+				pScores[IDX1a] = static_cast<std::int16_t>((interleaved1low >> 16) & UINT64_C(0xffff));
+				pValues[IDX2a] = static_cast<std::uint16_t>(interleaved2low & UINT64_C(0xffff));
+				pScores[IDX2a] = static_cast<std::int16_t>((interleaved2low >> 16) & UINT64_C(0xffff));
+				pValues[IDX1b] = static_cast<std::uint16_t>((interleaved1low >> 32) & UINT64_C(0xffff));
+				pScores[IDX1b] = static_cast<std::int16_t>(interleaved1low >> 48);
+				pValues[IDX2b] = static_cast<std::uint16_t>((interleaved2low >> 32) & UINT64_C(0xffff));
+				pScores[IDX2b] = static_cast<std::int16_t>(interleaved2low >> 48);
+				pValues[IDX1c] = static_cast<std::uint16_t>(interleaved1high & UINT64_C(0xffff));
+				pScores[IDX1c] = static_cast<std::int16_t>(interleaved1high >> 16);
+				pValues[IDX2c] = static_cast<std::uint16_t>(interleaved2high & UINT64_C(0xffff));
+				pScores[IDX2c] = static_cast<std::int16_t>(interleaved2high >> 16);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d>
 			PYGMALION_INLINE static void vector4_SSE2(VALUE* pValues, SCORE* pScores) noexcept
 			{
-				const __m128i operand1{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1a], 0), pScores[IDX1a], 1), pValues[IDX1b], 2), pScores[IDX1b], 3), pValues[IDX1c], 4), pScores[IDX1c], 5), pValues[IDX1d], 6), pScores[IDX1d], 7) };
-				const __m128i operand2{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2a], 0), pScores[IDX2a], 1), pValues[IDX2b], 2), pScores[IDX2b], 3), pValues[IDX2c], 4), pScores[IDX2c], 5), pValues[IDX2d], 6), pScores[IDX2d], 7) };
+
+				std::uint64_t interleaved1low{ static_cast<std::uint64_t>(pValues[IDX1a]) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX1a])) << 16) | (static_cast<std::uint64_t>(pValues[IDX1b]) << 32) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX1b])) << 48) };
+				std::uint64_t interleaved1high{ static_cast<std::uint64_t>(pValues[IDX1c]) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX1c])) << 16) | (static_cast<std::uint64_t>(pValues[IDX1d]) << 32) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX1d])) << 48) };
+				std::uint64_t interleaved2low{ static_cast<std::uint64_t>(pValues[IDX2a]) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX2a])) << 16) | (static_cast<std::uint64_t>(pValues[IDX2b]) << 32) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX2b])) << 48) };
+				std::uint64_t interleaved2high{ static_cast<std::uint64_t>(pValues[IDX2c]) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX2c])) << 16) | (static_cast<std::uint64_t>(pValues[IDX2d]) << 32) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX2d])) << 48) };
+				const __m128i operand1{ _mm_set_epi64x(interleaved1high, interleaved1low) };
+				const __m128i operand2{ _mm_set_epi64x(interleaved2high, interleaved2low) };
 				const __m128i comparision{ _mm_cmpgt_epi16(operand2, operand1) };
 				const __m128i mask{ _mm_shufflehi_epi16(_mm_shufflelo_epi16(comparision, 0b11110101), 0b11110101) };
 				const __m128i delta{ _mm_and_si128(_mm_xor_si128(operand1, operand2), mask) };
 				const __m128i result1{ _mm_xor_si128(operand1, delta) };
 				const __m128i result2{ _mm_xor_si128(operand2, delta) };
-				pValues[IDX1a] = _mm_extract_epi16(result1, 0);
-				pScores[IDX1a] = _mm_extract_epi16(result1, 1);
-				pValues[IDX2a] = _mm_extract_epi16(result2, 0);
-				pScores[IDX2a] = _mm_extract_epi16(result2, 1);
-				pValues[IDX1b] = _mm_extract_epi16(result1, 2);
-				pScores[IDX1b] = _mm_extract_epi16(result1, 3);
-				pValues[IDX2b] = _mm_extract_epi16(result2, 2);
-				pScores[IDX2b] = _mm_extract_epi16(result2, 3);
-				pValues[IDX1c] = _mm_extract_epi16(result1, 4);
-				pScores[IDX1c] = _mm_extract_epi16(result1, 5);
-				pValues[IDX2c] = _mm_extract_epi16(result2, 4);
-				pScores[IDX2c] = _mm_extract_epi16(result2, 5);
-				pValues[IDX1d] = _mm_extract_epi16(result1, 6);
-				pScores[IDX1d] = _mm_extract_epi16(result1, 7);
-				pValues[IDX2d] = _mm_extract_epi16(result2, 6);
-				pScores[IDX2d] = _mm_extract_epi16(result2, 7);
+				interleaved1low = _mm_cvtsi128_si64(result1);
+				interleaved1high = _mm_cvtsi128_si64(_mm_shuffle_epi32(result1, 0b00001110));
+				interleaved2low = _mm_cvtsi128_si64(result2);
+				interleaved2high = _mm_cvtsi128_si64(_mm_shuffle_epi32(result2, 0b00001110));
+				pValues[IDX1a] = static_cast<std::uint16_t>(interleaved1low & UINT64_C(0xffff));
+				pScores[IDX1a] = static_cast<std::int16_t>((interleaved1low >> 16) & UINT64_C(0xffff));
+				pValues[IDX2a] = static_cast<std::uint16_t>(interleaved2low & UINT64_C(0xffff));
+				pScores[IDX2a] = static_cast<std::int16_t>((interleaved2low >> 16) & UINT64_C(0xffff));
+				pValues[IDX1b] = static_cast<std::uint16_t>((interleaved1low >> 32) & UINT64_C(0xffff));
+				pScores[IDX1b] = static_cast<std::int16_t>(interleaved1low >> 48);
+				pValues[IDX2b] = static_cast<std::uint16_t>((interleaved2low >> 32) & UINT64_C(0xffff));
+				pScores[IDX2b] = static_cast<std::int16_t>(interleaved2low >> 48);
+				pValues[IDX1c] = static_cast<std::uint16_t>(interleaved1high & UINT64_C(0xffff));
+				pScores[IDX1c] = static_cast<std::int16_t>((interleaved1high >> 16) & UINT64_C(0xffff));
+				pValues[IDX2c] = static_cast<std::uint16_t>(interleaved2high & UINT64_C(0xffff));
+				pScores[IDX2c] = static_cast<std::int16_t>((interleaved2high >> 16) & UINT64_C(0xffff));
+				pValues[IDX1d] = static_cast<std::uint16_t>((interleaved1high >> 32) & UINT64_C(0xffff));
+				pScores[IDX1d] = static_cast<std::int16_t>(interleaved1high >> 48);
+				pValues[IDX2d] = static_cast<std::uint16_t>((interleaved2high >> 32) & UINT64_C(0xffff));
+				pScores[IDX2d] = static_cast<std::int16_t>(interleaved2high >> 48);
 			}
-			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e>
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f>
 			PYGMALION_INLINE static void vector5_SSE2(VALUE* pValues, SCORE* pScores) noexcept
 			{
-				const __m128i score1{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pScores[IDX1a],0), pScores[IDX1b], 1), pScores[IDX1c], 2), pScores[IDX1d], 3), pScores[IDX1e], 4) };
-				const __m128i score2{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pScores[IDX2a],0), pScores[IDX2b], 1), pScores[IDX2c], 2), pScores[IDX2d], 3), pScores[IDX2e], 4) };
-				const __m128i value1{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1a],0), pValues[IDX1b], 1), pValues[IDX1c], 2), pValues[IDX1d], 3), pValues[IDX1e], 4) };
-				const __m128i value2{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2a],0), pValues[IDX2b], 1), pValues[IDX2c], 2), pValues[IDX2d], 3), pValues[IDX2e], 4) };
+				std::uint64_t score1low{ static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX1a])) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX1b])) << 16) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX1c])) << 32) };
+				std::uint64_t score1high{ static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX1e])) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX1f])) << 16) };
+				std::uint64_t score2low{ static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX2a])) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX2b])) << 16) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX2c])) << 32) };
+				std::uint64_t score2high{ static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX2e])) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX2f])) << 16) };
+				std::uint64_t value1low{ static_cast<std::uint64_t>(pValues[IDX1a]) | (static_cast<std::uint64_t>(pValues[IDX1b]) << 16) | (static_cast<std::uint64_t>(pValues[IDX1c]) << 32) };
+				std::uint64_t value1high{ static_cast<std::uint64_t>(pValues[IDX1e]) | (static_cast<std::uint64_t>(pValues[IDX1f]) << 16) };
+				std::uint64_t value2low{ static_cast<std::uint64_t>(pValues[IDX2a]) | (static_cast<std::uint64_t>(pValues[IDX2b]) << 16) | (static_cast<std::uint64_t>(pValues[IDX2c]) << 32) };
+				std::uint64_t value2high{ static_cast<std::uint64_t>(pValues[IDX2e]) | (static_cast<std::uint64_t>(pValues[IDX2f]) << 16) };
+				const __m128i score1{ _mm_set_epi64x(score1high, score1low) };
+				const __m128i score2{ _mm_set_epi64x(score2high, score2low) };
+				const __m128i value1{ _mm_set_epi64x(value1high, value1low) };
+				const __m128i value2{ _mm_set_epi64x(value2high, value2low) };
 				const __m128i comparision{ _mm_cmpgt_epi16(score2, score1) };
 				const __m128i deltaScore{ _mm_and_si128(_mm_xor_si128(score1, score2), comparision) };
 				const __m128i resultScore1{ _mm_xor_si128(score1, deltaScore) };
@@ -419,34 +452,50 @@ namespace pygmalion
 				const __m128i deltaValue{ _mm_and_si128(_mm_xor_si128(value1, value2), comparision) };
 				const __m128i resultValue1{ _mm_xor_si128(value1, deltaValue) };
 				const __m128i resultValue2{ _mm_xor_si128(value2, deltaValue) };
-				pValues[IDX1a] = _mm_extract_epi16(resultValue1, 0);
-				pValues[IDX1b] = _mm_extract_epi16(resultValue1, 1);
-				pValues[IDX1c] = _mm_extract_epi16(resultValue1, 2);
-				pValues[IDX1d] = _mm_extract_epi16(resultValue1, 3);
-				pValues[IDX1e] = _mm_extract_epi16(resultValue1, 4);
-				pValues[IDX2a] = _mm_extract_epi16(resultValue2, 0);
-				pValues[IDX2b] = _mm_extract_epi16(resultValue2, 1);
-				pValues[IDX2c] = _mm_extract_epi16(resultValue2, 2);
-				pValues[IDX2d] = _mm_extract_epi16(resultValue2, 3);
-				pValues[IDX2e] = _mm_extract_epi16(resultValue2, 4);
-				pScores[IDX1a] = _mm_extract_epi16(resultScore1, 0);
-				pScores[IDX1b] = _mm_extract_epi16(resultScore1, 1);
-				pScores[IDX1c] = _mm_extract_epi16(resultScore1, 2);
-				pScores[IDX1d] = _mm_extract_epi16(resultScore1, 3);
-				pScores[IDX1e] = _mm_extract_epi16(resultScore1, 4);
-				pScores[IDX2a] = _mm_extract_epi16(resultScore2, 0);
-				pScores[IDX2b] = _mm_extract_epi16(resultScore2, 1);
-				pScores[IDX2c] = _mm_extract_epi16(resultScore2, 2);
-				pScores[IDX2d] = _mm_extract_epi16(resultScore2, 3);
-				pScores[IDX2e] = _mm_extract_epi16(resultScore2, 4);
+				score1low = _mm_cvtsi128_si64(resultScore1);
+				score1high = _mm_cvtsi128_si64(_mm_shuffle_epi32(resultScore1, 0b00001110));
+				score2low = _mm_cvtsi128_si64(resultScore2);
+				score2high = _mm_cvtsi128_si64(_mm_shuffle_epi32(resultScore2, 0b00001110));
+				value1low = _mm_cvtsi128_si64(resultValue1);
+				value1high = _mm_cvtsi128_si64(_mm_shuffle_epi32(resultValue1, 0b00001110));
+				value2low = _mm_cvtsi128_si64(resultValue2);
+				value2high = _mm_cvtsi128_si64(_mm_shuffle_epi32(resultValue2, 0b00001110));
+				pValues[IDX1a] = static_cast<std::uint16_t>(value1low & UINT64_C(0xffff));
+				pValues[IDX1b] = static_cast<std::uint16_t>((value1low >> 16) & UINT64_C(0xffff));
+				pValues[IDX1c] = static_cast<std::uint16_t>(value1low >> 32);
+				pValues[IDX1e] = static_cast<std::uint16_t>(value1high & UINT64_C(0xffff));
+				pValues[IDX1f] = static_cast<std::uint16_t>((value1high >> 16) & UINT64_C(0xffff));
+				pValues[IDX2a] = static_cast<std::uint16_t>(value2low & UINT64_C(0xffff));
+				pValues[IDX2b] = static_cast<std::uint16_t>(value2low >> 16);
+				pValues[IDX2c] = static_cast<std::uint16_t>(value2low >> 32);
+				pValues[IDX2e] = static_cast<std::uint16_t>(value2high & UINT64_C(0xffff));
+				pValues[IDX2f] = static_cast<std::uint16_t>(value2high >> 16);
+				pScores[IDX1a] = static_cast<std::int16_t>(score1low & UINT64_C(0xffff));
+				pScores[IDX1b] = static_cast<std::int16_t>((score1low >> 16) & UINT64_C(0xffff));
+				pScores[IDX1c] = static_cast<std::int16_t>(score1low >> 32);
+				pScores[IDX1e] = static_cast<std::int16_t>(score1high & UINT64_C(0xffff));
+				pScores[IDX1f] = static_cast<std::int16_t>(score1high >> 16);
+				pScores[IDX2a] = static_cast<std::int16_t>(score2low & UINT64_C(0xffff));
+				pScores[IDX2b] = static_cast<std::int16_t>((score2low >> 16) & UINT64_C(0xffff));
+				pScores[IDX2c] = static_cast<std::int16_t>(score2low >> 32);
+				pScores[IDX2e] = static_cast<std::int16_t>(score2high & UINT64_C(0xffff));
+				pScores[IDX2f] = static_cast<std::int16_t>(score2high >> 16);
 			}
-			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f>
+			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g>
 			PYGMALION_INLINE static void vector6_SSE2(VALUE* pValues, SCORE* pScores) noexcept
 			{
-				const __m128i score1{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pScores[IDX1a],0), pScores[IDX1b], 1), pScores[IDX1c], 2), pScores[IDX1d], 3), pScores[IDX1e], 4), pScores[IDX1f], 5) };
-				const __m128i score2{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pScores[IDX2a],0), pScores[IDX2b], 1), pScores[IDX2c], 2), pScores[IDX2d], 3), pScores[IDX2e], 4), pScores[IDX2f], 5) };
-				const __m128i value1{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1a],0), pValues[IDX1b], 1), pValues[IDX1c], 2), pValues[IDX1d], 3), pValues[IDX1e], 4), pValues[IDX1f], 5) };
-				const __m128i value2{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2a],0), pValues[IDX2b], 1), pValues[IDX2c], 2), pValues[IDX2d], 3), pValues[IDX2e], 4), pValues[IDX2f], 5) };
+				std::uint64_t score1low{ static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX1a])) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX1b])) << 16) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX1c])) << 32) };
+				std::uint64_t score1high{ static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX1e])) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX1f])) << 16) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX1g])) << 32) };
+				std::uint64_t score2low{ static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX2a])) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX2b])) << 16) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX2c])) << 32) };
+				std::uint64_t score2high{ static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX2e])) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX2f])) << 16) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX2g])) << 32) };
+				std::uint64_t value1low{ static_cast<std::uint64_t>(pValues[IDX1a]) | (static_cast<std::uint64_t>(pValues[IDX1b]) << 16) | (static_cast<std::uint64_t>(pValues[IDX1c]) << 32) };
+				std::uint64_t value1high{ static_cast<std::uint64_t>(pValues[IDX1e]) | (static_cast<std::uint64_t>(pValues[IDX1f]) << 16) | (static_cast<std::uint64_t>(pValues[IDX1g]) << 32) };
+				std::uint64_t value2low{ static_cast<std::uint64_t>(pValues[IDX2a]) | (static_cast<std::uint64_t>(pValues[IDX2b]) << 16) | (static_cast<std::uint64_t>(pValues[IDX2c]) << 32) };
+				std::uint64_t value2high{ static_cast<std::uint64_t>(pValues[IDX2e]) | (static_cast<std::uint64_t>(pValues[IDX2f]) << 16) | (static_cast<std::uint64_t>(pValues[IDX2g]) << 32) };
+				const __m128i score1{ _mm_set_epi64x(score1high, score1low) };
+				const __m128i score2{ _mm_set_epi64x(score2high, score2low) };
+				const __m128i value1{ _mm_set_epi64x(value1high, value1low) };
+				const __m128i value2{ _mm_set_epi64x(value2high, value2low) };
 				const __m128i comparision{ _mm_cmpgt_epi16(score2, score1) };
 				const __m128i deltaScore{ _mm_and_si128(_mm_xor_si128(score1, score2), comparision) };
 				const __m128i resultScore1{ _mm_xor_si128(score1, deltaScore) };
@@ -454,38 +503,54 @@ namespace pygmalion
 				const __m128i deltaValue{ _mm_and_si128(_mm_xor_si128(value1, value2), comparision) };
 				const __m128i resultValue1{ _mm_xor_si128(value1, deltaValue) };
 				const __m128i resultValue2{ _mm_xor_si128(value2, deltaValue) };
-				pValues[IDX1a] = _mm_extract_epi16(resultValue1, 0);
-				pValues[IDX1b] = _mm_extract_epi16(resultValue1, 1);
-				pValues[IDX1c] = _mm_extract_epi16(resultValue1, 2);
-				pValues[IDX1d] = _mm_extract_epi16(resultValue1, 3);
-				pValues[IDX1e] = _mm_extract_epi16(resultValue1, 4);
-				pValues[IDX1f] = _mm_extract_epi16(resultValue1, 5);
-				pValues[IDX2a] = _mm_extract_epi16(resultValue2, 0);
-				pValues[IDX2b] = _mm_extract_epi16(resultValue2, 1);
-				pValues[IDX2c] = _mm_extract_epi16(resultValue2, 2);
-				pValues[IDX2d] = _mm_extract_epi16(resultValue2, 3);
-				pValues[IDX2e] = _mm_extract_epi16(resultValue2, 4);
-				pValues[IDX2f] = _mm_extract_epi16(resultValue2, 5);
-				pScores[IDX1a] = _mm_extract_epi16(resultScore1, 0);
-				pScores[IDX1b] = _mm_extract_epi16(resultScore1, 1);
-				pScores[IDX1c] = _mm_extract_epi16(resultScore1, 2);
-				pScores[IDX1d] = _mm_extract_epi16(resultScore1, 3);
-				pScores[IDX1e] = _mm_extract_epi16(resultScore1, 4);
-				pScores[IDX1f] = _mm_extract_epi16(resultScore1, 5);
-				pScores[IDX2a] = _mm_extract_epi16(resultScore2, 0);
-				pScores[IDX2b] = _mm_extract_epi16(resultScore2, 1);
-				pScores[IDX2c] = _mm_extract_epi16(resultScore2, 2);
-				pScores[IDX2d] = _mm_extract_epi16(resultScore2, 3);
-				pScores[IDX2e] = _mm_extract_epi16(resultScore2, 4);
-				pScores[IDX2f] = _mm_extract_epi16(resultScore2, 5);
+				score1low = _mm_cvtsi128_si64(resultScore1);
+				score1high = _mm_cvtsi128_si64(_mm_shuffle_epi32(resultScore1, 0b00001110));
+				score2low = _mm_cvtsi128_si64(resultScore2);
+				score2high = _mm_cvtsi128_si64(_mm_shuffle_epi32(resultScore2, 0b00001110));
+				value1low = _mm_cvtsi128_si64(resultValue1);
+				value1high = _mm_cvtsi128_si64(_mm_shuffle_epi32(resultValue1, 0b00001110));
+				value2low = _mm_cvtsi128_si64(resultValue2);
+				value2high = _mm_cvtsi128_si64(_mm_shuffle_epi32(resultValue2, 0b00001110));
+				pValues[IDX1a] = static_cast<std::uint16_t>(value1low & UINT64_C(0xffff));
+				pValues[IDX1b] = static_cast<std::uint16_t>((value1low >> 16) & UINT64_C(0xffff));
+				pValues[IDX1c] = static_cast<std::uint16_t>(value1low >> 32);
+				pValues[IDX1e] = static_cast<std::uint16_t>(value1high & UINT64_C(0xffff));
+				pValues[IDX1f] = static_cast<std::uint16_t>((value1high >> 16) & UINT64_C(0xffff));
+				pValues[IDX1g] = static_cast<std::uint16_t>(value1high >> 32);
+				pValues[IDX2a] = static_cast<std::uint16_t>(value2low & UINT64_C(0xffff));
+				pValues[IDX2b] = static_cast<std::uint16_t>((value2low >> 16) & UINT64_C(0xffff));
+				pValues[IDX2c] = static_cast<std::uint16_t>(value2low >> 32);
+				pValues[IDX2e] = static_cast<std::uint16_t>(value2high & UINT64_C(0xffff));
+				pValues[IDX2f] = static_cast<std::uint16_t>((value2high >> 16) & UINT64_C(0xffff));
+				pValues[IDX2g] = static_cast<std::uint16_t>(value2high >> 32);
+				pScores[IDX1a] = static_cast<std::int16_t>(score1low & UINT64_C(0xffff));
+				pScores[IDX1b] = static_cast<std::int16_t>((score1low >> 16) & UINT64_C(0xffff));
+				pScores[IDX1c] = static_cast<std::int16_t>(score1low >> 32);
+				pScores[IDX1e] = static_cast<std::int16_t>(score1high & UINT64_C(0xffff));
+				pScores[IDX1f] = static_cast<std::int16_t>((score1high >> 16) & UINT64_C(0xffff));
+				pScores[IDX1g] = static_cast<std::int16_t>(score1high >> 32);
+				pScores[IDX2a] = static_cast<std::int16_t>(score2low & UINT64_C(0xffff));
+				pScores[IDX2b] = static_cast<std::int16_t>((score2low >> 16) & UINT64_C(0xffff));
+				pScores[IDX2c] = static_cast<std::int16_t>(score2low >> 32);
+				pScores[IDX2e] = static_cast<std::int16_t>(score2high & UINT64_C(0xffff));
+				pScores[IDX2f] = static_cast<std::int16_t>((score2high >> 16) & UINT64_C(0xffff));
+				pScores[IDX2g] = static_cast<std::int16_t>(score2high >> 32);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g>
 			PYGMALION_INLINE static void vector7_SSE2(VALUE* pValues, SCORE* pScores) noexcept
 			{
-				const __m128i score1{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pScores[IDX1a],0), pScores[IDX1b], 1), pScores[IDX1c], 2), pScores[IDX1d], 3), pScores[IDX1e], 4), pScores[IDX1f], 5), pScores[IDX1g], 6) };
-				const __m128i score2{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pScores[IDX2a],0), pScores[IDX2b], 1), pScores[IDX2c], 2), pScores[IDX2d], 3), pScores[IDX2e], 4), pScores[IDX2f], 5), pScores[IDX2g], 6) };
-				const __m128i value1{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1a],0), pValues[IDX1b], 1), pValues[IDX1c], 2), pValues[IDX1d], 3), pValues[IDX1e], 4), pValues[IDX1f], 5), pValues[IDX1g], 6) };
-				const __m128i value2{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2a],0), pValues[IDX2b], 1), pValues[IDX2c], 2), pValues[IDX2d], 3), pValues[IDX2e], 4), pValues[IDX2f], 5), pValues[IDX2g], 6) };
+				std::uint64_t score1low{ static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX1a])) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX1b])) << 16) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX1c])) << 32) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX1d])) << 48) };
+				std::uint64_t score1high{ static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX1e])) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX1f])) << 16) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX1g])) << 32) };
+				std::uint64_t score2low{ static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX2a])) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX2b])) << 16) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX2c])) << 32) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX2d])) << 48) };
+				std::uint64_t score2high{ static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX2e])) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX2f])) << 16) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX2g])) << 32) };
+				std::uint64_t value1low{ static_cast<std::uint64_t>(pValues[IDX1a]) | (static_cast<std::uint64_t>(pValues[IDX1b]) << 16) | (static_cast<std::uint64_t>(pValues[IDX1c]) << 32) | (static_cast<std::uint64_t>(pValues[IDX1d]) << 48) };
+				std::uint64_t value1high{ static_cast<std::uint64_t>(pValues[IDX1e]) | (static_cast<std::uint64_t>(pValues[IDX1f]) << 16) | (static_cast<std::uint64_t>(pValues[IDX1g]) << 32) };
+				std::uint64_t value2low{ static_cast<std::uint64_t>(pValues[IDX2a]) | (static_cast<std::uint64_t>(pValues[IDX2b]) << 16) | (static_cast<std::uint64_t>(pValues[IDX2c]) << 32) | (static_cast<std::uint64_t>(pValues[IDX2d]) << 48) };
+				std::uint64_t value2high{ static_cast<std::uint64_t>(pValues[IDX2e]) | (static_cast<std::uint64_t>(pValues[IDX2f]) << 16) | (static_cast<std::uint64_t>(pValues[IDX2g]) << 32) };
+				const __m128i score1{ _mm_set_epi64x(score1high, score1low) };
+				const __m128i score2{ _mm_set_epi64x(score2high, score2low) };
+				const __m128i value1{ _mm_set_epi64x(value1high, value1low) };
+				const __m128i value2{ _mm_set_epi64x(value2high, value2low) };
 				const __m128i comparision{ _mm_cmpgt_epi16(score2, score1) };
 				const __m128i deltaScore{ _mm_and_si128(_mm_xor_si128(score1, score2), comparision) };
 				const __m128i resultScore1{ _mm_xor_si128(score1, deltaScore) };
@@ -493,42 +558,58 @@ namespace pygmalion
 				const __m128i deltaValue{ _mm_and_si128(_mm_xor_si128(value1, value2), comparision) };
 				const __m128i resultValue1{ _mm_xor_si128(value1, deltaValue) };
 				const __m128i resultValue2{ _mm_xor_si128(value2, deltaValue) };
-				pValues[IDX1a] = _mm_extract_epi16(resultValue1, 0);
-				pValues[IDX1b] = _mm_extract_epi16(resultValue1, 1);
-				pValues[IDX1c] = _mm_extract_epi16(resultValue1, 2);
-				pValues[IDX1d] = _mm_extract_epi16(resultValue1, 3);
-				pValues[IDX1e] = _mm_extract_epi16(resultValue1, 4);
-				pValues[IDX1f] = _mm_extract_epi16(resultValue1, 5);
-				pValues[IDX1g] = _mm_extract_epi16(resultValue1, 6);
-				pValues[IDX2a] = _mm_extract_epi16(resultValue2, 0);
-				pValues[IDX2b] = _mm_extract_epi16(resultValue2, 1);
-				pValues[IDX2c] = _mm_extract_epi16(resultValue2, 2);
-				pValues[IDX2d] = _mm_extract_epi16(resultValue2, 3);
-				pValues[IDX2e] = _mm_extract_epi16(resultValue2, 4);
-				pValues[IDX2f] = _mm_extract_epi16(resultValue2, 5);
-				pValues[IDX2g] = _mm_extract_epi16(resultValue2, 6);
-				pScores[IDX1a] = _mm_extract_epi16(resultScore1, 0);
-				pScores[IDX1b] = _mm_extract_epi16(resultScore1, 1);
-				pScores[IDX1c] = _mm_extract_epi16(resultScore1, 2);
-				pScores[IDX1d] = _mm_extract_epi16(resultScore1, 3);
-				pScores[IDX1e] = _mm_extract_epi16(resultScore1, 4);
-				pScores[IDX1f] = _mm_extract_epi16(resultScore1, 5);
-				pScores[IDX1g] = _mm_extract_epi16(resultScore1, 6);
-				pScores[IDX2a] = _mm_extract_epi16(resultScore2, 0);
-				pScores[IDX2b] = _mm_extract_epi16(resultScore2, 1);
-				pScores[IDX2c] = _mm_extract_epi16(resultScore2, 2);
-				pScores[IDX2d] = _mm_extract_epi16(resultScore2, 3);
-				pScores[IDX2e] = _mm_extract_epi16(resultScore2, 4);
-				pScores[IDX2f] = _mm_extract_epi16(resultScore2, 5);
-				pScores[IDX2g] = _mm_extract_epi16(resultScore2, 6);
+				score1low = _mm_cvtsi128_si64(resultScore1);
+				score1high = _mm_cvtsi128_si64(_mm_shuffle_epi32(resultScore1, 0b00001110));
+				score2low = _mm_cvtsi128_si64(resultScore2);
+				score2high = _mm_cvtsi128_si64(_mm_shuffle_epi32(resultScore2, 0b00001110));
+				value1low = _mm_cvtsi128_si64(resultValue1);
+				value1high = _mm_cvtsi128_si64(_mm_shuffle_epi32(resultValue1, 0b00001110));
+				value2low = _mm_cvtsi128_si64(resultValue2);
+				value2high = _mm_cvtsi128_si64(_mm_shuffle_epi32(resultValue2, 0b00001110));
+				pValues[IDX1a] = static_cast<std::uint16_t>(value1low & UINT64_C(0xffff));
+				pValues[IDX1b] = static_cast<std::uint16_t>((value1low >> 16) & UINT64_C(0xffff));
+				pValues[IDX1c] = static_cast<std::uint16_t>((value1low >> 32) & UINT64_C(0xffff));
+				pValues[IDX1d] = static_cast<std::uint16_t>(value1low >> 48);
+				pValues[IDX1e] = static_cast<std::uint16_t>(value1high & UINT64_C(0xffff));
+				pValues[IDX1f] = static_cast<std::uint16_t>((value1high >> 16) & UINT64_C(0xffff));
+				pValues[IDX1g] = static_cast<std::uint16_t>(value1high >> 32);
+				pValues[IDX2a] = static_cast<std::uint16_t>(value2low & UINT64_C(0xffff));
+				pValues[IDX2b] = static_cast<std::uint16_t>((value2low >> 16) & UINT64_C(0xffff));
+				pValues[IDX2c] = static_cast<std::uint16_t>((value2low >> 32) & UINT64_C(0xffff));
+				pValues[IDX2d] = static_cast<std::uint16_t>(value2low >> 48);
+				pValues[IDX2e] = static_cast<std::uint16_t>(value2high & UINT64_C(0xffff));
+				pValues[IDX2f] = static_cast<std::uint16_t>((value2high >> 16) & UINT64_C(0xffff));
+				pValues[IDX2g] = static_cast<std::uint16_t>(value2high >> 32);
+				pScores[IDX1a] = static_cast<std::int16_t>(score1low & UINT64_C(0xffff));
+				pScores[IDX1b] = static_cast<std::int16_t>((score1low >> 16) & UINT64_C(0xffff));
+				pScores[IDX1c] = static_cast<std::int16_t>((score1low >> 32) & UINT64_C(0xffff));
+				pScores[IDX1d] = static_cast<std::int16_t>(score1low >> 48);
+				pScores[IDX1e] = static_cast<std::int16_t>(score1high & UINT64_C(0xffff));
+				pScores[IDX1f] = static_cast<std::int16_t>((score1high >> 16) & UINT64_C(0xffff));
+				pScores[IDX1g] = static_cast<std::int16_t>(score1high >> 32);
+				pScores[IDX2a] = static_cast<std::int16_t>(score2low & UINT64_C(0xffff));
+				pScores[IDX2b] = static_cast<std::int16_t>((score2low >> 16) & UINT64_C(0xffff));
+				pScores[IDX2c] = static_cast<std::int16_t>((score2low >> 32) & UINT64_C(0xffff));
+				pScores[IDX2d] = static_cast<std::int16_t>(score2low >> 48);
+				pScores[IDX2e] = static_cast<std::int16_t>(score2high & UINT64_C(0xffff));
+				pScores[IDX2f] = static_cast<std::int16_t>((score2high >> 16) & UINT64_C(0xffff));
+				pScores[IDX2g] = static_cast<std::int16_t>(score2high >> 32);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h>
 			PYGMALION_INLINE static void vector8_SSE2(VALUE* pValues, SCORE* pScores) noexcept
 			{
-				const __m128i score1{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pScores[IDX1a],0), pScores[IDX1b], 1), pScores[IDX1c], 2), pScores[IDX1d], 3), pScores[IDX1e], 4), pScores[IDX1f], 5), pScores[IDX1g], 6), pScores[IDX1h], 7) };
-				const __m128i score2{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pScores[IDX2a],0), pScores[IDX2b], 1), pScores[IDX2c], 2), pScores[IDX2d], 3), pScores[IDX2e], 4), pScores[IDX2f], 5), pScores[IDX2g], 6), pScores[IDX2h], 7) };
-				const __m128i value1{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX1a],0), pValues[IDX1b], 1), pValues[IDX1c], 2), pValues[IDX1d], 3), pValues[IDX1e], 4), pValues[IDX1f], 5), pValues[IDX1g], 6), pValues[IDX1h], 7) };
-				const __m128i value2{ _mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_insert_epi16(_mm_undefined_si128(), pValues[IDX2a],0), pValues[IDX2b], 1), pValues[IDX2c], 2), pValues[IDX2d], 3), pValues[IDX2e], 4), pValues[IDX2f], 5), pValues[IDX2g], 6), pValues[IDX2h], 7) };
+				std::uint64_t score1low{ static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX1a])) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX1b])) << 16) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX1c])) << 32) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX1d])) << 48) };
+				std::uint64_t score1high{ static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX1e])) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX1f])) << 16) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX1g])) << 32) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX1h])) << 48) };
+				std::uint64_t score2low{ static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX2a])) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX2b])) << 16) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX2c])) << 32) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX2d])) << 48) };
+				std::uint64_t score2high{ static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX2e])) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX2f])) << 16) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX2g])) << 32) | (static_cast<std::uint64_t>(static_cast<std::uint16_t>(pScores[IDX2h])) << 48) };
+				std::uint64_t value1low{ static_cast<std::uint64_t>(pValues[IDX1a]) | (static_cast<std::uint64_t>(pValues[IDX1b]) << 16) | (static_cast<std::uint64_t>(pValues[IDX1c]) << 32) | (static_cast<std::uint64_t>(pValues[IDX1d]) << 48) };
+				std::uint64_t value1high{ static_cast<std::uint64_t>(pValues[IDX1e]) | (static_cast<std::uint64_t>(pValues[IDX1f]) << 16) | (static_cast<std::uint64_t>(pValues[IDX1g]) << 32) | (static_cast<std::uint64_t>(pValues[IDX1h]) << 48) };
+				std::uint64_t value2low{ static_cast<std::uint64_t>(pValues[IDX2a]) | (static_cast<std::uint64_t>(pValues[IDX2b]) << 16) | (static_cast<std::uint64_t>(pValues[IDX2c]) << 32) | (static_cast<std::uint64_t>(pValues[IDX2d]) << 48) };
+				std::uint64_t value2high{ static_cast<std::uint64_t>(pValues[IDX2e]) | (static_cast<std::uint64_t>(pValues[IDX2f]) << 16) | (static_cast<std::uint64_t>(pValues[IDX2g]) << 32) | (static_cast<std::uint64_t>(pValues[IDX2h]) << 48) };
+				const __m128i score1{ _mm_set_epi64x(score1high, score1low) };
+				const __m128i score2{ _mm_set_epi64x(score2high, score2low) };
+				const __m128i value1{ _mm_set_epi64x(value1high, value1low) };
+				const __m128i value2{ _mm_set_epi64x(value2high, value2low) };
 				const __m128i comparision{ _mm_cmpgt_epi16(score2, score1) };
 				const __m128i deltaScore{ _mm_and_si128(_mm_xor_si128(score1, score2), comparision) };
 				const __m128i resultScore1{ _mm_xor_si128(score1, deltaScore) };
@@ -536,38 +617,46 @@ namespace pygmalion
 				const __m128i deltaValue{ _mm_and_si128(_mm_xor_si128(value1, value2), comparision) };
 				const __m128i resultValue1{ _mm_xor_si128(value1, deltaValue) };
 				const __m128i resultValue2{ _mm_xor_si128(value2, deltaValue) };
-				pValues[IDX1a] = _mm_extract_epi16(resultValue1, 0);
-				pValues[IDX1b] = _mm_extract_epi16(resultValue1, 1);
-				pValues[IDX1c] = _mm_extract_epi16(resultValue1, 2);
-				pValues[IDX1d] = _mm_extract_epi16(resultValue1, 3);
-				pValues[IDX1e] = _mm_extract_epi16(resultValue1, 4);
-				pValues[IDX1f] = _mm_extract_epi16(resultValue1, 5);
-				pValues[IDX1g] = _mm_extract_epi16(resultValue1, 6);
-				pValues[IDX1h] = _mm_extract_epi16(resultValue1, 7);
-				pValues[IDX2a] = _mm_extract_epi16(resultValue2, 0);
-				pValues[IDX2b] = _mm_extract_epi16(resultValue2, 1);
-				pValues[IDX2c] = _mm_extract_epi16(resultValue2, 2);
-				pValues[IDX2d] = _mm_extract_epi16(resultValue2, 3);
-				pValues[IDX2e] = _mm_extract_epi16(resultValue2, 4);
-				pValues[IDX2f] = _mm_extract_epi16(resultValue2, 5);
-				pValues[IDX2g] = _mm_extract_epi16(resultValue2, 6);
-				pValues[IDX2h] = _mm_extract_epi16(resultValue2, 7);
-				pScores[IDX1a] = _mm_extract_epi16(resultScore1, 0);
-				pScores[IDX1b] = _mm_extract_epi16(resultScore1, 1);
-				pScores[IDX1c] = _mm_extract_epi16(resultScore1, 2);
-				pScores[IDX1d] = _mm_extract_epi16(resultScore1, 3);
-				pScores[IDX1e] = _mm_extract_epi16(resultScore1, 4);
-				pScores[IDX1f] = _mm_extract_epi16(resultScore1, 5);
-				pScores[IDX1g] = _mm_extract_epi16(resultScore1, 6);
-				pScores[IDX1h] = _mm_extract_epi16(resultScore1, 7);
-				pScores[IDX2a] = _mm_extract_epi16(resultScore2, 0);
-				pScores[IDX2b] = _mm_extract_epi16(resultScore2, 1);
-				pScores[IDX2c] = _mm_extract_epi16(resultScore2, 2);
-				pScores[IDX2d] = _mm_extract_epi16(resultScore2, 3);
-				pScores[IDX2e] = _mm_extract_epi16(resultScore2, 4);
-				pScores[IDX2f] = _mm_extract_epi16(resultScore2, 5);
-				pScores[IDX2g] = _mm_extract_epi16(resultScore2, 6);
-				pScores[IDX2h] = _mm_extract_epi16(resultScore2, 7);
+				score1low = _mm_cvtsi128_si64(resultScore1);
+				score1high = _mm_cvtsi128_si64(_mm_shuffle_epi32(resultScore1, 0b00001110));
+				score2low = _mm_cvtsi128_si64(resultScore2);
+				score2high = _mm_cvtsi128_si64(_mm_shuffle_epi32(resultScore2, 0b00001110));
+				value1low = _mm_cvtsi128_si64(resultValue1);
+				value1high = _mm_cvtsi128_si64(_mm_shuffle_epi32(resultValue1, 0b00001110));
+				value2low = _mm_cvtsi128_si64(resultValue2);
+				value2high = _mm_cvtsi128_si64(_mm_shuffle_epi32(resultValue2, 0b00001110));
+				pValues[IDX1a] = static_cast<std::uint16_t>(value1low & UINT64_C(0xffff));
+				pValues[IDX1b] = static_cast<std::uint16_t>((value1low >> 16) & UINT64_C(0xffff));
+				pValues[IDX1c] = static_cast<std::uint16_t>((value1low >> 32) & UINT64_C(0xffff));
+				pValues[IDX1d] = static_cast<std::uint16_t>(value1low >> 48);
+				pValues[IDX1e] = static_cast<std::uint16_t>(value1high & UINT64_C(0xffff));
+				pValues[IDX1f] = static_cast<std::uint16_t>((value1high >> 16) & UINT64_C(0xffff));
+				pValues[IDX1g] = static_cast<std::uint16_t>((value1high >> 32) & UINT64_C(0xffff));
+				pValues[IDX1h] = static_cast<std::uint16_t>(value1high >> 48);
+				pValues[IDX2a] = static_cast<std::uint16_t>(value2low & UINT64_C(0xffff));
+				pValues[IDX2b] = static_cast<std::uint16_t>((value2low >> 16) & UINT64_C(0xffff));
+				pValues[IDX2c] = static_cast<std::uint16_t>((value2low >> 32) & UINT64_C(0xffff));
+				pValues[IDX2d] = static_cast<std::uint16_t>(value2low >> 48);
+				pValues[IDX2e] = static_cast<std::uint16_t>(value2high & UINT64_C(0xffff));
+				pValues[IDX2f] = static_cast<std::uint16_t>((value2high >> 16) & UINT64_C(0xffff));
+				pValues[IDX2g] = static_cast<std::uint16_t>((value2high >> 32) & UINT64_C(0xffff));
+				pValues[IDX2h] = static_cast<std::uint16_t>(value2high >> 48);
+				pScores[IDX1a] = static_cast<std::int16_t>(score1low & UINT64_C(0xffff));
+				pScores[IDX1b] = static_cast<std::int16_t>((score1low >> 16) & UINT64_C(0xffff));
+				pScores[IDX1c] = static_cast<std::int16_t>((score1low >> 32) & UINT64_C(0xffff));
+				pScores[IDX1d] = static_cast<std::int16_t>(score1low >> 48);
+				pScores[IDX1e] = static_cast<std::int16_t>(score1high & UINT64_C(0xffff));
+				pScores[IDX1f] = static_cast<std::int16_t>((score1high >> 16) & UINT64_C(0xffff));
+				pScores[IDX1g] = static_cast<std::int16_t>((score1high >> 32) & UINT64_C(0xffff));
+				pScores[IDX1h] = static_cast<std::int16_t>(score1high >> 48);
+				pScores[IDX2a] = static_cast<std::int16_t>(score2low & UINT64_C(0xffff));
+				pScores[IDX2b] = static_cast<std::int16_t>((score2low >> 16) & UINT64_C(0xffff));
+				pScores[IDX2c] = static_cast<std::int16_t>((score2low >> 32) & UINT64_C(0xffff));
+				pScores[IDX2d] = static_cast<std::int16_t>(score2low >> 48);
+				pScores[IDX2e] = static_cast<std::int16_t>(score2high & UINT64_C(0xffff));
+				pScores[IDX2f] = static_cast<std::int16_t>((score2high >> 16) & UINT64_C(0xffff));
+				pScores[IDX2g] = static_cast<std::int16_t>((score2high >> 32) & UINT64_C(0xffff));
+				pScores[IDX2h] = static_cast<std::int16_t>(score2high >> 48);
 			}
 #endif
 #if defined(PYGMALION_CPU_AVX2)
@@ -1444,11 +1533,11 @@ namespace pygmalion
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e>
 			PYGMALION_INLINE static void vector5(VALUE* pValues, SCORE* pScores) noexcept
 			{
-/*#if defined(PYGMALION_CPU_AVX2)
-				if constexpr (cpu::supports(cpu::AVX2))
-					vector5_AVX2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e>(pValues, pScores);
-				else
-#endif*/
+				/*#if defined(PYGMALION_CPU_AVX2)
+								if constexpr (cpu::supports(cpu::AVX2))
+									vector5_AVX2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e>(pValues, pScores);
+								else
+				#endif*/
 #if defined(PYGMALION_CPU_SSE2)
 				if constexpr (cpu::supports(cpu::SSE2))
 					vector5_SSE2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e>(pValues, pScores);
@@ -1459,11 +1548,11 @@ namespace pygmalion
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f>
 			PYGMALION_INLINE static void vector6(VALUE* pValues, SCORE* pScores) noexcept
 			{
-/*#if defined(PYGMALION_CPU_AVX2)
-				if constexpr (cpu::supports(cpu::AVX2))
-					vector6_AVX2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f>(pValues, pScores);
-				else
-#endif*/
+				/*#if defined(PYGMALION_CPU_AVX2)
+								if constexpr (cpu::supports(cpu::AVX2))
+									vector6_AVX2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f>(pValues, pScores);
+								else
+				#endif*/
 #if defined(PYGMALION_CPU_SSE2)
 				if constexpr (cpu::supports(cpu::SSE2))
 					vector6_SSE2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f>(pValues, pScores);
@@ -1474,11 +1563,11 @@ namespace pygmalion
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g>
 			PYGMALION_INLINE static void vector7(VALUE* pValues, SCORE* pScores) noexcept
 			{
-/*#if defined(PYGMALION_CPU_AVX2)
-				if constexpr (cpu::supports(cpu::AVX2))
-					vector7_AVX2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g>(pValues, pScores);
-				else
-#endif*/
+				/*#if defined(PYGMALION_CPU_AVX2)
+								if constexpr (cpu::supports(cpu::AVX2))
+									vector7_AVX2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g>(pValues, pScores);
+								else
+				#endif*/
 #if defined(PYGMALION_CPU_SSE2)
 				if constexpr (cpu::supports(cpu::SSE2))
 					vector7_SSE2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g>(pValues, pScores);
@@ -1489,11 +1578,11 @@ namespace pygmalion
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h>
 			PYGMALION_INLINE static void vector8(VALUE* pValues, SCORE* pScores) noexcept
 			{
-/*#if defined(PYGMALION_CPU_AVX2)
-				if constexpr (cpu::supports(cpu::AVX2))
-					vector8_AVX2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h>(pValues, pScores);
-				else
-#endif*/
+				/*#if defined(PYGMALION_CPU_AVX2)
+								if constexpr (cpu::supports(cpu::AVX2))
+									vector8_AVX2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h>(pValues, pScores);
+								else
+				#endif*/
 #if defined(PYGMALION_CPU_SSE2)
 				if constexpr (cpu::supports(cpu::SSE2))
 					vector8_SSE2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h>(pValues, pScores);
@@ -1504,82 +1593,82 @@ namespace pygmalion
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j>
 			PYGMALION_INLINE static void vector9(VALUE* pValues, SCORE* pScores) noexcept
 			{
-/*#if defined(PYGMALION_CPU_AVX2)
-				if constexpr (cpu::supports(cpu::AVX2))
-					vector9_AVX2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j>(pValues, pScores);
-				else
-#endif*/
-					vector9_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j>(pValues, pScores);
+				/*#if defined(PYGMALION_CPU_AVX2)
+								if constexpr (cpu::supports(cpu::AVX2))
+									vector9_AVX2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j>(pValues, pScores);
+								else
+				#endif*/
+				vector9_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k>
 			PYGMALION_INLINE static void vector10(VALUE* pValues, SCORE* pScores) noexcept
 			{
-/*#if defined(PYGMALION_CPU_AVX2)
-				if constexpr (cpu::supports(cpu::AVX2))
-					vector10_AVX2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k>(pValues, pScores);
-				else
-#endif*/
-					vector10_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k>(pValues, pScores);
+				/*#if defined(PYGMALION_CPU_AVX2)
+								if constexpr (cpu::supports(cpu::AVX2))
+									vector10_AVX2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k>(pValues, pScores);
+								else
+				#endif*/
+				vector10_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l>
 			PYGMALION_INLINE static void vector11(VALUE* pValues, SCORE* pScores) noexcept
 			{
-/*#if defined(PYGMALION_CPU_AVX2)
-				if constexpr (cpu::supports(cpu::AVX2))
-					vector11_AVX2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l>(pValues, pScores);
-				else
-#endif*/
-					vector11_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l>(pValues, pScores);
+				/*#if defined(PYGMALION_CPU_AVX2)
+								if constexpr (cpu::supports(cpu::AVX2))
+									vector11_AVX2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l>(pValues, pScores);
+								else
+				#endif*/
+				vector11_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l, size_t IDX1m, size_t IDX2m>
 			PYGMALION_INLINE static void vector12(VALUE* pValues, SCORE* pScores) noexcept
 			{
-/*#if defined(PYGMALION_CPU_AVX2)
-				if constexpr (cpu::supports(cpu::AVX2))
-					vector12_AVX2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m>(pValues, pScores);
-				else
-#endif*/
-					vector12_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m>(pValues, pScores);
+				/*#if defined(PYGMALION_CPU_AVX2)
+								if constexpr (cpu::supports(cpu::AVX2))
+									vector12_AVX2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m>(pValues, pScores);
+								else
+				#endif*/
+				vector12_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l, size_t IDX1m, size_t IDX2m, size_t IDX1n, size_t IDX2n>
 			PYGMALION_INLINE static void vector13(VALUE* pValues, SCORE* pScores) noexcept
 			{
-/*#if defined(PYGMALION_CPU_AVX2)
-				if constexpr (cpu::supports(cpu::AVX2))
-					vector13_AVX2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n>(pValues, pScores);
-				else
-#endif*/
-					vector13_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n>(pValues, pScores);
+				/*#if defined(PYGMALION_CPU_AVX2)
+								if constexpr (cpu::supports(cpu::AVX2))
+									vector13_AVX2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n>(pValues, pScores);
+								else
+				#endif*/
+				vector13_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l, size_t IDX1m, size_t IDX2m, size_t IDX1n, size_t IDX2n, size_t IDX1o, size_t IDX2o>
 			PYGMALION_INLINE static void vector14(VALUE* pValues, SCORE* pScores) noexcept
 			{
-/*#if defined(PYGMALION_CPU_AVX2)
-				if constexpr (cpu::supports(cpu::AVX2))
-					vector14_AVX2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n, IDX1o, IDX2o>(pValues, pScores);
-				else
-#endif*/
-					vector14_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n, IDX1o, IDX2o>(pValues, pScores);
+				/*#if defined(PYGMALION_CPU_AVX2)
+								if constexpr (cpu::supports(cpu::AVX2))
+									vector14_AVX2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n, IDX1o, IDX2o>(pValues, pScores);
+								else
+				#endif*/
+				vector14_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n, IDX1o, IDX2o>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l, size_t IDX1m, size_t IDX2m, size_t IDX1n, size_t IDX2n, size_t IDX1o, size_t IDX2o, size_t IDX1p, size_t IDX2p>
 			PYGMALION_INLINE static void vector15(VALUE* pValues, SCORE* pScores) noexcept
 			{
-/*#if defined(PYGMALION_CPU_AVX2)
-				if constexpr (cpu::supports(cpu::AVX2))
-					vector15_AVX2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n, IDX1o, IDX2o, IDX1p, IDX2p>(pValues, pScores);
-				else
-#endif*/
-					vector15_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n, IDX1o, IDX2o, IDX1p, IDX2p>(pValues, pScores);
+				/*#if defined(PYGMALION_CPU_AVX2)
+								if constexpr (cpu::supports(cpu::AVX2))
+									vector15_AVX2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n, IDX1o, IDX2o, IDX1p, IDX2p>(pValues, pScores);
+								else
+				#endif*/
+				vector15_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n, IDX1o, IDX2o, IDX1p, IDX2p>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j, size_t IDX1k, size_t IDX2k, size_t IDX1l, size_t IDX2l, size_t IDX1m, size_t IDX2m, size_t IDX1n, size_t IDX2n, size_t IDX1o, size_t IDX2o, size_t IDX1p, size_t IDX2p, size_t IDX1q, size_t IDX2q>
 			PYGMALION_INLINE static void vector16(VALUE* pValues, SCORE* pScores) noexcept
 			{
-/*#if defined(PYGMALION_CPU_AVX2)
-				if constexpr (cpu::supports(cpu::AVX2))
-					vector16_AVX2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n, IDX1o, IDX2o, IDX1p, IDX2p, IDX1q, IDX2q>(pValues, pScores);
-				else
-#endif*/
-					vector16_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n, IDX1o, IDX2o, IDX1p, IDX2p, IDX1q, IDX2q>(pValues, pScores);
+				/*#if defined(PYGMALION_CPU_AVX2)
+								if constexpr (cpu::supports(cpu::AVX2))
+									vector16_AVX2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n, IDX1o, IDX2o, IDX1p, IDX2p, IDX1q, IDX2q>(pValues, pScores);
+								else
+				#endif*/
+				vector16_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h, IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n, IDX1o, IDX2o, IDX1p, IDX2p, IDX1q, IDX2q>(pValues, pScores);
 			}
 		};
 
@@ -2128,7 +2217,7 @@ namespace pygmalion
 				vector8<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h>(pValues, pScores);
 				vector8<IDX1j, IDX2j, IDX1k, IDX2k, IDX1l, IDX2l, IDX1m, IDX2m, IDX1n, IDX2n, IDX1o, IDX2o, IDX1p, IDX2p, IDX1q, IDX2q>(pValues, pScores);
 			}
-			};
+		};
 
 		template<typename VALUE, typename SCORE>
 		class sortAlgorithm
@@ -2791,7 +2880,7 @@ namespace pygmalion
 				}
 			}
 		};
-			}
+	}
 
 
 	template<typename VALUE, typename SCORE>
@@ -2836,4 +2925,4 @@ namespace pygmalion
 				detail::sortAlgorithm<VALUE, SCORE>::sortValues(pValues, pScores, length);
 		}
 	};
-			}
+}
