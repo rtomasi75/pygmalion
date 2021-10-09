@@ -17,8 +17,15 @@ add_library(pygmalion-chess-state ${SOURCES} ${HEADERS} "include/pygmalion-chess
 target_include_directories(pygmalion-chess-state PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include> PRIVATE src)
 target_link_libraries(pygmalion-chess-state PUBLIC pygmalion-state)
 
-add_executable(pygmalion-chess-state-test "test/main.cpp")
-target_link_libraries(pygmalion-chess-state-test pygmalion-chess-state)
+if(BUILD_MODULE_ENGINES)
+       
+message("-- building chess state engine")
+
+add_executable(pygmalion-chess-state-engine "test/engine.cpp")
+target_link_libraries(pygmalion-chess-state-engine pygmalion-chess-state)
+
+else()
+endif()
 
 install(TARGETS pygmalion-chess-state EXPORT pygmalion-chess-stateConfig
 	ARCHIVE  DESTINATION ${CMAKE_INSTALL_LIBDIR}

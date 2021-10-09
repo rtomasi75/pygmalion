@@ -18,6 +18,10 @@ option(OPTIMIZE_FOR_NATIVE "Build with -march=native" OFF)
 option(USE_COMPACT_SLIDERS "Build with compact slider magics" OFF)
 option(USE_INDIRECT_SLIDERS "Build with indirect slider magics" OFF)
 
+option(BUILD_TESTS "Build with tests" OFF)
+option(BUILD_MODULE_ENGINES "Build module engines" OFF)
+
+
 if(USE_COMPACT_SLIDERS)
     add_definitions(-DPYGMALION_SLIDERMAGIC_COMPACT)
     message("-- building with compact slider magics")

@@ -17,8 +17,15 @@ add_library(pygmalion-tictactoe-evaluation ${SOURCES} ${HEADERS} "include/pygmal
 target_include_directories(pygmalion-tictactoe-evaluation PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include> PRIVATE src)
 target_link_libraries(pygmalion-tictactoe-evaluation PUBLIC pygmalion-evaluation pygmalion-tictactoe-dynamics)
 
-add_executable(pygmalion-tictactoe-evaluation-test "test/main.cpp")
-target_link_libraries(pygmalion-tictactoe-evaluation-test pygmalion-tictactoe-evaluation)
+if(BUILD_MODULE_ENGINES)
+       
+message("-- building tic tac toe evaluation engine")
+
+add_executable(pygmalion-tictactoe-evaluation-engine "test/engine.cpp")
+target_link_libraries(pygmalion-tictactoe-evaluation-engine pygmalion-tictactoe-evaluation)
+
+else()
+endif()
 
 install(TARGETS pygmalion-tictactoe-evaluation EXPORT pygmalion-tictactoe-evaluationConfig
 	ARCHIVE  DESTINATION ${CMAKE_INSTALL_LIBDIR}

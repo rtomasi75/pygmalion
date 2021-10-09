@@ -17,8 +17,15 @@ add_library(pygmalion-tictactoe-mechanics ${SOURCES} ${HEADERS} "include/pygmali
 target_include_directories(pygmalion-tictactoe-mechanics PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include> PRIVATE src)
 target_link_libraries(pygmalion-tictactoe-mechanics PUBLIC pygmalion-mechanics pygmalion-tictactoe-state)
 
-add_executable(pygmalion-tictactoe-mechanics-test "test/main.cpp")
+if(BUILD_MODULE_ENGINES)
+    
+message("-- building tic tac toe mechanics eninge")
+
+add_executable(pygmalion-tictactoe-mechanics-test "test/engine.cpp")
 target_link_libraries(pygmalion-tictactoe-mechanics-test pygmalion-tictactoe-mechanics)
+
+else()
+endif()
 
 install(TARGETS pygmalion-tictactoe-mechanics EXPORT pygmalion-tictactoe-mechanicsConfig
 	ARCHIVE  DESTINATION ${CMAKE_INSTALL_LIBDIR}

@@ -17,8 +17,16 @@ add_library(pygmalion-chess-search ${SOURCES} ${HEADERS} "include/pygmalion-ches
 target_include_directories(pygmalion-chess-search PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include> PRIVATE src)
 target_link_libraries(pygmalion-chess-search PUBLIC pygmalion-search pygmalion-chess-evaluation)
 
-add_executable(pygmalion-chess-search-test "test/main.cpp")
-target_link_libraries(pygmalion-chess-search-test pygmalion-chess-search)
+
+if(BUILD_MODULE_ENGINES)
+       
+message("-- building chess search engine")
+
+add_executable(pygmalion-chess-search-engine "test/engine.cpp")
+target_link_libraries(pygmalion-chess-search-engine pygmalion-chess-search)
+
+else()
+endif()
 
 install(TARGETS pygmalion-chess-search EXPORT pygmalion-chess-searchConfig
 	ARCHIVE  DESTINATION ${CMAKE_INSTALL_LIBDIR}

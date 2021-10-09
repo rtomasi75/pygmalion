@@ -17,8 +17,15 @@ add_library(pygmalion-tictactoe-dynamics ${SOURCES} ${HEADERS} "include/pygmalio
 target_include_directories(pygmalion-tictactoe-dynamics PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include> PRIVATE src)
 target_link_libraries(pygmalion-tictactoe-dynamics PUBLIC pygmalion-dynamics pygmalion-tictactoe-mechanics)
 
-add_executable(pygmalion-tictactoe-dynamics-test "test/main.cpp")
-target_link_libraries(pygmalion-tictactoe-dynamics-test pygmalion-tictactoe-dynamics)
+if(BUILD_MODULE_ENGINES)
+       
+message("-- building tic tac toe dynamics engine")
+
+add_executable(pygmalion-tictactoe-dynamics-engine "test/engine.cpp")
+target_link_libraries(pygmalion-tictactoe-dynamics-engine pygmalion-tictactoe-dynamics)
+
+else()
+endif()
 
 install(TARGETS pygmalion-tictactoe-dynamics EXPORT pygmalion-tictactoe-dynamicsConfig
 	ARCHIVE  DESTINATION ${CMAKE_INSTALL_LIBDIR}

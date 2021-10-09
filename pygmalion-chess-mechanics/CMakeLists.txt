@@ -17,8 +17,15 @@ add_library(pygmalion-chess-mechanics ${SOURCES} ${HEADERS} "include/pygmalion-c
 target_include_directories(pygmalion-chess-mechanics PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include> PRIVATE src)
 target_link_libraries(pygmalion-chess-mechanics PUBLIC pygmalion-mechanics pygmalion-chess-state)
 
-add_executable(pygmalion-chess-mechanics-test "test/main.cpp")
-target_link_libraries(pygmalion-chess-mechanics-test pygmalion-chess-mechanics)
+if(BUILD_MODULE_ENGINES)
+       
+message("-- building chess mechanics engine")
+
+add_executable(pygmalion-chess-mechanics-engine "test/engine.cpp")
+target_link_libraries(pygmalion-chess-mechanics-engine pygmalion-chess-mechanics)
+
+else()
+endif()
 
 install(TARGETS pygmalion-chess-mechanics EXPORT pygmalion-chess-mechanicsConfig
 	ARCHIVE  DESTINATION ${CMAKE_INSTALL_LIBDIR}

@@ -13,12 +13,12 @@ namespace pygmalion::chess
 		}
 		PYGMALION_INLINE constexpr static scoreType initialAspirationWindowSize() noexcept
 		{
-			constexpr const scoreType delta{ rootDelta()/4 };
+			constexpr const scoreType delta{ rootDelta()/8 };
 			return delta;
 		}
 		PYGMALION_INLINE constexpr static size_t countAspirationWindows_Implementation() noexcept
 		{
-			return 8;
+			return 128;
 		}
 		static std::deque<std::shared_ptr<pygmalion::intrinsics::command>> commandsImplementation() noexcept;
 		template<size_t PLAYER, bool LAZY>

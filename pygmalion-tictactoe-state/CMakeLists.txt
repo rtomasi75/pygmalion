@@ -17,8 +17,15 @@ add_library(pygmalion-tictactoe-state ${SOURCES} ${HEADERS} "include/pygmalion-t
 target_include_directories(pygmalion-tictactoe-state PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include> PRIVATE src)
 target_link_libraries(pygmalion-tictactoe-state PUBLIC pygmalion-state)
 
-add_executable(pygmalion-tictactoe-state-test "test/main.cpp")
-target_link_libraries(pygmalion-tictactoe-state-test pygmalion-tictactoe-state)
+if(BUILD_MODULE_ENGINES)
+       
+message("-- building tic tac toe state engine")
+
+add_executable(pygmalion-tictactoe-state-engine "test/engine.cpp")
+target_link_libraries(pygmalion-tictactoe-state-engine pygmalion-tictactoe-state)
+
+else()
+endif()
 
 install(TARGETS pygmalion-tictactoe-state EXPORT pygmalion-tictactoe-stateConfig
 	ARCHIVE  DESTINATION ${CMAKE_INSTALL_LIBDIR}

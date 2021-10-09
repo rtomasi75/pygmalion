@@ -17,8 +17,8 @@ add_library(pygmalion-chess-frontend ${SOURCES} ${HEADERS} "include/pygmalion-ch
 target_include_directories(pygmalion-chess-frontend PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include> PRIVATE src)
 target_link_libraries(pygmalion-chess-frontend PUBLIC pygmalion-frontend pygmalion-chess-search)
 
-add_executable(pygmalion-chess-frontend-test "test/main.cpp")
-target_link_libraries(pygmalion-chess-frontend-test pygmalion-chess-frontend)
+add_executable(pygmalion-chess-engine "test/main.cpp")
+target_link_libraries(pygmalion-chess-engine pygmalion-chess-frontend)
 
 install(TARGETS pygmalion-chess-frontend EXPORT pygmalion-chess-frontendConfig
 	ARCHIVE  DESTINATION ${CMAKE_INSTALL_LIBDIR}

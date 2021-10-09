@@ -17,8 +17,15 @@ add_library(pygmalion-tictactoe-search ${SOURCES} ${HEADERS} "include/pygmalion-
 target_include_directories(pygmalion-tictactoe-search PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include> PRIVATE src)
 target_link_libraries(pygmalion-tictactoe-search PUBLIC pygmalion-search pygmalion-tictactoe-evaluation)
 
-add_executable(pygmalion-tictactoe-search-test "test/main.cpp")
-target_link_libraries(pygmalion-tictactoe-search-test pygmalion-tictactoe-search)
+if(BUILD_MODULE_ENGINES)
+       
+message("-- building tic tac toe state engine")
+
+add_executable(pygmalion-tictactoe-search-engine "test/engine.cpp")
+target_link_libraries(pygmalion-tictactoe-search-engine pygmalion-tictactoe-search)
+
+else()
+endif()
 
 install(TARGETS pygmalion-tictactoe-search EXPORT pygmalion-tictactoe-searchConfig
 	ARCHIVE  DESTINATION ${CMAKE_INSTALL_LIBDIR}
