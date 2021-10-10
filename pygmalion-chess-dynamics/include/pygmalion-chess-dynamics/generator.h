@@ -117,10 +117,10 @@ namespace pygmalion::chess
 				constexpr static inline std::uint8_t flagsUsed{ UINT8_C(0x01) };
 				constexpr static inline std::uint8_t flagsKingTropismWhite{ UINT8_C(0x02) };
 				constexpr static inline std::uint8_t flagsKingTropismBlack{ UINT8_C(0x04) };
-				constexpr static inline std::uint8_t flagsKingAreaTropismWhite{ UINT8_C(0x08) };
-				constexpr static inline std::uint8_t flagsKingAreaTropismBlack{ UINT8_C(0x10) };
+//				constexpr static inline std::uint8_t flagsKingAreaTropismWhite{ UINT8_C(0x08) };
+//				constexpr static inline std::uint8_t flagsKingAreaTropismBlack{ UINT8_C(0x10) };
 				constexpr static inline std::uint8_t flagsKingTropism[]{ flagsKingTropismWhite ,flagsKingTropismBlack };
-				constexpr static inline std::uint8_t flagsKingAreaTropism[]{ flagsKingAreaTropismWhite ,flagsKingAreaTropismBlack };
+//				constexpr static inline std::uint8_t flagsKingAreaTropism[]{ flagsKingAreaTropismWhite ,flagsKingAreaTropismBlack };
 			public:
 				PYGMALION_INLINE const squaresType& pawns(const playerType& pl) const noexcept
 				{
@@ -139,7 +139,7 @@ namespace pygmalion::chess
 					}
 					return m_KingTropism[pl];
 				}
-				PYGMALION_INLINE const typename generatorType::tropismType& kingAreaTropism(const playerType& pl) const noexcept
+/*				PYGMALION_INLINE const typename generatorType::tropismType& kingAreaTropism(const playerType& pl) const noexcept
 				{
 					if (!(m_Flags & flagsKingTropism[pl]))
 					{
@@ -149,10 +149,10 @@ namespace pygmalion::chess
 						m_Flags |= flagsKingAreaTropism[pl];
 					}
 					return m_KingAreaTropism[pl];
-				}
+				}*/
 				pawnentry() noexcept :
 					m_KingTropism{ arrayhelper::make<countPlayers,typename generatorType::tropismType>(typename generatorType::tropismType()) },
-					m_KingAreaTropism{ arrayhelper::make<countPlayers,typename generatorType::tropismType>(typename generatorType::tropismType()) },
+//					m_KingAreaTropism{ arrayhelper::make<countPlayers,typename generatorType::tropismType>(typename generatorType::tropismType()) },
 					m_Pawns{ arrayhelper::make<countPlayers,squaresType>(squaresType::none()) },
 					m_KingSquare{ arrayhelper::make<countPlayers,squareType>(squareType::invalid) },
 					m_Flags{ flagsNone }

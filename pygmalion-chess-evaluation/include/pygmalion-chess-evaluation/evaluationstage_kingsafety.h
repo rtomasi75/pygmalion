@@ -4,21 +4,20 @@ namespace pygmalion::chess
 		public pygmalion::evaluationstage<descriptor_evaluation, evaluationstage_kingsafety>
 	{
 	public:
-		constexpr static inline double KingSafety{ 0.05 };
-		constexpr static inline double KingAreaSafety{ 0.05 };
+		constexpr static inline double KingSafety{ 0.0125 };
+		//		constexpr static inline double KingAreaSafety{ 0.05 };
 	private:
 		class scoreLookUp
 		{
 		private:
-			std::array<scoreType, generatorType::tropismType::maxDistance + 1> m_Score;
+			std::array<scoreType, generatorType::tropismType::maxDistance + 2> m_Score;
 		public:
 			constexpr scoreLookUp(const double maxValue) noexcept :
-				m_Score{ arrayhelper::make< generatorType::tropismType::maxDistance + 1 ,scoreType>(scoreType::zero()) }
+				m_Score{ arrayhelper::make< generatorType::tropismType::maxDistance + 2 ,scoreType>(scoreType::zero()) }
 			{
 				double value{ maxValue };
-				std::array<scoreType, generatorType::tropismType::maxDistance + 1> scores;
 				m_Score[0] = static_cast<scoreType>(value);
-				for (unsigned int i = 1; i <= generatorType::tropismType::maxDistance; i++)
+				for (unsigned int i = 1; i <= generatorType::tropismType::maxDistance + 1; i++)
 				{
 					value *= 0.5;
 					m_Score[i] = static_cast<scoreType>(value);
@@ -34,44 +33,139 @@ namespace pygmalion::chess
 			constexpr scoreLookUp& operator=(const scoreLookUp&) noexcept = default;
 			constexpr scoreLookUp& operator=(scoreLookUp&&) noexcept = default;
 		};
-		static inline scoreLookUp m_KingAreaSafetyScores{ scoreLookUp(KingAreaSafety) };
+		//		static inline scoreLookUp m_KingAreaSafetyScores{ scoreLookUp(KingAreaSafety) };
 		static inline scoreLookUp m_KingSafetyScores{ scoreLookUp(KingSafety) };
 		template<size_t PLAYER>
 		PYGMALION_INLINE static scoreType scoreKingsafety(const generatorType::template stackType<PLAYER>& stack, const playerType player) noexcept
 		{
 			const playerType otherPlayer{ player.next() };
-			const squareType kingSquare{ stack.kingSquare(player) };
-			const squareType opponentKing{ stack.kingSquare(otherPlayer) };
-			const squaresType kingArea{ generatorType::kingArea(kingSquare) & ~stack.position().playerOccupancy(player) };
 			const std::array<squaresType, countPieces> pieces{ arrayhelper::generate<countPieces,squaresType>([&stack,otherPlayer](const size_t index) {return stack.position().pieceOccupancy(static_cast<pieceType>(index)) & stack.position().playerOccupancy(otherPlayer); }) };
 			const auto& entry{ generatorType::pawnTable().entry(stack) };
-			size_t counterKingSafety{ 0 };
-			size_t counterKingAreaSafety{ 0 };
-			const auto& kingTropism{ entry.kingTropism(otherPlayer) };
-			const auto& kingAreaTropism{ entry.kingAreaTropism(otherPlayer) };
-			for (const auto pc : pieceType::range)
+			const auto& kingTropism{ entry.kingTropism(player) };
+			scoreType safetyScore{ scoreType::zero() };
+			bool bFound;
+			const squaresType unoccupied{ ~stack.position().totalOccupancy() };
+			const squaresType playerOcc{ stack.position().playerOccupancy(player) };
+			for (const auto sq : pieces[pawn])
 			{
-				if (pieces[pc])
+				bFound = false;
+				for (unsigned int d = 0; d <= generatorType::tropismType::maxDistance; d++)
 				{
-					for (unsigned int d = 0; d <= generatorType::tropismType::maxDistance; d++)
+					if (kingTropism.distanceSquares(pawn, d)[sq])
 					{
-						counterKingSafety += (kingTropism.distanceSquares(pc, d) & pieces[pc]).count();
-						counterKingAreaSafety += (kingAreaTropism.distanceSquares(pc, d) & pieces[pc]).count();
+						safetyScore -= m_KingSafetyScores[d];
+						bFound = true;
+						break;
+					}
+				}
+				if (!bFound)
+				{
+					if (otherPlayer == whitePlayer)
+					{
+						const squaresType pawnTargets{ generatorType::movegenPawnPushWhite.targets(sq, unoccupied) | generatorType::movegenPawnDoublePushWhite.targets(sq, unoccupied) };
+						safetyScore -= static_cast<typename scoreType::valueType>(static_cast<bool>(kingTropism.distanceSquares(pawn, generatorType::tropismType::maxDistance) & pawnTargets)) * m_KingSafetyScores[generatorType::tropismType::maxDistance + 1];
+					}
+					else
+					{
+						const squaresType pawnTargets{ generatorType::movegenPawnPushBlack.targets(sq, unoccupied) | generatorType::movegenPawnDoublePushBlack.targets(sq, unoccupied) };
+						safetyScore -= static_cast<typename scoreType::valueType>(static_cast<bool>(kingTropism.distanceSquares(pawn, generatorType::tropismType::maxDistance) & pawnTargets)) * m_KingSafetyScores[generatorType::tropismType::maxDistance + 1];
 					}
 				}
 			}
-			scoreType safetyScore{ scoreType::zero() };
+			const squareType otherKing{ stack.kingSquare(otherPlayer) };
+			bFound = false;
 			for (unsigned int d = 0; d <= generatorType::tropismType::maxDistance; d++)
 			{
-				safetyScore -= static_cast<typename scoreType::valueType>(counterKingSafety) * m_KingSafetyScores[d];
-				safetyScore -= static_cast<typename scoreType::valueType>(counterKingAreaSafety) * m_KingAreaSafetyScores[d];
+				if (kingTropism.distanceSquares(pawn, d)[otherKing])
+				{
+					safetyScore -= m_KingSafetyScores[d];
+					bFound = true;
+					break;
+				}
+			}
+			if (!bFound)
+			{
+				const squaresType kingTargets{ generatorType::movegenKing.targets(otherKing, unoccupied) | (generatorType::movegenKing.attacks(otherKing, unoccupied) & playerOcc) };
+				safetyScore -= static_cast<typename scoreType::valueType>(static_cast<bool>(kingTropism.distanceSquares(king, generatorType::tropismType::maxDistance) & kingTargets)) * m_KingSafetyScores[generatorType::tropismType::maxDistance + 1];
+			}
+			for (const auto sq : pieces[knight])
+			{
+				bFound = false;
+				for (unsigned int d = 0; d <= generatorType::tropismType::maxDistance; d++)
+				{
+					if (kingTropism.distanceSquares(knight, d)[sq])
+					{
+						safetyScore -= m_KingSafetyScores[d];
+						bFound = true;
+						break;
+					}
+				}
+				if (!bFound)
+				{
+					const squaresType knightTargets{ generatorType::movegenKnight.targets(sq, unoccupied) | (generatorType::movegenKnight.attacks(sq, unoccupied) & playerOcc) };
+					safetyScore -= static_cast<typename scoreType::valueType>(static_cast<bool>(kingTropism.distanceSquares(knight, generatorType::tropismType::maxDistance) & knightTargets)) * m_KingSafetyScores[generatorType::tropismType::maxDistance + 1];
+				}
+			}
+			for (const auto sq : pieces[rook])
+			{
+				bFound = false;
+				for (unsigned int d = 0; d <= generatorType::tropismType::maxDistance; d++)
+				{
+					if (kingTropism.distanceSquares(rook, d)[sq])
+					{
+						safetyScore -= m_KingSafetyScores[d];
+						bFound = true;
+						break;
+					}
+				}
+				if (!bFound)
+				{
+					const squaresType rookTargets{ generatorType::movegenSlidersHV.targets(sq, unoccupied) | (generatorType::movegenSlidersHV.attacks(sq, unoccupied) & playerOcc) };
+					safetyScore -= static_cast<typename scoreType::valueType>(static_cast<bool>(kingTropism.distanceSquares(rook, generatorType::tropismType::maxDistance) & rookTargets)) * m_KingSafetyScores[generatorType::tropismType::maxDistance + 1];
+				}
+			}
+			for (const auto sq : pieces[bishop])
+			{
+				bFound = false;
+				for (unsigned int d = 0; d <= generatorType::tropismType::maxDistance; d++)
+				{
+					if (kingTropism.distanceSquares(bishop, d)[sq])
+					{
+						safetyScore -= m_KingSafetyScores[d];
+						bFound = true;
+						break;
+					}
+				}
+				if (!bFound)
+				{
+					const squaresType bishopTargets{ generatorType::movegenSlidersDiag.targets(sq, unoccupied) | (generatorType::movegenSlidersDiag.attacks(sq, unoccupied) & playerOcc) };
+					safetyScore -= static_cast<typename scoreType::valueType>(static_cast<bool>(kingTropism.distanceSquares(bishop, generatorType::tropismType::maxDistance) & bishopTargets)) * m_KingSafetyScores[generatorType::tropismType::maxDistance + 1];
+				}
+			}
+			for (const auto sq : pieces[queen])
+			{
+				bFound = false;
+				for (unsigned int d = 0; d <= generatorType::tropismType::maxDistance; d++)
+				{
+					if (kingTropism.distanceSquares(queen, d)[sq])
+					{
+						safetyScore -= m_KingSafetyScores[d];
+						bFound = true;
+						break;
+					}
+				}
+				if (!bFound)
+				{
+					const squaresType queenTargets{ generatorType::movegenSlidersDiag.targets(sq, unoccupied) | generatorType::movegenSlidersHV.targets(sq, unoccupied) | (generatorType::movegenSlidersDiag.attacks(sq, unoccupied) & playerOcc) | (generatorType::movegenSlidersHV.attacks(sq, unoccupied) & playerOcc) };
+					safetyScore -= static_cast<typename scoreType::valueType>(static_cast<bool>(kingTropism.distanceSquares(queen, generatorType::tropismType::maxDistance) & queenTargets)) * m_KingSafetyScores[generatorType::tropismType::maxDistance + 1];
+				}
 			}
 			return safetyScore;
 		}
 	public:
 		constexpr static scoreType computeDelta_Implementation() noexcept
 		{
-			return static_cast<scoreType>(8.0 * (KingSafety + KingAreaSafety));
+			return static_cast<scoreType>(8.0 * (KingSafety));
 		}
 		template<size_t PLAYER>
 		PYGMALION_INLINE static scoreType evaluate_Implementation(const generatorType::template stackType<PLAYER>& stack) noexcept

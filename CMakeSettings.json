@@ -11,31 +11,6 @@
       "buildCommandArgs": "-v",
       "ctestCommandArgs": "",
       "variables": [
-        {
-          "name": "OPTIMIZE_FOR_BMI",
-          "value": "True",
-          "type": "BOOL"
-        },
-        {
-          "name": "OPTIMIZE_FOR_BMI2",
-          "value": "True",
-          "type": "BOOL"
-        },
-        {
-          "name": "OPTIMIZE_FOR_AVX2",
-          "value": "True",
-          "type": "BOOL"
-        },
-        {
-          "name": "USE_INDIRECT_SLIDERS",
-          "value": "True",
-          "type": "BOOL"
-        },
-        {
-          "name": "USE_COMPACT_SLIDERS",
-          "value": "True",
-          "type": "BOOL"
-        }
       ]
     },
     {
@@ -103,6 +78,11 @@
         {
           "name": "OPTIMIZE_FOR_NATIVE",
           "value": "True",
+          "type": "BOOL"
+        },
+        {
+          "name": "OPTIMIZE_LINK_TIME",
+          "value": "False",
           "type": "BOOL"
         }
       ]
@@ -298,6 +278,29 @@
         {
           "name": "OPTIMIZE_FOR_BMI2",
           "value": "True",
+          "type": "BOOL"
+        }
+      ]
+    },
+    {
+      "name": "x64-Clang-Test",
+      "generator": "Ninja",
+      "configurationType": "Release",
+      "buildRoot": "${projectDir}\\out\\build\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "-v",
+      "ctestCommandArgs": "",
+      "inheritEnvironments": [ "clang_cl_x64" ],
+      "variables": [
+        {
+          "name": "OPTIMIZE_FOR_NATIVE",
+          "value": "True",
+          "type": "BOOL"
+        },
+        {
+          "name": "OPTIMIZE_LINK_TIME",
+          "value": "False",
           "type": "BOOL"
         }
       ]
