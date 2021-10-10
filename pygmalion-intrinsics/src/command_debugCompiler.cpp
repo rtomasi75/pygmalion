@@ -10,11 +10,7 @@ namespace pygmalion::intrinsics
 		if (token == "debug-compiler")
 		{
 			output() << std::endl;
-			output() << "Compiler intrinsics:" << std::endl;
-			if constexpr (compiler::supports(compiler::MSC))
-				output() << "  MSC" << std::endl;
-			if constexpr (compiler::supports(compiler::GNU))
-				output() << "  GNU" << std::endl;
+			output() << compiler::flags() << std::endl;
 			output() << std::endl;
 			return true;
 		}

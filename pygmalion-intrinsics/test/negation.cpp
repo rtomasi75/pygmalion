@@ -12,8 +12,9 @@ int main(int argc, char* argv[])
 	std::cout << "UNIT TEST: pygmalion-intrinsics" << std::endl;
 	std::cout << "===============================" << std::endl;
 	bool result{ true };
+	std::cout << compiler::flags() << std::endl;
+	std::cout << cpu::flags() << std::endl;
 	result &= intrinsics::test::negation(std::cout);
-
 	std::cout << "================" << std::endl;
 	if (result)
 		std::cout << "PASSED UNIT TEST" << std::endl;
