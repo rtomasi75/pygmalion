@@ -240,11 +240,15 @@ namespace pygmalion::chess
 		public:
 			void resize(const std::uint64_t sizeInBytes) noexcept
 			{
-				m_EntryCount = std::max(UINT64_C(1), static_cast<size_t>(std::min(computeMaxEntries(), static_cast<std::uint64_t>(sizeInBytes / (sizeof(pawnentry))))));
-				m_WideEntryCount = static_cast<uint_t<128, false>>(static_cast<uint_t<64, false>>(static_cast<std::uint64_t>(m_EntryCount)));
-				m_Entry.resize(m_EntryCount);
-				for (size_t i = 0; i < m_EntryCount; i++)
-					m_Entry[i].clear();
+				const size_t newEntryCount{ std::max(UINT64_C(1), static_cast<size_t>(std::min(computeMaxEntries(), static_cast<std::uint64_t>(sizeInBytes / (sizeof(pawnentry)))))) };
+				if (m_EntryCount != newEntryCount)
+				{
+					m_EntryCount = newEntryCount;
+					m_WideEntryCount = static_cast<uint_t<128, false>>(static_cast<uint_t<64, false>>(static_cast<std::uint64_t>(m_EntryCount)));
+					m_Entry.resize(m_EntryCount);
+					for (size_t i = 0; i < m_EntryCount; i++)
+						m_Entry[i].clear();
+				}
 			}
 			size_t countUsedEntries() const noexcept
 			{

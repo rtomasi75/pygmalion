@@ -320,11 +320,15 @@ namespace pygmalion
 		}
 		void resize(const std::uint64_t sizeInBytes) noexcept
 		{
-			m_EntryCount = static_cast<size_t>(std::min(computeMaxEntries(), static_cast<std::uint64_t>(sizeInBytes / (sizeof(transposition) * countBuckets))));
-			m_WideEntryCount = static_cast<uint_t<128, false>>(static_cast<uint_t<64, false>>(static_cast<std::uint64_t>(m_EntryCount)));
-			m_Entry.resize(m_EntryCount * countBuckets);
-			for (size_t i = 0; i < m_EntryCount; i++)
-				m_Entry[i].clear();
+			const size_t newEntryCount{ static_cast<size_t>(std::min(computeMaxEntries(), static_cast<std::uint64_t>(sizeInBytes / (sizeof(transposition) * countBuckets)))) };
+			if (newEntryCount != m_EntryCount)
+			{
+				m_EntryCount = newEntryCount;
+				m_WideEntryCount = static_cast<uint_t<128, false>>(static_cast<uint_t<64, false>>(static_cast<std::uint64_t>(m_EntryCount)));
+				m_Entry.resize(m_EntryCount * countBuckets);
+				for (size_t i = 0; i < m_EntryCount; i++)
+					m_Entry[i].clear();
+			}
 		}
 		size_t countEntries() const noexcept
 		{
