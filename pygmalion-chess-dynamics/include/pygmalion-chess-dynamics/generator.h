@@ -108,11 +108,11 @@ namespace pygmalion::chess
 			class pawnentry
 			{
 			private:
-				std::array<typename generatorType::tropismType, countPlayers> m_KingTropism;
-				std::array<typename generatorType::tropismType, countPlayers> m_KingAreaTropism;
+				mutable std::array<typename generatorType::tropismType, countPlayers> m_KingTropism;
+				mutable std::array<typename generatorType::tropismType, countPlayers> m_KingAreaTropism;
 				std::array<squaresType, countPlayers> m_Pawns;
 				std::array<squareType, countPlayers> m_KingSquare;
-				std::uint8_t m_Flags;
+				mutable std::uint8_t m_Flags;
 				constexpr static inline std::uint8_t flagsNone{ UINT8_C(0x00) };
 				constexpr static inline std::uint8_t flagsUsed{ UINT8_C(0x01) };
 				constexpr static inline std::uint8_t flagsKingTropismWhite{ UINT8_C(0x02) };
@@ -130,7 +130,7 @@ namespace pygmalion::chess
 				{
 					return m_KingSquare[pl];
 				}
-				PYGMALION_INLINE const typename generatorType::tropismType& kingTropism(const playerType& pl) noexcept
+				PYGMALION_INLINE const typename generatorType::tropismType& kingTropism(const playerType& pl) const noexcept
 				{
 					if (!(m_Flags & flagsKingTropism[pl]))
 					{
@@ -139,7 +139,7 @@ namespace pygmalion::chess
 					}
 					return m_KingTropism[pl];
 				}
-				PYGMALION_INLINE const typename generatorType::tropismType& kingAreaTropism(const playerType& pl) noexcept
+				PYGMALION_INLINE const typename generatorType::tropismType& kingAreaTropism(const playerType& pl) const noexcept
 				{
 					if (!(m_Flags & flagsKingTropism[pl]))
 					{
@@ -288,7 +288,7 @@ namespace pygmalion::chess
 			}
 		};
 	private:
-		static inline pawntable m_PawnTable{ pawntable(0) };
+		static inline pawntable m_PawnTable{ pawntable(32 * 1024 * 1024) };
 	public:
 		PYGMALION_INLINE static pawntable& pawnTable() noexcept
 		{
@@ -384,186 +384,186 @@ namespace pygmalion::chess
 		template<size_t PLAYER>
 		static void control(const stackType<PLAYER>& stack, squaresType& whiteControl, squaresType& blackControl) noexcept
 		{
-/*#if defined(PYGMALION_CPU_SSE2)
-			if constexpr (cpu::supports(cpu::flags::SSE2))
-			{
-				constexpr const std::uint64_t full{ UINT64_C(0xffffffffffffffff) };
-				const __m128i full_full{ _mm_set1_epi64x(full) };
+			/*#if defined(PYGMALION_CPU_SSE2)
+						if constexpr (cpu::supports(cpu::flags::SSE2))
+						{
+							constexpr const std::uint64_t full{ UINT64_C(0xffffffffffffffff) };
+							const __m128i full_full{ _mm_set1_epi64x(full) };
 
-				const __m128i black_white_OCC{ _mm_set_epi64x(static_cast<unsigned long long>(stack.position().playerOccupancy(blackPlayer).bits()), static_cast<unsigned long long>(stack.position().playerOccupancy(whitePlayer).bits())) };
-				const __m128i pawn_OCC{ _mm_set1_epi64x(static_cast<unsigned long long>(stack.position().pieceOccupancy(pawn).bits())) };
-				const __m128i blackPawns_whitePawns{ _mm_and_si128(black_white_OCC,pawn_OCC) };
-				const __m128i whitePawns{ _mm_shuffle_epi32(blackPawns_whitePawns,0b01000100) };
-				const __m128i blackPawns{ _mm_shuffle_epi32(blackPawns_whitePawns,0b11101110) };
-				const __m128i whiteUpPawns{ _mm_slli_epi64(whitePawns,countFiles) };
-				const __m128i blackDownPawns{ _mm_srli_epi64(blackPawns,countFiles) };
-				const __m128i blackDownPawns_whiteUpPawns{ _mm_unpacklo_epi64(blackDownPawns,whiteUpPawns) };
-				constexpr const squaresType FileA{ squaresType(fileA) };
-				constexpr const squaresType FileH{ squaresType(fileH) };
-				const __m128i fileAMask{ _mm_set1_epi64x(static_cast<unsigned long long>(FileA.bits())) };
-				const __m128i fileHMask{ _mm_set1_epi64x(static_cast<unsigned long long>(FileH.bits())) };
-				const __m128i blackDownRightPawns_whiteUpRightPawns{ _mm_slli_epi64(_mm_andnot_si128(fileHMask, blackDownPawns_whiteUpPawns),1) };
-				const __m128i blackDownLeftPawns_whiteUpLeftPawns{ _mm_srli_epi64(_mm_andnot_si128(fileAMask, blackDownPawns_whiteUpPawns),1) };
-				const __m128i blackSingleAttacks_whiteSingleAttacks{ _mm_xor_si128(blackDownRightPawns_whiteUpRightPawns, blackDownLeftPawns_whiteUpLeftPawns) };
-				const __m128i blackDoubleAttacks_whiteDoubleAttacks{ _mm_and_si128(blackDownRightPawns_whiteUpRightPawns, blackDownLeftPawns_whiteUpLeftPawns) };
-				const __m128i whiteSingleAttacks_blackSingleAttacks{ _mm_shuffle_epi32(blackSingleAttacks_whiteSingleAttacks, 0b01001110) };
-				const __m128i whiteDoubleAttacks_blackDoubleAttacks{ _mm_shuffle_epi32(blackDoubleAttacks_whiteDoubleAttacks, 0b01001110) };
-				const __m128i whiteSingleAttacks_whiteDoubleAttacks{ _mm_unpackhi_epi64(blackSingleAttacks_whiteSingleAttacks,blackDoubleAttacks_whiteDoubleAttacks) };
-				const __m128i blackSingleAttacks_blackDoubleAttacks{ _mm_unpacklo_epi64(blackSingleAttacks_whiteSingleAttacks,blackDoubleAttacks_whiteDoubleAttacks) };
-				const __m128i unbalancedDoubleAttacks_unbalancedSingleAttacks{ _mm_and_si128(whiteSingleAttacks_whiteDoubleAttacks,blackSingleAttacks_blackDoubleAttacks) };
-				const __m128i unbalancedDoubleAttacks_unbalancedDoubleAttacks{ _mm_shuffle_epi32(unbalancedDoubleAttacks_unbalancedSingleAttacks, 0b11101110) };
-				const __m128i unbalancedSingleAttacks_unbalancedSingleAttacks{ _mm_shuffle_epi32(unbalancedDoubleAttacks_unbalancedSingleAttacks, 0b01000100) };
-				__m128i blackControl_WhiteControl{ _mm_andnot_si128(unbalancedDoubleAttacks_unbalancedDoubleAttacks, blackDoubleAttacks_whiteDoubleAttacks) };
-				__m128i notOpen{ _mm_or_si128(blackControl_WhiteControl, _mm_shuffle_epi32(blackControl_WhiteControl, 0b01001110)) };
-				blackControl_WhiteControl = _mm_andnot_si128(_mm_andnot_si128(blackControl_WhiteControl, _mm_andnot_si128(_mm_andnot_si128(notOpen, _mm_andnot_si128(unbalancedSingleAttacks_unbalancedSingleAttacks, blackSingleAttacks_whiteSingleAttacks)), full_full)), full_full);
-				notOpen = _mm_or_si128(notOpen, _mm_or_si128(blackControl_WhiteControl, _mm_shuffle_epi32(blackControl_WhiteControl, 0b01001110)));
+							const __m128i black_white_OCC{ _mm_set_epi64x(static_cast<unsigned long long>(stack.position().playerOccupancy(blackPlayer).bits()), static_cast<unsigned long long>(stack.position().playerOccupancy(whitePlayer).bits())) };
+							const __m128i pawn_OCC{ _mm_set1_epi64x(static_cast<unsigned long long>(stack.position().pieceOccupancy(pawn).bits())) };
+							const __m128i blackPawns_whitePawns{ _mm_and_si128(black_white_OCC,pawn_OCC) };
+							const __m128i whitePawns{ _mm_shuffle_epi32(blackPawns_whitePawns,0b01000100) };
+							const __m128i blackPawns{ _mm_shuffle_epi32(blackPawns_whitePawns,0b11101110) };
+							const __m128i whiteUpPawns{ _mm_slli_epi64(whitePawns,countFiles) };
+							const __m128i blackDownPawns{ _mm_srli_epi64(blackPawns,countFiles) };
+							const __m128i blackDownPawns_whiteUpPawns{ _mm_unpacklo_epi64(blackDownPawns,whiteUpPawns) };
+							constexpr const squaresType FileA{ squaresType(fileA) };
+							constexpr const squaresType FileH{ squaresType(fileH) };
+							const __m128i fileAMask{ _mm_set1_epi64x(static_cast<unsigned long long>(FileA.bits())) };
+							const __m128i fileHMask{ _mm_set1_epi64x(static_cast<unsigned long long>(FileH.bits())) };
+							const __m128i blackDownRightPawns_whiteUpRightPawns{ _mm_slli_epi64(_mm_andnot_si128(fileHMask, blackDownPawns_whiteUpPawns),1) };
+							const __m128i blackDownLeftPawns_whiteUpLeftPawns{ _mm_srli_epi64(_mm_andnot_si128(fileAMask, blackDownPawns_whiteUpPawns),1) };
+							const __m128i blackSingleAttacks_whiteSingleAttacks{ _mm_xor_si128(blackDownRightPawns_whiteUpRightPawns, blackDownLeftPawns_whiteUpLeftPawns) };
+							const __m128i blackDoubleAttacks_whiteDoubleAttacks{ _mm_and_si128(blackDownRightPawns_whiteUpRightPawns, blackDownLeftPawns_whiteUpLeftPawns) };
+							const __m128i whiteSingleAttacks_blackSingleAttacks{ _mm_shuffle_epi32(blackSingleAttacks_whiteSingleAttacks, 0b01001110) };
+							const __m128i whiteDoubleAttacks_blackDoubleAttacks{ _mm_shuffle_epi32(blackDoubleAttacks_whiteDoubleAttacks, 0b01001110) };
+							const __m128i whiteSingleAttacks_whiteDoubleAttacks{ _mm_unpackhi_epi64(blackSingleAttacks_whiteSingleAttacks,blackDoubleAttacks_whiteDoubleAttacks) };
+							const __m128i blackSingleAttacks_blackDoubleAttacks{ _mm_unpacklo_epi64(blackSingleAttacks_whiteSingleAttacks,blackDoubleAttacks_whiteDoubleAttacks) };
+							const __m128i unbalancedDoubleAttacks_unbalancedSingleAttacks{ _mm_and_si128(whiteSingleAttacks_whiteDoubleAttacks,blackSingleAttacks_blackDoubleAttacks) };
+							const __m128i unbalancedDoubleAttacks_unbalancedDoubleAttacks{ _mm_shuffle_epi32(unbalancedDoubleAttacks_unbalancedSingleAttacks, 0b11101110) };
+							const __m128i unbalancedSingleAttacks_unbalancedSingleAttacks{ _mm_shuffle_epi32(unbalancedDoubleAttacks_unbalancedSingleAttacks, 0b01000100) };
+							__m128i blackControl_WhiteControl{ _mm_andnot_si128(unbalancedDoubleAttacks_unbalancedDoubleAttacks, blackDoubleAttacks_whiteDoubleAttacks) };
+							__m128i notOpen{ _mm_or_si128(blackControl_WhiteControl, _mm_shuffle_epi32(blackControl_WhiteControl, 0b01001110)) };
+							blackControl_WhiteControl = _mm_andnot_si128(_mm_andnot_si128(blackControl_WhiteControl, _mm_andnot_si128(_mm_andnot_si128(notOpen, _mm_andnot_si128(unbalancedSingleAttacks_unbalancedSingleAttacks, blackSingleAttacks_whiteSingleAttacks)), full_full)), full_full);
+							notOpen = _mm_or_si128(notOpen, _mm_or_si128(blackControl_WhiteControl, _mm_shuffle_epi32(blackControl_WhiteControl, 0b01001110)));
 
 
 
-				std::uint64_t nOpen;
-				_mm_storel_epi64(reinterpret_cast<__m128i*>(&nOpen), notOpen);
-				squaresType open{ squaresType(static_cast<typename squaresType::bitsType>(~nOpen)) };
-				std::uint64_t ctrl[2];
-				_mm_storeu_si128(reinterpret_cast<__m128i*>(&ctrl[0]), blackControl_WhiteControl);
-				whiteControl = squaresType(static_cast<typename squaresType::bitsType>(ctrl[1]));
-				blackControl = squaresType(static_cast<typename squaresType::bitsType>(ctrl[0]));
-				constexpr const squaresType all{ squaresType::all() };
-				constexpr const squaresType none{ squaresType::none() };
-				const squaresType unoccupied{ ~stack.position().totalOccupancy() };
-				const squaresType whiteOcc{ stack.position().playerOccupancy(whitePlayer) };
-				const squaresType blackOcc{ stack.position().playerOccupancy(blackPlayer) };
+							std::uint64_t nOpen;
+							_mm_storel_epi64(reinterpret_cast<__m128i*>(&nOpen), notOpen);
+							squaresType open{ squaresType(static_cast<typename squaresType::bitsType>(~nOpen)) };
+							std::uint64_t ctrl[2];
+							_mm_storeu_si128(reinterpret_cast<__m128i*>(&ctrl[0]), blackControl_WhiteControl);
+							whiteControl = squaresType(static_cast<typename squaresType::bitsType>(ctrl[1]));
+							blackControl = squaresType(static_cast<typename squaresType::bitsType>(ctrl[0]));
+							constexpr const squaresType all{ squaresType::all() };
+							constexpr const squaresType none{ squaresType::none() };
+							const squaresType unoccupied{ ~stack.position().totalOccupancy() };
+							const squaresType whiteOcc{ stack.position().playerOccupancy(whitePlayer) };
+							const squaresType blackOcc{ stack.position().playerOccupancy(blackPlayer) };
 
-				const squaresType knightOcc{ stack.position().pieceOccupancy(knight) };
-				const squaresType whiteKnights{ whiteOcc & knightOcc };
-				const squaresType blackKnights{ blackOcc & knightOcc };
-				const squaresType bishopOcc{ stack.position().pieceOccupancy(bishop) };
-				const squaresType whiteBishops{ whiteOcc & bishopOcc };
-				const squaresType blackBishops{ blackOcc & bishopOcc };
-				squaresType attackedBy1WhiteKnightOrBishop{ none };
-				squaresType attackedBy2WhiteKnightOrBishop{ none };
-				squaresType attackedBy3WhiteKnightOrBishop{ none };
-				squaresType attackedBy4WhiteKnightOrBishop{ none };
-				squaresType attackedBy1BlackKnightOrBishop{ none };
-				squaresType attackedBy2BlackKnightOrBishop{ none };
-				squaresType attackedBy3BlackKnightOrBishop{ none };
-				squaresType attackedBy4BlackKnightOrBishop{ none };
-				for (squareType sq : whiteKnights)
-				{
-					const squaresType attacks{ generatorType::movegenKnight.attacks(sq,all) };
-					attackedBy4WhiteKnightOrBishop |= attacks & attackedBy3WhiteKnightOrBishop;
-					attackedBy3WhiteKnightOrBishop |= attacks & attackedBy2WhiteKnightOrBishop;
-					attackedBy2WhiteKnightOrBishop |= attacks & attackedBy1WhiteKnightOrBishop;
-					attackedBy1WhiteKnightOrBishop |= attacks;
-				}
-				for (squareType sq : whiteBishops)
-				{
-					const squaresType attacks{ generatorType::movegenSlidersDiag.attacks(sq,unoccupied) };
-					attackedBy4WhiteKnightOrBishop |= attacks & attackedBy3WhiteKnightOrBishop;
-					attackedBy3WhiteKnightOrBishop |= attacks & attackedBy2WhiteKnightOrBishop;
-					attackedBy2WhiteKnightOrBishop |= attacks & attackedBy1WhiteKnightOrBishop;
-					attackedBy1WhiteKnightOrBishop |= attacks;
-				}
-				attackedBy3WhiteKnightOrBishop &= ~attackedBy4WhiteKnightOrBishop;
-				attackedBy2WhiteKnightOrBishop &= ~attackedBy3WhiteKnightOrBishop;
-				attackedBy1WhiteKnightOrBishop &= ~attackedBy2WhiteKnightOrBishop;
-				for (squareType sq : blackKnights)
-				{
-					const squaresType attacks{ generatorType::movegenKnight.attacks(sq,all) };
-					attackedBy4BlackKnightOrBishop |= attacks & attackedBy3BlackKnightOrBishop;
-					attackedBy3BlackKnightOrBishop |= attacks & attackedBy2BlackKnightOrBishop;
-					attackedBy2BlackKnightOrBishop |= attacks & attackedBy1BlackKnightOrBishop;
-					attackedBy1BlackKnightOrBishop |= attacks;
-				}
-				for (squareType sq : blackBishops)
-				{
-					const squaresType attacks{ generatorType::movegenSlidersDiag.attacks(sq,unoccupied) };
-					attackedBy4BlackKnightOrBishop |= attacks & attackedBy3BlackKnightOrBishop;
-					attackedBy3BlackKnightOrBishop |= attacks & attackedBy2BlackKnightOrBishop;
-					attackedBy2BlackKnightOrBishop |= attacks & attackedBy1BlackKnightOrBishop;
-					attackedBy1BlackKnightOrBishop |= attacks;
-				}
-				attackedBy3BlackKnightOrBishop &= ~attackedBy4BlackKnightOrBishop;
-				attackedBy2BlackKnightOrBishop &= ~attackedBy3BlackKnightOrBishop;
-				attackedBy1BlackKnightOrBishop &= ~attackedBy2BlackKnightOrBishop;
-				const squaresType balanced4KnightOrBishopAttacks{ ~(attackedBy4WhiteKnightOrBishop & attackedBy4BlackKnightOrBishop) };
-				whiteControl |= open & attackedBy4WhiteKnightOrBishop & balanced4KnightOrBishopAttacks;
-				blackControl |= open & attackedBy4BlackKnightOrBishop & balanced4KnightOrBishopAttacks;
-				open &= ~(whiteControl | blackControl);
-				const squaresType balanced3KnightOrBishopAttacks{ ~(attackedBy3WhiteKnightOrBishop & attackedBy3BlackKnightOrBishop) };
-				whiteControl |= open & attackedBy3WhiteKnightOrBishop & balanced3KnightOrBishopAttacks;
-				blackControl |= open & attackedBy3BlackKnightOrBishop & balanced3KnightOrBishopAttacks;
-				open &= ~(whiteControl | blackControl);
-				const squaresType balanced2KnightOrBishopAttacks{ ~(attackedBy2WhiteKnightOrBishop & attackedBy2BlackKnightOrBishop) };
-				whiteControl |= open & attackedBy2WhiteKnightOrBishop & balanced2KnightOrBishopAttacks;
-				blackControl |= open & attackedBy2BlackKnightOrBishop & balanced2KnightOrBishopAttacks;
-				open &= ~(whiteControl | blackControl);
-				const squaresType balanced1KnightOrBishopAttacks{ ~(attackedBy1WhiteKnightOrBishop & attackedBy1BlackKnightOrBishop) };
-				whiteControl |= open & attackedBy1WhiteKnightOrBishop & balanced1KnightOrBishopAttacks;
-				blackControl |= open & attackedBy1BlackKnightOrBishop & balanced1KnightOrBishopAttacks;
-				open &= ~(whiteControl | blackControl);
+							const squaresType knightOcc{ stack.position().pieceOccupancy(knight) };
+							const squaresType whiteKnights{ whiteOcc & knightOcc };
+							const squaresType blackKnights{ blackOcc & knightOcc };
+							const squaresType bishopOcc{ stack.position().pieceOccupancy(bishop) };
+							const squaresType whiteBishops{ whiteOcc & bishopOcc };
+							const squaresType blackBishops{ blackOcc & bishopOcc };
+							squaresType attackedBy1WhiteKnightOrBishop{ none };
+							squaresType attackedBy2WhiteKnightOrBishop{ none };
+							squaresType attackedBy3WhiteKnightOrBishop{ none };
+							squaresType attackedBy4WhiteKnightOrBishop{ none };
+							squaresType attackedBy1BlackKnightOrBishop{ none };
+							squaresType attackedBy2BlackKnightOrBishop{ none };
+							squaresType attackedBy3BlackKnightOrBishop{ none };
+							squaresType attackedBy4BlackKnightOrBishop{ none };
+							for (squareType sq : whiteKnights)
+							{
+								const squaresType attacks{ generatorType::movegenKnight.attacks(sq,all) };
+								attackedBy4WhiteKnightOrBishop |= attacks & attackedBy3WhiteKnightOrBishop;
+								attackedBy3WhiteKnightOrBishop |= attacks & attackedBy2WhiteKnightOrBishop;
+								attackedBy2WhiteKnightOrBishop |= attacks & attackedBy1WhiteKnightOrBishop;
+								attackedBy1WhiteKnightOrBishop |= attacks;
+							}
+							for (squareType sq : whiteBishops)
+							{
+								const squaresType attacks{ generatorType::movegenSlidersDiag.attacks(sq,unoccupied) };
+								attackedBy4WhiteKnightOrBishop |= attacks & attackedBy3WhiteKnightOrBishop;
+								attackedBy3WhiteKnightOrBishop |= attacks & attackedBy2WhiteKnightOrBishop;
+								attackedBy2WhiteKnightOrBishop |= attacks & attackedBy1WhiteKnightOrBishop;
+								attackedBy1WhiteKnightOrBishop |= attacks;
+							}
+							attackedBy3WhiteKnightOrBishop &= ~attackedBy4WhiteKnightOrBishop;
+							attackedBy2WhiteKnightOrBishop &= ~attackedBy3WhiteKnightOrBishop;
+							attackedBy1WhiteKnightOrBishop &= ~attackedBy2WhiteKnightOrBishop;
+							for (squareType sq : blackKnights)
+							{
+								const squaresType attacks{ generatorType::movegenKnight.attacks(sq,all) };
+								attackedBy4BlackKnightOrBishop |= attacks & attackedBy3BlackKnightOrBishop;
+								attackedBy3BlackKnightOrBishop |= attacks & attackedBy2BlackKnightOrBishop;
+								attackedBy2BlackKnightOrBishop |= attacks & attackedBy1BlackKnightOrBishop;
+								attackedBy1BlackKnightOrBishop |= attacks;
+							}
+							for (squareType sq : blackBishops)
+							{
+								const squaresType attacks{ generatorType::movegenSlidersDiag.attacks(sq,unoccupied) };
+								attackedBy4BlackKnightOrBishop |= attacks & attackedBy3BlackKnightOrBishop;
+								attackedBy3BlackKnightOrBishop |= attacks & attackedBy2BlackKnightOrBishop;
+								attackedBy2BlackKnightOrBishop |= attacks & attackedBy1BlackKnightOrBishop;
+								attackedBy1BlackKnightOrBishop |= attacks;
+							}
+							attackedBy3BlackKnightOrBishop &= ~attackedBy4BlackKnightOrBishop;
+							attackedBy2BlackKnightOrBishop &= ~attackedBy3BlackKnightOrBishop;
+							attackedBy1BlackKnightOrBishop &= ~attackedBy2BlackKnightOrBishop;
+							const squaresType balanced4KnightOrBishopAttacks{ ~(attackedBy4WhiteKnightOrBishop & attackedBy4BlackKnightOrBishop) };
+							whiteControl |= open & attackedBy4WhiteKnightOrBishop & balanced4KnightOrBishopAttacks;
+							blackControl |= open & attackedBy4BlackKnightOrBishop & balanced4KnightOrBishopAttacks;
+							open &= ~(whiteControl | blackControl);
+							const squaresType balanced3KnightOrBishopAttacks{ ~(attackedBy3WhiteKnightOrBishop & attackedBy3BlackKnightOrBishop) };
+							whiteControl |= open & attackedBy3WhiteKnightOrBishop & balanced3KnightOrBishopAttacks;
+							blackControl |= open & attackedBy3BlackKnightOrBishop & balanced3KnightOrBishopAttacks;
+							open &= ~(whiteControl | blackControl);
+							const squaresType balanced2KnightOrBishopAttacks{ ~(attackedBy2WhiteKnightOrBishop & attackedBy2BlackKnightOrBishop) };
+							whiteControl |= open & attackedBy2WhiteKnightOrBishop & balanced2KnightOrBishopAttacks;
+							blackControl |= open & attackedBy2BlackKnightOrBishop & balanced2KnightOrBishopAttacks;
+							open &= ~(whiteControl | blackControl);
+							const squaresType balanced1KnightOrBishopAttacks{ ~(attackedBy1WhiteKnightOrBishop & attackedBy1BlackKnightOrBishop) };
+							whiteControl |= open & attackedBy1WhiteKnightOrBishop & balanced1KnightOrBishopAttacks;
+							blackControl |= open & attackedBy1BlackKnightOrBishop & balanced1KnightOrBishopAttacks;
+							open &= ~(whiteControl | blackControl);
 
-				const squaresType rookOcc{ stack.position().pieceOccupancy(rook) };
-				const squaresType whiteRooks{ whiteOcc & rookOcc };
-				const squaresType blackRooks{ blackOcc & rookOcc };
-				squaresType attackedBy2WhiteRook{ none };
-				squaresType attackedBy2BlackRook{ none };
-				squaresType attackedBy1WhiteRook{ none };
-				squaresType attackedBy1BlackRook{ none };
-				for (squareType sq : whiteRooks)
-				{
-					const squaresType attacks{ generatorType::movegenSlidersHV.attacks(sq,unoccupied) };
-					attackedBy2WhiteRook |= attacks & attackedBy1WhiteRook;
-					attackedBy1WhiteRook |= attacks;
-				}
-				for (squareType sq : blackRooks)
-				{
-					const squaresType attacks{ generatorType::movegenSlidersHV.attacks(sq,unoccupied) };
-					attackedBy2BlackRook |= attacks & attackedBy1BlackRook;
-					attackedBy1BlackRook |= attacks;
-				}
-				const squaresType balanced2RookAttacks{ ~(attackedBy2WhiteRook & attackedBy2BlackRook) };
-				whiteControl |= open & attackedBy2WhiteRook & balanced2RookAttacks;
-				blackControl |= open & attackedBy2BlackRook & balanced2RookAttacks;
-				open &= ~(whiteControl | blackControl);
-				const squaresType balanced1RookAttacks{ ~(attackedBy1WhiteRook & attackedBy1BlackRook) };
-				whiteControl |= open & attackedBy1WhiteRook & balanced1RookAttacks;
-				blackControl |= open & attackedBy1BlackRook & balanced1RookAttacks;
-				open &= ~(whiteControl | blackControl);
+							const squaresType rookOcc{ stack.position().pieceOccupancy(rook) };
+							const squaresType whiteRooks{ whiteOcc & rookOcc };
+							const squaresType blackRooks{ blackOcc & rookOcc };
+							squaresType attackedBy2WhiteRook{ none };
+							squaresType attackedBy2BlackRook{ none };
+							squaresType attackedBy1WhiteRook{ none };
+							squaresType attackedBy1BlackRook{ none };
+							for (squareType sq : whiteRooks)
+							{
+								const squaresType attacks{ generatorType::movegenSlidersHV.attacks(sq,unoccupied) };
+								attackedBy2WhiteRook |= attacks & attackedBy1WhiteRook;
+								attackedBy1WhiteRook |= attacks;
+							}
+							for (squareType sq : blackRooks)
+							{
+								const squaresType attacks{ generatorType::movegenSlidersHV.attacks(sq,unoccupied) };
+								attackedBy2BlackRook |= attacks & attackedBy1BlackRook;
+								attackedBy1BlackRook |= attacks;
+							}
+							const squaresType balanced2RookAttacks{ ~(attackedBy2WhiteRook & attackedBy2BlackRook) };
+							whiteControl |= open & attackedBy2WhiteRook & balanced2RookAttacks;
+							blackControl |= open & attackedBy2BlackRook & balanced2RookAttacks;
+							open &= ~(whiteControl | blackControl);
+							const squaresType balanced1RookAttacks{ ~(attackedBy1WhiteRook & attackedBy1BlackRook) };
+							whiteControl |= open & attackedBy1WhiteRook & balanced1RookAttacks;
+							blackControl |= open & attackedBy1BlackRook & balanced1RookAttacks;
+							open &= ~(whiteControl | blackControl);
 
-				const squaresType queenOcc{ stack.position().pieceOccupancy(queen) };
-				const squaresType whiteQueens{ whiteOcc & queenOcc };
-				const squaresType blackQueens{ blackOcc & queenOcc };
-				squaresType attackedByWhiteQueen{ none };
-				squaresType attackedByBlackQueen{ none };
-				for (squareType sq : whiteQueens)
-				{
-					const squaresType attacks{ generatorType::movegenSlidersDiag.attacks(sq,unoccupied) | generatorType::movegenSlidersHV.attacks(sq,unoccupied) };
-					attackedByWhiteQueen |= attacks;
-				}
-				for (squareType sq : blackQueens)
-				{
-					const squaresType attacks{ generatorType::movegenSlidersDiag.attacks(sq,unoccupied) | generatorType::movegenSlidersHV.attacks(sq,unoccupied) };
-					attackedByBlackQueen |= attacks;
-				}
-				const squaresType balancedQueenAttacks{ ~(attackedByWhiteQueen & attackedByBlackQueen) };
-				whiteControl |= open & attackedByWhiteQueen & balancedQueenAttacks;
-				blackControl |= open & attackedByBlackQueen & balancedQueenAttacks;
-				open &= ~(whiteControl | blackControl);
+							const squaresType queenOcc{ stack.position().pieceOccupancy(queen) };
+							const squaresType whiteQueens{ whiteOcc & queenOcc };
+							const squaresType blackQueens{ blackOcc & queenOcc };
+							squaresType attackedByWhiteQueen{ none };
+							squaresType attackedByBlackQueen{ none };
+							for (squareType sq : whiteQueens)
+							{
+								const squaresType attacks{ generatorType::movegenSlidersDiag.attacks(sq,unoccupied) | generatorType::movegenSlidersHV.attacks(sq,unoccupied) };
+								attackedByWhiteQueen |= attacks;
+							}
+							for (squareType sq : blackQueens)
+							{
+								const squaresType attacks{ generatorType::movegenSlidersDiag.attacks(sq,unoccupied) | generatorType::movegenSlidersHV.attacks(sq,unoccupied) };
+								attackedByBlackQueen |= attacks;
+							}
+							const squaresType balancedQueenAttacks{ ~(attackedByWhiteQueen & attackedByBlackQueen) };
+							whiteControl |= open & attackedByWhiteQueen & balancedQueenAttacks;
+							blackControl |= open & attackedByBlackQueen & balancedQueenAttacks;
+							open &= ~(whiteControl | blackControl);
 
-				const squaresType whiteKingAttacks{ generatorType::movegenKing.attacks(stack.kingSquare(whitePlayer),all) };
-				const squaresType blackKingAttacks{ generatorType::movegenKing.attacks(stack.kingSquare(blackPlayer),all) };
-				const squaresType balancedKingAttacks{ ~(whiteKingAttacks & blackKingAttacks) };
-				whiteControl |= open & whiteKingAttacks & balancedKingAttacks;
-				blackControl |= open & blackKingAttacks & balancedKingAttacks;
-#if defined(_DEBUG)
-				squaresType refWhiteControl;
-				squaresType refBlackControl;
-				controlRef(stack, refWhiteControl, refBlackControl);
-				PYGMALION_ASSERT(refWhiteControl == whiteControl);
-				PYGMALION_ASSERT(refBlackControl == blackControl);
-#endif
-			}
-#endif*/
+							const squaresType whiteKingAttacks{ generatorType::movegenKing.attacks(stack.kingSquare(whitePlayer),all) };
+							const squaresType blackKingAttacks{ generatorType::movegenKing.attacks(stack.kingSquare(blackPlayer),all) };
+							const squaresType balancedKingAttacks{ ~(whiteKingAttacks & blackKingAttacks) };
+							whiteControl |= open & whiteKingAttacks & balancedKingAttacks;
+							blackControl |= open & blackKingAttacks & balancedKingAttacks;
+			#if defined(_DEBUG)
+							squaresType refWhiteControl;
+							squaresType refBlackControl;
+							controlRef(stack, refWhiteControl, refBlackControl);
+							PYGMALION_ASSERT(refWhiteControl == whiteControl);
+							PYGMALION_ASSERT(refBlackControl == blackControl);
+			#endif
+						}
+			#endif*/
 			{
 				constexpr const squaresType all{ squaresType::all() };
 				constexpr const squaresType none{ squaresType::none() };

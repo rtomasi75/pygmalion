@@ -17,8 +17,11 @@ namespace pygmalion::chess::frontend
 			if ((this->front().isXBoard()) && (token == "memory"))
 			{
 				std::int64_t sizeInMegaBytes = parser::parseInt(remainder);
-				this->frontendEngine().heuristics().transpositionTable().resize(sizeInMegaBytes * 1024 * 1024);
-				generatorType::pawnTable().resize(0);
+				std::int64_t sizeInBytes = sizeInMegaBytes * 1024 * 1024;
+				std::int64_t sizeTT = (3 * sizeInBytes) / 4;
+				std::int64_t sizePT = (sizeInBytes) / 4;
+				this->frontendEngine().heuristics().transpositionTable().resize(sizeTT);
+				generatorType::pawnTable().resize(sizePT);
 				this->output() << std::endl;
 				return true;
 			}

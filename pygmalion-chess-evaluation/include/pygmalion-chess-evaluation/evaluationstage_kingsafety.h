@@ -1,11 +1,11 @@
 namespace pygmalion::chess
 {
-/*	class evaluationstage_kingsafety :
+	class evaluationstage_kingsafety :
 		public pygmalion::evaluationstage<descriptor_evaluation, evaluationstage_kingsafety>
 	{
 	public:
-		constexpr static inline double KingSafety{ 0.025 };
-		constexpr static inline double KingAreaSafety{ 0.0125 };
+		constexpr static inline double KingSafety{ 0.05 };
+		constexpr static inline double KingAreaSafety{ 0.05 };
 	private:
 		class scoreLookUp
 		{
@@ -24,7 +24,7 @@ namespace pygmalion::chess
 					m_Score[i] = static_cast<scoreType>(value);
 				}
 			}
-			const scoreType& operator[](const size_t index) const noexcept
+			PYGMALION_INLINE const scoreType& operator[](const size_t index) const noexcept
 			{
 				return m_Score[index];
 			}
@@ -37,24 +37,26 @@ namespace pygmalion::chess
 		static inline scoreLookUp m_KingAreaSafetyScores{ scoreLookUp(KingAreaSafety) };
 		static inline scoreLookUp m_KingSafetyScores{ scoreLookUp(KingSafety) };
 		template<size_t PLAYER>
-		static scoreType scoreKingsafety(const generatorType::template stackType<PLAYER>& stack, const playerType player) noexcept
+		PYGMALION_INLINE static scoreType scoreKingsafety(const generatorType::template stackType<PLAYER>& stack, const playerType player) noexcept
 		{
 			const playerType otherPlayer{ player.next() };
 			const squareType kingSquare{ stack.kingSquare(player) };
 			const squareType opponentKing{ stack.kingSquare(otherPlayer) };
 			const squaresType kingArea{ generatorType::kingArea(kingSquare) & ~stack.position().playerOccupancy(player) };
 			const std::array<squaresType, countPieces> pieces{ arrayhelper::generate<countPieces,squaresType>([&stack,otherPlayer](const size_t index) {return stack.position().pieceOccupancy(static_cast<pieceType>(index)) & stack.position().playerOccupancy(otherPlayer); }) };
-			const auto& entry{ pawntable::entry(stack) };
+			const auto& entry{ generatorType::pawnTable().entry(stack) };
 			size_t counterKingSafety{ 0 };
 			size_t counterKingAreaSafety{ 0 };
+			const auto& kingTropism{ entry.kingTropism(otherPlayer) };
+			const auto& kingAreaTropism{ entry.kingAreaTropism(otherPlayer) };
 			for (const auto pc : pieceType::range)
 			{
 				if (pieces[pc])
 				{
 					for (unsigned int d = 0; d <= generatorType::tropismType::maxDistance; d++)
 					{
-						counterKingSafety += (entry.kingTropism(otherPlayer).distanceSquares(pc, d) & pieces[pc]).count();
-						counterKingAreaSafety += (entry.kingAreaTropism(otherPlayer).distanceSquares(pc, d) & pieces[pc]).count();
+						counterKingSafety += (kingTropism.distanceSquares(pc, d) & pieces[pc]).count();
+						counterKingAreaSafety += (kingAreaTropism.distanceSquares(pc, d) & pieces[pc]).count();
 					}
 				}
 			}
@@ -69,10 +71,10 @@ namespace pygmalion::chess
 	public:
 		constexpr static scoreType computeDelta_Implementation() noexcept
 		{
-			return static_cast<scoreType>(0.5 * (KingSafety + KingAreaSafety));
+			return static_cast<scoreType>(8.0 * (KingSafety + KingAreaSafety));
 		}
 		template<size_t PLAYER>
-		static scoreType evaluate_Implementation(const generatorType::template stackType<PLAYER>& stack) noexcept
+		PYGMALION_INLINE static scoreType evaluate_Implementation(const generatorType::template stackType<PLAYER>& stack) noexcept
 		{
 			const scoreType kingSafetyWhite{ scoreKingsafety<PLAYER>(stack,whitePlayer) };
 			const scoreType kingSafetyBlack{ scoreKingsafety<PLAYER>(stack,blackPlayer) };
@@ -84,5 +86,5 @@ namespace pygmalion::chess
 		{
 			return "king safety";
 		}
-	};*/
+	};
 }
