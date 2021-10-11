@@ -90,6 +90,8 @@ namespace pygmalion::frontend
 					if (this->front().exceedsDepthLimit(m_CurrentDepth))
 						break;
 				}
+				if (m_CurrentDepth >= countSearchPlies)
+					break;
 				const durationType plyTime{ timeRemaining - this->currentGame().playerClock(this->position().movingPlayer()).timeRemaining() };
 				timeRemaining = std::chrono::duration_cast<std::chrono::milliseconds>(this->currentGame().playerClock(this->position().movingPlayer()).timeRemaining());
 				searchTime += plyTime;

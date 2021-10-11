@@ -834,17 +834,14 @@ namespace pygmalion
 					allowStoreTT = false;
 					return zero;
 				}
+				if (m_DistanceFromRoot >= countSearchPlies)
+					return evaluate(alpha, beta);
 				m_Heuristics.beginNode(m_Stack);
 				scoreType early{ zero };
 				if (earlyScore<false>(early, allowStoreTT))
 				{
 					m_Heuristics.endNodeEarly(m_Stack);
 					return early;
-				}
-				if (principalVariation.length() >= countSearchPlies)
-				{
-					m_Heuristics.endNodeEarly(m_Stack);
-					return evaluate(alpha, beta);
 				}
 				movebitsType bestmove;
 				bool hasLegalMove{ false };
@@ -929,8 +926,10 @@ namespace pygmalion
 					allowStoreTT = false;
 					return zero;
 				}
-				m_Heuristics.beginNode(m_Stack);
 				scoreType alpha{ beta.zeroWindow() };
+				if (m_DistanceFromRoot >= countSearchPlies)
+					return evaluate(alpha, beta);
+				m_Heuristics.beginNode(m_Stack);
 				scoreType early{ zero };
 				if (earlyScore<true>(early, allowStoreTT))
 				{
@@ -1126,6 +1125,8 @@ namespace pygmalion
 				scoreType alpha{ beta.zeroWindow() };
 				if (depthRemaining >= depthType(0))
 				{
+					if (m_DistanceFromRoot >= countSearchPlies)
+						return evaluate(alpha, beta);
 					m_Heuristics.beginNode(m_Stack);
 					scoreType early{ zero };
 					if (earlyScore<true>(early, allowStoreTT))
@@ -1270,13 +1271,10 @@ namespace pygmalion
 					allowStoreTT = false;
 					return zero;
 				}
-				if (principalVariation.length() >= countSearchPlies)
-				{
-					m_Heuristics.endNodeEarly(m_Stack);
-					return evaluate(alpha, beta);
-				}
 				if (depthRemaining >= depthType(0))
 				{
+					if (m_DistanceFromRoot >= countSearchPlies)
+						return evaluate(alpha, beta);
 					m_Heuristics.beginNode(m_Stack);
 					scoreType early{ zero };
 					if (earlyScore<false>(early, allowStoreTT))
