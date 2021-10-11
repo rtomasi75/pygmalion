@@ -2312,7 +2312,10 @@ namespace pygmalion
 				if constexpr (LEN == 0)
 					return L::zero();
 				else if constexpr (LEN == 1)
-					return L(static_cast<typename L::wordType>((*this)[START]), false);
+				{
+					constexpr const wordType mask{ static_cast<wordType>(wordType(1) << START) };
+					return L((m_Word & mask) ? typename L::wordType(1) : typename L::wordType(0), false);
+				}
 				else  if constexpr (LEN == countBits)
 					return L(static_cast<typename L::wordType>(m_Word), false);
 				else
@@ -3670,7 +3673,7 @@ namespace pygmalion
 		constexpr static const bool isCompact{ IS_COMPACT };
 		constexpr static const size_t countBits{ 0 };
 		constexpr static const size_t countBytes{ 0 };
-		using wordType = bool;
+		using wordType = std::uint8_t;
 		constexpr static const size_t countBitsPerWord{ 0 };
 		constexpr static const size_t countWords{ 0 };
 		constexpr static const size_t countStorageBits{ 0 };

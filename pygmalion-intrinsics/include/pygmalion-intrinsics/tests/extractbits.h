@@ -59,8 +59,8 @@ namespace intrinsics::test
 				str << "        " << static_cast<std::uintmax_t>(m_Input[i]) << std::endl;
 				str << std::endl;
 				const U I{ m_Input[i] };
-				U2 O{ m_Output[i] };
-				O = I.template extractBits<start, len>();
+				U2 O{ I.template extractBits<start, len>() };
+				str << "        " << O << std::endl;
 				delete[] m_Input;
 				delete[] m_Output;
 				delete[] m_RefInput;
