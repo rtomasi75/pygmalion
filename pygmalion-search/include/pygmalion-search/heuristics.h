@@ -332,7 +332,7 @@ namespace pygmalion
 		{
 			if constexpr (tacticalKillerMoves > 0)
 			{
-				return m_KillerSlots[depth].tacticalKillers(stack, killermoves);
+				m_KillerSlots[depth].tacticalKillers(stack, killermoves);
 				if constexpr (killerLookBackDistance > 0)
 				{
 					tacticalKillermovesType lookBackKillers;

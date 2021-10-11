@@ -841,6 +841,11 @@ namespace pygmalion
 					m_Heuristics.endNodeEarly(m_Stack);
 					return early;
 				}
+				if (principalVariation.length() >= countSearchPlies)
+				{
+					m_Heuristics.endNodeEarly(m_Stack);
+					return evaluate(alpha, beta);
+				}
 				movebitsType bestmove;
 				bool hasLegalMove{ false };
 				movebitsType move;
@@ -1264,6 +1269,11 @@ namespace pygmalion
 				{
 					allowStoreTT = false;
 					return zero;
+				}
+				if (principalVariation.length() >= countSearchPlies)
+				{
+					m_Heuristics.endNodeEarly(m_Stack);
+					return evaluate(alpha, beta);
 				}
 				if (depthRemaining >= depthType(0))
 				{
