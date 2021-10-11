@@ -41,4 +41,4 @@ To run the executable that has been built type
 
 ### Building with Microsoft Visual Studio
 
-You should always use the latest version of Visual Studio when building Pygmalion. You can either use TortoiseGit [TortoiseGit](https://tortoisegit.org/), or clone the repository directly using Visual Studio. Choose the "x64-Clang-Release" CMake configuration for building.
+You should always use the latest version of Visual Studio when building Pygmalion. You can either use [TortoiseGit](https://tortoisegit.org/), or clone the repository directly using Visual Studio. Choose the "x64-Clang-Release" CMake configuration for building.
