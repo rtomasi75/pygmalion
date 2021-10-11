@@ -52,12 +52,16 @@
 #endif
 #endif
 
+#if defined(NDEBUG)
 #if defined(_MSC_VER)
 #define PYGMALION_INLINE __forceinline
 #elif defined(__GNUC__)
 #define PYGMALION_INLINE [[gnu::always_inline]]
 #elif defined(__clang__) 
 #define PYGMALION_INLINE [[gnu::always_inline]]
+#else
+#define PYGMALION_INLINE
+#endif
 #else
 #define PYGMALION_INLINE
 #endif
