@@ -23,5 +23,6 @@ constexpr static const size_t searchTranspositionTableBucketCount{ descriptorSea
 constexpr static const bool pruneFutility{ descriptorSearch::pruneFutility };
 constexpr static const bool pruneDelta{ descriptorSearch::pruneDelta };
 constexpr static const size_t killerLookBackDistance{ descriptorSearch::killerLookBackDistance };
+constexpr static const depthType countMaxExtensions{ descriptorSearch::countMaxExtensions };
 
 #include <pygmalion-evaluation/include_evaluation.h>
