@@ -649,6 +649,14 @@ namespace pygmalion
 			PYGMALION_INLINE bool qsearchSubNode(const movebitsType move, scoreType& alpha, scoreType& beta, scoreType& best, movebitsType& bestmove, variationType& principalVariation, std::ostream& str, const bool fromStack, bool& allowStoreTT) noexcept
 			{
 				m_Heuristics.template beginMove<PLAYER, true>(m_Stack, move, m_Depth);
+				if constexpr (pruneDelta)
+				{
+					if (m_DeltaPruningAllowed && this->canPruneMove(move) && this->canDeltaPruneMove(move))
+					{
+						m_Heuristics.template endMoveDelta<PLAYER, false>(m_Stack, move, m_Depth);
+						return false;
+					}
+				}
 				variationType subVariation;
 				bool allowStoreTTsubnode{ true };
 				bool bEnded{ false };
@@ -853,6 +861,19 @@ namespace pygmalion
 				}
 				bool fromStack;
 				allowStoreTT = true;
+				bool bPruned{ false };
+				if constexpr (pruneDelta)
+				{
+					if (this->pruningAllowed(alpha, beta))
+					{
+						const scoreType deltaGlobalScore{ alpha - instanceType::deltaGlobalMargin(m_Stack) };
+						constexpr const scoreType maximum{ scoreType::maximum() };
+						const scoreType eval{ evaluate(deltaGlobalScore, maximum) };
+						m_DeltaGap = alpha - eval - instanceType::deltaMargin(m_Stack);
+						m_DeltaPruningAllowed = m_DeltaGap >= zero;
+						bPruned |= deltaGlobalScore >= eval;
+					}
+				}
 				if ((!hasLegalMove) && nextTacticalMove(move, fromStack))
 				{
 					hasLegalMove = true;
