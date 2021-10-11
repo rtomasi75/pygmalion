@@ -13,38 +13,53 @@ namespace pygmalion::tictactoe
 			using parentType = node< static_cast<size_t>(movingPlayer.previous())>;
 			using childType = node< static_cast<size_t>(movingPlayer.next())>;
 			using stackType = typename generatorType::template stackType<PLAYER>;
-			node(const stackType& stack, std::atomic_bool& isRunning, heuristicsType& heuristics, const size_t depth) noexcept :
+			PYGMALION_INLINE node(const stackType& stack, std::atomic_bool& isRunning, heuristicsType& heuristics, const size_t depth) noexcept :
 				pygmalion::gametree<descriptor_search, gametree>::node<PLAYER, node<PLAYER>>(stack, isRunning, heuristics, depth)
 			{
 
 			}
-			node(const parentType& parent, const movebitsType moveBits) noexcept :
+			PYGMALION_INLINE node(const parentType& parent, const movebitsType moveBits) noexcept :
 				pygmalion::gametree<descriptor_search, gametree>::node<PLAYER, node<PLAYER>>(parent, moveBits)
 			{
 			}
-			constexpr static bool futilityPruningEnabled_Implementation(const size_t depthRemaining) noexcept
+			PYGMALION_INLINE static bool futilityPruningEnabled_Implementation(const size_t depthRemaining) noexcept
 			{
 				return false;
 			}
-			constexpr static scoreType futilityMargin_Implementation(const size_t depthRemaining, const stackType& stack) noexcept
+			PYGMALION_INLINE static scoreType futilityMargin_Implementation(const size_t depthRemaining, const stackType& stack) noexcept
 			{
 				constexpr const scoreType zero{ scoreType::zero() };
 				return zero;
 			}
-			constexpr static scoreType futilityGlobalMargin_Implementation(const size_t depthRemaining, const stackType& stack) noexcept
+			PYGMALION_INLINE static scoreType deltaMargin_Implementation(const stackType& stack) noexcept
 			{
 				constexpr const scoreType zero{ scoreType::zero() };
 				return zero;
 			}
-			constexpr static depthType nullMoveReduction_Implementation(const size_t depthRemaining) noexcept
+			PYGMALION_INLINE static scoreType futilityGlobalMargin_Implementation(const size_t depthRemaining, const stackType& stack) noexcept
+			{
+				constexpr const scoreType zero{ scoreType::zero() };
+				return zero;
+			}
+			PYGMALION_INLINE static scoreType deltaGlobalMargin_Implementation(const stackType& stack) noexcept
+			{
+				constexpr const scoreType zero{ scoreType::zero() };
+				return zero;
+			}
+			PYGMALION_INLINE static depthType nullMoveReduction_Implementation(const size_t depthRemaining) noexcept
 			{
 				return 0;
 			}
-			constexpr bool nullMoveAllowed_Implementation() const noexcept
+			PYGMALION_INLINE bool nullMoveAllowed_Implementation() const noexcept
 			{
 				return false;
 			}
-			constexpr scoreType moveFutilityValue_Implementation(const movebitsType& move) const noexcept
+			PYGMALION_INLINE scoreType moveFutilityValue_Implementation(const movebitsType& move) const noexcept
+			{
+				constexpr const scoreType zero{ scoreType::zero() };
+				return zero;
+			}
+			PYGMALION_INLINE scoreType moveDeltaValue_Implementation(const movebitsType& move) const noexcept
 			{
 				constexpr const scoreType zero{ scoreType::zero() };
 				return zero;

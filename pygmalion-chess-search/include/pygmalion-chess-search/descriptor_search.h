@@ -10,6 +10,7 @@ namespace pygmalion::chess
 		| searchFlags::quietKillerMovesHeuristic
 		| searchFlags::tacticalKillerMovesHeuristic
 		| searchFlags::futilityPruning
+//		| searchFlags::deltaPruning
 		| searchFlags::nullMovePruning
 		| searchFlags::aspirationWindows
 		| searchFlags::transpositionTable

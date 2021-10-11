@@ -38,11 +38,13 @@ namespace pygmalion
 			bool m_NeedsSorting;
 			bool m_NeedsTacticalSorting;
 			bool m_FutilityPruningAllowed;
+			bool m_DeltaPruningAllowed;
 			std::atomic_bool& m_IsRunning;
 			scoreType m_EvalAlpha;
 			scoreType m_EvalBeta;
 			scoreType m_Eval;
 			scoreType m_FutileGap;
+			scoreType m_DeltaGap;
 			indexType m_MoveTT;
 			indexType m_TacticalMoveTT;
 			indexType m_QuietMoveKiller;
@@ -695,6 +697,14 @@ namespace pygmalion
 			PYGMALION_INLINE bool qzwsearchSubNode(const movebitsType move, scoreType& alpha, scoreType& beta, scoreType& best, movebitsType& bestmove, std::ostream& str, const bool fromStack, bool& allowStoreTT) noexcept
 			{
 				m_Heuristics.template beginMove<PLAYER, true>(m_Stack, move, m_Depth);
+				if constexpr (pruneDelta)
+				{
+					if (m_DeltaPruningAllowed && this->canPruneMove(move) && this->canDeltaPruneMove(move))
+					{
+						m_Heuristics.template endMoveDelta<PLAYER, false>(m_Stack, move, m_Depth);
+						return false;
+					}
+				}
 				bool allowStoreTTsubnode{ true };
 				scoreType sc;
 				{
@@ -751,13 +761,25 @@ namespace pygmalion
 			{
 				return m_FutileGap;
 			}
+			PYGMALION_INLINE scoreType deltaGap() const noexcept
+			{
+				return m_DeltaGap;
+			}
 			PYGMALION_INLINE scoreType moveFutilityValue(const movebitsType& move) const noexcept
 			{
 				return static_cast<const instanceType*>(this)->moveFutilityValue_Implementation(move);
 			}
+			PYGMALION_INLINE scoreType moveDeltaValue(const movebitsType& move) const noexcept
+			{
+				return static_cast<const instanceType*>(this)->moveDeltaValue_Implementation(move);
+			}
 			PYGMALION_INLINE bool canPruneMove(const movebitsType& move) const noexcept
 			{
 				return !generatorType::template isMoveCritical<PLAYER>(this->stack(), move);
+			}
+			PYGMALION_INLINE bool canDeltaPruneMove(const movebitsType move) const noexcept
+			{
+				return moveDeltaValue(move) < this->deltaGap();
 			}
 			PYGMALION_INLINE bool canFutilityPruneMove(const movebitsType move) const noexcept
 			{
@@ -771,9 +793,17 @@ namespace pygmalion
 			{
 				return instanceType::futilityMargin_Implementation(depthRemaining, stack);
 			}
+			PYGMALION_INLINE static scoreType deltaMargin(const stackType& stack) noexcept
+			{
+				return instanceType::deltaMargin_Implementation(stack);
+			}
 			PYGMALION_INLINE static scoreType futilityGlobalMargin(const size_t depthRemaining, const stackType& stack) noexcept
 			{
 				return instanceType::futilityGlobalMargin_Implementation(depthRemaining, stack);
+			}
+			PYGMALION_INLINE static scoreType deltaGlobalMargin(const stackType& stack) noexcept
+			{
+				return instanceType::deltaGlobalMargin_Implementation(stack);
 			}
 			PYGMALION_INLINE bool pruningAllowed(const scoreType alpha, const scoreType beta) const noexcept
 			{
@@ -924,6 +954,19 @@ namespace pygmalion
 				}
 				bool fromStack;
 				allowStoreTT = true;
+				bool bPruned{ false };
+				if constexpr (pruneDelta)
+				{
+					if (this->pruningAllowed(alpha, beta))
+					{
+						const scoreType deltaGlobalScore{ alpha - instanceType::deltaGlobalMargin(m_Stack) };
+						constexpr const scoreType maximum{ scoreType::maximum() };
+						const scoreType eval{ evaluate(deltaGlobalScore, maximum) };
+						m_DeltaGap = alpha - eval - instanceType::deltaMargin(m_Stack);
+						m_DeltaPruningAllowed = m_DeltaGap >= zero;
+						bPruned |= deltaGlobalScore >= eval;
+					}
+				}
 				if ((!hasLegalMove) && nextTacticalMove(move, fromStack))
 				{
 					hasLegalMove = true;
@@ -1254,6 +1297,7 @@ namespace pygmalion
 				m_NeedsSorting{ false },
 				m_NeedsTacticalSorting{ false },
 				m_FutilityPruningAllowed{ false },
+				m_DeltaPruningAllowed{ false },
 				m_DistanceFromRoot{ 0 },
 				m_Depth{ depth }
 			{
@@ -1268,6 +1312,7 @@ namespace pygmalion
 				m_EvalBeta = minimum;
 				m_Eval = zero;
 				m_FutileGap = zero;
+				m_DeltaGap = zero;
 			}
 			PYGMALION_INLINE node(const parentType& parent, const movebitsType moveBits) noexcept :
 				m_Stack(parent.m_Stack, moveBits),
@@ -1288,6 +1333,7 @@ namespace pygmalion
 				m_NeedsSorting{ false },
 				m_NeedsTacticalSorting{ false },
 				m_FutilityPruningAllowed{ false },
+				m_DeltaPruningAllowed{ false },
 				m_DistanceFromRoot{ parent.m_DistanceFromRoot + 1 },
 				m_Depth{ parent.m_Depth + 1 }
 			{
@@ -1300,6 +1346,7 @@ namespace pygmalion
 				m_EvalBeta = minimum;
 				m_Eval = zero;
 				m_FutileGap = zero;
+				m_DeltaGap = zero;
 			}
 			PYGMALION_INLINE ~node() noexcept = default;
 			template<bool VERBOSE, bool ANALYZE>

@@ -226,6 +226,10 @@ namespace pygmalion
 		{
 		}
 		template<size_t PLAYER, bool TACTICAL>
+		PYGMALION_INLINE void onEndMoveDelta(const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth) noexcept
+		{
+		}
+		template<size_t PLAYER, bool TACTICAL>
 		PYGMALION_INLINE void onEndMoveAccepted(const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth, const scoreType score) noexcept
 		{
 		}
@@ -247,6 +251,10 @@ namespace pygmalion
 		}
 		template<size_t PLAYER>
 		PYGMALION_INLINE void onEndNodeFutile(const stackType<PLAYER>& stack) noexcept
+		{
+		}
+		template<size_t PLAYER>
+		PYGMALION_INLINE void onEndNodeDelta(const stackType<PLAYER>& stack) noexcept
 		{
 		}
 		PYGMALION_INLINE void sortMoves(movelistType& moves, std::array<heuristicScore, countMaxGeneratedMoves>& scores, const indexType fromMoveIndex, const indexType fromScoreIndex) noexcept
@@ -483,6 +491,15 @@ namespace pygmalion
 #endif
 			static_cast<instanceType*>(this)->template onEndNodeFutile<PLAYER>(stack);
 		}
+		template<size_t PLAYER>
+		PYGMALION_INLINE void endNodeDelta(const stackType<PLAYER>& stack) noexcept
+		{
+#if !defined(NDEBUG)
+			PYGMALION_ASSERT(m_IsSearching);
+			m_NodeDepth--;
+#endif
+			static_cast<instanceType*>(this)->template onEndNodeDelta<PLAYER>(stack);
+		}
 		template<size_t PLAYER, bool TACTICAL>
 		PYGMALION_INLINE void beginMove(const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth) noexcept
 		{
@@ -601,6 +618,15 @@ namespace pygmalion
 #endif
 			static_cast<instanceType*>(this)->template onEndMoveFutile<PLAYER, TACTICAL>(stack, moveBits, depth);
 		}
+		template<size_t PLAYER, bool TACTICAL>
+		PYGMALION_INLINE void endMoveDelta(const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth) noexcept
+		{
+#if !defined(NDEBUG)
+			PYGMALION_ASSERT(m_IsSearching);
+			m_MoveDepth--;
+#endif
+			static_cast<instanceType*>(this)->template onEndMoveDelta<PLAYER, TACTICAL>(stack, moveBits, depth);
+		}
 		template<size_t PLAYER>
 		PYGMALION_INLINE void endNodeCut(const stackType<PLAYER>& stack) noexcept
 		{
@@ -688,6 +714,7 @@ namespace pygmalion
 		std::uint64_t m_TTNodes;
 		std::uint64_t m_NullNodes;
 		std::uint64_t m_FutileNodes;
+		std::uint64_t m_DeltaNodes;
 	protected:
 		PYGMALION_INLINE void onBeginSearch() noexcept
 		{
@@ -735,6 +762,11 @@ namespace pygmalion
 			baseclassType::onEndNodeFutile(stack);
 			m_FutileNodes++;
 		}
+		PYGMALION_INLINE void onEndNodeDelta(const stackType& stack) noexcept
+		{
+			baseclassType::onEndNodeDelta(stack);
+			m_DeltaNodes++;
+		}
 	public:
 		constexpr std::uint64_t earlyNodeCount() const noexcept
 		{
@@ -764,6 +796,10 @@ namespace pygmalion
 		{
 			return m_FutileNodes;
 		}
+		constexpr std::uint64_t deltaNodeCount() const noexcept
+		{
+			return m_DeltaNodes;
+		}
 		std::string toString() const noexcept
 		{
 			std::stringstream sstr;
@@ -774,6 +810,7 @@ namespace pygmalion
 			sstr << "TT:     " << std::setw(9) << parser::nodesCountToString(TTNodeCount()) << std::endl;
 			sstr << "null:   " << std::setw(9) << parser::nodesCountToString(NullNodeCount()) << std::endl;
 			sstr << "futile: " << std::setw(9) << parser::nodesCountToString(futileNodeCount()) << std::endl;
+			sstr << "delta:  " << std::setw(9) << parser::nodesCountToString(deltaNodeCount()) << std::endl;
 			return sstr.str();
 		}
 		heuristics(movegenFeedback& feedback) noexcept :
@@ -784,6 +821,7 @@ namespace pygmalion
 			m_TTNodes{ 0 },
 			m_NullNodes{ 0 },
 			m_FutileNodes{ 0 },
+			m_DeltaNodes{ 0 },
 			m_LeafNodes{ 0 }
 		{
 

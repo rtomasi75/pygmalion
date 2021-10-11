@@ -13,6 +13,7 @@ namespace pygmalion
 		constexpr static const unsigned int nullMovePruning{ 64 };
 		constexpr static const unsigned int aspirationWindows{ 128 };
 		constexpr static const unsigned int transpositionTable{ 256 };
+		constexpr static const unsigned int deltaPruning{ 512 };
 	};
 
 
@@ -30,6 +31,7 @@ namespace pygmalion
 		constexpr static const size_t tacticalKillerMoves{ ((SEARCH_FLAGS & searchFlags::tacticalKillerMovesHeuristic) != 0) ? KILLER_MOVES_TACTICAL : 0 };
 		constexpr static const bool pruneNullmove{ ((SEARCH_FLAGS & searchFlags::nullMovePruning) != 0) && evaluatorType::generatorType::hasNullMove() };
 		constexpr static const bool pruneFutility{ (SEARCH_FLAGS & searchFlags::futilityPruning) != 0 };
+		constexpr static const bool pruneDelta{ (SEARCH_FLAGS & searchFlags::deltaPruning) != 0 };
 		constexpr static const bool searchScout{ (SEARCH_FLAGS & searchFlags::principalVariationSearch) != 0 };
 		constexpr static const bool searchIterativeDeepening{ (SEARCH_FLAGS & searchFlags::iterativeDeepening) != 0 };
 		constexpr static const bool searchTranspositionTable{ (SEARCH_FLAGS & searchFlags::transpositionTable) != 0 };
