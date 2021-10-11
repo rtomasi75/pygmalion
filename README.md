@@ -13,7 +13,7 @@ Pygmalion is still in a very early developement sate. An official release is not
 - Killermove Heuristics
 - Futility Pruning
 
-Pondering, multi-core support and Late Move Reductions are currently not implemented. The evaluation function is still very basic not yet finished.
+Pondering, multi-core support and Late Move Reductions are currently not implemented. The evaluation function is still very basic and not yet finished.
 
 ## Building Pygmalion
 To build Pygmalion, you will need CMake (min. version 3.16) combined with a C++17 capable toolchain. The source-code is designed for maximum portability and does not rely on any third-party libraries. Please note that the source-code heavily relies on templates - building can take some time.
