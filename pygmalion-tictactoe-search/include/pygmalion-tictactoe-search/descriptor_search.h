@@ -2,5 +2,21 @@ namespace pygmalion::tictactoe
 {
 	class heuristics;
 
-	using descriptor_search = pygmalion::descriptor_search<evaluator, 10, true, true, 1, false, true, 1, 0, 0, true, true, heuristics>;
+	constexpr const unsigned int searchOptions
+	{	searchFlags::none
+		| searchFlags::principalVariationSearch
+		| searchFlags::iterativeDeepening
+		| searchFlags::historyHeuristic
+		| searchFlags::quietKillerMovesHeuristic
+		| searchFlags::tacticalKillerMovesHeuristic
+		| searchFlags::aspirationWindows
+		| searchFlags::transpositionTable
+	};
+
+	constexpr const size_t countQuietKillerMoveSlots{ 1 };
+	constexpr const size_t countTacticalKillerMoveSlots{ 0 };
+	constexpr const size_t countTranspositionTableBuckets{ 1 };
+	constexpr const size_t killerMovesLookBackDistance{ 1 };
+
+	using descriptor_search = pygmalion::descriptor_search<evaluator, 10, searchOptions, countTranspositionTableBuckets, countQuietKillerMoveSlots, countTacticalKillerMoveSlots, killerMovesLookBackDistance, heuristics>;
 }
