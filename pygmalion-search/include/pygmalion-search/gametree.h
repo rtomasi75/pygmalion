@@ -662,7 +662,10 @@ namespace pygmalion
 				bool bEnded{ false };
 				scoreType sc;
 				if constexpr (STATIC)
+				{
 					sc = evaluate(alpha, beta) + evaluatorType::staticTacticalMoveScore(m_Stack.position(), move);
+					allowStoreTTsubnode = false;
+				}
 				else
 				{
 					childType subnode(childType(*static_cast<const instanceType*>(this), move));
@@ -678,7 +681,7 @@ namespace pygmalion
 						if (allowStoreTT)
 						{
 							const depthType ttDraft{ static_cast<depthType>(-(qsDepth + 1)) };
-							m_Heuristics.transpositionTable().store(m_Stack, ttDraft, sc, transpositiontable<descriptorSearch>::flags_upper | transpositiontable<descriptorSearch>::flags_move, move);
+							m_Heuristics.transpositionTable().store(m_Stack, -1, sc, transpositiontable<descriptorSearch>::flags_upper | transpositiontable<descriptorSearch>::flags_move, move);
 						}
 					}
 					bEnded = true;
@@ -694,7 +697,7 @@ namespace pygmalion
 							if (allowStoreTT)
 							{
 								const depthType ttDraft{ static_cast<depthType>(-(qsDepth + 1)) };
-								m_Heuristics.transpositionTable().store(m_Stack, ttDraft, best, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
+								m_Heuristics.transpositionTable().store(m_Stack, -1, best, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
 							}
 						}
 						m_Heuristics.template endMoveRefuted<PLAYER, false, true>(m_Stack, move, m_Depth, best, evaluate(oldAlpha, best), fromStack, depthRemaining);
@@ -728,6 +731,7 @@ namespace pygmalion
 				if constexpr (STATIC)
 				{
 					sc = evaluate(alpha, beta) + evaluatorType::staticTacticalMoveScore(m_Stack.position(), move);
+					allowStoreTTsubnode = false;
 				}
 				else
 				{
@@ -743,7 +747,7 @@ namespace pygmalion
 						if (allowStoreTT)
 						{
 							const depthType ttDraft{ static_cast<depthType>(-(qsDepth + 1)) };
-							m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, best, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
+							m_Heuristics.transpositionTable().store(m_Stack, -1, best, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
 						}
 					}
 					m_Heuristics.template endMoveRefuted<PLAYER, false, true>(m_Stack, move, m_Depth, best, evaluate(alpha, best), fromStack, depthRemaining);
@@ -864,7 +868,7 @@ namespace pygmalion
 				bool hasLegalMove{ false };
 				movebitsType move;
 				const scoreType stand_pat{ evaluate(alpha, beta) };
-				scoreType best{ stand_pat };
+				scoreType best = stand_pat;
 				if (best > alpha)
 				{
 					if (best >= beta)
@@ -873,7 +877,7 @@ namespace pygmalion
 						if constexpr (USE_TT)
 						{
 							const depthType ttDraft{ static_cast<depthType>(-(qsDepth + 1)) };
-							m_Heuristics.transpositionTable().store(m_Stack, ttDraft, best, transpositiontable<descriptorSearch>::flags_lower, movebitsType(0));
+							m_Heuristics.transpositionTable().store(m_Stack, -1, best, transpositiontable<descriptorSearch>::flags_lower, movebitsType(0));
 						}
 						return best;
 					}
@@ -881,7 +885,7 @@ namespace pygmalion
 					if constexpr (USE_TT)
 					{
 						const depthType ttDraft{ static_cast<depthType>(-(qsDepth + 1)) };
-						m_Heuristics.transpositionTable().store(m_Stack, ttDraft, best, transpositiontable<descriptorSearch>::flags_upper, movebitsType(0));
+						m_Heuristics.transpositionTable().store(m_Stack, -1, best, transpositiontable<descriptorSearch>::flags_upper, movebitsType(0));
 					}
 				}
 				bool fromStack;
@@ -899,7 +903,7 @@ namespace pygmalion
 						bPruned |= deltaGlobalScore >= eval;
 					}
 				}
-				if ((m_DistanceFromRoot + 2) >= countSearchPlies)
+				if (((m_DistanceFromRoot + 2) >= countSearchPlies) || (qsDepth >= countMaxExtensions))
 					return this->template evalLoop<true, USE_TT>(alpha, beta, best, depthRemaining, principalVariation, allowStoreTT, qsDepth);
 				else
 					return this->template evalLoop<false, USE_TT>(alpha, beta, best, depthRemaining, principalVariation, allowStoreTT, qsDepth);
@@ -931,7 +935,7 @@ namespace pygmalion
 						if constexpr (USE_TT)
 						{
 							const depthType ttDraft{ static_cast<depthType>(-(qsDepth + 1)) };
-							m_Heuristics.transpositionTable().store(m_Stack, ttDraft, best, transpositiontable<descriptorSearch>::flags_upper, movebitsType(0));
+							m_Heuristics.transpositionTable().store(m_Stack, -1, best, transpositiontable<descriptorSearch>::flags_upper, movebitsType(0));
 						}
 						this->resetMoveGen();
 						return best;
@@ -942,7 +946,7 @@ namespace pygmalion
 						if constexpr (USE_TT)
 						{
 							const depthType ttDraft{ static_cast<depthType>(-(qsDepth + 1)) };
-							m_Heuristics.transpositionTable().store(m_Stack, ttDraft, late, transpositiontable<descriptorSearch>::flags_exact, movebitsType(0));
+							m_Heuristics.transpositionTable().store(m_Stack, -1, late, transpositiontable<descriptorSearch>::flags_exact, movebitsType(0));
 						}
 						this->resetMoveGen();
 						return late;
@@ -988,7 +992,8 @@ namespace pygmalion
 				{
 					scoreType ttScore;
 					movebitsType ttMove;
-					const std::uint8_t lookUp{ m_Heuristics.transpositionTable().probe(m_Stack, depthRemaining, alpha, beta, ttScore, ttMove) };
+					//							const depthType ttDraft{ static_cast<depthType>(-(qsDepth + 1)) };
+					const std::uint8_t lookUp{ m_Heuristics.transpositionTable().probe(m_Stack, -1, alpha, beta, ttScore, ttMove) };
 					if (lookUp != transpositiontable<descriptorSearch>::flags_unused)
 					{
 						if (lookUp & transpositiontable<descriptorSearch>::flags_move)
@@ -1014,16 +1019,16 @@ namespace pygmalion
 						m_Heuristics.endNodeLeaf(m_Stack);
 						if constexpr (USE_TT)
 						{
-							const depthType ttDraft{ static_cast<depthType>(-(qsDepth + 1)) };
-							m_Heuristics.transpositionTable().store(m_Stack, ttDraft, best, transpositiontable<descriptorSearch>::flags_lower, movebitsType(0));
+//							const depthType ttDraft{ static_cast<depthType>(-(qsDepth + 1)) };
+							m_Heuristics.transpositionTable().store(m_Stack, -1, best, transpositiontable<descriptorSearch>::flags_lower, movebitsType(0));
 						}
 						return best;
 					}
 					alpha = best;
 					if constexpr (USE_TT)
 					{
-						const depthType ttDraft{ static_cast<depthType>(-(qsDepth + 1)) };
-						m_Heuristics.transpositionTable().store(m_Stack, ttDraft, best, transpositiontable<descriptorSearch>::flags_upper, movebitsType(0));
+//						const depthType ttDraft{ static_cast<depthType>(-(qsDepth + 1)) };
+						m_Heuristics.transpositionTable().store(m_Stack, -1, best, transpositiontable<descriptorSearch>::flags_upper, movebitsType(0));
 					}
 				}
 				bool fromStack;
@@ -1041,7 +1046,7 @@ namespace pygmalion
 						bPruned |= deltaGlobalScore >= eval;
 					}
 				}
-				if ((m_DistanceFromRoot + 2) >= countSearchPlies)
+				if (((m_DistanceFromRoot + 2) >= countSearchPlies) || (qsDepth >= countMaxExtensions))
 					return this->template zwevalLoop<true, USE_TT>(alpha, beta, best, depthRemaining, allowStoreTT, qsDepth);
 				else
 					return this->template zwevalLoop<false, USE_TT>(alpha, beta, best, depthRemaining, allowStoreTT, qsDepth);
@@ -1072,8 +1077,8 @@ namespace pygmalion
 					{
 						if constexpr (USE_TT)
 						{
-							const depthType ttDraft{ static_cast<depthType>(-(qsDepth + 1)) };
-							m_Heuristics.transpositionTable().store(m_Stack, ttDraft, best, transpositiontable<descriptorSearch>::flags_upper, movebitsType(0));
+						//	const depthType ttDraft{ static_cast<depthType>(-(qsDepth + 1)) };
+							m_Heuristics.transpositionTable().store(m_Stack, -1, best, transpositiontable<descriptorSearch>::flags_upper, movebitsType(0));
 						}
 						this->resetMoveGen();
 						return best;
@@ -1084,7 +1089,7 @@ namespace pygmalion
 						if constexpr (USE_TT)
 						{
 							const depthType ttDraft{ static_cast<depthType>(-(qsDepth + 1)) };
-							m_Heuristics.transpositionTable().store(m_Stack, ttDraft, late, transpositiontable<descriptorSearch>::flags_exact, movebitsType(0));
+							m_Heuristics.transpositionTable().store(m_Stack, -1, late, transpositiontable<descriptorSearch>::flags_exact, movebitsType(0));
 						}
 						this->resetMoveGen();
 						return late;
