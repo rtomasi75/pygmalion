@@ -241,20 +241,20 @@ namespace pygmalion::frontend
 			{
 				const int movesPlayed{ static_cast<int>(this->history().length() / countPlayers) };
 				const int movesLeft{ std::max(minimumExpectedGameLength(),expectedGameLength() - movesPlayed) };
-				const durationType timeRemaining{ this->currentGame().playerClock(pl).timeRemaining() / movesLeft };
-				const double factor{ std::max(0.0,static_cast<double>(movesLeft - (expectedGameLength() - minimumExpectedGameLength()))) / static_cast<double>(expectedGameLength() - minimumExpectedGameLength()) };
+				const durationType timeRemaining{ this->currentGame().playerClock(pl).timeRemaining() / (movesLeft) };
+				const double factor{ std::max(0.0,static_cast<double>(movesLeft - (expectedGameLength() - minimumExpectedGameLength() + 1))) / static_cast<double>(expectedGameLength() - minimumExpectedGameLength()) };
 				const double skew{ factor * timeSkew() + (1.0 - factor) * 1.0 };
-				const durationType allocated{ durationType(static_cast<long long>(skew * static_cast<double>(timeRemaining.count()))) + this->currentGame().incrementTime() };
+				const durationType allocated{ std::min(durationType(static_cast<long long>(skew * static_cast<double>(timeRemaining.count()))) + this->currentGame().incrementTime(),durationType(static_cast<long long>(0.95 * static_cast<double>(this->currentGame().playerClock(pl).timeRemaining().count())))) };
 				return allocated;
 			}
 			else
 			{
 				const int movesPlayed{ static_cast<int>(this->currentGame().lastTimeControl(pl)) };
-				const int movesLeft{ movesPerTimeControl - movesPlayed };
-				const durationType timeRemaining{ this->currentGame().playerClock(pl).timeRemaining() / movesLeft };
-				const double factor{ std::max(0.0,static_cast<double>(movesLeft - (expectedGameLength() - minimumExpectedGameLength()))) / static_cast<double>(expectedGameLength() - minimumExpectedGameLength()) };
+				const int movesLeft{ movesPerTimeControl - (movesPlayed % movesPerTimeControl) };
+				const durationType timeRemaining{ this->currentGame().playerClock(pl).timeRemaining() / (movesLeft) };
+				const double factor{ std::max(0.0,static_cast<double>(movesLeft - (expectedGameLength() - minimumExpectedGameLength() + 1))) / static_cast<double>(expectedGameLength() - minimumExpectedGameLength()) };
 				const double skew{ factor * timeSkew() + (1.0 - factor) * 1.0 };
-				const durationType allocated{ durationType(static_cast<long long>(skew * static_cast<double>(timeRemaining.count()))) + this->currentGame().incrementTime() };
+				const durationType allocated{ std::min(durationType(static_cast<long long>(skew * static_cast<double>(timeRemaining.count()))) + this->currentGame().incrementTime(),durationType(static_cast<long long>(0.95 * static_cast<double>(this->currentGame().playerClock(pl).timeRemaining().count())))) };
 				return allocated;
 			}
 		}
