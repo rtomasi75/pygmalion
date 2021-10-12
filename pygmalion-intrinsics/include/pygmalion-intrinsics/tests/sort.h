@@ -159,13 +159,13 @@ namespace intrinsics::test
 		typename profiler::durationType duration{ 0 };
 		size_t operations(0);
 		bool result{ true };
-		result &= intrinsics::test::sort<std::uint8_t, std::int8_t>(str);
+		/*result &= intrinsics::test::sort<std::uint8_t, std::int8_t>(str);
 		result &= intrinsics::test::sort<std::uint8_t, std::int16_t>(str);
 		result &= intrinsics::test::sort<std::uint8_t, std::int32_t>(str);
 		result &= intrinsics::test::sort<std::uint8_t, std::int64_t>(str);
-		result &= intrinsics::test::sort<std::uint16_t, std::int8_t>(str);
+		result &= intrinsics::test::sort<std::uint16_t, std::int8_t>(str);*/
 		result &= intrinsics::test::sort<std::uint16_t, std::int16_t>(str);
-		result &= intrinsics::test::sort<std::uint16_t, std::int32_t>(str);
+		/*result &= intrinsics::test::sort<std::uint16_t, std::int32_t>(str);
 		result &= intrinsics::test::sort<std::uint16_t, std::int64_t>(str);
 		result &= intrinsics::test::sort<std::uint32_t, std::int8_t>(str);
 		result &= intrinsics::test::sort<std::uint32_t, std::int16_t>(str);
@@ -174,7 +174,7 @@ namespace intrinsics::test
 		result &= intrinsics::test::sort<std::uint64_t, std::int8_t>(str);
 		result &= intrinsics::test::sort<std::uint64_t, std::int16_t>(str);
 		result &= intrinsics::test::sort<std::uint64_t, std::int32_t>(str);
-		result &= intrinsics::test::sort<std::uint64_t, std::int64_t>(str);
+		result &= intrinsics::test::sort<std::uint64_t, std::int64_t>(str);*/
 		str << "__________________________________________" << std::endl;
 		if (result)
 			str << "ALL PASSED" << std::endl;

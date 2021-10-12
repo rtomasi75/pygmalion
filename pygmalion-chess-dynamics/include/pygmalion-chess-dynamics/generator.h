@@ -117,10 +117,10 @@ namespace pygmalion::chess
 				constexpr static inline std::uint8_t flagsUsed{ UINT8_C(0x01) };
 				constexpr static inline std::uint8_t flagsKingTropismWhite{ UINT8_C(0x02) };
 				constexpr static inline std::uint8_t flagsKingTropismBlack{ UINT8_C(0x04) };
-//				constexpr static inline std::uint8_t flagsKingAreaTropismWhite{ UINT8_C(0x08) };
-//				constexpr static inline std::uint8_t flagsKingAreaTropismBlack{ UINT8_C(0x10) };
+				//				constexpr static inline std::uint8_t flagsKingAreaTropismWhite{ UINT8_C(0x08) };
+				//				constexpr static inline std::uint8_t flagsKingAreaTropismBlack{ UINT8_C(0x10) };
 				constexpr static inline std::uint8_t flagsKingTropism[]{ flagsKingTropismWhite ,flagsKingTropismBlack };
-//				constexpr static inline std::uint8_t flagsKingAreaTropism[]{ flagsKingAreaTropismWhite ,flagsKingAreaTropismBlack };
+				//				constexpr static inline std::uint8_t flagsKingAreaTropism[]{ flagsKingAreaTropismWhite ,flagsKingAreaTropismBlack };
 			public:
 				PYGMALION_INLINE const squaresType& pawns(const playerType& pl) const noexcept
 				{
@@ -139,20 +139,20 @@ namespace pygmalion::chess
 					}
 					return m_KingTropism[pl];
 				}
-/*				PYGMALION_INLINE const typename generatorType::tropismType& kingAreaTropism(const playerType& pl) const noexcept
-				{
-					if (!(m_Flags & flagsKingTropism[pl]))
-					{
-						constexpr const squaresType all{ squaresType::all() };
-						const squaresType kingArea{ generatorType::movegenKing.attacks(m_KingSquare[pl],all) & ~m_Pawns[pl] };
-						m_KingAreaTropism[pl].compute(kingArea, pl.next(), m_Pawns[blackPlayer], m_Pawns[whitePlayer], m_KingSquare[blackPlayer], m_KingSquare[whitePlayer]);
-						m_Flags |= flagsKingAreaTropism[pl];
-					}
-					return m_KingAreaTropism[pl];
-				}*/
+				/*				PYGMALION_INLINE const typename generatorType::tropismType& kingAreaTropism(const playerType& pl) const noexcept
+								{
+									if (!(m_Flags & flagsKingTropism[pl]))
+									{
+										constexpr const squaresType all{ squaresType::all() };
+										const squaresType kingArea{ generatorType::movegenKing.attacks(m_KingSquare[pl],all) & ~m_Pawns[pl] };
+										m_KingAreaTropism[pl].compute(kingArea, pl.next(), m_Pawns[blackPlayer], m_Pawns[whitePlayer], m_KingSquare[blackPlayer], m_KingSquare[whitePlayer]);
+										m_Flags |= flagsKingAreaTropism[pl];
+									}
+									return m_KingAreaTropism[pl];
+								}*/
 				pawnentry() noexcept :
 					m_KingTropism{ arrayhelper::make<countPlayers,typename generatorType::tropismType>(typename generatorType::tropismType()) },
-//					m_KingAreaTropism{ arrayhelper::make<countPlayers,typename generatorType::tropismType>(typename generatorType::tropismType()) },
+					//					m_KingAreaTropism{ arrayhelper::make<countPlayers,typename generatorType::tropismType>(typename generatorType::tropismType()) },
 					m_Pawns{ arrayhelper::make<countPlayers,squaresType>(squaresType::none()) },
 					m_KingSquare{ arrayhelper::make<countPlayers,squareType>(squareType::invalid) },
 					m_Flags{ flagsNone }
@@ -3691,18 +3691,22 @@ namespace pygmalion::chess
 			attackers |= movegenSlidersDiag.attacks(square, allowed) & slidersDiag;
 			return attackers & position.playerOccupancy(attacker);
 		}
-		constexpr static size_t countMoveBuckets_Implementation() noexcept
+		constexpr static size_t countMoveBucketTypes_Implementation() noexcept
 		{
-			if constexpr (usePieceType)
+			return 2;
+		}
+		constexpr static size_t countMoveBuckets_Implementation(const size_t bucketType) noexcept
+		{
+			if (bucketType == 0)
 				return countSquares * countPieces;
 			else
 				return countSquares * countSquares;
 		}
-		PYGMALION_INLINE static size_t moveBucket_Implementation(const boardType& position, const movebitsType& mv) noexcept
+		PYGMALION_INLINE static size_t moveBucket_Implementation(const size_t bucketType, const boardType& position, const movebitsType& mv) noexcept
 		{
 			const squareType to{ motorType::move().toSquare(position, mv) };
 			const squareType from{ motorType::move().fromSquare(position,mv) };
-			if constexpr (usePieceType)
+			if (bucketType == 0)
 			{
 				const pieceType pc{ position.getPiece(from) };
 				return static_cast<size_t>(pc) * countSquares + static_cast<size_t>(to);

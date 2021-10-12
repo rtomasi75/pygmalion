@@ -104,9 +104,18 @@ namespace pygmalion::tictactoe
 		{
 			return "standard quiet critical";
 		}
-		constexpr static size_t countMoveBuckets_Implementation() noexcept
+		constexpr static size_t countMoveBucketTypes_Implementation() noexcept
+		{
+			return 1;
+		}
+		constexpr static size_t countMoveBuckets(const size_t bucketType) noexcept
 		{
 			return countSquares;
+		}
+		static size_t moveBucket(const size_t bucketType, const boardType& position, const movebitsType mv) noexcept
+		{
+			const squareType sq{ moveType::extractSquare(mv) };
+			return static_cast<size_t>(sq);
 		}
 		static size_t moveBucket_Implementation(const boardType& position, const movebitsType& mv) noexcept
 		{

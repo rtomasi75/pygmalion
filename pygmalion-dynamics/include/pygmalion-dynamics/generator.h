@@ -1049,13 +1049,17 @@ namespace pygmalion
 		{
 			return generatorType::isPositionCritical_Implementation(stack);
 		}
-		constexpr static size_t countMoveBuckets() noexcept
+		constexpr static size_t countMoveBucketTypes() noexcept
 		{
-			return generatorType::countMoveBuckets_Implementation();
+			return generatorType::countMoveBucketTypes_Implementation();
 		}
-		static size_t moveBucket(const boardType& position, const movebitsType mv) noexcept
+		constexpr static size_t countMoveBuckets(const size_t bucketType) noexcept
 		{
-			return generatorType::moveBucket_Implementation(position, mv);
+			return generatorType::countMoveBuckets_Implementation(bucketType);
+		}
+		static size_t moveBucket(const size_t bucketType, const boardType& position, const movebitsType mv) noexcept
+		{
+			return generatorType::moveBucket_Implementation(bucketType, position, mv);
 		}
 		constexpr static bool hasNullMove() noexcept
 		{
