@@ -363,8 +363,8 @@ namespace pygmalion
 				else
 					return sc;
 			}
-			template<bool VERBOSE, bool ANALYZE>
-			PYGMALION_INLINE scoreType searchMove(const movebitsType move, const scoreType alpha, const scoreType beta, const depthType depthRemaining, variationType& principalVariation, std::ostream& str, bool& allowStoreTT, indexType* pCurrentMove) noexcept
+			template<bool ANALYZE>
+			PYGMALION_INLINE scoreType searchMove(const movebitsType move, const scoreType alpha, const scoreType beta, const depthType depthRemaining, variationType& principalVariation, bool& allowStoreTT, indexType* pCurrentMove) noexcept
 			{
 				if constexpr (searchIterativeDeepening && !(ANALYZE))
 				{
@@ -415,7 +415,7 @@ namespace pygmalion
 										lowAspiration = minimum;
 									if (highAspiration.isWinning())
 										highAspiration = maximum;
-									sc = -subnode.template search<VERBOSE>(-highAspiration.plyDown(), -lowAspiration.plyDown(), d, principalVariation, str, allowStoreTT).plyUp();
+									sc = -subnode.search(-highAspiration.plyDown(), -lowAspiration.plyDown(), d, principalVariation, allowStoreTT).plyUp();
 									if ((sc > lowAspiration) && (sc < highAspiration))
 									{
 										bExact = true;
@@ -443,7 +443,7 @@ namespace pygmalion
 								}
 								if (!bExact)
 								{
-									sc = -subnode.template search<VERBOSE>(-beta.plyDown(), -alpha.plyDown(), d, principalVariation, str, allowStoreTT).plyUp();
+									sc = -subnode.search(-beta.plyDown(), -alpha.plyDown(), d, principalVariation, allowStoreTT).plyUp();
 								}
 							}
 							return sc;
@@ -452,12 +452,12 @@ namespace pygmalion
 						{
 							for (depthType d = -1; d < depthRemaining; ++d)
 							{
-								sc = -subnode.template search<VERBOSE>(-beta.plyDown(), -alpha.plyDown(), d, principalVariation, str, allowStoreTT).plyUp();
+								sc = -subnode.search(-beta.plyDown(), -alpha.plyDown(), d, principalVariation, allowStoreTT).plyUp();
 							}
 						}
 					}
 					else
-						sc = -subnode.template search<VERBOSE>(-beta.plyDown(), -alpha.plyDown(), depthType(-1), principalVariation, str, allowStoreTT).plyUp();
+						sc = -subnode.search(-beta.plyDown(), -alpha.plyDown(), depthType(-1), principalVariation, allowStoreTT).plyUp();
 					if constexpr (ANALYZE)
 						(*pCurrentMove)++;
 					return sc;
@@ -467,17 +467,16 @@ namespace pygmalion
 					childType subnode(childType(*static_cast<const instanceType*>(this), move));
 					if constexpr (ANALYZE)
 						(*pCurrentMove)++;
-					return -subnode.template search<VERBOSE>(-beta.plyDown(), -alpha.plyDown(), depthRemaining - depthType(1), principalVariation, str, allowStoreTT).plyUp();
+					return -subnode.search(-beta.plyDown(), -alpha.plyDown(), depthRemaining - depthType(1), principalVariation, allowStoreTT).plyUp();
 				}
 			}
-			template<bool VERBOSE>
-			PYGMALION_INLINE scoreType zwsearchMove(const movebitsType move, const scoreType alpha, const depthType& depthRemaining, const uint_t<countPlayers, false> nullMoveHistory, std::ostream& str, bool& allowStoreTT) const noexcept
+			PYGMALION_INLINE scoreType zwsearchMove(const movebitsType move, const scoreType alpha, const depthType& depthRemaining, const uint_t<countPlayers, false> nullMoveHistory, bool& allowStoreTT) const noexcept
 			{
 				childType subnode{ childType(*this, move) };
-				return -subnode.template zwsearch<VERBOSE>(-alpha.plyDown(), depthRemaining - depthType(1), nullMoveHistory, str, allowStoreTT).plyUp();
+				return -subnode.zwsearch(-alpha.plyDown(), depthRemaining - depthType(1), nullMoveHistory, allowStoreTT).plyUp();
 			}
-			template<bool VERBOSE, bool SCOUT, bool ANALYZE>
-			PYGMALION_INLINE bool searchSubNode(const movebitsType move, scoreType& alpha, scoreType& beta, scoreType& best, movebitsType& bestmove, const depthType depthRemaining, variationType& principalVariation, std::ostream& str, const bool fromStack, bool& allowStoreTT, indexType* pCurrentMove)  noexcept
+			template<bool SCOUT, bool ANALYZE>
+			PYGMALION_INLINE bool searchSubNode(const movebitsType move, scoreType& alpha, scoreType& beta, scoreType& best, movebitsType& bestmove, const depthType depthRemaining, variationType& principalVariation, const bool fromStack, bool& allowStoreTT, indexType* pCurrentMove)  noexcept
 			{
 				m_Heuristics.template beginMove<PLAYER, false>(m_Stack, move, m_Depth);
 				variationType subVariation;
@@ -496,10 +495,10 @@ namespace pygmalion
 					bool allowStoreTTsubnode{ true };
 					if constexpr (searchScout && !ANALYZE)
 					{
-						sc = this->zwsearchMove<VERBOSE>(move, alpha, depthRemaining, m_EmptyNullMoveHistory, str, allowStoreTTsubnode);
+						sc = this->zwsearchMove(move, alpha, depthRemaining, m_EmptyNullMoveHistory, allowStoreTTsubnode);
 						if (sc > alpha && sc < beta)
 						{
-							sc = this->searchMove<VERBOSE, false>(move, alpha, beta, depthRemaining, subVariation, str, allowStoreTTsubnode, nullptr);
+							sc = this->template searchMove<false>(move, alpha, beta, depthRemaining, subVariation, allowStoreTTsubnode, nullptr);
 						}
 						if (sc > best)
 						{
@@ -537,7 +536,7 @@ namespace pygmalion
 					}
 					else
 					{
-						sc = this->searchMove<VERBOSE, ANALYZE>(move, alpha, beta, depthRemaining, subVariation, str, allowStoreTTsubnode, pCurrentMove);
+						sc = this->template searchMove<ANALYZE>(move, alpha, beta, depthRemaining, subVariation, allowStoreTTsubnode, pCurrentMove);
 						if (sc > best)
 						{
 							allowStoreTT &= allowStoreTTsubnode;
@@ -577,7 +576,7 @@ namespace pygmalion
 				else
 				{
 					bool allowStoreTTsubnode{ true };
-					const scoreType sc{ this->searchMove<VERBOSE, ANALYZE>(move, alpha, beta, depthRemaining, subVariation, str, allowStoreTTsubnode, pCurrentMove) };
+					const scoreType sc{ this->template searchMove<ANALYZE>(move, alpha, beta, depthRemaining, subVariation, allowStoreTTsubnode, pCurrentMove) };
 					best = sc;
 					if (best > alpha)
 					{
@@ -608,8 +607,8 @@ namespace pygmalion
 					return false;
 				}
 			}
-			template<bool VERBOSE, bool PRUNED>
-			PYGMALION_INLINE bool zwsearchSubNode(const movebitsType move, scoreType& alpha, scoreType& beta, scoreType& best, movebitsType& bestmove, const depthType depthRemaining, const uint_t<countPlayers, false> nullMoveHistory, std::ostream& str, const bool fromStack, bool& allowStoreTT) noexcept
+			template<bool PRUNED>
+			PYGMALION_INLINE bool zwsearchSubNode(const movebitsType move, scoreType& alpha, scoreType& beta, scoreType& best, movebitsType& bestmove, const depthType depthRemaining, const uint_t<countPlayers, false> nullMoveHistory, const bool fromStack, bool& allowStoreTT) noexcept
 			{
 				m_Heuristics.template beginMove<PLAYER, false>(m_Stack, move, m_Depth);
 				if constexpr (!PRUNED)
@@ -624,7 +623,7 @@ namespace pygmalion
 					}
 				}
 				bool allowStoreTTsubnode{ true };
-				const scoreType sc{ this->zwsearchMove<VERBOSE>(move, alpha, depthRemaining, nullMoveHistory, str, allowStoreTTsubnode) };
+				const scoreType sc{ this->zwsearchMove(move, alpha, depthRemaining, nullMoveHistory, allowStoreTTsubnode) };
 				if (sc > best)
 				{
 					allowStoreTT &= allowStoreTTsubnode;
@@ -645,8 +644,8 @@ namespace pygmalion
 				m_Heuristics.template endMoveSilent<PLAYER, false>(m_Stack, move, m_Depth, depthRemaining);
 				return false;
 			}
-			template<bool VERBOSE, bool USE_TT>
-			PYGMALION_INLINE bool qsearchSubNode(const movebitsType move, scoreType& alpha, scoreType& beta, scoreType& best, movebitsType& bestmove, variationType& principalVariation, std::ostream& str, const bool fromStack, bool& allowStoreTT) noexcept
+			template<bool STATIC, bool USE_TT>
+			PYGMALION_INLINE bool qsearchSubNode(const movebitsType move, scoreType& alpha, scoreType& beta, scoreType& best, movebitsType& bestmove, variationType& principalVariation, const bool fromStack, bool& allowStoreTT, const depthType qsDepth) noexcept
 			{
 				m_Heuristics.template beginMove<PLAYER, true>(m_Stack, move, m_Depth);
 				if constexpr (pruneDelta)
@@ -662,9 +661,15 @@ namespace pygmalion
 				bool allowStoreTTsubnode{ true };
 				bool bEnded{ false };
 				scoreType sc;
+				if constexpr (STATIC)
+				{
+					sc = evaluate(alpha, beta) + evaluatorType::staticTacticalMoveScore(m_Stack.position(), move);
+					allowStoreTTsubnode = false;
+				}
+				else
 				{
 					childType subnode(childType(*static_cast<const instanceType*>(this), move));
-					sc = -subnode.template eval<VERBOSE, USE_TT>(-beta.plyDown(), -alpha.plyDown(), subVariation, str, allowStoreTTsubnode).plyUp();
+					sc = -subnode.template eval<USE_TT>(-beta.plyDown(), -alpha.plyDown(), subVariation, allowStoreTTsubnode, qsDepth + 1).plyUp();
 				}
 				const scoreType oldAlpha{ alpha };
 				if (sc > alpha && sc < beta)
@@ -674,7 +679,10 @@ namespace pygmalion
 					if constexpr (USE_TT)
 					{
 						if (allowStoreTT)
-							m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, sc, transpositiontable<descriptorSearch>::flags_upper | transpositiontable<descriptorSearch>::flags_move, move);
+						{
+							const depthType ttDraft{ static_cast<depthType>(-(qsDepth + 1)) };
+							m_Heuristics.transpositionTable().store(m_Stack, -1, sc, transpositiontable<descriptorSearch>::flags_upper | transpositiontable<descriptorSearch>::flags_move, move);
+						}
 					}
 					bEnded = true;
 				}
@@ -687,7 +695,10 @@ namespace pygmalion
 						if constexpr (USE_TT)
 						{
 							if (allowStoreTT)
-								m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, best, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
+							{
+								const depthType ttDraft{ static_cast<depthType>(-(qsDepth + 1)) };
+								m_Heuristics.transpositionTable().store(m_Stack, -1, best, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
+							}
 						}
 						m_Heuristics.template endMoveRefuted<PLAYER, false, true>(m_Stack, move, m_Depth, best, evaluate(oldAlpha, best), fromStack, depthRemaining);
 						m_Heuristics.template endNodeCut<PLAYER>(m_Stack);
@@ -702,65 +713,8 @@ namespace pygmalion
 					m_Heuristics.template endMoveAccepted<PLAYER, false, true>(m_Stack, move, m_Depth, alpha, evaluate(oldAlpha, best), fromStack, depthRemaining);
 				return false;
 			}
-			template<bool VERBOSE, bool USE_TT>
-			PYGMALION_INLINE bool pqsearchSubNode(const movebitsType move, scoreType& alpha, scoreType& beta, scoreType& best, movebitsType& bestmove, variationType& principalVariation, std::ostream& str, const bool fromStack, bool& allowStoreTT, const depthType extensions) noexcept
-			{
-				m_Heuristics.template beginMove<PLAYER, true>(m_Stack, move, m_Depth);
-				if constexpr (pruneDelta)
-				{
-					if (m_DeltaPruningAllowed && this->canPruneMove(move) && this->canDeltaPruneMove(move))
-					{
-						m_Heuristics.template endMoveDelta<PLAYER, false>(m_Stack, move, m_Depth);
-						return false;
-					}
-				}
-				const depthType depthRemaining{ static_cast<depthType>(-(extensions + 1)) };
-				variationType subVariation;
-				bool allowStoreTTsubnode{ true };
-				bool bEnded{ false };
-				scoreType sc;
-				{
-					childType subnode(childType(*static_cast<const instanceType*>(this), move));
-					sc = -subnode.template peval<VERBOSE, USE_TT>(-beta.plyDown(), -alpha.plyDown(), subVariation, str, allowStoreTTsubnode, extensions).plyUp();
-				}
-				const scoreType oldAlpha{ alpha };
-				if (sc > alpha && sc < beta)
-				{
-					alpha = sc;
-					allowStoreTT &= allowStoreTTsubnode;
-					if constexpr (USE_TT)
-					{
-						if (allowStoreTT)
-							m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, sc, transpositiontable<descriptorSearch>::flags_upper | transpositiontable<descriptorSearch>::flags_move, move);
-					}
-					bEnded = true;
-				}
-				if (sc > best)
-				{
-					allowStoreTT &= allowStoreTTsubnode;
-					best = sc;
-					if (sc >= beta)
-					{
-						if constexpr (USE_TT)
-						{
-							if (allowStoreTT)
-								m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, best, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
-						}
-						m_Heuristics.template endMoveRefuted<PLAYER, false, true>(m_Stack, move, m_Depth, best, evaluate(oldAlpha, best), fromStack, depthRemaining);
-						m_Heuristics.template endNodeCut<PLAYER>(m_Stack);
-						return true;
-					}
-					principalVariation.combine(move, subVariation);
-					bestmove = move;
-				}
-				if (!bEnded)
-					m_Heuristics.template endMoveSilent<PLAYER, true>(m_Stack, move, m_Depth, depthRemaining);
-				else
-					m_Heuristics.template endMoveAccepted<PLAYER, false, true>(m_Stack, move, m_Depth, alpha, evaluate(oldAlpha, best), fromStack, depthRemaining);
-				return false;
-			}
-			template<bool VERBOSE, bool USE_TT>
-			PYGMALION_INLINE bool qzwsearchSubNode(const movebitsType move, scoreType& alpha, scoreType& beta, scoreType& best, movebitsType& bestmove, std::ostream& str, const bool fromStack, bool& allowStoreTT) noexcept
+			template<bool STATIC, bool USE_TT>
+			PYGMALION_INLINE bool qzwsearchSubNode(const movebitsType move, scoreType& alpha, scoreType& beta, scoreType& best, movebitsType& bestmove, const bool fromStack, bool& allowStoreTT, const depthType qsDepth) noexcept
 			{
 				m_Heuristics.template beginMove<PLAYER, true>(m_Stack, move, m_Depth);
 				if constexpr (pruneDelta)
@@ -774,9 +728,15 @@ namespace pygmalion
 				const depthType depthRemaining{ static_cast<depthType>(-(countMaxExtensions + 1)) };
 				bool allowStoreTTsubnode{ true };
 				scoreType sc;
+				if constexpr (STATIC)
+				{
+					sc = evaluate(alpha, beta) + evaluatorType::staticTacticalMoveScore(m_Stack.position(), move);
+					allowStoreTTsubnode = false;
+				}
+				else
 				{
 					childType subnode(childType(*static_cast<const instanceType*>(this), move));
-					sc = -subnode.template zweval<VERBOSE, USE_TT>(-alpha.plyDown(), str, allowStoreTTsubnode).plyUp();
+					sc = -subnode.template zweval<USE_TT>(-alpha.plyDown(), allowStoreTTsubnode, qsDepth + 1).plyUp();
 				}
 				if (sc >= beta)
 				{
@@ -785,42 +745,10 @@ namespace pygmalion
 					if constexpr (USE_TT)
 					{
 						if (allowStoreTT)
-							m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, best, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
-					}
-					m_Heuristics.template endMoveRefuted<PLAYER, false, true>(m_Stack, move, m_Depth, best, evaluate(alpha, best), fromStack, depthRemaining);
-					m_Heuristics.template endNodeCut<PLAYER>(m_Stack);
-					return true;
-				}
-				m_Heuristics.template endMoveSilent<PLAYER, true>(m_Stack, move, m_Depth, depthRemaining);
-				return false;
-			}
-			template<bool VERBOSE, bool USE_TT>
-			PYGMALION_INLINE bool pqzwsearchSubNode(const movebitsType move, scoreType& alpha, scoreType& beta, scoreType& best, movebitsType& bestmove, std::ostream& str, const bool fromStack, bool& allowStoreTT, const depthType extensions) noexcept
-			{
-				m_Heuristics.template beginMove<PLAYER, true>(m_Stack, move, m_Depth);
-				if constexpr (pruneDelta)
-				{
-					if (m_DeltaPruningAllowed && this->canPruneMove(move) && this->canDeltaPruneMove(move))
-					{
-						m_Heuristics.template endMoveDelta<PLAYER, false>(m_Stack, move, m_Depth);
-						return false;
-					}
-				}
-				const depthType depthRemaining{ static_cast<depthType>(-(extensions + 1)) };
-				bool allowStoreTTsubnode{ true };
-				scoreType sc;
-				{
-					childType subnode(childType(*static_cast<const instanceType*>(this), move));
-					sc = -subnode.template pzweval<VERBOSE, USE_TT>(-alpha.plyDown(), str, allowStoreTTsubnode, extensions).plyUp();
-				}
-				if (sc >= beta)
-				{
-					allowStoreTT &= allowStoreTTsubnode;
-					best = sc;
-					if constexpr (USE_TT)
-					{
-						if (allowStoreTT)
-							m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, best, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
+						{
+							const depthType ttDraft{ static_cast<depthType>(-(qsDepth + 1)) };
+							m_Heuristics.transpositionTable().store(m_Stack, -1, best, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
+						}
 					}
 					m_Heuristics.template endMoveRefuted<PLAYER, false, true>(m_Stack, move, m_Depth, best, evaluate(alpha, best), fromStack, depthRemaining);
 					m_Heuristics.template endNodeCut<PLAYER>(m_Stack);
@@ -919,106 +847,8 @@ namespace pygmalion
 			{
 				return static_cast<const instanceType*>(this)->nullMoveAllowed_Implementation();
 			}
-			template<bool VERBOSE, bool USE_TT>
-			scoreType peval(scoreType alpha, scoreType beta, variationType& principalVariation, std::ostream& str, bool& allowStoreTT, const depthType extensions) noexcept
-			{
-				if (extensions < countMaxExtensions)
-				{
-					constexpr const scoreType zero{ scoreType::zero() };
-					if (!m_IsRunning)
-					{
-						allowStoreTT = false;
-						return zero;
-					}
-					if ((m_DistanceFromRoot + 1) >= countSearchPlies)
-						return evaluate(alpha, beta);
-					m_Heuristics.beginNode(m_Stack);
-					scoreType early{ zero };
-					if (earlyScore<false>(early, allowStoreTT))
-					{
-						m_Heuristics.endNodeEarly(m_Stack);
-						return early;
-					}
-					const depthType depthRemaining{ static_cast<depthType>(-(extensions + 1)) };
-					movebitsType bestmove;
-					bool hasLegalMove{ false };
-					movebitsType move;
-					const scoreType stand_pat{ evaluate(alpha, beta) };
-					scoreType best{ stand_pat };
-					if (best > alpha)
-					{
-						if (best >= beta)
-						{
-							m_Heuristics.endNodeLeaf(m_Stack);
-							if constexpr (USE_TT)
-								m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, best, transpositiontable<descriptorSearch>::flags_lower, movebitsType(0));
-							return best;
-						}
-						alpha = best;
-						if constexpr (USE_TT)
-							m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, best, transpositiontable<descriptorSearch>::flags_upper, movebitsType(0));
-					}
-					bool fromStack;
-					allowStoreTT = true;
-					bool bPruned{ false };
-					if constexpr (pruneDelta)
-					{
-						if (this->pruningAllowed(alpha, beta))
-						{
-							const scoreType deltaGlobalScore{ alpha - instanceType::deltaGlobalMargin(m_Stack) };
-							constexpr const scoreType maximum{ scoreType::maximum() };
-							const scoreType eval{ evaluate(deltaGlobalScore, maximum) };
-							m_DeltaGap = alpha - eval - instanceType::deltaMargin(m_Stack);
-							m_DeltaPruningAllowed = m_DeltaGap >= zero;
-							bPruned |= deltaGlobalScore >= eval;
-						}
-					}
-					if ((!hasLegalMove) && nextTacticalMove(move, fromStack))
-					{
-						hasLegalMove = true;
-						if (this->qsearchSubNode<VERBOSE, USE_TT>(move, alpha, beta, best, bestmove, principalVariation, str, fromStack, allowStoreTT))
-						{
-							this->resetMoveGen();
-							return best;
-						}
-					}
-					if (!hasLegalMove)
-					{
-						allowStoreTT = true;
-						m_Heuristics.endNodeLate(m_Stack);
-						hasLegalMove = m_Stack.hasLegalMove(m_Depth, m_Heuristics.feedback());
-						if (hasLegalMove)
-						{
-							if constexpr (USE_TT)
-								m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, best, transpositiontable<descriptorSearch>::flags_upper, movebitsType(0));
-							this->resetMoveGen();
-							return best;
-						}
-						else
-						{
-							const scoreType late{ lateScore() };
-							if constexpr (USE_TT)
-								m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, late, transpositiontable<descriptorSearch>::flags_exact, movebitsType(0));
-							this->resetMoveGen();
-							return late;
-						}
-					}
-					while (nextTacticalMove(move, fromStack))
-					{
-						if (this->qsearchSubNode<VERBOSE, USE_TT>(move, alpha, beta, best, bestmove, principalVariation, str, fromStack, allowStoreTT))
-						{
-							this->resetMoveGen();
-							return best;
-						}
-					}
-					m_Heuristics.endNodeLate(m_Stack);
-					return alpha;
-				}
-				else
-					return this->template eval<VERBOSE, USE_TT>(alpha, beta, principalVariation, str, allowStoreTT);
-			}
-			template<bool VERBOSE, bool USE_TT>
-			scoreType eval(scoreType alpha, scoreType beta, variationType& principalVariation, std::ostream& str, bool& allowStoreTT) noexcept
+			template<bool USE_TT>
+			scoreType eval(scoreType alpha, scoreType beta, variationType& principalVariation, bool& allowStoreTT, const depthType qsDepth) noexcept
 			{
 				constexpr const scoreType zero{ scoreType::zero() };
 				if (!m_IsRunning)
@@ -1026,8 +856,6 @@ namespace pygmalion
 					allowStoreTT = false;
 					return zero;
 				}
-				if ((m_DistanceFromRoot + 1) >= countSearchPlies)
-					return evaluate(alpha, beta);
 				m_Heuristics.beginNode(m_Stack);
 				scoreType early{ zero };
 				if (earlyScore<false>(early, allowStoreTT))
@@ -1040,19 +868,25 @@ namespace pygmalion
 				bool hasLegalMove{ false };
 				movebitsType move;
 				const scoreType stand_pat{ evaluate(alpha, beta) };
-				scoreType best{ stand_pat };
+				scoreType best = stand_pat;
 				if (best > alpha)
 				{
 					if (best >= beta)
 					{
 						m_Heuristics.endNodeLeaf(m_Stack);
 						if constexpr (USE_TT)
-							m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, best, transpositiontable<descriptorSearch>::flags_lower, movebitsType(0));
+						{
+							const depthType ttDraft{ static_cast<depthType>(-(qsDepth + 1)) };
+							m_Heuristics.transpositionTable().store(m_Stack, -1, best, transpositiontable<descriptorSearch>::flags_lower, movebitsType(0));
+						}
 						return best;
 					}
 					alpha = best;
 					if constexpr (USE_TT)
-						m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, best, transpositiontable<descriptorSearch>::flags_upper, movebitsType(0));
+					{
+						const depthType ttDraft{ static_cast<depthType>(-(qsDepth + 1)) };
+						m_Heuristics.transpositionTable().store(m_Stack, -1, best, transpositiontable<descriptorSearch>::flags_upper, movebitsType(0));
+					}
 				}
 				bool fromStack;
 				allowStoreTT = true;
@@ -1069,10 +903,23 @@ namespace pygmalion
 						bPruned |= deltaGlobalScore >= eval;
 					}
 				}
+				if (((m_DistanceFromRoot + 2) >= countSearchPlies) || (qsDepth >= countMaxExtensions))
+					return this->template evalLoop<true, USE_TT>(alpha, beta, best, depthRemaining, principalVariation, allowStoreTT, qsDepth);
+				else
+					return this->template evalLoop<false, USE_TT>(alpha, beta, best, depthRemaining, principalVariation, allowStoreTT, qsDepth);
+			}
+			template<bool STATIC, bool USE_TT>
+			PYGMALION_INLINE scoreType evalLoop(scoreType& alpha, scoreType& beta, scoreType& best, const depthType depthRemaining, variationType& principalVariation, bool& allowStoreTT, const depthType qsDepth) noexcept
+			{
+				movebitsType bestmove;
+				bool hasLegalMove{ false };
+				movebitsType move;
+				bool fromStack;
+				allowStoreTT = true;
 				if ((!hasLegalMove) && nextTacticalMove(move, fromStack))
 				{
 					hasLegalMove = true;
-					if (this->qsearchSubNode<VERBOSE, USE_TT>(move, alpha, beta, best, bestmove, principalVariation, str, fromStack, allowStoreTT))
+					if (this->template qsearchSubNode<STATIC, USE_TT>(move, alpha, beta, best, bestmove, principalVariation, fromStack, allowStoreTT, qsDepth))
 					{
 						this->resetMoveGen();
 						return best;
@@ -1086,7 +933,10 @@ namespace pygmalion
 					if (hasLegalMove)
 					{
 						if constexpr (USE_TT)
-							m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, best, transpositiontable<descriptorSearch>::flags_upper, movebitsType(0));
+						{
+							const depthType ttDraft{ static_cast<depthType>(-(qsDepth + 1)) };
+							m_Heuristics.transpositionTable().store(m_Stack, -1, best, transpositiontable<descriptorSearch>::flags_upper, movebitsType(0));
+						}
 						this->resetMoveGen();
 						return best;
 					}
@@ -1094,14 +944,17 @@ namespace pygmalion
 					{
 						const scoreType late{ lateScore() };
 						if constexpr (USE_TT)
-							m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, late, transpositiontable<descriptorSearch>::flags_exact, movebitsType(0));
+						{
+							const depthType ttDraft{ static_cast<depthType>(-(qsDepth + 1)) };
+							m_Heuristics.transpositionTable().store(m_Stack, -1, late, transpositiontable<descriptorSearch>::flags_exact, movebitsType(0));
+						}
 						this->resetMoveGen();
 						return late;
 					}
 				}
 				while (nextTacticalMove(move, fromStack))
 				{
-					if (this->qsearchSubNode<VERBOSE, USE_TT>(move, alpha, beta, best, bestmove, principalVariation, str, fromStack, allowStoreTT))
+					if (this->template qsearchSubNode<STATIC, USE_TT>(move, alpha, beta, best, bestmove, principalVariation, fromStack, allowStoreTT, qsDepth))
 					{
 						this->resetMoveGen();
 						return best;
@@ -1110,8 +963,8 @@ namespace pygmalion
 				m_Heuristics.endNodeLate(m_Stack);
 				return alpha;
 			}
-			template<bool VERBOSE, bool USE_TT>
-			scoreType zweval(scoreType beta, std::ostream& str, bool& allowStoreTT) noexcept
+			template<bool USE_TT>
+			scoreType zweval(scoreType beta, bool& allowStoreTT, const depthType qsDepth) noexcept
 			{
 				constexpr const scoreType zero{ scoreType::zero() };
 				if (!m_IsRunning)
@@ -1139,7 +992,8 @@ namespace pygmalion
 				{
 					scoreType ttScore;
 					movebitsType ttMove;
-					const std::uint8_t lookUp{ m_Heuristics.transpositionTable().probe(m_Stack, depthRemaining, alpha, beta, ttScore, ttMove) };
+					//							const depthType ttDraft{ static_cast<depthType>(-(qsDepth + 1)) };
+					const std::uint8_t lookUp{ m_Heuristics.transpositionTable().probe(m_Stack, -1, alpha, beta, ttScore, ttMove) };
 					if (lookUp != transpositiontable<descriptorSearch>::flags_unused)
 					{
 						if (lookUp & transpositiontable<descriptorSearch>::flags_move)
@@ -1164,12 +1018,18 @@ namespace pygmalion
 					{
 						m_Heuristics.endNodeLeaf(m_Stack);
 						if constexpr (USE_TT)
-							m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, best, transpositiontable<descriptorSearch>::flags_lower, movebitsType(0));
+						{
+//							const depthType ttDraft{ static_cast<depthType>(-(qsDepth + 1)) };
+							m_Heuristics.transpositionTable().store(m_Stack, -1, best, transpositiontable<descriptorSearch>::flags_lower, movebitsType(0));
+						}
 						return best;
 					}
 					alpha = best;
 					if constexpr (USE_TT)
-						m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, best, transpositiontable<descriptorSearch>::flags_upper, movebitsType(0));
+					{
+//						const depthType ttDraft{ static_cast<depthType>(-(qsDepth + 1)) };
+						m_Heuristics.transpositionTable().store(m_Stack, -1, best, transpositiontable<descriptorSearch>::flags_upper, movebitsType(0));
+					}
 				}
 				bool fromStack;
 				allowStoreTT = true;
@@ -1186,10 +1046,23 @@ namespace pygmalion
 						bPruned |= deltaGlobalScore >= eval;
 					}
 				}
+				if (((m_DistanceFromRoot + 2) >= countSearchPlies) || (qsDepth >= countMaxExtensions))
+					return this->template zwevalLoop<true, USE_TT>(alpha, beta, best, depthRemaining, allowStoreTT, qsDepth);
+				else
+					return this->template zwevalLoop<false, USE_TT>(alpha, beta, best, depthRemaining, allowStoreTT, qsDepth);
+			}
+			template<bool STATIC, bool USE_TT>
+			PYGMALION_INLINE scoreType zwevalLoop(scoreType& alpha, scoreType& beta, scoreType& best, const depthType depthRemaining, bool& allowStoreTT, const depthType qsDepth) noexcept
+			{
+				movebitsType bestmove;
+				bool hasLegalMove{ false };
+				movebitsType move;
+				bool fromStack;
+				allowStoreTT = true;
 				if ((!hasLegalMove) && nextTacticalMove(move, fromStack))
 				{
 					hasLegalMove = true;
-					if (this->qzwsearchSubNode<VERBOSE, USE_TT>(move, alpha, beta, best, bestmove, str, fromStack, allowStoreTT))
+					if (this->qzwsearchSubNode<STATIC, USE_TT>(move, alpha, beta, best, bestmove, fromStack, allowStoreTT, qsDepth))
 					{
 						this->resetMoveGen();
 						return best;
@@ -1203,7 +1076,10 @@ namespace pygmalion
 					if (hasLegalMove)
 					{
 						if constexpr (USE_TT)
-							m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, best, transpositiontable<descriptorSearch>::flags_upper, movebitsType(0));
+						{
+						//	const depthType ttDraft{ static_cast<depthType>(-(qsDepth + 1)) };
+							m_Heuristics.transpositionTable().store(m_Stack, -1, best, transpositiontable<descriptorSearch>::flags_upper, movebitsType(0));
+						}
 						this->resetMoveGen();
 						return best;
 					}
@@ -1211,14 +1087,17 @@ namespace pygmalion
 					{
 						const scoreType late{ lateScore() };
 						if constexpr (USE_TT)
-							m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, late, transpositiontable<descriptorSearch>::flags_exact, movebitsType(0));
+						{
+							const depthType ttDraft{ static_cast<depthType>(-(qsDepth + 1)) };
+							m_Heuristics.transpositionTable().store(m_Stack, -1, late, transpositiontable<descriptorSearch>::flags_exact, movebitsType(0));
+						}
 						this->resetMoveGen();
 						return late;
 					}
 				}
 				while (nextTacticalMove(move, fromStack))
 				{
-					if (this->qzwsearchSubNode<VERBOSE, USE_TT>(move, alpha, beta, best, bestmove, str, fromStack, allowStoreTT))
+					if (this->qzwsearchSubNode<STATIC, USE_TT>(move, alpha, beta, best, bestmove, fromStack, allowStoreTT, qsDepth))
 					{
 						this->resetMoveGen();
 						return best;
@@ -1228,138 +1107,15 @@ namespace pygmalion
 				this->resetMoveGen();
 				return alpha;
 			}
-			template<bool VERBOSE, bool USE_TT>
-			scoreType pzweval(scoreType beta, std::ostream& str, bool& allowStoreTT, const depthType extensions) noexcept
-			{
-				if (extensions < countMaxExtensions)
-				{
-					constexpr const scoreType zero{ scoreType::zero() };
-					if (!m_IsRunning)
-					{
-						allowStoreTT = false;
-						return zero;
-					}
-					scoreType alpha{ beta.zeroWindow() };
-					if ((m_DistanceFromRoot + 1) >= countSearchPlies)
-						return evaluate(alpha, beta);
-					m_Heuristics.beginNode(m_Stack);
-					scoreType early{ zero };
-					if (earlyScore<true>(early, allowStoreTT))
-					{
-						m_Heuristics.endNodeEarly(m_Stack);
-						return early;
-					}
-					const depthType depthRemaining{ static_cast<depthType>(-(extensions + 1)) };
-					movebitsType bestmove;
-					bool hasLegalMove{ false };
-					movebitsType move;
-					constexpr const scoreType minimum{ scoreType::minimum() };
-					scoreType best{ minimum };
-					if constexpr (USE_TT)
-					{
-						scoreType ttScore;
-						movebitsType ttMove;
-						const std::uint8_t lookUp{ m_Heuristics.transpositionTable().probe(m_Stack, depthRemaining, alpha, beta, ttScore, ttMove) };
-						if (lookUp != transpositiontable<descriptorSearch>::flags_unused)
-						{
-							if (lookUp & transpositiontable<descriptorSearch>::flags_move)
-							{
-								hasLegalMove = true;
-								bestmove = ttMove;
-							}
-							if (lookUp & transpositiontable<descriptorSearch>::flags_return)
-							{
-								m_Heuristics.endNodeTT(m_Stack);
-								return ttScore;
-							}
-							else
-								best = ttScore;
-						}
-					}
-					const scoreType stand_pat{ evaluate(alpha, beta) };
-					best = scoreType::max(stand_pat, best);
-					if (best > alpha)
-					{
-						if (best >= beta)
-						{
-							m_Heuristics.endNodeLeaf(m_Stack);
-							if constexpr (USE_TT)
-								m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, best, transpositiontable<descriptorSearch>::flags_lower, movebitsType(0));
-							return best;
-						}
-						alpha = best;
-						if constexpr (USE_TT)
-							m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, best, transpositiontable<descriptorSearch>::flags_upper, movebitsType(0));
-					}
-					bool fromStack;
-					allowStoreTT = true;
-					bool bPruned{ false };
-					if constexpr (pruneDelta)
-					{
-						if (this->pruningAllowed(alpha, beta))
-						{
-							const scoreType deltaGlobalScore{ alpha - instanceType::deltaGlobalMargin(m_Stack) };
-							constexpr const scoreType maximum{ scoreType::maximum() };
-							const scoreType eval{ evaluate(deltaGlobalScore, maximum) };
-							m_DeltaGap = alpha - eval - instanceType::deltaMargin(m_Stack);
-							m_DeltaPruningAllowed = m_DeltaGap >= zero;
-							bPruned |= deltaGlobalScore >= eval;
-						}
-					}
-					if ((!hasLegalMove) && nextTacticalMove(move, fromStack))
-					{
-						hasLegalMove = true;
-						if (this->qzwsearchSubNode<VERBOSE, USE_TT>(move, alpha, beta, best, bestmove, str, fromStack, allowStoreTT))
-						{
-							this->resetMoveGen();
-							return best;
-						}
-					}
-					if (!hasLegalMove)
-					{
-						allowStoreTT = true;
-						m_Heuristics.endNodeLate(m_Stack);
-						hasLegalMove = m_Stack.hasLegalMove(m_Depth, m_Heuristics.feedback());
-						if (hasLegalMove)
-						{
-							if constexpr (USE_TT)
-								m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, best, transpositiontable<descriptorSearch>::flags_upper, movebitsType(0));
-							this->resetMoveGen();
-							return best;
-						}
-						else
-						{
-							const scoreType late{ lateScore() };
-							if constexpr (USE_TT)
-								m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, late, transpositiontable<descriptorSearch>::flags_exact, movebitsType(0));
-							this->resetMoveGen();
-							return late;
-						}
-					}
-					while (nextTacticalMove(move, fromStack))
-					{
-						if (this->qzwsearchSubNode<VERBOSE, USE_TT>(move, alpha, beta, best, bestmove, str, fromStack, allowStoreTT))
-						{
-							this->resetMoveGen();
-							return best;
-						}
-					}
-					m_Heuristics.endNodeLate(m_Stack);
-					this->resetMoveGen();
-					return alpha;
-				}
-				else
-					return this->template zweval<VERBOSE, USE_TT>(beta, str, allowStoreTT);
-			}
-			template<bool VERBOSE, bool PRUNED>
-			PYGMALION_INLINE scoreType zwsearchLoop(bool& hasLegalMove, const depthType depthRemaining, scoreType& alpha, scoreType& beta, scoreType& best, movebitsType& bestmove, const uint_t<countPlayers, false> nullMoveHistory, std::ostream& str, bool& allowStoreTT) noexcept
+			template<bool PRUNED>
+			PYGMALION_INLINE scoreType zwsearchLoop(bool& hasLegalMove, const depthType depthRemaining, scoreType& alpha, scoreType& beta, scoreType& best, movebitsType& bestmove, const uint_t<countPlayers, false> nullMoveHistory, bool& allowStoreTT) noexcept
 			{
 				movebitsType move;
 				bool fromStack;
 				if ((!hasLegalMove) && this->template nextMove<PRUNED>(depthRemaining, move, fromStack))
 				{
 					hasLegalMove = true;
-					if (this->zwsearchSubNode<VERBOSE, PRUNED>(move, alpha, beta, best, bestmove, depthRemaining, noNullMove(nullMoveHistory), str, fromStack, allowStoreTT))
+					if (this->zwsearchSubNode<PRUNED>(move, alpha, beta, best, bestmove, depthRemaining, noNullMove(nullMoveHistory), fromStack, allowStoreTT))
 					{
 						this->resetMoveGen();
 						return best;
@@ -1378,7 +1134,7 @@ namespace pygmalion
 				while (this->template nextMove<PRUNED>(depthRemaining, move, fromStack))
 				{
 					bool allowStoreTTsubnode;
-					if (this->zwsearchSubNode<VERBOSE, PRUNED>(move, alpha, beta, best, bestmove, depthRemaining, noNullMove(nullMoveHistory), str, fromStack, allowStoreTT))
+					if (this->zwsearchSubNode<PRUNED>(move, alpha, beta, best, bestmove, depthRemaining, noNullMove(nullMoveHistory), fromStack, allowStoreTT))
 					{
 						this->resetMoveGen();
 						return best;
@@ -1388,8 +1144,8 @@ namespace pygmalion
 				this->resetMoveGen();
 				return alpha;
 			}
-			template<bool VERBOSE, bool ANALYZE>
-			PYGMALION_INLINE scoreType searchLoop(const depthType depthRemaining, scoreType& alpha, scoreType& beta, variationType& principalVariation, std::ostream& str, bool& allowStoreTT, indexType* pCurrentMove) noexcept
+			template<bool ANALYZE>
+			PYGMALION_INLINE scoreType searchLoop(const depthType depthRemaining, scoreType& alpha, scoreType& beta, variationType& principalVariation, bool& allowStoreTT, indexType* pCurrentMove) noexcept
 			{
 				bool hasLegalMove{ false };
 				movebitsType move;
@@ -1401,7 +1157,7 @@ namespace pygmalion
 				if ((!hasLegalMove) && this->template nextMove<false>(depthRemaining, move, fromStack))
 				{
 					hasLegalMove = true;
-					if (this->searchSubNode<VERBOSE, false, ANALYZE>(move, alpha, beta, best, bestmove, depthRemaining, principalVariation, str, fromStack, allowStoreTT, pCurrentMove))
+					if (this->searchSubNode<false, ANALYZE>(move, alpha, beta, best, bestmove, depthRemaining, principalVariation, fromStack, allowStoreTT, pCurrentMove))
 					{
 						this->resetMoveGen();
 						return best;
@@ -1419,7 +1175,7 @@ namespace pygmalion
 				}
 				while (this->template nextMove<false>(depthRemaining, move, fromStack))
 				{
-					if (this->searchSubNode<VERBOSE, true, ANALYZE>(move, alpha, beta, best, bestmove, depthRemaining, principalVariation, str, fromStack, allowStoreTT, pCurrentMove))
+					if (this->searchSubNode<true, ANALYZE>(move, alpha, beta, best, bestmove, depthRemaining, principalVariation, fromStack, allowStoreTT, pCurrentMove))
 					{
 						this->resetMoveGen();
 						return best;
@@ -1430,8 +1186,7 @@ namespace pygmalion
 				return alpha;
 			}
 		public:
-			template<bool VERBOSE>
-			scoreType zwsearch(scoreType beta, const depthType depthRemaining, const uint_t<countPlayers, false> nullMoveHistory, std::ostream& str, bool& allowStoreTT) noexcept
+			scoreType zwsearch(scoreType beta, const depthType depthRemaining, const uint_t<countPlayers, false> nullMoveHistory, bool& allowStoreTT) noexcept
 			{
 				constexpr const scoreType zero{ scoreType::zero() };
 				if (!m_IsRunning)
@@ -1440,10 +1195,8 @@ namespace pygmalion
 					return zero;
 				}
 				scoreType alpha{ beta.zeroWindow() };
-				if (depthRemaining >= depthType(0))
+				if ((depthRemaining >= depthType(0)) && ((m_DistanceFromRoot + 1) < countSearchPlies))
 				{
-					if ((m_DistanceFromRoot + 1) >= countSearchPlies)
-						return evaluate(alpha, beta);
 					m_Heuristics.beginNode(m_Stack);
 					scoreType early{ zero };
 					if (earlyScore<true>(early, allowStoreTT))
@@ -1500,7 +1253,7 @@ namespace pygmalion
 									{
 										childType subnode(childType(*static_cast<const instanceType*>(this), generatorType::nullMove()));
 										constexpr const scoreType atom{ scoreType::atom() };
-										nmsc = -subnode.template zwsearch<VERBOSE>((atom - beta).plyDown(), remainingNullMoveDepth, doNullMove(nullMoveHistory), str, allowStoreTTsubnode).plyUp();
+										nmsc = -subnode.zwsearch((atom - beta).plyDown(), remainingNullMoveDepth, doNullMove(nullMoveHistory), allowStoreTTsubnode).plyUp();
 									}
 									if (nmsc >= beta)
 									{
@@ -1528,17 +1281,16 @@ namespace pygmalion
 						}
 					}
 					if (bPruned)
-						return this->template zwsearchLoop<VERBOSE, true>(hasLegalMove, depthRemaining, alpha, beta, best, bestmove, nullMoveHistory, str, allowStoreTT);
+						return this->template zwsearchLoop<true>(hasLegalMove, depthRemaining, alpha, beta, best, bestmove, nullMoveHistory, allowStoreTT);
 					else
-						return this->template zwsearchLoop<VERBOSE, false>(hasLegalMove, depthRemaining, alpha, beta, best, bestmove, nullMoveHistory, str, allowStoreTT);
+						return this->template zwsearchLoop<false>(hasLegalMove, depthRemaining, alpha, beta, best, bestmove, nullMoveHistory, allowStoreTT);
 				}
 				else
 				{
-					return this->template pzweval<VERBOSE, searchTranspositionTable>(beta, str, allowStoreTT, 0);
+					return this->template zweval<searchTranspositionTable>(beta, allowStoreTT, 0);
 				}
 			}
-			template<bool VERBOSE>
-			scoreType analyze(scoreType alpha, scoreType beta, const depthType depthRemaining, variationType& principalVariation, std::ostream& str, bool& allowStoreTT, indexType& currentMove) noexcept
+			scoreType analyze(scoreType alpha, scoreType beta, const depthType depthRemaining, variationType& principalVariation, bool& allowStoreTT, indexType& currentMove) noexcept
 			{
 				constexpr const scoreType zero{ scoreType::zero() };
 				if (!m_IsRunning)
@@ -1572,15 +1324,14 @@ namespace pygmalion
 							}
 						}
 					}
-					return this->template searchLoop<VERBOSE, true>(depthRemaining, alpha, beta, principalVariation, str, allowStoreTT, &currentMove);
+					return this->template searchLoop<true>(depthRemaining, alpha, beta, principalVariation, allowStoreTT, &currentMove);
 				}
 				else
 				{
-					return this->template eval<VERBOSE, searchTranspositionTable>(alpha, beta, principalVariation, str, allowStoreTT);
+					return this->template eval<searchTranspositionTable>(alpha, beta, principalVariation, allowStoreTT, 0);
 				}
 			}
-			template<bool VERBOSE>
-			scoreType search(scoreType alpha, scoreType beta, const depthType depthRemaining, variationType& principalVariation, std::ostream& str, bool& allowStoreTT) noexcept
+			scoreType search(scoreType alpha, scoreType beta, const depthType depthRemaining, variationType& principalVariation, bool& allowStoreTT) noexcept
 			{
 				constexpr const scoreType zero{ scoreType::zero() };
 				if (!m_IsRunning)
@@ -1588,10 +1339,8 @@ namespace pygmalion
 					allowStoreTT = false;
 					return zero;
 				}
-				if (depthRemaining >= depthType(0))
+				if ((depthRemaining >= depthType(0)) && ((m_DistanceFromRoot + 1) < countSearchPlies))
 				{
-					if ((m_DistanceFromRoot + 1) >= countSearchPlies)
-						return evaluate(alpha, beta);
 					m_Heuristics.beginNode(m_Stack);
 					scoreType early{ zero };
 					if (earlyScore<false>(early, allowStoreTT))
@@ -1616,11 +1365,11 @@ namespace pygmalion
 							}
 						}
 					}
-					return this->template searchLoop<VERBOSE, false>(depthRemaining, alpha, beta, principalVariation, str, allowStoreTT, nullptr);
+					return this->template searchLoop<false>(depthRemaining, alpha, beta, principalVariation, allowStoreTT, nullptr);
 				}
 				else
 				{
-					return this->template peval<VERBOSE, searchTranspositionTable>(alpha, beta, principalVariation, str, allowStoreTT, 0);
+					return this->template eval<searchTranspositionTable>(alpha, beta, principalVariation, allowStoreTT, 0);
 				}
 			}
 			node() = delete;
@@ -1695,8 +1444,8 @@ namespace pygmalion
 				m_DeltaGap = zero;
 			}
 			PYGMALION_INLINE ~node() noexcept = default;
-			template<bool VERBOSE, bool ANALYZE>
-			scoreType searchRoot(const depthType depthRemaining, variationType& principalVariation, const scoreType scoreFromPreviousDepth, std::ostream& str, indexType& currentMove, indexType& countMoves) noexcept
+			template<bool ANALYZE>
+			scoreType searchRoot(const depthType depthRemaining, variationType& principalVariation, const scoreType scoreFromPreviousDepth, indexType& currentMove, indexType& countMoves) noexcept
 			{
 				bool allowStoreTT;
 				constexpr const scoreType minimum{ scoreType::minimum() };
@@ -1710,7 +1459,7 @@ namespace pygmalion
 					while (nextMove<false>(depthRemaining, move, fromStack))
 						countMoves++;
 					resetMoveGen();
-					return this->template analyze<VERBOSE>(minimum, maximum, depthRemaining, principalVariation, str, allowStoreTT, currentMove);
+					return this->analyze(minimum, maximum, depthRemaining, principalVariation, allowStoreTT, currentMove);
 				}
 				else
 				{
@@ -1753,7 +1502,7 @@ namespace pygmalion
 								lowAspiration = minimum;
 							if (highAspiration.isWinning())
 								highAspiration = maximum;
-							sc = this->template search<VERBOSE>(lowAspiration, highAspiration, depthRemaining, principalVariation, str, allowStoreTT);
+							sc = this->search(lowAspiration, highAspiration, depthRemaining, principalVariation, allowStoreTT);
 							if ((sc > lowAspiration) && (sc < highAspiration))
 							{
 								bExact = true;
@@ -1776,12 +1525,12 @@ namespace pygmalion
 						}
 						if (!bExact)
 						{
-							sc = this->template search<VERBOSE>(minimum, maximum, depthRemaining, principalVariation, str, allowStoreTT);
+							sc = this->search(minimum, maximum, depthRemaining, principalVariation, allowStoreTT);
 						}
 						return sc;
 					}
 					else
-						return this->template search<VERBOSE>(minimum, maximum, depthRemaining, principalVariation, str, allowStoreTT);
+						return this->search(minimum, maximum, depthRemaining, principalVariation, allowStoreTT);
 				}
 			}
 			PYGMALION_INLINE const stackType& stack() const noexcept

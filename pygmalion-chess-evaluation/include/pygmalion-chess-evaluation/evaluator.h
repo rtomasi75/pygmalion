@@ -13,7 +13,7 @@ namespace pygmalion::chess
 		}
 		PYGMALION_INLINE constexpr static scoreType initialAspirationWindowSize() noexcept
 		{
-			constexpr const scoreType delta{ rootDelta()/8 };
+			constexpr const scoreType delta{ rootDelta() / 8 };
 			return delta;
 		}
 		PYGMALION_INLINE constexpr static size_t countAspirationWindows_Implementation() noexcept
