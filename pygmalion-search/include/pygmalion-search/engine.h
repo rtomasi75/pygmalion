@@ -83,7 +83,7 @@ namespace pygmalion::search
 					principalVariation.clear();
 					indexType currentMove;
 					indexType countMoves;
-					const scoreType score{ node.template searchRoot<false, false>(depthRemaining, principalVariation,scoreFromPreviousDepth, this->outputStream(), currentMove, countMoves) };
+					const scoreType score{ node.template searchRoot<false>(depthRemaining, principalVariation,scoreFromPreviousDepth, currentMove, countMoves) };
 					m_Heuristics.endSearch();
 					return score;
 				}

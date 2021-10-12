@@ -46,9 +46,9 @@ namespace pygmalion::frontend
 			this->heuristics().beginSearch();
 			scoreType score;
 			if (this->front().analyzeMode())
-				score = node.template searchRoot<false, true>(depthRemaining, principalVariation, m_ScoreFromPreviousDepth, this->outputStream(), m_CurrentMove, m_CountMoves);
+				score = node.template searchRoot<true>(depthRemaining, principalVariation, m_ScoreFromPreviousDepth, m_CurrentMove, m_CountMoves);
 			else
-				score = node.template searchRoot<false, false>(depthRemaining, principalVariation, m_ScoreFromPreviousDepth, this->outputStream(), m_CurrentMove, m_CountMoves);
+				score = node.template searchRoot<false>(depthRemaining, principalVariation, m_ScoreFromPreviousDepth, m_CurrentMove, m_CountMoves);
 			this->heuristics().endSearch();
 			if (isRunning)
 			{
