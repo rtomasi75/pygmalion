@@ -4,10 +4,10 @@ namespace pygmalion::chess
 		public pygmalion::evaluationstage<descriptor_evaluation, evaluationstage_pawnstructure>
 	{
 	public:
-		constexpr static inline double PawnStructure{ 0.05 };
+		constexpr static inline double PawnStructure{ 0.125 };
 		constexpr static scoreType computeDelta_Implementation() noexcept
 		{
-			return static_cast<scoreType>(0.75 * PawnStructure);
+			return static_cast<scoreType>(2.0 * PawnStructure);
 		}
 		template<size_t PLAYER>
 		PYGMALION_INLINE static scoreType evaluate_Implementation(const generatorType::template stackType<PLAYER>& stack) noexcept
