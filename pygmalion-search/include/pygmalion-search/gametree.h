@@ -470,10 +470,10 @@ namespace pygmalion
 					return -subnode.search(-beta.plyDown(), -alpha.plyDown(), depthRemaining - depthType(1), principalVariation, allowStoreTT).plyUp();
 				}
 			}
-			PYGMALION_INLINE scoreType zwsearchMove(const movebitsType move, const scoreType alpha, const depthType& depthRemaining, const uint_t<countPlayers, false> nullMoveHistory, bool& allowStoreTT) const noexcept
+			PYGMALION_INLINE scoreType zwsearchMove(const movebitsType move, const scoreType alpha, const depthType& depthRemaining, const uint_t<countPlayers, false> nullMoveHistory, bool& allowStoreTT, const knuthType expectedNodeType) const noexcept
 			{
 				childType subnode{ childType(*this, move) };
-				return -subnode.zwsearch(-alpha.plyDown(), depthRemaining - depthType(1), nullMoveHistory, allowStoreTT).plyUp();
+				return -subnode.zwsearch(-alpha.plyDown(), depthRemaining - depthType(1), nullMoveHistory, allowStoreTT, -expectedNodeType).plyUp();
 			}
 			template<bool SCOUT, bool ANALYZE>
 			PYGMALION_INLINE bool searchSubNode(const movebitsType move, scoreType& alpha, scoreType& beta, scoreType& best, movebitsType& bestmove, const depthType depthRemaining, variationType& principalVariation, const bool fromStack, bool& allowStoreTT, indexType* pCurrentMove)  noexcept
@@ -495,7 +495,7 @@ namespace pygmalion
 					bool allowStoreTTsubnode{ true };
 					if constexpr (searchScout && !ANALYZE)
 					{
-						sc = this->zwsearchMove(move, alpha, depthRemaining, m_EmptyNullMoveHistory, allowStoreTTsubnode);
+						sc = this->zwsearchMove(move, alpha, depthRemaining, m_EmptyNullMoveHistory, allowStoreTTsubnode, CUTnode);
 						if (sc > alpha && sc < beta)
 						{
 							sc = this->template searchMove<false>(move, alpha, beta, depthRemaining, subVariation, allowStoreTTsubnode, nullptr);
@@ -608,7 +608,7 @@ namespace pygmalion
 				}
 			}
 			template<bool PRUNED>
-			PYGMALION_INLINE bool zwsearchSubNode(const movebitsType move, scoreType& alpha, scoreType& beta, scoreType& best, movebitsType& bestmove, const depthType depthRemaining, const uint_t<countPlayers, false> nullMoveHistory, const bool fromStack, bool& allowStoreTT) noexcept
+			PYGMALION_INLINE bool zwsearchSubNode(const movebitsType move, scoreType& alpha, scoreType& beta, scoreType& best, movebitsType& bestmove, const depthType depthRemaining, const uint_t<countPlayers, false> nullMoveHistory, const bool fromStack, bool& allowStoreTT, const knuthType expectedNodeType) noexcept
 			{
 				m_Heuristics.template beginMove<PLAYER, false>(m_Stack, move, m_Depth);
 				if constexpr (!PRUNED)
@@ -623,7 +623,7 @@ namespace pygmalion
 					}
 				}
 				bool allowStoreTTsubnode{ true };
-				const scoreType sc{ this->zwsearchMove(move, alpha, depthRemaining, nullMoveHistory, allowStoreTTsubnode) };
+				const scoreType sc{ this->zwsearchMove(move, alpha, depthRemaining, nullMoveHistory, allowStoreTTsubnode,expectedNodeType) };
 				if (sc > best)
 				{
 					allowStoreTT &= allowStoreTTsubnode;
@@ -1019,7 +1019,7 @@ namespace pygmalion
 						m_Heuristics.endNodeLeaf(m_Stack);
 						if constexpr (USE_TT)
 						{
-//							const depthType ttDraft{ static_cast<depthType>(-(qsDepth + 1)) };
+							//							const depthType ttDraft{ static_cast<depthType>(-(qsDepth + 1)) };
 							m_Heuristics.transpositionTable().store(m_Stack, -1, best, transpositiontable<descriptorSearch>::flags_lower, movebitsType(0));
 						}
 						return best;
@@ -1027,7 +1027,7 @@ namespace pygmalion
 					alpha = best;
 					if constexpr (USE_TT)
 					{
-//						const depthType ttDraft{ static_cast<depthType>(-(qsDepth + 1)) };
+						//						const depthType ttDraft{ static_cast<depthType>(-(qsDepth + 1)) };
 						m_Heuristics.transpositionTable().store(m_Stack, -1, best, transpositiontable<descriptorSearch>::flags_upper, movebitsType(0));
 					}
 				}
@@ -1077,7 +1077,7 @@ namespace pygmalion
 					{
 						if constexpr (USE_TT)
 						{
-						//	const depthType ttDraft{ static_cast<depthType>(-(qsDepth + 1)) };
+							//	const depthType ttDraft{ static_cast<depthType>(-(qsDepth + 1)) };
 							m_Heuristics.transpositionTable().store(m_Stack, -1, best, transpositiontable<descriptorSearch>::flags_upper, movebitsType(0));
 						}
 						this->resetMoveGen();
@@ -1108,14 +1108,14 @@ namespace pygmalion
 				return alpha;
 			}
 			template<bool PRUNED>
-			PYGMALION_INLINE scoreType zwsearchLoop(bool& hasLegalMove, const depthType depthRemaining, scoreType& alpha, scoreType& beta, scoreType& best, movebitsType& bestmove, const uint_t<countPlayers, false> nullMoveHistory, bool& allowStoreTT) noexcept
+			PYGMALION_INLINE scoreType zwsearchLoop(bool& hasLegalMove, const depthType depthRemaining, scoreType& alpha, scoreType& beta, scoreType& best, movebitsType& bestmove, const uint_t<countPlayers, false> nullMoveHistory, bool& allowStoreTT, const knuthType expectedNodeType) noexcept
 			{
 				movebitsType move;
 				bool fromStack;
 				if ((!hasLegalMove) && this->template nextMove<PRUNED>(depthRemaining, move, fromStack))
 				{
 					hasLegalMove = true;
-					if (this->zwsearchSubNode<PRUNED>(move, alpha, beta, best, bestmove, depthRemaining, noNullMove(nullMoveHistory), fromStack, allowStoreTT))
+					if (this->zwsearchSubNode<PRUNED>(move, alpha, beta, best, bestmove, depthRemaining, noNullMove(nullMoveHistory), fromStack, allowStoreTT, CUTnode))
 					{
 						this->resetMoveGen();
 						return best;
@@ -1134,7 +1134,7 @@ namespace pygmalion
 				while (this->template nextMove<PRUNED>(depthRemaining, move, fromStack))
 				{
 					bool allowStoreTTsubnode;
-					if (this->zwsearchSubNode<PRUNED>(move, alpha, beta, best, bestmove, depthRemaining, noNullMove(nullMoveHistory), fromStack, allowStoreTT))
+					if (this->zwsearchSubNode<PRUNED>(move, alpha, beta, best, bestmove, depthRemaining, noNullMove(nullMoveHistory), fromStack, allowStoreTT, expectedNodeType))
 					{
 						this->resetMoveGen();
 						return best;
@@ -1186,7 +1186,7 @@ namespace pygmalion
 				return alpha;
 			}
 		public:
-			scoreType zwsearch(scoreType beta, const depthType depthRemaining, const uint_t<countPlayers, false> nullMoveHistory, bool& allowStoreTT) noexcept
+			scoreType zwsearch(scoreType beta, const depthType depthRemaining, const uint_t<countPlayers, false> nullMoveHistory, bool& allowStoreTT, const knuthType expectedNodeType) noexcept
 			{
 				constexpr const scoreType zero{ scoreType::zero() };
 				if (!m_IsRunning)
@@ -1253,7 +1253,7 @@ namespace pygmalion
 									{
 										childType subnode(childType(*static_cast<const instanceType*>(this), generatorType::nullMove()));
 										constexpr const scoreType atom{ scoreType::atom() };
-										nmsc = -subnode.zwsearch((atom - beta).plyDown(), remainingNullMoveDepth, doNullMove(nullMoveHistory), allowStoreTTsubnode).plyUp();
+										nmsc = -subnode.zwsearch((atom - beta).plyDown(), remainingNullMoveDepth, doNullMove(nullMoveHistory), allowStoreTTsubnode, expectedNodeType).plyUp();
 									}
 									if (nmsc >= beta)
 									{
@@ -1281,9 +1281,9 @@ namespace pygmalion
 						}
 					}
 					if (bPruned)
-						return this->template zwsearchLoop<true>(hasLegalMove, depthRemaining, alpha, beta, best, bestmove, nullMoveHistory, allowStoreTT);
+						return this->template zwsearchLoop<true>(hasLegalMove, depthRemaining, alpha, beta, best, bestmove, nullMoveHistory, allowStoreTT, expectedNodeType);
 					else
-						return this->template zwsearchLoop<false>(hasLegalMove, depthRemaining, alpha, beta, best, bestmove, nullMoveHistory, allowStoreTT);
+						return this->template zwsearchLoop<false>(hasLegalMove, depthRemaining, alpha, beta, best, bestmove, nullMoveHistory, allowStoreTT, expectedNodeType);
 				}
 				else
 				{

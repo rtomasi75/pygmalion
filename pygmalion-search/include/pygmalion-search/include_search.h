@@ -9,6 +9,7 @@ using moveinfoType = typename descriptorSearch::moveinfoType;
 using ttmovesType = typename descriptorSearch::ttmovesType;
 using quietKillermovesType = typename descriptorSearch::quietKillermovesType;
 using tacticalKillermovesType = typename descriptorSearch::tacticalKillermovesType;
+using knuthType = typename descriptorSearch::knuthType;
 
 constexpr static const size_t countSearchPlies{ descriptorSearch::countSearchPlies };
 constexpr static const bool heuristicMoves{ descriptorSearch::heuristicMoves };
@@ -24,5 +25,8 @@ constexpr static const bool pruneFutility{ descriptorSearch::pruneFutility };
 constexpr static const bool pruneDelta{ descriptorSearch::pruneDelta };
 constexpr static const size_t killerLookBackDistance{ descriptorSearch::killerLookBackDistance };
 constexpr static const depthType countMaxExtensions{ descriptorSearch::countMaxExtensions };
+constexpr static const knuthType PVSnode{ descriptorSearch::PVSnode };
+constexpr static const knuthType CUTnode{ descriptorSearch::CUTnode };
+constexpr static const knuthType ALLnode{ descriptorSearch::ALLnode };
 
 #include <pygmalion-evaluation/include_evaluation.h>

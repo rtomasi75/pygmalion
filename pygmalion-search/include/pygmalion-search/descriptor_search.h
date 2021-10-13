@@ -45,6 +45,10 @@ namespace pygmalion
 		using ttmovesType = list<typename descriptorEvaluation::movebitsType, searchTranspositionTableBucketCount>;
 		using quietKillermovesType = list<typename descriptorEvaluation::movebitsType, quietKillerMoves + quietKillerMoves * killerLookBackDistance>;
 		using tacticalKillermovesType = list<typename descriptorEvaluation::movebitsType, tacticalKillerMoves + tacticalKillerMoves * killerLookBackDistance>;
+		using knuthType = std::int8_t;
+		constexpr static const knuthType PVSnode{ 0 };
+		constexpr static const knuthType CUTnode{ 1 };
+		constexpr static const knuthType ALLnode{ -1 };
 	};
 
 }
