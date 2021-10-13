@@ -796,6 +796,9 @@ namespace pygmalion
 			using VALUE = std::uint16_t;
 			using SCORE = std::int16_t;
 		private:
+			static void sort_N0(VALUE* pValues, SCORE* pScores) noexcept
+			{
+			}
 			static void sort_N1(VALUE* pValues, SCORE* pScores) noexcept
 			{
 			}
@@ -1230,6 +1233,45 @@ namespace pygmalion
 				vector14<1, 4, 3, 6, 5, 8, 7, 10, 9, 12, 11, 14, 13, 16, 15, 18, 17, 20, 19, 22, 21, 24, 23, 26, 25, 28, 27, 30>(pValues, pScores);
 				vector15<1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30>(pValues, pScores);
 			}
+			typedef void SORTFUNC(VALUE* pValues, SCORE* pScores);
+			constexpr static inline SORTFUNC* m_SortFunction[]
+			{
+				&sort_N0,
+				&sort_N1,
+				&sort_N2,
+				&sort_N3,
+				&sort_N4,
+				&sort_N5,
+#if defined(PYGMALION_CPU_SSE2)
+				&sort_N6,
+				&sort_N7,
+				&sort_N8,
+				&sort_N9,
+				&sort_N10,
+				&sort_N11,
+				&sort_N12,
+				&sort_N13,
+				&sort_N14,
+				&sort_N15,
+				&sort_N16,
+				&sort_N17,
+				&sort_N18,
+				&sort_N19,
+				&sort_N20,
+				&sort_N21,
+				&sort_N22,
+				&sort_N23,
+				&sort_N24,
+				&sort_N25,
+				&sort_N26,
+				&sort_N27,
+				&sort_N28,
+				&sort_N29,
+				&sort_N30,
+				&sort_N31,
+				&sort_N32,
+#endif
+			};
 			constexpr static size_t sort_tail() noexcept
 			{
 #if defined(PYGMALION_CPU_SSE2)
@@ -1298,111 +1340,7 @@ namespace pygmalion
 				constexpr const auto tail{ sort_tail() };
 				if (length <= tail)
 				{
-					switch (length)
-					{
-					case 0:
-						return;
-					case 1:
-						return;
-					case 2:
-						sort_N2(pValues, pScores);
-						return;
-					case 3:
-						sort_N3(pValues, pScores);
-						return;
-					case 4:
-						sort_N4(pValues, pScores);
-						return;
-					case 5:
-						sort_N5(pValues, pScores);
-						return;
-#if defined(PYGMALION_CPU_SSE2)
-					case 6:
-						sort_N6(pValues, pScores);
-						return;
-					case 7:
-						sort_N7(pValues, pScores);
-						return;
-					case 8:
-						sort_N8(pValues, pScores);
-						return;
-					case 9:
-						sort_N9(pValues, pScores);
-						return;
-					case 10:
-						sort_N10(pValues, pScores);
-						return;
-					case 11:
-						sort_N11(pValues, pScores);
-						return;
-					case 12:
-						sort_N12(pValues, pScores);
-						return;
-					case 13:
-						sort_N13(pValues, pScores);
-						return;
-					case 14:
-						sort_N14(pValues, pScores);
-						return;
-					case 15:
-						sort_N15(pValues, pScores);
-						return;
-					case 16:
-						sort_N16(pValues, pScores);
-						return;
-					case 17:
-						sort_N17(pValues, pScores);
-						return;
-					case 18:
-						sort_N18(pValues, pScores);
-						return;
-					case 19:
-						sort_N19(pValues, pScores);
-						return;
-					case 20:
-						sort_N20(pValues, pScores);
-						return;
-					case 21:
-						sort_N21(pValues, pScores);
-						return;
-					case 22:
-						sort_N22(pValues, pScores);
-						return;
-					case 23:
-						sort_N23(pValues, pScores);
-						return;
-					case 24:
-						sort_N24(pValues, pScores);
-						return;
-					case 25:
-						sort_N25(pValues, pScores);
-						return;
-					case 26:
-						sort_N26(pValues, pScores);
-						return;
-					case 27:
-						sort_N27(pValues, pScores);
-						return;
-					case 28:
-						sort_N28(pValues, pScores);
-						return;
-					case 29:
-						sort_N29(pValues, pScores);
-						return;
-					case 30:
-						sort_N30(pValues, pScores);
-						return;
-					case 31:
-						sort_N31(pValues, pScores);
-						return;
-					case 32:
-						sort_N32(pValues, pScores);
-						return;
-#endif
-					default:
-						PYGMALION_UNREACHABLE;
-						return;
-					}
+					(*(m_SortFunction[length]))(pValues, pScores);
 				}
 				else
 				{
@@ -3427,6 +3365,9 @@ namespace pygmalion
 				pScores[IDX2h] = static_cast<std::int32_t>(score2highB >> 32);
 			}
 #endif
+			static void sort_N0(VALUE* pValues, SCORE* pScores) noexcept
+			{
+			}
 			static void sort_N1(VALUE* pValues, SCORE* pScores) noexcept
 			{
 			}
@@ -3861,6 +3802,45 @@ namespace pygmalion
 				vector14<1, 4, 3, 6, 5, 8, 7, 10, 9, 12, 11, 14, 13, 16, 15, 18, 17, 20, 19, 22, 21, 24, 23, 26, 25, 28, 27, 30>(pValues, pScores);
 				vector15<1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30>(pValues, pScores);
 			}
+			typedef void SORTFUNC(VALUE* pValues, SCORE* pScores);
+			constexpr static inline SORTFUNC* m_SortFunction[]
+			{
+				&sort_N0,
+				&sort_N1,
+				&sort_N2,
+				&sort_N3,
+				&sort_N4,
+				&sort_N5,
+#if defined(PYGMALION_CPU_SSE2)
+				&sort_N6,
+				&sort_N7,
+				&sort_N8,
+				&sort_N9,
+				&sort_N10,
+				&sort_N11,
+				&sort_N12,
+				&sort_N13,
+				&sort_N14,
+				&sort_N15,
+				&sort_N16,
+				&sort_N17,
+				&sort_N18,
+				&sort_N19,
+				&sort_N20,
+				&sort_N21,
+				&sort_N22,
+				&sort_N23,
+				&sort_N24,
+				&sort_N25,
+				&sort_N26,
+				&sort_N27,
+				&sort_N28,
+				&sort_N29,
+				&sort_N30,
+				&sort_N31,
+				&sort_N32,
+#endif
+			};
 			constexpr static size_t sort_tail() noexcept
 			{
 #if defined(PYGMALION_CPU_AVX2)
@@ -3938,111 +3918,7 @@ namespace pygmalion
 				constexpr const auto tail{ sort_tail() };
 				if (length <= tail)
 				{
-					switch (length)
-					{
-					case 0:
-						return;
-					case 1:
-						return;
-					case 2:
-						sort_N2(pValues, pScores);
-						return;
-					case 3:
-						sort_N3(pValues, pScores);
-						return;
-					case 4:
-						sort_N4(pValues, pScores);
-						return;
-					case 5:
-						sort_N5(pValues, pScores);
-						return;
-#if defined(PYGMALION_CPU_SSE2)
-					case 6:
-						sort_N6(pValues, pScores);
-						return;
-					case 7:
-						sort_N7(pValues, pScores);
-						return;
-					case 8:
-						sort_N8(pValues, pScores);
-						return;
-					case 9:
-						sort_N9(pValues, pScores);
-						return;
-					case 10:
-						sort_N10(pValues, pScores);
-						return;
-					case 11:
-						sort_N11(pValues, pScores);
-						return;
-					case 12:
-						sort_N12(pValues, pScores);
-						return;
-					case 13:
-						sort_N13(pValues, pScores);
-						return;
-					case 14:
-						sort_N14(pValues, pScores);
-						return;
-					case 15:
-						sort_N15(pValues, pScores);
-						return;
-					case 16:
-						sort_N16(pValues, pScores);
-						return;
-					case 17:
-						sort_N17(pValues, pScores);
-						return;
-					case 18:
-						sort_N18(pValues, pScores);
-						return;
-					case 19:
-						sort_N19(pValues, pScores);
-						return;
-					case 20:
-						sort_N20(pValues, pScores);
-						return;
-					case 21:
-						sort_N21(pValues, pScores);
-						return;
-					case 22:
-						sort_N22(pValues, pScores);
-						return;
-					case 23:
-						sort_N23(pValues, pScores);
-						return;
-					case 24:
-						sort_N24(pValues, pScores);
-						return;
-					case 25:
-						sort_N25(pValues, pScores);
-						return;
-					case 26:
-						sort_N26(pValues, pScores);
-						return;
-					case 27:
-						sort_N27(pValues, pScores);
-						return;
-					case 28:
-						sort_N28(pValues, pScores);
-						return;
-					case 29:
-						sort_N29(pValues, pScores);
-						return;
-					case 30:
-						sort_N30(pValues, pScores);
-						return;
-					case 31:
-						sort_N31(pValues, pScores);
-						return;
-					case 32:
-						sort_N32(pValues, pScores);
-						return;
-#endif
-					default:
-						PYGMALION_UNREACHABLE;
-						return;
-					}
+					(*(m_SortFunction[length]))(pValues, pScores);
 				}
 				else
 				{
@@ -4092,42 +3968,42 @@ namespace pygmalion
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e>
 			PYGMALION_INLINE static void vector5(VALUE* pValues, SCORE* pScores) noexcept
 			{
-/*#if defined(PYGMALION_CPU_AVX2)
-				if constexpr (cpu::supports(cpu::AVX2))
-					vector5_AVX2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e>(pValues, pScores);
-				else
-#endif*/
-					vector5_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e>(pValues, pScores);
+				/*#if defined(PYGMALION_CPU_AVX2)
+								if constexpr (cpu::supports(cpu::AVX2))
+									vector5_AVX2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e>(pValues, pScores);
+								else
+				#endif*/
+				vector5_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f>
 			PYGMALION_INLINE static void vector6(VALUE* pValues, SCORE* pScores) noexcept
 			{
-/*#if defined(PYGMALION_CPU_AVX2)
-				if constexpr (cpu::supports(cpu::AVX2))
-					vector6_AVX2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f>(pValues, pScores);
-				else
-#endif*/
-					vector6_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f>(pValues, pScores);
+				/*#if defined(PYGMALION_CPU_AVX2)
+								if constexpr (cpu::supports(cpu::AVX2))
+									vector6_AVX2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f>(pValues, pScores);
+								else
+				#endif*/
+				vector6_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g>
 			PYGMALION_INLINE static void vector7(VALUE* pValues, SCORE* pScores) noexcept
 			{
-/*#if defined(PYGMALION_CPU_AVX2)
-				if constexpr (cpu::supports(cpu::AVX2))
-					vector7_AVX2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g>(pValues, pScores);
-				else
-#endif*/
-					vector7_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g>(pValues, pScores);
+				/*#if defined(PYGMALION_CPU_AVX2)
+								if constexpr (cpu::supports(cpu::AVX2))
+									vector7_AVX2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g>(pValues, pScores);
+								else
+				#endif*/
+				vector7_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h>
 			PYGMALION_INLINE static void vector8(VALUE* pValues, SCORE* pScores) noexcept
 			{
-/*#if defined(PYGMALION_CPU_AVX2)
-				if constexpr (cpu::supports(cpu::AVX2))
-					vector8_AVX2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h>(pValues, pScores);
-				else
-#endif*/
-					vector8_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h>(pValues, pScores);
+				/*#if defined(PYGMALION_CPU_AVX2)
+								if constexpr (cpu::supports(cpu::AVX2))
+									vector8_AVX2<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h>(pValues, pScores);
+								else
+				#endif*/
+				vector8_Vanilla<IDX1a, IDX2a, IDX1b, IDX2b, IDX1c, IDX2c, IDX1d, IDX2d, IDX1e, IDX2e, IDX1f, IDX2f, IDX1g, IDX2g, IDX1h, IDX2h>(pValues, pScores);
 			}
 			template<size_t IDX1a, size_t IDX2a, size_t IDX1b, size_t IDX2b, size_t IDX1c, size_t IDX2c, size_t IDX1d, size_t IDX2d, size_t IDX1e, size_t IDX2e, size_t IDX1f, size_t IDX2f, size_t IDX1g, size_t IDX2g, size_t IDX1h, size_t IDX2h, size_t IDX1j, size_t IDX2j>
 			PYGMALION_INLINE static void vector9(VALUE* pValues, SCORE* pScores) noexcept
