@@ -26,6 +26,7 @@
 #include <future>
 #include <shared_mutex>
 #include <random>
+#include <fstream>
 
 using chronographType = std::chrono::system_clock;
 using durationType = std::chrono::milliseconds;

@@ -112,16 +112,31 @@ namespace pygmalion::chess
 				mutable std::array<typename generatorType::tropismType, countPlayers> m_KingAreaTropism;
 				std::array<squaresType, countPlayers> m_Pawns;
 				std::array<squareType, countPlayers> m_KingSquare;
+				mutable scoreType m_PawnStructureScore[2];
 				mutable std::uint8_t m_Flags;
 				constexpr static inline std::uint8_t flagsNone{ UINT8_C(0x00) };
 				constexpr static inline std::uint8_t flagsUsed{ UINT8_C(0x01) };
 				constexpr static inline std::uint8_t flagsKingTropismWhite{ UINT8_C(0x02) };
 				constexpr static inline std::uint8_t flagsKingTropismBlack{ UINT8_C(0x04) };
-				//				constexpr static inline std::uint8_t flagsKingAreaTropismWhite{ UINT8_C(0x08) };
-				//				constexpr static inline std::uint8_t flagsKingAreaTropismBlack{ UINT8_C(0x10) };
+				constexpr static inline std::uint8_t flagsPawnStructureWhite{ UINT8_C(0x08) };
+				constexpr static inline std::uint8_t flagsPawnStructureBlack{ UINT8_C(0x10) };
 				constexpr static inline std::uint8_t flagsKingTropism[]{ flagsKingTropismWhite ,flagsKingTropismBlack };
-				//				constexpr static inline std::uint8_t flagsKingAreaTropism[]{ flagsKingAreaTropismWhite ,flagsKingAreaTropismBlack };
+				constexpr static inline std::uint8_t flagsPawnStructure[]{ flagsPawnStructureWhite ,flagsPawnStructureBlack };
 			public:
+				PYGMALION_INLINE bool hasPawnStructureScore(const playerType player) const noexcept
+				{
+					return m_Flags & flagsPawnStructure[player];
+				}
+				PYGMALION_INLINE const scoreType& getPawnStructureScore(const playerType player) const noexcept
+				{
+					PYGMALION_ASSERT(hasPawnStructureScore(player));
+					return m_PawnStructureScore[player];
+				}
+				PYGMALION_INLINE void setPawnStructureScore(const playerType player, const scoreType pawnStructureScore) noexcept
+				{
+					m_PawnStructureScore[player] = pawnStructureScore;
+					m_Flags |= flagsPawnStructure[player];
+				}
 				PYGMALION_INLINE const squaresType& pawns(const playerType& pl) const noexcept
 				{
 					return m_Pawns[pl];
@@ -139,20 +154,8 @@ namespace pygmalion::chess
 					}
 					return m_KingTropism[pl];
 				}
-				/*				PYGMALION_INLINE const typename generatorType::tropismType& kingAreaTropism(const playerType& pl) const noexcept
-								{
-									if (!(m_Flags & flagsKingTropism[pl]))
-									{
-										constexpr const squaresType all{ squaresType::all() };
-										const squaresType kingArea{ generatorType::movegenKing.attacks(m_KingSquare[pl],all) & ~m_Pawns[pl] };
-										m_KingAreaTropism[pl].compute(kingArea, pl.next(), m_Pawns[blackPlayer], m_Pawns[whitePlayer], m_KingSquare[blackPlayer], m_KingSquare[whitePlayer]);
-										m_Flags |= flagsKingAreaTropism[pl];
-									}
-									return m_KingAreaTropism[pl];
-								}*/
 				pawnentry() noexcept :
 					m_KingTropism{ arrayhelper::make<countPlayers,typename generatorType::tropismType>(typename generatorType::tropismType()) },
-					//					m_KingAreaTropism{ arrayhelper::make<countPlayers,typename generatorType::tropismType>(typename generatorType::tropismType()) },
 					m_Pawns{ arrayhelper::make<countPlayers,squaresType>(squaresType::none()) },
 					m_KingSquare{ arrayhelper::make<countPlayers,squareType>(squareType::invalid) },
 					m_Flags{ flagsNone }
