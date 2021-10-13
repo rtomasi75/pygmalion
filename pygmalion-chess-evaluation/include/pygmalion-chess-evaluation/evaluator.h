@@ -1,7 +1,7 @@
 namespace pygmalion::chess
 {
 	class evaluator :
-		public pygmalion::evaluator<descriptor_evaluation, evaluator, evaluationstage_attacks, evaluationstage_mobility, evaluationstage_control, evaluationstage_kingsafety>
+		public pygmalion::evaluator<descriptor_evaluation, evaluator, evaluationstage_pawnstructure, evaluationstage_attacks, evaluationstage_mobility, evaluationstage_control, evaluationstage_kingsafety>
 	{
 	public:
 		template<size_t PLAYER>

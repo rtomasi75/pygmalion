@@ -179,8 +179,9 @@ namespace pygmalion
 		int m_NodeDepth;
 		int m_MoveDepth;
 #endif
-		std::array < std::array<std::uintmax_t, generatorType::countMoveBuckets()>, countPlayers> m_CutCounter;
-		std::array < std::array<std::uintmax_t, generatorType::countMoveBuckets()>, countPlayers> m_TotalCounter;
+		using heuristicCounterType = uint_t<32, false>;
+		heuristicCounterType*** m_CutCounter;
+		heuristicCounterType*** m_TotalCounter;
 		profiler m_SearchProfiler;
 		std::uintmax_t m_NodeCounter;
 		transpositiontable<descriptorSearch> m_TranspositionTable;
@@ -288,10 +289,19 @@ namespace pygmalion
 			constexpr const heuristicScore minimum{ heuristicScore::minimum() };
 			if constexpr (heuristicMoves)
 			{
-				const size_t bucket{ generatorType::moveBucket(stack.position(),moveBits) };
 				constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
-				if (m_CutCounter[movingPlayer][bucket])
-					return heuristicScore::quota(m_CutCounter[movingPlayer][bucket], m_TotalCounter[movingPlayer][bucket]);
+				constexpr const heuristicCounterType zeroCounter{ heuristicCounterType(0) };
+				heuristicCounterType cutCounter{ zeroCounter };
+				heuristicCounterType totalCounter{ zeroCounter };
+				constexpr const size_t countBucketTypes{ generatorType::countMoveBucketTypes() };
+				for (size_t bucketType = 0; bucketType < countBucketTypes; bucketType++)
+				{
+					const size_t bucket{ generatorType::moveBucket(bucketType,stack.position(),moveBits) };
+					cutCounter += m_CutCounter[movingPlayer][bucketType][bucket];
+					totalCounter += m_TotalCounter[movingPlayer][bucketType][bucket];
+				}
+				if (cutCounter)
+					return heuristicScore::quota(static_cast<std::uintmax_t>(cutCounter), static_cast<std::uintmax_t>(totalCounter));
 				else
 					return minimum;
 			}
@@ -409,10 +419,13 @@ namespace pygmalion
 			{
 				for (const auto pl : playerType::range)
 				{
-					for (size_t bucket = 0; bucket < generatorType::countMoveBuckets(); bucket++)
+					for (size_t bucketType = 0; bucketType < generatorType::countMoveBucketTypes(); bucketType++)
 					{
-						m_CutCounter[pl][bucket] = 0;
-						m_TotalCounter[pl][bucket] = 0;
+						for (size_t bucket = 0; bucket < generatorType::countMoveBuckets(bucketType); bucket++)
+						{
+							m_CutCounter[pl][bucketType][bucket] = 0;
+							m_TotalCounter[pl][bucketType][bucket] = 0;
+						}
 					}
 				}
 			}
@@ -538,11 +551,15 @@ namespace pygmalion
 				{
 					if (!generatorType::isMoveTactical(stack, moveBits))
 					{
-						const size_t bucket{ generatorType::moveBucket(stack.position(),moveBits) };
 						constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 						const uintmax_t weightValue{ weight(depthRemaining) };
-						m_CutCounter[movingPlayer][bucket] += weightValue;
-						m_TotalCounter[movingPlayer][bucket] += weightValue;
+						constexpr const size_t countBucketTypes{ generatorType::countMoveBucketTypes() };
+						for (size_t bucketType = 0; bucketType < countBucketTypes; bucketType++)
+						{
+							const size_t bucket{ generatorType::moveBucket(bucketType, stack.position(),moveBits) };
+							m_CutCounter[movingPlayer][bucketType][bucket] += weightValue;
+							m_TotalCounter[movingPlayer][bucketType][bucket] += weightValue;
+						}
 					}
 				}
 			}
@@ -577,11 +594,15 @@ namespace pygmalion
 				{
 					if (!generatorType::isMoveTactical(stack, moveBits))
 					{
-						const size_t bucket{ generatorType::moveBucket(stack.position(),moveBits) };
 						constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 						const uintmax_t weightValue{ weight(depthRemaining) };
-						m_CutCounter[movingPlayer][bucket] += weightValue;
-						m_TotalCounter[movingPlayer][bucket] += weightValue;
+						constexpr const size_t countBucketTypes{ generatorType::countMoveBucketTypes() };
+						for (size_t bucketType = 0; bucketType < countBucketTypes; bucketType++)
+						{
+							const size_t bucket{ generatorType::moveBucket(bucketType, stack.position(),moveBits) };
+							m_CutCounter[movingPlayer][bucketType][bucket] += weightValue;
+							m_TotalCounter[movingPlayer][bucketType][bucket] += weightValue;
+						}
 					}
 				}
 			}
@@ -600,10 +621,14 @@ namespace pygmalion
 				{
 					if (!generatorType::isMoveTactical(stack, moveBits))
 					{
-						const size_t bucket{ generatorType::moveBucket(stack.position(),moveBits) };
 						constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 						const uintmax_t weightValue{ weight(depthRemaining) };
-						m_TotalCounter[movingPlayer][bucket] += weightValue;
+						constexpr const size_t countBucketTypes{ generatorType::countMoveBucketTypes() };
+						for (size_t bucketType = 0; bucketType < countBucketTypes; bucketType++)
+						{
+							const size_t bucket{ generatorType::moveBucket(bucketType, stack.position(),moveBits) };
+							m_TotalCounter[movingPlayer][bucketType][bucket] += weightValue;
+						}
 					}
 				}
 			}
@@ -658,26 +683,60 @@ namespace pygmalion
 		{
 			if constexpr (heuristicMoves)
 			{
+				m_CutCounter = new heuristicCounterType * *[countPlayers];
+				m_TotalCounter = new heuristicCounterType * *[countPlayers];
 				for (const auto pl : playerType::range)
 				{
-					for (size_t bucket = 0; bucket < generatorType::countMoveBuckets(); bucket++)
+					m_CutCounter[pl] = new heuristicCounterType * [generatorType::countMoveBucketTypes()];
+					m_TotalCounter[pl] = new heuristicCounterType * [generatorType::countMoveBucketTypes()];
+					for (size_t bucketType = 0; bucketType < generatorType::countMoveBucketTypes(); bucketType++)
 					{
-						m_CutCounter[pl][bucket] = 0;
-						m_TotalCounter[pl][bucket] = 0;
+						m_CutCounter[pl][bucketType] = new heuristicCounterType[generatorType::countMoveBuckets(bucketType)];
+						m_TotalCounter[pl][bucketType] = new heuristicCounterType[generatorType::countMoveBuckets(bucketType)];
+						for (size_t bucket = 0; bucket < generatorType::countMoveBuckets(bucketType); bucket++)
+						{
+							m_CutCounter[pl][bucketType][bucket] = 0;
+							m_TotalCounter[pl][bucketType][bucket] = 0;
+						}
 					}
 				}
 			}
+			else
+			{
+				m_CutCounter = nullptr;
+				m_TotalCounter = nullptr;
+			}
 		}
-		~heuristics() noexcept = default;
+		~heuristics() noexcept
+		{
+			if constexpr (heuristicMoves)
+			{
+				for (const auto pl : playerType::range)
+				{
+					for (size_t bucketType = 0; bucketType < generatorType::countMoveBucketTypes(); bucketType++)
+					{
+						delete[] m_CutCounter[pl][bucketType];
+						delete[] m_TotalCounter[pl][bucketType];
+					}
+					delete[] m_CutCounter[pl];
+					delete[] m_TotalCounter[pl];
+				}
+				delete[] m_CutCounter;
+				delete[] m_TotalCounter;
+			}
+		}
 		void age(const playerType movingPlayer) noexcept
 		{
 			if constexpr (heuristicMoves)
 			{
-				for (size_t bucket = 0; bucket < generatorType::countMoveBuckets(); bucket++)
+				for (size_t bucketType = 0; bucketType < generatorType::countMoveBucketTypes(); bucketType++)
 				{
-					const int shiftValue{ shift(-1) };
-					m_CutCounter[movingPlayer][bucket] >>= shiftValue;
-					m_TotalCounter[movingPlayer][bucket] >>= shiftValue;
+					for (size_t bucket = 0; bucket < generatorType::countMoveBuckets(bucketType); bucket++)
+					{
+						const int shiftValue{ shift(-1) };
+						m_CutCounter[movingPlayer][bucketType][bucket] >>= shiftValue;
+						m_TotalCounter[movingPlayer][bucketType][bucket] >>= shiftValue;
+					}
 				}
 			}
 		}
@@ -685,11 +744,14 @@ namespace pygmalion
 		{
 			if constexpr (heuristicMoves)
 			{
-				for (size_t bucket = 0; bucket < generatorType::countMoveBuckets(); bucket++)
+				for (size_t bucketType = 0; bucketType < generatorType::countMoveBucketTypes(); bucketType++)
 				{
-					const int shiftValue{ shift(-1) };
-					m_CutCounter[movingPlayer][bucket] <<= shiftValue;
-					m_TotalCounter[movingPlayer][bucket] <<= shiftValue;
+					for (size_t bucket = 0; bucket < generatorType::countMoveBuckets(bucketType); bucket++)
+					{
+						const int shiftValue{ shift(-1) };
+						m_CutCounter[movingPlayer][bucketType][bucket] <<= shiftValue;
+						m_TotalCounter[movingPlayer][bucketType][bucket] <<= shiftValue;
+					}
 				}
 			}
 		}
