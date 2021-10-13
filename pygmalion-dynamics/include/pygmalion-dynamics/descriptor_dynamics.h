@@ -16,6 +16,7 @@ namespace pygmalion
 		using indexType = typename movelistType::counterType;
 		using scoreType = pygmalion::score<MANTISSA, SHIFT, MAXDIST>;
 		using scorelistType = list<scoreType, countMaxGeneratedMoves>;
+		using heuristicScore = score<62, SHIFT, 0>;
 		constexpr static const size_t evaluationMantissa{ MANTISSA };
 		constexpr static const size_t evaluationShift{ SHIFT };
 		constexpr static const size_t evaluationMaxDistance{ MAXDIST };

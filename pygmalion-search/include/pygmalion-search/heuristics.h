@@ -176,20 +176,20 @@ namespace pygmalion
 		class historybuckets
 		{
 		private:
-			scoreType** m_pScoreBuckets;
+			heuristicScore** m_pScoreBuckets;
 			std::uint64_t** m_pCounterBuckets;
 		public:
 			historybuckets() noexcept
 			{
-				m_pScoreBuckets = new scoreType * [generatorType::countMoveBucketTypes()];
+				m_pScoreBuckets = new heuristicScore * [generatorType::countMoveBucketTypes()];
 				m_pCounterBuckets = new std::uint64_t * [generatorType::countMoveBucketTypes()];
 				for (size_t bucketType = 0; bucketType < generatorType::countMoveBucketTypes(); bucketType++)
 				{
-					m_pScoreBuckets[bucketType] = new scoreType[generatorType::countMoveBuckets(bucketType)];
+					m_pScoreBuckets[bucketType] = new heuristicScore[generatorType::countMoveBuckets(bucketType)];
 					m_pCounterBuckets[bucketType] = new std::uint64_t[generatorType::countMoveBuckets(bucketType)];
 					for (size_t bucket = 0; bucket < generatorType::countMoveBuckets(bucketType); bucket++)
 					{
-						constexpr const scoreType zero{ scoreType::zero() };
+						constexpr const heuristicScore zero{ heuristicScore::zero() };
 						m_pScoreBuckets[bucketType][bucket] = zero;
 						m_pCounterBuckets[bucketType][bucket] = 0;
 					}
@@ -199,11 +199,11 @@ namespace pygmalion
 			{
 				if ((other.m_pCounterBuckets != nullptr) && (other.m_pScoreBuckets != nullptr))
 				{
-					m_pScoreBuckets = new scoreType * [generatorType::countMoveBucketTypes()];
-					m_pCounterBuckets = new std::uint32_t * [generatorType::countMoveBucketTypes()];
+					m_pScoreBuckets = new heuristicScore * [generatorType::countMoveBucketTypes()];
+					m_pCounterBuckets = new std::uint64_t * [generatorType::countMoveBucketTypes()];
 					for (size_t bucketType = 0; bucketType < generatorType::countMoveBucketTypes(); bucketType++)
 					{
-						m_pScoreBuckets[bucketType] = new scoreType[generatorType::countMoveBuckets(bucketType)];
+						m_pScoreBuckets[bucketType] = new heuristicScore[generatorType::countMoveBuckets(bucketType)];
 						m_pCounterBuckets[bucketType] = new std::uint64_t[generatorType::countMoveBuckets(bucketType)];
 						for (size_t bucket = 0; bucket < generatorType::countMoveBuckets(bucketType); bucket++)
 						{
@@ -292,10 +292,10 @@ namespace pygmalion
 					}
 					else
 					{
-						m_pScoreBuckets = new scoreType * [generatorType::countMoveBucketTypes()];
+						m_pScoreBuckets = new heuristicScore * [generatorType::countMoveBucketTypes()];
 						for (size_t bucketType = 0; bucketType < generatorType::countMoveBucketTypes(); bucketType++)
 						{
-							m_pScoreBuckets[bucketType] = new scoreType[generatorType::countMoveBuckets(bucketType)];
+							m_pScoreBuckets[bucketType] = new heuristicScore[generatorType::countMoveBuckets(bucketType)];
 							for (size_t bucket = 0; bucket < generatorType::countMoveBuckets(bucketType); bucket++)
 							{
 								m_pScoreBuckets[bucketType][bucket] = other.m_pScoreBuckets[bucketType][bucket];
@@ -381,7 +381,7 @@ namespace pygmalion
 						for (size_t bucketType = 0; bucketType < countBucketTypes; bucketType++)
 						{
 							const size_t bucket{ generatorType::moveBucket(bucketType, stack.position(),moveBits) };
-							m_pScoreBuckets[bucketType][bucket] += score - eval;
+							m_pScoreBuckets[bucketType][bucket] += static_cast<heuristicScore>(score - eval);
 							m_pCounterBuckets[bucketType][bucket]++;
 						}
 					}
@@ -393,8 +393,8 @@ namespace pygmalion
 				PYGMALION_ASSERT(m_pScoreBuckets != nullptr);
 				PYGMALION_ASSERT(m_pCounterBuckets != nullptr);
 				constexpr const size_t countBucketTypes{ generatorType::countMoveBucketTypes() };
-				constexpr const scoreType zero{ scoreType::zero() };
-				scoreType score{ zero };
+				constexpr const heuristicScore zero{ heuristicScore::zero() };
+				heuristicScore score{ zero };
 				std::uint64_t counter{ 0 };
 				for (size_t bucketType = 0; bucketType < countBucketTypes; bucketType++)
 				{
@@ -406,7 +406,7 @@ namespace pygmalion
 				if (counter == 0)
 					return minimum;
 				else
-					return score / counter;
+					return static_cast<scoreType>(score / counter);
 			}
 		};
 	private:

@@ -1,69 +1,50 @@
 debug-perft 7
 
-depth:  1 leafs:   20.0    nodes:   1.00    time:   45.0 mcs speed:   22.2 kN/s,    467 kmv/s
-depth:  2 leafs:    400    nodes:   21.0    time:   82.3 mcs speed:    255 kN/s,   5.12 Mmv/s
-depth:  3 leafs:   8.90 k  nodes:    421    time:    505 mcs speed:    833 kN/s,   18.5 Mmv/s
-depth:  4 leafs:    197 k  nodes:   9.32 k  time:   9.71 ms  speed:    960 kN/s,   21.3 Mmv/s
-depth:  5 leafs:   4.87 M  nodes:    207 k  time:    204 ms  speed:   1.01 MN/s,   24.8 Mmv/s
-depth:  6 leafs:    119 M  nodes:   5.07 M  time:   4.83 s   speed:   1.05 MN/s,   25.7 Mmv/s
-depth:  7 leafs:   3.20 G  nodes:    124 M  time:    133 s   speed:    937 kN/s,   25.0 Mmv/s
+depth:  1 leafs:   20.0    nodes:   1.00    time:   45.7 mcs speed:   21.9 kN/s,    460 kmv/s
+depth:  2 leafs:    400    nodes:   21.0    time:   82.5 mcs speed:    255 kN/s,   5.10 Mmv/s
+depth:  3 leafs:   8.90 k  nodes:    421    time:    542 mcs speed:    776 kN/s,   17.2 Mmv/s
+depth:  4 leafs:    197 k  nodes:   9.32 k  time:   10.6 ms  speed:    879 kN/s,   19.5 Mmv/s
+depth:  5 leafs:   4.87 M  nodes:    207 k  time:    216 ms  speed:    955 kN/s,   23.4 Mmv/s
+depth:  6 leafs:    119 M  nodes:   5.07 M  time:   5.20 s   speed:    975 kN/s,   23.9 Mmv/s
+depth:  7 leafs:   3.20 G  nodes:    124 M  time:    142 s   speed:    877 kN/s,   23.5 Mmv/s
 
 debug-pvs 12
 
-0:            0 -
-  1.00 N   in    318 mcs =>   3.14 kN/s
+0: +0.000488281 -
+  1.00 N   in   1.89 ms  =>    530 N/s
 
-1:   +0.0527344 - e3
-  24.0 N   in    132 mcs =>    182 kN/s
+1:    +0.053894 - e4
+  25.0 N   in    122 mcs =>    206 kN/s
 
-2:  -0.00622559 - e3 e6
-  75.0 N   in    211 mcs =>    356 kN/s
+2:  -0.00317383 - e4 e5
+  75.0 N   in    227 mcs =>    330 kN/s
 
-3:   +0.0367432 - e4 e5 d4
-   714 N   in    647 mcs =>   1.10 MN/s
+3:   +0.0351562 - e4 e5 d4
+   392 N   in    507 mcs =>    774 kN/s
 
-4: +0.000366211 - e4 d5 Nc3 e6
-  2.12 kN  in   1.49 ms  =>   1.42 MN/s
+4:  +0.00305176 - e4 d5 Nc3 e6
+  2.13 kN  in   1.70 ms  =>   1.25 MN/s
 
-5:   +0.0257568 - d4 d5 Nc3 Nc6 e3
-  12.7 kN  in   7.62 ms  =>   1.67 MN/s
+5:   +0.0252686 - d4 d5 Nc3 Nc6 e3
+  13.5 kN  in   9.08 ms  =>   1.48 MN/s
 
-6: +0.000427246 - Nc3 e6 d4 c6 e4 b5
-  46.9 kN  in   25.5 ms  =>   1.84 MN/s
+6: -0.000610352 - d4 d5 Nc3 Nc6 e3 e6
+  62.9 kN  in   35.1 ms  =>   1.79 MN/s
 
-7:   +0.0198975 - Nc3 d5 d4 Nc6 e3 Nf6 h4
-   104 kN  in   52.3 ms  =>   2.00 MN/s
+7:   +0.0205078 - d4 d5 Nc3 Nc6 e3 Nf6 h4
+   102 kN  in   53.7 ms  =>   1.89 MN/s
 
-8:  -0.00115967 - Nc3 d5 d4 c6 a3 Nf6 f3 Qb6
-   802 kN  in    400 ms  =>   2.00 MN/s
+8: +0.000366211 - d4 d5 f3 c6 e4 e6 c3 Bd6
+  1.08 MN  in    528 ms  =>   2.04 MN/s
 
-9:   +0.0191345 - d4 d5 Bf4 Nc6 e3 f6 Nc3 e5 Qh5
-  2.63 MN  in   1.35 s   =>   1.95 MN/s
+9:   +0.0210876 - d4 d5 Bf4 e6 e3 g5 Be5 f6 Bb5
+  2.34 MN  in   1.18 s   =>   1.99 MN/s
 
-10:  +0.00234985 - d4 d5 Bf4 Bf5 e3 e6 g4 Be4 f3 Bb4
-  16.4 MN  in   8.44 s   =>   1.94 MN/s
+10:  +0.00158691 - d4 d5 Nc3 c6 e4 e6 a3 xe4 Nxe4 b5
+  13.0 MN  in   6.70 s   =>   1.94 MN/s
 
-11:   +0.0160522 - Nc3 d5 d4 e6 a3 c6 e4 g5 f4 h6 g3
-  13.5 MN  in   7.34 s   =>   1.84 MN/s
+11:   +0.0151978 - d4 d5 Nc3 c6 e4 e6 h4 xe4 Nxe4 Nf6 f3
+  17.6 MN  in   9.28 s   =>   1.90 MN/s
 
-12:  +0.00549316 - d4 d5 Bf4 Bf5 e3 e6 Nc3 h5 h4 c6 a3 b5
-   152 MN  in   81.7 s   =>   1.86 MN/s
-   
-50.0 Mop/s
-57.4 Mop/s
-58.0 Mop/s
-63.0 Mop/s
-72.1 Mop/s
-79.5 Mop/s
-83.3 Mop/s
-
-72.9 Mop/s
-83.4 Mop/s
-90.8 Mop/s
-
-
-235298 positions solved (100%).
-76284 positions illegal (32%).
-75411 white wins (32%).
-75411 black wins (32%).
-8192 draws (3%).
+12:  +0.00531006 - d4 d5 Nc3 c6 Bf4 Nf6 e3 h6 h4 Qb6 Rb1 Na6 Bxa6 Qxa6
+   167 MN  in   86.8 s   =>   1.92 MN/s

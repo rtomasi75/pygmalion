@@ -25,7 +25,7 @@ namespace pygmalion
 			private:
 				std::array<std::array<std::uint64_t, generatorType::countMaxMovegenPasses()>, generatorType::countTotalMovegenStages()> m_MoveCounters;
 				std::array<std::array<passType, generatorType::countMaxMovegenPasses()>, generatorType::countTotalMovegenStages()> m_Indices;
-				std::array<std::array<scoreType, generatorType::countMaxMovegenPasses()>, generatorType::countTotalMovegenStages()> m_ScoreCounters;
+				std::array<std::array<heuristicScore, generatorType::countMaxMovegenPasses()>, generatorType::countTotalMovegenStages()> m_ScoreCounters;
 				void sortIndicesStage(const stageType stage, const movegenFeedback& mf, const size_t depth) noexcept
 				{
 					std::array <scoreType, generatorType::countMaxMovegenPasses()> scores;
@@ -37,7 +37,7 @@ namespace pygmalion
 				}
 				void resetStage(const stageType stage) noexcept
 				{
-					constexpr const scoreType zero{ scoreType::zero() };
+					constexpr const heuristicScore zero{ heuristicScore::zero() };
 					for (size_t i = 0; i < generatorType::countMaxMovegenPasses(); i++)
 					{
 						m_MoveCounters[stage][i] = 0;
@@ -76,10 +76,8 @@ namespace pygmalion
 						constexpr const scoreType minimum{ scoreType::minimum() };
 						return minimum;
 					}
-					const scoreType score{ m_ScoreCounters[static_cast<size_t>(stage)][static_cast<size_t>(indexScore)] };
-					if (!score.isOpen())
-						return score;
-					return score / m_MoveCounters[static_cast<size_t>(stage)][static_cast<size_t>(indexMove)];
+					const heuristicScore score{ m_ScoreCounters[static_cast<size_t>(stage)][static_cast<size_t>(indexScore)] };
+					return static_cast<scoreType>(score / m_MoveCounters[static_cast<size_t>(stage)][static_cast<size_t>(indexMove)]);
 				}
 				PYGMALION_INLINE const std::uint64_t& counter(const stageType stage, const passType pass) const noexcept
 				{
@@ -91,7 +89,7 @@ namespace pygmalion
 					const passType indexScore{ scoreIndex(stage, pass) };
 					if (score.isOpen())
 					{
-						m_ScoreCounters[stage][indexScore] += score - eval;
+						m_ScoreCounters[stage][indexScore] += static_cast<heuristicScore>(score - eval);
 						m_MoveCounters[stage][indexMove]++;
 					}
 				}
