@@ -118,9 +118,9 @@
 
 #if defined(PYGMALION_CPU_AVX2) 
 #undef PYGMALION_CPU_AVX2
-#endif
+#endif*/
 
-*/
+
 
 #if defined(_MSC_VER)
 #if defined(PYGMALION_CPU_AVX2)&&!defined(PYGMALION_CPU_AVX)

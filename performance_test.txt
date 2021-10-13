@@ -48,3 +48,22 @@ debug-pvs 12
 
 12:  +0.00549316 - d4 d5 Bf4 Bf5 e3 e6 Nc3 h5 h4 c6 a3 b5
    152 MN  in   81.7 s   =>   1.86 MN/s
+   
+50.0 Mop/s
+57.4 Mop/s
+58.0 Mop/s
+63.0 Mop/s
+72.1 Mop/s
+79.5 Mop/s
+83.3 Mop/s
+
+72.9 Mop/s
+83.4 Mop/s
+90.8 Mop/s
+
+
+235298 positions solved (100%).
+76284 positions illegal (32%).
+75411 white wins (32%).
+75411 black wins (32%).
+8192 draws (3%).
