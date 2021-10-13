@@ -534,7 +534,6 @@ namespace pygmalion
 		PYGMALION_INLINE scoreType moveScore(const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth) noexcept
 		{
 			constexpr const scoreType minimum{ scoreType::minimum() };
-			constexpr const scoreType zero{ scoreType::zero() };
 			if constexpr (heuristicMoves)
 			{
 				if (!generatorType::isMoveTactical(stack, moveBits))
@@ -545,7 +544,7 @@ namespace pygmalion
 					}
 					else
 					{
-						return zero;
+						return minimum;
 					}
 				}
 				else
