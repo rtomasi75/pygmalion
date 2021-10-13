@@ -302,11 +302,13 @@ namespace pygmalion
 		{
 			return score(-m_Value, 0);
 		}
-		PYGMALION_INLINE constexpr auto operator*(const valueType& i) const noexcept
+		template<typename T, typename = typename std::enable_if<std::is_integral<T>::value>>
+		PYGMALION_INLINE constexpr auto operator*(const T& i) const noexcept
 		{
 			return score(static_cast<valueType>(m_Value * i), 0);
 		}
-		PYGMALION_INLINE constexpr auto operator/(const valueType& i) const noexcept
+		template<typename T, typename = typename std::enable_if<std::is_integral<T>::value>>
+		PYGMALION_INLINE constexpr auto operator/(const T& i) const noexcept
 		{
 			return score(static_cast<valueType>(m_Value / i), 0);
 		}
@@ -326,11 +328,13 @@ namespace pygmalion
 		{
 			m_Value = static_cast<valueType>((static_cast<longType>(m_Value) * static_cast<longType>(sc.m_Value)) / granularity);
 		}
-		PYGMALION_INLINE constexpr auto operator*=(const valueType& i) noexcept
+		template<typename T, typename = typename std::enable_if<std::is_integral<T>::value>>
+		PYGMALION_INLINE constexpr auto operator*=(const T& i) noexcept
 		{
 			m_Value *= i;
 		}
-		PYGMALION_INLINE constexpr auto operator/=(const valueType& i) noexcept
+		template<typename T, typename = typename std::enable_if<std::is_integral<T>::value>>
+		PYGMALION_INLINE constexpr auto operator/=(const T& i) noexcept
 		{
 			m_Value /= i;
 		}

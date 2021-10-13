@@ -79,7 +79,7 @@ namespace pygmalion
 					const scoreType score{ m_ScoreCounters[static_cast<size_t>(stage)][static_cast<size_t>(indexScore)] };
 					if (!score.isOpen())
 						return score;
-					return score / static_cast<typename scoreType::valueType>(m_MoveCounters[static_cast<size_t>(stage)][static_cast<size_t>(indexMove)]);
+					return score / m_MoveCounters[static_cast<size_t>(stage)][static_cast<size_t>(indexMove)];
 				}
 				PYGMALION_INLINE const std::uint64_t& counter(const stageType stage, const passType pass) const noexcept
 				{
