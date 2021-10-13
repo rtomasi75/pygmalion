@@ -287,7 +287,10 @@ namespace pygmalion
 					{
 						for (size_t bucketType = 0; bucketType < generatorType::countMoveBucketTypes(); bucketType++)
 						{
-							m_pScoreBuckets[bucketType][bucket] = other.m_pScoreBuckets[bucketType][bucket];
+							for (size_t bucket = 0; bucket < generatorType::countMoveBuckets(bucketType); bucket++)
+							{
+								m_pScoreBuckets[bucketType][bucket] = other.m_pScoreBuckets[bucketType][bucket];
+							}
 						}
 					}
 					else
@@ -321,7 +324,10 @@ namespace pygmalion
 					{
 						for (size_t bucketType = 0; bucketType < generatorType::countMoveBucketTypes(); bucketType++)
 						{
-							m_pCounterBuckets[bucketType][bucket] = other.m_pCounterBuckets[bucketType][bucket];
+							for (size_t bucket = 0; bucket < generatorType::countMoveBuckets(bucketType); bucket++)
+							{
+								m_pCounterBuckets[bucketType][bucket] = other.m_pCounterBuckets[bucketType][bucket];
+							}
 						}
 					}
 					else
