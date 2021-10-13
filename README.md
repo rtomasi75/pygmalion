@@ -13,7 +13,13 @@ Pygmalion is still in a very early developement sate. An official release is not
 - Killermove Heuristics
 - Futility Pruning
 
-Pondering, multi-core support and Late Move Reductions are currently not implemented. The evaluation function is still very basic and not yet finished.
+Pondering, multi-core support and Late Move Reductions are currently not implemented. The evaluation function is not yet finished: it considers attacks, mobility, control, kingsafety and pawn-structure. The weights for the different terms still need to be tuned.
+
+## Using Pygmalion
+
+Pygmalion isn't a stand-alone chess-program with an own GUI. It is designed to integrate with most of the available GUIs for chess, notably [Winboard](http://www.open-aurec.com/wbforum/viewtopic.php?t=51528)/[XBoard](https://www.gnu.org/software/xboard/), [Arena](http://www.playwitharena.de/) and [Cute Chess](https://github.com/cutechess/cutechess/releases).
+
+Upon start-up, Pygmalion will attempt to create .data files in its working-directory if they aren't present. If the files aren't present, it will nevertheless function properly,  but may take a tiny bit longer to start. That is because the lookup-tables contained in those files will have to be created on the fly. If you do not want it to create these files, just do not grant it write permission to its working-directory.
 
 ## Building Pygmalion
 To build Pygmalion, you will need CMake (min. version 3.16) combined with a C++17 capable toolchain. The source-code is designed for maximum portability and does not rely on any third-party libraries. Please note that the source-code heavily relies on templates - building can take some time.
