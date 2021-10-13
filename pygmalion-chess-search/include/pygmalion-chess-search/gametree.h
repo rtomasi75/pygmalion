@@ -33,7 +33,7 @@ namespace pygmalion::chess
 			}
 			PYGMALION_INLINE constexpr static depthType nullMoveReduction_Implementation(const size_t depthRemaining) noexcept
 			{
-				return depthType(2) + depthRemaining / depthType(4);
+				return depthType(2) + (depthRemaining - depthType(2)) / depthType(2));
 			}
 			PYGMALION_INLINE bool nullMoveAllowed_Implementation() const noexcept
 			{

@@ -87,7 +87,7 @@
         },
         {
           "name": "OPTIMIZE_LINK_TIME",
-          "value": "False",
+          "value": "True",
           "type": "BOOL"
         }
       ]
