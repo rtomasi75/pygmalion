@@ -129,7 +129,6 @@ namespace pygmalion
 		constexpr static inline std::uint8_t flags_exact{ 4 };
 		constexpr static inline std::uint8_t flags_move{ 8 };
 		constexpr static inline std::uint8_t flags_return{ 16 };
-		constexpr static inline std::uint8_t flags_noNMP{ 32 };
 		constexpr static inline std::uint8_t flags_hit{ flags_upper | flags_lower | flags_exact };
 		constexpr static inline size_t countBuckets{ searchTranspositionTableBucketCount };
 	private:
@@ -468,11 +467,6 @@ namespace pygmalion
 							}
 						}
 					}
-					else
-					{
-						if (m_Entry[index].value() > alpha)
-							doNMP = false;
-					}
 				}
 			}
 			else
@@ -529,15 +523,10 @@ namespace pygmalion
 								}
 							}
 						}
-						else
-						{
-							if (m_Entry[index].value() < beta)
-								doNMP = false;
-						}
 					}
 				}
 			}
-			return doNMP ? flags_unused : flags_noNMP;
+			return flags_unused;
 		}
 		template<size_t PLAYER>
 		void store(const stackType<PLAYER>& stack, const depthType depth, const scoreType score, const std::uint8_t flags, const movebitsType move) noexcept

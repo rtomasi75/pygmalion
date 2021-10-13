@@ -536,14 +536,19 @@ namespace pygmalion
 			constexpr const scoreType minimum{ scoreType::minimum() };
 			if constexpr (heuristicMoves)
 			{
-				if (depth >= 2)
+				if (!generatorType::isMoveTactical(stack, moveBits))
 				{
-					return m_HistoryBuckets[depth - 2].template score<PLAYER>(stack, moveBits);
+					if (depth >= 2)
+					{
+						return m_HistoryBuckets[depth - 2].template score<PLAYER>(stack, moveBits);
+					}
+					else
+					{
+						return minimum;
+					}
 				}
 				else
-				{
 					return minimum;
-				}
 			}
 			else
 			{

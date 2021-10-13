@@ -1231,10 +1231,6 @@ namespace pygmalion
 								best = ttScore;
 							}
 						}
-						else if ((lookUp & transpositiontable<descriptorSearch>::flags_noNMP) != transpositiontable<descriptorSearch>::flags_unused)
-						{
-							allowNMP = false;
-						}
 					}
 					allowStoreTT = true;
 					bool bPruned{ false };
@@ -1348,6 +1344,29 @@ namespace pygmalion
 						m_Heuristics.endNodeEarly(m_Stack);
 						return early;
 					}
+					/*if constexpr (searchTranspositionTable)
+					{
+						scoreType ttScore;
+						movebitsType ttMove;
+						const std::uint8_t lookUp{ m_Heuristics.transpositionTable().probe(m_Stack, depthRemaining, alpha, beta, ttScore, ttMove) };
+						if ((lookUp & transpositiontable<descriptorSearch>::flags_hit) != transpositiontable<descriptorSearch>::flags_unused)
+						{
+							if (lookUp & transpositiontable<descriptorSearch>::flags_move)
+							{
+								hasLegalMove = true;
+								bestmove = ttMove;
+							}
+							if (lookUp & transpositiontable<descriptorSearch>::flags_return)
+							{
+								m_Heuristics.endNodeTT(m_Stack);
+								return ttScore;
+							}
+							else
+							{
+								best = ttScore;
+							}
+						}
+					}*/
 					if constexpr (pruneNullmove || pruneFutility)
 					{
 						if (this->pruningAllowed(alpha, beta))
