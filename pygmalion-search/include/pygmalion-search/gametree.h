@@ -1145,13 +1145,9 @@ namespace pygmalion
 				return alpha;
 			}
 			template<bool ANALYZE>
-			PYGMALION_INLINE scoreType searchLoop(const depthType depthRemaining, scoreType& alpha, scoreType& beta, variationType& principalVariation, bool& allowStoreTT, indexType* pCurrentMove) noexcept
+			PYGMALION_INLINE scoreType searchLoop(bool& hasLegalMove, const depthType depthRemaining, scoreType& alpha, scoreType& beta, scoreType& best, movebitsType& bestmove, variationType& principalVariation, bool& allowStoreTT, indexType* pCurrentMove) noexcept
 			{
-				bool hasLegalMove{ false };
 				movebitsType move;
-				constexpr const scoreType minimum{ scoreType::minimum() };
-				scoreType best{ minimum };
-				movebitsType bestmove;
 				bool fromStack;
 				allowStoreTT = true;
 				if ((!hasLegalMove) && this->template nextMove<false>(depthRemaining, move, fromStack))
@@ -1205,7 +1201,6 @@ namespace pygmalion
 						return early;
 					}
 					bool hasLegalMove{ false };
-					bool allowNMP{ true };
 					constexpr const scoreType minimum{ scoreType::minimum() };
 					scoreType best{ minimum };
 					movebitsType bestmove;
@@ -1240,7 +1235,7 @@ namespace pygmalion
 						{
 							if constexpr (pruneNullmove)
 							{
-								if (allowNMP && checkNullMove(nullMoveHistory) && this->nullMoveAllowed())
+								if (checkNullMove(nullMoveHistory) && this->nullMoveAllowed())
 								{
 									bool allowStoreTTsubnode;
 									constexpr const scoreType zero{ scoreType::zero() };
@@ -1303,6 +1298,10 @@ namespace pygmalion
 						m_Heuristics.endNodeEarly(m_Stack);
 						return early;
 					}
+					bool hasLegalMove{ false };
+					constexpr const scoreType minimum{ scoreType::minimum() };
+					scoreType best{ minimum };
+					movebitsType bestmove;
 					if constexpr (pruneNullmove || pruneFutility)
 					{
 						if (this->pruningAllowed(alpha, beta))
@@ -1320,7 +1319,7 @@ namespace pygmalion
 							}
 						}
 					}
-					return this->template searchLoop<true>(depthRemaining, alpha, beta, principalVariation, allowStoreTT, &currentMove);
+					return this->template searchLoop<true>(hasLegalMove, depthRemaining, alpha, beta, best, bestmove, principalVariation, allowStoreTT, &currentMove);
 				}
 				else
 				{
@@ -1344,7 +1343,11 @@ namespace pygmalion
 						m_Heuristics.endNodeEarly(m_Stack);
 						return early;
 					}
-					/*if constexpr (searchTranspositionTable)
+					bool hasLegalMove{ false };
+					constexpr const scoreType minimum{ scoreType::minimum() };
+					scoreType best{ minimum };
+					movebitsType bestmove;
+					if constexpr (searchTranspositionTable)
 					{
 						scoreType ttScore;
 						movebitsType ttMove;
@@ -1358,6 +1361,7 @@ namespace pygmalion
 							}
 							if (lookUp & transpositiontable<descriptorSearch>::flags_return)
 							{
+								principalVariation.set(ttMove);
 								m_Heuristics.endNodeTT(m_Stack);
 								return ttScore;
 							}
@@ -1366,7 +1370,7 @@ namespace pygmalion
 								best = ttScore;
 							}
 						}
-					}*/
+					}
 					if constexpr (pruneNullmove || pruneFutility)
 					{
 						if (this->pruningAllowed(alpha, beta))
@@ -1384,7 +1388,7 @@ namespace pygmalion
 							}
 						}
 					}
-					return this->template searchLoop<false>(depthRemaining, alpha, beta, principalVariation, allowStoreTT, nullptr);
+					return this->template searchLoop<false>(hasLegalMove, depthRemaining, alpha, beta, best, bestmove, principalVariation, allowStoreTT, nullptr);
 				}
 				else
 				{

@@ -214,5 +214,15 @@ namespace pygmalion
 			PYGMALION_ASSERT(m_Length < maxLength);
 			m_Items[m_Length++] = std::move(item);
 		}
+		PYGMALION_INLINE void set(itemType&& item) noexcept
+		{
+			m_Items[0] = std::move(item);
+			m_Length = 1;
+		}
+		PYGMALION_INLINE void set(const itemType& item) noexcept
+		{
+			m_Items[0] = item;
+			m_Length = 1;
+		}
 	};
 }
