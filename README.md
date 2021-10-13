@@ -3,7 +3,7 @@ Pygmalion primarily is a chess-engine. The layout of the source-code is however 
 
 ## Current version
 
-Pygmalion is still in a very early developement sate. An official release is not available yet, however you can try the latest source-code by following the instructions below. Some of the currently implemented features are:
+Pygmalion is still in a very early developement state. An official release is not available yet, however you can try the latest source-code by following the instructions below. Some of the currently implemented features are:
 - Winboard/XBoard version 2 support
 - Principal Variation Search
 - Transposition Table
