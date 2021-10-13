@@ -22,7 +22,7 @@ Pygmalion isn't a stand-alone chess-program with an own GUI. It is designed to i
 Upon start-up, Pygmalion will attempt to create .data files in its working-directory if they aren't present. If the files aren't present, it will nevertheless function properly,  but may take a tiny bit longer to start. That is because the lookup-tables contained in those files will have to be created on the fly. If you do not want it to create these files, just do not grant it write permission to its working-directory.
 
 ## Building Pygmalion
-To build Pygmalion, you will need CMake (min. version 3.16) combined with a C++17 capable toolchain. The source-code is designed for maximum portability and does not rely on any third-party libraries. Please note that the source-code heavily relies on templates - building can take some time.
+To build Pygmalion, you will need CMake (min. version 3.16) combined with a C++17 capable toolchain. The source-code is designed for maximum portability and does not rely on any third-party libraries. Please note that the source-code heavily relies on templates and compile-time evaluation - building can take some time.
 
 ### Building on Linux
 
