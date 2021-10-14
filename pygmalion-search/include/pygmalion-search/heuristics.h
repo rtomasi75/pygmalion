@@ -394,7 +394,7 @@ namespace pygmalion
 				}
 			}
 			template<size_t PLAYER>
-			PYGMALION_INLINE scoreType score(const stackType<PLAYER>& stack, const movebitsType moveBits) noexcept
+			PYGMALION_INLINE scoreType historyScore(const stackType<PLAYER>& stack, const movebitsType moveBits) noexcept
 			{
 				PYGMALION_ASSERT(m_pScoreBuckets != nullptr);
 				PYGMALION_ASSERT(m_pCounterBuckets != nullptr);
@@ -540,7 +540,7 @@ namespace pygmalion
 				{
 					if (depth >= 2)
 					{
-						return m_HistoryBuckets[depth - 2].template score<PLAYER>(stack, moveBits);
+						return m_HistoryBuckets[depth - 2].template historyScore<PLAYER>(stack, moveBits);
 					}
 					else
 					{
