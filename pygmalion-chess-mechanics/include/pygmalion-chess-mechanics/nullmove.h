@@ -55,8 +55,14 @@ namespace pygmalion::chess
 		~nullmove() noexcept = default;
 		constexpr nullmove(nullmove&&) noexcept = default;
 		constexpr nullmove(const nullmove&) noexcept = default;
-		constexpr nullmove& operator=(nullmove&&) noexcept = default;
-		constexpr nullmove& operator=(const nullmove&) noexcept = default;
+		constexpr nullmove& operator=(nullmove&&) noexcept
+		{
+			return *this;
+		}
+		constexpr nullmove& operator=(const nullmove&) noexcept
+		{
+			return *this;
+		}
 		PYGMALION_INLINE void doMove_Implementation(boardType& position, const typename nullmove::movebitsType moveBits, typename nullmove::movedataType& movedata) const noexcept
 		{
 			const uint_t<countFlags, false> oldFlags{ position.extractFlagRange<0, 11>() };

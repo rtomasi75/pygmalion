@@ -44,8 +44,14 @@ namespace pygmalion::chess
 		~combinedmoves() noexcept = default;
 		constexpr combinedmoves(combinedmoves&&) noexcept = default;
 		constexpr combinedmoves(const combinedmoves&) noexcept = default;
-		constexpr combinedmoves& operator=(combinedmoves&&) noexcept = default;
-		constexpr combinedmoves& operator=(const combinedmoves&) noexcept = default;
+		constexpr combinedmoves& operator=(combinedmoves&&) noexcept
+		{
+			return *this;
+		}
+		constexpr combinedmoves& operator=(const combinedmoves&) noexcept
+		{
+			return *this;
+		}
 		PYGMALION_INLINE constexpr static size_t getParseIndex_Implementation(const size_t index) noexcept
 		{
 			switch (index)

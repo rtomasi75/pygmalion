@@ -91,8 +91,14 @@ namespace pygmalion::chess
 		~enpassantmove() noexcept = default;
 		constexpr enpassantmove(enpassantmove&&) noexcept = default;
 		constexpr enpassantmove(const enpassantmove&) noexcept = default;
-		constexpr enpassantmove& operator=(enpassantmove&&) noexcept = default;
-		constexpr enpassantmove& operator=(const enpassantmove&) noexcept = default;
+		constexpr enpassantmove& operator=(enpassantmove&&) noexcept
+		{
+			return *this;
+		}
+		constexpr enpassantmove& operator=(const enpassantmove&) noexcept
+		{
+			return *this;
+		}
 		PYGMALION_INLINE void doMove_Implementation(boardType& position, const typename enpassantmove::movebitsType moveBits, typename enpassantmove::movedataType& movedata) const noexcept
 		{
 			const playerType p{ position.movingPlayer() };

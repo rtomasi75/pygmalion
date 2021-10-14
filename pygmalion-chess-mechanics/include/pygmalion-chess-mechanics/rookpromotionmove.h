@@ -12,7 +12,13 @@ namespace pygmalion::chess
 		~rookpromotionmove() noexcept = default;
 		constexpr rookpromotionmove(rookpromotionmove&&) noexcept = default;
 		constexpr rookpromotionmove(const rookpromotionmove&) noexcept = default;
-		constexpr rookpromotionmove& operator=(rookpromotionmove&&) noexcept = default;
-		constexpr rookpromotionmove& operator=(const rookpromotionmove&) noexcept = default;
+		constexpr rookpromotionmove& operator=(rookpromotionmove&&) noexcept
+		{
+			return *this;
+		}
+		constexpr rookpromotionmove& operator=(const rookpromotionmove&) noexcept
+		{
+			return *this;
+		}
 	};
 }

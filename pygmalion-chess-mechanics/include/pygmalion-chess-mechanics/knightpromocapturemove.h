@@ -12,7 +12,13 @@ namespace pygmalion::chess
 		~knightpromocapturemove() noexcept = default;
 		constexpr knightpromocapturemove(knightpromocapturemove&&) noexcept = default;
 		constexpr knightpromocapturemove(const knightpromocapturemove&) noexcept = default;
-		constexpr knightpromocapturemove& operator=(knightpromocapturemove&&) noexcept = default;
-		constexpr knightpromocapturemove& operator=(const knightpromocapturemove&) noexcept = default;
+		constexpr knightpromocapturemove& operator=(knightpromocapturemove&&) noexcept
+		{
+			return *this;
+		}
+		constexpr knightpromocapturemove& operator=(const knightpromocapturemove&) noexcept
+		{
+			return *this;
+		}
 	};
 }

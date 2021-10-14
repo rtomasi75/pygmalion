@@ -99,8 +99,6 @@ namespace pygmalion::chess
 		~promocapturemove() noexcept = default;
 		constexpr promocapturemove(promocapturemove&&) noexcept = default;
 		constexpr promocapturemove(const promocapturemove&) noexcept = default;
-		constexpr promocapturemove& operator=(promocapturemove&&) noexcept = default;
-		constexpr promocapturemove& operator=(const promocapturemove&) noexcept = default;
 	public:
 		PYGMALION_INLINE void doMove_Implementation(boardType& position, const typename promocapturemove::movebitsType moveBits, typename promocapturemove::movedataType& movedata) const noexcept
 		{

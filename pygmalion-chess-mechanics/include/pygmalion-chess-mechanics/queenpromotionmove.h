@@ -12,7 +12,13 @@ namespace pygmalion::chess
 		~queenpromotionmove() noexcept = default;
 		constexpr queenpromotionmove(queenpromotionmove&&) noexcept = default;
 		constexpr queenpromotionmove(const queenpromotionmove&) noexcept = default;
-		constexpr queenpromotionmove& operator=(queenpromotionmove&&) noexcept = default;
-		constexpr queenpromotionmove& operator=(const queenpromotionmove&) noexcept = default;
+		constexpr queenpromotionmove& operator=(queenpromotionmove&&) noexcept
+		{
+			return *this;
+		}
+		constexpr queenpromotionmove& operator=(const queenpromotionmove&) noexcept
+		{
+			return *this;
+		}
 	};
 }

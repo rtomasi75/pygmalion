@@ -75,8 +75,14 @@ namespace pygmalion::chess
 		~doublepushmove() noexcept = default;
 		constexpr doublepushmove(doublepushmove&&) noexcept = default;
 		constexpr doublepushmove(const doublepushmove&) noexcept = default;
-		constexpr doublepushmove& operator=(doublepushmove&&) noexcept = default;
-		constexpr doublepushmove& operator=(const doublepushmove&) noexcept = default;
+		constexpr doublepushmove& operator=(doublepushmove&&) noexcept
+		{
+			return *this;
+		}
+		constexpr doublepushmove& operator=(const doublepushmove&) noexcept
+		{
+			return *this;
+		}
 		PYGMALION_INLINE void doMove_Implementation(boardType& position, const typename doublepushmove::movebitsType& moveBits, typename doublepushmove::movedataType& movedata) const noexcept
 		{
 			const playerType p{ position.movingPlayer() };

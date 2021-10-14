@@ -97,8 +97,14 @@ namespace pygmalion::chess
 		~capturemove() noexcept = default;
 		constexpr capturemove(capturemove&&) noexcept = default;
 		constexpr capturemove(const capturemove&) noexcept = default;
-		constexpr capturemove& operator=(capturemove&&) noexcept = default;
-		constexpr capturemove& operator=(const capturemove&) noexcept = default;
+		constexpr capturemove& operator=(capturemove&&) noexcept
+		{
+			return *this;
+		}
+		constexpr capturemove& operator=(const capturemove&) noexcept
+		{
+			return *this;
+		}
 		PYGMALION_INLINE void doMove_Implementation(boardType& position, const typename capturemove::movebitsType moveBits, typename capturemove::movedataType& movedata) const noexcept
 		{
 			const squareType from{ capturemove::extractFrom(moveBits) };

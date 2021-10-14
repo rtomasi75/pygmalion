@@ -12,7 +12,13 @@ namespace pygmalion::chess
 		~bishoppromotionmove() noexcept = default;
 		constexpr bishoppromotionmove(bishoppromotionmove&&) noexcept = default;
 		constexpr bishoppromotionmove(const bishoppromotionmove&) noexcept = default;
-		constexpr bishoppromotionmove& operator=(bishoppromotionmove&&) noexcept = default;
-		constexpr bishoppromotionmove& operator=(const bishoppromotionmove&) noexcept = default;
+		constexpr bishoppromotionmove& operator=(bishoppromotionmove&&) noexcept
+		{
+			return *this;
+		}
+		constexpr bishoppromotionmove& operator=(const bishoppromotionmove&) noexcept
+		{
+			return *this;
+		}
 	};
 }
