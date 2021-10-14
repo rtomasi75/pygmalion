@@ -87,12 +87,12 @@ namespace pygmalion::chess
 			movebits.template storeBits<0, countFromBits>(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(sq));
 		}
 	public:
-		PYGMALION_INLINE constexpr quietmove() noexcept = default;
-		PYGMALION_INLINE ~quietmove() noexcept = default;
-		PYGMALION_INLINE constexpr quietmove(quietmove&&) noexcept = default;
-		PYGMALION_INLINE constexpr quietmove(const quietmove&) noexcept = default;
-		PYGMALION_INLINE constexpr quietmove& operator=(quietmove&&) noexcept = default;
-		PYGMALION_INLINE constexpr quietmove& operator=(const quietmove&) noexcept = default;
+		constexpr quietmove() noexcept = default;
+		~quietmove() noexcept = default;
+		constexpr quietmove(quietmove&&) noexcept = default;
+		constexpr quietmove(const quietmove&) noexcept = default;
+		constexpr quietmove& operator=(quietmove&&) noexcept = default;
+		constexpr quietmove& operator=(const quietmove&) noexcept = default;
 		PYGMALION_INLINE void doMove_Implementation(boardType& position, const typename quietmove::movebitsType moveBits, typename quietmove::movedataType& movedata) const noexcept
 		{
 			const squareType from{ quietmove::extractFrom(moveBits) };

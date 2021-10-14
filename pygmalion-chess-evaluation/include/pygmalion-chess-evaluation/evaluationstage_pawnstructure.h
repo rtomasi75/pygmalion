@@ -4,7 +4,7 @@ namespace pygmalion::chess
 		public pygmalion::evaluationstage<descriptor_evaluation, evaluationstage_pawnstructure>
 	{
 	public:
-		constexpr static inline double PawnStructure{ 0.125 };
+		constexpr static inline double PawnStructure{ 0.25 };
 		constexpr static scoreType computeDelta_Implementation() noexcept
 		{
 			return static_cast<scoreType>(2.0 * PawnStructure);

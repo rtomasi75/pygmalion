@@ -49,12 +49,12 @@ namespace pygmalion::chess
 			sstr << "" << sizeof(typename queensidecastlemove::movedataType) << ":" << queensidecastlemove::countBits << "@queensidecastle";
 			return sstr.str();
 		}
-		PYGMALION_INLINE constexpr queensidecastlemove() noexcept = default;
-		PYGMALION_INLINE ~queensidecastlemove() noexcept = default;
-		PYGMALION_INLINE constexpr queensidecastlemove(queensidecastlemove&&) noexcept = default;
-		PYGMALION_INLINE constexpr queensidecastlemove(const queensidecastlemove&) noexcept = default;
-		PYGMALION_INLINE constexpr queensidecastlemove& operator=(queensidecastlemove&&) noexcept = default;
-		PYGMALION_INLINE constexpr queensidecastlemove& operator=(const queensidecastlemove&) noexcept = default;
+		constexpr queensidecastlemove() noexcept = default;
+		~queensidecastlemove() noexcept = default;
+		constexpr queensidecastlemove(queensidecastlemove&&) noexcept = default;
+		constexpr queensidecastlemove(const queensidecastlemove&) noexcept = default;
+		constexpr queensidecastlemove& operator=(queensidecastlemove&&) noexcept = default;
+		constexpr queensidecastlemove& operator=(const queensidecastlemove&) noexcept = default;
 		PYGMALION_INLINE void doMove_Implementation(boardType& position, const typename queensidecastlemove::movebitsType moveBits, typename queensidecastlemove::movedataType& movedata) const noexcept
 		{
 			const playerType p{ position.movingPlayer() };

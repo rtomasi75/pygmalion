@@ -167,7 +167,7 @@ namespace pygmalion
 				return -static_cast<wordType>((difference & static_cast<doubleType>(mask << countBitsPerWord)) >> countBitsPerWord);
 			}
 		}
-		constexpr static const void multiplyWords(const wordType& A, const wordType& B, wordType& R_low, wordType& R_high) noexcept
+		constexpr static void multiplyWords(const wordType& A, const wordType& B, wordType& R_low, wordType& R_high) noexcept
 		{
 			if constexpr (std::is_same<wordType, doubleType>::value)
 			{

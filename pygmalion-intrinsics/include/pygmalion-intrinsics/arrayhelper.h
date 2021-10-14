@@ -44,7 +44,8 @@ namespace pygmalion
 			if (number >= (size_t(1) << 7))
 				return 2;
 			return 1;
-		}		constexpr static size_t requiredUnsignedBits(const std::uintmax_t number) noexcept
+		}		
+		constexpr static size_t requiredUnsignedBits(const std::uintmax_t number) noexcept
 		{
 			size_t n = 1;
 			size_t k = 0;

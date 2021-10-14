@@ -771,7 +771,7 @@ namespace pygmalion
 				{
 					if (m_CurrentCriticalStage < countCriticalStages)
 					{
-						if (m_CurrentCriticalPass < countMovegenPasses[static_cast<size_t>(m_CriticalStages[static_cast<size_t>(m_CurrentCriticalStage)])])
+						if (m_CurrentCriticalPass < countCriticalPasses[static_cast<size_t>(m_CriticalStages[static_cast<size_t>(m_CurrentCriticalStage)])])
 						{
 							generatorType::generateMoves(m_CriticalStages[static_cast<size_t>(m_CurrentCriticalStage)], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->criticalMoves(), feedback.index(m_CriticalStages[static_cast<size_t>(m_CurrentCriticalStage)], m_CurrentCriticalPass, depth));
 							while (m_pContext->criticalPasses().length() < m_pContext->criticalMoves().length())

@@ -41,25 +41,14 @@ namespace pygmalion
 	template<size_t MANTISSA, size_t SHIFT, size_t MAXDIST>
 	class score
 	{
-	private:
-		constexpr static size_t requiredSignedBytes(const std::uintmax_t number) noexcept
-		{
-			if (number >= (UINTMAX_C(1) << 31))
-				return 8;
-			if (number >= (UINTMAX_C(1) << 15))
-				return 4;
-			if (number >= (UINTMAX_C(1) << 7))
-				return 2;
-			return 1;
-		}
 	public:
-		using valueType = typename detail::score_traits < requiredSignedBytes((std::uintmax_t(1) << MANTISSA) - 1) > ::STYPE;
+		using valueType = typename detail::score_traits < arrayhelper::requiredSignedBytes((UINTMAX_C(1) << MANTISSA) - 1) > ::STYPE;
 		constexpr static size_t countMantissaBits{ MANTISSA };
 		constexpr static size_t countShiftBits{ SHIFT };
 		constexpr static valueType granularity{ static_cast<valueType>(UINTMAX_C(1) << countShiftBits) };
 		constexpr static size_t maxDistance{ MAXDIST };
 	private:
-		using longType = typename detail::score_traits < requiredSignedBytes((UINTMAX_C(1) << MANTISSA)) > ::STYPE;
+		using longType = typename detail::score_traits < arrayhelper::requiredSignedBytes((UINTMAX_C(1) << MANTISSA)) > ::STYPE;
 	public:
 		static constexpr valueType MAXVALUE{ valueType((longType(1) << MANTISSA) - 1) };
 		static constexpr valueType MINVALUE{ valueType(-MAXVALUE) };
@@ -128,21 +117,27 @@ namespace pygmalion
 			}
 			else
 			{
-				using combinedType = typename  detail::score_traits < requiredSignedBytes(std::uint64_t(1) << (std::max(countMantissaBits, otherMantissa) - 1)) > ::STYPE;
-				constexpr const bool shiftRight{ otherShift > countShiftBits };
-				if (shiftRight)
+				using combinedType = typename  detail::score_traits < arrayhelper::requiredSignedBytes((UINTMAX_C(1) << std::max(countMantissaBits, otherMantissa)) - 1) > ::STYPE;
+				if constexpr (otherShift == countShiftBits)
 				{
-					constexpr const size_t shift{ otherShift - countShiftBits };
-					combinedType value{ static_cast<combinedType>(other.get_Value()) };
-					value >>= shift;
-					m_Value = static_cast<valueType>(value);
+					m_Value = static_cast<valueType>(other.get_Value());
 				}
 				else
 				{
-					constexpr const size_t shift{ countShiftBits - otherShift };
-					combinedType value{ static_cast<combinedType>(other.get_Value()) };
-					value <<= shift;
-					m_Value = static_cast<valueType>(value);
+					if constexpr (otherShift > countShiftBits)
+					{
+						constexpr const int shift{ static_cast<int>(otherShift) - static_cast<int>(countShiftBits) };
+						combinedType value{ static_cast<combinedType>(other.get_Value()) };
+						value >>= shift;
+						m_Value = static_cast<valueType>(value);
+					}
+					else
+					{
+						constexpr const int shift{ static_cast<int>(countShiftBits) - static_cast<int>(otherShift) };
+						combinedType value{ static_cast<combinedType>(other.get_Value()) };
+						value <<= shift;
+						m_Value = static_cast<valueType>(value);
+					}
 				}
 			}
 		}

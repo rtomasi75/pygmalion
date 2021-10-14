@@ -40,6 +40,12 @@ namespace pygmalion::chess
 		constexpr static const muxbitsType muxQueenside{ indexQueenside };
 		constexpr static const muxbitsType muxNull{ indexNull };
 	public:
+		constexpr combinedmoves() noexcept = default;
+		~combinedmoves() noexcept = default;
+		constexpr combinedmoves(combinedmoves&&) noexcept = default;
+		constexpr combinedmoves(const combinedmoves&) noexcept = default;
+		constexpr combinedmoves& operator=(combinedmoves&&) noexcept = default;
+		constexpr combinedmoves& operator=(const combinedmoves&) noexcept = default;
 		PYGMALION_INLINE constexpr static size_t getParseIndex_Implementation(const size_t index) noexcept
 		{
 			switch (index)

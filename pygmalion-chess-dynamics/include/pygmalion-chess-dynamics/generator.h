@@ -187,12 +187,6 @@ namespace pygmalion::chess
 					m_KingSquare[blackPlayer] = blackKing;
 					m_Flags = flagsUsed;
 				}
-				template<size_t PLAYER>
-				PYGMALION_INLINE void prefetch(const stack<PLAYER>& stack) const noexcept
-				{
-					const size_t idx{ computeIndex(stack.position().pawnHash()) };
-					memory::prefetchRead(&(m_Entry[idx]));
-				}
 			};
 		private:
 			size_t m_EntryCount;

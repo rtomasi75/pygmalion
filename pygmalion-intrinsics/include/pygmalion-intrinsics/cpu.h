@@ -238,7 +238,7 @@ namespace pygmalion
 			tag_BMI2
 		{};
 
-		constexpr static const bool supports(const flags FLAGS) noexcept
+		constexpr static bool supports(const flags FLAGS) noexcept
 		{
 			const bool R{ static_cast<bool>((computeFlags() & FLAGS) == FLAGS) };
 			return R;

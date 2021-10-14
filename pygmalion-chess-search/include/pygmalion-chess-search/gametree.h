@@ -846,7 +846,7 @@ namespace pygmalion::chess
 			}
 			PYGMALION_INLINE static scoreType deltaGlobalMargin_Implementation(const stackType& stack) noexcept
 			{
-				constexpr const scoreType zero{ scoreType::zero() };
+				constexpr const scoreType zero{scoreType::zero()};
 				const squaresType ownPawns{ stack.position().pieceOccupancy(descriptorSearch::pawn) & stack.position().playerOccupancy(movingPlayer) };
 				constexpr const squaresType promotionsMask{ movingPlayer == descriptorSearch::whitePlayer ? descriptorSearch::rank7 : descriptorSearch::rank2 };
 				const squaresType promotionPawns{ ownPawns & promotionsMask };

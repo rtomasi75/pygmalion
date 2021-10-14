@@ -87,12 +87,12 @@ namespace pygmalion::chess
 			movebits.template storeBits<0, countFileBits>(static_cast<typename std::make_unsigned<typename fileType::baseType>::type>(f));
 		}
 	public:
-		PYGMALION_INLINE constexpr enpassantmove() noexcept = default;
-		PYGMALION_INLINE ~enpassantmove() noexcept = default;
-		PYGMALION_INLINE constexpr enpassantmove(enpassantmove&&) noexcept = default;
-		PYGMALION_INLINE constexpr enpassantmove(const enpassantmove&) noexcept = default;
-		PYGMALION_INLINE constexpr enpassantmove& operator=(enpassantmove&&) noexcept = default;
-		PYGMALION_INLINE constexpr enpassantmove& operator=(const enpassantmove&) noexcept = default;
+		constexpr enpassantmove() noexcept = default;
+		~enpassantmove() noexcept = default;
+		constexpr enpassantmove(enpassantmove&&) noexcept = default;
+		constexpr enpassantmove(const enpassantmove&) noexcept = default;
+		constexpr enpassantmove& operator=(enpassantmove&&) noexcept = default;
+		constexpr enpassantmove& operator=(const enpassantmove&) noexcept = default;
 		PYGMALION_INLINE void doMove_Implementation(boardType& position, const typename enpassantmove::movebitsType moveBits, typename enpassantmove::movedataType& movedata) const noexcept
 		{
 			const playerType p{ position.movingPlayer() };

@@ -92,15 +92,15 @@ namespace pygmalion::chess
 			movebits.template storeBits<0, countFromBits>(static_cast<typename std::make_unsigned<typename squareType::baseType>::type>(sq));
 		}
 	protected:
-		PYGMALION_INLINE constexpr promocapturemove() noexcept
+		constexpr promocapturemove() noexcept
 		{
 
 		}
-		PYGMALION_INLINE ~promocapturemove() noexcept = default;
-		PYGMALION_INLINE constexpr promocapturemove(promocapturemove&&) noexcept = default;
-		PYGMALION_INLINE constexpr promocapturemove(const promocapturemove&) noexcept = default;
-		PYGMALION_INLINE constexpr promocapturemove& operator=(promocapturemove&&) noexcept = default;
-		PYGMALION_INLINE constexpr promocapturemove& operator=(const promocapturemove&) noexcept = default;
+		~promocapturemove() noexcept = default;
+		constexpr promocapturemove(promocapturemove&&) noexcept = default;
+		constexpr promocapturemove(const promocapturemove&) noexcept = default;
+		constexpr promocapturemove& operator=(promocapturemove&&) noexcept = default;
+		constexpr promocapturemove& operator=(const promocapturemove&) noexcept = default;
 	public:
 		PYGMALION_INLINE void doMove_Implementation(boardType& position, const typename promocapturemove::movebitsType moveBits, typename promocapturemove::movedataType& movedata) const noexcept
 		{

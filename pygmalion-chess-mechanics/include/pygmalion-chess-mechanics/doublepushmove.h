@@ -71,12 +71,12 @@ namespace pygmalion::chess
 			movebits.template storeBits<0, countFileBits>(static_cast<typename std::make_unsigned<typename fileType::baseType>::type>(f));
 		}
 	public:
-		PYGMALION_INLINE constexpr doublepushmove() noexcept = default;
-		PYGMALION_INLINE ~doublepushmove() noexcept = default;
-		PYGMALION_INLINE constexpr doublepushmove(doublepushmove&&) noexcept = default;
-		PYGMALION_INLINE constexpr doublepushmove(const doublepushmove&) noexcept = default;
-		PYGMALION_INLINE constexpr doublepushmove& operator=(doublepushmove&&) noexcept = default;
-		PYGMALION_INLINE constexpr doublepushmove& operator=(const doublepushmove&) noexcept = default;
+		constexpr doublepushmove() noexcept = default;
+		~doublepushmove() noexcept = default;
+		constexpr doublepushmove(doublepushmove&&) noexcept = default;
+		constexpr doublepushmove(const doublepushmove&) noexcept = default;
+		constexpr doublepushmove& operator=(doublepushmove&&) noexcept = default;
+		constexpr doublepushmove& operator=(const doublepushmove&) noexcept = default;
 		PYGMALION_INLINE void doMove_Implementation(boardType& position, const typename doublepushmove::movebitsType& moveBits, typename doublepushmove::movedataType& movedata) const noexcept
 		{
 			const playerType p{ position.movingPlayer() };

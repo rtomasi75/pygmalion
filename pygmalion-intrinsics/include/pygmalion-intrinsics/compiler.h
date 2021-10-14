@@ -96,7 +96,7 @@ namespace pygmalion
 		struct tag_MSC : tag_GNU {};
 		struct tag_best : tag_MSC {};
 
-		constexpr static const bool supports(const flags FLAGS) noexcept
+		constexpr static bool supports(const flags FLAGS) noexcept
 		{
 			const bool R{ static_cast<bool>((computeFlags() & FLAGS) == FLAGS) };
 			return R;
