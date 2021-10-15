@@ -21,7 +21,8 @@ namespace pygmalion::search
 			if (token != "")
 			{
 				movebitsType movebits;
-				if (motorType::parseMove(parentNode.stack().position(), token, movebits))
+				size_t count{ 0 };
+				if (motorType::parseMove(parentNode.stack().position(), token, movebits, count))
 				{
 					this->output() << "performed move " << motorType::moveToString(parentNode.stack().position(), movebits) << ", hash=" << std::hex << static_cast<std::uint64_t>(parentNode.stack().position().hash()) << std::dec << std::endl;
 					nodeType node{ nodeType(parentNode, movebits) };

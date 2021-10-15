@@ -118,27 +118,27 @@ namespace pygmalion::mechanics
 		}
 	private:
 		template<size_t BITSPOS, size_t INDEX, typename MOVE, typename... MOVES2>
-		bool parsePack(const boardType& position, std::string& text, typename conjunctivemove::movebitsType& moveBits) const noexcept
+		bool parsePack(const boardType& position, const std::string& text, typename conjunctivemove::movebitsType& moveBits, size_t& count) const noexcept
 		{
 			typename MOVE::movebitsType bits{ MOVE::movebitsType::zero() };
-			if (!std::get<INDEX>(this->m_Moves).parse(position, text, bits))
+			if (!std::get<INDEX>(this->m_Moves).parse(position, text, bits, count))
 				return false;
 			else
 			{
 				moveBits.template storeBits<BITSPOS, MOVE::countBits>(bits);
 				if constexpr (sizeof...(MOVES2) > 0)
-					return this->template parsePack<BITSPOS + MOVE::countBits, INDEX + 1, MOVES2...>(position, text, moveBits);
+					return this->template parsePack<BITSPOS + MOVE::countBits, INDEX + 1, MOVES2...>(position, text, moveBits, count);
 				else
 					return true;
 			}
 		}
 	public:
-		bool parse_Implementation(const boardType& position, std::string& text, typename conjunctivemove::movebitsType& moveBits) const noexcept
+		bool parse_Implementation(const boardType& position, const std::string& text, typename conjunctivemove::movebitsType& moveBits, size_t& count) const noexcept
 		{
 			std::string txt{ text };
 			if constexpr (sizeof...(MOVES) > 0)
 			{
-				if (this->template parsePack<0, 0, MOVES...>(position, text, moveBits))
+				if (this->template parsePack<0, 0, MOVES...>(position, text, moveBits, count))
 				{
 					text = txt;
 					return true;

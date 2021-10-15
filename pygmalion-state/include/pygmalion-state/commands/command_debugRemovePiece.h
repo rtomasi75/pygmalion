@@ -20,7 +20,8 @@ namespace pygmalion::state
 				std::string remainder2;
 				squareType sq;
 				parser::parseTokenCaseSensitive(remainder, token, remainder2);
-				if (boardType::parseSquare(token, sq))
+				size_t count{ 0 };
+				if (boardType::parseSquare(token, sq, count))
 				{
 					if (!this->position().totalOccupancy()[sq])
 						this->output() << "there is no piece on " << boardType::squareToString(sq) << "." << std::endl;

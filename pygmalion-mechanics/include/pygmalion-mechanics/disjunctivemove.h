@@ -1,6 +1,6 @@
 namespace pygmalion::mechanics
 {
-//#define PYGMALION_MOVESTATISTICS
+	//#define PYGMALION_MOVESTATISTICS
 
 	namespace detail
 	{
@@ -213,30 +213,32 @@ namespace pygmalion::mechanics
 		}
 	private:
 		template<size_t INDEX, typename MOVE, typename... MOVES2>
-		bool parsePack(const boardType& position, std::string& text, typename disjunctivemove::movebitsType& moveBits) const noexcept
+		bool parsePack(const boardType& position, const std::string& text, typename disjunctivemove::movebitsType& moveBits, size_t& count) const noexcept
 		{
 			using currentMoveType = typename std::decay<decltype(std::get<getParseIndex(INDEX)>(this->m_Moves))>::type;
 			typename currentMoveType::movebitsType bits;
-			if (std::get<getParseIndex(INDEX)>(this->m_Moves).parse(position, text, bits))
+			size_t cnt{ 0 };
+			if (std::get<getParseIndex(INDEX)>(this->m_Moves).parse(position, text, bits, cnt))
 			{
 				constexpr const muxbitsType mux{ static_cast<muxbitsType>(static_cast<typename std::make_unsigned<size_t>::type>(getParseIndex(INDEX))) };
 				moveBits.template storeBits<0, currentMoveType::movebitsType::countBits>(bits);
 				moveBits.template storeBits<countDataBits, countMuxBits>(mux);
+				count += cnt;
 				return true;
 			}
 			else
 			{
 				if constexpr (sizeof...(MOVES2) > 0)
-					return this->template parsePack<INDEX + 1, MOVES2...>(position, text, moveBits);
+					return this->template parsePack<INDEX + 1, MOVES2...>(position, text, moveBits, count);
 				else
 					return false;
 			}
 		}
 	public:
-		bool parse_Implementation(const boardType& position, std::string& text, typename disjunctivemove::movebitsType& moveBits) const noexcept
+		bool parse_Implementation(const boardType& position, const std::string& text, typename disjunctivemove::movebitsType& moveBits, size_t& count) const noexcept
 		{
 			if constexpr (sizeof...(MOVES) > 0)
-				return this->template parsePack<0, MOVES...>(position, text, moveBits);
+				return this->template parsePack<0, MOVES...>(position, text, moveBits, count);
 			else
 				return true;
 		}

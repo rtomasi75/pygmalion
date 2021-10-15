@@ -12,7 +12,8 @@ namespace pygmalion::chess::evaluation
 			parser::parseTokenCaseSensitive(remainder, token, remainder2);
 			playerType p;
 			this->output() << std::endl;
-			if (boardType::parsePlayer(token, p))
+			size_t count{ 0 };
+			if (boardType::parsePlayer(token, p, count))
 			{
 				this->template process<0>(p);
 			}

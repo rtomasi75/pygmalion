@@ -90,19 +90,21 @@ namespace pygmalion::mechanics
 			killmove::encodeSquare(bits, square);
 			return bits;
 		}
-		bool parse_Implementation(const boardType& position, std::string& text, typename killmove::movebitsType& moveBits) const noexcept
+		bool parse_Implementation(const boardType& position, const std::string& text, typename killmove::movebitsType& moveBits, size_t& count) const noexcept
 		{
 			std::string temp{ text };
 			squareType sq;
+			size_t cnt{ 0 };
 			if ((temp.length() > 0) && (temp[0] == '!'))
 			{
-				temp = temp.substr(1, temp.length() - 1);
-				if (boardType::parseSquare(temp, sq))
+				cnt++;
+				temp = temp.substr(cnt, temp.length() - cnt);
+				if (boardType::parseSquare(temp, sq, cnt))
 				{
 					if (position.totalOccupancy()[sq])
 					{
 						moveBits = create(sq);
-						text = temp;
+						count += cnt;
 						return true;
 					}
 				}

@@ -19,7 +19,8 @@ namespace pygmalion::state
 				std::string remainder2;
 				parser::parseTokenCaseSensitive(remainder, token, remainder2);
 				flagType flag;
-				if (boardType::parseFlag(token, flag))
+				size_t count{ 0 };
+				if (boardType::parseFlag(token, flag, count))
 				{
 					this->output() << std::endl;
 					this->output() << "changing " << boardType::flagToString(flag) << " flag." << std::endl;

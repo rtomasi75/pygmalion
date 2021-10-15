@@ -156,26 +156,28 @@ namespace pygmalion::chess
 			enpassantmove::encodeFile2(bits, file2);
 			return bits;
 		}
-		bool parse_Implementation(const boardType& position, std::string& text, typename enpassantmove::movebitsType& moveBits) const noexcept
+		bool parse_Implementation(const boardType& position, const std::string& text, typename enpassantmove::movebitsType& moveBits, size_t& count) const noexcept
 		{
 			std::string temp{ text };
 			const playerType movingPlayer{ position.movingPlayer() };
 			squareType from;
 			squareType to;
+			size_t cnt{ 0 };
 			if (movingPlayer == whitePlayer)
 			{
-				if (boardType::parseSquare(temp, from))
+				if (boardType::parseSquare(temp, from, cnt))
 				{
+					std::string temp2{ temp.substr(cnt,temp.length() - cnt) };
 					if ((position.playerOccupancy(movingPlayer) & position.pieceOccupancy(descriptorState::pawn))[from] && (from.rank() == rank5))
 					{
-						if (boardType::parseSquare(temp, to))
+						if (boardType::parseSquare(temp2, to, cnt))
 						{
 							if ((position.checkEnPassantFile(to.file())) && (position.playerOccupancy(((movingPlayer + 1) % countPlayers)) & position.pieceOccupancy(descriptorState::pawn))[rank5 & to.file()] && (to.rank() == rank6))
 							{
 								if (!position.totalOccupancy()[to])
 								{
 									moveBits = create(from.file(), to.file());
-									text = temp;
+									count += cnt;
 									return true;
 								}
 							}
@@ -185,18 +187,19 @@ namespace pygmalion::chess
 			}
 			else
 			{
-				if (boardType::parseSquare(temp, from))
+				if (boardType::parseSquare(temp, from, cnt))
 				{
+					std::string temp2{ temp.substr(cnt,temp.length() - cnt) };
 					if ((position.playerOccupancy(movingPlayer) & position.pieceOccupancy(descriptorState::pawn))[from] && (from.rank() == rank4))
 					{
-						if (boardType::parseSquare(temp, to))
+						if (boardType::parseSquare(temp2, to, cnt))
 						{
 							if ((position.checkEnPassantFile(to.file())) && (position.playerOccupancy((movingPlayer + 1) % countPlayers) & position.pieceOccupancy(descriptorState::pawn))[rank4 & to.file()] && (to.rank() == rank3))
 							{
 								if (!position.totalOccupancy()[to])
 								{
 									moveBits = create(from.file(), to.file());
-									text = temp;
+									count += cnt;
 									return true;
 								}
 							}

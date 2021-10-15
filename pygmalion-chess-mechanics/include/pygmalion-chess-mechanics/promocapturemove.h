@@ -165,35 +165,38 @@ namespace pygmalion::chess
 			promocapturemove::encodeTo(bits, to);
 			return bits;
 		}
-		bool parse_Implementation(const boardType& position, std::string& text, typename promocapturemove::movebitsType& moveBits) const noexcept
+		bool parse_Implementation(const boardType& position, const std::string& text, typename promocapturemove::movebitsType& moveBits, size_t& count) const noexcept
 		{
 			const playerType p{ position.movingPlayer() };
 			const playerType p2{ ++position.movingPlayer() };
 			std::string temp{ text };
 			squareType from;
 			squareType to;
-			if (boardType::parseSquare(temp, from))
+			size_t cnt{ 0 };
+			if (boardType::parseSquare(temp, from, cnt))
 			{
+				std::string temp2{ temp.substr(cnt,temp.length() - cnt) };
 				if ((position.pieceOccupancy(pawn) & position.playerOccupancy(p))[from])
 				{
 					if (p == whitePlayer)
 					{
 						if (from.rank() == rank7)
 						{
-							if (boardType::parseSquare(temp, to))
+							if (boardType::parseSquare(temp2, to, cnt))
 							{
+								std::string temp3{ temp.substr(cnt,temp.length() - cnt) };
 								if (to.rank() == rank8)
 								{
 									if (position.playerOccupancy(p2)[to])
 									{
 										playerType p3;
 										pieceType pc;
-										if (boardType::parsePiece(temp, pc, p3))
+										if (boardType::parsePiece(temp3, pc, p3, cnt))
 										{
 											if (pc == m_PromotedPiece)
 											{
 												moveBits = create(from, to);
-												text = temp;
+												count += cnt;
 												return true;
 											}
 										}
@@ -206,20 +209,21 @@ namespace pygmalion::chess
 					{
 						if (from.rank() == rank2)
 						{
-							if (boardType::parseSquare(temp, to))
+							if (boardType::parseSquare(temp2, to, cnt))
 							{
+								std::string temp3{ temp.substr(cnt,temp.length() - cnt) };
 								if (to.rank() == rank1)
 								{
 									if (position.playerOccupancy(p2)[to])
 									{
 										playerType p3;
 										pieceType pc;
-										if (boardType::parsePiece(temp, pc, p3))
+										if (boardType::parsePiece(temp3, pc, p3, cnt))
 										{
 											if (pc == m_PromotedPiece)
 											{
 												moveBits = create(from, to);
-												text = temp;
+												count += cnt;
 												return true;
 											}
 										}

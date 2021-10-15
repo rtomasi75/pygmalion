@@ -145,31 +145,36 @@ namespace pygmalion::mechanics
 			promocapturemove::encodePiece(bits, piece);
 			return bits;
 		}
-		bool parse_Implementation(const boardType& position, std::string& text, typename promocapturemove::movebitsType& moveBits) const noexcept
+		bool parse_Implementation(const boardType& position, const std::string& text, typename promocapturemove::movebitsType& moveBits, size_t& count) const noexcept
 		{
 			std::string temp{ text };
 			squareType from;
 			squareType to;
 			pieceType pc;
 			playerType p;
-			if (boardType::parsePiece(temp, pc, p))
+			size_t cnt{ 0 };
+			if (boardType::parsePiece(temp, pc, p, cnt))
 			{
-				if ((p == position.movingPlayer()) && (temp.length() > 0) && (temp[0] == '='))
+				std::string temp2{ temp.substr(cnt,temp.length() - cnt) };
+				if ((p == position.movingPlayer()) && (temp2.length() > 0) && (temp2[0] == '='))
 				{
-					temp = temp.substr(1, temp.length() - 1);
-					if (boardType::parseSquare(temp, from))
+					cnt++;
+					std::string temp3{ temp.substr(cnt,temp.length() - cnt) };
+					if (boardType::parseSquare(temp3, from, cnt))
 					{
+						std::string temp4{ temp.substr(cnt,temp.length() - cnt) };
 						if (position.totalOccupancy()[from])
 						{
-							if (temp.length() > 0 && temp[0] == 'x')
+							if (temp4.length() > 0 && temp4[0] == 'x')
 							{
-								temp = temp.substr(1, temp.length() - 1);
-								if (boardType::parseSquare(temp, to))
+								cnt++;
+								std::string temp5{ temp.substr(cnt,temp.length() - cnt) };
+								if (boardType::parseSquare(temp5, to, cnt))
 								{
 									if (position.totalOccupancy()[to])
 									{
 										moveBits = create(from, to, pc);
-										text = temp;
+										count += cnt;
 										return true;
 									}
 								}

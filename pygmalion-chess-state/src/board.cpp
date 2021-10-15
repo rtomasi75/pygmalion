@@ -40,7 +40,7 @@ namespace pygmalion::chess
 		return "none";
 	}
 
-	bool board::parseFlag_Implementation(std::string& text, flagType& flag) noexcept
+	bool board::parseFlag_Implementation(const std::string& text, flagType& flag, size_t& count) noexcept
 	{
 		if (text.length() > 0)
 		{
@@ -48,59 +48,59 @@ namespace pygmalion::chess
 			{
 			case 'k':
 				flag = castleRightKingsideBlack;
-				text = text.substr(1, text.length() - 1);
+				count++;
 				return true;
 			case 'K':
 				flag = castleRightKingsideWhite;
-				text = text.substr(1, text.length() - 1);
+				count++;
 				return true;
 			case 'q':
 				flag = castleRightQueensideBlack;
-				text = text.substr(1, text.length() - 1);
+				count++;
 				return true;
 			case 'Q':
 				flag = castleRightQueensideWhite;
-				text = text.substr(1, text.length() - 1);
+				count++;
 				return true;
 			case 'a':
 			case 'A':
 				flag = enPassantFileA;
-				text = text.substr(1, text.length() - 1);
+				count++;
 				return true;
 			case 'b':
 			case 'B':
 				flag = enPassantFileB;
-				text = text.substr(1, text.length() - 1);
+				count++;
 				return true;
 			case 'd':
 			case 'D':
 				flag = enPassantFileC;
-				text = text.substr(1, text.length() - 1);
+				count++;
 				return true;
 			case 'c':
 			case 'C':
 				flag = enPassantFileD;
-				text = text.substr(1, text.length() - 1);
+				count++;
 				return true;
 			case 'e':
 			case 'E':
 				flag = enPassantFileE;
-				text = text.substr(1, text.length() - 1);
+				count++;
 				return true;
 			case 'f':
 			case 'F':
 				flag = enPassantFileF;
-				text = text.substr(1, text.length() - 1);
+				count++;
 				return true;
 			case 'g':
 			case 'G':
 				flag = enPassantFileG;
-				text = text.substr(1, text.length() - 1);
+				count++;
 				return true;
 			case 'h':
 			case 'H':
 				flag = enPassantFileH;
-				text = text.substr(1, text.length() - 1);
+				count++;
 				return true;
 			default:
 				return false;
@@ -118,14 +118,14 @@ namespace pygmalion::chess
 		return txt;
 	}
 
-	bool board::parseRank_Implementation(std::string& text, rankType& rank) noexcept
+	bool board::parseRank_Implementation(const std::string& text, rankType& rank, size_t& count) noexcept
 	{
 		if (text.length() > 0)
 		{
 			if ((text[0] >= '1') && (text[0] < ('1' + countRanks)))
 			{
 				rank = text[0] - '1';
-				text = text.substr(1, text.length() - 1);
+				count++;
 				return true;
 			}
 			else
@@ -143,20 +143,20 @@ namespace pygmalion::chess
 		return txt;
 	}
 
-	bool board::parseFile_Implementation(std::string& text, fileType& file) noexcept
+	bool board::parseFile_Implementation(const std::string& text, fileType& file, size_t& count) noexcept
 	{
 		if (text.length() > 0)
 		{
 			if ((text[0] >= 'a') && (text[0] < ('a' + countFiles)))
 			{
 				file = text[0] - 'a';
-				text = text.substr(1, text.length() - 1);
+				count++;
 				return true;
 			}
 			else if ((text[0] >= 'A') && (text[0] < ('A' + countFiles)))
 			{
 				file = text[0] - 'A';
-				text = text.substr(1, text.length() - 1);
+				count++;
 				return true;
 			}
 			else
@@ -179,7 +179,7 @@ namespace pygmalion::chess
 		}
 	}
 
-	bool board::parsePlayer_Implementation(std::string& text, playerType& player) noexcept
+	bool board::parsePlayer_Implementation(const std::string& text, playerType& player, size_t& count) noexcept
 	{
 		if (text.length() > 0)
 		{
@@ -188,12 +188,12 @@ namespace pygmalion::chess
 			case '+':
 			case '0':
 				player = 0;
-				text = text.substr(1, text.length() - 1);
+				count++;
 				return true;
 			case '-':
 			case '1':
 				player = 1;
-				text = text.substr(1, text.length() - 1);
+				count++;
 				return true;
 			default:
 				return false;
@@ -249,7 +249,7 @@ namespace pygmalion::chess
 		}
 	}
 
-	bool board::parsePiece_Implementation(std::string& text, pieceType& piece, playerType& player) noexcept
+	bool board::parsePiece_Implementation(const std::string& text, pieceType& piece, playerType& player, size_t& count) noexcept
 	{
 		if (text.length() > 0)
 		{
@@ -258,62 +258,62 @@ namespace pygmalion::chess
 			case 'p':
 				piece = pawn;
 				player = 1;
-				text = text.substr(1, text.length() - 1);
+				count++;
 				return true;
 			case 'P':
 				piece = pawn;
 				player = 0;
-				text = text.substr(1, text.length() - 1);
+				count++;
 				return true;
 			case 'r':
 				piece = rook;
 				player = 1;
-				text = text.substr(1, text.length() - 1);
+				count++;
 				return true;
 			case 'R':
 				piece = rook;
 				player = 0;
-				text = text.substr(1, text.length() - 1);
+				count++;
 				return true;
 			case 'q':
 				piece = queen;
 				player = 1;
-				text = text.substr(1, text.length() - 1);
+				count++;
 				return true;
 			case 'Q':
 				piece = queen;
 				player = 0;
-				text = text.substr(1, text.length() - 1);
+				count++;
 				return true;
 			case 'b':
 				piece = bishop;
 				player = 1;
-				text = text.substr(1, text.length() - 1);
+				count++;
 				return true;
 			case 'B':
 				piece = bishop;
 				player = 0;
-				text = text.substr(1, text.length() - 1);
+				count++;
 				return true;
 			case 'k':
 				piece = king;
 				player = 1;
-				text = text.substr(1, text.length() - 1);
+				count++;
 				return true;
 			case 'K':
 				piece = king;
 				player = 0;
-				text = text.substr(1, text.length() - 1);
+				count++;
 				return true;
 			case 'n':
 				piece = knight;
 				player = 1;
-				text = text.substr(1, text.length() - 1);
+				count++;
 				return true;
 			case 'N':
 				piece = knight;
 				player = 0;
-				text = text.substr(1, text.length() - 1);
+				count++;
 				return true;
 			default:
 				return false;

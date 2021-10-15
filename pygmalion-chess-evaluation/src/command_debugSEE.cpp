@@ -12,7 +12,8 @@ namespace pygmalion::chess::evaluation
 			parser::parseTokenCaseSensitive(remainder, token, remainder2);
 			this->output() << std::endl;
 			movebitsType movebits;
-			if (motorType::parseMove(this->position(), token, movebits))
+			size_t count{ 0 };
+			if (motorType::parseMove(this->position(), token, movebits, count))
 				this->template process<0>(token, movebits);
 			else
 				this->output() << token << " is not a possible move." << std::endl;

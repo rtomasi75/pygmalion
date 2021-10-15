@@ -69,23 +69,27 @@ namespace pygmalion::mechanics
 			constexpr const typename clearflagsmove::movebitsType bits{ clearflagsmove::movebitsType::zero() };
 			return bits;
 		}
-		bool parse_Implementation(const boardType& position, std::string& text, typename clearflagsmove::movebitsType& moveBits) const noexcept
+		bool parse_Implementation(const boardType& position, const std::string& text, typename clearflagsmove::movebitsType& moveBits, size_t& count) const noexcept
 		{
 			std::string temp{ text };
+			size_t cnt{ 0 };
 			if ((temp.length() > 0) && (temp[0] == '.'))
 			{
-				temp = temp.substr(1, temp.length() - 1);
+				cnt++;
+				std::string temp2{ temp.substr(cnt, temp.length() - cnt) };
 				flagType f1;
-				if (boardType::parseFlag(temp, f1) && (f1 == firstFlag))
+				if (boardType::parseFlag(temp2, f1, cnt) && (f1 == firstFlag))
 				{
-					if ((temp.length() > 0) && (temp[0] == ':'))
+					std::string temp3{ temp.substr(cnt, temp.length() - cnt) };
+					if ((temp3.length() > 0) && (temp3[0] == ':'))
 					{
-						temp = temp.substr(1, temp.length() - 1);
+						cnt++;
+						std::string temp4{ temp.substr(cnt, temp.length() - cnt) };
 						flagType f2;
-						if (boardType::parseFlag(temp, f2) && (f2 == lastFlag))
+						if (boardType::parseFlag(temp4, f2,cnt) && (f2 == lastFlag))
 						{
 							moveBits = create();
-							text = temp;
+							count += cnt;
 							return true;
 						}
 					}

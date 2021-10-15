@@ -26,9 +26,9 @@ namespace pygmalion
 			m_Move.undoMove(position, data);
 		}
 
-		PYGMALION_INLINE static bool parseMove(const boardType& position, std::string& text, movebitsType& movebits) noexcept
+		PYGMALION_INLINE static bool parseMove(const boardType& position, const std::string& text, movebitsType& movebits, size_t& count) noexcept
 		{
-			return m_Move.parse(position, text, movebits);
+			return m_Move.parse(position, text, movebits, count);
 		}
 
 		PYGMALION_INLINE static std::string moveToString(const boardType& position, const movebitsType movebits) noexcept

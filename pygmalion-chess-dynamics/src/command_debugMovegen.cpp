@@ -13,12 +13,14 @@ namespace pygmalion::chess::dynamics
 			pieceType pc;
 			playerType p;
 			this->output() << std::endl;
-			if (boardType::parsePiece(token, pc, p))
+			size_t count{ 0 };
+			if (boardType::parsePiece(token, pc, p, count))
 			{
 				squareType sq;
 				std::string remainder3;
 				parser::parseTokenCaseSensitive(remainder2, token, remainder3);
-				if (boardType::parseSquare(token, sq))
+				count = 0;
+				if (boardType::parseSquare(token, sq, count))
 				{
 					switch (pc)
 					{

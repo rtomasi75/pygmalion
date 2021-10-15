@@ -112,23 +112,26 @@ namespace pygmalion::mechanics
 			dropmove::encodeOwner(bits, owner);
 			return bits;
 		}
-		bool parse_Implementation(const boardType& position, std::string& text, typename dropmove::movebitsType& moveBits) const noexcept
+		bool parse_Implementation(const boardType& position, const std::string& text, typename dropmove::movebitsType& moveBits, size_t& count) const noexcept
 		{
 			std::string temp{ text };
 			squareType sq;
 			pieceType pc;
 			playerType p;
-			if (boardType::parsePiece(temp, pc, p))
+			size_t cnt{ 0 };
+			if (boardType::parsePiece(temp, pc, p, cnt))
 			{
-				if ((temp.length() > 0) && (temp[0] == '@'))
+				std::string temp2{ temp.substr(cnt,temp.length() - cnt) };
+				if ((temp2.length() > 0) && (temp2[0] == '@'))
 				{
-					temp = temp.substr(1, temp.length() - 1);
-					if (boardType::parseSquare(temp, sq))
+					cnt++;
+					std::string temp3{ temp.substr(cnt,temp.length() - cnt) };
+					if (boardType::parseSquare(temp, sq, cnt))
 					{
 						if (!position.totalOccupancy()[sq])
 						{
 							moveBits = create(pc, sq, p);
-							text = temp;
+							count += cnt;
 							return true;
 						}
 					}

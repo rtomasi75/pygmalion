@@ -25,6 +25,7 @@ namespace pygmalion
 		bool m_AnalyzeMode;
 		bool m_HasHint;
 		movebitsType m_HintMove;
+		std::string m_HintMoveString;
 		std::string m_OpponentName;
 	public:
 		static std::string gamestateToString(const boardType& position, const gamestateType& gs) noexcept
@@ -107,13 +108,27 @@ namespace pygmalion
 		{
 			return m_IsDebug;
 		}
-		bool& hasHint() noexcept
+		bool hasHint() const noexcept
 		{
 			return m_HasHint;
 		}
-		movebitsType& hintMove() noexcept
+		void clearHintMove()
+		{
+			m_HasHint = false;
+		}
+		void setHintMove(const movebitsType hint, const std::string& hintString) noexcept
+		{
+			m_HasHint = true;
+			m_HintMove = hint;
+			m_HintMoveString = hintString;
+		}
+		const movebitsType& hintMove() const noexcept
 		{
 			return m_HintMove;
+		}
+		const std::string& hintMoveString() const noexcept
+		{
+			return m_HintMoveString;
 		}
 		bool isXBoard() const noexcept
 		{

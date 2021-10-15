@@ -20,7 +20,8 @@ namespace pygmalion::mechanics
 				std::string remainder2;
 				parser::parseTokenCaseSensitive(remainder, token, remainder2);
 				movebitsType movebits;
-				if (motorType::parseMove(this->position(), token, movebits))
+				size_t count{ 0 };
+				if (motorType::parseMove(this->position(), token, movebits, count))
 				{
 					this->output() << "performed move " << motorType::moveToString(this->position(), movebits) << std::endl;
 					this->mechanicsEngine().makeMove(movebits);

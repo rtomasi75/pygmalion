@@ -20,7 +20,8 @@ namespace pygmalion::state
 				std::string remainder2;
 				fileType file;
 				parser::parseTokenCaseSensitive(remainder, token, remainder2);
-				if (boardType::parseFile(token, file))
+				size_t count{ 0 };
+				if (boardType::parseFile(token, file, count))
 				{
 					this->output() << "file " << boardType::fileToString(file) << std::endl;
 					this->dumpSquares(static_cast<squaresType>(file));

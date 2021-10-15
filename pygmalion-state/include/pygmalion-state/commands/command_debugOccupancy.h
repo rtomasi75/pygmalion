@@ -24,7 +24,8 @@ namespace pygmalion::state
 					std::string remainder3;
 					parser::parseTokenCaseSensitive(remainder2, token, remainder3);
 					playerType p;
-					if (boardType::parsePlayer(token, p))
+					size_t count{ 0 };
+					if (boardType::parsePlayer(token, p, count))
 					{
 
 						this->output() << "occupancy bitboard for player " << boardType::playerToString(p) << ":" << std::endl;
@@ -39,7 +40,8 @@ namespace pygmalion::state
 					parser::parseTokenCaseSensitive(remainder2, token, remainder3);
 					pieceType pc;
 					playerType p;
-					if (boardType::parsePiece(token, pc, p))
+					size_t count{ 0 };
+					if (boardType::parsePiece(token, pc, p, count))
 					{
 
 						this->output() << "occupancy bitboard for piece " << boardType::pieceToString(pc, p) << ":" << std::endl;

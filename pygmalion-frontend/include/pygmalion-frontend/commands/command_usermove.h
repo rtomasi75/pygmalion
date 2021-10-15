@@ -21,7 +21,7 @@ namespace pygmalion::frontend
 				if (player == this->position().movingPlayer())
 				{
 					bool analyzeMode{ this->front().analyzeMode() };
-					this->front().hasHint() = false;
+					this->front().clearHintMove();
 					if (analyzeMode)
 						this->frontendEngine().stopAnalysis();
 					else
@@ -75,9 +75,10 @@ namespace pygmalion::frontend
 			std::string token;
 			std::string remainder;
 			parser::parseToken(cmd, token, remainder);
+			size_t count{ 0 };
 			if (token == "usermove")
 			{
-				if (motorType::parseMove(this->position(), remainder, movebits) && this->front().isXBoard())
+				if (motorType::parseMove(this->position(), remainder, movebits, count) && this->front().isXBoard())
 				{
 					this->template process<0>(movebits);
 					return true;
@@ -90,7 +91,7 @@ namespace pygmalion::frontend
 			}
 			else
 			{
-				if (motorType::parseMove(this->position(), token, movebits) && this->front().isXBoard())
+				if (motorType::parseMove(this->position(), token, movebits, count) && this->front().isXBoard())
 				{
 					this->template process<0>(movebits);
 					return true;

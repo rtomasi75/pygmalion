@@ -83,18 +83,16 @@ namespace pygmalion::tictactoe
 			move::encodeSquare(bits, square);
 			return bits;
 		}
-		bool parse_Implementation(const boardType& position, std::string& text, typename move::movebitsType& moveBits) const noexcept
+		bool parse_Implementation(const boardType& position, const std::string& text, typename move::movebitsType& moveBits, size_t& count) const noexcept
 		{
-			std::string temp{ text };
 			squareType sq;
 			pieceType pc;
 			playerType p;
-			if (boardType::parseSquare(temp, sq))
+			if (boardType::parseSquare(text, sq, count))
 			{
 				if (!position.totalOccupancy()[sq])
 				{
 					moveBits = create(sq);
-					text = temp;
 					return true;
 				}
 			}

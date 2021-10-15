@@ -403,15 +403,15 @@ namespace pygmalion::chess
 		}
 		// Implementation
 		static std::string flagToString_Implementation(const flagType flag) noexcept;
-		static bool parseFlag_Implementation(std::string& text, flagType& flag) noexcept;
+		static bool parseFlag_Implementation(const std::string& text, flagType& flag, size_t& count) noexcept;
 		static std::string rankToString_Implementation(const rankType rank) noexcept;
-		static bool parseRank_Implementation(std::string& text, rankType& rank) noexcept;
+		static bool parseRank_Implementation(const std::string& text, rankType& rank, size_t& count) noexcept;
 		static std::string fileToString_Implementation(const fileType file) noexcept;
-		static bool parseFile_Implementation(std::string& text, fileType& file) noexcept;
+		static bool parseFile_Implementation(const std::string& text, fileType& file, size_t& count) noexcept;
 		static std::string playerToString_Implementation(const playerType player) noexcept;
-		static bool parsePlayer_Implementation(std::string& text, playerType& player) noexcept;
+		static bool parsePlayer_Implementation(const std::string& text, playerType& player, size_t& count) noexcept;
 		static std::string pieceToString_Implementation(const pieceType piece, const playerType player) noexcept;
-		static bool parsePiece_Implementation(std::string& text, pieceType& piece, playerType& player) noexcept;
+		static bool parsePiece_Implementation(const std::string& text, pieceType& piece, playerType& player, size_t& count) noexcept;
 		PYGMALION_INLINE void onClear_Implementation() noexcept
 		{
 			cumulation().clear();

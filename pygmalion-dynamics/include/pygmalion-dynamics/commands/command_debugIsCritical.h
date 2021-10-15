@@ -45,7 +45,8 @@ namespace pygmalion::dynamics
 				std::string remainder2;
 				parser::parseTokenCaseSensitive(remainder, token, remainder2);
 				movebitsType movebits;
-				if (motorType::parseMove(this->position(), token, movebits))
+				size_t count{ 0 };
+				if (motorType::parseMove(this->position(), token, movebits, count))
 				{
 					this->template process<0>(movebits);
 				}

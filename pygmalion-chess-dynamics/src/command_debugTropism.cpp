@@ -12,16 +12,19 @@ namespace pygmalion::chess::dynamics
 			parser::parseTokenCaseSensitive(remainder, token, remainder2);
 			playerType pl;
 			this->output() << std::endl;
-			if (boardType::parsePlayer(token, pl))
+			size_t count{ 0 };
+			if (boardType::parsePlayer(token, pl, count))
 			{
 				parser::parseTokenCaseSensitive(remainder2, token, remainder);
 				squareType sq;
-				if (boardType::parseSquare(token, sq))
+				count = 0;
+				if (boardType::parseSquare(token, sq, count))
 				{
 					parser::parseTokenCaseSensitive(remainder, token, remainder2);
 					pieceType pc;
 					playerType dummy;
-					if (boardType::parsePiece(token, pc, dummy))
+					count = 0;
+					if (boardType::parsePiece(token, pc, dummy, count))
 						this->template process<0>(pl, sq, pc);
 					else
 						this->output() << "invalid piece: " << token << std::endl;

@@ -11,7 +11,8 @@ namespace pygmalion::chess::dynamics
 			std::string remainder2;
 			parser::parseTokenCaseSensitive(remainder, token, remainder2);
 			playerType p;
-			if (boardType::parsePlayer(token, p))
+			size_t count{ 0 };
+			if (boardType::parsePlayer(token, p, count))
 			{
 				this->output() << std::endl;
 				this->template process<0>(p);

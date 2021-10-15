@@ -31,9 +31,9 @@ namespace pygmalion::mechanics
 		{
 			static_cast<const instanceType*>(this)->undoMove_Implementation(position, data);
 		}
-		bool parse(const boardType& position, std::string& text, movebitsType& moveBits) const noexcept
+		bool parse(const boardType& position, const std::string& text, movebitsType& moveBits, size_t& count) const noexcept
 		{
-			return static_cast<const instanceType*>(this)->parse_Implementation(position, text, moveBits);
+			return static_cast<const instanceType*>(this)->parse_Implementation(position, text, moveBits, count);
 		}
 		std::string toString(const boardType& position, const movebitsType moveBits) const noexcept
 		{

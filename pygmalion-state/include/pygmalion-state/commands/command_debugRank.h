@@ -20,7 +20,8 @@ namespace pygmalion::state
 				std::string remainder2;
 				rankType rank;
 				parser::parseTokenCaseSensitive(remainder, token, remainder2);
-				if (boardType::parseRank(token, rank))
+				size_t count{ 0 };
+				if (boardType::parseRank(token, rank, count))
 				{
 					this->output() << "rank " << boardType::rankToString(rank) << std::endl;
 					this->dumpSquares(static_cast<squaresType>(rank));

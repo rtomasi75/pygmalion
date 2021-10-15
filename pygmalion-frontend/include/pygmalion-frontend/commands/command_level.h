@@ -28,8 +28,9 @@ namespace pygmalion::frontend
 					{
 						int movecount = parser::parseInt(mps);
 						int incrementseconds = parser::parseInt(increment);
-						std::chrono::seconds baseseconds = parser::parseDuration(basetime);
-						this->frontendEngine().currentGame().setTimeControl(movecount, baseseconds, std::chrono::seconds(incrementseconds));
+						std::chrono::milliseconds baseseconds = parser::parseDuration(basetime) * 1000;
+						std::array<durationType, countPlayers> incrementOfPlayers{ arrayhelper::make <countPlayers, durationType>(std::chrono::milliseconds(incrementseconds * 1000)) };
+						this->frontendEngine().currentGame().setTimeControl(movecount, baseseconds, incrementOfPlayers);
 						for (const auto pl : playerType::range)
 						{
 							this->searchEngine().currentGame().playerClock(pl).set(this->frontendEngine().currentGame().baseTime());

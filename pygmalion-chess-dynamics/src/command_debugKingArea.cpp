@@ -12,7 +12,8 @@ namespace pygmalion::chess::dynamics
 			parser::parseToken(remainder, token, remainder2);
 			squareType sq;
 			this->output() << std::endl;
-			if (boardType::parseSquare(token, sq))
+			size_t count{ 0 };
+			if (boardType::parseSquare(token, sq, count))
 			{
 				this->output() << "king area for " << boardType::squareToString(sq) << ": " << token << std::endl;
 				this->dumpSquares(generatorType::kingArea(sq));

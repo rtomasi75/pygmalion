@@ -52,13 +52,13 @@ namespace pygmalion::mechanics
 			constexpr const typename nullmove::movebitsType bits{ nullmove::movebitsType::zero() };
 			return bits;
 		}
-		bool parse_Implementation(const boardType& position, std::string& text, typename nullmove::movebitsType& moveBits) const noexcept
+		bool parse_Implementation(const boardType& position, const std::string& text, typename nullmove::movebitsType& moveBits, size_t& count) const noexcept
 		{
 			if (text.length() >= 4)
 			{
 				if (parser::toLower(text.substr(0, 4)) == "null")
 				{
-					text = text.substr(4, text.length() - 4);
+					count += 4;
 					moveBits = create();
 					return true;
 				}

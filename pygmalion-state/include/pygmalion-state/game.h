@@ -13,28 +13,30 @@ namespace pygmalion
 		std::array<clock, countPlayers> m_Clock;
 		std::array<int, countPlayers> m_LastTimeControl;
 		durationType m_BaseTime;
-		durationType m_IncrementTime;
+		std::array <durationType, countPlayers> m_IncrementTime;
 		int m_MovesPerTimeControl;
 	public:
 		constexpr durationType baseTime() const noexcept
 		{
 			return m_BaseTime;
 		}
-		constexpr durationType incrementTime() const noexcept
+		constexpr durationType incrementTime(const playerType player) const noexcept
 		{
-			return m_IncrementTime;
+			return m_IncrementTime[player];
 		}
 		constexpr int movesPerTimeControl() const noexcept
 		{
 			return m_MovesPerTimeControl;
 		}
-		constexpr void setTimeControl(const int movesPerTimeControl, const durationType baseTime, const durationType incrementTime) noexcept
+		constexpr void setTimeControl(const int movesPerTimeControl, const durationType baseTime, const std::array<durationType,countPlayers>& incrementTime) noexcept
 		{
 			m_MovesPerTimeControl = movesPerTimeControl;
 			m_BaseTime = baseTime;
-			m_IncrementTime = incrementTime;
 			for (const auto pl : playerType::range)
+			{
+				m_IncrementTime[pl] = incrementTime[pl];
 				m_LastTimeControl[pl] = 0;
+			}
 		}
 		constexpr int lastTimeControl(const playerType pl) const noexcept
 		{
@@ -58,7 +60,7 @@ namespace pygmalion
 			m_LastTimeControl{ arrayhelper::make<countPlayers,int>(0) },
 			m_Board{ boardType() },
 			m_MovesPerTimeControl{ 0 },
-			m_IncrementTime{ 0 },
+			m_IncrementTime{ arrayhelper::make<countPlayers,durationType>(durationType(0)) },
 			m_BaseTime{ 0 }
 		{
 		}

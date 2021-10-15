@@ -84,11 +84,12 @@ namespace pygmalion::chess
 			typename nullmove::movebitsType bits{ nullmove::movebitsType::zero() };
 			return bits;
 		}
-		PYGMALION_INLINE bool parse_Implementation(const boardType& position, const std::string& text, typename nullmove::movebitsType& moveBits) const noexcept
+		PYGMALION_INLINE bool parse_Implementation(const boardType& position, const std::string& text, typename nullmove::movebitsType& moveBits, size_t& count) const noexcept
 		{
 			if (text == "@@@@")
 			{
 				moveBits = create();
+				count += 4;
 				return true;
 			}
 			return false;

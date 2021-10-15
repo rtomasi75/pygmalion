@@ -131,19 +131,21 @@ namespace pygmalion::chess
 			constexpr const typename kingsidecastlemove::movebitsType bits{ kingsidecastlemove::movebitsType::zero() };
 			return bits;
 		}
-		PYGMALION_INLINE bool parse_Implementation(const boardType& position, std::string& text, typename kingsidecastlemove::movebitsType& moveBits) const noexcept
+		PYGMALION_INLINE bool parse_Implementation(const boardType& position, const std::string& text, typename kingsidecastlemove::movebitsType& moveBits, size_t& count) const noexcept
 		{
 			std::string temp{ text };
 			playerType movingPlayer{ position.movingPlayer() };
 			squareType from;
 			squareType to;
+			size_t cnt{ 0 };
 			if (movingPlayer == whitePlayer)
 			{
-				if (boardType::parseSquare(temp, from))
+				if (boardType::parseSquare(temp, from,cnt))
 				{
+					std::string temp2{ temp.substr(cnt,temp.length() - cnt) };
 					if ((position.playerOccupancy(movingPlayer) & position.pieceOccupancy(descriptorState::king))[from] && (from == squareE1))
 					{
-						if (boardType::parseSquare(temp, to))
+						if (boardType::parseSquare(temp2, to, cnt))
 						{
 							if (!position.totalOccupancy()[to])
 							{
@@ -152,7 +154,7 @@ namespace pygmalion::chess
 									if (!position.totalOccupancy()[squareF1])
 									{
 										moveBits = create();
-										text = temp;
+										count += cnt;
 										return true;
 									}
 								}
@@ -163,11 +165,12 @@ namespace pygmalion::chess
 			}
 			else
 			{
-				if (boardType::parseSquare(temp, from))
+				if (boardType::parseSquare(temp, from, cnt))
 				{
+					std::string temp2{ temp.substr(cnt,temp.length() - cnt) };
 					if ((position.playerOccupancy(movingPlayer) & position.pieceOccupancy(descriptorState::king))[from] && (from == squareE8))
 					{
-						if (boardType::parseSquare(temp, to))
+						if (boardType::parseSquare(temp2, to, cnt))
 						{
 							if (!position.totalOccupancy()[to])
 							{
@@ -176,7 +179,7 @@ namespace pygmalion::chess
 									if (!position.totalOccupancy()[squareF8])
 									{
 										moveBits = create();
-										text = temp;
+										count += cnt;
 										return true;
 									}
 								}

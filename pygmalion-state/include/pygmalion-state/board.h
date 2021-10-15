@@ -149,57 +149,59 @@ namespace pygmalion
 		{
 			return boardType::fileToString_Implementation(file);
 		}
-		static bool parseFile(std::string& text, fileType& file) noexcept
+		static bool parseFile(const std::string& text, fileType& file, size_t& count) noexcept
 		{
-			return boardType::parseFile_Implementation(text, file);
+			return boardType::parseFile_Implementation(text, file, count);
 		}
 		static std::string flagToString(const flagType flag) noexcept
 		{
 			return boardType::flagToString_Implementation(flag);
 		}
-		static bool parseFlag(std::string& text, flagType& flag) noexcept
+		static bool parseFlag(const std::string& text, flagType& flag, size_t& count) noexcept
 		{
-			return boardType::parseFlag_Implementation(text, flag);
+			return boardType::parseFlag_Implementation(text, flag, count);
 		}
 		static std::string rankToString(const rankType rank) noexcept
 		{
 			return boardType::rankToString_Implementation(rank);
 		}
-		static bool parseRank(std::string& text, rankType& rank) noexcept
+		static bool parseRank(const std::string& text, rankType& rank, size_t& count) noexcept
 		{
-			return boardType::parseRank_Implementation(text, rank);
+			return boardType::parseRank_Implementation(text, rank, count);
 		}
 		static std::string playerToString(const playerType player) noexcept
 		{
 			return boardType::playerToString_Implementation(player);
 		}
-		static bool parsePlayer(std::string& text, playerType& player) noexcept
+		static bool parsePlayer(const std::string& text, playerType& player, size_t& count) noexcept
 		{
-			return boardType::parsePlayer_Implementation(text, player);
+			return boardType::parsePlayer_Implementation(text, player, count);
 		}
 		static std::string pieceToString(const pieceType piece, const playerType player) noexcept
 		{
 			return boardType::pieceToString_Implementation(piece, player);
 		}
-		static bool parsePiece(std::string& text, pieceType& piece, playerType& player) noexcept
+		static bool parsePiece(const std::string& text, pieceType& piece, playerType& player, size_t& count) noexcept
 		{
-			return boardType::parsePiece_Implementation(text, piece, player);
+			return boardType::parsePiece_Implementation(text, piece, player, count);
 		}
 		static std::string squareToString(const squareType square) noexcept
 		{
 			return fileToString(square.file()) + rankToString(square.rank());
 		}
-		static bool parseSquare(std::string& text, squareType& square) noexcept
+		static bool parseSquare(const std::string& text, squareType& square, size_t& count) noexcept
 		{
 			fileType f;
 			std::string temp{ text };
-			if (parseFile(temp, f))
+			size_t cnt{ 0 };
+			if (parseFile(temp, f, cnt))
 			{
+				temp = temp.substr(cnt, temp.length() - cnt);
 				rankType r;
-				if (parseRank(temp, r))
+				if (parseRank(temp, r, cnt))
 				{
+					count += cnt;
 					square = f & r;
-					text = temp;
 					return true;
 				}
 			}

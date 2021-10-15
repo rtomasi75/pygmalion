@@ -72,7 +72,8 @@ namespace pygmalion::frontend
 						parser::parseTokenCaseSensitive(remainder2, token, remainder);
 						remainder2 = remainder;
 						movebitsType movebits;
-						if (motorType::parseMove(this->position(), token, movebits))
+						size_t count{ 0 };
+						if (motorType::parseMove(this->position(), token, movebits, count))
 						{
 							this->mechanicsEngine().makeMove(movebits);
 						}

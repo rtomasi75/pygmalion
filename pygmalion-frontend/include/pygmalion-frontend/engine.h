@@ -71,6 +71,8 @@ namespace pygmalion::frontend
 		void moveThreadFunc(const durationType allocatedTime)
 		{
 			typename descriptorFrontend::template stackType<PLAYER> stack{ typename descriptorFrontend::template stackType<PLAYER>(this->position(), this->history(), this->rootContext()) };
+			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
+			constexpr const playerType nextPlayer{ movingPlayer.next() };
 			m_CurrentDepth = 0;
 			variationType finalVariation{ variationType() };
 			durationType timeRemaining{ this->currentGame().playerClock(this->position().movingPlayer()).timeRemaining() };
@@ -81,8 +83,8 @@ namespace pygmalion::frontend
 			{
 				if ((finalVariation.length() > 0) && this->front().analyzeMode())
 				{
-					this->front().hintMove() = finalVariation[0];
-					this->front().hasHint() = true;
+					const std::string hintMoveString{ motorType::moveToString(this->currentGame().position(), finalVariation[0]) };
+					this->front().setHintMove(finalVariation[0], hintMoveString);
 				}
 				++m_CurrentDepth;
 				if (!(this->front().analyzeMode()))
@@ -118,19 +120,20 @@ namespace pygmalion::frontend
 				{
 					const std::string moveString{ motorType::moveToString(this->currentGame().position(), finalVariation[0]) };
 					this->doMove(finalVariation[0]);
+					typename descriptorFrontend::template stackType<static_cast<size_t>(nextPlayer)> subStack{ typename descriptorFrontend::template stackType<static_cast<size_t>(nextPlayer)>(this->position(), this->history(), this->rootContext()) };
 					if (finalVariation.length() > 1)
 					{
-						this->front().hintMove() = finalVariation[1];
-						this->front().hasHint() = true;
+						const std::string hintMoveString{ motorType::moveToString(this->currentGame().position(), finalVariation[1]) };
+						this->front().setHintMove(finalVariation[1], hintMoveString);
 					}
 					else
 					{
-						this->front().hasHint() = false;
+						this->front().clearHintMove();
 					}
 					this->currentGame().playerClock(this->currentGame().position().movingPlayer()).start();
 					this->outputStream() << "move " << moveString << std::endl;
 					bool allowStoreTT;
-					const gamestateType result{ evaluatorType::template earlyResult<PLAYER,false>(stack, allowStoreTT) };
+					const gamestateType result{ evaluatorType::template earlyResult<static_cast<size_t>(nextPlayer),false>(subStack, allowStoreTT) };
 					if (!gamestateType::isOpen(result))
 					{
 						this->outputStream() << "result " << frontType::gamestateToString(this->currentGame().position(), result) << std::endl;
@@ -146,17 +149,17 @@ namespace pygmalion::frontend
 	public:
 		virtual void onPositionChanged() noexcept override
 		{
-			this->front().hasHint() = false;
+			this->front().clearHintMove();
 		}
 		virtual void onMakeMove(const movebitsType movebits) noexcept override
 		{
 			pygmalion::search::engine<typename FRONT::gametreeType>::onMakeMove(movebits);
-			this->front().hasHint() = false;
+			this->front().clearHintMove();
 		}
 		virtual void onUnMakeMove() noexcept override
 		{
 			pygmalion::search::engine<typename FRONT::gametreeType>::onUnMakeMove();
-			this->front().hasHint() = false;
+			this->front().clearHintMove();
 		}
 		depthType currentDepth() const noexcept
 		{
@@ -246,7 +249,7 @@ namespace pygmalion::frontend
 				const durationType timeRemaining{ this->currentGame().playerClock(pl).timeRemaining() / (movesLeft) };
 				const double factor{ std::max(0.0,static_cast<double>(movesLeft - (expectedGameLength() - minimumExpectedGameLength() + 1))) / static_cast<double>(expectedGameLength() - minimumExpectedGameLength()) };
 				const double skew{ factor * timeSkew() + (1.0 - factor) * 1.0 };
-				const durationType allocated{ std::min(durationType(static_cast<long long>(skew * static_cast<double>(timeRemaining.count()))) + this->currentGame().incrementTime(),durationType(static_cast<long long>(0.95 * static_cast<double>(this->currentGame().playerClock(pl).timeRemaining().count())))) };
+				const durationType allocated{ std::min(durationType(static_cast<long long>(skew * static_cast<double>(timeRemaining.count()))) + this->currentGame().incrementTime(this->position().movingPlayer()),durationType(static_cast<long long>(0.95 * static_cast<double>(this->currentGame().playerClock(pl).timeRemaining().count())))) };
 				return allocated;
 			}
 			else
@@ -256,7 +259,7 @@ namespace pygmalion::frontend
 				const durationType timeRemaining{ this->currentGame().playerClock(pl).timeRemaining() / (movesLeft) };
 				const double factor{ std::max(0.0,static_cast<double>(movesLeft - (expectedGameLength() - minimumExpectedGameLength() + 1))) / static_cast<double>(expectedGameLength() - minimumExpectedGameLength()) };
 				const double skew{ factor * timeSkew() + (1.0 - factor) * 1.0 };
-				const durationType allocated{ std::min(durationType(static_cast<long long>(skew * static_cast<double>(timeRemaining.count()))) + this->currentGame().incrementTime(),durationType(static_cast<long long>(0.95 * static_cast<double>(this->currentGame().playerClock(pl).timeRemaining().count())))) };
+				const durationType allocated{ std::min(durationType(static_cast<long long>(skew * static_cast<double>(timeRemaining.count()))) + this->currentGame().incrementTime(this->position().movingPlayer()),durationType(static_cast<long long>(0.95 * static_cast<double>(this->currentGame().playerClock(pl).timeRemaining().count())))) };
 				return allocated;
 			}
 		}
@@ -275,7 +278,7 @@ namespace pygmalion::frontend
 				m_MoveThreadIsRunning = true;
 				m_MoveThreadAborted = false;
 				m_pMoveThread = new std::thread([this, timeAvailable]() {moveThreadFunc<PLAYER>(timeAvailable); });
-				this->front().hasHint() = false;
+				this->front().clearHintMove();
 				if (!this->front().analyzeMode())
 				{
 					std::thread timerThread
@@ -366,7 +369,7 @@ namespace pygmalion::frontend
 		}
 		void doMove(const movebitsType& movebits) noexcept
 		{
-			this->currentGame().playerClock(this->position().movingPlayer()).set(this->currentGame().playerClock(this->position().movingPlayer()).timeRemaining() + std::chrono::duration_cast<durationType>(this->currentGame().incrementTime()));
+			this->currentGame().playerClock(this->position().movingPlayer()).set(this->currentGame().playerClock(this->position().movingPlayer()).timeRemaining() + std::chrono::duration_cast<durationType>(this->currentGame().incrementTime(this->position().movingPlayer())));
 			this->makeMove(movebits);
 		}
 		void undoMove() noexcept
