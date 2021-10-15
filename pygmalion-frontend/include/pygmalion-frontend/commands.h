@@ -26,3 +26,5 @@
 #include "commands/command_undo.h"
 #include "commands/command_usermove.h"
 #include "commands/command_ping.h"
+#include "commands/command_setBoard.h"
+#include "commands/command_position.h"

@@ -7,7 +7,7 @@ namespace pygmalion::chess
 		constexpr static inline double PawnStructure{ 0.25 };
 		constexpr static scoreType computeDelta_Implementation() noexcept
 		{
-			return static_cast<scoreType>(2.0 * PawnStructure);
+			return static_cast<scoreType>(1.5 * PawnStructure);
 		}
 		template<size_t PLAYER>
 		PYGMALION_INLINE static scoreType evaluate_Implementation(const generatorType::template stackType<PLAYER>& stack) noexcept

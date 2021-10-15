@@ -1,7 +1,7 @@
 namespace pygmalion::frontend
 {
 	template<typename DESCRIPTION_FRONTEND, typename FRONT>
-	class command_isready :
+	class command_ucinewgame :
 		public pygmalion::frontend::command<DESCRIPTION_FRONTEND, FRONT>
 	{
 	public:
@@ -11,9 +11,11 @@ namespace pygmalion::frontend
 	protected:
 		virtual bool onProcess(const std::string& cmd) noexcept override
 		{
-			if ((this->front().isUCI()) && (cmd == "isready"))
+			if ((this->front().isUCI()) && (cmd == "ucinewgame"))
 			{
-				this->output() << "readyok" << std::endl;
+				this->mechanicsEngine().history().clear();
+				this->dynamicsEngine().feedback().reset();
+				this->searchEngine().heuristics().clear();
 				return true;
 			}
 			else
@@ -21,7 +23,7 @@ namespace pygmalion::frontend
 		}
 		virtual std::string help() noexcept override
 		{
-			return "ISREADY";
+			return "UCINEWGAME";
 		}
 	};
 

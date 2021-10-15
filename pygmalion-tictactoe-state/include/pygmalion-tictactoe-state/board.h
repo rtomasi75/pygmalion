@@ -163,5 +163,69 @@ namespace pygmalion::tictactoe
 		void onInitialize_Implementation() noexcept
 		{
 		}
+		std::string getPositionString_Implementation() const noexcept
+		{
+			std::stringstream str;
+			for (const auto file : fileType::range)
+			{
+				for (const auto rank : rankType::range)
+				{
+					if (this->totalOccupancy()[file & rank])
+						str << boardType::pieceToString(this->getPiece(file & rank), this->getPlayer(file & rank));
+					else
+						str << ".";
+				}
+			}
+			str << "|";
+			str << boardType::playerToString(this->movingPlayer());
+			return str.str();
+		}
+		bool setPositionString_Implementation(const std::string& fen) noexcept
+		{
+			size_t idx{ 0 };
+			this->clear();
+			if (fen.length() < (countFiles * countRanks + 2))
+				return false;
+			for (const auto file : fileType::range)
+			{
+				for (const auto rank : rankType::range)
+				{
+					std::string str{ fen.substr(idx,1) };
+					if (str != ".")
+					{
+						playerType player;
+						pieceType piece;
+						if (boardType::parsePiece(str, piece, player))
+						{
+							this->addPiece(piece, file & rank, player);
+						}
+						else
+						{
+							this->clear();
+							return false;
+						}
+					}
+					idx++;
+				}
+			}
+			std::string sep{ fen.substr(idx,1) };
+			if (sep != "|")
+			{
+				this->clear();
+				return false;
+			}
+			idx++;
+			playerType mp;
+			if (boardType::parsePlayer(fen.substr(idx, 1), mp))
+			{
+				this->setMovingPlayer(mp);
+				return true;
+			}
+			else
+			{
+				this->clear();
+				return false;
+			}
+		}
 	};
 }

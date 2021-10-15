@@ -457,6 +457,15 @@ namespace pygmalion::chess
 		{
 			return cumulation().pawnHash();
 		}
+		std::string getPositionString_Implementation() const noexcept
+		{
+			return getFen();
+		}
+		bool setPositionString_Implementation(const std::string& fen) noexcept
+		{
+			std::string error;
+			return setFen(fen, error);
+		}
 	};
 
 	std::ostream& operator<<(std::ostream& str, const board& position) noexcept;

@@ -462,6 +462,14 @@ namespace pygmalion
 		board& operator=(board&&) noexcept = default;
 		board& operator=(const board&) noexcept = default;
 		~board() noexcept = default;
+		std::string getPositionString() const noexcept
+		{
+			return static_cast<const boardType*>(this)->getPositionString_Implementation();
+		}
+		bool setPositionString(const std::string& fen) noexcept
+		{
+			return static_cast<boardType*>(this)->setPositionString_Implementation(fen);
+		}
 	};
 
 	template<typename DESCRIPTOR_STATE, typename INSTANCE>

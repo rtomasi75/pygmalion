@@ -217,6 +217,8 @@ namespace pygmalion::frontend
 			this->template addCommand<command_hint<descriptorFrontend, frontType>>();
 			this->template addCommand<command_analyze<descriptorFrontend, frontType>>();
 			this->template addCommand<command_ping<descriptorFrontend, frontType>>();
+			this->template addCommand<command_setBoard<descriptorFrontend, frontType>>();
+			this->template addCommand<command_position<descriptorFrontend, frontType>>();
 		}
 		virtual ~engine() noexcept
 		{
