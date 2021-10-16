@@ -28,3 +28,4 @@
 #include "commands/command_ping.h"
 #include "commands/command_setBoard.h"
 #include "commands/command_position.h"
+#include "commands/command_debugPonderBoard.h"

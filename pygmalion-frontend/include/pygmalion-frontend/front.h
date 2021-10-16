@@ -9,6 +9,9 @@ namespace pygmalion
 		using descriptorFrontend = DESCRIPTION_FRONTEND;
 #include "include_frontend.h"	
 	private:
+		boardType m_PonderBoard;
+		durationType m_TimeAvailable;
+		bool m_IsPondering;
 		std::chrono::seconds m_MaxTime;
 		std::array<std::uint16_t, countPlayers> m_Rating;
 		int m_ProtocolVersion;
@@ -28,6 +31,32 @@ namespace pygmalion
 		std::string m_HintMoveString;
 		std::string m_OpponentName;
 	public:
+		durationType getTimeAvailable() const noexcept
+		{
+			return m_TimeAvailable;
+		}
+		void setTimeAvailable(const durationType timeAvailable) noexcept
+		{
+			m_TimeAvailable = timeAvailable;
+			m_IsPondering = false;
+		}
+		void startPondering(const boardType& ponderBoard) noexcept
+		{
+			m_PonderBoard = ponderBoard;
+			m_IsPondering = true;
+		}
+		boardType& ponderBoard() noexcept
+		{
+			return m_PonderBoard;
+		}
+		void stopPondering()
+		{
+			m_IsPondering = false;
+		}
+		bool isPondering() const noexcept
+		{
+			return m_IsPondering;
+		}
 		static std::string gamestateToString(const boardType& position, const gamestateType& gs) noexcept
 		{
 			return frontType::gamestateToString_Implementation(position, gs);
@@ -206,7 +235,8 @@ namespace pygmalion
 			m_EnginePlayer{ 0 },
 			m_Rating{ arrayhelper::make<countPlayers,std::uint16_t>(0) },
 			m_OpponentName{ std::string("<unknown>") },
-			m_HasHint{ false }
+			m_HasHint{ false },
+			m_IsPondering{ false }
 		{
 
 		}

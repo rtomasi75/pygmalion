@@ -15,6 +15,8 @@ namespace pygmalion::frontend
 		bool m_MoveThreadAborted;
 		std::mutex m_Mutex;
 		std::thread* m_pMoveThread;
+		std::thread* m_pPonderThread;
+		std::thread* m_pAnalyzeThread;
 		std::string scoreToString(const scoreType& score)
 		{
 			std::stringstream str{ std::stringstream() };
@@ -68,7 +70,7 @@ namespace pygmalion::frontend
 			return false;
 		}
 		template<size_t PLAYER>
-		void moveThreadFunc(const durationType allocatedTime)
+		void analyzeThreadFunc(const durationType allocatedTime) noexcept
 		{
 			typename descriptorFrontend::template stackType<PLAYER> stack{ typename descriptorFrontend::template stackType<PLAYER>(this->position(), this->history(), this->rootContext()) };
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
@@ -81,20 +83,49 @@ namespace pygmalion::frontend
 			m_ScoreFromPreviousDepth = evaluatorType::evaluate(scoreType::minimum(), scoreType::maximum(), stack);
 			while (principalVariationSearch(stack, m_CurrentDepth, finalVariation, m_MoveThreadIsRunning))
 			{
-				if ((finalVariation.length() > 0) && this->front().analyzeMode())
+				if (finalVariation.length() > 0)
 				{
 					const std::string hintMoveString{ motorType::moveToString(this->currentGame().position(), finalVariation[0]) };
 					this->front().setHintMove(finalVariation[0], hintMoveString);
 				}
 				++m_CurrentDepth;
-				if (!(this->front().analyzeMode()))
-				{
-					if (this->front().exceedsDepthLimit(m_CurrentDepth))
-						break;
-				}
 				if (m_CurrentDepth >= countSearchPlies)
 					break;
 				const durationType plyTime{ timeRemaining - this->currentGame().playerClock(this->position().movingPlayer()).timeRemaining() };
+				timeRemaining = std::chrono::duration_cast<std::chrono::milliseconds>(this->currentGame().playerClock(this->position().movingPlayer()).timeRemaining());
+				searchTime += plyTime;
+			}
+			this->front().analyzeMode() = false;
+			this->front().ponderMode() = false;
+			std::unique_lock<std::mutex> lock;
+			m_MoveThreadIsRunning = false;
+		}
+		template<size_t PLAYER>
+		void moveThreadFunc(const durationType allocatedTime) noexcept
+		{
+			typename descriptorFrontend::template stackType<PLAYER> stack{ typename descriptorFrontend::template stackType<PLAYER>(this->position(), this->history(), this->rootContext()) };
+			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
+			constexpr const playerType nextPlayer{ movingPlayer.next() };
+			m_CurrentDepth = 0;
+			variationType finalVariation{ variationType() };
+			durationType timeRemaining{ this->currentGame().playerClock(this->position().movingPlayer()).timeRemaining() };
+			durationType searchTime{ durationType(0) };
+			double factor[]{ 0.0,0.0 };
+			m_ScoreFromPreviousDepth = evaluatorType::evaluate(scoreType::minimum(), scoreType::maximum(), stack);
+			timeType start{ chronographType::now() };
+			while (principalVariationSearch(stack, m_CurrentDepth, finalVariation, m_MoveThreadIsRunning))
+			{
+				++m_CurrentDepth;
+				if (this->front().exceedsDepthLimit(m_CurrentDepth))
+				{
+					break;
+				}
+				if (m_CurrentDepth >= countSearchPlies)
+				{
+					break;
+				}
+				const durationType plyTime{ std::chrono::duration_cast<durationType>(chronographType::now() - start) };
+				start = chronographType::now();
 				timeRemaining = std::chrono::duration_cast<std::chrono::milliseconds>(this->currentGame().playerClock(this->position().movingPlayer()).timeRemaining());
 				searchTime += plyTime;
 				if (m_CurrentDepth > countPlayers)
@@ -104,16 +135,15 @@ namespace pygmalion::frontend
 					{
 						const durationType projectedTime{ durationType(static_cast<long>(searchTime.count() * factor[(m_CurrentDepth + countPlayers - 1) % countPlayers])) };
 						const durationType neededTime{ projectedTime - searchTime };
-						if (!(this->front().analyzeMode()))
+						if (neededTime > (allocatedTime - searchTime))
 						{
-							if (neededTime > (allocatedTime - searchTime))
-								break;
+							break;
 						}
 					}
 				}
 			}
-			if (!(this->front().analyzeMode()))
-				this->currentGame().playerClock(this->currentGame().position().movingPlayer()).stop();
+			this->currentGame().playerClock(this->currentGame().position().movingPlayer()).stop();
+			std::unique_lock<std::mutex> lock;
 			if (!m_MoveThreadAborted)
 			{
 				if ((finalVariation.length() > 0) && !(this->front().analyzeMode()))
@@ -138,13 +168,143 @@ namespace pygmalion::frontend
 					{
 						this->outputStream() << "result " << frontType::gamestateToString(this->currentGame().position(), result) << std::endl;
 					}
+					else
+					{
+						if (this->front().ponderMode())
+						{
+							if (this->front().hasHint())
+							{
+								std::thread timerThread
+								{
+									std::thread(
+										[this]()
+										{
+											constexpr const playerType movingPlayer2{ static_cast<playerType>(PLAYER) };
+											constexpr const playerType nextPlayer2{ movingPlayer2.next() };
+											this->template ponderMove<static_cast<size_t>(nextPlayer2)>();
+										}
+									)
+								};
+								timerThread.detach();
+							}
+						}
+					}
 					this->outputStream().flush();
 				}
 			}
-			this->front().analyzeMode() = false;
-			this->front().ponderMode() = false;
+		}
+		template<size_t PLAYER>
+		void ponderThreadFunc() noexcept
+		{
+			constexpr const playerType nextPlayer{ static_cast<playerType>(PLAYER) };
+			constexpr const playerType movingPlayer{ nextPlayer.next() };
+			if (this->front().hasHint())
+			{
+				const std::string hintMoveString{ motorType::moveToString(this->currentGame().position(), this->front().hintMove()) };
+				this->front().startPondering(this->position());
+				this->makeMove(this->front().hintMove());
+			}
+			typename descriptorFrontend::template stackType<static_cast<size_t>(movingPlayer)> stack{ typename descriptorFrontend::template stackType<static_cast<size_t>(movingPlayer)>(this->position(), this->history(), this->rootContext()) };
+			m_CurrentDepth = 0;
+			variationType finalVariation{ variationType() };
+			durationType timeRemaining{ this->currentGame().playerClock(this->position().movingPlayer()).timeRemaining() };
+			durationType searchTime{ durationType(0) };
+			double factor[]{ 0.0,0.0 };
+			m_ScoreFromPreviousDepth = evaluatorType::evaluate(scoreType::minimum(), scoreType::maximum(), stack);
+			timeType start{ chronographType::now() };
+			while (principalVariationSearch(stack, m_CurrentDepth, finalVariation, m_MoveThreadIsRunning))
+			{
+				++m_CurrentDepth;
+				if (!(this->front().isPondering()))
+				{
+					if (this->front().exceedsDepthLimit(m_CurrentDepth))
+					{
+						break;
+					}
+				}
+				if (m_CurrentDepth >= countSearchPlies)
+				{
+					break;
+				}
+				const durationType plyTime{ std::chrono::duration_cast<durationType>(chronographType::now() - start) };
+				start = chronographType::now();
+				timeRemaining = std::chrono::duration_cast<std::chrono::milliseconds>(this->currentGame().playerClock(this->position().movingPlayer()).timeRemaining());
+				searchTime += plyTime;
+				if (m_CurrentDepth > countPlayers)
+				{
+					factor[m_CurrentDepth % countPlayers] = static_cast<double>(searchTime.count()) / static_cast<double>((searchTime - plyTime).count());
+					if (!(this->front().isPondering()))
+					{
+						if (m_CurrentDepth > (2 * countPlayers))
+						{
+							const durationType projectedTime{ durationType(static_cast<long>(searchTime.count() * factor[(m_CurrentDepth + countPlayers - 1) % countPlayers])) };
+							const durationType neededTime{ projectedTime - searchTime };
+							if (neededTime > (this->front().getTimeAvailable() - searchTime))
+							{
+								break;
+							}
+						}
+					}
+				}
+			}
 			std::unique_lock<std::mutex> lock;
-			m_MoveThreadIsRunning = false;
+			if (!(this->front().isPondering()))
+			{
+				this->currentGame().playerClock(this->currentGame().position().movingPlayer()).stop();
+				if (!m_MoveThreadAborted)
+				{
+					if ((finalVariation.length() > 0) && !(this->front().analyzeMode()))
+					{
+						const std::string moveString{ motorType::moveToString(this->currentGame().position(), finalVariation[0]) };
+						this->doMove(finalVariation[0]);
+						typename descriptorFrontend::template stackType<static_cast<size_t>(nextPlayer)> subStack{ typename descriptorFrontend::template stackType<static_cast<size_t>(nextPlayer)>(this->position(), this->history(), this->rootContext()) };
+						if (finalVariation.length() > 1)
+						{
+							const std::string hintMoveString{ motorType::moveToString(this->currentGame().position(), finalVariation[1]) };
+							this->front().setHintMove(finalVariation[1], hintMoveString);
+						}
+						else
+						{
+							this->front().clearHintMove();
+						}
+						this->currentGame().playerClock(this->currentGame().position().movingPlayer()).start();
+						this->outputStream() << "move " << moveString << std::endl;
+						bool allowStoreTT;
+						const gamestateType result{ evaluatorType::template earlyResult<static_cast<size_t>(nextPlayer),false>(subStack, allowStoreTT) };
+						if (!gamestateType::isOpen(result))
+						{
+							this->outputStream() << "result " << frontType::gamestateToString(this->currentGame().position(), result) << std::endl;
+						}
+						else
+						{
+							if (this->front().ponderMode())
+							{
+								if (this->front().hasHint())
+								{
+									std::thread timerThread
+									{
+										std::thread(
+											[this]()
+											{
+												constexpr const playerType movingPlayer2{ static_cast<playerType>(PLAYER) };
+												constexpr const playerType nextPlayer2{ movingPlayer2.next() };
+												this->template ponderMove<static_cast<size_t>(nextPlayer2.next())>();
+											}
+										)
+									};
+									timerThread.detach();
+								}
+							}
+						}
+						this->outputStream().flush();
+					}
+				}
+			}
+			else
+			{
+				this->front().stopPondering();
+				this->undoMove();
+			}
 		}
 	public:
 		virtual void onPositionChanged() noexcept override
@@ -189,6 +349,8 @@ namespace pygmalion::frontend
 			m_Front{ frontType() },
 			m_MoveThreadIsRunning{ false },
 			m_Mutex{ std::mutex() },
+			m_pPonderThread{ nullptr },
+			m_pAnalyzeThread{ nullptr },
 			m_pMoveThread{ nullptr },
 			m_MoveThreadAborted{ false }
 		{
@@ -222,6 +384,7 @@ namespace pygmalion::frontend
 			this->template addCommand<command_ping<descriptorFrontend, frontType>>();
 			this->template addCommand<command_setBoard<descriptorFrontend, frontType>>();
 			this->template addCommand<command_position<descriptorFrontend, frontType>>();
+			this->template addCommand<command_debugPonderBoard<descriptorFrontend, frontType>>();
 		}
 		virtual ~engine() noexcept
 		{
@@ -264,6 +427,22 @@ namespace pygmalion::frontend
 			}
 		}
 		template<size_t PLAYER>
+		void analyzeMove() noexcept
+		{
+			std::unique_lock<std::mutex> lock(m_Mutex);
+			if (!m_MoveThreadIsRunning)
+			{
+				const durationType timeLeft{ this->allocateTime(this->currentGame().position().movingPlayer()) };
+				const durationType timeLimit{ this->front().timeLimit() };
+				const durationType timeAvailable{ this->front().isTimeLimited() ? std::min(timeLeft,timeLimit) : timeLeft };
+				const timeType startTime{ chronographType::now() };
+				m_MoveThreadIsRunning = true;
+				m_MoveThreadAborted = false;
+				m_pAnalyzeThread = new std::thread([this, timeAvailable]() {analyzeThreadFunc<PLAYER>(timeAvailable); });
+				this->front().clearHintMove();
+			}
+		}
+		template<size_t PLAYER>
 		void thinkMove() noexcept
 		{
 			std::unique_lock<std::mutex> lock(m_Mutex);
@@ -273,49 +452,95 @@ namespace pygmalion::frontend
 				const durationType timeLimit{ this->front().timeLimit() };
 				const durationType timeAvailable{ this->front().isTimeLimited() ? std::min(timeLeft,timeLimit) : timeLeft };
 				const timeType startTime{ chronographType::now() };
-				if (!(this->front().analyzeMode()))
-					this->currentGame().playerClock(this->currentGame().position().movingPlayer()).start();
+				this->currentGame().playerClock(this->currentGame().position().movingPlayer()).start();
 				m_MoveThreadIsRunning = true;
 				m_MoveThreadAborted = false;
 				m_pMoveThread = new std::thread([this, timeAvailable]() {moveThreadFunc<PLAYER>(timeAvailable); });
 				this->front().clearHintMove();
-				if (!this->front().analyzeMode())
+				std::thread timerThread
 				{
-					std::thread timerThread
-					{
-						std::thread(
-							[this,timeAvailable]()
+					std::thread(
+						[this,timeAvailable]()
+						{
+							const timeType start{ chronographType::now() };
+							bool isElapsed{ false };
+							while (m_MoveThreadIsRunning && !isElapsed)
 							{
-								const timeType start{ chronographType::now() };
-								bool isElapsed{ false };
-								while (m_MoveThreadIsRunning && !isElapsed)
+								const timeType end{ chronographType::now() + std::chrono::duration_cast<durationType>(std::chrono::milliseconds(10)) };
+								std::this_thread::sleep_until(end);
+								std::this_thread::sleep_for(std::chrono::milliseconds(10));
+								const durationType elapsedTime{ std::chrono::duration_cast<durationType>(chronographType::now() - start) };
+								if ((elapsedTime + std::chrono::milliseconds(10)) > timeAvailable)
 								{
-									const timeType end{ chronographType::now() + std::chrono::duration_cast<durationType>(std::chrono::milliseconds(10)) };
-									std::this_thread::sleep_until(end);
-									std::this_thread::sleep_for(std::chrono::milliseconds(10));
-									const durationType elapsedTime{ std::chrono::duration_cast<durationType>(chronographType::now() - start) };
-									if ((elapsedTime + std::chrono::milliseconds(10)) > timeAvailable)
-									{
-										isElapsed = true;
-									}
-								}
-								std::unique_lock<std::mutex> lock(m_Mutex);
-								if (m_MoveThreadIsRunning)
-									forceMove();
-								else
-								{
-									if (m_pMoveThread)
-									{
-										m_pMoveThread->join();
-										delete m_pMoveThread;
-										m_pMoveThread = nullptr;
-									}
+									isElapsed = true;
 								}
 							}
-						)
-					};
-					timerThread.detach();
-				}
+							this->forceMove();
+						}
+					)
+				};
+				timerThread.detach();
+			}
+		}
+		void ponderHit() noexcept
+		{
+			std::unique_lock<std::mutex> lock(m_Mutex);
+			if (m_MoveThreadIsRunning && this->front().isPondering())
+			{
+				m_pMoveThread = m_pPonderThread;
+				m_pPonderThread = nullptr;
+				const durationType timeLeft{ this->allocateTime(this->currentGame().position().movingPlayer()) };
+				const durationType timeLimit{ this->front().timeLimit() };
+				const durationType timeAvailable{ this->front().isTimeLimited() ? std::min(timeLeft,timeLimit) : timeLeft };
+				const timeType startTime{ chronographType::now() };
+				this->front().setTimeAvailable(timeAvailable);
+				this->currentGame().playerClock(this->currentGame().position().movingPlayer()).start();
+				std::thread timerThread
+				{
+					std::thread(
+						[this,timeAvailable]()
+						{
+							const timeType start{ chronographType::now() };
+							bool isElapsed{ false };
+							while (m_MoveThreadIsRunning && !isElapsed)
+							{
+								const timeType end{ chronographType::now() + std::chrono::duration_cast<durationType>(std::chrono::milliseconds(10)) };
+								std::this_thread::sleep_until(end);
+								std::this_thread::sleep_for(std::chrono::milliseconds(10));
+								const durationType elapsedTime{ std::chrono::duration_cast<durationType>(chronographType::now() - start) };
+								if ((elapsedTime + std::chrono::milliseconds(10)) > timeAvailable)
+								{
+									isElapsed = true;
+								}
+							}
+							this->forceMove();
+						}
+					)
+				};
+				timerThread.detach();
+			}
+		}
+		template<size_t PLAYER>
+		void ponderMove() noexcept
+		{
+			std::unique_lock<std::mutex> lock(m_Mutex);
+			if (m_pMoveThread != nullptr)
+			{
+				m_pMoveThread->join();
+				delete m_pMoveThread;
+				m_pMoveThread = nullptr;
+			}
+			if (m_pPonderThread != nullptr)
+			{
+				m_pPonderThread->join();
+				delete m_pPonderThread;
+				m_pPonderThread = nullptr;
+			}
+			if (!m_MoveThreadIsRunning)
+			{
+				m_MoveThreadIsRunning = true;
+				m_MoveThreadAborted = false;
+				m_pPonderThread = new std::thread([this]() {this->template ponderThreadFunc<PLAYER>(); });
 			}
 		}
 		template<size_t PLAYER>
@@ -324,47 +549,83 @@ namespace pygmalion::frontend
 			if (!this->front().analyzeMode())
 			{
 				this->front().analyzeMode() = true;
-				this->template thinkMove<PLAYER>();
+				this->template analyzeMove<PLAYER>();
 			}
 		}
 		void cancelMove() noexcept
 		{
-			std::unique_lock<std::mutex> lock;
+			std::unique_lock<std::mutex> lock(m_Mutex);
 			if (m_MoveThreadIsRunning)
 			{
 				m_MoveThreadAborted = true;
 				m_MoveThreadIsRunning = false;
-				m_pMoveThread->join();
-				delete m_pMoveThread;
-				m_pMoveThread = nullptr;
+				if (m_pMoveThread != nullptr)
+				{
+					m_pMoveThread->join();
+					delete m_pMoveThread;
+					m_pMoveThread = nullptr;
+				}
+				if (m_pPonderThread != nullptr)
+				{
+					m_pPonderThread->join();
+					delete m_pPonderThread;
+					m_pPonderThread = nullptr;
+				}
 			}
 		}
 		void stopAnalysis() noexcept
 		{
-			std::unique_lock<std::mutex> lock;
 			if (this->front().analyzeMode())
 			{
+				std::unique_lock<std::mutex> lock(m_Mutex);
 				if (m_MoveThreadIsRunning)
 				{
 					m_MoveThreadAborted = true;
 					m_MoveThreadIsRunning = false;
-					m_pMoveThread->join();
-					delete m_pMoveThread;
-					m_pMoveThread = nullptr;
+					if (m_pAnalyzeThread != nullptr)
+					{
+						m_pAnalyzeThread->join();
+						delete m_pAnalyzeThread;
+						m_pAnalyzeThread = nullptr;
+					}
 				}
 				this->front().analyzeMode() = false;
 			}
 		}
 		void forceMove() noexcept
 		{
-			std::unique_lock<std::mutex> lock;
+			std::unique_lock<std::mutex> lock(m_Mutex);
 			if (m_MoveThreadIsRunning)
 			{
 				m_MoveThreadAborted = false;
 				m_MoveThreadIsRunning = false;
-				m_pMoveThread->join();
-				delete m_pMoveThread;
-				m_pMoveThread = nullptr;
+				if (m_pPonderThread != nullptr)
+				{
+					m_pPonderThread->join();
+					delete m_pPonderThread;
+					m_pPonderThread = nullptr;
+				}
+				if (m_pMoveThread != nullptr)
+				{
+					m_pMoveThread->join();
+					delete m_pMoveThread;
+					m_pMoveThread = nullptr;
+				}
+			}
+		}
+		void cancelPondering() noexcept
+		{
+			std::unique_lock<std::mutex> lock(m_Mutex);
+			if (m_MoveThreadIsRunning)
+			{
+				m_MoveThreadAborted = true;
+				m_MoveThreadIsRunning = false;
+				if (m_pPonderThread != nullptr)
+				{
+					m_pPonderThread->join();
+					delete m_pPonderThread;
+					m_pPonderThread = nullptr;
+				}
 			}
 		}
 		void doMove(const movebitsType& movebits) noexcept

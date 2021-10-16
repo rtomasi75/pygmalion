@@ -18,52 +18,97 @@ namespace pygmalion::frontend
 			{
 				constexpr const playerType player{ static_cast<playerType>(PLAYER) };
 				constexpr const playerType nextPlayer{ player.next() };
-				if (player == this->position().movingPlayer())
+				constexpr const playerType previousPlayer{ player.previous() };
+				if (!this->front().isPondering())
 				{
-					bool analyzeMode{ this->front().analyzeMode() };
-					this->front().clearHintMove();
-					if (analyzeMode)
-						this->frontendEngine().stopAnalysis();
-					else
-						this->frontendEngine().cancelMove();
-					this->frontendEngine().currentGame().playerClock(this->frontendEngine().currentGame().position().movingPlayer()).stop();
-					typename generatorType::contextType context;
-					stackType<PLAYER> stack{ stackType<PLAYER>(this->position(), this->history(), &context) };
-					if (generatorType::isMoveLegal(stack, movebits))
+					if (player == this->position().movingPlayer())
 					{
-						this->frontendEngine().doMove(movebits);
-						this->output() << std::endl;
-						const typename descriptorFrontend::template stackType<static_cast<size_t>(nextPlayer)> stack{ typename descriptorFrontend::template stackType<static_cast<size_t>(nextPlayer)>(this->position(), this->history(), this->rootContext()) };
-						bool allowStoreTT;
-						const gamestateType result{ evaluatorType::template earlyResult<static_cast<size_t>(nextPlayer), false>(stack, allowStoreTT) };
-						if (!gamestateType::isOpen(result))
+						bool analyzeMode{ this->front().analyzeMode() };
+						this->front().clearHintMove();
+						if (analyzeMode)
+							this->frontendEngine().stopAnalysis();
+						else
+							this->frontendEngine().cancelMove();
+						this->frontendEngine().currentGame().playerClock(this->frontendEngine().currentGame().position().movingPlayer()).stop();
+						typename generatorType::contextType context;
+						stackType<PLAYER> stack{ stackType<PLAYER>(this->position(), this->history(), &context) };
+						if (generatorType::isMoveLegal(stack, movebits))
 						{
-							this->output() << "result " << frontType::gamestateToString(this->frontendEngine().currentGame().position(), result) << std::endl;
-							return;
+							this->frontendEngine().doMove(movebits);
+							this->output() << std::endl;
+							const typename descriptorFrontend::template stackType<static_cast<size_t>(nextPlayer)> stack{ typename descriptorFrontend::template stackType<static_cast<size_t>(nextPlayer)>(this->position(), this->history(), this->rootContext()) };
+							bool allowStoreTT;
+							const gamestateType result{ evaluatorType::template earlyResult<static_cast<size_t>(nextPlayer), false>(stack, allowStoreTT) };
+							if (!gamestateType::isOpen(result))
+							{
+								this->output() << "result " << frontType::gamestateToString(this->frontendEngine().currentGame().position(), result) << std::endl;
+								return;
+							}
+							if (gamestateType::isOpen(this->position().arbitration()) && (!this->front().forceMode()))
+							{
+								if (analyzeMode)
+									this->frontendEngine().template startAnalysis<static_cast<size_t>(nextPlayer)>();
+								else
+									this->frontendEngine().template thinkMove<static_cast<size_t>(nextPlayer)>();
+							}
 						}
-						if (gamestateType::isOpen(this->position().arbitration()) && (!this->front().forceMode()))
+						else
 						{
-							if (analyzeMode)
-								this->frontendEngine().template startAnalysis<static_cast<size_t>(nextPlayer)>();
-							else
-								this->frontendEngine().template thinkMove<static_cast<size_t>(nextPlayer)>();
+							const std::string moveString{ motorType::moveToString(this->position(), movebits) };
+							this->output() << "Illegal move: " << moveString << std::endl;
+							if (gamestateType::isOpen(this->position().arbitration()) && (!this->front().forceMode()))
+							{
+								if (analyzeMode)
+									this->frontendEngine().template startAnalysis<static_cast<size_t>(player)>();
+								else
+									this->frontendEngine().template thinkMove<static_cast<size_t>(player)>();
+							}
 						}
 					}
 					else
-					{
-						const std::string moveString{ motorType::moveToString(this->position(), movebits) };
-						this->output() << "Illegal move: " << moveString << std::endl;
-						if (gamestateType::isOpen(this->position().arbitration()) && (!this->front().forceMode()))
-						{
-							if (analyzeMode)
-								this->frontendEngine().template startAnalysis<static_cast<size_t>(player)>();
-							else
-								this->frontendEngine().template thinkMove<static_cast<size_t>(player)>();
-						}
-					}
+						this->template process<PLAYER + 1>(movebits);
 				}
 				else
-					this->template process<PLAYER + 1>(movebits);
+				{
+					if (player == this->front().ponderBoard().movingPlayer())
+					{
+						if (this->front().hintMove() == movebits)
+						{
+							this->frontendEngine().ponderHit();
+						}
+						else
+						{
+							this->frontendEngine().currentGame().playerClock(this->frontendEngine().currentGame().position().movingPlayer()).stop();
+							typename generatorType::contextType context;
+							stackType<static_cast<size_t>(player)> stack{ stackType<static_cast<size_t>(player)>(this->front().ponderBoard(), this->history(), &context) };
+							if (generatorType::isMoveLegal(stack, movebits))
+							{
+								this->frontendEngine().cancelPondering();
+								this->frontendEngine().doMove(movebits);
+								this->output() << std::endl;
+								const typename descriptorFrontend::template stackType<static_cast<size_t>(nextPlayer)> stack{ typename descriptorFrontend::template stackType<static_cast<size_t>(nextPlayer)>(this->position(), this->history(), this->rootContext()) };
+								bool allowStoreTT;
+								const gamestateType result{ evaluatorType::template earlyResult<static_cast<size_t>(nextPlayer), false>(stack, allowStoreTT) };
+								if (!gamestateType::isOpen(result))
+								{
+									this->output() << "result " << frontType::gamestateToString(this->frontendEngine().currentGame().position(), result) << std::endl;
+									return;
+								}
+								if (gamestateType::isOpen(this->position().arbitration()) && (!this->front().forceMode()))
+								{
+									this->frontendEngine().template thinkMove<static_cast<size_t>(nextPlayer)>();
+								}
+							}
+							else
+							{
+								const std::string moveString{ motorType::moveToString(this->position(), movebits) };
+								this->output() << "Illegal move: " << moveString << std::endl;
+							}
+						}
+					}
+					else
+						this->template process<PLAYER + 1>(movebits);
+				}
 			}
 			else
 				PYGMALION_ASSERT(false);
@@ -78,26 +123,55 @@ namespace pygmalion::frontend
 			size_t count{ 0 };
 			if (token == "usermove")
 			{
-				if (motorType::parseMove(this->position(), remainder, movebits, count) && this->front().isXBoard())
+				if (this->front().isPondering())
 				{
-					this->template process<0>(movebits);
-					return true;
+					if (motorType::parseMove(this->front().ponderBoard(), remainder, movebits, count) && this->front().isXBoard())
+					{
+						this->template process<0>(movebits);
+						return true;
+					}
+					else
+					{
+						this->output() << "Illegal move: " << remainder << std::endl;
+						return true;
+					}
 				}
 				else
 				{
-					this->output() << "Illegal move: " << remainder << std::endl;
-					return true;
+					if (motorType::parseMove(this->position(), remainder, movebits, count) && this->front().isXBoard())
+					{
+						this->template process<0>(movebits);
+						return true;
+					}
+					else
+					{
+						this->output() << "Illegal move: " << remainder << std::endl;
+						return true;
+					}
 				}
 			}
 			else
 			{
-				if (motorType::parseMove(this->position(), token, movebits, count) && this->front().isXBoard())
+				if (this->front().isPondering())
 				{
-					this->template process<0>(movebits);
-					return true;
+					if (motorType::parseMove(this->front().ponderBoard(), token, movebits, count) && this->front().isXBoard())
+					{
+						this->template process<0>(movebits);
+						return true;
+					}
+					else
+						return false;
 				}
 				else
-					return false;
+				{
+					if (motorType::parseMove(this->position(), token, movebits, count) && this->front().isXBoard())
+					{
+						this->template process<0>(movebits);
+						return true;
+					}
+					else
+						return false;
+				}
 			}
 		}
 		virtual void getXBoardFeatures(std::deque<std::string>& optionList) const noexcept override
