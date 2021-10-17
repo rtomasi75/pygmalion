@@ -1,5 +1,6 @@
 namespace pygmalion::frontend
 {
+#if defined(PYGMALION_WB2)
 	template<typename DESCRIPTION_FRONTEND, typename FRONT>
 	class command_undo :
 		public pygmalion::frontend::command<DESCRIPTION_FRONTEND, FRONT>
@@ -49,5 +50,5 @@ namespace pygmalion::frontend
 			return "UNDO";
 		}
 	};
-
+#endif
 }

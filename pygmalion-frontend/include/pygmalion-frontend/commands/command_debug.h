@@ -1,5 +1,6 @@
 namespace pygmalion::frontend
 {
+#if defined(PYGMALION_UCI)
 	template<typename DESCRIPTION_FRONTEND, typename FRONT>
 	class command_debug :
 		public pygmalion::frontend::command<DESCRIPTION_FRONTEND, FRONT>
@@ -36,5 +37,5 @@ namespace pygmalion::frontend
 			return "DEBUG";
 		}
 	};
-
+#endif
 }

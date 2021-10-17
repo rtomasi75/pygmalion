@@ -79,7 +79,7 @@ namespace pygmalion
 	{
 	private:
 	public:
-		constexpr static int maxLength{ MAXLENGTH };
+		constexpr static inline const int maxLength{ MAXLENGTH };
 		using itemType = ITEM;
 		using counterType = typename detail::list_traits<arrayhelper::requiredSignedBytes(maxLength + 1)>::STYPE;
 	private:
@@ -93,7 +93,7 @@ namespace pygmalion
 		PYGMALION_INLINE void replace(const counterType& idx, const itemType& item) noexcept
 		{
 			PYGMALION_ASSERT(idx >= 0);
-			PYGMALION_ASSERT(idx < maxLength);
+			PYGMALION_ASSERT(std::max(m_Length, static_cast<counterType>(idx + 1)) <= maxLength);
 			PYGMALION_ASSERT(idx <= (m_Length + 1));
 			PYGMALION_ASSERT(m_Length < (maxLength - 1));
 			m_Items[idx] = item;
@@ -102,7 +102,7 @@ namespace pygmalion
 		PYGMALION_INLINE void replace(const counterType& idx, itemType&& item) noexcept
 		{
 			PYGMALION_ASSERT(idx >= 0);
-			PYGMALION_ASSERT(idx < maxLength);
+			PYGMALION_ASSERT(std::max(m_Length, static_cast<counterType>(idx + 1)) <= maxLength);
 			PYGMALION_ASSERT(idx <= (m_Length + 1));
 			PYGMALION_ASSERT(m_Length < (maxLength - 1));
 			m_Items[idx] = item;
@@ -110,7 +110,7 @@ namespace pygmalion
 		}
 		void combine(const itemType& item, const list& tail) noexcept
 		{
-			PYGMALION_ASSERT(tail.m_Length < maxLength);
+			PYGMALION_ASSERT((tail.m_Length + 1) <= maxLength);
 			m_Items[0] = item;
 			for (counterType i = 0; i < tail.m_Length; ++i)
 			{
@@ -120,7 +120,7 @@ namespace pygmalion
 		}
 		void combine(const list& head, const list& tail) noexcept
 		{
-			PYGMALION_ASSERT(tail.m_Length + head.m_Length <= maxLength);
+			PYGMALION_ASSERT((tail.m_Length + head.m_Length) <= maxLength);
 			for (counterType i = 0; i < tail.m_Length; ++i)
 			{
 				m_Items[i] = head.m_Items[i];
@@ -142,7 +142,7 @@ namespace pygmalion
 		}
 		void combine(const itemType& item, list&& tail) noexcept
 		{
-			PYGMALION_ASSERT(tail.m_Length < maxLength);
+			PYGMALION_ASSERT((tail.m_Length + 1) <= maxLength);
 			m_Items[0] = item;
 			for (counterType i = 0; i < tail.m_Length; ++i)
 			{

@@ -1,5 +1,6 @@
 namespace pygmalion::chess::frontend
 {
+#if defined(PYGMALION_WB2)
 	template<typename DESCRIPTION_FRONTEND, typename FRONT>
 	class command_rating :
 		public pygmalion::frontend::command<DESCRIPTION_FRONTEND, FRONT>
@@ -34,4 +35,5 @@ namespace pygmalion::chess::frontend
 			return "RATING";
 		}
 	};
+#endif
 }

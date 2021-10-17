@@ -1,5 +1,6 @@
 namespace pygmalion::frontend
 {
+#if defined(PYGMALION_WB2)
 	template<typename DESCRIPTION_FRONTEND, typename FRONT>
 	class command_level :
 		public pygmalion::frontend::command<DESCRIPTION_FRONTEND, FRONT>
@@ -28,12 +29,13 @@ namespace pygmalion::frontend
 					{
 						int movecount = parser::parseInt(mps);
 						int incrementseconds = parser::parseInt(increment);
-						std::chrono::milliseconds baseseconds = parser::parseDuration(basetime) * 1000;
+						std::chrono::seconds baseseconds = parser::parseDuration(basetime);
+						std::array<durationType, countPlayers> basesecondsOfPlayers{ arrayhelper::make <countPlayers, durationType>(std::chrono::duration_cast<durationType>(baseseconds)) };
 						std::array<durationType, countPlayers> incrementOfPlayers{ arrayhelper::make <countPlayers, durationType>(std::chrono::milliseconds(incrementseconds * 1000)) };
-						this->frontendEngine().currentGame().setTimeControl(movecount, baseseconds, incrementOfPlayers);
+						this->frontendEngine().currentGame().setTimeControl(movecount, basesecondsOfPlayers, incrementOfPlayers);
 						for (const auto pl : playerType::range)
 						{
-							this->searchEngine().currentGame().playerClock(pl).set(this->frontendEngine().currentGame().baseTime());
+							this->searchEngine().currentGame().playerClock(pl).set(basesecondsOfPlayers[pl]);
 						}
 					}
 				}
@@ -48,5 +50,5 @@ namespace pygmalion::frontend
 			return "LEVEL";
 		}
 	};
-
+#endif
 }

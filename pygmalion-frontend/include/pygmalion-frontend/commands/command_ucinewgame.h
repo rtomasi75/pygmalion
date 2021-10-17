@@ -1,5 +1,6 @@
 namespace pygmalion::frontend
 {
+#if defined(PYGMALION_UCI)
 	template<typename DESCRIPTION_FRONTEND, typename FRONT>
 	class command_ucinewgame :
 		public pygmalion::frontend::command<DESCRIPTION_FRONTEND, FRONT>
@@ -26,5 +27,5 @@ namespace pygmalion::frontend
 			return "UCINEWGAME";
 		}
 	};
-
+#endif
 }

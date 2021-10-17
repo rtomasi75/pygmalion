@@ -1,5 +1,6 @@
 namespace pygmalion::frontend
 {
+#if defined(PYGMALION_WB2)
 	template<typename DESCRIPTION_FRONTEND, typename FRONT>
 	class command_xboard :
 		public pygmalion::frontend::command<DESCRIPTION_FRONTEND, FRONT>
@@ -14,7 +15,9 @@ namespace pygmalion::frontend
 			if (cmd == "xboard")
 			{
 				this->front().isXBoard() = true;
+#if defined(PYGMALION_UCI)
 				this->front().isUCI() = false;
+#endif
 				this->output() << std::endl;
 				return true;
 			}
@@ -26,5 +29,5 @@ namespace pygmalion::frontend
 			return "XBOARD";
 		}
 	};
-
+#endif
 }

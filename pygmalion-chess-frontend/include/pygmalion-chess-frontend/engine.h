@@ -4,6 +4,13 @@ namespace pygmalion::chess::frontend
 	class engine :
 		public pygmalion::frontend::engine<FRONT>
 	{
+	protected:
+		virtual void writeInvalidCommand(const std::string command) noexcept override
+		{
+#if defined(PYGMALION_WB2)
+			this->outputStream() << "Error (Invalid Command): " << command << std::endl;
+#endif
+		}
 	public:
 		engine() noexcept = delete;
 		engine(const engine&) = delete;
@@ -11,6 +18,7 @@ namespace pygmalion::chess::frontend
 		engine(std::istream& input, std::ostream& output) noexcept :
 			pygmalion::frontend::engine<FRONT>(input, output)
 		{
+#if defined(PYGMALION_WB2)
 			this->template addCommand<command_white<typename pygmalion::frontend::engine<FRONT>::descriptorFrontend, typename pygmalion::frontend::engine<FRONT>::frontType>>();
 			this->template addCommand<command_black<typename pygmalion::frontend::engine<FRONT>::descriptorFrontend, typename pygmalion::frontend::engine<FRONT>::frontType>>();
 			this->template addCommand<command_time<typename pygmalion::frontend::engine<FRONT>::descriptorFrontend, typename pygmalion::frontend::engine<FRONT>::frontType>>();
@@ -19,10 +27,18 @@ namespace pygmalion::chess::frontend
 			this->template addCommand<command_new<typename pygmalion::frontend::engine<FRONT>::descriptorFrontend, typename pygmalion::frontend::engine<FRONT>::frontType>>();
 			this->template addCommand<command_result<typename pygmalion::frontend::engine<FRONT>::descriptorFrontend, typename pygmalion::frontend::engine<FRONT>::frontType>>();
 			this->template addCommand<command_memory<typename pygmalion::frontend::engine<FRONT>::descriptorFrontend, typename pygmalion::frontend::engine<FRONT>::frontType>>();
+#endif
 		}
 		virtual double timeSkew() const noexcept override
 		{
 			return 8.0;
+		}
+		virtual void resizeHashTables(const size_t sizeInBytes) noexcept override
+		{
+			std::int64_t sizeTT = (3 * sizeInBytes) / 4;
+			std::int64_t sizePT = (sizeInBytes) / 4;
+			this->heuristics().transpositionTable().resize(sizeTT);
+			engine::generatorType::pawnTable().resize(sizePT);
 		}
 		virtual int expectedGameLength() const noexcept override
 		{

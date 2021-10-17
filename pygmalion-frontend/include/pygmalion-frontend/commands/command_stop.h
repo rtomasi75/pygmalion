@@ -1,23 +1,29 @@
 namespace pygmalion::frontend
 {
-#if defined(PYGMALION_WB2)
+#if defined(PYGMALION_UCI)
 	template<typename DESCRIPTION_FRONTEND, typename FRONT>
-	class command_accepted :
+	class command_stop :
 		public pygmalion::frontend::command<DESCRIPTION_FRONTEND, FRONT>
 	{
 	public:
 		using frontType = FRONT;
 		using descriptorFrontend = DESCRIPTION_FRONTEND;
 #include "../include_frontend.h"	
+	private:
 	protected:
 		virtual bool onProcess(const std::string& cmd) noexcept override
 		{
-			std::string token;
-			std::string remainder;
-			parser::parseToken(cmd, token, remainder);
-			if ((token == "accepted")&& this->front().isXBoard())
+			if ((cmd == "stop") && this->front().isUCI())
 			{
-				this->output() << std::endl;
+				bool analyzeMode{ this->front().analyzeMode() };
+				this->frontendEngine().currentGame().playerClock(this->frontendEngine().currentGame().position().movingPlayer()).stop();
+				if (analyzeMode)
+					this->frontendEngine().stopAnalysis();
+				else
+				{
+					this->frontendEngine().ponderHit();
+					this->frontendEngine().cancelMove();
+				}
 				return true;
 			}
 			else
@@ -25,7 +31,7 @@ namespace pygmalion::frontend
 		}
 		virtual std::string help() noexcept override
 		{
-			return "ACCEPTED";
+			return "STOP";
 		}
 	};
 #endif

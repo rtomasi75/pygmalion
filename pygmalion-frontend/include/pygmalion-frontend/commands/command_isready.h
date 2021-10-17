@@ -1,5 +1,6 @@
 namespace pygmalion::frontend
 {
+#if defined(PYGMALION_UCI)
 	template<typename DESCRIPTION_FRONTEND, typename FRONT>
 	class command_isready :
 		public pygmalion::frontend::command<DESCRIPTION_FRONTEND, FRONT>
@@ -24,5 +25,5 @@ namespace pygmalion::frontend
 			return "ISREADY";
 		}
 	};
-
+#endif
 }

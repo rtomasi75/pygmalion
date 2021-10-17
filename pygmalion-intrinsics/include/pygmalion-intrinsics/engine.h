@@ -23,6 +23,10 @@ namespace pygmalion::intrinsics
 			std::shared_ptr<command> pCommand(static_cast<command*>(new T()), delCmd);
 			this->addCommand(pCommand);
 		}
+		virtual void writeInvalidCommand(const std::string command) noexcept
+		{
+			
+		}
 	public:
 		void getXBoardFeatures(std::deque<std::string>& features) const noexcept;
 		virtual void getXBoardVariants(std::deque<std::string>& variants) const noexcept;

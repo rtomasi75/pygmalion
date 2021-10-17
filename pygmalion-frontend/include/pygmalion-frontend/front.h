@@ -12,34 +12,27 @@ namespace pygmalion
 		boardType m_PonderBoard;
 		durationType m_TimeAvailable;
 		bool m_IsPondering;
-		std::chrono::seconds m_MaxTime;
+		durationType m_MaxTime;
 		std::array<std::uint16_t, countPlayers> m_Rating;
+#if defined(PYGMALION_WB2)
 		int m_ProtocolVersion;
-		depthType m_MaxDepth;
-		playerType m_EnginePlayer;
 		bool m_IsXBoard;
-		bool m_IsUCI;
-		bool m_IsDebug;
 		bool m_IsRandom;
-		bool m_PlayingComputer;
 		bool m_ForceMode;
 		bool m_PostMode;
+		playerType m_EnginePlayer;
 		bool m_PonderMode;
+#endif
+		depthType m_MaxDepth;
+		bool m_IsUCI;
+		bool m_IsDebug;
 		bool m_AnalyzeMode;
 		bool m_HasHint;
+		bool m_PlayingComputer;
+		std::string m_OpponentName;
 		movebitsType m_HintMove;
 		std::string m_HintMoveString;
-		std::string m_OpponentName;
 	public:
-		durationType getTimeAvailable() const noexcept
-		{
-			return m_TimeAvailable;
-		}
-		void setTimeAvailable(const durationType timeAvailable) noexcept
-		{
-			m_TimeAvailable = timeAvailable;
-			m_IsPondering = false;
-		}
 		void startPondering(const boardType& ponderBoard) noexcept
 		{
 			m_PonderBoard = ponderBoard;
@@ -56,6 +49,81 @@ namespace pygmalion
 		bool isPondering() const noexcept
 		{
 			return m_IsPondering;
+		}
+#if defined(PYGMALION_WB2)
+		int& protocolVersion() noexcept
+		{
+			return m_ProtocolVersion;
+		}
+		int protocolVersion() const noexcept
+		{
+			return m_ProtocolVersion;
+		}
+		bool& isXBoard() noexcept
+		{
+			return m_IsXBoard;
+		}
+		bool isXBoard() const noexcept
+		{
+			return m_IsXBoard;
+		}
+		bool& isRandom() noexcept
+		{
+			return m_IsRandom;
+		}
+		bool isRandom() const noexcept
+		{
+			return m_IsRandom;
+		}
+		bool ponderMode() const noexcept
+		{
+			return m_PonderMode;
+		}
+		bool& ponderMode() noexcept
+		{
+			return m_PonderMode;
+		}
+		bool postMode() const noexcept
+		{
+			return m_PostMode;
+		}
+		bool& postMode() noexcept
+		{
+			return m_PostMode;
+		}
+		playerType enginePlayer() const noexcept
+		{
+			return m_EnginePlayer;
+		}
+		playerType& enginePlayer() noexcept
+		{
+			return m_EnginePlayer;
+		}
+		bool forceMode() const noexcept
+		{
+			return m_ForceMode;
+		}
+		bool& forceMode() noexcept
+		{
+			return m_ForceMode;
+		}
+#endif
+		bool& playingComputer() noexcept
+		{
+			return m_PlayingComputer;
+		}
+		bool playingComputer() const noexcept
+		{
+			return m_PlayingComputer;
+		}
+		durationType getTimeAvailable() const noexcept
+		{
+			return m_TimeAvailable;
+		}
+		void setTimeAvailable(const durationType timeAvailable) noexcept
+		{
+			m_TimeAvailable = timeAvailable;
+			m_IsPondering = false;
 		}
 		static std::string gamestateToString(const boardType& position, const gamestateType& gs) noexcept
 		{
@@ -81,7 +149,7 @@ namespace pygmalion
 		{
 			return m_MaxDepth;
 		}
-		std::chrono::seconds timeLimit() const noexcept
+		durationType timeLimit() const noexcept
 		{
 			return m_MaxTime;
 		}
@@ -91,13 +159,13 @@ namespace pygmalion
 		}
 		bool isTimeLimited() const noexcept
 		{
-			return m_MaxTime >= std::chrono::seconds(0);
+			return m_MaxTime >= static_cast<durationType>(std::chrono::seconds(0));
 		}
 		bool exceedsDepthLimit(const depthType& depth) const noexcept
 		{
 			return isDepthLimited() && (depth > m_MaxDepth);
 		}
-		bool exceedsTimeLimit(const std::chrono::seconds duration) const noexcept
+		bool exceedsTimeLimit(const durationType duration) const noexcept
 		{
 			return isTimeLimited() && (duration > timeLimit());
 		}
@@ -106,6 +174,10 @@ namespace pygmalion
 			m_MaxDepth = limit;
 		}
 		void setTimeLimit(const std::chrono::seconds limit) noexcept
+		{
+			m_MaxTime = std::chrono::duration_cast<durationType>(limit);
+		}
+		void setTimeLimit(const durationType limit) noexcept
 		{
 			m_MaxTime = limit;
 		}
@@ -117,22 +189,12 @@ namespace pygmalion
 		{
 			m_MaxTime = std::chrono::seconds(-1);
 		}
-		int& protocolVersion() noexcept
-		{
-			return m_ProtocolVersion;
-		}
-		int protocolVersion() const noexcept
-		{
-			return m_ProtocolVersion;
-		}
-		bool& isXBoard() noexcept
-		{
-			return m_IsXBoard;
-		}
+#if defined(PYGMALION_UCI)
 		bool& isUCI() noexcept
 		{
 			return m_IsUCI;
 		}
+#endif
 		bool& isDebug() noexcept
 		{
 			return m_IsDebug;
@@ -159,26 +221,6 @@ namespace pygmalion
 		{
 			return m_HintMoveString;
 		}
-		bool isXBoard() const noexcept
-		{
-			return m_IsXBoard;
-		}
-		bool& isRandom() noexcept
-		{
-			return m_IsRandom;
-		}
-		bool isRandom() const noexcept
-		{
-			return m_IsRandom;
-		}
-		bool ponderMode() const noexcept
-		{
-			return m_PonderMode;
-		}
-		bool& ponderMode() noexcept
-		{
-			return m_PonderMode;
-		}
 		bool analyzeMode() const noexcept
 		{
 			return m_AnalyzeMode;
@@ -187,54 +229,24 @@ namespace pygmalion
 		{
 			return m_AnalyzeMode;
 		}
-		bool forceMode() const noexcept
-		{
-			return m_ForceMode;
-		}
-		bool& forceMode() noexcept
-		{
-			return m_ForceMode;
-		}
-		bool postMode() const noexcept
-		{
-			return m_PostMode;
-		}
-		bool& postMode() noexcept
-		{
-			return m_PostMode;
-		}
-		bool& playingComputer() noexcept
-		{
-			return m_PlayingComputer;
-		}
-		bool playingComputer() const noexcept
-		{
-			return m_PlayingComputer;
-		}
-		playerType enginePlayer() const noexcept
-		{
-			return m_EnginePlayer;
-		}
-		playerType& enginePlayer() noexcept
-		{
-			return m_EnginePlayer;
-		}
 		front() noexcept :
+#if defined(PYGMALION_WB2)
 			m_IsXBoard{ false },
-			m_IsDebug{ false },
-			m_IsUCI{ false },
 			m_IsRandom{ false },
-			m_ForceMode{ false },
 			m_PostMode{ false },
 			m_PonderMode{ false },
-			m_AnalyzeMode{ false },
 			m_PlayingComputer{ false },
 			m_ProtocolVersion{ 1 },
+			m_ForceMode{ false },
+			m_EnginePlayer{ 0 },
+#endif
+			m_OpponentName{ std::string("<unknown>") },
+			m_IsDebug{ false },
+			m_IsUCI{ false },
+			m_AnalyzeMode{ false },
 			m_MaxDepth{ -1 },
 			m_MaxTime{ -1 },
-			m_EnginePlayer{ 0 },
 			m_Rating{ arrayhelper::make<countPlayers,std::uint16_t>(0) },
-			m_OpponentName{ std::string("<unknown>") },
 			m_HasHint{ false },
 			m_IsPondering{ false }
 		{

@@ -1,5 +1,6 @@
 namespace pygmalion::chess::frontend
 {
+#if defined(PYGMALION_WB2)
 	template<typename DESCRIPTION_FRONTEND, typename FRONT>
 	class command_new :
 		public pygmalion::frontend::command<DESCRIPTION_FRONTEND, FRONT>
@@ -30,7 +31,7 @@ namespace pygmalion::chess::frontend
 				for (const auto pl : playerType::range)
 				{
 					this->searchEngine().currentGame().playerClock(pl).stop();
-					this->searchEngine().currentGame().playerClock(pl).set(this->frontendEngine().currentGame().baseTime());
+					this->searchEngine().currentGame().playerClock(pl).set(this->frontendEngine().currentGame().baseTime(pl));
 				}
 				this->output() << std::endl;
 				if (analyzeMode)
@@ -45,5 +46,5 @@ namespace pygmalion::chess::frontend
 			return "NEW";
 		}
 	};
-
+#endif
 }

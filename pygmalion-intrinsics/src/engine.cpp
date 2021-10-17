@@ -43,6 +43,7 @@ namespace pygmalion::intrinsics
 				for (auto& cmd : m_Commands)
 				{
 					processed |= cmd->process(input);
+					this->outputStream().flush();
 					if (processed)
 						break;
 				}
@@ -57,9 +58,7 @@ namespace pygmalion::intrinsics
 			{
 				if (input.size() == 0)
 				{
-					m_Output << std::endl;
-					m_Output << "Error (invalid command): " << input << std::endl;
-					m_Output << std::endl;
+					writeInvalidCommand(input);
 				}
 			}
 			m_Output.flush();

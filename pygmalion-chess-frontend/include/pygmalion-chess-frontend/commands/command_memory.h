@@ -1,5 +1,6 @@
 namespace pygmalion::chess::frontend
 {
+#if defined(PYGMALION_WB2)
 	template<typename DESCRIPTION_FRONTEND, typename FRONT>
 	class command_memory :
 		public pygmalion::frontend::command<DESCRIPTION_FRONTEND, FRONT>
@@ -18,10 +19,7 @@ namespace pygmalion::chess::frontend
 			{
 				std::int64_t sizeInMegaBytes = parser::parseInt(remainder);
 				std::int64_t sizeInBytes = sizeInMegaBytes * 1024 * 1024;
-				std::int64_t sizeTT = (3 * sizeInBytes) / 4;
-				std::int64_t sizePT = (sizeInBytes) / 4;
-				this->frontendEngine().heuristics().transpositionTable().resize(sizeTT);
-				generatorType::pawnTable().resize(sizePT);
+				this->frontendEngine().resizeHashTables(sizeInBytes);
 				this->output() << std::endl;
 				return true;
 			}
@@ -38,4 +36,5 @@ namespace pygmalion::chess::frontend
 			optionList.emplace_back(feature);
 		}
 	};
+#endif
 }

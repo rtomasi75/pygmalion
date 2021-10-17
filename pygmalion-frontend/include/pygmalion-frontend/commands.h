@@ -29,3 +29,6 @@
 #include "commands/command_setBoard.h"
 #include "commands/command_position.h"
 #include "commands/command_debugPonderBoard.h"
+#include "commands/command_stop.h"
+#include "commands/command_ponderhit.h"
+#include "commands/command_setoption.h"

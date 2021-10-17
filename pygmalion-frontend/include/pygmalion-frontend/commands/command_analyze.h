@@ -1,5 +1,6 @@
 namespace pygmalion::frontend
 {
+#if defined(PYGMALION_WB2)
 	template<typename DESCRIPTION_FRONTEND, typename FRONT>
 	class command_analyze :
 		public pygmalion::frontend::command<DESCRIPTION_FRONTEND, FRONT>
@@ -71,5 +72,5 @@ namespace pygmalion::frontend
 			optionList.emplace_back(feature);
 		}
 	};
-
+#endif
 }
