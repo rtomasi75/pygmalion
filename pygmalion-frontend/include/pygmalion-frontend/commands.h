@@ -32,3 +32,4 @@
 #include "commands/command_stop.h"
 #include "commands/command_ponderhit.h"
 #include "commands/command_setoption.h"
+#include "commands/command_option.h"

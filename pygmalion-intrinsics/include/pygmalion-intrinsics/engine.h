@@ -11,6 +11,7 @@ namespace pygmalion::intrinsics
 		friend class command_help;
 	private:
 		std::deque<std::shared_ptr<command>> m_Commands;
+		std::mutex m_StreamsMutex;
 	protected:
 		void addCommand(std::shared_ptr<command> pCommand) noexcept;
 		template<typename T>
@@ -39,6 +40,16 @@ namespace pygmalion::intrinsics
 		virtual ~engine() noexcept = default;
 		std::istream& inputStream() noexcept;
 		std::ostream& outputStream() noexcept;
+		void lockStreams() noexcept
+		{
+			m_StreamsMutex.lock();
+			this->outputStream().flush();
+		}
+		void unlockStreams() noexcept
+		{
+			this->outputStream().flush();
+			m_StreamsMutex.unlock();
+		}
 		bool isRunning() const noexcept;
 		void run() noexcept;
 		void stop() noexcept;

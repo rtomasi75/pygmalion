@@ -10,33 +10,39 @@ namespace pygmalion::frontend
 #include "../include_frontend.h"	
 	private:
 		template<size_t PLAYER>
-		void process() noexcept
+		void processWB() noexcept
 		{
 			if constexpr (PLAYER < countPlayers)
 			{
 				constexpr const playerType player{ static_cast<playerType>(PLAYER) };
 				if (player == this->position().movingPlayer())
 				{
-#if defined(PYGMALION_WB2)
-					if (this->front().isXBoard())
-					{
-						this->front().forceMode() = false;
-						this->front().enginePlayer() = player;
-					}
-#endif
+					this->front().forceMode() = false;
+					this->front().enginePlayer() = player;
 					this->frontendEngine().template thinkMove<PLAYER>();
-#if defined(PYGMALION_WB2)
-					if (this->front().isXBoard())
-						this->output() << std::endl;
-#endif
+					this->output() << std::endl;
 				}
+				else
+					this->template processWB<PLAYER + 1>();
+			}
+			else
+				PYGMALION_ASSERT(false);
+		}
+#if defined(PYGMALION_UCI)
+		template<size_t PLAYER>
+		void process() noexcept
+		{
+			if constexpr (PLAYER < countPlayers)
+			{
+				constexpr const playerType player{ static_cast<playerType>(PLAYER) };
+				if (player == this->position().movingPlayer())
+					this->frontendEngine().template searchMoveLimited<PLAYER>();
 				else
 					this->template process<PLAYER + 1>();
 			}
 			else
 				PYGMALION_ASSERT(false);
 		}
-#if defined(PYGMALION_UCI)
 		template<size_t PLAYER>
 		void processAnalyze() noexcept
 		{
@@ -44,9 +50,7 @@ namespace pygmalion::frontend
 			{
 				constexpr const playerType player{ static_cast<playerType>(PLAYER) };
 				if (player == this->position().movingPlayer())
-				{
-					this->frontendEngine().template startAnalysis<PLAYER>();
-				}
+					this->frontendEngine().template searchMoveUnlimited<PLAYER>();
 				else
 					this->template processAnalyze<PLAYER + 1>();
 			}
@@ -63,7 +67,7 @@ namespace pygmalion::frontend
 				constexpr const playerType player{ static_cast<playerType>(PLAYER) };
 				if (player == this->position().movingPlayer())
 				{
-					this->frontendEngine().template ponderMove<PLAYER>();
+					this->frontendEngine().template searchMoveUnlimited<PLAYER>();
 				}
 				else
 					this->template ponder<PLAYER + 1>();
@@ -78,7 +82,7 @@ namespace pygmalion::frontend
 #if defined(PYGMALION_WB2)
 			if ((cmd == "go") && this->front().isXBoard())
 			{
-				this->template process<0>();
+				this->template processWB<0>();
 				return true;
 			}
 #endif
@@ -115,10 +119,6 @@ namespace pygmalion::frontend
 						{
 							bPonder = true;
 							remainder = remainder2;
-							movebitsType hintMove{ this->frontendEngine().history().movebits(this->frontendEngine().history().length() - 1) };
-							this->mechanicsEngine().unmakeMove();
-							std::string str{ motorType::moveToString(this->position(), hintMove) };
-							this->front().setHintMove(hintMove, str);
 						}
 						else if (token == "movetime")
 						{
@@ -215,7 +215,6 @@ namespace pygmalion::frontend
 					{
 						if (bPonder)
 						{
-							this->frontendEngine().unmakeMove();
 							this->template ponder<0>();
 						}
 						else
@@ -223,10 +222,7 @@ namespace pygmalion::frontend
 					}
 					else
 					{
-						if (movestogo > 0)
-						{
-							this->frontendEngine().currentGame().setTimeControl(movestogo, time, increment);
-						}
+						this->frontendEngine().currentGame().setTimeControl(movestogo, time, increment);
 						for (const auto pl : playerType::range)
 						{
 							this->searchEngine().currentGame().playerClock(pl).set(time[pl]);

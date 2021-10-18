@@ -20,9 +20,9 @@ namespace pygmalion::frontend
 			std::string remainder;
 			parser::parseToken(cmd, token, remainder);
 			size_t count{ 0 };
-			if (cmd == "ponderhit"&&this->front().isUCI())
+			if (cmd == "ponderhit" && this->front().isUCI())
 			{
-				this->frontendEngine().ponderHit();
+				this->frontendEngine().limitSearch();
 				return true;
 			}
 			else

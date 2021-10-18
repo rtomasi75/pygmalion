@@ -295,10 +295,16 @@ namespace pygmalion::chess
 		{
 			return m_PlayerPieceSquareHash[player][piece][square];
 		}
-		PYGMALION_INLINE constexpr static materialScore materialValue(const pieceType pc, const playerType pl) noexcept
+		PYGMALION_TUNABLE PYGMALION_INLINE static materialScore materialValue(const pieceType pc, const playerType pl) noexcept
 		{
 			return m_Material.material(pl, pc);
 		}
+#if defined(PYGMALION_TUNE)&&(PYGMALION_TUNE==1)
+		static void setMaterial(const pieceType pc, const double score) noexcept
+		{
+			return m_Material.setTunedMaterial(pc, score);
+		}
+#endif
 		PYGMALION_INLINE void clearCastleRightQueensideBlack() noexcept
 		{
 			clearFlag(castleRightQueensideBlack);

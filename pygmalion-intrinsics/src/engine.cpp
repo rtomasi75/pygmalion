@@ -36,6 +36,7 @@ namespace pygmalion::intrinsics
 		{
 			std::string input;
 			std::getline(m_Input, input);
+			lockStreams();
 			input = parser::trim_copy(input);
 			bool processed{ false };
 			while (!processed)
@@ -62,6 +63,7 @@ namespace pygmalion::intrinsics
 				}
 			}
 			m_Output.flush();
+			unlockStreams();
 		}
 	}
 

@@ -75,7 +75,7 @@ namespace pygmalion::frontend
 					{
 						if (this->front().hintMove() == movebits)
 						{
-							this->frontendEngine().ponderHit();
+							this->frontendEngine().ponderHitWB();
 						}
 						else
 						{

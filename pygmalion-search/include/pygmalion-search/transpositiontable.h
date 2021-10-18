@@ -185,6 +185,19 @@ namespace pygmalion
 			}
 		}
 	public:
+		void clear() noexcept
+		{
+			for (size_t idx = 0; idx < m_EntryCount; idx++)
+			{
+				depthType score[countBuckets];
+				const size_t base{ idx * countBuckets };
+				for (size_t j = 0; j < countBuckets; j++)
+				{
+					const size_t index{ base + j };
+					m_Entry[index].clear();
+				}
+			}
+		}
 #if defined(PYGMALION_TTSTATISTICS)
 		PYGMALION_INLINE void hitAlpha() const noexcept
 		{

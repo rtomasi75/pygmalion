@@ -8,7 +8,7 @@ namespace pygmalion::chess::state
 		using descriptorState = DESCRIPTION_STATE;
 #include <pygmalion-state/include_state.h>
 	private:
-		constexpr static inline std::array<materialScore, 6> m_LazyMaterial
+		PYGMALION_TUNABLE static inline std::array<materialScore, 6> m_LazyMaterial
 		{
 			arrayhelper::generate<6,materialScore>(
 				[](const size_t index)
@@ -39,9 +39,16 @@ namespace pygmalion::chess::state
 		{
 		}
 		~materialTables() noexcept = default;
-		PYGMALION_INLINE constexpr materialScore material(const playerType p, const pieceType pc) const noexcept
+		PYGMALION_INLINE PYGMALION_TUNABLE materialScore material(const playerType p, const pieceType pc) const noexcept
 		{
 			return p == descriptorState::whitePlayer ? m_LazyMaterial[pc] : -m_LazyMaterial[pc];
 		}
+#if defined(PYGMALION_TUNE)&&(PYGMALION_TUNE==1)
+		static void setTunedMaterial(const pieceType pc, const double whiteValue) noexcept
+		{
+			m_LazyMaterial[pc] = static_cast<materialScore>(whiteValue);
+		}
+#endif
+
 	};
 }

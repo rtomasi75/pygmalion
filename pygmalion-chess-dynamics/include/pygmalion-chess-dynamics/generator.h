@@ -989,11 +989,23 @@ namespace pygmalion::chess
 		{
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			constexpr const playerType nextPlayer{ movingPlayer.next() };
-			const squaresType betterThanBishop{ stack.position().pieceOccupancy(rook) | stack.position().pieceOccupancy(queen) };
-			for (const squareType from : stack.position().pieceOccupancy(bishop)& stack.position().playerOccupancy(movingPlayer))
+			if PYGMALION_TUNABLE(boardType::materialValue(bishop, whitePlayer) >= boardType::materialValue(knight, whitePlayer))
 			{
-				for (const squareType to : movegenSlidersDiag.attacks(from, ~stack.position().totalOccupancy())& betterThanBishop& stack.position().playerOccupancy(nextPlayer))
-					moves.add(motorType::move().createCapture(from, to));
+				const squaresType betterThanBishop{ stack.position().pieceOccupancy(rook) | stack.position().pieceOccupancy(queen) };
+				for (const squareType from : stack.position().pieceOccupancy(bishop)& stack.position().playerOccupancy(movingPlayer))
+				{
+					for (const squareType to : movegenSlidersDiag.attacks(from, ~stack.position().totalOccupancy())& betterThanBishop& stack.position().playerOccupancy(nextPlayer))
+						moves.add(motorType::move().createCapture(from, to));
+				}
+			}
+			else
+			{
+				const squaresType betterThanBishop{ stack.position().pieceOccupancy(rook) | stack.position().pieceOccupancy(knight) | stack.position().pieceOccupancy(queen) };
+				for (const squareType from : stack.position().pieceOccupancy(bishop)& stack.position().playerOccupancy(movingPlayer))
+				{
+					for (const squareType to : movegenSlidersDiag.attacks(from, ~stack.position().totalOccupancy())& betterThanBishop& stack.position().playerOccupancy(nextPlayer))
+						moves.add(motorType::move().createCapture(from, to));
+				}
 			}
 		}
 		template<size_t PLAYER>
@@ -1001,16 +1013,47 @@ namespace pygmalion::chess
 		{
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			constexpr const playerType nextPlayer{ movingPlayer.next() };
-			const squaresType equalToBishop{ stack.position().pieceOccupancy(bishop) | stack.position().pieceOccupancy(knight) };
-			for (const squareType from : stack.position().pieceOccupancy(bishop)& stack.position().playerOccupancy(movingPlayer))
+			if PYGMALION_TUNABLE(boardType::materialValue(bishop, whitePlayer) > boardType::materialValue(knight, whitePlayer))
 			{
-				for (const squareType to : movegenSlidersDiag.attacks(from, ~stack.position().totalOccupancy())& equalToBishop& stack.position().playerOccupancy(nextPlayer))
-					moves.add(motorType::move().createCapture(from, to));
+				const squaresType equalToBishop{ stack.position().pieceOccupancy(bishop) };
+				for (const squareType from : stack.position().pieceOccupancy(bishop)& stack.position().playerOccupancy(movingPlayer))
+				{
+					for (const squareType to : movegenSlidersDiag.attacks(from, ~stack.position().totalOccupancy())& equalToBishop& stack.position().playerOccupancy(nextPlayer))
+						moves.add(motorType::move().createCapture(from, to));
+				}
+				for (const squareType from : stack.position().pieceOccupancy(queen)& stack.position().playerOccupancy(movingPlayer))
+				{
+					for (const squareType to : movegenSlidersDiag.attacks(from, ~stack.position().totalOccupancy())& stack.position().pieceOccupancy(queen)& stack.position().playerOccupancy(nextPlayer))
+						moves.add(motorType::move().createCapture(from, to));
+				}
 			}
-			for (const squareType from : stack.position().pieceOccupancy(queen)& stack.position().playerOccupancy(movingPlayer))
+			else if PYGMALION_TUNABLE(boardType::materialValue(knight, whitePlayer) > boardType::materialValue(bishop, whitePlayer))
 			{
-				for (const squareType to : movegenSlidersDiag.attacks(from, ~stack.position().totalOccupancy())& stack.position().pieceOccupancy(queen)& stack.position().playerOccupancy(nextPlayer))
-					moves.add(motorType::move().createCapture(from, to));
+				const squaresType equalToBishop{ stack.position().pieceOccupancy(bishop) };
+				for (const squareType from : stack.position().pieceOccupancy(bishop)& stack.position().playerOccupancy(movingPlayer))
+				{
+					for (const squareType to : movegenSlidersDiag.attacks(from, ~stack.position().totalOccupancy())& equalToBishop& stack.position().playerOccupancy(nextPlayer))
+						moves.add(motorType::move().createCapture(from, to));
+				}
+				for (const squareType from : stack.position().pieceOccupancy(queen)& stack.position().playerOccupancy(movingPlayer))
+				{
+					for (const squareType to : movegenSlidersDiag.attacks(from, ~stack.position().totalOccupancy())& stack.position().pieceOccupancy(queen)& stack.position().playerOccupancy(nextPlayer))
+						moves.add(motorType::move().createCapture(from, to));
+				}
+			}
+			else
+			{
+				const squaresType equalToBishop{ stack.position().pieceOccupancy(bishop) | stack.position().pieceOccupancy(knight) };
+				for (const squareType from : stack.position().pieceOccupancy(bishop)& stack.position().playerOccupancy(movingPlayer))
+				{
+					for (const squareType to : movegenSlidersDiag.attacks(from, ~stack.position().totalOccupancy())& equalToBishop& stack.position().playerOccupancy(nextPlayer))
+						moves.add(motorType::move().createCapture(from, to));
+				}
+				for (const squareType from : stack.position().pieceOccupancy(queen)& stack.position().playerOccupancy(movingPlayer))
+				{
+					for (const squareType to : movegenSlidersDiag.attacks(from, ~stack.position().totalOccupancy())& stack.position().pieceOccupancy(queen)& stack.position().playerOccupancy(nextPlayer))
+						moves.add(motorType::move().createCapture(from, to));
+				}
 			}
 		}
 		template<size_t PLAYER>
@@ -1018,18 +1061,37 @@ namespace pygmalion::chess
 		{
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			constexpr const playerType nextPlayer{ movingPlayer.next() };
-			const squaresType lessThanBishop{ stack.position().pieceOccupancy(pawn) };
-			const squaresType lessThanQueen{ ~stack.position().pieceOccupancy(queen) };
-			for (const squareType from : stack.position().pieceOccupancy(bishop)& stack.position().playerOccupancy(movingPlayer))
+			if PYGMALION_TUNABLE(boardType::materialValue(bishop, whitePlayer) > boardType::materialValue(knight, whitePlayer))
 			{
-				for (const squareType to : movegenSlidersDiag.attacks(from, ~stack.position().totalOccupancy())& lessThanBishop& stack.position().playerOccupancy(nextPlayer))
-					moves.add(motorType::move().createCapture(from, to));
+				const squaresType lessThanBishop{ stack.position().pieceOccupancy(pawn) | stack.position().pieceOccupancy(knight) };
+				const squaresType lessThanQueen{ ~stack.position().pieceOccupancy(queen) };
+				for (const squareType from : stack.position().pieceOccupancy(bishop)& stack.position().playerOccupancy(movingPlayer))
+				{
+					for (const squareType to : movegenSlidersDiag.attacks(from, ~stack.position().totalOccupancy())& lessThanBishop& stack.position().playerOccupancy(nextPlayer))
+						moves.add(motorType::move().createCapture(from, to));
+				}
+				for (const squareType from : stack.position().pieceOccupancy(queen)& stack.position().playerOccupancy(movingPlayer))
+				{
+					for (const squareType to : movegenSlidersDiag.attacks(from, ~stack.position().totalOccupancy())& lessThanQueen& stack.position().playerOccupancy(nextPlayer))
+						moves.add(motorType::move().createCapture(from, to));
+				}
 			}
-			for (const squareType from : stack.position().pieceOccupancy(queen)& stack.position().playerOccupancy(movingPlayer))
+			else
 			{
-				for (const squareType to : movegenSlidersDiag.attacks(from, ~stack.position().totalOccupancy())& lessThanQueen& stack.position().playerOccupancy(nextPlayer))
-					moves.add(motorType::move().createCapture(from, to));
+				const squaresType lessThanBishop{ stack.position().pieceOccupancy(pawn) };
+				const squaresType lessThanQueen{ ~stack.position().pieceOccupancy(queen) };
+				for (const squareType from : stack.position().pieceOccupancy(bishop)& stack.position().playerOccupancy(movingPlayer))
+				{
+					for (const squareType to : movegenSlidersDiag.attacks(from, ~stack.position().totalOccupancy())& lessThanBishop& stack.position().playerOccupancy(nextPlayer))
+						moves.add(motorType::move().createCapture(from, to));
+				}
+				for (const squareType from : stack.position().pieceOccupancy(queen)& stack.position().playerOccupancy(movingPlayer))
+				{
+					for (const squareType to : movegenSlidersDiag.attacks(from, ~stack.position().totalOccupancy())& lessThanQueen& stack.position().playerOccupancy(nextPlayer))
+						moves.add(motorType::move().createCapture(from, to));
+				}
 			}
+
 		}
 		template<size_t PLAYER>
 		static void generateKnightCaptures(const stackType<PLAYER>& stack, movelistType& moves) noexcept
@@ -1047,11 +1109,23 @@ namespace pygmalion::chess
 		{
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			constexpr const playerType nextPlayer{ movingPlayer.next() };
-			const squaresType betterThanKnight{ stack.position().pieceOccupancy(rook) | stack.position().pieceOccupancy(queen) };
-			for (const squareType from : stack.position().pieceOccupancy(knight)& stack.position().playerOccupancy(movingPlayer))
+			if PYGMALION_TUNABLE(boardType::materialValue(bishop, whitePlayer) > boardType::materialValue(knight, whitePlayer))
 			{
-				for (const squareType to : movegenKnight.attacks(from, ~stack.position().totalOccupancy())& betterThanKnight& stack.position().playerOccupancy(nextPlayer))
-					moves.add(motorType::move().createCapture(from, to));
+				const squaresType betterThanKnight{ stack.position().pieceOccupancy(rook) | stack.position().pieceOccupancy(bishop) | stack.position().pieceOccupancy(queen) };
+				for (const squareType from : stack.position().pieceOccupancy(knight)& stack.position().playerOccupancy(movingPlayer))
+				{
+					for (const squareType to : movegenKnight.attacks(from, ~stack.position().totalOccupancy())& betterThanKnight& stack.position().playerOccupancy(nextPlayer))
+						moves.add(motorType::move().createCapture(from, to));
+				}
+			}
+			else
+			{
+				const squaresType betterThanKnight{ stack.position().pieceOccupancy(rook) | stack.position().pieceOccupancy(queen) };
+				for (const squareType from : stack.position().pieceOccupancy(knight)& stack.position().playerOccupancy(movingPlayer))
+				{
+					for (const squareType to : movegenKnight.attacks(from, ~stack.position().totalOccupancy())& betterThanKnight& stack.position().playerOccupancy(nextPlayer))
+						moves.add(motorType::move().createCapture(from, to));
+				}
 			}
 		}
 		template<size_t PLAYER>
@@ -1059,22 +1133,54 @@ namespace pygmalion::chess
 		{
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			constexpr const playerType nextPlayer{ movingPlayer.next() };
-			const squaresType equalToKnight{ stack.position().pieceOccupancy(bishop) | stack.position().pieceOccupancy(knight) };
-			for (const squareType from : stack.position().pieceOccupancy(knight)& stack.position().playerOccupancy(movingPlayer))
+			if PYGMALION_TUNABLE(boardType::materialValue(bishop, whitePlayer) > boardType::materialValue(knight, whitePlayer))
 			{
-				for (const squareType to : movegenKnight.attacks(from, ~stack.position().totalOccupancy())& equalToKnight& stack.position().playerOccupancy(nextPlayer))
-					moves.add(motorType::move().createCapture(from, to));
+				const squaresType equalToKnight{ stack.position().pieceOccupancy(knight) };
+				for (const squareType from : stack.position().pieceOccupancy(knight)& stack.position().playerOccupancy(movingPlayer))
+				{
+					for (const squareType to : movegenKnight.attacks(from, ~stack.position().totalOccupancy())& equalToKnight& stack.position().playerOccupancy(nextPlayer))
+						moves.add(motorType::move().createCapture(from, to));
+				}
+			}
+			else if PYGMALION_TUNABLE(boardType::materialValue(bishop, whitePlayer) < boardType::materialValue(knight, whitePlayer))
+			{
+				const squaresType equalToKnight{ stack.position().pieceOccupancy(knight) };
+				for (const squareType from : stack.position().pieceOccupancy(knight)& stack.position().playerOccupancy(movingPlayer))
+				{
+					for (const squareType to : movegenKnight.attacks(from, ~stack.position().totalOccupancy())& equalToKnight& stack.position().playerOccupancy(nextPlayer))
+						moves.add(motorType::move().createCapture(from, to));
+				}
+			}
+			else
+			{
+				const squaresType equalToKnight{ stack.position().pieceOccupancy(knight) | stack.position().pieceOccupancy(bishop) };
+				for (const squareType from : stack.position().pieceOccupancy(knight)& stack.position().playerOccupancy(movingPlayer))
+				{
+					for (const squareType to : movegenKnight.attacks(from, ~stack.position().totalOccupancy())& equalToKnight& stack.position().playerOccupancy(nextPlayer))
+						moves.add(motorType::move().createCapture(from, to));
+				}
 			}
 		}
 		template<size_t PLAYER>
 		static void generateKnightLosingCaptures(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
-			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
-			constexpr const playerType nextPlayer{ movingPlayer.next() };
-			for (const squareType from : stack.position().pieceOccupancy(knight)& stack.position().playerOccupancy(movingPlayer))
+				constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
+				constexpr const playerType nextPlayer{ movingPlayer.next() };
+			if PYGMALION_TUNABLE(boardType::materialValue(bishop, whitePlayer) >= boardType::materialValue(knight, whitePlayer))
 			{
-				for (const squareType to : movegenKnight.attacks(from, ~stack.position().totalOccupancy())& stack.position().pieceOccupancy(pawn)& stack.position().playerOccupancy(nextPlayer))
-					moves.add(motorType::move().createCapture(from, to));
+				for (const squareType from : stack.position().pieceOccupancy(knight)& stack.position().playerOccupancy(movingPlayer))
+				{
+					for (const squareType to : movegenKnight.attacks(from, ~stack.position().totalOccupancy())& stack.position().pieceOccupancy(pawn)& stack.position().playerOccupancy(nextPlayer))
+						moves.add(motorType::move().createCapture(from, to));
+				}
+			}
+			else if PYGMALION_TUNABLE(boardType::materialValue(bishop, whitePlayer) < boardType::materialValue(knight, whitePlayer))
+			{
+				for (const squareType from : stack.position().pieceOccupancy(knight)& stack.position().playerOccupancy(movingPlayer))
+				{
+					for (const squareType to : movegenKnight.attacks(from, ~stack.position().totalOccupancy())& (stack.position().pieceOccupancy(pawn)| stack.position().pieceOccupancy(bishop) )& stack.position().playerOccupancy(nextPlayer))
+						moves.add(motorType::move().createCapture(from, to));
+				}
 			}
 		}
 		template<size_t PLAYER>

@@ -1,4 +1,4 @@
 namespace pygmalion::chess
 {
-	using materialScore = pygmalion::score<7, 0, 0>;
+	using materialScore = pygmalion::score<15, 7, 0>;
 }

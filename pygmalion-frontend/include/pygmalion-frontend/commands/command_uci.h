@@ -23,7 +23,11 @@ namespace pygmalion::frontend
 				this->output() << "id author " << this->frontendEngine().author() << std::endl;
 				this->output() << "option name Hash type spin default 160 min 1 max ";
 				this->output() << std::min(static_cast<std::uint64_t>(std::numeric_limits<std::size_t>::max()), ((UINT64_C(1) << std::min(static_cast<size_t>(63), countHashBits)))) / (1024 * 1024) << std::endl;
-				this->output() << "option name Ponder type check default true" << std::endl;
+				this->output() << "option name Ponder type check default " << (this->frontendEngine().ponderEnabled() ? "true" : "false") << std::endl;
+#if defined(PYGMALION_TUNE)&&(PYGMALION_TUNE==1)
+				for (const pieceType pc : pieceType::range)
+					this->output() << "option name Piece" << static_cast<size_t>(pc) << "_Material" << " type spin default " << static_cast<int>(static_cast<double>(boardType::materialValue(pc, descriptorFrontend::whitePlayer)) * 100.0) << " min 0 max 12000" << std::endl;
+#endif
 				this->output() << "uciok" << std::endl;
 				return true;
 			}

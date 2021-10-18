@@ -6,3 +6,4 @@
 #include "commands/command_new.h"
 #include "commands/command_result.h"
 #include "commands/command_memory.h"
+#include "commands/command_debugMaterial.h"

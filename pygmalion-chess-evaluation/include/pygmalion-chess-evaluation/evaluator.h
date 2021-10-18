@@ -1,7 +1,15 @@
 namespace pygmalion::chess
 {
 	class evaluator :
-		public pygmalion::evaluator<descriptor_evaluation, evaluator, evaluationstage_pawnstructure, evaluationstage_attacks, evaluationstage_mobility, evaluationstage_control, evaluationstage_kingsafety>
+		public pygmalion::evaluator<descriptor_evaluation, evaluator
+#if (!defined(PYGMALION_TUNE))||(PYGMALION_TUNE==0)
+		, evaluationstage_pawnstructure
+		, evaluationstage_attacks
+		, evaluationstage_mobility
+		, evaluationstage_control
+		, evaluationstage_kingsafety
+#endif
+		>
 	{
 	public:
 		template<size_t PLAYER>
@@ -115,9 +123,30 @@ namespace pygmalion::chess
 			squaresType subset{ position.pieceOccupancy(pawn) & occ };
 			if (subset)
 				return subset.singlePiece();
-			subset = (position.pieceOccupancy(knight) | position.pieceOccupancy(bishop)) & occ;
-			if (subset)
-				return subset.singlePiece();
+			if PYGMALION_TUNABLE(boardType::materialValue(knight, whitePlayer) > boardType::materialValue(bishop, whitePlayer))
+			{
+				subset = position.pieceOccupancy(bishop) & occ;
+				if (subset)
+					return subset.singlePiece();
+				subset = position.pieceOccupancy(knight)  & occ;
+				if (subset)
+					return subset.singlePiece();
+			}
+			else if PYGMALION_TUNABLE(boardType::materialValue(bishop, whitePlayer) > boardType::materialValue(knight, whitePlayer))
+			{
+				subset = position.pieceOccupancy(knight) & occ;
+				if (subset)
+					return subset.singlePiece();
+				subset = position.pieceOccupancy(bishop) & occ;
+				if (subset)
+					return subset.singlePiece();
+			}
+			else
+			{
+				subset = (position.pieceOccupancy(knight) | position.pieceOccupancy(bishop)) & occ;
+				if (subset)
+					return subset.singlePiece();
+			}
 			subset = position.pieceOccupancy(rook) & occ;
 			if (subset)
 				return subset.singlePiece();

@@ -54,6 +54,10 @@ namespace pygmalion::frontend
 						{
 							this->output() << "feature " << feature << std::endl;
 						}
+#if defined(PYGMALION_TUNE)&&(PYGMALION_TUNE==1)
+						for (const pieceType pc : pieceType::range)
+							this->output() << "feature option option=\"Piece" << static_cast<size_t>(pc) << "_Material" << " -spin " << static_cast<int>(static_cast<double>(boardType::materialValue(pc, descriptorFrontend::whitePlayer)) * 100.0) << " 0 20000\"" << std::endl;
+#endif
 						this->output() << "feature done=1" << std::endl;
 					}
 				}

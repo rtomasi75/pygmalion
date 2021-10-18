@@ -1,6 +1,13 @@
 #if !defined(PYGMALION_INTRINSICS)
 #define PYGMALION_INTRINSICS
 
+//#define PYGMALION_TUNE 1
+#if (!defined(PYGMALION_TUNE))||(PYGMALION_TUNE==0)
+#define PYGMALION_TUNABLE constexpr
+#else
+#define PYGMALION_TUNABLE 
+#endif
+
 #define _USE_MATH_DEFINES
 
 #include <cstdint>
@@ -27,6 +34,7 @@
 #include <shared_mutex>
 #include <random>
 #include <fstream>
+#include <condition_variable>
 
 using chronographType = std::chrono::system_clock;
 using durationType = std::chrono::milliseconds;
@@ -52,6 +60,7 @@ using timeType = typename chronographType::time_point;
 #include "pygmalion-intrinsics/sort.h"
 #include "pygmalion-intrinsics/clock.h"
 #include "pygmalion-intrinsics/list.h"
+#include "pygmalion-intrinsics/backgroundthread.h"
 #include "pygmalion-intrinsics/magic.h"
 #include "pygmalion-intrinsics/magictable.h"
 #include "pygmalion-intrinsics/parser.h"

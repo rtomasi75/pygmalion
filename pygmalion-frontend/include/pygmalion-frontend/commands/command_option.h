@@ -1,29 +1,31 @@
 namespace pygmalion::frontend
 {
-#if defined(PYGMALION_UCI)
+#if defined(PYGMALION_WB2)
 	template<typename DESCRIPTION_FRONTEND, typename FRONT>
-	class command_stop :
+	class command_option :
 		public pygmalion::frontend::command<DESCRIPTION_FRONTEND, FRONT>
 	{
 	public:
 		using frontType = FRONT;
 		using descriptorFrontend = DESCRIPTION_FRONTEND;
-#include "../include_frontend.h"	
+#include <pygmalion-frontend/include_frontend.h>
 	private:
 	protected:
 		virtual bool onProcess(const std::string& cmd) noexcept override
 		{
-			if ((cmd == "stop") && this->front().isUCI())
+			std::string token;
+			std::string remainder;
+			parser::parseToken(cmd, token, remainder);
+			if ((this->front().isXBoard()) && (token == "option"))
 			{
-				this->frontendEngine().forceMove();
-				return true;
+				return this->frontendEngine().handleOptionsWB(token, remainder);
 			}
 			else
 				return false;
 		}
 		virtual std::string help() noexcept override
 		{
-			return "STOP";
+			return "OPTION";
 		}
 	};
 #endif
