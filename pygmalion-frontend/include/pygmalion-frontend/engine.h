@@ -275,7 +275,7 @@ namespace pygmalion::frontend
 						if (!gamestateType::isOpen(result))
 						{
 							this->outputStream() << "result " << frontType::gamestateToString(this->currentGame().position(), result) << std::endl;
-				}
+						}
 						else
 						{
 							if (this->front().ponderMode())
@@ -298,15 +298,15 @@ namespace pygmalion::frontend
 							}
 						}
 						this->outputStream().flush();
+					}
+				}
 			}
-		}
-	}
 			else
 			{
 				this->front().stopPondering();
 				this->undoMove();
 			}
-}
+		}
 #endif
 #if defined(PYGMALION_UCI)
 		template<size_t PLAYER>
@@ -326,19 +326,6 @@ namespace pygmalion::frontend
 			if (isRunning)
 			{
 				finalVariation = principalVariation;
-#if defined(PYGMALION_WB2)
-				if (this->front().postMode() && this->front().isXBoard())
-				{
-					this->outputStream() << static_cast<int>(depthRemaining) << " ";
-					this->outputStream() << scoreToString(score) << " ";
-					const std::chrono::milliseconds milliseconds{ std::chrono::duration_cast<std::chrono::milliseconds>(this->heuristics().duration()) };
-					const int centiseconds{ static_cast<int>(milliseconds.count() / 10) };
-					this->outputStream() << centiseconds << " ";
-					this->outputStream() << this->heuristics().nodeCount() << " ";
-					this->outputStream() << this->template variationToString<PLAYER>(finalVariation) << std::endl;
-					return true;
-				}
-#endif
 #if defined(PYGMALION_UCI)
 				if (this->front().isUCI())
 				{
@@ -388,18 +375,17 @@ namespace pygmalion::frontend
 			}
 			return false;
 		}
-		std::atomic_bool m_SearchTimerFlag;
 		timeType m_SearchTimerStart;
 		durationType m_SearchTimerInterval;
 		std::atomic_bool m_PonderEnabled;
-		std::atomic_bool m_TimerStarted;
-		std::atomic_bool m_TimerFinished;
-		std::mutex m_LimitMutex;
-		std::condition_variable m_TimedCondition;
+		signal m_TimerStarted;
+		signal m_TimerFinished;
+		threadqueue m_SearchQueue;
+		threadqueue m_TimerQueue;
 		template<size_t PLAYER>
 		void searchThreadFunc() noexcept
 		{
-			m_MoveThreadIsRunning = true;
+			this->outputStream() << "info string Search started..." << std::endl;
 			typename descriptorFrontend::template stackType<PLAYER> stack{ typename descriptorFrontend::template stackType<PLAYER>(this->position(), this->history(), this->rootContext()) };
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			constexpr const playerType nextPlayer{ movingPlayer.next() };
@@ -415,30 +401,42 @@ namespace pygmalion::frontend
 				const durationType plyTime{ std::chrono::duration_cast<durationType>(chronographType::now() - start) };
 				searchTime += plyTime;
 				if (this->front().exceedsDepthLimit(m_CurrentDepth))
-					break;
-				if (this->front().exceedsTimeLimit(searchTime))
-					break;
-				if (m_CurrentDepth >= countSearchPlies)
-					break;
-				if (m_SearchTimerFlag)
 				{
-					if (m_CurrentDepth > countPlayers)
-					{
-						factor[m_CurrentDepth % countPlayers] = static_cast<double>(searchTime.count()) / static_cast<double>((searchTime - plyTime).count());
-						if (m_CurrentDepth > (2 * countPlayers))
+					this->outputStream() << "info string Depth limit exceeded..." << std::endl;
+					break;
+				}
+				if (this->front().exceedsTimeLimit(searchTime))
+				{
+					this->outputStream() << "info string Time limit exceeded..." << std::endl;
+					break;
+				}
+				if (m_CurrentDepth >= countSearchPlies)
+				{
+					this->outputStream() << "info string Reached maximum ply depth..." << std::endl;
+					break;
+				}
+				if (m_CurrentDepth > countPlayers)
+				{
+					bool bBreak{ false };
+					factor[m_CurrentDepth % countPlayers] = static_cast<double>(searchTime.count()) / static_cast<double>((searchTime - plyTime).count());
+					m_TimerStarted.doIfHigh([this, &factor, searchTime, &bBreak]()
 						{
-							const durationType projectedTime{ durationType(static_cast<long>(searchTime.count() * factor[(m_CurrentDepth + countPlayers - 1) % countPlayers])) };
-							const durationType neededTime{ projectedTime - searchTime };
-							const durationType remainingTime{ m_SearchTimerInterval - std::chrono::duration_cast<durationType>(chronographType::now() - m_SearchTimerStart) };
-							if (neededTime > remainingTime)
+							if (m_CurrentDepth > (2 * countPlayers))
 							{
-								break;
+								const durationType projectedTime{ durationType(static_cast<long>(searchTime.count() * factor[(m_CurrentDepth + countPlayers - 1) % countPlayers])) };
+								const durationType neededTime{ projectedTime - searchTime };
+								const durationType remainingTime{ m_SearchTimerInterval - std::chrono::duration_cast<durationType>(chronographType::now() - m_SearchTimerStart) };
+								if (neededTime > remainingTime)
+								{
+									this->outputStream() << "info string Not enough time for another ply..." << std::endl;
+									bBreak = true;
+								}
 							}
-						}
-					}
+						});
+					if (bBreak)
+						break;
 				}
 			}
-			this->lockStreams();
 			this->outputStream() << "bestmove";
 			if (finalVariation.length() > 0)
 			{
@@ -461,8 +459,9 @@ namespace pygmalion::frontend
 				this->outputStream() << " 0000";
 				this->outputStream() << std::endl;
 			}
-			this->unlockStreams();
+			this->outputStream().flush();
 			m_MoveThreadIsRunning = false;
+			this->outputStream() << "info string Search finished..." << std::endl;
 		}
 #endif
 	public:
@@ -522,8 +521,8 @@ namespace pygmalion::frontend
 #endif
 #if defined(PYGMALION_UCI)
 			m_PonderEnabled{ false },
-			m_TimerStarted{ false },
-			m_TimerFinished{ true },
+			m_TimerStarted{ signal(false) },
+			m_TimerFinished{ signal(true) },
 #endif
 			m_MoveThreadIsRunning{ false }
 		{
@@ -568,7 +567,7 @@ namespace pygmalion::frontend
 #endif
 			this->template addCommand<command_debugFrontend<descriptorFrontend, frontType>>();
 			this->template addCommand<command_debugClocks<descriptorFrontend, frontType>>();
-	}
+		}
 		virtual ~engine() noexcept
 		{
 #if defined(PYGMALION_WB2)
@@ -827,70 +826,50 @@ namespace pygmalion::frontend
 		template<size_t PLAYER>
 		void searchMoveUnlimited() noexcept
 		{
-			m_SearchTimerFlag = false;
-			std::thread searchThread{ std::thread([this]() { this->template searchThreadFunc<PLAYER>(); }) };
-			searchThread.detach();
-			{
-				std::unique_lock<std::mutex> lock(m_LimitMutex);
-				m_TimedCondition.wait(lock, [this]() { return static_cast<bool>(this->m_TimerFinished); });
-				m_TimerStarted = false;
-				m_TimerFinished = true;
-			}
+			m_MoveThreadIsRunning = true;
+			m_SearchQueue.start([this]()
+				{
+					m_TimerStarted.wait(false, [this]() { m_TimerFinished.lower(); });
+					this->template searchThreadFunc<PLAYER>();
+				});
 		}
 		void limitSearch() noexcept
 		{
-			const durationType timeLeft{ this->allocateTime(this->currentGame().position().movingPlayer()) };
-			const timeType startTime{ chronographType::now() };
-			m_SearchTimerFlag = true;
-			{
-				std::unique_lock<std::mutex> lock(m_LimitMutex);
-				m_TimedCondition.wait(lock, [this]() { return static_cast<bool>(this->m_TimerFinished); });
-				m_TimerStarted = true;
-				m_TimerFinished = false;
-			}
-			m_SearchTimerStart = startTime;
-			m_SearchTimerInterval = timeLeft;
-			std::thread timerThread
-			{
-				std::thread(
-					[this]()
-					{
-						this->lockStreams();
-						this->outputStream() << "info string Timer starting..." << std::endl;
-						this->unlockStreams();
-						bool isElapsed{ false };
-						while (m_MoveThreadIsRunning && !isElapsed)
+			m_TimerStarted.waitLowAndRaise([this]()
+				{
+					const durationType timeLeft{ this->allocateTime(this->currentGame().position().movingPlayer()) };
+					const timeType startTime{ chronographType::now() };
+					m_SearchTimerStart = startTime;
+					m_SearchTimerInterval = timeLeft;
+					m_TimerFinished.lower();
+					this->outputStream() << "info string Timer started (" << parser::durationToString(m_SearchTimerInterval) << " )..." << std::endl;
+					m_TimerQueue.start(
+						[this]()
 						{
-							std::this_thread::sleep_for(std::chrono::milliseconds(10));
-							const durationType elapsedTime{ std::chrono::duration_cast<durationType>(chronographType::now() - m_SearchTimerStart) };
-							if ((elapsedTime + std::chrono::milliseconds(10)) > m_SearchTimerInterval)
+							bool isElapsed{ false };
+							while (m_MoveThreadIsRunning && !isElapsed)
 							{
-								isElapsed = true;
+								std::this_thread::sleep_for(std::chrono::milliseconds(10));
+								const durationType elapsedTime{ std::chrono::duration_cast<durationType>(chronographType::now() - m_SearchTimerStart) };
+								if ((elapsedTime + std::chrono::milliseconds(10)) > m_SearchTimerInterval)
+								{
+									this->outputStream() << "info string Timer elapsed..." << std::endl;
+									isElapsed = true;
+								}
 							}
+							m_MoveThreadIsRunning = false;
+							m_TimerFinished.raise();
+							m_TimerStarted.lower();
+							this->outputStream() << "info string Timer finished..." << std::endl;
 						}
-						m_MoveThreadIsRunning = false;
-						{
-							std::lock_guard<std::mutex> lock(m_LimitMutex);
-							m_TimerFinished = true;
-							m_TimerStarted = false;
-						}
-						m_TimedCondition.notify_one();
-						this->lockStreams();
-						this->outputStream() << "info string Timer finishing..." << std::endl;
-						this->unlockStreams();
-					}
-				)
-			};
-			timerThread.detach();
+					);
+				});
 		}
 #if defined(PYGMALION_UCI)
 		void forceMove() noexcept
 		{
 			m_MoveThreadIsRunning = false;
-			{
-				std::unique_lock<std::mutex> lock(m_LimitMutex);
-				m_TimedCondition.wait(lock, [this]() { return static_cast<bool>(this->m_TimerFinished); });
-			}
+			m_SearchQueue.stop();
 		}
 #endif
 		void doMove(const movebitsType& movebits) noexcept
@@ -952,5 +931,5 @@ namespace pygmalion::frontend
 			return false;
 		}
 #endif
-		};
-				}
+	};
+}

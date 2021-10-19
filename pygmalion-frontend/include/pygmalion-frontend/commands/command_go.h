@@ -202,6 +202,11 @@ namespace pygmalion::frontend
 								remainder = remainder2;
 							}
 						}
+						else
+						{
+							this->output() << "info string Invalid token: \"" << token << "\"" << std::endl;
+							return false;
+						}
 					}
 					if (bMoveTime)
 					{

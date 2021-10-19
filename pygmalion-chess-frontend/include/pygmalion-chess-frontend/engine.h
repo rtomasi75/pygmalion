@@ -8,8 +8,16 @@ namespace pygmalion::chess::frontend
 		virtual void writeInvalidCommand(const std::string command) noexcept override
 		{
 #if defined(PYGMALION_WB2)
-			this->outputStream() << "Error (Invalid Command): " << command << std::endl;
+			if (this->front().isXBoard())
+				this->outputStream() << "Error (Invalid Command): " << command << std::endl;
+			else
 #endif
+#if defined(PYGMALION_UCI)
+			if (this->front().isUCI())
+				this->outputStream() << "info string Invalid Command: " << command << std::endl;
+			else
+#endif
+				this->outputStream() << "Error (Invalid Command): " << command << std::endl;
 		}
 	public:
 		engine() noexcept = delete;

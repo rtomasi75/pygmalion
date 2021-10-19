@@ -1,7 +1,7 @@
 #if !defined(PYGMALION_INTRINSICS)
 #define PYGMALION_INTRINSICS
 
-//#define PYGMALION_TUNE 1
+#define PYGMALION_TUNE 1
 #if (!defined(PYGMALION_TUNE))||(PYGMALION_TUNE==0)
 #define PYGMALION_TUNABLE constexpr
 #else
@@ -51,6 +51,8 @@ using timeType = typename chronographType::time_point;
 #include "pygmalion-intrinsics/bsf.h"
 #include "pygmalion-intrinsics/bsr.h"
 #include "pygmalion-intrinsics/simd.h"
+#include "pygmalion-intrinsics/signal.h"
+#include "pygmalion-intrinsics/threadqueue.h"
 #include "pygmalion-intrinsics/hashprovider.h"
 #include "pygmalion-intrinsics/enumeration.h"
 #include "pygmalion-intrinsics/bit.h"

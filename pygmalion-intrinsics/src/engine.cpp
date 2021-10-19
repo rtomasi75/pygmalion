@@ -57,7 +57,7 @@ namespace pygmalion::intrinsics
 			}
 			if (!processed)
 			{
-				if (input.size() == 0)
+				if (input.size() != 0)
 				{
 					writeInvalidCommand(input);
 				}
