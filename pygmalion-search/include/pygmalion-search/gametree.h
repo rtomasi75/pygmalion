@@ -39,7 +39,7 @@ namespace pygmalion
 			bool m_NeedsTacticalSorting;
 			bool m_FutilityPruningAllowed;
 			bool m_DeltaPruningAllowed;
-			std::atomic_bool& m_IsRunning;
+			signal& m_Terminate;
 			scoreType m_EvalAlpha;
 			scoreType m_EvalBeta;
 			scoreType m_Eval;
@@ -851,7 +851,14 @@ namespace pygmalion
 			scoreType eval(scoreType alpha, scoreType beta, variationType& principalVariation, bool& allowStoreTT, const depthType qsDepth) noexcept
 			{
 				constexpr const scoreType zero{ scoreType::zero() };
-				if (!m_IsRunning)
+				bool bTerminate{ false };
+				m_Terminate.doIfHigh(
+					[&bTerminate]()
+					{
+						bTerminate = true;
+					}
+				);
+				if (bTerminate)
 				{
 					allowStoreTT = false;
 					return zero;
@@ -929,7 +936,10 @@ namespace pygmalion
 				{
 					allowStoreTT = true;
 					m_Heuristics.endNodeLate(m_Stack);
-					hasLegalMove = m_Stack.hasLegalMove(m_Depth, m_Heuristics.feedback());
+					if constexpr (heuristicMoves)
+						hasLegalMove = m_Stack.hasLegalMove(m_Depth, m_Heuristics.feedback(), [this](const movebitsType& bits) { return this->m_Heuristics.moveScore(m_Stack, bits, m_Depth); });
+					else
+						hasLegalMove = m_Stack.hasLegalMove(m_Depth, m_Heuristics.feedback());
 					if (hasLegalMove)
 					{
 						if constexpr (USE_TT)
@@ -967,7 +977,14 @@ namespace pygmalion
 			scoreType zweval(scoreType beta, bool& allowStoreTT, const depthType qsDepth) noexcept
 			{
 				constexpr const scoreType zero{ scoreType::zero() };
-				if (!m_IsRunning)
+				bool bTerminate{ false };
+				m_Terminate.doIfHigh(
+					[&bTerminate]()
+					{
+						bTerminate = true;
+					}
+				);
+				if (bTerminate)
 				{
 					allowStoreTT = false;
 					return zero;
@@ -1072,7 +1089,10 @@ namespace pygmalion
 				{
 					allowStoreTT = true;
 					m_Heuristics.endNodeLate(m_Stack);
-					hasLegalMove = m_Stack.hasLegalMove(m_Depth, m_Heuristics.feedback());
+					if constexpr (heuristicMoves)
+						hasLegalMove = m_Stack.hasLegalMove(m_Depth, m_Heuristics.feedback(), [this](const movebitsType& bits) { return this->m_Heuristics.moveScore(m_Stack, bits, m_Depth); });
+					else
+						hasLegalMove = m_Stack.hasLegalMove(m_Depth, m_Heuristics.feedback());
 					if (hasLegalMove)
 					{
 						if constexpr (USE_TT)
@@ -1189,7 +1209,14 @@ namespace pygmalion
 			scoreType zwsearch(scoreType beta, const depthType depthRemaining, const uint_t<countPlayers, false> nullMoveHistory, bool& allowStoreTT, const knuthType expectedNodeType) noexcept
 			{
 				constexpr const scoreType zero{ scoreType::zero() };
-				if (!m_IsRunning)
+				bool bTerminate{ false };
+				m_Terminate.doIfHigh(
+					[&bTerminate]()
+					{
+						bTerminate = true;
+					}
+				);
+				if (bTerminate)
 				{
 					allowStoreTT = false;
 					return zero;
@@ -1289,7 +1316,14 @@ namespace pygmalion
 			scoreType analyze(scoreType alpha, scoreType beta, const depthType depthRemaining, variationType& principalVariation, bool& allowStoreTT, indexType& currentMove) noexcept
 			{
 				constexpr const scoreType zero{ scoreType::zero() };
-				if (!m_IsRunning)
+				bool bTerminate{ false };
+				m_Terminate.doIfHigh(
+					[&bTerminate]()
+					{
+						bTerminate = true;
+					}
+				);
+				if (bTerminate)
 				{
 					allowStoreTT = false;
 					return zero;
@@ -1330,7 +1364,14 @@ namespace pygmalion
 			scoreType search(scoreType alpha, scoreType beta, const depthType depthRemaining, variationType& principalVariation, bool& allowStoreTT) noexcept
 			{
 				constexpr const scoreType zero{ scoreType::zero() };
-				if (!m_IsRunning)
+				bool bTerminate{ false };
+				m_Terminate.doIfHigh(
+					[&bTerminate]()
+					{
+						bTerminate = true;
+					}
+				);
+				if (bTerminate)
 				{
 					allowStoreTT = false;
 					return zero;
@@ -1369,9 +1410,9 @@ namespace pygmalion
 				}
 			}
 			node() = delete;
-			PYGMALION_INLINE node(const stackType& stack, std::atomic_bool& isRunning, heuristicsType& heuristics, const size_t depth) noexcept :
+			PYGMALION_INLINE node(const stackType& stack, signal& terminate, heuristicsType& heuristics, const size_t depth) noexcept :
 				m_Stack{ stack },
-				m_IsRunning{ isRunning },
+				m_Terminate{ terminate },
 				m_Heuristics{ heuristics },
 				m_MovesTT{ ttmovesType() },
 				m_QuietMovesKiller{ quietKillermovesType() },
@@ -1396,6 +1437,7 @@ namespace pygmalion
 				m_Heuristics.expandToDepth(m_Depth + countSearchPlies);
 				if constexpr (searchTranspositionTable)
 					m_Heuristics.transpositionTable().prefetch(m_Stack);
+				m_Stack.context().clearMovegenLists();
 				constexpr const scoreType minimum{ scoreType::minimum() };
 				constexpr const scoreType maximum{ scoreType::maximum() };
 				constexpr const scoreType zero{ scoreType::zero() };
@@ -1407,7 +1449,7 @@ namespace pygmalion
 			}
 			PYGMALION_INLINE node(const parentType& parent, const movebitsType moveBits) noexcept :
 				m_Stack(parent.m_Stack, moveBits),
-				m_IsRunning{ parent.m_IsRunning },
+				m_Terminate{ parent.m_Terminate },
 				m_Heuristics{ parent.m_Heuristics },
 				m_MovesTT{ ttmovesType() },
 				m_QuietMovesKiller{ quietKillermovesType() },

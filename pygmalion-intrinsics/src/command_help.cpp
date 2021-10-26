@@ -6,10 +6,10 @@ namespace pygmalion::intrinsics
 	{
 		if (cmd == "help")
 		{
-			intrinsicsEngine().outputStream() << "Available commands:" << std::endl;
+			this->output() << "Available commands:" << std::endl;
 			for (auto& C : intrinsicsEngine().m_Commands)
 			{
-				intrinsicsEngine().outputStream() << "  " << C->help() << std::endl;
+				this->output() << "  " << C->help() << std::endl;
 			}
 			return true;
 		}

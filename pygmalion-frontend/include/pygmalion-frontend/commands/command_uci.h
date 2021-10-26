@@ -1,6 +1,5 @@
 namespace pygmalion::frontend
 {
-#if defined(PYGMALION_UCI)
 	template<typename DESCRIPTION_FRONTEND, typename FRONT>
 	class command_uci :
 		public pygmalion::frontend::command<DESCRIPTION_FRONTEND, FRONT>
@@ -14,10 +13,6 @@ namespace pygmalion::frontend
 		{
 			if (cmd == "uci")
 			{
-#if defined(PYGMALION_WB2)
-				this->front().isXBoard() = false;
-				this->front().forceMode() = true;
-#endif
 				this->front().isUCI() = true;
 				this->output() << "id name " << this->frontendEngine().version() << std::endl;
 				this->output() << "id author " << this->frontendEngine().author() << std::endl;
@@ -39,5 +34,4 @@ namespace pygmalion::frontend
 			return "UCI";
 		}
 	};
-#endif
 }

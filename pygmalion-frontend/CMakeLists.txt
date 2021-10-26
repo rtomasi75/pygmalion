@@ -13,7 +13,7 @@ set (CMAKE_CXX_STANDARD 17)
 file(GLOB SOURCES src/*.cpp) 
 file(GLOB HEADERS include/pygmalion-frontend/*.h)
 
-add_library(pygmalion-frontend ${SOURCES} ${HEADERS} "include/pygmalion-frontend.h" "include/pygmalion-frontend/commands/command_option.h")
+add_library(pygmalion-frontend ${SOURCES} ${HEADERS} "include/pygmalion-frontend.h" )
 target_include_directories(pygmalion-frontend PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include> PRIVATE src)
 target_link_libraries(pygmalion-frontend PUBLIC pygmalion-search)
 

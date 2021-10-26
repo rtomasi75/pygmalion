@@ -10,26 +10,6 @@ namespace pygmalion::frontend
 #include "../include_frontend.h"	
 	private:
 		template<size_t PLAYER>
-		void processWB() noexcept
-		{
-			if constexpr (PLAYER < countPlayers)
-			{
-				constexpr const playerType player{ static_cast<playerType>(PLAYER) };
-				if (player == this->position().movingPlayer())
-				{
-					this->front().forceMode() = false;
-					this->front().enginePlayer() = player;
-					this->frontendEngine().template thinkMove<PLAYER>();
-					this->output() << std::endl;
-				}
-				else
-					this->template processWB<PLAYER + 1>();
-			}
-			else
-				PYGMALION_ASSERT(false);
-		}
-#if defined(PYGMALION_UCI)
-		template<size_t PLAYER>
 		void process() noexcept
 		{
 			if constexpr (PLAYER < countPlayers)
@@ -57,8 +37,6 @@ namespace pygmalion::frontend
 			else
 				PYGMALION_ASSERT(false);
 		}
-#endif
-#if defined(PYGMALION_UCI)
 		template<size_t PLAYER>
 		void ponder() noexcept
 		{
@@ -75,18 +53,9 @@ namespace pygmalion::frontend
 			else
 				PYGMALION_ASSERT(false);
 		}
-#endif
 	protected:
 		virtual bool onProcess(const std::string& cmd) noexcept override
 		{
-#if defined(PYGMALION_WB2)
-			if ((cmd == "go") && this->front().isXBoard())
-			{
-				this->template processWB<0>();
-				return true;
-			}
-#endif
-#if defined(PYGMALION_UCI)
 			if (this->front().isUCI())
 			{
 				std::string commandToken;
@@ -242,7 +211,6 @@ namespace pygmalion::frontend
 				else
 					return false;
 			}
-#endif
 			return false;
 		}
 		virtual std::string help() noexcept override

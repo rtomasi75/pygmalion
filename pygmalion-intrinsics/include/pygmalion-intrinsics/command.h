@@ -7,13 +7,14 @@ namespace pygmalion::intrinsics
 		friend class engine;
 	private:
 		engine* m_pEngine;
+		std::stringstream m_Output;
 	protected:
 		virtual bool onProcess(const std::string& cmd) noexcept;
 		engine& intrinsicsEngine() noexcept;
 		const engine& intrinsicsEngine() const noexcept;
 	public:
-		std::ostream& output() noexcept;
-		std::istream& input() noexcept;
+		std::stringstream& output() noexcept;
+		void flushOutput() noexcept;
 		command() noexcept;
 		bool process(const std::string& cmd) noexcept;
 		virtual std::string help() noexcept;

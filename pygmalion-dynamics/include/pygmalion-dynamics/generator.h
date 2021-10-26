@@ -393,6 +393,71 @@ namespace pygmalion
 				}
 				return computeHasLegalMove(depth, feedback);
 			}
+			template<typename LAMBDA>
+			bool computeHasLegalMove(const size_t depth, movegenFeedback& feedback, const LAMBDA& lambda) const
+			{
+				while (m_CurrentLegalMove >= m_pContext->normalMoves().length())
+				{
+					if (isPositionCritical())
+					{
+						if (m_CurrentNormalStage < countCriticalEvasionStages)
+						{
+							if (m_CurrentNormalPass < countCriticalEvasionPasses[m_CurrentNormalStage])
+							{
+								generatorType::generateMoves(m_CriticalEvasionStages[m_CurrentNormalStage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->normalMoves(), feedback.index(m_CriticalEvasionStages[m_CurrentNormalStage], m_CurrentNormalPass, depth));
+								while (m_pContext->normalPasses().length() < m_pContext->normalMoves().length())
+								{
+									m_pContext->normalScores().add(lambda(m_pContext->normalMoves()[m_pContext->normalPasses().length()]));
+									m_pContext->normalPasses().add(m_CurrentNormalPass);
+									m_pContext->normalStages().add(m_CriticalEvasionStages[m_CurrentNormalStage]);
+								}
+								++m_CurrentNormalPass;
+							}
+							else
+							{
+								++m_CurrentNormalStage;
+								m_CurrentNormalPass = 0;
+							}
+						}
+						else
+							return false;
+					}
+					else
+					{
+						if (m_CurrentNormalStage < countNormalStages)
+						{
+							if (m_CurrentNormalPass < countNormalPasses[m_CurrentNormalStage])
+							{
+								generatorType::generateMoves(m_NormalStages[m_CurrentNormalStage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->normalMoves(), feedback.index(m_NormalStages[m_CurrentNormalStage], m_CurrentNormalPass, depth));
+								while (m_pContext->normalPasses().length() < m_pContext->normalMoves().length())
+								{
+									m_pContext->normalScores().add(lambda(m_pContext->normalMoves()[m_pContext->normalPasses().length()]));
+									m_pContext->normalPasses().add(m_CurrentNormalPass);
+									m_pContext->normalStages().add(m_NormalStages[m_CurrentNormalStage]);
+								}
+								++m_CurrentNormalPass;
+							}
+							else
+							{
+								++m_CurrentNormalStage;
+								m_CurrentNormalPass = 0;
+							}
+						}
+						else
+							return false;
+					}
+				}
+				while (m_CurrentLegalMove < m_pContext->normalMoves().length())
+				{
+					if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->normalMoves()[m_CurrentLegalMove]))
+					{
+						++m_CurrentLegalMove;
+						return true;
+					}
+					++m_CurrentLegalMove;
+				}
+				return computeHasLegalMove(depth, feedback, lambda);
+			}
 		public:
 			constexpr size_t normalStagesCount() const noexcept
 			{
@@ -490,6 +555,16 @@ namespace pygmalion
 				}
 				return m_HasLegalMove;
 			}
+			template<typename LAMBDA>
+			bool hasLegalMove(const size_t depth, movegenFeedback& feedback, const LAMBDA& lambda) const
+			{
+				if (!m_HasLegalMoveValid)
+				{
+					m_HasLegalMove = computeHasLegalMove(depth, feedback, lambda);
+					m_HasLegalMoveValid = true;
+				}
+				return m_HasLegalMove;
+			}
 			bool isMoveLegal(const movebitsType moveBits) const noexcept
 			{
 				return generatorType::isMoveLegal(*static_cast<const typename generatorType::stackType*>(this), moveBits);
@@ -527,7 +602,6 @@ namespace pygmalion
 						{
 							if (m_CurrentNormalPass < countNormalPasses[m_CurrentNormalStage])
 							{
-								//								std::cout << "generating stage " << m_CurrentNormalStage << ", pass " << m_CurrentNormalPass << " (" << generatorType::passToString(normalStage(m_CurrentNormalStage), normalPass(feedback, m_CurrentNormalStage, m_CurrentNormalPass)) << ")" << std::endl;
 								generatorType::generateMoves(m_NormalStages[m_CurrentNormalStage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->normalMoves(), feedback.index(m_NormalStages[m_CurrentNormalStage], m_CurrentNormalPass, depth));
 								while (m_pContext->normalPasses().length() < m_pContext->normalMoves().length())
 								{
@@ -572,7 +646,6 @@ namespace pygmalion
 							if (m_CurrentNormalPass < countCriticalEvasionPasses[m_CurrentNormalStage])
 							{
 								generatorType::generateMoves(m_CriticalEvasionStages[m_CurrentNormalStage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->normalMoves(), feedback.index(m_CriticalEvasionStages[m_CurrentNormalStage], m_CurrentNormalPass, depth));
-								const auto start{ m_pContext->normalPasses().length() };
 								while (m_pContext->normalPasses().length() < m_pContext->normalMoves().length())
 								{
 									m_pContext->normalScores().add(lambda(m_pContext->normalMoves()[m_pContext->normalPasses().length()]));
@@ -597,7 +670,6 @@ namespace pygmalion
 							if (m_CurrentNormalPass < countNormalPasses[m_CurrentNormalStage])
 							{
 								generatorType::generateMoves(m_NormalStages[m_CurrentNormalStage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->normalMoves(), feedback.index(m_NormalStages[m_CurrentNormalStage], m_CurrentNormalPass, depth));
-								const auto start{ m_pContext->normalPasses().length() };
 								while (m_pContext->normalPasses().length() < m_pContext->normalMoves().length())
 								{
 									m_pContext->normalScores().add(lambda(m_pContext->normalMoves()[m_pContext->normalPasses().length()]));
@@ -707,7 +779,6 @@ namespace pygmalion
 							if (m_CurrentTacticalPass < countCriticalEvasionTacticalPasses[m_CurrentTacticalStage])
 							{
 								generatorType::generateMoves(m_CriticalEvasionTacticalStages[m_CurrentTacticalStage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->tacticalMoves(), feedback.index(m_CriticalEvasionTacticalStages[m_CurrentTacticalStage], m_CurrentTacticalPass, depth));
-								const auto start{ m_pContext->tacticalPasses().length() };
 								while (m_pContext->tacticalPasses().length() < m_pContext->tacticalMoves().length())
 								{
 									m_pContext->tacticalScores().add(lambda(m_pContext->tacticalMoves()[m_pContext->tacticalPasses().length()]));
@@ -732,7 +803,6 @@ namespace pygmalion
 							if (m_CurrentTacticalPass < countTacticalPasses[m_CurrentTacticalStage])
 							{
 								generatorType::generateMoves(m_TacticalStages[m_CurrentTacticalStage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->tacticalMoves(), feedback.index(m_TacticalStages[m_CurrentTacticalStage], m_CurrentTacticalPass, depth));
-								const auto start{ m_pContext->tacticalPasses().length() };
 								while (m_pContext->tacticalPasses().length() < m_pContext->tacticalMoves().length())
 								{
 									m_pContext->tacticalScores().add(lambda(m_pContext->tacticalMoves()[m_pContext->tacticalPasses().length()]));
@@ -845,6 +915,10 @@ namespace pygmalion
 					++m_CurrentCriticalMove;
 				}
 				return nextCriticalMove(moveBits, depth, feedback, lambda);
+			}
+			contextType& context() noexcept
+			{
+				return *m_pContext;
 			}
 			PYGMALION_INLINE stack(const parentType& parent, const movebitsType moveBits) noexcept :
 				m_pContext{ parent.m_pContext + 1 },

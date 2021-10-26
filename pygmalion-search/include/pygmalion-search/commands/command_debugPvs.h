@@ -29,6 +29,7 @@ namespace pygmalion::search
 						this->output() << static_cast<int>(i + 1) << ": " << std::setw(12) << score << " - " << this->searchEngine().template variationToString<PLAYER>(principalVariation) << std::endl;
 						this->output() << this->searchEngine().heuristics().toString();
 						this->output() << std::endl;
+						this->flushOutput();
 						scoreFromPreviousDepth = score;
 					}
 				}

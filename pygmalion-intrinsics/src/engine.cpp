@@ -8,7 +8,9 @@ namespace pygmalion::intrinsics
 		m_Input(input),
 		m_Output(output),
 		m_Commands(),
-		m_StartStopMutex()
+		m_StartStopMutex(),
+		m_pInputThread{ nullptr },
+		m_pOutputThread{ nullptr }
 	{
 		addCommand<command_help>();
 		addCommand<command_quit>();
@@ -30,41 +32,66 @@ namespace pygmalion::intrinsics
 		return "(todo: add author)";
 	}
 
-	void engine::mainloop() noexcept
+	void engine::inputLoop() noexcept
 	{
 		while (m_IsRunning)
 		{
 			std::string input;
-			std::getline(m_Input, input);
-			lockStreams();
-			input = parser::trim_copy(input);
-			bool processed{ false };
-			while (!processed)
+			if (m_Input.peek() != std::istream::traits_type::eof())
 			{
-				for (auto& cmd : m_Commands)
+				std::getline(m_Input, input);
+				input = parser::trim_copy(input);
+				bool processed{ false };
+				while (!processed)
 				{
-					processed |= cmd->process(input);
-					this->outputStream().flush();
-					if (processed)
+					for (auto& cmd : m_Commands)
+					{
+						processed |= cmd->process(input);
+						if (processed)
+						{
+							writeOutput(cmd->output().str());
+							cmd->output() = std::stringstream();
+							break;
+						}
+					}
+					std::string token;
+					std::string remainder;
+					parser::parseToken(input, token, remainder);
+					if (token == "")
 						break;
+					input = remainder;
 				}
-				std::string token;
-				std::string remainder;
-				parser::parseToken(input, token, remainder);
-				if (token == "")
-					break;
-				input = remainder;
-			}
-			if (!processed)
-			{
-				if (input.size() != 0)
+				if (!processed)
 				{
-					writeInvalidCommand(input);
+					handleInvalidCommand(input);
 				}
 			}
-			m_Output.flush();
-			unlockStreams();
+			else
+				std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		}
+	}
+
+	void engine::outputLoop() noexcept
+	{
+		std::unique_lock<std::mutex> lock(m_OutputMutex);
+		while (m_IsRunning)
+		{
+			m_OutputReady.wait_for(lock, std::chrono::milliseconds(10));
+			if (m_ScheduledOutput.size() > 0)
+			{
+				for (const auto& text : m_ScheduledOutput)
+				{
+					m_Output << text;
+				}
+				m_Output.flush();
+				m_ScheduledOutput.clear();
+			}
+		}
+	}
+
+	void engine::handleInvalidCommand(const std::string& command) noexcept
+	{
+
 	}
 
 	bool engine::isRunning() const noexcept
@@ -74,27 +101,43 @@ namespace pygmalion::intrinsics
 
 	void engine::run() noexcept
 	{
-		std::lock_guard<std::recursive_mutex> lock(m_StartStopMutex);
+		std::unique_lock<std::mutex> lock(m_StartStopMutex);
 		PYGMALION_ASSERT(!m_IsRunning);
 		m_IsRunning = true;
-		mainloop();
+		m_pInputThread = new std::thread([this]() { this->inputLoop(); });
+		m_pOutputThread = new std::thread([this]() { this->outputLoop(); });
+		m_pInputThread->join();
+		m_pInputThread = nullptr;
+		m_pOutputThread->join();
+		m_pOutputThread = nullptr;
+	}
+
+	engine::~engine() noexcept
+	{
+		std::unique_lock<std::mutex> lock(m_StartStopMutex);
+		if (m_IsRunning)
+		{
+			m_IsRunning = false;
+			m_pInputThread->join();
+			m_pInputThread = nullptr;
+			m_pOutputThread->join();
+			m_pOutputThread = nullptr;
+		}
 	}
 
 	void engine::stop() noexcept
 	{
-		std::lock_guard<std::recursive_mutex> lock(m_StartStopMutex);
 		PYGMALION_ASSERT(m_IsRunning);
 		m_IsRunning = false;
 	}
 
-	std::istream& engine::inputStream() noexcept
+	void engine::writeOutput(const std::string& text) noexcept
 	{
-		return m_Input;
-	}
-
-	std::ostream& engine::outputStream() noexcept
-	{
-		return m_Output;
+		{
+			std::unique_lock<std::mutex> lock(m_OutputMutex);
+			m_ScheduledOutput.push_back(text);
+		}
+		m_OutputReady.notify_all();
 	}
 
 	void engine::addCommand(std::shared_ptr<command> pCommand) noexcept
@@ -114,6 +157,11 @@ namespace pygmalion::intrinsics
 	void engine::getXBoardVariants(std::deque<std::string>& variants) const noexcept
 	{
 
+	}
+
+	void engine::writeDebugString(const std::string& text) noexcept
+	{
+		writeOutput(text);
 	}
 
 }

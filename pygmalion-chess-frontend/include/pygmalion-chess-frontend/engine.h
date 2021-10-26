@@ -5,19 +5,14 @@ namespace pygmalion::chess::frontend
 		public pygmalion::frontend::engine<FRONT>
 	{
 	protected:
-		virtual void writeInvalidCommand(const std::string command) noexcept override
+		virtual void handleInvalidCommand(const std::string& command) noexcept override
 		{
-#if defined(PYGMALION_WB2)
-			if (this->front().isXBoard())
-				this->outputStream() << "Error (Invalid Command): " << command << std::endl;
-			else
-#endif
-#if defined(PYGMALION_UCI)
+			std::stringstream output;
 			if (this->front().isUCI())
-				this->outputStream() << "info string Invalid Command: " << command << std::endl;
+				output << "info string Invalid Command: " << command << std::endl;
 			else
-#endif
-				this->outputStream() << "Error (Invalid Command): " << command << std::endl;
+				output << "Error (Invalid Command): " << command << std::endl;
+			this->writeOutput(output.str());
 		}
 	public:
 		engine() noexcept = delete;
@@ -26,19 +21,8 @@ namespace pygmalion::chess::frontend
 		engine(std::istream& input, std::ostream& output) noexcept :
 			pygmalion::frontend::engine<FRONT>(input, output)
 		{
-#if defined(PYGMALION_WB2)
-			this->template addCommand<command_white<typename pygmalion::frontend::engine<FRONT>::descriptorFrontend, typename pygmalion::frontend::engine<FRONT>::frontType>>();
-			this->template addCommand<command_black<typename pygmalion::frontend::engine<FRONT>::descriptorFrontend, typename pygmalion::frontend::engine<FRONT>::frontType>>();
-			this->template addCommand<command_time<typename pygmalion::frontend::engine<FRONT>::descriptorFrontend, typename pygmalion::frontend::engine<FRONT>::frontType>>();
-			this->template addCommand<command_otim<typename pygmalion::frontend::engine<FRONT>::descriptorFrontend, typename pygmalion::frontend::engine<FRONT>::frontType>>();
-			this->template addCommand<command_rating<typename pygmalion::frontend::engine<FRONT>::descriptorFrontend, typename pygmalion::frontend::engine<FRONT>::frontType>>();
-			this->template addCommand<command_new<typename pygmalion::frontend::engine<FRONT>::descriptorFrontend, typename pygmalion::frontend::engine<FRONT>::frontType>>();
-			this->template addCommand<command_result<typename pygmalion::frontend::engine<FRONT>::descriptorFrontend, typename pygmalion::frontend::engine<FRONT>::frontType>>();
-			this->template addCommand<command_memory<typename pygmalion::frontend::engine<FRONT>::descriptorFrontend, typename pygmalion::frontend::engine<FRONT>::frontType>>();
-#endif
 			this->template addCommand<command_debugMaterial<typename pygmalion::frontend::engine<FRONT>::descriptorFrontend, typename pygmalion::frontend::engine<FRONT>::frontType>>();
 		}
-#if defined(PYGMALION_UCI)
 		virtual bool handleOptions(const std::string& token, const std::string& remainder) noexcept override
 		{
 #if defined(PYGMALION_TUNE)&&(PYGMALION_TUNE==1)
@@ -71,36 +55,6 @@ namespace pygmalion::chess::frontend
 #endif
 			return pygmalion::frontend::engine<FRONT>::handleOptions(token, remainder);
 		}
-#endif
-#if defined(PYGMALION_WB2)
-		virtual bool handleOptionsWB(const std::string& token, const std::string& remainder) noexcept override
-		{
-#if defined(PYGMALION_TUNE)&&(PYGMALION_TUNE==1)
-			std::string remainder2;
-			std::string remainder3;
-			std::string token2;
-			for (const auto pc : pygmalion::frontend::engine<FRONT>::pieceType::range)
-			{
-				const std::string pattern{ "piece" + parser::fromInt(static_cast<size_t>(pc)) + "_material" };
-				if ((remainder.length() >= pattern.length()) && (parser::toLower(remainder.substr(0, pattern.length())) == pattern))
-				{
-					remainder2 = remainder.substr(pattern.length(), remainder.length() - pattern.length());
-					parser::trim(remainder2);
-					if ((remainder2.length() > 0) && (remainder2[0] == '='))
-					{
-						remainder3 = remainder2.substr(1, remainder2.length() - 1);
-						parser::trim(remainder3);
-						const auto value{ parser::parseInt(remainder3) };
-						pygmalion::frontend::engine<FRONT>::boardType::setMaterial(pc, static_cast<double>(value) / 100.0);
-						this->outputStream() << std::endl;
-						return true;
-					}
-				}
-			}
-#endif
-			return pygmalion::frontend::engine<FRONT>::handleOptionsWB(token, remainder);
-		}
-#endif
 		virtual double timeSkew() const noexcept override
 		{
 			return 8.0;

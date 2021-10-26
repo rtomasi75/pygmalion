@@ -77,9 +77,9 @@ namespace pygmalion::search
 				{
 					this->feedback().sortIndices(this->history().length());
 					stackType<PLAYER> stack{ stackType<PLAYER>(this->position(), this->history(), this->rootContext()) };
-					std::atomic_bool isRunning{ true };
+					signal terminate{ signal(false) };
 					m_Heuristics.beginSearch();
-					nodeType<static_cast<size_t>(static_cast<playerType>(PLAYER))> node(stack, isRunning, m_Heuristics, this->history().length());
+					nodeType<static_cast<size_t>(static_cast<playerType>(PLAYER))> node(stack, terminate, m_Heuristics, this->history().length());
 					principalVariation.clear();
 					indexType currentMove;
 					indexType countMoves;

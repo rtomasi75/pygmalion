@@ -28,14 +28,15 @@ namespace pygmalion::intrinsics
 
 	}
 
-	std::ostream& command::output() noexcept
+	void command::flushOutput() noexcept
 	{
-		return m_pEngine->outputStream();
+		this->intrinsicsEngine().writeOutput(m_Output.str());
+		m_Output = std::stringstream();
 	}
 
-	std::istream& command::input() noexcept
+	std::stringstream& command::output() noexcept
 	{
-		return m_pEngine->inputStream();
+		return m_Output;
 	}
 
 	std::string command::help() noexcept

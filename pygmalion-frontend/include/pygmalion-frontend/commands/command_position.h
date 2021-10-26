@@ -1,6 +1,5 @@
 namespace pygmalion::frontend
 {
-#if defined(PYGMALION_UCI)
 	template<typename DESCRIPTION_FRONTEND, typename FRONT>
 	class command_position :
 		public pygmalion::frontend::command<DESCRIPTION_FRONTEND, FRONT>
@@ -17,6 +16,7 @@ namespace pygmalion::frontend
 			parser::parseToken(cmd, token, remainder);
 			if ((this->front().isUCI()) && (token == "position"))
 			{
+				this->frontendEngine().waitForSearchToFinish();
 				std::string error;
 				std::string remainder2;
 				std::string token;
@@ -75,5 +75,4 @@ namespace pygmalion::frontend
 			return "POSITION";
 		}
 	};
-#endif
 }

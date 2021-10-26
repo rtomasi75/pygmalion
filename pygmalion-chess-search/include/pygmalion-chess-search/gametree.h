@@ -17,8 +17,8 @@ namespace pygmalion::chess
 			using childType = node< static_cast<size_t>(movingPlayer.next())>;
 			using stackType = typename generatorType::template stackType<PLAYER>;
 			PYGMALION_INLINE ~node() noexcept = default;
-			PYGMALION_INLINE node(const stackType& stack, std::atomic_bool& isRunning, heuristicsType& heuristics, const size_t depth) noexcept :
-				pygmalion::gametree<descriptor_search, gametree>::node<PLAYER, node<PLAYER>>(stack, isRunning, heuristics, depth)
+			PYGMALION_INLINE node(const stackType& stack, signal& terminate, heuristicsType& heuristics, const size_t depth) noexcept :
+				pygmalion::gametree<descriptor_search, gametree>::node<PLAYER, node<PLAYER>>(stack, terminate, heuristics, depth)
 			{
 
 			}
@@ -857,7 +857,7 @@ namespace pygmalion::chess
 				scoreType promotionValue{ zero };
 				if (promotionPawns)
 				{
-					constexpr const scoreType singlePromotionsValue{ static_cast<scoreType>(boardType::materialValue(descriptorSearch::queen, descriptorSearch::whitePlayer)) - static_cast<scoreType>(boardType::materialValue(descriptorSearch::pawn, descriptorSearch::whitePlayer)) };
+					PYGMALION_TUNABLE const scoreType singlePromotionsValue{ static_cast<scoreType>(boardType::materialValue(descriptorSearch::queen, descriptorSearch::whitePlayer)) - static_cast<scoreType>(boardType::materialValue(descriptorSearch::pawn, descriptorSearch::whitePlayer)) };
 					promotionValue += singlePromotionsValue;
 				}
 				PYGMALION_TUNABLE const scoreType positionalValue{ evaluatorType::MaxPositionChange };

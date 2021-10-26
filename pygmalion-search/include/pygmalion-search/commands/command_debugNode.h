@@ -51,10 +51,10 @@ namespace pygmalion::search
 				using nodeType = typename gametreeType::template nodeType<PLAYERINDEX>;
 				if (this->position().movingPlayer() == indexedPlayer)
 				{
-					std::atomic_bool isRunning{ true };
+					signal terminate{ signal(false) };
 					this->searchEngine().heuristics().beginSearch();
 					stackType<PLAYERINDEX> stack{ stackType<PLAYERINDEX>(this->position(), this->history(), this->rootContext()) };
-					nodeType node{ nodeType(stack, isRunning, this->searchEngine().heuristics(), this->history().length()) };
+					nodeType node{ nodeType(stack, terminate, this->searchEngine().heuristics(), this->history().length()) };
 					variationType principalVariation;
 					scoreType score;
 					bool bOk{ debugSubNode<static_cast<size_t>(static_cast<playerType>(PLAYERINDEX).next())>(depth, node,remainder,score,principalVariation) };

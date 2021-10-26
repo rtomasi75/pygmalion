@@ -74,12 +74,12 @@ namespace pygmalion
 			using STYPE = std::int64_t;
 		};
 	}
-	template<typename ITEM, int MAXLENGTH>
+	template<typename ITEM, size_t MAXLENGTH>
 	class list
 	{
 	private:
 	public:
-		constexpr static inline const int maxLength{ MAXLENGTH };
+		constexpr static inline const size_t maxLength{ MAXLENGTH };
 		using itemType = ITEM;
 		using counterType = typename detail::list_traits<arrayhelper::requiredSignedBytes(maxLength + 1)>::STYPE;
 	private:
@@ -99,7 +99,7 @@ namespace pygmalion
 			m_Items[idx] = item;
 			m_Length = std::max(m_Length, static_cast<counterType>(idx + 1));
 		}
-		PYGMALION_INLINE void replace(const counterType& idx, itemType&& item) noexcept
+/*		PYGMALION_INLINE void replace(const counterType& idx, itemType&& item) noexcept
 		{
 			PYGMALION_ASSERT(idx >= 0);
 			PYGMALION_ASSERT(std::max(m_Length, static_cast<counterType>(idx + 1)) <= maxLength);
@@ -107,7 +107,7 @@ namespace pygmalion
 			PYGMALION_ASSERT(m_Length < (maxLength - 1));
 			m_Items[idx] = item;
 			m_Length = std::max(m_Length, static_cast<counterType>(idx + 1));
-		}
+		}*/
 		void combine(const itemType& item, const list& tail) noexcept
 		{
 			PYGMALION_ASSERT((tail.m_Length + 1) <= maxLength);
@@ -140,7 +140,7 @@ namespace pygmalion
 			}
 			return false;
 		}
-		void combine(const itemType& item, list&& tail) noexcept
+/*		void combine(const itemType& item, list&& tail) noexcept
 		{
 			PYGMALION_ASSERT((tail.m_Length + 1) <= maxLength);
 			m_Items[0] = item;
@@ -149,7 +149,7 @@ namespace pygmalion
 				m_Items[i + 1] = std::move(tail.m_Items[i]);
 			}
 			m_Length = tail.m_Length + 1;
-		}
+		}*/
 		list& operator=(const list& other) noexcept
 		{
 			m_Length = other.m_Length;
@@ -157,19 +157,19 @@ namespace pygmalion
 				m_Items[i] = other.m_Items[i];
 			return *this;
 		}
-		list& operator=(list&& other) noexcept
+/*		list& operator=(list&& other) noexcept
 		{
 			m_Length = std::move(other.m_Length);
 			for (counterType i = 0; i < m_Length; ++i)
 				m_Items[i] = std::move(other.m_Items[i]);
 			return *this;
-		}
-		list(list&& other) noexcept :
+		}*/
+/*		list(list&& other) noexcept :
 			m_Length(std::move(other.m_Length))
 		{
 			for (counterType i = 0; i < m_Length; ++i)
 				m_Items[i] = std::move(other.m_Items[i]);
-		}
+		}*/
 		list(const list& other) noexcept :
 			m_Length(other.m_Length)
 		{
@@ -208,11 +208,11 @@ namespace pygmalion
 			PYGMALION_ASSERT(m_Length < maxLength);
 			m_Items[m_Length++] = item;
 		}
-		PYGMALION_INLINE void add(itemType&& item) noexcept
+/*		PYGMALION_INLINE void add(itemType&& item) noexcept
 		{
 			PYGMALION_ASSERT(m_Length >= 0);
 			PYGMALION_ASSERT(m_Length < maxLength);
 			m_Items[m_Length++] = std::move(item);
-		}
+		}*/
 	};
 }

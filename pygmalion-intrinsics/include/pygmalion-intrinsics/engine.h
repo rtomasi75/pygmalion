@@ -6,9 +6,15 @@ namespace pygmalion::intrinsics
 		std::ostream& m_Output;
 		std::istream& m_Input;
 		std::atomic_bool m_IsRunning;
-		std::recursive_mutex m_StartStopMutex;
-		void mainloop() noexcept;
+		std::mutex m_StartStopMutex;
+		void inputLoop() noexcept;
+		std::thread* m_pInputThread;
+		void outputLoop() noexcept;
+		std::thread* m_pOutputThread;
 		friend class command_help;
+		std::mutex m_OutputMutex;
+		std::deque<std::string> m_ScheduledOutput;
+		std::condition_variable m_OutputReady;
 	private:
 		std::deque<std::shared_ptr<command>> m_Commands;
 		std::mutex m_StreamsMutex;
@@ -24,11 +30,10 @@ namespace pygmalion::intrinsics
 			std::shared_ptr<command> pCommand(static_cast<command*>(new T()), delCmd);
 			this->addCommand(pCommand);
 		}
-		virtual void writeInvalidCommand(const std::string command) noexcept
-		{
-			
-		}
+		virtual void handleInvalidCommand(const std::string& command) noexcept;
 	public:
+		virtual void writeDebugString(const std::string& text) noexcept;
+		void writeOutput(const std::string& text) noexcept;
 		void getXBoardFeatures(std::deque<std::string>& features) const noexcept;
 		virtual void getXBoardVariants(std::deque<std::string>& variants) const noexcept;
 		virtual std::string version() const noexcept;
@@ -37,19 +42,7 @@ namespace pygmalion::intrinsics
 		engine(const engine&) = delete;
 		engine(engine&&) = delete;
 		engine(std::istream& input, std::ostream& output) noexcept;
-		virtual ~engine() noexcept = default;
-		std::istream& inputStream() noexcept;
-		std::ostream& outputStream() noexcept;
-		void lockStreams() noexcept
-		{
-			m_StreamsMutex.lock();
-			this->outputStream().flush();
-		}
-		void unlockStreams() noexcept
-		{
-			this->outputStream().flush();
-			m_StreamsMutex.unlock();
-		}
+		virtual ~engine() noexcept;
 		bool isRunning() const noexcept;
 		void run() noexcept;
 		void stop() noexcept;

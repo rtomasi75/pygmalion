@@ -16,18 +16,7 @@ namespace pygmalion::frontend
 				this->output() << std::endl;
 				this->output() << "frontend: " << std::setw(4) << sizeof(frontType) << " = " << sizeof(frontType) * CHAR_BIT << "bit" << std::endl;
 				this->output() << std::endl;
-#if defined(PYGMALION_WB2)
-				this->output() << "XBoard mode:      " << (this->front().isXBoard() ? "enabled" : "disabled") << std::endl;
-				this->output() << "protocol version: " << this->front().protocolVersion() << std::endl;
-				this->output() << "force mode:       " << (this->front().forceMode() ? "enabled" : "disabled") << std::endl;
-				this->output() << "post mode:        " << (this->front().postMode() ? "enabled" : "disabled") << std::endl;
-				this->output() << "ponder mode:      " << (this->front().ponderMode() ? "enabled" : "disabled") << std::endl;
-				this->output() << "random mode:      " << (this->front().isRandom() ? "enabled" : "disabled") << std::endl;
-				this->output() << "engine player:    " << boardType::playerToString(this->front().enginePlayer()) << std::endl;
-#endif
-#if defined(PYGMALION_UCI)
 				this->output() << "UCI mode:         " << (this->front().isUCI() ? "enabled" : "disabled") << std::endl;
-#endif
 				this->output() << "opponent name:    " << this->front().opponentName() << std::endl;
 				this->output() << "against computer: " << (this->front().playingComputer() ? "yes" : "no") << std::endl;
 				if (this->front().isDepthLimited())

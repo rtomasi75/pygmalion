@@ -14,15 +14,6 @@ namespace pygmalion
 		bool m_IsPondering;
 		durationType m_MaxTime;
 		std::array<std::uint16_t, countPlayers> m_Rating;
-#if defined(PYGMALION_WB2)
-		int m_ProtocolVersion;
-		bool m_IsXBoard;
-		bool m_IsRandom;
-		bool m_ForceMode;
-		bool m_PostMode;
-		playerType m_EnginePlayer;
-		bool m_PonderMode;
-#endif
 		depthType m_MaxDepth;
 		bool m_IsUCI;
 		bool m_IsDebug;
@@ -50,64 +41,6 @@ namespace pygmalion
 		{
 			return m_IsPondering;
 		}
-#if defined(PYGMALION_WB2)
-		int& protocolVersion() noexcept
-		{
-			return m_ProtocolVersion;
-		}
-		int protocolVersion() const noexcept
-		{
-			return m_ProtocolVersion;
-		}
-		bool& isXBoard() noexcept
-		{
-			return m_IsXBoard;
-		}
-		bool isXBoard() const noexcept
-		{
-			return m_IsXBoard;
-		}
-		bool& isRandom() noexcept
-		{
-			return m_IsRandom;
-		}
-		bool isRandom() const noexcept
-		{
-			return m_IsRandom;
-		}
-		bool ponderMode() const noexcept
-		{
-			return m_PonderMode;
-		}
-		bool& ponderMode() noexcept
-		{
-			return m_PonderMode;
-		}
-		bool postMode() const noexcept
-		{
-			return m_PostMode;
-		}
-		bool& postMode() noexcept
-		{
-			return m_PostMode;
-		}
-		playerType enginePlayer() const noexcept
-		{
-			return m_EnginePlayer;
-		}
-		playerType& enginePlayer() noexcept
-		{
-			return m_EnginePlayer;
-		}
-		bool forceMode() const noexcept
-		{
-			return m_ForceMode;
-		}
-		bool& forceMode() noexcept
-		{
-			return m_ForceMode;
-		}
-#endif
 		bool& playingComputer() noexcept
 		{
 			return m_PlayingComputer;
@@ -189,12 +122,10 @@ namespace pygmalion
 		{
 			m_MaxTime = std::chrono::seconds(-1);
 		}
-#if defined(PYGMALION_UCI)
 		bool& isUCI() noexcept
 		{
 			return m_IsUCI;
 		}
-#endif
 		bool& isDebug() noexcept
 		{
 			return m_IsDebug;
@@ -230,16 +161,6 @@ namespace pygmalion
 			return m_AnalyzeMode;
 		}
 		front() noexcept :
-#if defined(PYGMALION_WB2)
-			m_IsXBoard{ false },
-			m_IsRandom{ false },
-			m_PostMode{ false },
-			m_PonderMode{ false },
-			m_PlayingComputer{ false },
-			m_ProtocolVersion{ 1 },
-			m_ForceMode{ false },
-			m_EnginePlayer{ 0 },
-#endif
 			m_OpponentName{ std::string("<unknown>") },
 			m_IsDebug{ false },
 			m_IsUCI{ false },
