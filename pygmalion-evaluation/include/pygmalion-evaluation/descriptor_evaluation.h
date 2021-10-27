@@ -1,9 +1,7 @@
 namespace pygmalion
 {
-	template<typename DESCRIPTION_EVALUATION,typename SUBJECTIVE>
-	class objective;
 	
-	template<typename GENERATOR>
+	template<typename GENERATOR, size_t MANTISSA, size_t SHIFT, size_t MAXDIST>
 	class descriptor_evaluation :
 		public GENERATOR::descriptorDynamics
 	{
@@ -12,7 +10,10 @@ namespace pygmalion
 		using descriptorDynamics = typename GENERATOR::descriptorDynamics;
 		template<size_t PLAYER>
 		using stackType = typename generatorType::template stackType<PLAYER>;
-
-	}; 
+		using evaluationType = pygmalion::score<MANTISSA, SHIFT, MAXDIST>;
+		constexpr static const size_t evaluationMantissa{ MANTISSA };
+		constexpr static const size_t evaluationShift{ SHIFT };
+		constexpr static const size_t evaluationMaxDistance{ MAXDIST };
+	};
 
 }

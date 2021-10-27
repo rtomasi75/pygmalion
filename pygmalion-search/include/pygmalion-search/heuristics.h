@@ -540,11 +540,23 @@ namespace pygmalion
 				{
 					if (depth >= 2)
 					{
-						return m_HistoryBuckets[depth - 2].template historyScore<PLAYER>(stack, moveBits);
+						const scoreType sc1{ m_HistoryBuckets[depth - 2].template historyScore<PLAYER>(stack, moveBits) };
+						const scoreType sc2{ m_HistoryBuckets[depth].template historyScore<PLAYER>(stack, moveBits) };
+						if (sc1 > minimum)
+						{
+							if (sc2 > minimum)
+								return sc1 + sc2;
+							else
+								return sc1;
+						}
+						else if (sc2 > minimum)
+							return sc2;
+						else
+							return minimum;
 					}
 					else
 					{
-						return minimum;
+						return m_HistoryBuckets[depth].template historyScore<PLAYER>(stack, moveBits);
 					}
 				}
 				else

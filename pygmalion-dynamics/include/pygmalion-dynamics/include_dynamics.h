@@ -11,9 +11,9 @@ using stagelistType = typename descriptorDynamics::stagelistType;
 using heuristicScore = typename descriptorDynamics::heuristicScore;
 
 constexpr static const size_t countMaxGeneratedMoves{ descriptorDynamics::countMaxGeneratedMoves };
-constexpr static const size_t evaluationMantissa{ descriptorDynamics::evaluationMantissa };
-constexpr static const size_t evaluationShift{ descriptorDynamics::evaluationShift };
-constexpr static const size_t evaluationMaxDistance{ descriptorDynamics::evaluationMaxDistance };
+constexpr static const size_t scoreMantissa{ descriptorDynamics::scoreMantissa };
+constexpr static const size_t scoreShift{ descriptorDynamics::scoreShift };
+constexpr static const size_t scoreMaxDistance{ descriptorDynamics::scoreMaxDistance };
 
 using descriptorMechanics = typename motorType::descriptorMechanics;
 #include <pygmalion-mechanics/include_mechanics.h>

@@ -305,7 +305,7 @@ namespace pygmalion
 		template<typename T, typename = typename std::enable_if<std::is_integral<T>::value>>
 		PYGMALION_INLINE constexpr auto operator/(const T& i) const noexcept
 		{
-			return score(static_cast<valueType>(m_Value / i), 0);
+			return score(static_cast<valueType>(m_Value / static_cast<std::make_signed_t<T>>(i)), 0);
 		}
 		PYGMALION_INLINE constexpr auto operator*(const score sc) const noexcept
 		{
@@ -331,7 +331,7 @@ namespace pygmalion
 		template<typename T, typename = typename std::enable_if<std::is_integral<T>::value>>
 		PYGMALION_INLINE constexpr auto operator/=(const T& i) noexcept
 		{
-			m_Value /= i;
+			m_Value /= static_cast<std::make_signed_t<T>>(i);
 		}
 		PYGMALION_INLINE constexpr auto plyUp() const noexcept
 		{
