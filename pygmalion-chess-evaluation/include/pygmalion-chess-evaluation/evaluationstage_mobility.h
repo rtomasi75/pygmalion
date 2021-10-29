@@ -4,13 +4,30 @@ namespace pygmalion::chess
 		public pygmalion::evaluationstage<descriptor_evaluation, evaluationstage_mobility>
 	{
 	public:
-		constexpr static inline double Mobility{ 0.125 };
+		PYGMALION_TUNABLE static inline double Mobility{ 0.125 };
 	private:
-		constexpr static inline scoreType MobilityFactor{ static_cast<scoreType>(Mobility / 64.0) };
+		PYGMALION_TUNABLE static inline scoreType MobilityFactor{ static_cast<scoreType>(Mobility / 64.0) };
+		PYGMALION_TUNABLE static inline scoreType MobilityDelta{ static_cast<scoreType>(48.0 * Mobility / 64.0) };
 	public:
-		constexpr static scoreType computeDelta_Implementation() noexcept
+		constexpr static size_t getParameterCount_Implementation() noexcept
 		{
-			return static_cast<scoreType>(48.0 * Mobility / 64.0);
+			return 1;
+		}
+		static parameter getParameter_Implementation(const size_t index) noexcept
+		{
+			return parameter(Mobility, 0.0, 1.0, 0.001, "term_mobility");
+		}
+#if defined(PYGMALION_TUNE)
+		static void setParameter_Implementation(const size_t index, double value) noexcept
+		{
+			Mobility = value;
+			MobilityFactor = static_cast<scoreType>(Mobility / 64.0);
+			MobilityDelta= static_cast<scoreType>(48.0 * Mobility / 64.0);
+		}
+#endif
+		PYGMALION_TUNABLE static scoreType computeDelta_Implementation() noexcept
+		{
+			return MobilityDelta;
 		}
 		template<size_t PLAYER>
 		static scoreType evaluate_Implementation(const generatorType::template stackType<PLAYER>& stack) noexcept

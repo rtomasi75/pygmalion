@@ -52,12 +52,12 @@ namespace pygmalion::chess
 				{
 				case 0:
 				{
-					constexpr const scoreType positionalValue{ evaluatorType::MaxPositionChange };
+					PYGMALION_TUNABLE const scoreType positionalValue{ evaluatorType::MaxPositionChange };
 					return positionalValue;
 				}
 				case 1:
 				{
-					constexpr const scoreType positionalValue{ evaluatorType::MaxPositionChange + evaluatorType::MaxPositionChange };
+					PYGMALION_TUNABLE const scoreType positionalValue{ evaluatorType::MaxPositionChange + evaluatorType::MaxPositionChange };
 					return positionalValue;
 				}
 				case 2:
@@ -71,7 +71,7 @@ namespace pygmalion::chess
 						PYGMALION_TUNABLE const scoreType singlePromotionsValue{ static_cast<scoreType>(boardType::materialValue(descriptorSearch::queen, descriptorSearch::whitePlayer)) - static_cast<scoreType>(boardType::materialValue(descriptorSearch::pawn, descriptorSearch::whitePlayer)) };
 						promotionValue += singlePromotionsValue;
 					}
-					constexpr const scoreType positionalValue{ evaluatorType::MaxPositionChange + evaluatorType::MaxPositionChange + evaluatorType::MaxPositionChange };
+					PYGMALION_TUNABLE const scoreType positionalValue{ evaluatorType::MaxPositionChange + evaluatorType::MaxPositionChange + evaluatorType::MaxPositionChange };
 					bool noCapture{ true };
 					const squaresType otherOcc{ stack.position().playerOccupancy(otherPlayer) };
 					const squaresType queens{ stack.position().pieceOccupancy(descriptorSearch::queen) & otherOcc };
@@ -135,7 +135,7 @@ namespace pygmalion::chess
 						PYGMALION_TUNABLE const scoreType singlePromotionsValue{ static_cast<scoreType>(boardType::materialValue(descriptorSearch::queen, descriptorSearch::whitePlayer)) - static_cast<scoreType>(boardType::materialValue(descriptorSearch::pawn, descriptorSearch::whitePlayer)) };
 						promotionValue += singlePromotionsValue;
 					}
-					constexpr const scoreType positionalValue{ evaluatorType::MaxPositionChange + evaluatorType::MaxPositionChange + evaluatorType::MaxPositionChange + evaluatorType::MaxPositionChange };
+					PYGMALION_TUNABLE const scoreType positionalValue{ evaluatorType::MaxPositionChange + evaluatorType::MaxPositionChange + evaluatorType::MaxPositionChange + evaluatorType::MaxPositionChange };
 					bool noCapture{ true };
 					const squaresType otherOcc{ stack.position().playerOccupancy(otherPlayer) };
 					const squaresType queens{ stack.position().pieceOccupancy(descriptorSearch::queen) & otherOcc };
@@ -378,7 +378,7 @@ namespace pygmalion::chess
 						PYGMALION_TUNABLE const scoreType singlePromotionsValue{ static_cast<scoreType>(boardType::materialValue(descriptorSearch::queen, descriptorSearch::whitePlayer)) - static_cast<scoreType>(boardType::materialValue(descriptorSearch::pawn, descriptorSearch::whitePlayer)) };
 						promotionValue += singlePromotionsValue;
 					}
-					constexpr const scoreType positionalValue{ evaluatorType::MaxPositionChange };
+					PYGMALION_TUNABLE const scoreType positionalValue{ evaluatorType::MaxPositionChange };
 					bool noCapture{ true };
 					const squaresType otherOcc{ stack.position().playerOccupancy(otherPlayer) };
 					const squaresType queens{ stack.position().pieceOccupancy(descriptorSearch::queen) & otherOcc };
@@ -442,7 +442,7 @@ namespace pygmalion::chess
 						PYGMALION_TUNABLE const scoreType singlePromotionsValue{ static_cast<scoreType>(boardType::materialValue(descriptorSearch::queen, descriptorSearch::whitePlayer)) - static_cast<scoreType>(boardType::materialValue(descriptorSearch::pawn, descriptorSearch::whitePlayer)) };
 						promotionValue += singlePromotionsValue;
 					}
-					constexpr const scoreType positionalValue{ evaluatorType::MaxPositionChange + evaluatorType::MaxPositionChange };
+					PYGMALION_TUNABLE const scoreType positionalValue{ evaluatorType::MaxPositionChange + evaluatorType::MaxPositionChange };
 					bool noCapture{ true };
 					const squaresType otherOcc{ stack.position().playerOccupancy(otherPlayer) };
 					const squaresType queens{ stack.position().pieceOccupancy(descriptorSearch::queen) & otherOcc };

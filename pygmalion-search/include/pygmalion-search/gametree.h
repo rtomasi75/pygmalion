@@ -379,7 +379,7 @@ namespace pygmalion
 							sc = evaluate(alpha, beta);
 							scoreType lowAspiration{ sc };
 							scoreType highAspiration{ sc };
-							constexpr const scoreType initialAspirationWindow{ evaluatorType::initialAspirationWindowSize() };
+							PYGMALION_TUNABLE const scoreType initialAspirationWindow{ evaluatorType::initialAspirationWindowSize() };
 							constexpr const scoreType atom{ scoreType::atom() };
 							scoreType delta{ initialAspirationWindow };
 							for (depthType d = -1; d < depthRemaining; ++d)
@@ -1506,7 +1506,7 @@ namespace pygmalion
 						scoreType sc{ scoreFromPreviousDepth };
 						scoreType lowAspiration{ sc };
 						scoreType highAspiration{ sc };
-						constexpr const scoreType initialAspirationWindow{ evaluatorType::initialAspirationWindowSize() };
+						PYGMALION_TUNABLE const scoreType initialAspirationWindow{ evaluatorType::initialAspirationWindowSize() };
 						constexpr const scoreType atom{ scoreType::atom() };
 						scoreType delta{ initialAspirationWindow };
 						bool bExact{ false };

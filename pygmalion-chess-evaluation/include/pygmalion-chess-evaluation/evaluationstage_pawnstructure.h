@@ -4,10 +4,26 @@ namespace pygmalion::chess
 		public pygmalion::evaluationstage<descriptor_evaluation, evaluationstage_pawnstructure>
 	{
 	public:
-		constexpr static inline double PawnStructure{ 0.25 };
-		constexpr static scoreType computeDelta_Implementation() noexcept
+		PYGMALION_TUNABLE static inline double PawnStructure{ 0.25 };
+		PYGMALION_TUNABLE static inline scoreType PawnStructureDelta{ static_cast<scoreType>(1.5 * PawnStructure) };
+		constexpr static size_t getParameterCount_Implementation() noexcept
 		{
-			return static_cast<scoreType>(1.5 * PawnStructure);
+			return 1;
+		}
+		static parameter getParameter_Implementation(const size_t index) noexcept
+		{
+			return parameter(PawnStructure, 0.0, 1.0, 0.001, "term_pawnstructure");
+		}
+#if defined(PYGMALION_TUNE)
+		static void setParameter_Implementation(const size_t index, double value) noexcept
+		{
+			PawnStructure = value;
+			PawnStructureDelta = static_cast<scoreType>(1.5 * PawnStructure);
+		}
+#endif
+		PYGMALION_TUNABLE static scoreType computeDelta_Implementation() noexcept
+		{
+			return PawnStructureDelta;
 		}
 		template<size_t PLAYER>
 		PYGMALION_INLINE static scoreType evaluate_Implementation(const generatorType::template stackType<PLAYER>& stack) noexcept
@@ -73,7 +89,7 @@ namespace pygmalion::chess
 						blackRank3 = 0;
 					}
 					std::int8_t distanceToPromotion{ pawnstructure::distance(movingPlayer, whiteRank1, whiteRank2, whiteRank3, blackRank1, blackRank2, blackRank3) };
-					constexpr const scoreType baseScore{ static_cast<scoreType>(PawnStructure) };
+					PYGMALION_TUNABLE const scoreType baseScore{ static_cast<scoreType>(PawnStructure) };
 					if (distanceToPromotion > 0)
 					{
 						const int divisor{ 1 << distanceToPromotion };

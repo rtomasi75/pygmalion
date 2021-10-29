@@ -2,13 +2,11 @@ namespace pygmalion::chess
 {
 	class evaluator :
 		public pygmalion::evaluator<descriptor_evaluation, evaluator
-#if (!defined(PYGMALION_TUNE))||(PYGMALION_TUNE==0)
 		, evaluationstage_pawnstructure
 		, evaluationstage_attacks
 		, evaluationstage_mobility
 		, evaluationstage_control
 		, evaluationstage_kingsafety
-#endif
 		>
 	{
 	public:
@@ -19,9 +17,9 @@ namespace pygmalion::chess
 			const bool invert{ stack.movingPlayer() == blackPlayer };
 			return invert ? -mat : mat;
 		}
-		PYGMALION_INLINE constexpr static scoreType initialAspirationWindowSize() noexcept
+		PYGMALION_INLINE PYGMALION_TUNABLE static scoreType initialAspirationWindowSize() noexcept
 		{
-			constexpr const scoreType delta{ rootDelta() / 8 };
+			PYGMALION_TUNABLE const scoreType delta{ rootDelta() / 8 };
 			return delta;
 		}
 		PYGMALION_INLINE constexpr static size_t countAspirationWindows_Implementation() noexcept
@@ -128,7 +126,7 @@ namespace pygmalion::chess
 				subset = position.pieceOccupancy(bishop) & occ;
 				if (subset)
 					return subset.singlePiece();
-				subset = position.pieceOccupancy(knight)  & occ;
+				subset = position.pieceOccupancy(knight) & occ;
 				if (subset)
 					return subset.singlePiece();
 			}
@@ -226,5 +224,49 @@ namespace pygmalion::chess
 		{
 			return static_cast<scoreType>(staticExchange(move, position));
 		}
+		constexpr static size_t countParameters_Implementation() noexcept
+		{
+			return 4;
+		}
+		static parameter getParameter_Implementation(const size_t index) noexcept
+		{
+			switch (index)
+			{
+			case 0: // knight
+				return parameter(static_cast<double>(boardType::materialValue(knight, whitePlayer)), 2.0, 4.0, 0.001, "material_knight");
+			case 1: // bishop
+				return parameter(static_cast<double>(boardType::materialValue(bishop, whitePlayer)), 2.0, 4.0, 0.001, "material_bishop");
+			case 2: // rook
+				return parameter(static_cast<double>(boardType::materialValue(rook, whitePlayer)), 4.5, 7.0, 0.001, "material_rook");
+			case 3: // queen
+				return parameter(static_cast<double>(boardType::materialValue(queen, whitePlayer)), 7.5, 12.0, 0.001, "material_queen");
+			default:
+				PYGMALION_ASSERT(false);
+				return parameter(0.0, 0.0, 0.0, 0.0, "???");
+			}
+		}
+#if defined(PYGMALION_TUNE)
+		static void setParameter_Implementation(const size_t index, double value) noexcept
+		{
+			switch (index)
+			{
+			case 0: // knight
+				boardType::setMaterial(knight, value);
+				break;
+			case 1: // bishop
+				boardType::setMaterial(bishop, value);
+				break;
+			case 2: // rook
+				boardType::setMaterial(rook, value);
+				break;
+			case 3: // queen
+				boardType::setMaterial(queen, value);
+				break;
+			default:
+				PYGMALION_ASSERT(false);
+				break;
+			}
+		}
+#endif
 	};
 }

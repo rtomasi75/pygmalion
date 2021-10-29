@@ -10,6 +10,19 @@ namespace pygmalion::tictactoe
 		public pygmalion::evaluator<descriptor_evaluation, evaluator>
 	{
 	public:
+		constexpr static size_t countParameters_Implementation() noexcept
+		{
+			return 0;
+		}
+		static parameter getParameter_Implementation(const size_t index) noexcept
+		{
+			return parameter(0.0, 0.0, 0.0, 0.0, "???");
+		}
+#if defined(PYGMALION_TUNE)
+		static void setParameter(const size_t index, double value) noexcept
+		{
+		}
+#endif
 		constexpr static scoreType initialAspirationWindowSize() noexcept
 		{
 			constexpr const scoreType zero{ scoreType::zero() };

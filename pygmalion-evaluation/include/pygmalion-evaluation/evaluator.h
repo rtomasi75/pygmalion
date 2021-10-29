@@ -20,9 +20,9 @@ namespace pygmalion
 			return pCommand;
 		}
 		template<typename STAGE, typename... STAGES2>
-		constexpr static scoreType computeDelta() noexcept
+		PYGMALION_TUNABLE static scoreType computeDelta() noexcept
 		{
-			constexpr const scoreType sc2{ STAGE::computeDelta() };
+			PYGMALION_TUNABLE const scoreType sc2{ STAGE::computeDelta() };
 			if constexpr (sizeof...(STAGES2) > 0)
 				return sc2 + computeDelta<STAGES2...>();
 			else
@@ -32,7 +32,7 @@ namespace pygmalion
 		PYGMALION_INLINE static scoreType computeStages(const scoreType alpha, const scoreType beta, const scoreType sc, const typename generatorType::template stackType<PLAYER>& stack) noexcept
 		{
 			scoreType sc2{ sc };
-			constexpr const scoreType delta{ computeDelta<STAGE,STAGES2...>() };
+			PYGMALION_TUNABLE const scoreType delta{ computeDelta<STAGE,STAGES2...>() };
 			if (!isFutile(alpha, beta, sc, delta))
 			{
 				sc2 += STAGE::evaluate(stack);
@@ -74,6 +74,45 @@ namespace pygmalion
 				}
 			}
 		}
+		template<typename STAGE, typename... STAGES2>
+		constexpr static size_t stageParameterCount() noexcept
+		{
+			size_t count{ STAGE::getParameterCount() };
+			if constexpr (sizeof...(STAGES2) > 0)
+				return count + evaluatorType::template stageParameterCount<STAGES2...>();
+			else
+				return count;
+		}
+		template<typename STAGE, typename... STAGES2>
+		static parameter stageParameter(const size_t index) noexcept
+		{
+			size_t count{ STAGE::getParameterCount() };
+			if (index < count)
+				return STAGE::getParameter(index);
+			if constexpr (sizeof...(STAGES2) > 0)
+				return evaluatorType::template stageParameter<STAGES2...>(index - count);
+			else
+			{
+				PYGMALION_ASSERT(false);
+				return parameter(0.0, 0.0, 0.0, 0.0, "???");
+			}
+		}
+		template<typename STAGE, typename... STAGES2>
+		static void setStageParameter(const size_t index, const double value) noexcept
+		{
+			size_t count{ STAGE::getParameterCount() };
+			if (index < count)
+				STAGE::setParameter(index, value);
+			else
+			{
+				if constexpr (sizeof...(STAGES2) > 0)
+					evaluatorType::template setStageParameter<STAGES2...>(index - count, value);
+				else
+				{
+					PYGMALION_ASSERT(false);
+				}
+			}
+		}
 	protected:
 		template<typename COMMAND>
 		static void addCommand(std::deque<std::shared_ptr<pygmalion::intrinsics::command>>& list) noexcept
@@ -86,7 +125,44 @@ namespace pygmalion
 			return (approx + delta <= alpha) && (approx + delta < beta);
 		}
 	public:
-		constexpr static scoreType rootDelta() noexcept
+		constexpr static size_t getParameterCount() noexcept
+		{
+			if constexpr (sizeof...(STAGES) > 0)
+				return evaluatorType::countParameters_Implementation() + evaluatorType::template stageParameterCount<STAGES...>();
+			else
+				return evaluatorType::countParameters_Implementation();
+
+		}
+		static parameter getParameter(const size_t index) noexcept
+		{
+			if constexpr (sizeof...(STAGES) > 0)
+			{
+				constexpr size_t pars{ evaluatorType::countParameters_Implementation() };
+				if (index < pars)
+					return evaluatorType::getParameter_Implementation(index);
+				return evaluatorType::template stageParameter<STAGES...>(index - pars);
+			}
+			else
+			{
+				return evaluatorType::getParameter_Implementation(index);
+			}
+		}
+#if defined(PYGMALION_TUNE)
+		static void setParameter(const size_t index, double value) noexcept
+		{
+			if constexpr (sizeof...(STAGES) > 0)
+			{
+				constexpr size_t pars{ evaluatorType::countParameters_Implementation() };
+				if (index < pars)
+					evaluatorType::setParameter_Implementation(index, value);
+				else
+					evaluatorType::template setStageParameter<STAGES...>(index - pars, value);
+			}
+			else
+				evaluatorType::setParameter_Implementation(index, value);
+		}
+#endif
+		PYGMALION_TUNABLE static scoreType rootDelta() noexcept
 		{
 			if constexpr (sizeof...(STAGES) > 0)
 				return computeDelta<STAGES...>();
@@ -123,7 +199,7 @@ namespace pygmalion
 				return scoreType::zero();
 			}
 		}
-		constexpr static inline scoreType MaxPositionChange{ rootDelta() };
+		PYGMALION_TUNABLE static inline scoreType MaxPositionChange{ rootDelta() };
 		static std::deque<std::shared_ptr<pygmalion::intrinsics::command>> commands() noexcept
 		{
 			return evaluatorType::commandsImplementation();

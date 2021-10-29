@@ -4,7 +4,7 @@ namespace pygmalion::chess
 		public pygmalion::evaluationstage<descriptor_evaluation, evaluationstage_kingsafety>
 	{
 	public:
-		constexpr static inline double KingSafety{ 0.0125 };
+		PYGMALION_TUNABLE static inline double KingSafety{ 0.0125 };
 		//		constexpr static inline double KingAreaSafety{ 0.05 };
 	private:
 		class scoreLookUp
@@ -35,6 +35,7 @@ namespace pygmalion::chess
 		};
 		//		static inline scoreLookUp m_KingAreaSafetyScores{ scoreLookUp(KingAreaSafety) };
 		static inline scoreLookUp m_KingSafetyScores{ scoreLookUp(KingSafety) };
+		PYGMALION_TUNABLE static inline scoreType KingSafetyDelta{ static_cast<scoreType>(8.0 * (KingSafety)) };
 		template<size_t PLAYER>
 		PYGMALION_INLINE static scoreType scoreKingsafety(const generatorType::template stackType<PLAYER>& stack, const playerType player) noexcept
 		{
@@ -163,9 +164,25 @@ namespace pygmalion::chess
 			return safetyScore;
 		}
 	public:
-		constexpr static scoreType computeDelta_Implementation() noexcept
+		constexpr static size_t getParameterCount_Implementation() noexcept
 		{
-			return static_cast<scoreType>(8.0 * (KingSafety));
+			return 1;
+		}
+		static parameter getParameter_Implementation(const size_t index) noexcept
+		{
+			return parameter(KingSafety, 0.0, 1.0, 0.001, "term_kingsafety");
+		}
+#if defined(PYGMALION_TUNE)
+		static void setParameter_Implementation(const size_t index, double value) noexcept
+		{
+			KingSafety = value;
+			m_KingSafetyScores = scoreLookUp(KingSafety);
+			KingSafetyDelta = static_cast<scoreType>(8.0 * (KingSafety));
+		}
+#endif
+		PYGMALION_TUNABLE static scoreType computeDelta_Implementation() noexcept
+		{
+			return KingSafetyDelta;
 		}
 		template<size_t PLAYER>
 		PYGMALION_INLINE static scoreType evaluate_Implementation(const generatorType::template stackType<PLAYER>& stack) noexcept

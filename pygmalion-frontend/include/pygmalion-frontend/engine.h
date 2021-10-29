@@ -198,44 +198,6 @@ namespace pygmalion::frontend
 				}
 			}
 			std::stringstream outStream;
-			outStream << "info ";
-			outStream << "depth " << static_cast<int>(finalDepth) << " ";
-			const std::chrono::milliseconds milliseconds{ std::chrono::duration_cast<std::chrono::milliseconds>(finalDuration) };
-			outStream << "time " << static_cast<std::uintmax_t>(milliseconds.count()) << " ";
-			outStream << "nodes " << finalNodes << " ";
-			outStream << "score ";
-			if (finalScore.isOpen())
-			{
-				outStream << "cp " << static_cast<std::intmax_t>(static_cast<double>(finalScore) * 100.0) << " ";
-			}
-			else
-			{
-				outStream << "mate ";
-				if (finalScore.isWinning())
-				{
-					outStream << static_cast<std::intmax_t>((finalScore.winDistance() + 1) / 2) << " ";
-				}
-				else
-				{
-					outStream << -static_cast<std::intmax_t>((finalScore.lossDistance() + 1) / 2) << " ";
-				}
-			}
-			if (finalVariation.length() > 0)
-			{
-				outStream << "pv";
-				for (depthType i = 0; i < finalVariation.length(); i++)
-				{
-					outStream << " ";
-					std::string str{ motorType::moveToString(this->position(), finalVariation[i]) };
-					this->makeMove(finalVariation[i]);
-					outStream << str;
-				}
-				for (depthType i = 0; i < finalVariation.length(); i++)
-				{
-					this->unmakeMove();
-				}
-			}
-			outStream << std::endl;
 			outStream << "bestmove";
 			if (finalVariation.length() > 0)
 			{
@@ -265,8 +227,8 @@ namespace pygmalion::frontend
 				}
 			);
 			m_TimerStarted.wait(false);
-			outStream << "info string Search finished..." << std::endl;
 			this->writeOutput(outStream.str());
+			this->writeDebugString("Search finished...");
 			m_IsRunning.lower();
 		}
 		void limitSearchInternal(const durationType& timeLeft) noexcept
@@ -362,7 +324,7 @@ namespace pygmalion::frontend
 			this->template addCommand<command_debugFrontend<descriptorFrontend, frontType>>();
 			this->template addCommand<command_debugClocks<descriptorFrontend, frontType>>();
 		}
-			virtual ~engine() noexcept
+		virtual ~engine() noexcept
 		{
 			forceMove();
 		}
@@ -590,6 +552,32 @@ namespace pygmalion::frontend
 						this->resizeHashTables(sizeInBytes);
 						return true;
 					}
+				}
+				else
+				{
+#if defined(PYGMALION_TUNE)&&(PYGMALION_TUNE==1)
+					for (size_t idx = 0; idx < evaluatorType::getParameterCount(); idx++)
+					{
+						parameter par{ evaluatorType::getParameter(idx) };
+						if (parser::toLower(par.name()) == token2)
+						{
+							remainder3 = remainder2;
+							parser::parseToken(remainder3, token2, remainder2);
+							if (token2 == "value")
+							{
+								remainder3 = remainder2;
+								parser::parseToken(remainder3, token2, remainder2);
+								const int value{ static_cast<int>(parser::parseInt(token2)) };
+								const double dValue{ static_cast<double>(value) * par.delta() };
+								evaluatorType::setParameter(idx, dValue);
+								this->heuristics().transpositionTable().clear();
+								return true;
+							}
+							break;
+						}
+					}
+#endif
+
 				}
 			}
 			return false;
