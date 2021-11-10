@@ -39,6 +39,9 @@ namespace pygmalion
 			bool m_NeedsTacticalSorting;
 			bool m_FutilityPruningAllowed;
 			bool m_DeltaPruningAllowed;
+			bool m_IsTTMove;
+			bool m_IsKiller;
+			bool m_IsTacticalKiller;
 			signal& m_Terminate;
 			scoreType m_EvalAlpha;
 			scoreType m_EvalBeta;
@@ -100,261 +103,6 @@ namespace pygmalion
 				m_TacticalMoveGeneratorStage = -1;
 				m_NeedsSorting = true;
 				m_NeedsTacticalSorting = true;
-			}
-			template<bool PRUNED>
-			bool nextMove(const depthType depthRemaining, movebitsType& movebits, bool& fromStack) noexcept
-			{
-				fromStack = false;
-				if (m_MoveGeneratorStage < 0)
-				{
-					m_MoveGeneratorStage = 0;
-					m_MovesTT.clear();
-					m_Heuristics.transpositionTable().probeMoves(m_Stack, depthRemaining, m_MovesTT);
-					m_MoveTT = 0;
-				}
-				if (m_MoveGeneratorStage == 0)
-				{
-					while (m_MoveTT < m_MovesTT.length())
-					{
-						movebits = m_MovesTT[m_MoveTT];
-						++m_MoveTT;
-						if constexpr (PRUNED)
-						{
-							if (generatorType::template isMoveCritical<PLAYER>(m_Stack, movebits))
-								return true;
-						}
-						else
-							return true;
-					}
-					m_MoveGeneratorStage = 1;
-					m_TacticalMovesKiller.clear();
-					m_Heuristics.tacticalKillers(m_Stack, m_Depth, m_TacticalMovesKiller);
-					m_TacticalMoveKiller = 0;
-				}
-				if (m_MoveGeneratorStage == 1)
-				{
-					while (m_TacticalMoveKiller < m_TacticalMovesKiller.length())
-					{
-						movebits = m_TacticalMovesKiller[m_TacticalMoveKiller];
-						++m_TacticalMoveKiller;
-						if constexpr (PRUNED)
-						{
-							if (generatorType::template isMoveCritical<PLAYER>(m_Stack, movebits))
-							{
-								const bool bDouble{ m_MovesTT.contains(movebits) };
-								if (!bDouble)
-								{
-									return true;
-								}
-							}
-						}
-						else
-						{
-							const bool bDouble{ m_MovesTT.contains(movebits) };
-							if (!bDouble)
-							{
-								return true;
-							}
-						}
-					}
-					m_MoveGeneratorStage = 2;
-					m_QuietMovesKiller.clear();
-					m_Heuristics.quietKillers(m_Stack, m_Depth, m_QuietMovesKiller);
-					m_QuietMoveKiller = 0;
-				}
-				if (m_MoveGeneratorStage == 2)
-				{
-					while (m_QuietMoveKiller < m_QuietMovesKiller.length())
-					{
-						movebits = m_QuietMovesKiller[m_QuietMoveKiller];
-						++m_QuietMoveKiller;
-						if constexpr (PRUNED)
-						{
-							if (generatorType::template isMoveCritical<PLAYER>(m_Stack, movebits))
-							{
-								const bool bDouble{ m_MovesTT.contains(movebits) || m_TacticalMovesKiller.contains(movebits) };
-								if (!bDouble)
-								{
-									return true;
-								}
-							}
-						}
-						else
-						{
-							const bool bDouble{ m_MovesTT.contains(movebits) };
-							if (!bDouble)
-							{
-								return true;
-							}
-						}
-					}
-					m_MoveGeneratorStage = 3;
-				}
-				if constexpr (heuristicMoves)
-				{
-					if (m_NeedsSorting)
-					{
-						if constexpr (PRUNED)
-							m_Heuristics.sortMoves(m_Stack, m_Moves, m_Move, m_Depth);
-						else
-							m_Heuristics.sortMoves(m_Stack, m_CriticalMoves, m_Move, m_Depth);
-						m_NeedsSorting = false;
-					}
-				}
-				if constexpr (PRUNED)
-				{
-					while (m_CriticalMove < m_CriticalMoves.length())
-					{
-						movebits = m_CriticalMoves[m_CriticalMove];
-						const bool bDouble{ m_MovesTT.contains(movebits) || m_QuietMovesKiller.contains(movebits) || m_TacticalMovesKiller.contains(movebits) };
-						++m_CriticalMove;
-						if (!bDouble)
-						{
-							return true;
-						}
-					}
-				}
-				else
-				{
-					while (m_Move < m_Moves.length())
-					{
-						movebits = m_Moves[m_Move];
-						const bool bDouble{ m_MovesTT.contains(movebits) || m_QuietMovesKiller.contains(movebits) || m_TacticalMovesKiller.contains(movebits) };
-						++m_Move;
-						if (!bDouble)
-						{
-							return true;
-						}
-					}
-				}
-				movebitsType testBits{ movebitsType(0) };
-				if constexpr (PRUNED)
-				{
-					if constexpr (heuristicMoves)
-					{
-						while (m_Stack.nextCriticalMove(testBits, m_Depth, m_Heuristics.feedback(), [this](const movebitsType& bits) { return this->m_Heuristics.moveScore(m_Stack, bits, m_Depth); }))
-						{
-							const bool bDouble{ m_MovesTT.contains(testBits) || m_QuietMovesKiller.contains(testBits) || m_TacticalMovesKiller.contains(testBits) };
-							if (!bDouble)
-							{
-								fromStack = true;
-								movebits = testBits;
-								m_CriticalMoves.add(movebits);
-								++m_CriticalMove;
-								return true;
-							}
-						}
-					}
-					else
-					{
-						while (m_Stack.nextCriticalMove(testBits, m_Depth, m_Heuristics.feedback()))
-						{
-							const bool bDouble{ m_MovesTT.contains(testBits) || m_QuietMovesKiller.contains(testBits) || m_TacticalMovesKiller.contains(testBits) };
-							if (!bDouble)
-							{
-								fromStack = true;
-								movebits = testBits;
-								m_CriticalMoves.add(movebits);
-								++m_CriticalMove;
-								return true;
-							}
-						}
-					}
-				}
-				else
-				{
-					if constexpr (heuristicMoves)
-					{
-						while (m_Stack.nextMove(testBits, m_Depth, m_Heuristics.feedback(), [this](const movebitsType& bits) { return this->m_Heuristics.moveScore(m_Stack, bits, m_Depth); }))
-						{
-							const bool bDouble{ m_MovesTT.contains(testBits) || m_QuietMovesKiller.contains(testBits) || m_TacticalMovesKiller.contains(testBits) };
-							if (!bDouble)
-							{
-								fromStack = true;
-								movebits = testBits;
-								m_Moves.add(movebits);
-								++m_Move;
-								return true;
-							}
-						}
-					}
-					else
-					{
-						while (m_Stack.nextMove(testBits, m_Depth, m_Heuristics.feedback()))
-						{
-							const bool bDouble{ m_MovesTT.contains(testBits) || m_QuietMovesKiller.contains(testBits) || m_TacticalMovesKiller.contains(testBits) };
-							if (!bDouble)
-							{
-								fromStack = true;
-								movebits = testBits;
-								m_Moves.add(movebits);
-								++m_Move;
-								return true;
-							}
-						}
-					}
-				}
-				return false;
-			}
-			bool nextTacticalMove(movebitsType& movebits, bool& fromStack) noexcept
-			{
-				fromStack = false;
-				if (m_TacticalMoveGeneratorStage < 0)
-				{
-					m_TacticalMoveGeneratorStage = 0;
-					m_TacticalMovesTT.clear();
-					m_Heuristics.transpositionTable().probeTacticalMoves(m_Stack, m_TacticalMovesTT);
-					m_TacticalMoveTT = 0;
-				}
-				if (m_TacticalMoveGeneratorStage == 0)
-				{
-					while (m_TacticalMoveTT < m_TacticalMovesTT.length())
-					{
-						movebits = m_TacticalMovesTT[m_TacticalMoveTT];
-						++m_TacticalMoveTT;
-						return true;
-					}
-					m_TacticalMoveGeneratorStage = 1;
-					m_TacticalMovesKiller.clear();
-					m_Heuristics.tacticalKillers(m_Stack, m_Depth, m_TacticalMovesKiller);
-					m_TacticalMoveKiller = 0;
-				}
-				if (m_TacticalMoveGeneratorStage == 1)
-				{
-					while (m_TacticalMoveKiller < m_TacticalMovesKiller.length())
-					{
-						movebits = m_TacticalMovesKiller[m_TacticalMoveKiller];
-						const bool bDouble{ m_TacticalMovesTT.contains(movebits) };
-						++m_TacticalMoveKiller;
-						if (!bDouble)
-							return true;
-					}
-					m_TacticalMoveGeneratorStage = 2;
-				}
-				while (m_TacticalMove < m_TacticalMoves.length())
-				{
-					movebits = m_TacticalMoves[m_TacticalMove];
-					const bool bDouble{ m_TacticalMovesTT.contains(movebits) || m_TacticalMovesKiller.contains(movebits) };
-					++m_TacticalMove;
-					if (!bDouble)
-					{
-						return true;
-					}
-				}
-				movebitsType testBits{ movebitsType(0) };
-				while (m_Stack.nextTacticalMove(testBits, m_Depth, m_Heuristics.feedback()))
-				{
-					const bool bDouble{ m_TacticalMovesTT.contains(testBits) || m_TacticalMovesKiller.contains(testBits) };
-					if (!bDouble)
-					{
-						fromStack = true;
-						movebits = testBits;
-						m_TacticalMoves.add(testBits);
-						++m_TacticalMove;
-						return true;
-					}
-				}
-				return false;
 			}
 			PYGMALION_INLINE static scoreType createAspiration(const scoreType sc, const scoreType window) noexcept
 			{
@@ -1446,6 +1194,7 @@ namespace pygmalion
 				m_Eval = zero;
 				m_FutileGap = zero;
 				m_DeltaGap = zero;
+				m_Heuristics.feedback().sortPasses(m_Depth);
 			}
 			PYGMALION_INLINE node(const parentType& parent, const movebitsType moveBits) noexcept :
 				m_Stack(parent.m_Stack, moveBits),
@@ -1480,6 +1229,18 @@ namespace pygmalion
 				m_Eval = zero;
 				m_FutileGap = zero;
 				m_DeltaGap = zero;
+			}
+			bool lastMoveFromTT() const noexcept
+			{
+				return m_IsTTMove;
+			}
+			bool lastMoveIsKiller() const noexcept
+			{
+				return m_IsKiller;
+			}
+			bool lastMoveIsTacticalKiller() const noexcept
+			{
+				return m_IsTacticalKiller;
 			}
 			PYGMALION_INLINE ~node() noexcept = default;
 			template<bool ANALYZE>
@@ -1575,6 +1336,274 @@ namespace pygmalion
 			{
 				return m_Stack;
 			}
-		};
+			template<bool PRUNED>
+			bool nextMove(const depthType depthRemaining, movebitsType& movebits, bool& fromStack) noexcept
+			{
+				fromStack = false;
+				if (m_MoveGeneratorStage < 0)
+				{
+					m_MoveGeneratorStage = 0;
+					m_MovesTT.clear();
+					m_Heuristics.transpositionTable().probeMoves(m_Stack, depthRemaining, m_MovesTT);
+					m_MoveTT = 0;
+				}
+				if (m_MoveGeneratorStage == 0)
+				{
+					m_IsTTMove = true;
+					while (m_MoveTT < m_MovesTT.length())
+					{
+						movebits = m_MovesTT[m_MoveTT];
+						++m_MoveTT;
+						if constexpr (PRUNED)
+						{
+							if (generatorType::template isMoveCritical<PLAYER>(m_Stack, movebits))
+								return true;
+						}
+						else
+							return true;
+					}
+					m_IsTTMove = false;
+					m_MoveGeneratorStage = 1;
+					m_TacticalMovesKiller.clear();
+					m_Heuristics.tacticalKillers(m_Stack, m_Depth, m_TacticalMovesKiller);
+					m_TacticalMoveKiller = 0;
+				}
+				if (m_MoveGeneratorStage == 1)
+				{
+					m_IsTacticalKiller = true;
+					while (m_TacticalMoveKiller < m_TacticalMovesKiller.length())
+					{
+						movebits = m_TacticalMovesKiller[m_TacticalMoveKiller];
+						++m_TacticalMoveKiller;
+						if constexpr (PRUNED)
+						{
+							if (generatorType::template isMoveCritical<PLAYER>(m_Stack, movebits))
+							{
+								const bool bDouble{ m_MovesTT.contains(movebits) };
+								if (!bDouble)
+								{
+									return true;
+								}
+							}
+						}
+						else
+						{
+							const bool bDouble{ m_MovesTT.contains(movebits) };
+							if (!bDouble)
+							{
+								return true;
+							}
+						}
+					}
+					m_IsTacticalKiller = false;
+					m_MoveGeneratorStage = 2;
+					m_QuietMovesKiller.clear();
+					m_Heuristics.quietKillers(m_Stack, m_Depth, m_QuietMovesKiller);
+					m_QuietMoveKiller = 0;
+				}
+				if (m_MoveGeneratorStage == 2)
+				{
+					m_IsKiller = true;
+					while (m_QuietMoveKiller < m_QuietMovesKiller.length())
+					{
+						movebits = m_QuietMovesKiller[m_QuietMoveKiller];
+						++m_QuietMoveKiller;
+						if constexpr (PRUNED)
+						{
+							if (generatorType::template isMoveCritical<PLAYER>(m_Stack, movebits))
+							{
+								const bool bDouble{ m_MovesTT.contains(movebits) || m_TacticalMovesKiller.contains(movebits) };
+								if (!bDouble)
+								{
+									return true;
+								}
+							}
+						}
+						else
+						{
+							const bool bDouble{ m_MovesTT.contains(movebits) };
+							if (!bDouble)
+							{
+								return true;
+							}
+						}
+					}
+					m_IsKiller = false;
+					m_MoveGeneratorStage = 3;
+				}
+				if constexpr (heuristicMoves)
+				{
+					if (m_NeedsSorting)
+					{
+						if constexpr (PRUNED)
+							m_Heuristics.sortMoves(m_Stack, m_Moves, m_Move, m_Depth);
+						else
+							m_Heuristics.sortMoves(m_Stack, m_CriticalMoves, m_Move, m_Depth);
+						m_NeedsSorting = false;
+					}
+				}
+				if constexpr (PRUNED)
+				{
+					while (m_CriticalMove < m_CriticalMoves.length())
+					{
+						movebits = m_CriticalMoves[m_CriticalMove];
+						const bool bDouble{ m_MovesTT.contains(movebits) || m_QuietMovesKiller.contains(movebits) || m_TacticalMovesKiller.contains(movebits) };
+						++m_CriticalMove;
+						if (!bDouble)
+						{
+							fromStack = true;
+							return true;
+						}
+					}
+				}
+				else
+				{
+					while (m_Move < m_Moves.length())
+					{
+						movebits = m_Moves[m_Move];
+						const bool bDouble{ m_MovesTT.contains(movebits) || m_QuietMovesKiller.contains(movebits) || m_TacticalMovesKiller.contains(movebits) };
+						++m_Move;
+						if (!bDouble)
+						{
+							fromStack = true;
+							return true;
+						}
+					}
+				}
+				movebitsType testBits{ movebitsType(0) };
+				if constexpr (PRUNED)
+				{
+					if constexpr (heuristicMoves)
+					{
+						while (m_Stack.nextCriticalMove(testBits, m_Depth, m_Heuristics.feedback(), [this](const movebitsType& bits) { return this->m_Heuristics.moveScore(m_Stack, bits, m_Depth); }))
+						{
+							const bool bDouble{ m_MovesTT.contains(testBits) || m_QuietMovesKiller.contains(testBits) || m_TacticalMovesKiller.contains(testBits) };
+							if (!bDouble)
+							{
+								fromStack = true;
+								movebits = testBits;
+								m_CriticalMoves.add(movebits);
+								++m_CriticalMove;
+								return true;
+							}
+						}
+					}
+					else
+					{
+						while (m_Stack.nextCriticalMove(testBits, m_Depth, m_Heuristics.feedback()))
+						{
+							const bool bDouble{ m_MovesTT.contains(testBits) || m_QuietMovesKiller.contains(testBits) || m_TacticalMovesKiller.contains(testBits) };
+							if (!bDouble)
+							{
+								fromStack = true;
+								movebits = testBits;
+								m_CriticalMoves.add(movebits);
+								++m_CriticalMove;
+								return true;
+							}
+						}
+					}
+				}
+				else
+				{
+					if constexpr (heuristicMoves)
+					{
+						while (m_Stack.nextMove(testBits, m_Depth, m_Heuristics.feedback(), [this](const movebitsType& bits) { return this->m_Heuristics.moveScore(m_Stack, bits, m_Depth); }))
+						{
+							const bool bDouble{ m_MovesTT.contains(testBits) || m_QuietMovesKiller.contains(testBits) || m_TacticalMovesKiller.contains(testBits) };
+							if (!bDouble)
+							{
+								fromStack = true;
+								movebits = testBits;
+								m_Moves.add(movebits);
+								++m_Move;
+								return true;
+							}
+						}
+					}
+					else
+					{
+						while (m_Stack.nextMove(testBits, m_Depth, m_Heuristics.feedback()))
+						{
+							const bool bDouble{ m_MovesTT.contains(testBits) || m_QuietMovesKiller.contains(testBits) || m_TacticalMovesKiller.contains(testBits) };
+							if (!bDouble)
+							{
+								fromStack = true;
+								movebits = testBits;
+								m_Moves.add(movebits);
+								++m_Move;
+								return true;
+							}
+						}
+					}
+				}
+				return false;
+			}
+			bool nextTacticalMove(movebitsType& movebits, bool& fromStack) noexcept
+			{
+				fromStack = false;
+				if (m_TacticalMoveGeneratorStage < 0)
+				{
+					m_TacticalMoveGeneratorStage = 0;
+					m_TacticalMovesTT.clear();
+					m_Heuristics.transpositionTable().probeTacticalMoves(m_Stack, m_TacticalMovesTT);
+					m_TacticalMoveTT = 0;
+				}
+				if (m_TacticalMoveGeneratorStage == 0)
+				{
+					m_IsTTMove = true;
+					while (m_TacticalMoveTT < m_TacticalMovesTT.length())
+					{
+						movebits = m_TacticalMovesTT[m_TacticalMoveTT];
+						++m_TacticalMoveTT;
+						return true;
+					}
+					m_IsTTMove = false;
+					m_TacticalMoveGeneratorStage = 1;
+					m_TacticalMovesKiller.clear();
+					m_Heuristics.tacticalKillers(m_Stack, m_Depth, m_TacticalMovesKiller);
+					m_TacticalMoveKiller = 0;
+				}
+				if (m_TacticalMoveGeneratorStage == 1)
+				{
+					m_IsTacticalKiller = true;
+					while (m_TacticalMoveKiller < m_TacticalMovesKiller.length())
+					{
+						movebits = m_TacticalMovesKiller[m_TacticalMoveKiller];
+						const bool bDouble{ m_TacticalMovesTT.contains(movebits) };
+						++m_TacticalMoveKiller;
+						if (!bDouble)
+							return true;
+					}
+					m_IsTacticalKiller = false;
+					m_TacticalMoveGeneratorStage = 2;
+				}
+				while (m_TacticalMove < m_TacticalMoves.length())
+				{
+					movebits = m_TacticalMoves[m_TacticalMove];
+					const bool bDouble{ m_TacticalMovesTT.contains(movebits) || m_TacticalMovesKiller.contains(movebits) };
+					++m_TacticalMove;
+					if (!bDouble)
+					{
+						fromStack = true;
+						return true;
+					}
+				}
+				movebitsType testBits{ movebitsType(0) };
+				while (m_Stack.nextTacticalMove(testBits, m_Depth, m_Heuristics.feedback()))
+				{
+					const bool bDouble{ m_TacticalMovesTT.contains(testBits) || m_TacticalMovesKiller.contains(testBits) };
+					if (!bDouble)
+					{
+						fromStack = true;
+						movebits = testBits;
+						m_TacticalMoves.add(testBits);
+						++m_TacticalMove;
+						return true;
+					}
+				}
+				return false;
+			}
+	};
 	};
 }

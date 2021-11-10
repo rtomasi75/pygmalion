@@ -2,4 +2,5 @@
 #include "commands/command_debugPvs.h"
 #include "commands/command_debugResizeTT.h"
 #include "commands/command_debugTT.h"
+#include "commands/command_debugMoveScores.h"
 #include "commands/command_debugNode.h"

@@ -75,7 +75,6 @@ namespace pygmalion::search
 				constexpr playerType player{ static_cast<playerType>(PLAYER) };
 				if (player == this->position().movingPlayer())
 				{
-					this->feedback().sortIndices(this->history().length());
 					stackType<PLAYER> stack{ stackType<PLAYER>(this->position(), this->history(), this->rootContext()) };
 					signal terminate{ signal(false) };
 					m_Heuristics.beginSearch();
@@ -112,6 +111,7 @@ namespace pygmalion::search
 			this->template addCommand<command_debugTT<descriptorSearch, gametreeType>>();
 			this->template addCommand<command_debugResizeTT<descriptorSearch, gametreeType>>();
 			this->template addCommand<command_debugNode<descriptorSearch, gametreeType>>();
+			this->template addCommand<command_debugMoveScores<descriptorSearch, gametreeType>>();
 		}
 		virtual ~engine() noexcept
 		{

@@ -19,7 +19,9 @@ namespace pygmalion::dynamics
 				constexpr const playerType player{ static_cast<playerType>(PLAYER) };
 				if (player == this->position().movingPlayer())
 				{
-					this->dynamicsEngine().feedback().sortIndices(this->history().length());
+					this->dynamicsEngine().feedback().expandToDepth(this->history().length());
+					this->dynamicsEngine().feedback().sortPasses(this->history().length());
+					//				this->dynamicsEngine().feedback().sortPasses(this->history().length());
 					typename generatorType::contextType context;
 					stackType<PLAYER> stack{ stackType<PLAYER>(this->position(), this->history(), &context) };
 					this->output() << std::endl;
@@ -28,16 +30,19 @@ namespace pygmalion::dynamics
 					{
 						for (size_t i = 0; i < stack.normalPassesCount(stage); i++)
 						{
-							this->output() << "    " << std::setw(3) << stage << ", " << std::setw(3) << i << std::setw(8) << this->dynamicsEngine().feedback().counter(stack.normalStage(stage), i, this->history().length()) << std::setw(12) << this->dynamicsEngine().feedback().score(stack.normalStage(stage), i, this->history().length()) << " " << generatorType::passToString(stack.normalStage(stage), stack.normalPass(this->dynamicsEngine().feedback(), stage, i)) << std::endl;
+							const auto index{ this->dynamicsEngine().feedback().index(stage,i, this->history().length()) };
+							auto& fb{ this->dynamicsEngine().feedback() };
+							this->output() << "    " << std::setw(3) << stage << ", " << std::setw(3) << i << std::setw(8) << fb.counterRaw(stack.normalStage(stage), index, this->history().length()) << std::setw(12) << fb.scoreRaw(stack.normalStage(stage), index, this->history().length()) << " " << generatorType::passToString(stack.normalStage(stage), stack.normalPass(fb, stage, i)) << std::endl;
 						}
 					}
 					this->output() << std::endl;
-					this->output() << "tactical passes:" << std::endl;
+				/*	this->output() << "tactical passes:" << std::endl;
 					for (size_t stage = 0; stage < stack.tacticalStagesCount(); stage++)
 					{
 						for (size_t i = 0; i < stack.tacticalPassesCount(stage); i++)
 						{
-							this->output() << "    " << std::setw(3) << stage << ", " << std::setw(3) << i << std::setw(8) << this->dynamicsEngine().feedback().counter(stack.tacticalStage(stage), i, this->history().length()) << std::setw(12) << this->dynamicsEngine().feedback().score(stack.tacticalStage(stage), i, this->history().length()) << " " << generatorType::passToString(stack.tacticalStage(stage), stack.tacticalPass(this->dynamicsEngine().feedback(), stage, i)) << std::endl;
+							const auto index{ this->dynamicsEngine().feedback().index(stage,i, this->history().length()) };
+							this->output() << "    " << std::setw(3) << stage << ", " << std::setw(3) << i << std::setw(8) << this->dynamicsEngine().feedback().counterRaw(stack.tacticalStage(stage), index, this->history().length()) << std::setw(12) << this->dynamicsEngine().feedback().scoreRaw(stack.tacticalStage(stage), index, this->history().length()) << " " << generatorType::passToString(stack.tacticalStage(stage), stack.tacticalPass(this->dynamicsEngine().feedback(), stage, i)) << std::endl;
 						}
 					}
 					this->output() << std::endl;
@@ -46,10 +51,11 @@ namespace pygmalion::dynamics
 					{
 						for (size_t i = 0; i < stack.criticalPassesCount(stage); i++)
 						{
-							this->output() << "    " << std::setw(3) << stage << ", " << std::setw(3) << i << std::setw(8) << this->dynamicsEngine().feedback().counter(stack.criticalStage(stage), i, this->history().length()) << std::setw(12) << this->dynamicsEngine().feedback().score(stack.criticalStage(stage), i, this->history().length()) << " " << generatorType::passToString(stack.criticalStage(stage), stack.criticalPass(this->dynamicsEngine().feedback(), stage, i)) << std::endl;
+							const auto index{ this->dynamicsEngine().feedback().index(stage,i, this->history().length()) };
+							this->output() << "    " << std::setw(3) << stage << ", " << std::setw(3) << i << std::setw(8) << this->dynamicsEngine().feedback().counterRaw(stack.criticalStage(stage), index, this->history().length()) << std::setw(12) << this->dynamicsEngine().feedback().scoreRaw(stack.criticalStage(stage), index, this->history().length()) << " " << generatorType::passToString(stack.criticalStage(stage), stack.criticalPass(this->dynamicsEngine().feedback(), stage, i)) << std::endl;
 						}
 					}
-					this->output() << std::endl;
+					this->output() << std::endl;*/
 				}
 				else
 					this->template process<PLAYER + 1>();

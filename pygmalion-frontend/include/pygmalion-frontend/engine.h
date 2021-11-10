@@ -40,7 +40,6 @@ namespace pygmalion::frontend
 			using nodeType = typename gametreeType::template nodeType<PLAYER>;
 			nodeType node(stack, m_Stop, this->heuristics(), this->history().length());
 			variationType principalVariation{ variationType() };
-			this->feedback().sortIndices(this->history().length());
 			this->heuristics().beginSearch();
 			scoreType score;
 			score = node.template searchRoot<false>(depthRemaining, principalVariation, m_ScoreFromPreviousDepth, m_CurrentMove, m_CountMoves);
