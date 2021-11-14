@@ -27,6 +27,7 @@ namespace pygmalion
 			heuristicsType& m_Heuristics;
 			const int m_DistanceFromRoot;
 			movelistType m_Moves;
+			scorelistType m_Scores;
 			movelistType m_CriticalMoves;
 			movelistType m_TacticalMoves;
 			quietKillermovesType m_QuietMovesKiller;
@@ -43,6 +44,7 @@ namespace pygmalion
 			bool m_IsKiller;
 			bool m_IsTacticalKiller;
 			signal& m_Terminate;
+			scoreType m_LastMoveScore;
 			scoreType m_EvalAlpha;
 			scoreType m_EvalBeta;
 			scoreType m_Eval;
@@ -93,16 +95,6 @@ namespace pygmalion
 					}
 				}
 				return false;
-			}
-			PYGMALION_INLINE void resetMoveGen()
-			{
-				m_Move = 0;
-				m_CriticalMove = 0;
-				m_TacticalMove = 0;
-				m_MoveGeneratorStage = -1;
-				m_TacticalMoveGeneratorStage = -1;
-				m_NeedsSorting = true;
-				m_NeedsTacticalSorting = true;
 			}
 			PYGMALION_INLINE static scoreType createAspiration(const scoreType sc, const scoreType window) noexcept
 			{
@@ -954,6 +946,16 @@ namespace pygmalion
 				return alpha;
 			}
 		public:
+			PYGMALION_INLINE void resetMoveGen()
+			{
+				m_Move = 0;
+				m_CriticalMove = 0;
+				m_TacticalMove = 0;
+				m_MoveGeneratorStage = -1;
+				m_TacticalMoveGeneratorStage = -1;
+				m_NeedsSorting = true;
+				m_NeedsTacticalSorting = true;
+			}
 			scoreType zwsearch(scoreType beta, const depthType depthRemaining, const uint_t<countPlayers, false> nullMoveHistory, bool& allowStoreTT, const knuthType expectedNodeType) noexcept
 			{
 				constexpr const scoreType zero{ scoreType::zero() };
@@ -1229,6 +1231,7 @@ namespace pygmalion
 				m_Eval = zero;
 				m_FutileGap = zero;
 				m_DeltaGap = zero;
+				//m_Heuristics.feedback().sortPasses(m_Depth);
 			}
 			bool lastMoveFromTT() const noexcept
 			{
@@ -1336,6 +1339,10 @@ namespace pygmalion
 			{
 				return m_Stack;
 			}
+			scoreType lastMoveScore() const noexcept
+			{
+				return m_LastMoveScore;
+			}
 			template<bool PRUNED>
 			bool nextMove(const depthType depthRemaining, movebitsType& movebits, bool& fromStack) noexcept
 			{
@@ -1349,6 +1356,7 @@ namespace pygmalion
 				}
 				if (m_MoveGeneratorStage == 0)
 				{
+					constexpr const scoreType maximum{ scoreType::maximum() };
 					m_IsTTMove = true;
 					while (m_MoveTT < m_MovesTT.length())
 					{
@@ -1357,10 +1365,16 @@ namespace pygmalion
 						if constexpr (PRUNED)
 						{
 							if (generatorType::template isMoveCritical<PLAYER>(m_Stack, movebits))
+							{
+								m_LastMoveScore = maximum;
 								return true;
+							}
 						}
 						else
+						{
+							m_LastMoveScore = maximum;
 							return true;
+						}
 					}
 					m_IsTTMove = false;
 					m_MoveGeneratorStage = 1;
@@ -1370,6 +1384,7 @@ namespace pygmalion
 				}
 				if (m_MoveGeneratorStage == 1)
 				{
+					constexpr const scoreType win{ scoreType::win() };
 					m_IsTacticalKiller = true;
 					while (m_TacticalMoveKiller < m_TacticalMovesKiller.length())
 					{
@@ -1382,6 +1397,7 @@ namespace pygmalion
 								const bool bDouble{ m_MovesTT.contains(movebits) };
 								if (!bDouble)
 								{
+									m_LastMoveScore = win;
 									return true;
 								}
 							}
@@ -1391,6 +1407,7 @@ namespace pygmalion
 							const bool bDouble{ m_MovesTT.contains(movebits) };
 							if (!bDouble)
 							{
+								m_LastMoveScore = win;
 								return true;
 							}
 						}
@@ -1403,6 +1420,7 @@ namespace pygmalion
 				}
 				if (m_MoveGeneratorStage == 2)
 				{
+					constexpr const scoreType winning{ scoreType::winning() };
 					m_IsKiller = true;
 					while (m_QuietMoveKiller < m_QuietMovesKiller.length())
 					{
@@ -1415,6 +1433,7 @@ namespace pygmalion
 								const bool bDouble{ m_MovesTT.contains(movebits) || m_TacticalMovesKiller.contains(movebits) };
 								if (!bDouble)
 								{
+									m_LastMoveScore = winning;
 									return true;
 								}
 							}
@@ -1424,6 +1443,7 @@ namespace pygmalion
 							const bool bDouble{ m_MovesTT.contains(movebits) };
 							if (!bDouble)
 							{
+								m_LastMoveScore = winning;
 								return true;
 							}
 						}
@@ -1436,9 +1456,9 @@ namespace pygmalion
 					if (m_NeedsSorting)
 					{
 						if constexpr (PRUNED)
-							m_Heuristics.sortMoves(m_Stack, m_Moves, m_Move, m_Depth);
+							m_Heuristics.sortMoves(m_Stack, m_CriticalMoves, m_CriticalMove, m_Depth, m_Scores);
 						else
-							m_Heuristics.sortMoves(m_Stack, m_CriticalMoves, m_Move, m_Depth);
+							m_Heuristics.sortMoves(m_Stack, m_Moves, m_Move, m_Depth, m_Scores);
 						m_NeedsSorting = false;
 					}
 				}
@@ -1448,10 +1468,10 @@ namespace pygmalion
 					{
 						movebits = m_CriticalMoves[m_CriticalMove];
 						const bool bDouble{ m_MovesTT.contains(movebits) || m_QuietMovesKiller.contains(movebits) || m_TacticalMovesKiller.contains(movebits) };
+						m_LastMoveScore = m_Scores[m_CriticalMove];
 						++m_CriticalMove;
 						if (!bDouble)
 						{
-							fromStack = true;
 							return true;
 						}
 					}
@@ -1462,10 +1482,10 @@ namespace pygmalion
 					{
 						movebits = m_Moves[m_Move];
 						const bool bDouble{ m_MovesTT.contains(movebits) || m_QuietMovesKiller.contains(movebits) || m_TacticalMovesKiller.contains(movebits) };
+						m_LastMoveScore = m_Scores[m_Move];
 						++m_Move;
 						if (!bDouble)
 						{
-							fromStack = true;
 							return true;
 						}
 					}
@@ -1483,6 +1503,8 @@ namespace pygmalion
 								fromStack = true;
 								movebits = testBits;
 								m_CriticalMoves.add(movebits);
+								m_LastMoveScore = m_Stack.lastCriticalScore();
+								m_Scores.add(m_LastMoveScore);
 								++m_CriticalMove;
 								return true;
 							}
@@ -1498,6 +1520,8 @@ namespace pygmalion
 								fromStack = true;
 								movebits = testBits;
 								m_CriticalMoves.add(movebits);
+								m_LastMoveScore = m_Stack.lastCriticalScore();
+								m_Scores.add(m_LastMoveScore);
 								++m_CriticalMove;
 								return true;
 							}
@@ -1516,6 +1540,7 @@ namespace pygmalion
 								fromStack = true;
 								movebits = testBits;
 								m_Moves.add(movebits);
+								m_Scores.add(m_Stack.lastNormalScore());
 								++m_Move;
 								return true;
 							}
@@ -1531,6 +1556,7 @@ namespace pygmalion
 								fromStack = true;
 								movebits = testBits;
 								m_Moves.add(movebits);
+								m_Scores.add(m_Stack.lastNormalScore());
 								++m_Move;
 								return true;
 							}
@@ -1585,7 +1611,6 @@ namespace pygmalion
 					++m_TacticalMove;
 					if (!bDouble)
 					{
-						fromStack = true;
 						return true;
 					}
 				}
@@ -1604,6 +1629,6 @@ namespace pygmalion
 				}
 				return false;
 			}
-	};
+		};
 	};
 }

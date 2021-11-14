@@ -99,6 +99,7 @@ namespace pygmalion
 			{
 				for (size_t i = depth; i < m_Feedback.size(); i++)
 					m_Feedback[i].sortIndices(*this, i);
+			//	m_Feedback[depth].sortIndices(*this, depth);
 			}
 			PYGMALION_INLINE  const std::uint64_t& counterRaw(const stageType stage, const passType pass, const size_t depth) const noexcept
 			{
@@ -261,6 +262,9 @@ namespace pygmalion
 			boardType& m_Position;
 			historyType& m_History;
 			movedataType m_MoveData;
+			mutable scoreType m_LastNormalScore;
+			mutable scoreType m_LastTacticalScore;
+			mutable scoreType m_LastCriticalScore;
 			mutable stageType m_LastNormalStage;
 			mutable stageType m_CurrentNormalStage;
 			mutable stageType m_LastTacticalStage;
@@ -460,6 +464,26 @@ namespace pygmalion
 				return computeHasLegalMove(depth, feedback, lambda);
 			}
 		public:
+			PYGMALION_INLINE passType lastNormalPass() const noexcept
+			{
+				return m_LastNormalPass;
+			}
+			PYGMALION_INLINE stageType lastNormalStage() const noexcept
+			{
+				return m_LastNormalStage;
+			}
+			PYGMALION_INLINE scoreType lastNormalScore() const noexcept
+			{
+				return m_LastNormalScore;
+			}
+			PYGMALION_INLINE scoreType lastTacticalScore() const noexcept
+			{
+				return m_LastTacticalScore;
+			}
+			PYGMALION_INLINE scoreType lastCriticalScore() const noexcept
+			{
+				return m_LastCriticalScore;
+			}
 			constexpr size_t normalStagesCount() const noexcept
 			{
 				return countNormalStages;
@@ -623,6 +647,7 @@ namespace pygmalion
 							return false;
 					}
 				}
+				constexpr const scoreType minimum{ scoreType::minimum() };
 				while (m_CurrentNormalMove < m_pContext->normalMoves().length())
 				{
 					moveBits = m_pContext->normalMoves()[m_CurrentNormalMove];
@@ -630,6 +655,7 @@ namespace pygmalion
 					{
 						m_LastNormalPass = m_pContext->normalPasses()[m_CurrentNormalMove];
 						m_LastNormalStage = m_pContext->normalStages()[m_CurrentNormalMove];
+						m_LastNormalScore = minimum;
 						++m_CurrentNormalMove;
 						return true;
 					}
@@ -650,6 +676,7 @@ namespace pygmalion
 							{
 								const auto index{ feedback.index(m_CriticalEvasionStages[m_CurrentNormalStage], m_CurrentNormalPass, depth) };
 								generatorType::generateMoves(m_CriticalEvasionStages[m_CurrentNormalStage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->normalMoves(), index);
+								const auto start{ m_pContext->normalPasses().length() };
 								while (m_pContext->normalPasses().length() < m_pContext->normalMoves().length())
 								{
 									m_pContext->normalScores().add(lambda(m_pContext->normalMoves()[m_pContext->normalPasses().length()]));
@@ -657,6 +684,7 @@ namespace pygmalion
 									m_pContext->normalStages().add(m_CriticalEvasionStages[m_CurrentNormalStage]);
 								}
 								++m_CurrentNormalPass;
+								sort<movebitsType, scoreType>::sortValues(m_pContext->normalMoves().ptr() + start, m_pContext->normalScores().ptr() + start, m_pContext->normalMoves().length() - start);
 							}
 							else
 							{
@@ -675,6 +703,7 @@ namespace pygmalion
 							{
 								const auto index{ feedback.index(m_NormalStages[m_CurrentNormalStage], m_CurrentNormalPass, depth) };
 								generatorType::generateMoves(m_NormalStages[m_CurrentNormalStage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->normalMoves(), index);
+								const auto start{ m_pContext->normalPasses().length() };
 								while (m_pContext->normalPasses().length() < m_pContext->normalMoves().length())
 								{
 									m_pContext->normalScores().add(lambda(m_pContext->normalMoves()[m_pContext->normalPasses().length()]));
@@ -682,6 +711,7 @@ namespace pygmalion
 									m_pContext->normalStages().add(m_NormalStages[m_CurrentNormalStage]);
 								}
 								++m_CurrentNormalPass;
+								sort<movebitsType, scoreType>::sortValues(m_pContext->normalMoves().ptr() + start, m_pContext->normalScores().ptr() + start, m_pContext->normalMoves().length() - start);
 							}
 							else
 							{
@@ -700,6 +730,7 @@ namespace pygmalion
 					{
 						m_LastNormalPass = m_pContext->normalPasses()[m_CurrentNormalMove];
 						m_LastNormalStage = m_pContext->normalStages()[m_CurrentNormalMove];
+						m_LastNormalScore = m_pContext->normalScores()[m_CurrentNormalMove];
 						++m_CurrentNormalMove;
 						return true;
 					}
@@ -760,6 +791,7 @@ namespace pygmalion
 							return false;
 					}
 				}
+				constexpr const scoreType minimum{ scoreType::minimum() };
 				while (m_CurrentTacticalMove < m_pContext->tacticalMoves().length())
 				{
 					moveBits = m_pContext->tacticalMoves()[m_CurrentTacticalMove];
@@ -767,6 +799,7 @@ namespace pygmalion
 					{
 						m_LastTacticalPass = m_pContext->tacticalPasses()[m_CurrentTacticalMove];
 						m_LastTacticalStage = m_pContext->tacticalStages()[m_CurrentTacticalMove];
+						m_LastTacticalScore = minimum;
 						++m_CurrentTacticalMove;
 						return true;
 					}
@@ -787,6 +820,7 @@ namespace pygmalion
 							{
 								const auto index{ feedback.index(m_CriticalEvasionTacticalStages[m_CurrentTacticalStage], m_CurrentTacticalPass, depth) };
 								generatorType::generateMoves(m_CriticalEvasionTacticalStages[m_CurrentTacticalStage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->tacticalMoves(), index);
+								const auto start{ m_pContext->tacticalPasses().length() };
 								while (m_pContext->tacticalPasses().length() < m_pContext->tacticalMoves().length())
 								{
 									m_pContext->tacticalScores().add(lambda(m_pContext->tacticalMoves()[m_pContext->tacticalPasses().length()]));
@@ -794,6 +828,7 @@ namespace pygmalion
 									m_pContext->tacticalStages().add(m_CriticalEvasionTacticalStages[m_CurrentTacticalStage]);
 								}
 								++m_CurrentTacticalPass;
+								sort<movebitsType, scoreType>::sortValues(m_pContext->tacticalMoves().ptr() + start, m_pContext->tacticalScores().ptr() + start, m_pContext->tacticalMoves().length() - start);
 							}
 							else
 							{
@@ -812,6 +847,7 @@ namespace pygmalion
 							{
 								const auto index{ feedback.index(m_TacticalStages[m_CurrentTacticalStage], m_CurrentTacticalPass, depth) };
 								generatorType::generateMoves(m_TacticalStages[m_CurrentTacticalStage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->tacticalMoves(), index);
+								const auto start{ m_pContext->tacticalPasses().length() };
 								while (m_pContext->tacticalPasses().length() < m_pContext->tacticalMoves().length())
 								{
 									m_pContext->tacticalScores().add(lambda(m_pContext->tacticalMoves()[m_pContext->tacticalPasses().length()]));
@@ -819,6 +855,7 @@ namespace pygmalion
 									m_pContext->tacticalStages().add(m_TacticalStages[m_CurrentTacticalStage]);
 								}
 								++m_CurrentTacticalPass;
+								sort<movebitsType, scoreType>::sortValues(m_pContext->tacticalMoves().ptr() + start, m_pContext->tacticalScores().ptr() + start, m_pContext->tacticalMoves().length() - start);
 							}
 							else
 							{
@@ -837,6 +874,7 @@ namespace pygmalion
 					{
 						m_LastTacticalPass = m_pContext->tacticalPasses()[m_CurrentTacticalMove];
 						m_LastTacticalStage = m_pContext->tacticalStages()[m_CurrentTacticalMove];
+						m_LastTacticalScore = m_pContext->tacticalScores()[m_CurrentTacticalMove];
 						++m_CurrentTacticalMove;
 						return true;
 					}
@@ -870,6 +908,7 @@ namespace pygmalion
 					else
 						return false;
 				}
+				constexpr const scoreType minimum{ scoreType::minimum() };
 				while (m_CurrentCriticalMove < m_pContext->criticalMoves().length())
 				{
 					moveBits = m_pContext->criticalMoves()[m_CurrentCriticalMove];
@@ -877,6 +916,7 @@ namespace pygmalion
 					{
 						m_LastCriticalPass = m_pContext->criticalPasses()[m_CurrentCriticalMove];
 						m_LastCriticalStage = m_pContext->criticalStages()[m_CurrentCriticalMove];
+						m_LastCriticalScore = minimum;
 						++m_CurrentCriticalMove;
 						return true;
 					}
@@ -903,6 +943,7 @@ namespace pygmalion
 								m_pContext->criticalStages().add(m_CriticalStages[m_CurrentCriticalStage]);
 							}
 							++m_CurrentCriticalPass;
+							sort<movebitsType, scoreType>::sortValues(m_pContext->criticalMoves().ptr() + start, m_pContext->criticalScores().ptr() + start, m_pContext->criticalMoves().length() - start);
 						}
 						else
 						{
@@ -920,6 +961,7 @@ namespace pygmalion
 					{
 						m_LastCriticalPass = m_pContext->criticalPasses()[m_CurrentCriticalMove];
 						m_LastCriticalStage = m_pContext->criticalStages()[m_CurrentCriticalMove];
+						m_LastCriticalScore = m_pContext->tacticalScores()[m_CurrentCriticalMove];
 						++m_CurrentCriticalMove;
 						return true;
 					}

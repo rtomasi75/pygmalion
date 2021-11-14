@@ -30,29 +30,73 @@ namespace pygmalion::search
 					bool hasMoves{ false };
 					bool fromStack;
 					this->feedback().expandToDepth(this->history().length() + 1);
+					this->output() << "Generated:" << std::endl;
 					while (node.template nextMove<false>(0, movebits, fromStack))
 					{
+						this->output() << "    ";
 						hasMoves = true;
-						this->output() << generatorType::moveToString(stack, movebits, this->searchEngine().history().length()) << "\t" ;
 						if (fromStack)
-							this->output() << "(from stack)\t";
+						{
+							const stageType stage{ node.stack().lastNormalStage() };
+							const passType pass{ node.stack().lastNormalPass() };
+							const std::string movestring{ generatorType::moveToString(node.stack(), movebits, this->searchEngine().history().length()) };
+							this->output() << movestring << "\t";
+							this->output() << node.stack().lastNormalScore() << "\t";
+							this->output() << generatorType::passToString(stage, pass) << "\t";
+						}
 						else
 						{
-							if(node.lastMoveFromTT())
-								this->output() << "(hash move)\t";
+							this->output() << generatorType::moveToString(node.stack(), movebits, this->searchEngine().history().length()) << "\t";
+							this->output() << node.lastMoveScore() << "\t";
+							if (node.lastMoveFromTT())
+								this->output() << "hash move\t";
+							else if (node.lastMoveIsTacticalKiller())
+								this->output() << "tactical killer\t";
+							else if (node.lastMoveIsKiller())
+								this->output() << "quiet killer\t";
 							else
-							{
-								if (node.lastMoveIsTacticalKiller())
-									this->output() << "(tactical killer)\t";
-								else
-									this->output() << "(quiet killer)\t";
-							}
+								this->output() << "cached\t";
 						}
 						this->output() << std::endl;
+						this->flushOutput();
 					}
 					if (!hasMoves)
 					{
 						this->output() << "(no moves possible)" << std::endl;
+					}
+					else
+					{
+						this->output() << "Cached:" << std::endl;
+						node.resetMoveGen();
+						while (node.template nextMove<false>(0, movebits, fromStack))
+						{
+							this->output() << "    ";
+							hasMoves = true;
+							if (fromStack)
+							{
+								const stageType stage{ node.stack().lastNormalStage() };
+								const passType pass{ node.stack().lastNormalPass() };
+								const std::string movestring{ generatorType::moveToString(node.stack(), movebits, this->searchEngine().history().length()) };
+								this->output() << movestring << "\t";
+								this->output() << node.stack().lastNormalScore() << "\t";
+								this->output() << "(" << generatorType::passToString(stage, pass) << ")\t";
+							}
+							else
+							{
+								this->output() << generatorType::moveToString(node.stack(), movebits, this->searchEngine().history().length()) << "\t";
+								this->output() << node.lastMoveScore() << "\t";
+								if (node.lastMoveFromTT())
+									this->output() << "hash move\t";
+								else if (node.lastMoveIsTacticalKiller())
+									this->output() << "tactical killer\t";
+								else if (node.lastMoveIsKiller())
+									this->output() << "quiet killer\t";
+								else
+									this->output() << "cached\t";
+							}
+							this->output() << std::endl;
+							this->flushOutput();
+						}
 					}
 				}
 				else

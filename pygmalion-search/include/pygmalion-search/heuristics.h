@@ -622,16 +622,16 @@ namespace pygmalion
 			}
 		}
 		template<size_t PLAYER>
-		void sortMoves(const stackType<PLAYER>& stack, movelistType& moves, const indexType fromMoveIndex, const size_t depth) noexcept
+		void sortMoves(const stackType<PLAYER>& stack, movelistType& moves, const indexType fromMoveIndex, const size_t depth, scorelistType& scores) noexcept
 		{
 			if constexpr (heuristicMoves)
 			{
-				std::array<scoreType, countMaxGeneratedMoves> scores;
 				for (size_t i = static_cast<size_t>(fromMoveIndex); i < static_cast<size_t>(moves.length()); ++i)
 				{
-					scores[i - fromMoveIndex] = moveScore(stack, moves[i], depth);
+					scores.replace(i, moveScore(stack, moves[i], depth));
 				}
-				this->sortMoves(moves, scores, fromMoveIndex, 0);
+				const indexType length{ static_cast<indexType>(moves.length() - fromMoveIndex) };
+				sort<movebitsType, scoreType>::sortValues(moves.ptr() + static_cast<size_t>(fromMoveIndex), scores.ptr() + static_cast<size_t>(fromMoveIndex), length);
 			}
 		}
 		PYGMALION_INLINE movegenFeedback& feedback() noexcept
