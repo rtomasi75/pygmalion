@@ -9,10 +9,10 @@ namespace pygmalion::chess
 		| searchFlags::historyHeuristic
 		| searchFlags::quietKillerMovesHeuristic
 		| searchFlags::tacticalKillerMovesHeuristic
-		| searchFlags::futilityPruning
+//		| searchFlags::futilityPruning
 //		| searchFlags::deltaPruning
 		| searchFlags::nullMovePruning
-		| searchFlags::aspirationWindows
+//		| searchFlags::aspirationWindows
 		| searchFlags::transpositionTable
 	};
 

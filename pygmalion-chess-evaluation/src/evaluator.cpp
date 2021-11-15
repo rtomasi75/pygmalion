@@ -7,6 +7,7 @@ namespace pygmalion::chess
 		evaluatorType::addCommand<pygmalion::chess::evaluation::command_debugControl>(list);
 		evaluatorType::addCommand<pygmalion::chess::evaluation::command_debugSEE>(list);
 		evaluatorType::addCommand<pygmalion::chess::evaluation::command_generatePawnLookup>(list);
+		evaluatorType::addCommand<pygmalion::chess::evaluation::command_generatePST>(list);
 		return list;
 	}
 

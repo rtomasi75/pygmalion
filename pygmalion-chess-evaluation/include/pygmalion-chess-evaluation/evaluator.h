@@ -2,11 +2,11 @@ namespace pygmalion::chess
 {
 	class evaluator :
 		public pygmalion::evaluator<descriptor_evaluation, evaluator
-		, evaluationstage_pawnstructure
-		, evaluationstage_attacks
-		, evaluationstage_mobility
-		, evaluationstage_control
-		, evaluationstage_kingsafety
+		//		, evaluationstage_pawnstructure
+		//		, evaluationstage_attacks
+		//		, evaluationstage_mobility
+		//		, evaluationstage_control
+		//		, evaluationstage_kingsafety
 		>
 	{
 	public:
@@ -115,100 +115,85 @@ namespace pygmalion::chess
 			else
 				return gamestateType::draw();
 		}
-		PYGMALION_INLINE static squaresType leastValuablePiece(const boardType& position, const squaresType mask, const playerType side) noexcept
+		PYGMALION_INLINE static squareType leastValuablePiece(const boardType& position, const squaresType mask, const playerType side) noexcept
 		{
 			const squaresType occ{ position.playerOccupancy(side) & mask };
-			squaresType subset{ position.pieceOccupancy(pawn) & occ };
-			if (subset)
-				return subset.singlePiece();
-			if PYGMALION_TUNABLE(boardType::materialValue(knight, whitePlayer) > boardType::materialValue(bishop, whitePlayer))
+			squareType best{ squareType::invalid };
+			materialScore lowest{ materialScore::maximum() };
+			for (const auto sq : occ)
 			{
-				subset = position.pieceOccupancy(bishop) & occ;
-				if (subset)
-					return subset.singlePiece();
-				subset = position.pieceOccupancy(knight) & occ;
-				if (subset)
-					return subset.singlePiece();
+				const pieceType pc{ position.getPiece(sq) };
+				const materialScore value{ boardType::materialValueRelative(pc,sq,side) };
+				if (value < lowest)
+				{
+					best = sq;
+					lowest = value;
+				}
 			}
-			else if PYGMALION_TUNABLE(boardType::materialValue(bishop, whitePlayer) > boardType::materialValue(knight, whitePlayer))
-			{
-				subset = position.pieceOccupancy(knight) & occ;
-				if (subset)
-					return subset.singlePiece();
-				subset = position.pieceOccupancy(bishop) & occ;
-				if (subset)
-					return subset.singlePiece();
-			}
-			else
-			{
-				subset = (position.pieceOccupancy(knight) | position.pieceOccupancy(bishop)) & occ;
-				if (subset)
-					return subset.singlePiece();
-			}
-			subset = position.pieceOccupancy(rook) & occ;
-			if (subset)
-				return subset.singlePiece();
-			subset = position.pieceOccupancy(queen) & occ;
-			if (subset)
-				return subset.singlePiece();
-			subset = position.pieceOccupancy(king) & occ;
-			return subset;
+			return best;
 		}
 		PYGMALION_INLINE static materialScore staticExchange(const movebitsType move, const boardType& position) noexcept
 		{
+			constexpr const materialScore zero{ materialScore::zero() };
 			const squareType to{ motorType::move().toSquare(position, move) };
 			const squareType from{ motorType::move().fromSquare(position, move) };
 			pieceType attackingPiece{ position.getPiece(from) };
-			playerType attackingSide{ position.getPlayer(from) };
+			playerType movingSide{ position.getPlayer(from) };
+			playerType defendingSide{ movingSide.next() };
 			PYGMALION_ASSERT(attackingPiece.isValid());
 			materialScore gain[32];
-			constexpr const materialScore zero{ materialScore::zero() };
+			pieceType promotedPiece{ attackingPiece };
+			if (motorType::move().isPromotion(move))
+				promotedPiece = motorType::move().promotedPiece(move);
+			gain[0] = boardType::materialValueRelative(promotedPiece, to, movingSide) - boardType::materialValueRelative(attackingPiece, from, movingSide);
+			std::cout << "0 ";
 			if (motorType::move().isCapture(move))
 			{
 				const squareType captureSquare{ motorType::move().captureSquare(position, move) };
 				const pieceType capPiece = position.getPiece(captureSquare);
-				gain[0] = boardType::materialValue(capPiece, whitePlayer);
+				gain[0] += boardType::materialValueRelative(capPiece, captureSquare, defendingSide);
+				std::cout << boardType::squareToString(from) + "x" + boardType::squareToString(captureSquare);
 			}
 			else
-			{
-				gain[0] = zero;
-			}
+				std::cout << boardType::squareToString(from) + "-" + boardType::squareToString(to);
 			if (motorType::move().isPromotion(move))
 			{
-				const pieceType promotedPiece{ motorType::move().promotedPiece(move) };
-				gain[0] += boardType::materialValue(promotedPiece, whitePlayer);
-				gain[0] -= boardType::materialValue(pawn, whitePlayer);
+				std::cout << "=" + boardType::pieceToString(promotedPiece, movingSide);
 			}
+			std::cout << " " << gain[0] << std::endl;
 			squaresType mayXrayHV{ position.pieceOccupancy(queen) | position.pieceOccupancy(rook) };
 			squaresType mayXrayDiag{ position.pieceOccupancy(queen) | position.pieceOccupancy(bishop) };
 			int d{ 0 };
 			squaresType occBB{ position.totalOccupancy() };
 			squaresType attackBB{ generatorType::attackers(position,to) };
 			squaresType fromBB{ squaresType(from) };
-			while (true)
+			gain[1] = zero;
+			while (d < 30)
 			{
+				movingSide = defendingSide;
+				defendingSide = movingSide.next();
 				d++;
-				PYGMALION_ASSERT(d < 32);
-				gain[d] = boardType::materialValue(attackingPiece, whitePlayer) - gain[d - 1];
-				if (materialScore::max(gain[d - 1], gain[d]) < zero)
-					break;
-				attackBB ^= fromBB;
-				occBB ^= fromBB;
+				attackBB &= ~fromBB;
+				occBB &= ~fromBB;
 				mayXrayHV &= ~fromBB;
 				mayXrayDiag &= ~fromBB;
+				std::cout << attackBB;
 				attackBB |= generatorType::attacksXrayHV(to, occBB, mayXrayHV);
 				attackBB |= generatorType::attacksXrayDiag(to, occBB, mayXrayDiag);
-				attackingSide = attackingSide.next();
-				fromBB = leastValuablePiece(position, attackBB, attackingSide);
-				if (fromBB)
+				const squareType leastSquare{ leastValuablePiece(position, attackBB, movingSide) };
+				if (leastSquare.isValid())
 				{
-					const squareType attackersquare{ *fromBB.begin() };
-					if (attackingPiece == king)
+					if (promotedPiece == king)
 					{
 						d--;
 						break;
 					}
-					attackingPiece = position.getPiece(attackersquare);
+					const squareType attackersquare{ leastSquare };
+					const pieceType capturedPiece{ promotedPiece };
+					promotedPiece = position.getPiece(attackersquare);
+					gain[d] = boardType::materialValueRelative(promotedPiece, to, movingSide) - boardType::materialValueRelative(promotedPiece, attackersquare, movingSide) + boardType::materialValueRelative(capturedPiece, to, defendingSide) - gain[d - 1];
+					fromBB = squaresType(attackersquare);
+					std::cout << d << " " << boardType::squareToString(attackersquare) + "x" + boardType::squareToString(to) << " " << gain[d] << std::endl;
 				}
 				else
 					break;
@@ -228,24 +213,24 @@ namespace pygmalion::chess
 		{
 			return 4;
 		}
+#if defined(PYGMALION_TUNE)
 		static parameter getParameter_Implementation(const size_t index) noexcept
 		{
 			switch (index)
 			{
 			case 0: // knight
-				return parameter(static_cast<double>(boardType::materialValue(knight, whitePlayer)), 2.0, 4.0, 0.001, "material_knight");
+				return parameter(boardType::getMaterial(knight, whitePlayer), 2.0, 4.0, 0.001, "material_knight");
 			case 1: // bishop
-				return parameter(static_cast<double>(boardType::materialValue(bishop, whitePlayer)), 2.0, 4.0, 0.001, "material_bishop");
+				return parameter(boardType::getMaterial(bishop, whitePlayer), 2.0, 4.0, 0.001, "material_bishop");
 			case 2: // rook
-				return parameter(static_cast<double>(boardType::materialValue(rook, whitePlayer)), 4.5, 7.0, 0.001, "material_rook");
+				return parameter(boardType::getMaterial(rook, whitePlayer), 4.5, 7.0, 0.001, "material_rook");
 			case 3: // queen
-				return parameter(static_cast<double>(boardType::materialValue(queen, whitePlayer)), 7.5, 12.0, 0.001, "material_queen");
+				return parameter(boardType::getMaterial(queen, whitePlayer), 7.5, 12.0, 0.001, "material_queen");
 			default:
 				PYGMALION_ASSERT(false);
 				return parameter(0.0, 0.0, 0.0, 0.0, "???");
 			}
 		}
-#if defined(PYGMALION_TUNE)
 		static void setParameter_Implementation(const size_t index, double value) noexcept
 		{
 			switch (index)

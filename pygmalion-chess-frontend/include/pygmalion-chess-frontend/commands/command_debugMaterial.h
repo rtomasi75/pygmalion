@@ -13,11 +13,25 @@ namespace pygmalion::chess::frontend
 		{
 			if (cmd == "debug-material")
 			{
-				for (const auto pc : pieceType::range)
+				for (const auto pl : playerType::range)
 				{
-					this->output() << boardType::pieceToString(pc, descriptorFrontend::whitePlayer) << ": " << boardType::materialValue(pc, descriptorFrontend::whitePlayer) << std::endl;
+					for (const auto pc : pieceType::range)
+					{
+						this->output() << boardType::pieceToString(pc, pl) << ":" << std::endl;
+						for (size_t r = countRanks; r > 0; r--)
+						{
+							const rankType rank{ static_cast<rankType>(r - 1) };
+							for (const auto file : fileType::range)
+							{
+								const squareType sq{ rank & file };
+								this->output() << "\t";
+								this->output() << boardType::materialValueRelative(pc, sq, pl);
+							}
+							this->output() << std::endl;
+						}
+						this->output() << std::endl;
+					}
 				}
-				this->output() << std::endl;
 				return true;
 			}
 			else

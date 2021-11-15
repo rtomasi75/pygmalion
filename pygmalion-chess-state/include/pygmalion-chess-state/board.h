@@ -295,14 +295,26 @@ namespace pygmalion::chess
 		{
 			return m_PlayerPieceSquareHash[player][piece][square];
 		}
-		PYGMALION_TUNABLE PYGMALION_INLINE static materialScore materialValue(const pieceType pc, const playerType pl) noexcept
+		PYGMALION_TUNABLE PYGMALION_INLINE static materialScore materialValueAbsolute(const pieceType pc, const squareType sq, const playerType pl) noexcept
 		{
-			return m_Material.material(pl, pc);
+			return m_Material.absoluteMaterial(pl, pc, sq);
+		}
+		PYGMALION_TUNABLE PYGMALION_INLINE static materialScore materialValueRelative(const pieceType pc, const squareType sq, const playerType pl) noexcept
+		{
+			return m_Material.relativeMaterial(pl, pc, sq);
+		}
+		PYGMALION_INLINE PYGMALION_TUNABLE static int minorPieceKnightOffset() noexcept
+		{
+			return m_Material.minorPieceKnightOffset();
 		}
 #if defined(PYGMALION_TUNE)&&(PYGMALION_TUNE==1)
 		static void setMaterial(const pieceType pc, const double score) noexcept
 		{
 			return m_Material.setTunedMaterial(pc, score);
+		}
+		static double getMaterial(const pieceType pc) noexcept
+		{
+			return m_Material.getTunedMaterial(pc);
 		}
 #endif
 		PYGMALION_INLINE void clearCastleRightQueensideBlack() noexcept
@@ -424,7 +436,7 @@ namespace pygmalion::chess
 		}
 		PYGMALION_INLINE void onAddedPiece_Implementation(const pieceType piece, const squareType square, const playerType player) noexcept
 		{
-			cumulation().score() += m_Material.material(player, piece);
+			cumulation().score() += m_Material.absoluteMaterial(player, piece, square);
 			switch (piece)
 			{
 			case pawn:
@@ -440,7 +452,7 @@ namespace pygmalion::chess
 		}
 		PYGMALION_INLINE void onRemovedPiece_Implementation(const pieceType piece, const squareType square, const playerType player) noexcept
 		{
-			cumulation().score() -= m_Material.material(player, piece);
+			cumulation().score() -= m_Material.absoluteMaterial(player, piece, square);
 			switch (piece)
 			{
 			case pawn:

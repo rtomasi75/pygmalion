@@ -94,5 +94,9 @@ namespace pygmalion::state
 		{
 			return fromRankFile(rank(), file() - 1);
 		}
+		PYGMALION_INLINE constexpr square flipRank() const noexcept
+		{
+			return static_cast<rankType>(countRanks - static_cast<int>(this->rank()) - 1) & this->file();
+		}
 	};
 }

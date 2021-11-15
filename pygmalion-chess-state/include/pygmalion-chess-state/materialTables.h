@@ -8,45 +8,179 @@ namespace pygmalion::chess::state
 		using descriptorState = DESCRIPTION_STATE;
 #include <pygmalion-state/include_state.h>
 	private:
-		PYGMALION_TUNABLE static inline std::array<materialScore, 6> m_LazyMaterial
+		PYGMALION_TUNABLE static inline double m_PST_King[64]
 		{
-			arrayhelper::generate<6,materialScore>(
-				[](const size_t index)
-				{
-					switch (index)
+				-0.32, -0.064, -0.064, -0.064, -0.064, -0.064, -0.064, -0.32,
+				-0.064, 0.32, 0.32, 0.32, 0.32, 0.32, 0.32, -0.064,
+				-0.064, 0.32, 0.32, 0.32, 0.32, 0.32, 0.32, -0.064,
+				-0.064, 0.32, 0.32, 0.32, 0.32, 0.32, 0.32, -0.064,
+				-0.064, 0.32, 0.32, 0.32, 0.32, 0.32, 0.32, -0.064,
+				-0.064, 0.32, 0.32, 0.32, 0.32, 0.32, 0.32, -0.064,
+				-0.064, 0.32, 0.32, 0.32, 0.32, 0.32, 0.32, -0.064,
+				-0.32, -0.064, -0.064, -0.064, -0.064, -0.064, -0.064, -0.32,
+		};
+		PYGMALION_TUNABLE static inline double m_PST_Knight[64]
+		{
+				-0.384, -0.256, -0.128, -0.128, -0.128, -0.128, -0.256, -0.384,
+				-0.256, -0.128, 0.128, 0.128, 0.128, 0.128, -0.128, -0.256,
+				-0.128, 0.128, 0.384, 0.384, 0.384, 0.384, 0.128, -0.128,
+				-0.128, 0.128, 0.384, 0.384, 0.384, 0.384, 0.128, -0.128,
+				-0.128, 0.128, 0.384, 0.384, 0.384, 0.384, 0.128, -0.128,
+				-0.128, 0.128, 0.384, 0.384, 0.384, 0.384, 0.128, -0.128,
+				-0.256, -0.128, 0.128, 0.128, 0.128, 0.128, -0.128, -0.256,
+				-0.384, -0.256, -0.128, -0.128, -0.128, -0.128, -0.256, -0.384,
+		};
+		PYGMALION_TUNABLE static inline double m_PST_Bishop[64]
+		{
+				-0.384, -0.384, -0.384, -0.384, -0.384, -0.384, -0.384, -0.384,
+				-0.384, -0.128, -0.128, -0.128, -0.128, -0.128, -0.128, -0.384,
+				-0.384, -0.128, 0.128, 0.128, 0.128, 0.128, -0.128, -0.384,
+				-0.384, -0.128, 0.128, 0.384, 0.384, 0.128, -0.128, -0.384,
+				-0.384, -0.128, 0.128, 0.384, 0.384, 0.128, -0.128, -0.384,
+				-0.384, -0.128, 0.128, 0.128, 0.128, 0.128, -0.128, -0.384,
+				-0.384, -0.128, -0.128, -0.128, -0.128, -0.128, -0.128, -0.384,
+				-0.384, -0.384, -0.384, -0.384, -0.384, -0.384, -0.384, -0.384,
+		};
+		PYGMALION_TUNABLE static inline double m_PST_Rook[64]
+		{
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+		};
+		PYGMALION_TUNABLE static inline double m_PST_Queen[64]
+		{
+				-0.384, -0.384, -0.384, -0.384, -0.384, -0.384, -0.384, -0.384,
+				-0.384, -0.128, -0.128, -0.128, -0.128, -0.128, -0.128, -0.384,
+				-0.384, -0.128, 0.128, 0.128, 0.128, 0.128, -0.128, -0.384,
+				-0.384, -0.128, 0.128, 0.384, 0.384, 0.128, -0.128, -0.384,
+				-0.384, -0.128, 0.128, 0.384, 0.384, 0.128, -0.128, -0.384,
+				-0.384, -0.128, 0.128, 0.128, 0.128, 0.128, -0.128, -0.384,
+				-0.384, -0.128, -0.128, -0.128, -0.128, -0.128, -0.128, -0.384,
+				-0.384, -0.384, -0.384, -0.384, -0.384, -0.384, -0.384, -0.384,
+		};
+		PYGMALION_TUNABLE static inline double m_PST_Pawn[64]
+		{
+				0, 0, 0, 0, 0, 0, 0, 0,
+				-0.384, -0.256, -0.256, -0.256, -0.256, -0.256, -0.256, -0.384,
+				-0.256, -0.128, -0.128, -0.128, -0.128, -0.128, -0.128, -0.256,
+				-0.128, 0, 0, 0, 0, 0, 0, -0.128,
+				0, 0.128, 0.128, 0.128, 0.128, 0.128, 0.128, 0,
+				0.128, 0.256, 0.256, 0.256, 0.256, 0.256, 0.256, 0.128,
+				0.256, 0.384, 0.384, 0.384, 0.384, 0.384, 0.384, 0.256,
+				0, 0, 0, 0, 0, 0, 0, 0,
+		};
+		PYGMALION_TUNABLE static inline double m_LazyMaterial[6]
+		{
+			3.0,  //knight
+			3.3,  //bishop
+			5.5,  //rook
+			10.0, //queen
+			1.0,  //pawn
+			0.0   //king
+		};
+		constexpr static inline const auto m_PSTLambda
+		{
+			[](const size_t plIdx)
+			{
+				const playerType pl{static_cast<playerType>(plIdx)};
+				return arrayhelper::generate<countPieces, std::array<materialScore, countSquares>>(
+					[pl](const size_t pcIdx)
 					{
-					case 0x0: //knight
-						return static_cast<materialScore>(3.0);
-					case 0x1: //bishop
-						return static_cast<materialScore>(3.0);
-					case 0x2: //rook
-						return static_cast<materialScore>(5.0);
-					case 0x3: //queen
-						return static_cast<materialScore>(9.0);
-					case 0x4: //pawn
-						return static_cast<materialScore>(1.0);
-					case 0x5: //king
-						return static_cast<materialScore>(0.0);
-					default:
-						PYGMALION_UNREACHABLE;
-						return static_cast<materialScore>(0.0);
+						const pieceType pc{ static_cast<pieceType>(pcIdx) };
+						return arrayhelper::generate<countSquares, materialScore>(
+							[pl, pc](const size_t sqIdx)
+							{
+								const squareType sq{ static_cast<squareType>(sqIdx) };
+								if (pl == descriptorState::whitePlayer)
+								{
+									switch (pc)
+									{
+									case descriptorState::pawn:
+										return static_cast<materialScore>(m_PST_Pawn[sq] + m_LazyMaterial[pc]);
+									case descriptorState::knight:
+										return static_cast<materialScore>(m_PST_Knight[sq] + m_LazyMaterial[pc]);
+									case descriptorState::rook:
+										return static_cast<materialScore>(m_PST_Rook[sq] + m_LazyMaterial[pc]);
+									case descriptorState::queen:
+										return static_cast<materialScore>(m_PST_Queen[sq] + m_LazyMaterial[pc]);
+									case descriptorState::king:
+										return static_cast<materialScore>(m_PST_King[sq] + m_LazyMaterial[pc]);
+									case descriptorState::bishop:
+										return static_cast<materialScore>(m_PST_Bishop[sq] + m_LazyMaterial[pc]);
+									default:
+										return materialScore::zero();
+									}
+								}
+								else
+								{
+									switch (pc)
+									{
+									case descriptorState::pawn:
+										return static_cast<materialScore>(m_PST_Pawn[sq.flipRank()] + m_LazyMaterial[pc]);
+									case descriptorState::knight:
+										return static_cast<materialScore>(m_PST_Knight[sq.flipRank()] + m_LazyMaterial[pc]);
+									case descriptorState::rook:
+										return static_cast<materialScore>(m_PST_Rook[sq.flipRank()] + m_LazyMaterial[pc]);
+									case descriptorState::queen:
+										return static_cast<materialScore>(m_PST_Queen[sq.flipRank()] + m_LazyMaterial[pc]);
+									case descriptorState::king:
+										return static_cast<materialScore>(m_PST_King[sq.flipRank()] + m_LazyMaterial[pc]);
+									case descriptorState::bishop:
+										return static_cast<materialScore>(m_PST_Bishop[sq.flipRank()] + m_LazyMaterial[pc]);
+									default:
+										return materialScore::zero();
+									}
+								}
+							}
+						);
 					}
-				}
-			)
+				);
+			}
+		};
+		PYGMALION_TUNABLE static inline std::array<std::array<std::array<materialScore, countSquares>, countPieces>, countPlayers> m_PST
+		{
+			arrayhelper::generate< countPlayers,std::array<std::array<materialScore, countSquares>, countPieces>>(m_PSTLambda)
 		};
 	public:
 		constexpr materialTables() noexcept
 		{
 		}
 		~materialTables() noexcept = default;
-		PYGMALION_INLINE PYGMALION_TUNABLE materialScore material(const playerType p, const pieceType pc) const noexcept
+		PYGMALION_INLINE PYGMALION_TUNABLE materialScore absoluteMaterial(const playerType p, const pieceType pc, const squareType sq) const noexcept
 		{
-			return p == descriptorState::whitePlayer ? m_LazyMaterial[pc] : -m_LazyMaterial[pc];
+			return p == descriptorState::whitePlayer ? m_PST[p][pc][sq] : -m_PST[p][pc][sq];
+		}
+		PYGMALION_INLINE PYGMALION_TUNABLE materialScore relativeMaterial(const playerType p, const pieceType pc, const squareType sq) const noexcept
+		{
+			return m_PST[p][pc][sq];
+		}
+		PYGMALION_INLINE PYGMALION_TUNABLE int minorPieceKnightOffset() const noexcept
+		{
+			if (m_LazyMaterial[0x0] < m_LazyMaterial[0x1])
+			{
+				return -1;
+			}
+			else
+			{
+				if (m_LazyMaterial[0x0] == m_LazyMaterial[0x1])
+					return 0;
+				else
+					return 1;
+			}
 		}
 #if defined(PYGMALION_TUNE)&&(PYGMALION_TUNE==1)
 		static void setTunedMaterial(const pieceType pc, const double whiteValue) noexcept
 		{
 			m_LazyMaterial[pc] = static_cast<materialScore>(whiteValue);
+		}
+		static double getTunedMaterial(const pieceType pc) noexcept
+		{
+			return static_cast<double>(m_LazyMaterial[pc]);
 		}
 #endif
 

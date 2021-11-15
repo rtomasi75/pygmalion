@@ -989,7 +989,7 @@ namespace pygmalion::chess
 		{
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			constexpr const playerType nextPlayer{ movingPlayer.next() };
-			if PYGMALION_TUNABLE(boardType::materialValue(bishop, whitePlayer) >= boardType::materialValue(knight, whitePlayer))
+			if PYGMALION_TUNABLE(boardType::minorPieceKnightOffset() <= 0)
 			{
 				const squaresType betterThanBishop{ stack.position().pieceOccupancy(rook) | stack.position().pieceOccupancy(queen) };
 				for (const squareType from : stack.position().pieceOccupancy(bishop)& stack.position().playerOccupancy(movingPlayer))
@@ -1013,7 +1013,7 @@ namespace pygmalion::chess
 		{
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			constexpr const playerType nextPlayer{ movingPlayer.next() };
-			if PYGMALION_TUNABLE(boardType::materialValue(bishop, whitePlayer) > boardType::materialValue(knight, whitePlayer))
+			if PYGMALION_TUNABLE(boardType::minorPieceKnightOffset() < 0)
 			{
 				const squaresType equalToBishop{ stack.position().pieceOccupancy(bishop) };
 				for (const squareType from : stack.position().pieceOccupancy(bishop)& stack.position().playerOccupancy(movingPlayer))
@@ -1027,7 +1027,7 @@ namespace pygmalion::chess
 						moves.add(motorType::move().createCapture(from, to));
 				}
 			}
-			else if PYGMALION_TUNABLE(boardType::materialValue(knight, whitePlayer) > boardType::materialValue(bishop, whitePlayer))
+			else if PYGMALION_TUNABLE(boardType::minorPieceKnightOffset() > 0)
 			{
 				const squaresType equalToBishop{ stack.position().pieceOccupancy(bishop) };
 				for (const squareType from : stack.position().pieceOccupancy(bishop)& stack.position().playerOccupancy(movingPlayer))
@@ -1061,7 +1061,7 @@ namespace pygmalion::chess
 		{
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			constexpr const playerType nextPlayer{ movingPlayer.next() };
-			if PYGMALION_TUNABLE(boardType::materialValue(bishop, whitePlayer) > boardType::materialValue(knight, whitePlayer))
+			if PYGMALION_TUNABLE(boardType::minorPieceKnightOffset() < 0)
 			{
 				const squaresType lessThanBishop{ stack.position().pieceOccupancy(pawn) | stack.position().pieceOccupancy(knight) };
 				const squaresType lessThanQueen{ ~stack.position().pieceOccupancy(queen) };
@@ -1109,7 +1109,7 @@ namespace pygmalion::chess
 		{
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			constexpr const playerType nextPlayer{ movingPlayer.next() };
-			if PYGMALION_TUNABLE(boardType::materialValue(bishop, whitePlayer) > boardType::materialValue(knight, whitePlayer))
+			if PYGMALION_TUNABLE(boardType::minorPieceKnightOffset() < 0)
 			{
 				const squaresType betterThanKnight{ stack.position().pieceOccupancy(rook) | stack.position().pieceOccupancy(bishop) | stack.position().pieceOccupancy(queen) };
 				for (const squareType from : stack.position().pieceOccupancy(knight)& stack.position().playerOccupancy(movingPlayer))
@@ -1133,7 +1133,7 @@ namespace pygmalion::chess
 		{
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			constexpr const playerType nextPlayer{ movingPlayer.next() };
-			if PYGMALION_TUNABLE(boardType::materialValue(bishop, whitePlayer) > boardType::materialValue(knight, whitePlayer))
+			if PYGMALION_TUNABLE(boardType::minorPieceKnightOffset() < 0)
 			{
 				const squaresType equalToKnight{ stack.position().pieceOccupancy(knight) };
 				for (const squareType from : stack.position().pieceOccupancy(knight)& stack.position().playerOccupancy(movingPlayer))
@@ -1142,7 +1142,7 @@ namespace pygmalion::chess
 						moves.add(motorType::move().createCapture(from, to));
 				}
 			}
-			else if PYGMALION_TUNABLE(boardType::materialValue(bishop, whitePlayer) < boardType::materialValue(knight, whitePlayer))
+			else if PYGMALION_TUNABLE(boardType::minorPieceKnightOffset() > 0)
 			{
 				const squaresType equalToKnight{ stack.position().pieceOccupancy(knight) };
 				for (const squareType from : stack.position().pieceOccupancy(knight)& stack.position().playerOccupancy(movingPlayer))
@@ -1164,9 +1164,9 @@ namespace pygmalion::chess
 		template<size_t PLAYER>
 		static void generateKnightLosingCaptures(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
-				constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
-				constexpr const playerType nextPlayer{ movingPlayer.next() };
-			if PYGMALION_TUNABLE(boardType::materialValue(bishop, whitePlayer) >= boardType::materialValue(knight, whitePlayer))
+			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
+			constexpr const playerType nextPlayer{ movingPlayer.next() };
+			if PYGMALION_TUNABLE(boardType::minorPieceKnightOffset() <= 0)
 			{
 				for (const squareType from : stack.position().pieceOccupancy(knight)& stack.position().playerOccupancy(movingPlayer))
 				{
@@ -1174,11 +1174,11 @@ namespace pygmalion::chess
 						moves.add(motorType::move().createCapture(from, to));
 				}
 			}
-			else if PYGMALION_TUNABLE(boardType::materialValue(bishop, whitePlayer) < boardType::materialValue(knight, whitePlayer))
+			else if PYGMALION_TUNABLE(boardType::minorPieceKnightOffset() > 0)
 			{
 				for (const squareType from : stack.position().pieceOccupancy(knight)& stack.position().playerOccupancy(movingPlayer))
 				{
-					for (const squareType to : movegenKnight.attacks(from, ~stack.position().totalOccupancy())& (stack.position().pieceOccupancy(pawn)| stack.position().pieceOccupancy(bishop) )& stack.position().playerOccupancy(nextPlayer))
+					for (const squareType to : movegenKnight.attacks(from, ~stack.position().totalOccupancy())& (stack.position().pieceOccupancy(pawn) | stack.position().pieceOccupancy(bishop))& stack.position().playerOccupancy(nextPlayer))
 						moves.add(motorType::move().createCapture(from, to));
 				}
 			}
@@ -4365,7 +4365,7 @@ namespace pygmalion::chess
 			switch (static_cast<size_t>(stage))
 			{
 			case movegenStage_AllMoves:
-//				return generateAllMoves(stack, moves);
+				//				return generateAllMoves(stack, moves);
 				switch (static_cast<size_t>(currentPass))
 				{
 				case 0:
@@ -4967,7 +4967,7 @@ namespace pygmalion::chess
 				return 3;
 			case movegenStage_QuietMoves:
 				return 1;
-			//	return 8;
+				//	return 8;
 			default:
 				PYGMALION_UNREACHABLE;
 				return 0;
@@ -4992,7 +4992,7 @@ namespace pygmalion::chess
 					PYGMALION_UNREACHABLE;
 					return 0;
 				}
-//				return movegenStage_AllMoves;
+				//				return movegenStage_AllMoves;
 			case movegenPhase::tactical:
 				switch (stageIndex)
 				{
