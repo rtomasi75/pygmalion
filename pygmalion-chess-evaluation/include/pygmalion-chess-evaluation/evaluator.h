@@ -168,7 +168,6 @@ namespace pygmalion::chess
 				occBB &= ~fromBB;
 				mayXrayHV &= ~fromBB;
 				mayXrayDiag &= ~fromBB;
-				std::cout << attackBB;
 				attackBB |= generatorType::attacksXrayHV(to, occBB, mayXrayHV);
 				attackBB |= generatorType::attacksXrayDiag(to, occBB, mayXrayDiag);
 				const squareType leastSquare{ leastValuablePiece(position, attackBB, movingSide) };
