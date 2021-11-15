@@ -961,7 +961,7 @@ namespace pygmalion
 					{
 						m_LastCriticalPass = m_pContext->criticalPasses()[m_CurrentCriticalMove];
 						m_LastCriticalStage = m_pContext->criticalStages()[m_CurrentCriticalMove];
-						m_LastCriticalScore = m_pContext->tacticalScores()[m_CurrentCriticalMove];
+						m_LastCriticalScore = m_pContext->criticalScores()[m_CurrentCriticalMove];
 						++m_CurrentCriticalMove;
 						return true;
 					}

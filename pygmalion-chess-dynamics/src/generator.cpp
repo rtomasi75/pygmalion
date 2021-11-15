@@ -27,7 +27,10 @@ namespace pygmalion::chess
 	{
 		switch (static_cast<size_t>(stage))
 		{
+		case movegenStage_Castles:
+			return "castles";
 		case movegenStage_AllMoves:
+			//		return "all moves";
 			switch (static_cast<size_t>(pass))
 			{
 			case 0:
@@ -176,6 +179,8 @@ namespace pygmalion::chess
 			};
 			break;
 		case movegenStage_QuietMoves:
+			return "all quiet moves";
+			/*
 			switch (static_cast<size_t>(pass))
 			{
 			case 0:
@@ -198,7 +203,7 @@ namespace pygmalion::chess
 				PYGMALION_UNREACHABLE;
 				return "???";
 			}
-			break;
+			break;*/
 		default:
 			PYGMALION_UNREACHABLE;
 			return "???";

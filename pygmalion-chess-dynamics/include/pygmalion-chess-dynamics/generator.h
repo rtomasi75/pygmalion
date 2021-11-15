@@ -3397,6 +3397,37 @@ namespace pygmalion::chess
 				moves.add(motorType::move().createCapture(king, square));
 			}
 		}
+		template<size_t PLAYER>
+		static void generateAllMoves(const stackType<PLAYER>& stack, movelistType& moves) noexcept
+		{
+			generatorType::template generateKnightMoves<PLAYER>(stack, moves);
+			generatorType::template generatePawnPushes<PLAYER>(stack, moves);
+			generatorType::template generatePawnDoublePushes<PLAYER>(stack, moves);
+			generatorType::template generateKnightCaptures<PLAYER>(stack, moves);
+			generatorType::template generatePawnCaptures<PLAYER>(stack, moves);
+			generatorType::template generatePawnEnPassant<PLAYER>(stack, moves);
+			generatorType::template generateSliderMovesHV<PLAYER>(stack, moves);
+			generatorType::template generateSliderMovesDiag<PLAYER>(stack, moves);
+			generatorType::template generateSliderCapturesHV<PLAYER>(stack, moves);
+			generatorType::template generateSliderCapturesDiag<PLAYER>(stack, moves);
+			generatorType::template generateCastles<PLAYER>(stack, moves);
+			generatorType::template generateKingMoves<PLAYER>(stack, moves);
+			generatorType::template generateKingCaptures<PLAYER>(stack, moves);
+			generatorType::template generatePawnPromotions<PLAYER>(stack, moves);
+			generatorType::template generatePawnPromoCaptures<PLAYER>(stack, moves);
+		}
+		template<size_t PLAYER>
+		static void generateAllQuietMoves(const stackType<PLAYER>& stack, movelistType& moves) noexcept
+		{
+			generatorType::template generatePawnPromotions<PLAYER>(stack, moves);
+			generatorType::template generateCastles<PLAYER>(stack, moves);
+			generatorType::template generatePawnDoublePushes<PLAYER>(stack, moves);
+			generatorType::template generateKnightMoves<PLAYER>(stack, moves);
+			generatorType::template generatePawnPushes<PLAYER>(stack, moves);
+			generatorType::template generateSliderMovesHV<PLAYER>(stack, moves);
+			generatorType::template generateSliderMovesDiag<PLAYER>(stack, moves);
+			generatorType::template generateKingMoves<PLAYER>(stack, moves);
+		}
 		static squaresType tropismKing(const squaresType& sq) noexcept
 		{
 			constexpr const squaresType all{ squaresType::all() };
@@ -4334,6 +4365,7 @@ namespace pygmalion::chess
 			switch (static_cast<size_t>(stage))
 			{
 			case movegenStage_AllMoves:
+//				return generateAllMoves(stack, moves);
 				switch (static_cast<size_t>(currentPass))
 				{
 				case 0:
@@ -4528,36 +4560,10 @@ namespace pygmalion::chess
 				};
 				break;
 			case movegenStage_QuietMoves:
-				switch (static_cast<size_t>(currentPass))
-				{
-				case 0:
-					generateKnightMoves(stack, moves);
-					break;
-				case 1:
-					generatePawnPushes(stack, moves);
-					break;
-				case 2:
-					generatePawnDoublePushes(stack, moves);
-					break;
-				case 3:
-					generateSliderMovesHV(stack, moves);
-					break;
-				case 4:
-					generateSliderMovesDiag(stack, moves);
-					break;
-				case 5:
-					generateKingMoves(stack, moves);
-					break;
-				case 6:
-					generateCastles(stack, moves);
-					break;
-				case 7:
-					generatePawnPromotions(stack, moves);
-					break;
-				default:
-					PYGMALION_UNREACHABLE;
-					break;
-				}
+				generateAllQuietMoves(stack, moves);
+				break;
+			case movegenStage_Castles:
+				generateCastles(stack, moves);
 				break;
 			default:
 				PYGMALION_UNREACHABLE;
@@ -4912,16 +4918,18 @@ namespace pygmalion::chess
 		constexpr static const size_t movegenStage_EqualMoves{ 7 };
 		constexpr static const size_t movegenStage_LosingMoves{ 8 };
 		constexpr static const size_t movegenStage_QuietMoves{ 9 };
+		constexpr static const size_t movegenStage_Castles{ 10 };
 		constexpr static size_t countTotalMovegenStages_Implementation() noexcept
 		{
-			return 10;
+			return 11;
 		}
 		constexpr static size_t countMovegenStages_Implementation(const movegenPhase phase) noexcept
 		{
 			switch (phase)
 			{
 			case movegenPhase::normal:
-				return 1;
+				//return 1;
+				return 4;
 			case movegenPhase::tactical:
 				return 3;
 			case movegenPhase::criticalEvasion:
@@ -4937,7 +4945,10 @@ namespace pygmalion::chess
 			switch (stage)
 			{
 			case movegenStage_AllMoves:
+				//		return 1;
 				return 15;
+			case movegenStage_Castles:
+				return 1;
 			case movegenStage_TacticalMoves:
 				return 7;
 			case movegenStage_CriticalMoves:
@@ -4955,7 +4966,8 @@ namespace pygmalion::chess
 			case movegenStage_LosingMoves:
 				return 3;
 			case movegenStage_QuietMoves:
-				return 8;
+				return 1;
+			//	return 8;
 			default:
 				PYGMALION_UNREACHABLE;
 				return 0;
@@ -4966,7 +4978,21 @@ namespace pygmalion::chess
 			switch (phase)
 			{
 			case movegenPhase::normal:
-				return movegenStage_AllMoves;
+				switch (stageIndex)
+				{
+				case 0:
+					return movegenStage_WinningMoves;
+				case 1:
+					return movegenStage_EqualMoves;
+				case 2:
+					return movegenStage_LosingMoves;
+				case 3:
+					return movegenStage_QuietMoves;
+				default:
+					PYGMALION_UNREACHABLE;
+					return 0;
+				}
+//				return movegenStage_AllMoves;
 			case movegenPhase::tactical:
 				switch (stageIndex)
 				{
