@@ -146,21 +146,12 @@ namespace pygmalion::chess
 			if (motorType::move().isPromotion(move))
 				promotedPiece = motorType::move().promotedPiece(move);
 			gain[0] = boardType::materialValueRelative(promotedPiece, to, movingSide) - boardType::materialValueRelative(attackingPiece, from, movingSide);
-			std::cout << "0 ";
 			if (motorType::move().isCapture(move))
 			{
 				const squareType captureSquare{ motorType::move().captureSquare(position, move) };
 				const pieceType capPiece = position.getPiece(captureSquare);
 				gain[0] += boardType::materialValueRelative(capPiece, captureSquare, defendingSide);
-				std::cout << boardType::squareToString(from) + "x" + boardType::squareToString(captureSquare);
 			}
-			else
-				std::cout << boardType::squareToString(from) + "-" + boardType::squareToString(to);
-			if (motorType::move().isPromotion(move))
-			{
-				std::cout << "=" + boardType::pieceToString(promotedPiece, movingSide);
-			}
-			std::cout << " " << gain[0] << std::endl;
 			squaresType mayXrayHV{ position.pieceOccupancy(queen) | position.pieceOccupancy(rook) };
 			squaresType mayXrayDiag{ position.pieceOccupancy(queen) | position.pieceOccupancy(bishop) };
 			int d{ 0 };
@@ -193,7 +184,6 @@ namespace pygmalion::chess
 					promotedPiece = position.getPiece(attackersquare);
 					gain[d] = boardType::materialValueRelative(promotedPiece, to, movingSide) - boardType::materialValueRelative(promotedPiece, attackersquare, movingSide) + boardType::materialValueRelative(capturedPiece, to, defendingSide) - gain[d - 1];
 					fromBB = squaresType(attackersquare);
-					std::cout << d << " " << boardType::squareToString(attackersquare) + "x" + boardType::squareToString(to) << " " << gain[d] << std::endl;
 				}
 				else
 					break;
