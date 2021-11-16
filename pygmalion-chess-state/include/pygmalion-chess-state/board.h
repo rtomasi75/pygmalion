@@ -303,9 +303,21 @@ namespace pygmalion::chess
 		{
 			return m_Material.relativeMaterial(pl, pc, sq);
 		}
+		PYGMALION_TUNABLE PYGMALION_INLINE static materialScore materialUpperBound(const pieceType pc) noexcept
+		{
+			return m_Material.materialUpperBound(pc);
+		}
+		PYGMALION_TUNABLE PYGMALION_INLINE static materialScore materialLowerBound(const pieceType pc) noexcept
+		{
+			return m_Material.materialLowerBound(pc);
+		}
 		PYGMALION_INLINE PYGMALION_TUNABLE static int minorPieceKnightOffset() noexcept
 		{
 			return m_Material.minorPieceKnightOffset();
+		}
+		PYGMALION_INLINE PYGMALION_TUNABLE static materialScore materialDelta() noexcept
+		{
+			return m_Material.materialDelta();
 		}
 #if defined(PYGMALION_TUNE)&&(PYGMALION_TUNE==1)
 		static void setMaterial(const pieceType pc, const double score) noexcept

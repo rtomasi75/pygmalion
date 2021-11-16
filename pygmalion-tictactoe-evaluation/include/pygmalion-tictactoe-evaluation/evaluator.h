@@ -87,11 +87,15 @@ namespace pygmalion::tictactoe
 			}
 			return stack.movingPlayer() == playerType(0) ? sc : -sc;
 		}
-		static scoreType staticTacticalMoveScore_Implementation(const boardType& position, const movebitsType move) noexcept
+		static scoreType staticMoveScore_Implementation(const boardType& position, const movebitsType move) noexcept
 		{
 			PYGMALION_ASSERT(false);
 			constexpr const scoreType zero{ scoreType::zero() };
 			return zero;
+		}
+		PYGMALION_TUNABLE static scoreType materialDelta_Implementation() noexcept
+		{
+			return scoreType::zero();
 		}
 	};
 }

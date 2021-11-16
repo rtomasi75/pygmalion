@@ -146,7 +146,38 @@ namespace pygmalion::chess::state
 		{
 			arrayhelper::generate< countPlayers,std::array<std::array<materialScore, countSquares>, countPieces>>(m_PSTLambda)
 		};
+		PYGMALION_TUNABLE static inline std::array<materialScore, 6> m_MaterialUpperBound
+		{
+			arrayhelper::generate<6,materialScore>([](const size_t pcIdx)
+				{
+					materialScore best{materialScore::minimum()};
+					for (const auto sq : squareType::range)
+					{
+						if (best < m_PST[descriptorState::whitePlayer][pcIdx][sq])
+							best = m_PST[descriptorState::whitePlayer][pcIdx][sq];
+					}
+					return best;
+				})
+		};
+		PYGMALION_TUNABLE static inline std::array<materialScore, 6> m_MaterialLowerBound
+		{
+			arrayhelper::generate<6,materialScore>([](const size_t pcIdx)
+				{
+					materialScore best{materialScore::maximum()};
+					for (const auto sq : squareType::range)
+					{
+						if (best > m_PST[descriptorState::whitePlayer][pcIdx][sq])
+							best = m_PST[descriptorState::whitePlayer][pcIdx][sq];
+					}
+					return best;
+				})
+		};
+		PYGMALION_TUNABLE static inline materialScore m_PST_Delta{ static_cast<materialScore>(0.768) };
 	public:
+		PYGMALION_INLINE PYGMALION_TUNABLE materialScore materialDelta() const noexcept
+		{
+			return m_PST_Delta;
+		}
 		constexpr materialTables() noexcept
 		{
 		}
@@ -158,6 +189,14 @@ namespace pygmalion::chess::state
 		PYGMALION_INLINE PYGMALION_TUNABLE materialScore relativeMaterial(const playerType p, const pieceType pc, const squareType sq) const noexcept
 		{
 			return m_PST[p][pc][sq];
+		}
+		PYGMALION_INLINE PYGMALION_TUNABLE materialScore materialUpperBound(const pieceType pc) const noexcept
+		{
+			return m_MaterialUpperBound[pc];
+		}
+		PYGMALION_INLINE PYGMALION_TUNABLE materialScore materialLowerBound(const pieceType pc) const noexcept
+		{
+			return m_MaterialLowerBound[pc];
 		}
 		PYGMALION_INLINE PYGMALION_TUNABLE int minorPieceKnightOffset() const noexcept
 		{

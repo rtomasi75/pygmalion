@@ -9,8 +9,8 @@ namespace pygmalion::chess
 		| searchFlags::historyHeuristic
 		| searchFlags::quietKillerMovesHeuristic
 		| searchFlags::tacticalKillerMovesHeuristic
-//		| searchFlags::futilityPruning
-//		| searchFlags::deltaPruning
+		| searchFlags::futilityPruning
+		| searchFlags::deltaPruning
 		| searchFlags::nullMovePruning
 //		| searchFlags::aspirationWindows
 		| searchFlags::transpositionTable

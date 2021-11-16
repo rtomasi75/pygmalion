@@ -178,6 +178,8 @@ namespace pygmalion::chess
 				return "???";
 			};
 			break;
+		case movegenStage_AllCaptures:
+			return "all captures";
 		case movegenStage_QuietMoves:
 			return "all quiet moves";
 			/*

@@ -2,11 +2,11 @@ namespace pygmalion::chess
 {
 	class evaluator :
 		public pygmalion::evaluator<descriptor_evaluation, evaluator
-		//		, evaluationstage_pawnstructure
-		//		, evaluationstage_attacks
-		//		, evaluationstage_mobility
-		//		, evaluationstage_control
-		//		, evaluationstage_kingsafety
+				, evaluationstage_pawnstructure
+				, evaluationstage_attacks
+				, evaluationstage_mobility
+				, evaluationstage_control
+				, evaluationstage_kingsafety
 		>
 	{
 	public:
@@ -19,7 +19,7 @@ namespace pygmalion::chess
 		}
 		PYGMALION_INLINE PYGMALION_TUNABLE static scoreType initialAspirationWindowSize() noexcept
 		{
-			PYGMALION_TUNABLE const scoreType delta{ rootDelta() / 8 };
+			PYGMALION_TUNABLE const scoreType delta{ rootDelta(static_cast<scoreType>(boardType::materialDelta())) / 8 };
 			return delta;
 		}
 		PYGMALION_INLINE constexpr static size_t countAspirationWindows_Implementation() noexcept
@@ -194,13 +194,17 @@ namespace pygmalion::chess
 			}
 			return gain[0];
 		}
-		PYGMALION_INLINE static scoreType staticTacticalMoveScore_Implementation(const boardType& position, const movebitsType move) noexcept
+		PYGMALION_INLINE static scoreType staticMoveScore_Implementation(const boardType& position, const movebitsType move) noexcept
 		{
 			return static_cast<scoreType>(staticExchange(move, position));
 		}
 		constexpr static size_t countParameters_Implementation() noexcept
 		{
 			return 4;
+		}
+		PYGMALION_INLINE PYGMALION_TUNABLE static scoreType materialDelta_Implementation() noexcept
+		{
+			return static_cast<scoreType>(boardType::materialDelta());
 		}
 #if defined(PYGMALION_TUNE)
 		static parameter getParameter_Implementation(const size_t index) noexcept
@@ -239,8 +243,8 @@ namespace pygmalion::chess
 			default:
 				PYGMALION_ASSERT(false);
 				break;
-			}
-		}
+	}
+}
 #endif
 	};
 }

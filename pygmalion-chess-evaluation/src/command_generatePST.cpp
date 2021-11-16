@@ -52,6 +52,20 @@ namespace pygmalion::chess::evaluation
 					this->output() << std::endl;
 				}
 				this->output() << "};" << std::endl;
+				double highest = std::numeric_limits<double>::min();
+				double lowest = std::numeric_limits<double>::max();
+				for (const auto sq : squareType::range)
+				{
+					for (const auto sq2 : generatorType::movegenKing.targets(sq, squaresType::all()) | generatorType::movegenKing.attacks(sq, squaresType::all()))
+					{
+						const double delta{ pst[sq2] - pst[sq] };
+						if (delta > highest)
+							highest = delta;
+						if (delta < lowest)
+							lowest = delta;
+					}
+				}
+				double change = std::max(std::abs(highest), std::abs(lowest));
 				// Knight
 				for (const auto sq : squareType::range)
 				{
@@ -84,6 +98,20 @@ namespace pygmalion::chess::evaluation
 					this->output() << std::endl;
 				}
 				this->output() << "};" << std::endl;
+				highest = std::numeric_limits<double>::min();
+				lowest = std::numeric_limits<double>::max();
+				for (const auto sq : squareType::range)
+				{
+					for (const auto sq2 : generatorType::movegenKnight.targets(sq, squaresType::all()) | generatorType::movegenKnight.attacks(sq, squaresType::all()))
+					{
+						const double delta{ pst[sq2] - pst[sq] };
+						if (delta > highest)
+							highest = delta;
+						if (delta < lowest)
+							lowest = delta;
+					}
+				}
+				change = std::max(change, std::max(std::abs(highest), std::abs(lowest)));
 				// Bishop
 				for (const auto sq : squareType::range)
 				{
@@ -116,6 +144,20 @@ namespace pygmalion::chess::evaluation
 					this->output() << std::endl;
 				}
 				this->output() << "};" << std::endl;
+				highest = std::numeric_limits<double>::min();
+				lowest = std::numeric_limits<double>::max();
+				for (const auto sq : squareType::range)
+				{
+					for (const auto sq2 : generatorType::movegenSlidersDiag.targets(sq, squaresType::all()) | generatorType::movegenSlidersDiag.attacks(sq, squaresType::all()))
+					{
+						const double delta{ pst[sq2] - pst[sq] };
+						if (delta > highest)
+							highest = delta;
+						if (delta < lowest)
+							lowest = delta;
+					}
+				}
+				change = std::max(change, std::max(std::abs(highest), std::abs(lowest)));
 				// Rook
 				for (const auto sq : squareType::range)
 				{
@@ -148,6 +190,20 @@ namespace pygmalion::chess::evaluation
 					this->output() << std::endl;
 				}
 				this->output() << "};" << std::endl;
+				highest = std::numeric_limits<double>::min();
+				lowest = std::numeric_limits<double>::max();
+				for (const auto sq : squareType::range)
+				{
+					for (const auto sq2 : generatorType::movegenSlidersHV.targets(sq, squaresType::all()) | generatorType::movegenSlidersHV.attacks(sq, squaresType::all()))
+					{
+						const double delta{ pst[sq2] - pst[sq] };
+						if (delta > highest)
+							highest = delta;
+						if (delta < lowest)
+							lowest = delta;
+					}
+				}
+				change = std::max(change, std::max(std::abs(highest), std::abs(lowest)));
 				// Queen
 				for (const auto sq : squareType::range)
 				{
@@ -180,6 +236,20 @@ namespace pygmalion::chess::evaluation
 					this->output() << std::endl;
 				}
 				this->output() << "};" << std::endl;
+				highest = std::numeric_limits<double>::min();
+				lowest = std::numeric_limits<double>::max();
+				for (const auto sq : squareType::range)
+				{
+					for (const auto sq2 : generatorType::movegenSlidersDiag.targets(sq, squaresType::all()) | generatorType::movegenSlidersDiag.attacks(sq, squaresType::all()) | generatorType::movegenSlidersHV.targets(sq, squaresType::all()) | generatorType::movegenSlidersHV.attacks(sq, squaresType::all()))
+					{
+						const double delta{ pst[sq2] - pst[sq] };
+						if (delta > highest)
+							highest = delta;
+						if (delta < lowest)
+							lowest = delta;
+					}
+				}
+				change = std::max(change, std::max(std::abs(highest), std::abs(lowest)));
 				// Pawn
 				for (const auto sq : squareType::range)
 				{
@@ -223,6 +293,24 @@ namespace pygmalion::chess::evaluation
 					this->output() << std::endl;
 				}
 				this->output() << "};" << std::endl;
+				highest = std::numeric_limits<double>::min();
+				lowest = std::numeric_limits<double>::max();
+				for (const auto sq : squareType::range)
+				{
+					if ((sq.rank() > 0) && (sq.rank() < 8))
+					{
+						for (const auto sq2 : generatorType::movegenPawnCaptureWhite.attacks(sq, squaresType::all()) | generatorType::movegenPawnPushWhite.targets(sq, squaresType::all()) | generatorType::movegenPawnPushWhite.targets(sq, squaresType::all()))
+						{
+							const double delta{ pst[sq2] - pst[sq] };
+							if (delta > highest)
+								highest = delta;
+							if (delta < lowest)
+								lowest = delta;
+						}
+					}
+				}
+				change = std::max(change, std::max(std::abs(highest), std::abs(lowest)));
+				this->output() << "PYGMALION_TUNABLE static inline double m_PST_Delta { " << change << "};" << std::endl;
 			}
 			else
 			{

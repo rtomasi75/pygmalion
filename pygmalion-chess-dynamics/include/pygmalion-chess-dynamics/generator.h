@@ -3428,6 +3428,17 @@ namespace pygmalion::chess
 			generatorType::template generateSliderMovesDiag<PLAYER>(stack, moves);
 			generatorType::template generateKingMoves<PLAYER>(stack, moves);
 		}
+		template<size_t PLAYER>
+		static void generateAllCaptures(const stackType<PLAYER>& stack, movelistType& moves) noexcept
+		{
+			generatorType::template generatePawnPromoCaptures<PLAYER>(stack, moves);
+			generatorType::template generatePawnEnPassant<PLAYER>(stack, moves);
+			generatorType::template generateKnightCaptures<PLAYER>(stack, moves);
+			generatorType::template generatePawnCaptures<PLAYER>(stack, moves);
+			generatorType::template generateSliderCapturesHV<PLAYER>(stack, moves);
+			generatorType::template generateSliderCapturesDiag<PLAYER>(stack, moves);
+			generatorType::template generateKingCaptures<PLAYER>(stack, moves);
+		}
 		static squaresType tropismKing(const squaresType& sq) noexcept
 		{
 			constexpr const squaresType all{ squaresType::all() };
@@ -4562,6 +4573,9 @@ namespace pygmalion::chess
 			case movegenStage_QuietMoves:
 				generateAllQuietMoves(stack, moves);
 				break;
+			case movegenStage_AllCaptures:
+				generateAllCaptures(stack, moves);
+				break;
 			case movegenStage_Castles:
 				generateCastles(stack, moves);
 				break;
@@ -4919,9 +4933,10 @@ namespace pygmalion::chess
 		constexpr static const size_t movegenStage_LosingMoves{ 8 };
 		constexpr static const size_t movegenStage_QuietMoves{ 9 };
 		constexpr static const size_t movegenStage_Castles{ 10 };
+		constexpr static const size_t movegenStage_AllCaptures{ 11 };
 		constexpr static size_t countTotalMovegenStages_Implementation() noexcept
 		{
-			return 11;
+			return 12;
 		}
 		constexpr static size_t countMovegenStages_Implementation(const movegenPhase phase) noexcept
 		{
@@ -4966,6 +4981,8 @@ namespace pygmalion::chess
 			case movegenStage_LosingMoves:
 				return 3;
 			case movegenStage_QuietMoves:
+				return 1;
+			case movegenStage_AllCaptures:
 				return 1;
 				//	return 8;
 			default:

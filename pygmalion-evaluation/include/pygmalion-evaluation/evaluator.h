@@ -133,6 +133,7 @@ namespace pygmalion
 				return evaluatorType::countParameters_Implementation();
 
 		}
+#if defined(PYGMALION_TUNE)
 		static parameter getParameter(const size_t index) noexcept
 		{
 			if constexpr (sizeof...(STAGES) > 0)
@@ -147,7 +148,6 @@ namespace pygmalion
 				return evaluatorType::getParameter_Implementation(index);
 			}
 		}
-#if defined(PYGMALION_TUNE)
 		static void setParameter(const size_t index, double value) noexcept
 		{
 			if constexpr (sizeof...(STAGES) > 0)
@@ -162,14 +162,14 @@ namespace pygmalion
 				evaluatorType::setParameter_Implementation(index, value);
 		}
 #endif
-		PYGMALION_TUNABLE static scoreType rootDelta() noexcept
+		PYGMALION_TUNABLE static scoreType rootDelta(const scoreType materialDelta) noexcept
 		{
 			if constexpr (sizeof...(STAGES) > 0)
-				return computeDelta<STAGES...>();
+				return materialDelta + computeDelta<STAGES...>();
 			else
 			{
 				constexpr const scoreType zero{ scoreType::zero() };
-				return zero;
+				return materialDelta;
 			}
 		}
 		template<size_t PLAYER>
@@ -199,7 +199,6 @@ namespace pygmalion
 				return scoreType::zero();
 			}
 		}
-		PYGMALION_TUNABLE static inline scoreType MaxPositionChange{ rootDelta() };
 		static std::deque<std::shared_ptr<pygmalion::intrinsics::command>> commands() noexcept
 		{
 			return evaluatorType::commandsImplementation();
@@ -236,9 +235,9 @@ namespace pygmalion
 		{
 			return evaluatorType::countAspirationWindows_Implementation();;
 		}
-		static scoreType staticTacticalMoveScore(const boardType& position, const movebitsType move) noexcept
+		static scoreType staticMoveScore(const boardType& position, const movebitsType move) noexcept
 		{
-			return evaluatorType::staticTacticalMoveScore_Implementation(position, move);
+			return evaluatorType::staticMoveScore_Implementation(position, move);
 		}
 	};
 }

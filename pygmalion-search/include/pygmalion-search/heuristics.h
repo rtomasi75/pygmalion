@@ -173,248 +173,6 @@ namespace pygmalion
 				m_TacticalKillerCount = 0;
 			}
 		};
-		class historybuckets
-		{
-		private:
-			heuristicScore** m_pScoreBuckets;
-			std::uint64_t** m_pCounterBuckets;
-		public:
-			historybuckets() noexcept
-			{
-				m_pScoreBuckets = new heuristicScore * [generatorType::countMoveBucketTypes()];
-				m_pCounterBuckets = new std::uint64_t * [generatorType::countMoveBucketTypes()];
-				for (size_t bucketType = 0; bucketType < generatorType::countMoveBucketTypes(); bucketType++)
-				{
-					m_pScoreBuckets[bucketType] = new heuristicScore[generatorType::countMoveBuckets(bucketType)];
-					m_pCounterBuckets[bucketType] = new std::uint64_t[generatorType::countMoveBuckets(bucketType)];
-					for (size_t bucket = 0; bucket < generatorType::countMoveBuckets(bucketType); bucket++)
-					{
-						constexpr const heuristicScore zero{ heuristicScore::zero() };
-						m_pScoreBuckets[bucketType][bucket] = zero;
-						m_pCounterBuckets[bucketType][bucket] = 0;
-					}
-				}
-			}
-			historybuckets(const historybuckets& other) noexcept
-			{
-				if ((other.m_pCounterBuckets != nullptr) && (other.m_pScoreBuckets != nullptr))
-				{
-					m_pScoreBuckets = new heuristicScore * [generatorType::countMoveBucketTypes()];
-					m_pCounterBuckets = new std::uint64_t * [generatorType::countMoveBucketTypes()];
-					for (size_t bucketType = 0; bucketType < generatorType::countMoveBucketTypes(); bucketType++)
-					{
-						m_pScoreBuckets[bucketType] = new heuristicScore[generatorType::countMoveBuckets(bucketType)];
-						m_pCounterBuckets[bucketType] = new std::uint64_t[generatorType::countMoveBuckets(bucketType)];
-						for (size_t bucket = 0; bucket < generatorType::countMoveBuckets(bucketType); bucket++)
-						{
-							m_pScoreBuckets[bucketType][bucket] = other.m_pScoreBuckets[bucketType][bucket];
-							m_pCounterBuckets[bucketType][bucket] = other.m_pCounterBuckets[bucketType][bucket];
-						}
-					}
-				}
-				else
-				{
-					m_pScoreBuckets = nullptr;
-					m_pCounterBuckets = nullptr;
-				}
-			}
-			historybuckets(historybuckets&& other) noexcept
-			{
-				m_pScoreBuckets = other.m_pScoreBuckets;
-				other.m_pScoreBuckets = nullptr;
-				m_pCounterBuckets = other.m_pCounterBuckets;
-				other.m_pCounterBuckets = nullptr;
-			}
-			historybuckets& operator=(historybuckets&& other)
-			{
-				if (other.m_pScoreBuckets != nullptr)
-				{
-					if (m_pScoreBuckets != nullptr)
-					{
-						for (size_t bucketType = 0; bucketType < generatorType::countMoveBucketTypes(); bucketType++)
-						{
-							delete[] m_pScoreBuckets[bucketType];
-						}
-						delete[] m_pScoreBuckets;
-					}
-					m_pScoreBuckets = other.m_pScoreBuckets;
-					other.m_pScoreBuckets = nullptr;
-				}
-				else
-				{
-					if (m_pScoreBuckets != nullptr)
-					{
-						for (size_t bucketType = 0; bucketType < generatorType::countMoveBucketTypes(); bucketType++)
-						{
-							delete[] m_pScoreBuckets[bucketType];
-						}
-						delete[] m_pScoreBuckets;
-					}
-					m_pScoreBuckets = nullptr;
-				}
-				if (other.m_pCounterBuckets != nullptr)
-				{
-					if (m_pCounterBuckets != nullptr)
-					{
-						for (size_t bucketType = 0; bucketType < generatorType::countMoveBucketTypes(); bucketType++)
-						{
-							delete[] m_pCounterBuckets[bucketType];
-						}
-						delete[] m_pCounterBuckets;
-					}
-					m_pCounterBuckets = other.m_pCounterBuckets;
-					other.m_pCounterBuckets = nullptr;
-				}
-				else
-				{
-					if (m_pCounterBuckets != nullptr)
-					{
-						for (size_t bucketType = 0; bucketType < generatorType::countMoveBucketTypes(); bucketType++)
-						{
-							delete[] m_pCounterBuckets[bucketType];
-						}
-						delete[] m_pCounterBuckets;
-					}
-					m_pCounterBuckets = nullptr;
-				}
-				return *this;
-			}
-			historybuckets& operator=(const historybuckets& other) noexcept
-			{
-				if (other.m_pScoreBuckets != nullptr)
-				{
-					if (m_pScoreBuckets != nullptr)
-					{
-						for (size_t bucketType = 0; bucketType < generatorType::countMoveBucketTypes(); bucketType++)
-						{
-							for (size_t bucket = 0; bucket < generatorType::countMoveBuckets(bucketType); bucket++)
-							{
-								m_pScoreBuckets[bucketType][bucket] = other.m_pScoreBuckets[bucketType][bucket];
-							}
-						}
-					}
-					else
-					{
-						m_pScoreBuckets = new heuristicScore * [generatorType::countMoveBucketTypes()];
-						for (size_t bucketType = 0; bucketType < generatorType::countMoveBucketTypes(); bucketType++)
-						{
-							m_pScoreBuckets[bucketType] = new heuristicScore[generatorType::countMoveBuckets(bucketType)];
-							for (size_t bucket = 0; bucket < generatorType::countMoveBuckets(bucketType); bucket++)
-							{
-								m_pScoreBuckets[bucketType][bucket] = other.m_pScoreBuckets[bucketType][bucket];
-							}
-						}
-					}
-				}
-				else
-				{
-					if (m_pScoreBuckets != nullptr)
-					{
-						for (size_t bucketType = 0; bucketType < generatorType::countMoveBucketTypes(); bucketType++)
-						{
-							delete[] m_pScoreBuckets[bucketType];
-						}
-						delete[] m_pScoreBuckets;
-					}
-					m_pScoreBuckets = nullptr;
-				}
-				if (other.m_pCounterBuckets != nullptr)
-				{
-					if (m_pCounterBuckets != nullptr)
-					{
-						for (size_t bucketType = 0; bucketType < generatorType::countMoveBucketTypes(); bucketType++)
-						{
-							for (size_t bucket = 0; bucket < generatorType::countMoveBuckets(bucketType); bucket++)
-							{
-								m_pCounterBuckets[bucketType][bucket] = other.m_pCounterBuckets[bucketType][bucket];
-							}
-						}
-					}
-					else
-					{
-						m_pCounterBuckets = new std::uint64_t * [generatorType::countMoveBucketTypes()];
-						for (size_t bucketType = 0; bucketType < generatorType::countMoveBucketTypes(); bucketType++)
-						{
-							m_pCounterBuckets[bucketType] = new std::uint64_t[generatorType::countMoveBuckets(bucketType)];
-							for (size_t bucket = 0; bucket < generatorType::countMoveBuckets(bucketType); bucket++)
-							{
-								m_pCounterBuckets[bucketType][bucket] = other.m_pCounterBuckets[bucketType][bucket];
-							}
-						}
-					}
-				}
-				else
-				{
-					if (m_pCounterBuckets != nullptr)
-					{
-						for (size_t bucketType = 0; bucketType < generatorType::countMoveBucketTypes(); bucketType++)
-						{
-							delete[] m_pCounterBuckets[bucketType];
-						}
-						delete[] m_pCounterBuckets;
-					}
-					m_pCounterBuckets = nullptr;
-				}
-				return *this;
-			}
-			~historybuckets() noexcept
-			{
-				if (m_pScoreBuckets != nullptr)
-				{
-					for (size_t bucketType = 0; bucketType < generatorType::countMoveBucketTypes(); bucketType++)
-					{
-						delete[] m_pScoreBuckets[bucketType];
-					}
-					delete[] m_pScoreBuckets;
-				}
-				if (m_pCounterBuckets != nullptr)
-				{
-					for (size_t bucketType = 0; bucketType < generatorType::countMoveBucketTypes(); bucketType++)
-					{
-						delete[] m_pCounterBuckets[bucketType];
-					}
-					delete[] m_pCounterBuckets;
-				}
-			}
-			template<size_t PLAYER>
-			PYGMALION_INLINE void incrementMove(const stackType<PLAYER>& stack, const movebitsType moveBits, const scoreType score, const scoreType eval) noexcept
-			{
-				if (score.isOpen())
-				{
-					if (!generatorType::isMoveTactical(stack, moveBits))
-					{
-						constexpr const size_t countBucketTypes{ generatorType::countMoveBucketTypes() };
-						for (size_t bucketType = 0; bucketType < countBucketTypes; bucketType++)
-						{
-							const size_t bucket{ generatorType::moveBucket(bucketType, stack.position(),moveBits) };
-							m_pScoreBuckets[bucketType][bucket] += static_cast<heuristicScore>(score - eval);
-							m_pCounterBuckets[bucketType][bucket]++;
-						}
-					}
-				}
-			}
-			template<size_t PLAYER>
-			PYGMALION_INLINE scoreType historyScore(const stackType<PLAYER>& stack, const movebitsType moveBits) noexcept
-			{
-				PYGMALION_ASSERT(m_pScoreBuckets != nullptr);
-				PYGMALION_ASSERT(m_pCounterBuckets != nullptr);
-				constexpr const size_t countBucketTypes{ generatorType::countMoveBucketTypes() };
-				constexpr const heuristicScore zero{ heuristicScore::zero() };
-				heuristicScore score{ zero };
-				std::uint64_t counter{ 0 };
-				for (size_t bucketType = 0; bucketType < countBucketTypes; bucketType++)
-				{
-					const size_t bucket{ generatorType::moveBucket(bucketType, stack.position(),moveBits) };
-					score += m_pScoreBuckets[bucketType][bucket];
-					counter += m_pCounterBuckets[bucketType][bucket];
-				}
-				constexpr const scoreType minimum{ scoreType::minimum() };
-				if (counter == 0)
-					return minimum;
-				else
-					return static_cast<scoreType>(score / counter);
-			}
-		};
 	private:
 #if !defined(NDEBUG)
 		bool m_IsSearching;
@@ -426,7 +184,6 @@ namespace pygmalion
 		transpositiontable<descriptorSearch> m_TranspositionTable;
 		movegenFeedback& m_Feedback;
 		std::vector<killerslots> m_KillerSlots;
-		std::vector<historybuckets> m_HistoryBuckets;
 	protected:
 		PYGMALION_INLINE void onBeginSearch() noexcept
 		{
@@ -521,51 +278,12 @@ namespace pygmalion
 					m_KillerSlots.emplace_back(killerslots());
 				}
 			}
-			if constexpr (heuristicMoves)
-			{
-				while (depth >= m_HistoryBuckets.size())
-				{
-					m_HistoryBuckets.emplace_back(historybuckets());
-				}
-			}
 			m_Feedback.expandToDepth(depth);
 		}
 		template<size_t PLAYER>
 		PYGMALION_INLINE scoreType moveScore(const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth) noexcept
 		{
-			constexpr const scoreType minimum{ scoreType::minimum() };
-			if constexpr (heuristicMoves)
-			{
-				if (!generatorType::isMoveTactical(stack, moveBits))
-				{
-					if (depth >= 2)
-					{
-						const scoreType sc1{ m_HistoryBuckets[depth - 2].template historyScore<PLAYER>(stack, moveBits) };
-						const scoreType sc2{ m_HistoryBuckets[depth].template historyScore<PLAYER>(stack, moveBits) };
-						if (sc1 > minimum)
-						{
-							if (sc2 > minimum)
-								return sc1 + sc2;
-							else
-								return sc1;
-						}
-						else if (sc2 > minimum)
-							return sc2;
-						else
-							return minimum;
-					}
-					else
-					{
-						return m_HistoryBuckets[depth].template historyScore<PLAYER>(stack, moveBits);
-					}
-				}
-				else
-					return minimum;
-			}
-			else
-			{
-				return minimum;
-			}
+			return evaluatorType::staticMoveScore(stack.position(), moveBits);
 		}
 		template<size_t PLAYER>
 		void quietKillers(const stackType<PLAYER>& stack, const size_t depth, quietKillermovesType& killermoves) noexcept
@@ -672,8 +390,6 @@ namespace pygmalion
 		{
 			if constexpr ((quietKillerMoves > 0) || (tacticalKillerMoves > 0))
 				m_KillerSlots.clear();
-			if constexpr (heuristicMoves)
-				m_HistoryBuckets.clear();
 		}
 		PYGMALION_INLINE void beginSearch() noexcept
 		{
@@ -790,10 +506,6 @@ namespace pygmalion
 			{
 				m_KillerSlots[depth].template accepted<PLAYER, TACTICAL>(stack, moveBits, score, eval);
 			}
-			if constexpr (heuristicMoves)
-			{
-				m_HistoryBuckets[depth].template incrementMove<PLAYER>(stack, moveBits, score, eval);
-			}
 			static_cast<instanceType*>(this)->template onEndMoveAccepted<PLAYER, TACTICAL>(stack, moveBits, depth, score);
 		}
 		template<size_t PLAYER, bool PRUNED, bool TACTICAL>
@@ -818,10 +530,6 @@ namespace pygmalion
 			if constexpr ((quietKillerMoves > 0) || (tacticalKillerMoves > 0))
 			{
 				m_KillerSlots[depth].template refuted<PLAYER, TACTICAL>(stack, moveBits, score, eval);
-			}
-			if constexpr (heuristicMoves)
-			{
-				m_HistoryBuckets[depth].template incrementMove<PLAYER>(stack, moveBits, score, eval);
 			}
 			static_cast<instanceType*>(this)->template onEndMoveRefuted<PLAYER, TACTICAL>(stack, moveBits, depth, score);
 		}
@@ -879,8 +587,7 @@ namespace pygmalion
 			m_NodeCounter{ 0 },
 			m_TranspositionTable{ transpositiontable<descriptorSearch>() },
 			m_Feedback{ feedback },
-			m_KillerSlots{ std::vector<killerslots>(0) },
-			m_HistoryBuckets{ std::vector<historybuckets>(0) }
+			m_KillerSlots{ std::vector<killerslots>(0) }
 		{
 		}
 		~heuristics() noexcept
