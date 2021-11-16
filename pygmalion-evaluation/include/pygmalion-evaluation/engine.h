@@ -26,5 +26,14 @@ namespace pygmalion::evaluation
 			}
 		}
 		virtual ~engine() noexcept = default;
+		std::array<parameter, evaluatorType::countParameters>&& getParameters() const noexcept
+		{
+			return std::move(arrayhelper::generate<evaluatorType::countParameters, parameter>([](const size_t index) {return evaluatorType::getParameter(index); }));
+		}
+		void setParameters(const std::array<parameter, evaluatorType::countParameters>& parameters) noexcept
+		{
+			for (size_t index = 0; index < evaluatorType::countParameters; index++)
+				evaluatorType::setParameter(index, parameters[index].value());
+		}
 	};
 }

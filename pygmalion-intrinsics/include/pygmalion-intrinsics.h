@@ -1,7 +1,7 @@
 #if !defined(PYGMALION_INTRINSICS)
 #define PYGMALION_INTRINSICS
 
-#define PYGMALION_TUNE 1
+//#define PYGMALION_TUNE 1
 #if (!defined(PYGMALION_TUNE))||(PYGMALION_TUNE==0)
 #define PYGMALION_TUNABLE constexpr
 #else

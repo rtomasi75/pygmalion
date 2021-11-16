@@ -133,7 +133,7 @@ namespace pygmalion
 				return evaluatorType::countParameters_Implementation();
 
 		}
-#if defined(PYGMALION_TUNE)
+		constexpr static inline const size_t countParameters{ getParameterCount() };
 		static parameter getParameter(const size_t index) noexcept
 		{
 			if constexpr (sizeof...(STAGES) > 0)
@@ -148,6 +148,7 @@ namespace pygmalion
 				return evaluatorType::getParameter_Implementation(index);
 			}
 		}
+#if defined(PYGMALION_TUNE)
 		static void setParameter(const size_t index, double value) noexcept
 		{
 			if constexpr (sizeof...(STAGES) > 0)

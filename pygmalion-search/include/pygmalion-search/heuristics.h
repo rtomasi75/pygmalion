@@ -180,7 +180,7 @@ namespace pygmalion
 		int m_MoveDepth;
 #endif
 		profiler m_SearchProfiler;
-		std::uintmax_t m_NodeCounter;
+		nodecounterType m_NodeCounter;
 		transpositiontable<descriptorSearch> m_TranspositionTable;
 		movegenFeedback& m_Feedback;
 		std::vector<killerslots> m_KillerSlots;
@@ -259,14 +259,6 @@ namespace pygmalion
 		{
 			const indexType length{ static_cast<indexType>(moves.length() - fromMoveIndex) };
 			sort<movebitsType, scoreType>::sortValues(moves.ptr() + static_cast<size_t>(fromMoveIndex), scores.data() + static_cast<size_t>(fromScoreIndex), length);
-		}
-		PYGMALION_INLINE static int shift(const depthType depthRemaining) noexcept
-		{
-			return 4 * (1 + static_cast<int>(depthRemaining));
-		}
-		PYGMALION_INLINE static std::uintmax_t weight(const depthType depthRemaining) noexcept
-		{
-			return UINTMAX_C(1) << 2 * (1 + static_cast<int>(depthRemaining));
 		}
 	public:
 		void expandToDepth(const size_t depth) noexcept
@@ -382,7 +374,7 @@ namespace pygmalion
 			sstr << std::setw(9) << parser::valueToString(static_cast<double>(nodeCount()), "N") << " in " << parser::durationToString(duration()) << " => " << nodesPerSecond() << std::endl;
 			return sstr.str();
 		}
-		std::uintmax_t nodeCount() const noexcept
+		nodecounterType nodeCount() const noexcept
 		{
 			return m_NodeCounter;
 		}
@@ -613,14 +605,14 @@ namespace pygmalion
 		using stackType = typename generatorType::stackType;
 		using movegenFeedback = typename generatorType::movegenFeedback;
 	private:
-		std::uint64_t m_EarlyNodes;
-		std::uint64_t m_LateNodes;
-		std::uint64_t m_CutNodes;
-		std::uint64_t m_LeafNodes;
-		std::uint64_t m_TTNodes;
-		std::uint64_t m_NullNodes;
-		std::uint64_t m_FutileNodes;
-		std::uint64_t m_DeltaNodes;
+		nodecounterType m_EarlyNodes;
+		nodecounterType m_LateNodes;
+		nodecounterType m_CutNodes;
+		nodecounterType m_LeafNodes;
+		nodecounterType m_TTNodes;
+		nodecounterType m_NullNodes;
+		nodecounterType m_FutileNodes;
+		nodecounterType m_DeltaNodes;
 	protected:
 		PYGMALION_INLINE void onBeginSearch() noexcept
 		{
@@ -674,35 +666,35 @@ namespace pygmalion
 			m_DeltaNodes++;
 		}
 	public:
-		constexpr std::uint64_t earlyNodeCount() const noexcept
+		constexpr nodecounterType earlyNodeCount() const noexcept
 		{
 			return m_EarlyNodes;
 		}
-		constexpr std::uint64_t lateNodeCount() const noexcept
+		constexpr nodecounterType lateNodeCount() const noexcept
 		{
 			return m_LateNodes;
 		}
-		constexpr std::uint64_t cutNodeCount() const noexcept
+		constexpr nodecounterType cutNodeCount() const noexcept
 		{
 			return m_CutNodes;
 		}
-		constexpr std::uint64_t leafNodeCount() const noexcept
+		constexpr nodecounterType leafNodeCount() const noexcept
 		{
 			return m_LeafNodes;
 		}
-		constexpr std::uint64_t TTNodeCount() const noexcept
+		constexpr nodecounterType TTNodeCount() const noexcept
 		{
 			return m_TTNodes;
 		}
-		constexpr std::uint64_t NullNodeCount() const noexcept
+		constexpr nodecounterType NullNodeCount() const noexcept
 		{
 			return m_NullNodes;
 		}
-		constexpr std::uint64_t futileNodeCount() const noexcept
+		constexpr nodecounterType futileNodeCount() const noexcept
 		{
 			return m_FutileNodes;
 		}
-		constexpr std::uint64_t deltaNodeCount() const noexcept
+		constexpr nodecounterType deltaNodeCount() const noexcept
 		{
 			return m_DeltaNodes;
 		}

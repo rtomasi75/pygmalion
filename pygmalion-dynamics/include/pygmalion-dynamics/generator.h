@@ -1,5 +1,7 @@
 namespace pygmalion
 {
+	//#define PYGMALION_SELECTIONSORT
+
 	enum class movegenPhase
 	{
 		normal,
@@ -99,7 +101,7 @@ namespace pygmalion
 			{
 				for (size_t i = depth; i < m_Feedback.size(); i++)
 					m_Feedback[i].sortIndices(*this, i);
-			//	m_Feedback[depth].sortIndices(*this, depth);
+				//	m_Feedback[depth].sortIndices(*this, depth);
 			}
 			PYGMALION_INLINE  const std::uint64_t& counterRaw(const stageType stage, const passType pass, const size_t depth) const noexcept
 			{
@@ -396,7 +398,7 @@ namespace pygmalion
 				}
 				return computeHasLegalMove(depth, feedback);
 			}
-			template<typename LAMBDA>
+			template<typename LAMBDA, bool EXPECT_CUTOFF>
 			bool computeHasLegalMove(const size_t depth, movegenFeedback& feedback, const LAMBDA& lambda) const
 			{
 				while (m_CurrentLegalMove >= m_pContext->normalMoves().length())
@@ -409,6 +411,7 @@ namespace pygmalion
 							{
 								const auto index{ feedback.index(m_CriticalEvasionStages[m_CurrentNormalStage], m_CurrentNormalPass, depth) };
 								generatorType::generateMoves(m_CriticalEvasionStages[m_CurrentNormalStage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->normalMoves(), index);
+								const auto start{ m_pContext->normalPasses().length() };
 								while (m_pContext->normalPasses().length() < m_pContext->normalMoves().length())
 								{
 									m_pContext->normalScores().add(lambda(m_pContext->normalMoves()[m_pContext->normalPasses().length()]));
@@ -416,6 +419,8 @@ namespace pygmalion
 									m_pContext->normalStages().add(m_CriticalEvasionStages[m_CurrentNormalStage]);
 								}
 								++m_CurrentNormalPass;
+								if constexpr (!EXPECT_CUTOFF)
+									sort<movebitsType, scoreType>::sortValues(m_pContext->normalMoves().ptr() + start, m_pContext->normalScores().ptr() + start, m_pContext->normalMoves().length() - start);
 							}
 							else
 							{
@@ -434,6 +439,7 @@ namespace pygmalion
 							{
 								const auto index{ feedback.index(m_NormalStages[m_CurrentNormalStage], m_CurrentNormalPass, depth) };
 								generatorType::generateMoves(m_NormalStages[m_CurrentNormalStage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->normalMoves(), index);
+								const auto start{ m_pContext->normalPasses().length() };
 								while (m_pContext->normalPasses().length() < m_pContext->normalMoves().length())
 								{
 									m_pContext->normalScores().add(lambda(m_pContext->normalMoves()[m_pContext->normalPasses().length()]));
@@ -441,6 +447,8 @@ namespace pygmalion
 									m_pContext->normalStages().add(m_NormalStages[m_CurrentNormalStage]);
 								}
 								++m_CurrentNormalPass;
+								if constexpr (!EXPECT_CUTOFF)
+									sort<movebitsType, scoreType>::sortValues(m_pContext->normalMoves().ptr() + start, m_pContext->normalScores().ptr() + start, m_pContext->normalMoves().length() - start);
 							}
 							else
 							{
@@ -454,14 +462,48 @@ namespace pygmalion
 				}
 				while (m_CurrentLegalMove < m_pContext->normalMoves().length())
 				{
-					if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->normalMoves()[m_CurrentLegalMove]))
+					if constexpr (EXPECT_CUTOFF)
 					{
+						const indexType start{ std::max(m_CurrentNormalMove,m_CurrentLegalMove) };
+						if (start < m_pContext->normalMoves().length())
+						{
+							constexpr scoreType minimum{ scoreType::minimum() };
+							scoreType best{ minimum };
+							indexType bestIdx{ start };
+							for (indexType i = start; i < m_pContext->normalMoves().length(); i++)
+							{
+								if (m_pContext->normalScores()[i] > best)
+								{
+									best = m_pContext->normalScores()[i];
+									bestIdx = i;
+								}
+							}
+							if (start != bestIdx)
+							{
+								m_pContext->normalMoves().swap(start, bestIdx);
+								m_pContext->normalStages().swap(start, bestIdx);
+								m_pContext->normalScores().swap(start, bestIdx);
+								m_pContext->normalPasses().swap(start, bestIdx);
+							}
+						}
+						if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->normalMoves()[m_CurrentLegalMove]))
+						{
+							++m_CurrentLegalMove;
+							return true;
+						}
 						++m_CurrentLegalMove;
-						return true;
 					}
-					++m_CurrentLegalMove;
+					else
+					{
+						if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->normalMoves()[m_CurrentLegalMove]))
+						{
+							++m_CurrentLegalMove;
+							return true;
+						}
+						++m_CurrentLegalMove;
+					}
 				}
-				return computeHasLegalMove(depth, feedback, lambda);
+				return this->template computeHasLegalMove<LAMBDA, EXPECT_CUTOFF>(depth, feedback, lambda);
 			}
 		public:
 			PYGMALION_INLINE passType lastNormalPass() const noexcept
@@ -580,12 +622,12 @@ namespace pygmalion
 				}
 				return m_HasLegalMove;
 			}
-			template<typename LAMBDA>
+			template<typename LAMBDA, bool EXPECT_CUTOFF>
 			bool hasLegalMove(const size_t depth, movegenFeedback& feedback, const LAMBDA& lambda) const
 			{
 				if (!m_HasLegalMoveValid)
 				{
-					m_HasLegalMove = computeHasLegalMove(depth, feedback, lambda);
+					m_HasLegalMove = this->computeHasLegalMove<LAMBDA, EXPECT_CUTOFF>(depth, feedback, lambda);
 					m_HasLegalMoveValid = true;
 				}
 				return m_HasLegalMove;
@@ -663,7 +705,7 @@ namespace pygmalion
 				}
 				return nextMove(moveBits, depth, feedback);
 			}
-			template<typename LAMBDA>
+			template<typename LAMBDA, bool EXPECT_CUTOFF>
 			bool nextMove(movebitsType& moveBits, const size_t depth, movegenFeedback& feedback, const LAMBDA& lambda) const noexcept
 			{
 				while (m_CurrentNormalMove >= m_pContext->normalMoves().length())
@@ -684,7 +726,8 @@ namespace pygmalion
 									m_pContext->normalStages().add(m_CriticalEvasionStages[m_CurrentNormalStage]);
 								}
 								++m_CurrentNormalPass;
-								sort<movebitsType, scoreType>::sortValues(m_pContext->normalMoves().ptr() + start, m_pContext->normalScores().ptr() + start, m_pContext->normalMoves().length() - start);
+								if constexpr (!EXPECT_CUTOFF)
+									sort<movebitsType, scoreType>::sortValues(m_pContext->normalMoves().ptr() + start, m_pContext->normalScores().ptr() + start, m_pContext->normalMoves().length() - start);
 							}
 							else
 							{
@@ -711,7 +754,8 @@ namespace pygmalion
 									m_pContext->normalStages().add(m_NormalStages[m_CurrentNormalStage]);
 								}
 								++m_CurrentNormalPass;
-								sort<movebitsType, scoreType>::sortValues(m_pContext->normalMoves().ptr() + start, m_pContext->normalScores().ptr() + start, m_pContext->normalMoves().length() - start);
+								if constexpr (!EXPECT_CUTOFF)
+									sort<movebitsType, scoreType>::sortValues(m_pContext->normalMoves().ptr() + start, m_pContext->normalScores().ptr() + start, m_pContext->normalMoves().length() - start);
 							}
 							else
 							{
@@ -725,18 +769,56 @@ namespace pygmalion
 				}
 				while (m_CurrentNormalMove < m_pContext->normalMoves().length())
 				{
-					moveBits = m_pContext->normalMoves()[m_CurrentNormalMove];
-					if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits))
+					if constexpr (!EXPECT_CUTOFF)
 					{
-						m_LastNormalPass = m_pContext->normalPasses()[m_CurrentNormalMove];
-						m_LastNormalStage = m_pContext->normalStages()[m_CurrentNormalMove];
-						m_LastNormalScore = m_pContext->normalScores()[m_CurrentNormalMove];
+						const indexType start{ std::max(m_CurrentNormalMove,m_CurrentLegalMove) };
+						if (start < m_pContext->normalMoves().length())
+						{
+							constexpr scoreType minimum{ scoreType::minimum() };
+							scoreType best{ minimum };
+							indexType bestIdx{ start };
+							for (indexType i = start; i < m_pContext->normalMoves().length(); i++)
+							{
+								if (m_pContext->normalScores()[i] > best)
+								{
+									best = m_pContext->normalScores()[i];
+									bestIdx = i;
+								}
+							}
+							if (start != bestIdx)
+							{
+								m_pContext->normalMoves().swap(start, bestIdx);
+								m_pContext->normalStages().swap(start, bestIdx);
+								m_pContext->normalScores().swap(start, bestIdx);
+								m_pContext->normalPasses().swap(start, bestIdx);
+							}
+						}
+						moveBits = m_pContext->normalMoves()[m_CurrentNormalMove];
+						if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits))
+						{
+							m_LastNormalPass = m_pContext->normalPasses()[m_CurrentNormalMove];
+							m_LastNormalStage = m_pContext->normalStages()[m_CurrentNormalMove];
+							m_LastNormalScore = m_pContext->normalScores()[m_CurrentNormalMove];
+							++m_CurrentNormalMove;
+							return true;
+						}
 						++m_CurrentNormalMove;
-						return true;
 					}
-					++m_CurrentNormalMove;
+					else
+					{
+						moveBits = m_pContext->normalMoves()[m_CurrentNormalMove];
+						if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits))
+						{
+							m_LastNormalPass = m_pContext->normalPasses()[m_CurrentNormalMove];
+							m_LastNormalStage = m_pContext->normalStages()[m_CurrentNormalMove];
+							m_LastNormalScore = m_pContext->normalScores()[m_CurrentNormalMove];
+							++m_CurrentNormalMove;
+							return true;
+						}
+						++m_CurrentNormalMove;
+					}
 				}
-				return nextMove(moveBits, depth, feedback, lambda);
+				return this->template nextMove<LAMBDA, EXPECT_CUTOFF>(moveBits, depth, feedback, lambda);
 			}
 			bool nextTacticalMove(movebitsType& moveBits, const size_t depth, movegenFeedback& feedback) const noexcept
 			{
@@ -807,7 +889,7 @@ namespace pygmalion
 				}
 				return nextTacticalMove(moveBits, depth, feedback);
 			}
-			template<typename LAMBDA>
+			template<typename LAMBDA, bool EXPECT_CUTOFF>
 			bool nextTacticalMove(movebitsType& moveBits, const size_t depth, movegenFeedback& feedback, const LAMBDA& lambda) const noexcept
 			{
 				while (m_CurrentTacticalMove >= m_pContext->tacticalMoves().length())
@@ -828,7 +910,8 @@ namespace pygmalion
 									m_pContext->tacticalStages().add(m_CriticalEvasionTacticalStages[m_CurrentTacticalStage]);
 								}
 								++m_CurrentTacticalPass;
-								sort<movebitsType, scoreType>::sortValues(m_pContext->tacticalMoves().ptr() + start, m_pContext->tacticalScores().ptr() + start, m_pContext->tacticalMoves().length() - start);
+								if constexpr (!EXPECT_CUTOFF)
+									sort<movebitsType, scoreType>::sortValues(m_pContext->tacticalMoves().ptr() + start, m_pContext->tacticalScores().ptr() + start, m_pContext->tacticalMoves().length() - start);
 							}
 							else
 							{
@@ -855,7 +938,8 @@ namespace pygmalion
 									m_pContext->tacticalStages().add(m_TacticalStages[m_CurrentTacticalStage]);
 								}
 								++m_CurrentTacticalPass;
-								sort<movebitsType, scoreType>::sortValues(m_pContext->tacticalMoves().ptr() + start, m_pContext->tacticalScores().ptr() + start, m_pContext->tacticalMoves().length() - start);
+								if constexpr (!EXPECT_CUTOFF)
+									sort<movebitsType, scoreType>::sortValues(m_pContext->tacticalMoves().ptr() + start, m_pContext->tacticalScores().ptr() + start, m_pContext->tacticalMoves().length() - start);
 							}
 							else
 							{
@@ -869,18 +953,52 @@ namespace pygmalion
 				}
 				while (m_CurrentTacticalMove < m_pContext->tacticalMoves().length())
 				{
-					moveBits = m_pContext->tacticalMoves()[m_CurrentTacticalMove];
-					if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits))
+					if constexpr (EXPECT_CUTOFF)
 					{
-						m_LastTacticalPass = m_pContext->tacticalPasses()[m_CurrentTacticalMove];
-						m_LastTacticalStage = m_pContext->tacticalStages()[m_CurrentTacticalMove];
-						m_LastTacticalScore = m_pContext->tacticalScores()[m_CurrentTacticalMove];
+						constexpr scoreType minimum{ scoreType::minimum() };
+						scoreType best{ minimum };
+						indexType bestIdx{ m_CurrentTacticalMove };
+						for (indexType i = m_CurrentTacticalMove; i < m_pContext->tacticalMoves().length(); i++)
+						{
+							if (m_pContext->tacticalScores()[i] > best)
+							{
+								best = m_pContext->tacticalScores()[i];
+								bestIdx = i;
+							}
+						}
+						if (bestIdx != m_CurrentTacticalMove)
+						{
+							m_pContext->tacticalMoves().swap(m_CurrentTacticalMove, bestIdx);
+							m_pContext->tacticalStages().swap(m_CurrentTacticalMove, bestIdx);
+							m_pContext->tacticalScores().swap(m_CurrentTacticalMove, bestIdx);
+							m_pContext->tacticalPasses().swap(m_CurrentTacticalMove, bestIdx);
+						}
+						moveBits = m_pContext->tacticalMoves()[m_CurrentTacticalMove];
+						if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits))
+						{
+							m_LastTacticalPass = m_pContext->tacticalPasses()[m_CurrentTacticalMove];
+							m_LastTacticalStage = m_pContext->tacticalStages()[m_CurrentTacticalMove];
+							m_LastTacticalScore = m_pContext->tacticalScores()[m_CurrentTacticalMove];
+							++m_CurrentTacticalMove;
+							return true;
+						}
 						++m_CurrentTacticalMove;
-						return true;
 					}
-					++m_CurrentTacticalMove;
+					else
+					{
+						moveBits = m_pContext->tacticalMoves()[m_CurrentTacticalMove];
+						if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits))
+						{
+							m_LastTacticalPass = m_pContext->tacticalPasses()[m_CurrentTacticalMove];
+							m_LastTacticalStage = m_pContext->tacticalStages()[m_CurrentTacticalMove];
+							m_LastTacticalScore = m_pContext->tacticalScores()[m_CurrentTacticalMove];
+							++m_CurrentTacticalMove;
+							return true;
+						}
+						++m_CurrentTacticalMove;
+					}
 				}
-				return nextTacticalMove(moveBits, depth, feedback, lambda);
+				return this->template nextTacticalMove<LAMBDA, EXPECT_CUTOFF>(moveBits, depth, feedback, lambda);
 			}
 			bool nextCriticalMove(movebitsType& moveBits, const size_t depth, movegenFeedback& feedback) const noexcept
 			{
@@ -924,7 +1042,7 @@ namespace pygmalion
 				}
 				return nextCriticalMove(moveBits, depth, feedback);
 			}
-			template<typename LAMBDA>
+			template<typename LAMBDA, bool EXPECT_CUTOFF>
 			bool nextCriticalMove(movebitsType& moveBits, const size_t depth, movegenFeedback& feedback, const LAMBDA& lambda) const noexcept
 			{
 				while (m_CurrentCriticalMove >= m_pContext->criticalMoves().length())
@@ -943,7 +1061,8 @@ namespace pygmalion
 								m_pContext->criticalStages().add(m_CriticalStages[m_CurrentCriticalStage]);
 							}
 							++m_CurrentCriticalPass;
-							sort<movebitsType, scoreType>::sortValues(m_pContext->criticalMoves().ptr() + start, m_pContext->criticalScores().ptr() + start, m_pContext->criticalMoves().length() - start);
+							if constexpr (!EXPECT_CUTOFF)
+								sort<movebitsType, scoreType>::sortValues(m_pContext->criticalMoves().ptr() + start, m_pContext->criticalScores().ptr() + start, m_pContext->criticalMoves().length() - start);
 						}
 						else
 						{
@@ -956,18 +1075,52 @@ namespace pygmalion
 				}
 				while (m_CurrentCriticalMove < m_pContext->criticalMoves().length())
 				{
-					moveBits = m_pContext->criticalMoves()[m_CurrentCriticalMove];
-					if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits))
+					if constexpr (EXPECT_CUTOFF)
 					{
-						m_LastCriticalPass = m_pContext->criticalPasses()[m_CurrentCriticalMove];
-						m_LastCriticalStage = m_pContext->criticalStages()[m_CurrentCriticalMove];
-						m_LastCriticalScore = m_pContext->criticalScores()[m_CurrentCriticalMove];
+						constexpr scoreType minimum{ scoreType::minimum() };
+						scoreType best{ minimum };
+						indexType bestIdx{ m_CurrentCriticalMove };
+						for (indexType i = m_CurrentCriticalMove; i < m_pContext->criticalMoves().length(); i++)
+						{
+							if (m_pContext->criticalScores()[i] > best)
+							{
+								best = m_pContext->criticalScores()[i];
+								bestIdx = i;
+							}
+						}
+						if (m_CurrentCriticalMove != bestIdx)
+						{
+							m_pContext->criticalMoves().swap(m_CurrentCriticalMove, bestIdx);
+							m_pContext->criticalStages().swap(m_CurrentCriticalMove, bestIdx);
+							m_pContext->criticalScores().swap(m_CurrentCriticalMove, bestIdx);
+							m_pContext->criticalPasses().swap(m_CurrentCriticalMove, bestIdx);
+						}
+						moveBits = m_pContext->criticalMoves()[m_CurrentCriticalMove];
+						if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits))
+						{
+							m_LastCriticalPass = m_pContext->criticalPasses()[m_CurrentCriticalMove];
+							m_LastCriticalStage = m_pContext->criticalStages()[m_CurrentCriticalMove];
+							m_LastCriticalScore = m_pContext->criticalScores()[m_CurrentCriticalMove];
+							++m_CurrentCriticalMove;
+							return true;
+						}
 						++m_CurrentCriticalMove;
-						return true;
 					}
-					++m_CurrentCriticalMove;
+					else
+					{
+						moveBits = m_pContext->criticalMoves()[m_CurrentCriticalMove];
+						if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits))
+						{
+							m_LastCriticalPass = m_pContext->criticalPasses()[m_CurrentCriticalMove];
+							m_LastCriticalStage = m_pContext->criticalStages()[m_CurrentCriticalMove];
+							m_LastCriticalScore = m_pContext->criticalScores()[m_CurrentCriticalMove];
+							++m_CurrentCriticalMove;
+							return true;
+						}
+						++m_CurrentCriticalMove;
+					}
 				}
-				return nextCriticalMove(moveBits, depth, feedback, lambda);
+				return this->template nextCriticalMove<LAMBDA, EXPECT_CUTOFF>(moveBits, depth, feedback, lambda);
 			}
 			contextType& context() noexcept
 			{

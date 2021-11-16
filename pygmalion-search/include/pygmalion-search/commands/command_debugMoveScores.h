@@ -31,7 +31,7 @@ namespace pygmalion::search
 					bool fromStack;
 					this->feedback().expandToDepth(this->history().length() + 1);
 					this->output() << "Generated:" << std::endl;
-					while (node.template nextMove<false>(0, movebits, fromStack))
+					while (node.template nextMove<false, false>(0, movebits, fromStack))
 					{
 						this->output() << "    ";
 						hasMoves = true;
@@ -68,7 +68,7 @@ namespace pygmalion::search
 					{
 						this->output() << "Cached:" << std::endl;
 						node.resetMoveGen();
-						while (node.template nextMove<false>(0, movebits, fromStack))
+						while (node.template nextMove<false, false>(0, movebits, fromStack))
 						{
 							this->output() << "    ";
 							hasMoves = true;

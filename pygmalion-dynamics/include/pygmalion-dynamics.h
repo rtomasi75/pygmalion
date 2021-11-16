@@ -11,6 +11,7 @@
 #include "pygmalion-dynamics/inverseSlidermagic.h"
 #include "pygmalion-dynamics/propagator.h"
 #include "pygmalion-dynamics/movegen.h"
+#include "pygmalion-dynamics/record.h"
 #include "pygmalion-dynamics/command.h"
 #include "pygmalion-dynamics/commands.h"
 #include "pygmalion-dynamics/generator.h"

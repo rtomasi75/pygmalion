@@ -10,9 +10,10 @@ using ttmovesType = typename descriptorSearch::ttmovesType;
 using quietKillermovesType = typename descriptorSearch::quietKillermovesType;
 using tacticalKillermovesType = typename descriptorSearch::tacticalKillermovesType;
 using knuthType = typename descriptorSearch::knuthType;
+using nodecounterType = typename descriptorSearch::nodecounterType;
 
 constexpr static const size_t countSearchPlies{ descriptorSearch::countSearchPlies };
-constexpr static const bool heuristicMoves{ descriptorSearch::heuristicMoves };
+constexpr static const bool staticMoveScores{ descriptorSearch::staticMoveScores };
 constexpr static const size_t quietKillerMoves{ descriptorSearch::quietKillerMoves };
 constexpr static const size_t tacticalKillerMoves{ descriptorSearch::tacticalKillerMoves };
 constexpr static const bool pruneNullmove{ descriptorSearch::pruneNullmove };

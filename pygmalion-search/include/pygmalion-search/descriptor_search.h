@@ -6,7 +6,7 @@ namespace pygmalion
 		constexpr static const unsigned int none{ 0 };
 		constexpr static const unsigned int principalVariationSearch{ 1 };
 		constexpr static const unsigned int iterativeDeepening{ 2 };
-		constexpr static const unsigned int historyHeuristic{ 4 };
+		constexpr static const unsigned int staticMoveScores{ 4 };
 		constexpr static const unsigned int quietKillerMovesHeuristic{ 8 };
 		constexpr static const unsigned int tacticalKillerMovesHeuristic{ 16 };
 		constexpr static const unsigned int futilityPruning{ 32 };
@@ -25,7 +25,7 @@ namespace pygmalion
 		using evaluatorType = EVALUATOR;
 		using descriptorEvaluation = typename EVALUATOR::descriptorEvaluation;
 		constexpr static const size_t countSearchPlies{ COUNT_SEARCH_PLIES };
-		constexpr static const bool heuristicMoves{ (SEARCH_FLAGS & searchFlags::historyHeuristic) != 0 };
+		constexpr static const bool staticMoveScores{ (SEARCH_FLAGS & searchFlags::staticMoveScores) != 0 };
 		constexpr static const size_t quietKillerMoves{ ((SEARCH_FLAGS & searchFlags::quietKillerMovesHeuristic) != 0) ? KILLER_MOVES_QUIET : 0 };
 		constexpr static const size_t killerLookBackDistance{ KILLER_LOOKBACK_DISTANCE };
 		constexpr static const size_t tacticalKillerMoves{ ((SEARCH_FLAGS & searchFlags::tacticalKillerMovesHeuristic) != 0) ? KILLER_MOVES_TACTICAL : 0 };
@@ -46,6 +46,7 @@ namespace pygmalion
 		using quietKillermovesType = list<typename descriptorEvaluation::movebitsType, quietKillerMoves + quietKillerMoves * killerLookBackDistance>;
 		using tacticalKillermovesType = list<typename descriptorEvaluation::movebitsType, tacticalKillerMoves + tacticalKillerMoves * killerLookBackDistance>;
 		using knuthType = std::int8_t;
+		using nodecounterType = std::uintmax_t;
 		constexpr static const knuthType PVSnode{ 0 };
 		constexpr static const knuthType CUTnode{ 1 };
 		constexpr static const knuthType ALLnode{ -1 };
