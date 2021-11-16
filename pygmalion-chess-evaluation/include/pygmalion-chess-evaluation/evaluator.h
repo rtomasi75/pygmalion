@@ -2,11 +2,11 @@ namespace pygmalion::chess
 {
 	class evaluator :
 		public pygmalion::evaluator<descriptor_evaluation, evaluator
-				, evaluationstage_pawnstructure
-				, evaluationstage_attacks
-				, evaluationstage_mobility
-				, evaluationstage_control
-				, evaluationstage_kingsafety
+		, evaluationstage_pawnstructure
+		, evaluationstage_attacks
+		, evaluationstage_mobility
+		, evaluationstage_control
+		, evaluationstage_kingsafety
 		>
 	{
 	public:
@@ -200,51 +200,116 @@ namespace pygmalion::chess
 		}
 		constexpr static size_t countParameters_Implementation() noexcept
 		{
-			return 4;
+			constexpr const size_t countPSTs{ countSquares * countPieces };
+			return countPSTs + 4;
 		}
 		PYGMALION_INLINE PYGMALION_TUNABLE static scoreType materialDelta_Implementation() noexcept
 		{
 			return static_cast<scoreType>(boardType::materialDelta());
 		}
-#if defined(PYGMALION_TUNE)
 		static parameter getParameter_Implementation(const size_t index) noexcept
 		{
+			constexpr const size_t countPSTs{ countSquares * countPieces };
 			switch (index)
 			{
-			case 0: // knight
-				return parameter(boardType::getMaterial(knight, whitePlayer), 2.0, 4.0, 0.001, "material_knight");
-			case 1: // bishop
-				return parameter(boardType::getMaterial(bishop, whitePlayer), 2.0, 4.0, 0.001, "material_bishop");
-			case 2: // rook
-				return parameter(boardType::getMaterial(rook, whitePlayer), 4.5, 7.0, 0.001, "material_rook");
-			case 3: // queen
-				return parameter(boardType::getMaterial(queen, whitePlayer), 7.5, 12.0, 0.001, "material_queen");
+			case countPSTs + 0: // knight
+				return parameter(boardType::getMaterial(knight), 2.0, 4.0, 0.001, "material_knight");
+			case countPSTs + 1: // bishop
+				return parameter(boardType::getMaterial(bishop), 2.0, 4.0, 0.001, "material_bishop");
+			case countPSTs + 2: // rook
+				return parameter(boardType::getMaterial(rook), 4.5, 7.0, 0.001, "material_rook");
+			case countPSTs + 3: // queen
+				return parameter(boardType::getMaterial(queen), 7.5, 12.0, 0.001, "material_queen");
 			default:
-				PYGMALION_ASSERT(false);
-				return parameter(0.0, 0.0, 0.0, 0.0, "???");
+				if (index > countPSTs)
+				{
+					PYGMALION_ASSERT(false);
+					return parameter(0.0, 0.0, 0.0, 0.0, "???");
+				}
+				else
+				{
+					const size_t sqIdx{ index % countSquares };
+					const size_t pcIdx{ (index / countSquares) % countPieces };
+					const squareType sq{ static_cast<squareType>(sqIdx) };
+					const pieceType pc{ static_cast<pieceType>(pcIdx) };
+					switch (pc)
+					{
+					default:
+						PYGMALION_ASSERT(false);
+						return parameter(0.0, 0.0, 0.0, 0.0, "???");
+					case rook:
+						return parameter(boardType::getPST(pc, sq), -1.0, 1.0, 0.001, "pst_rook_" + boardType::squareToString(sq));
+					case bishop:
+						return parameter(boardType::getPST(pc, sq), -1.0, 1.0, 0.001, "pst_bishop_" + boardType::squareToString(sq));
+					case queen:
+						return parameter(boardType::getPST(pc, sq), -1.0, 1.0, 0.001, "pst_queen_" + boardType::squareToString(sq));
+					case pawn:
+						return parameter(boardType::getPST(pc, sq), -1.0, 1.0, 0.001, "pst_pawn_" + boardType::squareToString(sq));
+					case knight:
+						return parameter(boardType::getPST(pc, sq), -1.0, 1.0, 0.001, "pst_knight_" + boardType::squareToString(sq));
+					case king:
+						return parameter(boardType::getPST(pc, sq), -1.0, 1.0, 0.001, "pst_king_" + boardType::squareToString(sq));
+					}
+				}
 			}
 		}
+#if defined(PYGMALION_TUNE)
 		static void setParameter_Implementation(const size_t index, double value) noexcept
 		{
+			constexpr const size_t countPSTs{ countSquares * countPieces };
 			switch (index)
 			{
-			case 0: // knight
+			case countPSTs + 0: // knight
 				boardType::setMaterial(knight, value);
 				break;
-			case 1: // bishop
+			case countPSTs + 1: // bishop
 				boardType::setMaterial(bishop, value);
 				break;
-			case 2: // rook
+			case countPSTs + 2: // rook
 				boardType::setMaterial(rook, value);
 				break;
-			case 3: // queen
+			case countPSTs + 3: // queen
 				boardType::setMaterial(queen, value);
 				break;
 			default:
-				PYGMALION_ASSERT(false);
+				if (index > countPSTs)
+				{
+					PYGMALION_ASSERT(false);
+				}
+				else
+				{
+					const size_t sqIdx{ index % countSquares };
+					const size_t pcIdx{ (index / countSquares) % countPieces };
+					const squareType sq{ static_cast<squareType>(sqIdx) };
+					const pieceType pc{ static_cast<pieceType>(pcIdx) };
+					switch (pc)
+					{
+					default:
+						PYGMALION_ASSERT(false);
+						break;
+					case rook:
+						boardType::setPST(pc, sq, value);
+						break;
+					case bishop:
+						boardType::setPST(pc, sq, value);
+						break;
+					case queen:
+						boardType::setPST(pc, sq, value);
+						break;
+					case pawn:
+						boardType::setPST(pc, sq, value);
+						break;
+					case knight:
+						boardType::setPST(pc, sq, value);
+						break;
+					case king:
+						boardType::setPST(pc, sq, value);
+						break;
+					}
+				}
 				break;
-	}
-}
+			}
+		}
 #endif
 	};
 }

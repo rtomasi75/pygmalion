@@ -24,12 +24,7 @@ namespace pygmalion::chess
 			}
 			PYGMALION_INLINE static bool futilityPruningEnabled_Implementation(const size_t depthRemaining) noexcept
 			{
-#if (!defined(PYGMALION_TUNE))||(PYGMALION_TUNE==0)
-				//				return depthRemaining <= 5;
 				return depthRemaining <= 3;
-#else
-				return false;
-#endif
 			}
 			PYGMALION_INLINE node(const parentType& parent, const movebitsType moveBits) noexcept :
 				pygmalion::gametree<descriptor_search, gametree>::node<PLAYER, node<PLAYER>>(parent, moveBits)

@@ -319,14 +319,22 @@ namespace pygmalion::chess
 		{
 			return m_Material.materialDelta();
 		}
+		static double getMaterial(const pieceType pc) noexcept
+		{
+			return m_Material.getTunedMaterial(pc);
+		}
+		static double getPST(const pieceType pc, const squareType sq) noexcept
+		{
+			return m_Material.getTunedPST(pc, sq);
+		}
 #if defined(PYGMALION_TUNE)&&(PYGMALION_TUNE==1)
 		static void setMaterial(const pieceType pc, const double score) noexcept
 		{
 			return m_Material.setTunedMaterial(pc, score);
 		}
-		static double getMaterial(const pieceType pc) noexcept
+		static void setPST(const pieceType pc, const squareType sq, const double score) noexcept
 		{
-			return m_Material.getTunedMaterial(pc);
+			m_Material.setTunedPST(pc, sq, score);
 		}
 #endif
 		PYGMALION_INLINE void clearCastleRightQueensideBlack() noexcept
