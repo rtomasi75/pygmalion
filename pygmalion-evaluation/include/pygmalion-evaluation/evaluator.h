@@ -125,6 +125,7 @@ namespace pygmalion
 			return (approx + delta <= alpha) && (approx + delta < beta);
 		}
 	public:
+#if defined(PYGMALION_TUNE)
 		constexpr static size_t getParameterCount() noexcept
 		{
 			if constexpr (sizeof...(STAGES) > 0)
@@ -148,7 +149,6 @@ namespace pygmalion
 				return evaluatorType::getParameter_Implementation(index);
 			}
 		}
-#if defined(PYGMALION_TUNE)
 		static void setParameter(const size_t index, double value) noexcept
 		{
 			if constexpr (sizeof...(STAGES) > 0)

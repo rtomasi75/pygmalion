@@ -6,6 +6,8 @@ namespace pygmalion::search
 	{
 	public:
 		using gametreeType = GAMETREE;
+		template<size_t PLAYER>
+		using nodeType = typename gametreeType::template nodeType<PLAYER>;
 		using descriptorSearch = DESCRIPTION_SEARCH;
 #include "../include_search.h"	
 	private:
@@ -19,12 +21,14 @@ namespace pygmalion::search
 				constexpr const playerType player{ static_cast<playerType>(PLAYER) };
 				if (player == this->position().movingPlayer())
 				{
+					signal terminate{ signal(false) };
 					stackType<PLAYER> stack{ stackType<PLAYER>(this->position(), this->history(), this->searchEngine().rootContext()) };
 					scoreType scoreFromPreviousDepth{ descriptorSearch::evaluatorType::evaluate(scoreType::minimum(), scoreType::maximum(), stack) };
+					nodeType<static_cast<size_t>(static_cast<playerType>(PLAYER))> node(stack, terminate, this->searchEngine().heuristics(), this->history().length());
 					for (depthType i = -1; i <= depth - 1; ++i)
 					{
 						variationType principalVariation;
-						scoreType score{ this->searchEngine().template pvs<0>(principalVariation, i,scoreFromPreviousDepth) };
+						scoreType score{ this->searchEngine().template pvs<PLAYER>(terminate,node, principalVariation, i,scoreFromPreviousDepth) };
 						uint64_t nodeCount{ this->searchEngine().heuristics().nodeCount() };
 						this->output() << static_cast<int>(i + 1) << ": " << std::setw(12) << score << " - " << this->searchEngine().template variationToString<PLAYER>(principalVariation) << std::endl;
 						this->output() << this->searchEngine().heuristics().toString();

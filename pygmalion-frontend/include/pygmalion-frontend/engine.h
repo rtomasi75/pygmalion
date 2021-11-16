@@ -9,6 +9,8 @@ namespace pygmalion::frontend
 		using frontType = FRONT;
 		using descriptorFrontend = typename FRONT::descriptorFrontend;
 #include "include_frontend.h"
+		template<size_t PLAYER>
+		using nodeType = typename gametreeType::template nodeType<PLAYER>;
 	private:
 		frontType m_Front;
 		std::string scoreToString(const scoreType& score)
@@ -35,10 +37,8 @@ namespace pygmalion::frontend
 		signal m_Stop;
 		signal m_IsRunning;
 		template<size_t PLAYER>
-		bool principalVariationSearch(const typename descriptorFrontend::template stackType<PLAYER>& stack, const depthType& depthRemaining, durationType& finalDuration, std::uintmax_t& finalNodes, depthType& finalDepth, variationType& finalVariation, scoreType finalScore) noexcept
+		bool principalVariationSearch(nodeType<PLAYER>& node, const depthType& depthRemaining, durationType& finalDuration, std::uintmax_t& finalNodes, depthType& finalDepth, variationType& finalVariation, scoreType finalScore) noexcept
 		{
-			using nodeType = typename gametreeType::template nodeType<PLAYER>;
-			nodeType node(stack, m_Stop, this->heuristics(), this->history().length());
 			variationType principalVariation{ variationType() };
 			this->heuristics().beginSearch();
 			scoreType score;
@@ -154,7 +154,8 @@ namespace pygmalion::frontend
 			depthType finalDepth{ depthType(-1) };
 			std::uintmax_t finalNodes{ UINTMAX_C(0) };
 			durationType finalDuration{ durationType(0) };
-			while (principalVariationSearch(stack, m_CurrentDepth, finalDuration, finalNodes, finalDepth, finalVariation, finalScore))
+			nodeType<PLAYER> node(stack, m_Stop, this->heuristics(), this->history().length());
+			while (principalVariationSearch(node, m_CurrentDepth, finalDuration, finalNodes, finalDepth, finalVariation, finalScore))
 			{
 				++m_CurrentDepth;
 				const durationType plyTime{ std::chrono::duration_cast<durationType>(chronographType::now() - start) };

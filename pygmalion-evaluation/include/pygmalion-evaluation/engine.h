@@ -26,6 +26,7 @@ namespace pygmalion::evaluation
 			}
 		}
 		virtual ~engine() noexcept = default;
+#if defined(PYGMALION_TUNE)
 		std::array<parameter, evaluatorType::countParameters>&& getParameters() const noexcept
 		{
 			return std::move(arrayhelper::generate<evaluatorType::countParameters, parameter>([](const size_t index) {return evaluatorType::getParameter(index); }));
@@ -35,5 +36,6 @@ namespace pygmalion::evaluation
 			for (size_t index = 0; index < evaluatorType::countParameters; index++)
 				evaluatorType::setParameter(index, parameters[index].value());
 		}
+#endif
 	};
 }

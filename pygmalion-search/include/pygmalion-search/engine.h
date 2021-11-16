@@ -17,6 +17,7 @@ namespace pygmalion::search
 		heuristicsType m_Heuristics;
 		using contextType = typename generatorType::contextType;
 		contextType* m_pContexts;
+		contextType* m_pAuxContexts;
 		template<size_t PLAYER>
 		static std::string variationToStringFromDepth(const stackType<PLAYER>& stack, const variationType& variation, const depthType& depth) noexcept
 		{
@@ -58,37 +59,21 @@ namespace pygmalion::search
 		template<size_t PLAYER>
 		std::string variationToString(const variationType& variation) noexcept
 		{
-			stackType<PLAYER> stack{ stackType<PLAYER>(this->position(), this->history(), this->rootContext()) };
+			stackType<PLAYER> stack{ stackType<PLAYER>(this->position(), this->history(), m_pAuxContexts) };
 			return variationToStringFromDepth(stack, variation, 0);
 		}
 		template<size_t PLAYER>
-		scoreType pvs(variationType& principalVariation, const depthType& depthRemaining, const scoreType scoreFromPreviousDepth) noexcept
+		scoreType pvs(signal& terminate, nodeType<static_cast<size_t>(static_cast<playerType>(PLAYER))>& node, variationType& principalVariation, const depthType& depthRemaining, const scoreType scoreFromPreviousDepth) noexcept
 		{
-			if constexpr (PLAYER >= countPlayers)
-			{
-				PYGMALION_ASSERT(false);
-				constexpr const scoreType zero{ scoreType::zero() };
-				return zero;
-			}
-			else
-			{
-				constexpr playerType player{ static_cast<playerType>(PLAYER) };
-				if (player == this->position().movingPlayer())
-				{
-					stackType<PLAYER> stack{ stackType<PLAYER>(this->position(), this->history(), this->rootContext()) };
-					signal terminate{ signal(false) };
-					m_Heuristics.beginSearch();
-					nodeType<static_cast<size_t>(static_cast<playerType>(PLAYER))> node(stack, terminate, m_Heuristics, this->history().length());
-					principalVariation.clear();
-					indexType currentMove;
-					indexType countMoves;
-					const scoreType score{ node.template searchRoot<false>(depthRemaining, principalVariation,scoreFromPreviousDepth, currentMove, countMoves) };
-					m_Heuristics.endSearch();
-					return score;
-				}
-				else
-					return pvs<PLAYER + 1>(principalVariation, depthRemaining, scoreFromPreviousDepth);
-			}
+			constexpr playerType player{ static_cast<playerType>(PLAYER) };
+			PYGMALION_ASSERT(player == this->position().movingPlayer());
+			m_Heuristics.beginSearch();
+			principalVariation.clear();
+			indexType currentMove;
+			indexType countMoves;
+			const scoreType score{ node.template searchRoot<false>(depthRemaining, principalVariation,scoreFromPreviousDepth, currentMove, countMoves) };
+			m_Heuristics.endSearch();
+			return score;
 		}
 		const heuristicsType& heuristics() const noexcept
 		{
@@ -104,6 +89,7 @@ namespace pygmalion::search
 		engine(std::istream& input, std::ostream& output) noexcept :
 			pygmalion::evaluation::engine<typename GAMETREE::evaluatorType>(input, output),
 			m_Heuristics{ heuristicsType(this->feedback()) },
+			m_pAuxContexts{ new contextType[countSearchPlies] },
 			m_pContexts{ new contextType[countSearchPlies] }
 		{
 			this->template addCommand<command_debugSearch<descriptorSearch, gametreeType>>();
@@ -116,6 +102,7 @@ namespace pygmalion::search
 		virtual ~engine() noexcept
 		{
 			delete[] m_pContexts;
+			delete[] m_pAuxContexts;
 		}
 	};
 }
