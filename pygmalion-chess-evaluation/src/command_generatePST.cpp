@@ -23,7 +23,7 @@ namespace pygmalion::chess::evaluation
 				// King
 				for (const auto sq : squareType::range)
 				{
-					pst[sq] = generatorType::movegenKing.attacks(sq, squaresType::all()).count();
+					pst[sq] = 2 * generatorType::movegenKing.attacks(sq, squaresType::all()).count();
 				}
 				double m{ std::numeric_limits<double>::max() };
 				double M{ std::numeric_limits<double>::min() };
@@ -69,7 +69,7 @@ namespace pygmalion::chess::evaluation
 				// Knight
 				for (const auto sq : squareType::range)
 				{
-					pst[sq] = generatorType::movegenKnight.attacks(sq, squaresType::all()).count();
+					pst[sq] = 2 * generatorType::movegenKnight.attacks(sq, squaresType::all()).count();
 				}
 				m = std::numeric_limits<double>::max();
 				M = std::numeric_limits<double>::min();
@@ -115,7 +115,7 @@ namespace pygmalion::chess::evaluation
 				// Bishop
 				for (const auto sq : squareType::range)
 				{
-					pst[sq] = generatorType::movegenSlidersDiag.attacks(sq, squaresType::all()).count();
+					pst[sq] = 2 * generatorType::movegenSlidersDiag.attacks(sq, squaresType::all()).count();
 				}
 				m = std::numeric_limits<double>::max();
 				M = std::numeric_limits<double>::min();
@@ -161,7 +161,7 @@ namespace pygmalion::chess::evaluation
 				// Rook
 				for (const auto sq : squareType::range)
 				{
-					pst[sq] = generatorType::movegenSlidersHV.attacks(sq, squaresType::all()).count();
+					pst[sq] = 2 * generatorType::movegenSlidersHV.attacks(sq, squaresType::all()).count();
 				}
 				m = std::numeric_limits<double>::max();
 				M = std::numeric_limits<double>::min();
@@ -207,7 +207,7 @@ namespace pygmalion::chess::evaluation
 				// Queen
 				for (const auto sq : squareType::range)
 				{
-					pst[sq] = (generatorType::movegenSlidersHV.attacks(sq, squaresType::all()) | generatorType::movegenSlidersDiag.attacks(sq, squaresType::all())).count();
+					pst[sq] = 2 * (generatorType::movegenSlidersHV.attacks(sq, squaresType::all()) | generatorType::movegenSlidersDiag.attacks(sq, squaresType::all())).count();
 				}
 				m = std::numeric_limits<double>::max();
 				M = std::numeric_limits<double>::min();
@@ -254,7 +254,7 @@ namespace pygmalion::chess::evaluation
 				for (const auto sq : squareType::range)
 				{
 					if ((sq.rank() > 0) && (sq.rank() < 8))
-						pst[sq] = sq.rank() + (generatorType::movegenPawnCaptureWhite.attacks(sq, squaresType::all()) | generatorType::movegenPawnPromoCaptureWhite.attacks(sq, squaresType::all())).count();
+						pst[sq] = 2 * sq.rank() + (generatorType::movegenPawnPushWhite.targets(sq, squaresType::all()) | generatorType::movegenPawnDoublePushWhite.targets(sq, squaresType::all()) | generatorType::movegenPawnCaptureWhite.attacks(sq, squaresType::all()) | generatorType::movegenPawnPromoCaptureWhite.attacks(sq, squaresType::all())).count();
 					else
 						pst[sq] = 0.0;
 				}

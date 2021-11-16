@@ -28,83 +28,85 @@ namespace pygmalion::chess
 		template<size_t PLAYER>
 		PYGMALION_INLINE static scoreType evaluate_Implementation(const generatorType::template stackType<PLAYER>& stack) noexcept
 		{
-			const playerType movingPlayer{ stack.movingPlayer() };
 			auto& entry{ generatorType::pawnTable().entry(stack) };
-			scoreType pawnStructureScore;
-			if (entry.hasPawnStructureScore(movingPlayer))
+			constexpr const playerType movingPlayer0{ static_cast<playerType>(PLAYER) };
+			constexpr const playerType otherPlayer0{ movingPlayer0.next() };
+			if (!entry.hasPawnStructureScore(movingPlayer0))
 			{
-				pawnStructureScore = entry.getPawnStructureScore(movingPlayer);
+				for (const auto movingPlayer : playerType::range)
+				{
+					constexpr const scoreType zero{ scoreType::zero() };
+					scoreType pawnStructureScore{ zero };
+					std::int8_t whiteRanks[countFiles];
+					std::int8_t blackRanks[countFiles];
+					for (const auto file : fileType::range)
+					{
+						if (entry.pawns(whitePlayer) & file)
+						{
+							const squareType sq{ (entry.pawns(whitePlayer) & file).last() };
+							whiteRanks[file] = static_cast<std::int8_t>(sq.rank());
+						}
+						else
+							whiteRanks[file] = 0;
+						if (entry.pawns(blackPlayer) & file)
+						{
+							const squareType sq{ (entry.pawns(blackPlayer) & file).first() };
+							blackRanks[file] = static_cast<std::int8_t>(sq.rank());
+						}
+						else
+							blackRanks[file] = 0;
+					}
+					for (size_t i = 0; i < countFiles; i++)
+					{
+						std::int8_t whiteRank1;
+						std::int8_t whiteRank2;
+						std::int8_t whiteRank3;
+						std::int8_t blackRank1;
+						std::int8_t blackRank2;
+						std::int8_t blackRank3;
+						if (i > 0)
+						{
+							whiteRank1 = whiteRanks[i - 1];
+							blackRank1 = blackRanks[i - 1];
+						}
+						else
+						{
+							whiteRank1 = 0;
+							blackRank1 = 0;
+						}
+						whiteRank2 = whiteRanks[i];
+						blackRank2 = blackRanks[i];
+						if (i < (countFiles - 1))
+						{
+							whiteRank3 = whiteRanks[i + 1];
+							blackRank3 = blackRanks[i + 1];
+						}
+						else
+						{
+							whiteRank3 = 0;
+							blackRank3 = 0;
+						}
+						std::int8_t distanceToPromotion{ pawnstructure::distance(movingPlayer, whiteRank1, whiteRank2, whiteRank3, blackRank1, blackRank2, blackRank3) };
+						PYGMALION_TUNABLE const scoreType baseScore{ static_cast<scoreType>(PawnStructure) };
+						if (distanceToPromotion > 0)
+						{
+							const int divisor{ 1 << distanceToPromotion };
+							pawnStructureScore += baseScore / divisor;
+						}
+						else if (distanceToPromotion < 0)
+						{
+							const int divisor{ 1 << -distanceToPromotion };
+							pawnStructureScore -= baseScore / divisor;
+						}
+					}
+					entry.setPawnStructureScore(movingPlayer, pawnStructureScore);
+				}
 			}
+			constexpr bool invert{ movingPlayer0 == blackPlayer };
+			if constexpr (invert)
+				return -(entry.getPawnStructureScore(movingPlayer0) + entry.getPawnStructureScore(otherPlayer0));
 			else
-			{
-				constexpr const scoreType zero{ scoreType::zero() };
-				pawnStructureScore = zero;
-				std::int8_t whiteRanks[countFiles];
-				std::int8_t blackRanks[countFiles];
-				for (const auto file : fileType::range)
-				{
-					if (entry.pawns(whitePlayer) & file)
-					{
-						const squareType sq{ (entry.pawns(whitePlayer) & file).last() };
-						whiteRanks[file] = static_cast<std::int8_t>(sq.rank());
-					}
-					else
-						whiteRanks[file] = 0;
-					if (entry.pawns(blackPlayer) & file)
-					{
-						const squareType sq{ (entry.pawns(blackPlayer) & file).first() };
-						blackRanks[file] = static_cast<std::int8_t>(sq.rank());
-					}
-					else
-						blackRanks[file] = 0;
-				}
-				for (size_t i = 0; i < countFiles; i++)
-				{
-					std::int8_t whiteRank1;
-					std::int8_t whiteRank2;
-					std::int8_t whiteRank3;
-					std::int8_t blackRank1;
-					std::int8_t blackRank2;
-					std::int8_t blackRank3;
-					if (i > 0)
-					{
-						whiteRank1 = whiteRanks[i - 1];
-						blackRank1 = blackRanks[i - 1];
-					}
-					else
-					{
-						whiteRank1 = 0;
-						blackRank1 = 0;
-					}
-					whiteRank2 = whiteRanks[i];
-					blackRank2 = blackRanks[i];
-					if (i < (countFiles - 1))
-					{
-						whiteRank3 = whiteRanks[i + 1];
-						blackRank3 = blackRanks[i + 1];
-					}
-					else
-					{
-						whiteRank3 = 0;
-						blackRank3 = 0;
-					}
-					std::int8_t distanceToPromotion{ pawnstructure::distance(movingPlayer, whiteRank1, whiteRank2, whiteRank3, blackRank1, blackRank2, blackRank3) };
-					PYGMALION_TUNABLE const scoreType baseScore{ static_cast<scoreType>(PawnStructure) };
-					if (distanceToPromotion > 0)
-					{
-						const int divisor{ 1 << distanceToPromotion };
-						pawnStructureScore += baseScore / divisor;
-					}
-					else if (distanceToPromotion < 0)
-					{
-						const int divisor{ 1 << -distanceToPromotion };
-						pawnStructureScore -= baseScore / divisor;
-					}
-				}
-				entry.setPawnStructureScore(movingPlayer, pawnStructureScore);
-			}
-			const bool invert{ movingPlayer == blackPlayer };
-			return invert ? -pawnStructureScore : pawnStructureScore;
+				return entry.getPawnStructureScore(movingPlayer0) + entry.getPawnStructureScore(otherPlayer0);
 		}
 		static std::string name_Implementation() noexcept
 		{

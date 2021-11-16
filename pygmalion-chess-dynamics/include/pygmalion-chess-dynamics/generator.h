@@ -3439,6 +3439,32 @@ namespace pygmalion::chess
 			generatorType::template generateSliderCapturesDiag<PLAYER>(stack, moves);
 			generatorType::template generateKingCaptures<PLAYER>(stack, moves);
 		}
+		template<size_t PLAYER>
+		static void generateAllWinningMoves(const stackType<PLAYER>& stack, movelistType& moves) noexcept
+		{
+			generatorType::template generateKnightWinningCaptures<PLAYER>(stack, moves);
+			generatorType::template generatePawnWinningCaptures<PLAYER>(stack, moves);
+			generatorType::template generateSliderWinningCapturesHV<PLAYER>(stack, moves);
+			generatorType::template generateSliderWinningCapturesDiag<PLAYER>(stack, moves);
+			generatorType::template generateKingCaptures<PLAYER>(stack, moves);
+			generatorType::template generatePawnPromoCaptures<PLAYER>(stack, moves);
+		}
+		template<size_t PLAYER>
+		static void generateAllEqualMoves(const stackType<PLAYER>& stack, movelistType& moves) noexcept
+		{
+			generatorType::template generateKnightEqualCaptures<PLAYER>(stack, moves);
+			generatorType::template generatePawnEqualCaptures<PLAYER>(stack, moves);
+			generatorType::template generateSliderEqualCapturesHV<PLAYER>(stack, moves);
+			generatorType::template generateSliderEqualCapturesDiag<PLAYER>(stack, moves);
+			generatorType::template generatePawnEnPassant<PLAYER>(stack, moves);
+		}
+		template<size_t PLAYER>
+		static void generateAllLosingMoves(const stackType<PLAYER>& stack, movelistType& moves) noexcept
+		{
+			generatorType::template generateKnightLosingCaptures<PLAYER>(stack, moves);
+			generatorType::template generateSliderLosingCapturesHV<PLAYER>(stack, moves);
+			generatorType::template generateSliderLosingCapturesDiag<PLAYER>(stack, moves);
+		}
 		static squaresType tropismKing(const squaresType& sq) noexcept
 		{
 			constexpr const squaresType all{ squaresType::all() };
@@ -4505,33 +4531,35 @@ namespace pygmalion::chess
 				generateTacticalCriticalEvasionMoves(stack, moves);
 				break;
 			case movegenStage_WinningMoves:
-				switch (static_cast<size_t>(currentPass))
-				{
-				case 0:
-					generateKnightWinningCaptures(stack, moves);
-					break;
-				case 1:
-					generatePawnWinningCaptures(stack, moves);
-					break;
-				case 2:
-					generateSliderWinningCapturesHV(stack, moves);
-					break;
-				case 3:
-					generateSliderWinningCapturesDiag(stack, moves);
-					break;
-				case 4:
-					generateKingCaptures(stack, moves);
-					break;
-				case 5:
-					generatePawnPromoCaptures(stack, moves);
-					break;
-				default:
-					PYGMALION_UNREACHABLE;
-					break;
-				};
+				generateAllWinningMoves(stack, moves);
+				/*				switch (static_cast<size_t>(currentPass))
+								{
+								case 0:
+									generateKnightWinningCaptures(stack, moves);
+									break;
+								case 1:
+									generatePawnWinningCaptures(stack, moves);
+									break;
+								case 2:
+									generateSliderWinningCapturesHV(stack, moves);
+									break;
+								case 3:
+									generateSliderWinningCapturesDiag(stack, moves);
+									break;
+								case 4:
+									generateKingCaptures(stack, moves);
+									break;
+								case 5:
+									generatePawnPromoCaptures(stack, moves);
+									break;
+								default:
+									PYGMALION_UNREACHABLE;
+									break;
+								};*/
 				break;
 			case movegenStage_EqualMoves:
-				switch (static_cast<size_t>(currentPass))
+				generateAllEqualMoves(stack, moves);
+				/*switch (static_cast<size_t>(currentPass))
 				{
 				case 0:
 					generateKnightEqualCaptures(stack, moves);
@@ -4551,10 +4579,11 @@ namespace pygmalion::chess
 				default:
 					PYGMALION_UNREACHABLE;
 					break;
-				};
+				};*/
 				break;
 			case movegenStage_LosingMoves:
-				switch (static_cast<size_t>(currentPass))
+				generateAllLosingMoves(stack, moves);
+				/*switch (static_cast<size_t>(currentPass))
 				{
 				case 0:
 					generateKnightLosingCaptures(stack, moves);
@@ -4568,7 +4597,7 @@ namespace pygmalion::chess
 				default:
 					PYGMALION_UNREACHABLE;
 					break;
-				};
+				};*/
 				break;
 			case movegenStage_QuietMoves:
 				generateAllQuietMoves(stack, moves);
@@ -4975,11 +5004,14 @@ namespace pygmalion::chess
 			case movegenStage_TacticalCriticalEvasionMoves:
 				return 6;
 			case movegenStage_WinningMoves:
-				return 6;
+				return 1;
+				//return 6;
 			case movegenStage_EqualMoves:
-				return 5;
+				return 1;
+				//return 5;
 			case movegenStage_LosingMoves:
-				return 3;
+				return 1;
+				//return 3;
 			case movegenStage_QuietMoves:
 				return 1;
 			case movegenStage_AllCaptures:

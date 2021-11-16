@@ -127,7 +127,8 @@ namespace pygmalion::chess
 		case movegenStage_TacticalCriticalEvasionMoves:
 			return "tactical criticality evasion moves";
 		case movegenStage_WinningMoves:
-			switch (static_cast<size_t>(pass))
+			return "all winning captures";
+		/*	switch (static_cast<size_t>(pass))
 			{
 			case 0:
 				return "winning knight captures";
@@ -145,9 +146,10 @@ namespace pygmalion::chess
 				PYGMALION_UNREACHABLE;
 				return "???";
 			};
-			break;
+			break;*/
 		case movegenStage_EqualMoves:
-			switch (static_cast<size_t>(pass))
+			return "all equal captures";
+			/*switch (static_cast<size_t>(pass))
 			{
 			case 0:
 				return "equal knight captures";
@@ -163,7 +165,7 @@ namespace pygmalion::chess
 				PYGMALION_UNREACHABLE;
 				return "???";
 			};
-			break;
+			break;*/
 		case movegenStage_LosingMoves:
 			switch (static_cast<size_t>(pass))
 			{
