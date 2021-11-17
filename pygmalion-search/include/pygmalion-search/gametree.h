@@ -305,8 +305,16 @@ namespace pygmalion
 					bool allowStoreTTsubnode{ true };
 					if constexpr (searchScout && !ANALYZE)
 					{
-						sc = this->zwsearchMove(move, alpha, depthRemaining, m_EmptyNullMoveHistory, allowStoreTTsubnode, CUTnode);
-						if (sc > alpha && sc < beta)
+						const bool bIsLateMove{ !(m_IsKiller | m_IsTacticalKiller | m_IsTTMove) };
+						if (bIsLateMove)
+						{
+							sc = this->zwsearchMove(move, alpha, depthRemaining, m_EmptyNullMoveHistory, allowStoreTTsubnode, CUTnode);
+							if (sc > alpha && sc < beta)
+							{
+								sc = this->template searchMove<false>(move, alpha, beta, depthRemaining, subVariation, allowStoreTTsubnode, nullptr);
+							}
+						}
+						else
 						{
 							sc = this->template searchMove<false>(move, alpha, beta, depthRemaining, subVariation, allowStoreTTsubnode, nullptr);
 						}
@@ -433,7 +441,8 @@ namespace pygmalion
 					}
 				}
 				bool allowStoreTTsubnode{ true };
-				const scoreType sc{ this->zwsearchMove(move, alpha, depthRemaining, nullMoveHistory, allowStoreTTsubnode,expectedNodeType) };
+				const bool bIsLateMove{ !(m_IsKiller | m_IsTacticalKiller | m_IsTTMove) };
+				const scoreType sc{ this->zwsearchMove(move, alpha, depthRemaining, nullMoveHistory, allowStoreTTsubnode,bIsLateMove ? ALLnode : expectedNodeType) };
 				if (sc > best)
 				{
 					allowStoreTT &= allowStoreTTsubnode;
@@ -979,7 +988,7 @@ namespace pygmalion
 					if ((!hasLegalMove) && this->template nextMove<PRUNED, true>(depthRemaining, move, fromStack))
 					{
 						hasLegalMove = true;
-						if (this->zwsearchSubNode<PRUNED>(move, alpha, beta, best, bestmove, depthRemaining, noNullMove(nullMoveHistory), fromStack, allowStoreTT, -expectedNodeType))
+						if (this->zwsearchSubNode<PRUNED>(move, alpha, beta, best, bestmove, depthRemaining, noNullMove(nullMoveHistory), fromStack, allowStoreTT, CUTnode))
 						{
 							this->template resetMoveGen<false>();
 							return best;
@@ -1013,7 +1022,7 @@ namespace pygmalion
 					while (this->template nextMove<PRUNED, true>(depthRemaining, move, fromStack))
 					{
 						bool allowStoreTTsubnode;
-						if (this->zwsearchSubNode<PRUNED>(move, alpha, beta, best, bestmove, depthRemaining, noNullMove(nullMoveHistory), fromStack, allowStoreTT, expectedNodeType))
+						if (this->zwsearchSubNode<PRUNED>(move, alpha, beta, best, bestmove, depthRemaining, noNullMove(nullMoveHistory), fromStack, allowStoreTT, CUTnode))
 						{
 							this->template resetMoveGen<false>();
 							return best;
@@ -1025,7 +1034,7 @@ namespace pygmalion
 					while (this->template nextMove<PRUNED, false>(depthRemaining, move, fromStack))
 					{
 						bool allowStoreTTsubnode;
-						if (this->zwsearchSubNode<PRUNED>(move, alpha, beta, best, bestmove, depthRemaining, noNullMove(nullMoveHistory), fromStack, allowStoreTT, expectedNodeType))
+						if (this->zwsearchSubNode<PRUNED>(move, alpha, beta, best, bestmove, depthRemaining, noNullMove(nullMoveHistory), fromStack, allowStoreTT, CUTnode))
 						{
 							this->template resetMoveGen<false>();
 							return best;
@@ -1159,7 +1168,7 @@ namespace pygmalion
 									{
 										childType subnode(childType(*static_cast<const instanceType*>(this), generatorType::nullMove()));
 										constexpr const scoreType atom{ scoreType::atom() };
-										nmsc = -subnode.zwsearch((atom - beta).plyDown(), remainingNullMoveDepth, doNullMove(nullMoveHistory), allowStoreTTsubnode, expectedNodeType).plyUp();
+										nmsc = -subnode.zwsearch((atom - beta).plyDown(), remainingNullMoveDepth, doNullMove(nullMoveHistory), allowStoreTTsubnode, CUTnode).plyUp();
 									}
 									if (nmsc >= beta)
 									{
