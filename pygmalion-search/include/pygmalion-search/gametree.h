@@ -42,7 +42,6 @@ namespace pygmalion
 			int m_MoveGeneratorStage;
 			int m_TacticalMoveGeneratorStage;
 			bool m_NeedsSorting;
-			bool m_NeedsTacticalSorting;
 			bool m_FutilityPruningAllowed;
 			bool m_DeltaPruningAllowed;
 			bool m_IsTTMove;
@@ -1132,11 +1131,7 @@ namespace pygmalion
 				}
 				if constexpr (dynamicMoveScores)
 				{
-					if constexpr (TACTICAL)
-					{
-						m_NeedsTacticalSorting = true;
-					}
-					else
+					if constexpr (!TACTICAL)
 					{
 						m_NeedsSorting = true;
 						for (indexType i = 0; i < m_Nodecounts.length(); i++)
@@ -1405,7 +1400,6 @@ namespace pygmalion
 				m_CriticalMove{ 0 },
 				m_TacticalMove{ 0 },
 				m_NeedsSorting{ false },
-				m_NeedsTacticalSorting{ false },
 				m_FutilityPruningAllowed{ false },
 				m_DeltaPruningAllowed{ false },
 				m_DistanceFromRoot{ 0 },
@@ -1443,7 +1437,6 @@ namespace pygmalion
 				m_CriticalMove{ 0 },
 				m_TacticalMove{ 0 },
 				m_NeedsSorting{ false },
-				m_NeedsTacticalSorting{ false },
 				m_FutilityPruningAllowed{ false },
 				m_DeltaPruningAllowed{ false },
 				m_DistanceFromRoot{ parent.m_DistanceFromRoot + 1 },
@@ -1711,23 +1704,26 @@ namespace pygmalion
 					{
 						if constexpr (dynamicMoveScores)
 						{
-							indexType best = m_CriticalMove;
-							if constexpr (EXPECT_CUTOFF && allowSelectionSort)
+							if (m_NeedsSorting)
 							{
-								nodecounterType highest{ m_Nodecounts[best] };
-								for (indexType i = m_CriticalMove + 1; i < m_CriticalMoves.length(); i++)
+								indexType best = m_CriticalMove;
+								if constexpr (EXPECT_CUTOFF && allowSelectionSort)
 								{
-									if (m_Nodecounts[i] > highest)
+									nodecounterType highest{ m_Nodecounts[best] };
+									for (indexType i = m_CriticalMove + 1; i < m_CriticalMoves.length(); i++)
 									{
-										highest = m_Nodecounts[i];
-										best = i;
+										if (m_Nodecounts[i] > highest)
+										{
+											highest = m_Nodecounts[i];
+											best = i;
+										}
 									}
 								}
-							}
-							if (m_CriticalMove != best)
-							{
-								m_Nodecounts.swap(m_CriticalMove, best);
-								m_CriticalMoves.swap(m_CriticalMove, best);
+								if (m_CriticalMove != best)
+								{
+									m_Nodecounts.swap(m_CriticalMove, best);
+									m_CriticalMoves.swap(m_CriticalMove, best);
+								}
 							}
 						}
 						movebits = m_CriticalMoves[m_CriticalMove];
@@ -1745,23 +1741,26 @@ namespace pygmalion
 					{
 						if constexpr (dynamicMoveScores)
 						{
-							indexType best = m_Move;
-							if constexpr (EXPECT_CUTOFF && allowSelectionSort)
+							if (m_NeedsSorting)
 							{
-								nodecounterType highest{ m_Nodecounts[best] };
-								for (indexType i = m_Move + 1; i < m_Moves.length(); i++)
+								indexType best = m_Move;
+								if constexpr (EXPECT_CUTOFF && allowSelectionSort)
 								{
-									if (m_Nodecounts[i] > highest)
+									nodecounterType highest{ m_Nodecounts[best] };
+									for (indexType i = m_Move + 1; i < m_Moves.length(); i++)
 									{
-										highest = m_Nodecounts[i];
-										best = i;
+										if (m_Nodecounts[i] > highest)
+										{
+											highest = m_Nodecounts[i];
+											best = i;
+										}
 									}
 								}
-							}
-							if (m_Move != best)
-							{
-								m_Nodecounts.swap(m_Move, best);
-								m_Moves.swap(m_Move, best);
+								if (m_Move != best)
+								{
+									m_Nodecounts.swap(m_Move, best);
+									m_Moves.swap(m_Move, best);
+								}
 							}
 						}
 						movebits = m_Moves[m_Move];

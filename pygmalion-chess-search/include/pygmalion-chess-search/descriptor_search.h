@@ -15,7 +15,7 @@ namespace pygmalion::chess
 		| searchFlags::nullMovePruning
 //		| searchFlags::aspirationWindows
 		| searchFlags::transpositionTable
-		| searchFlags::allowSelectionSort
+//		| searchFlags::allowSelectionSort
 //		| searchFlags::lateMoveReductions
 	};
 
