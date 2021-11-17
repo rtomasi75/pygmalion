@@ -273,7 +273,7 @@ namespace pygmalion
 			m_Feedback.expandToDepth(depth);
 		}
 		template<size_t PLAYER>
-		PYGMALION_INLINE scoreType moveScore(const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth) noexcept
+		PYGMALION_INLINE scoreType staticMoveScore(const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth) noexcept
 		{
 			return evaluatorType::staticMoveScore(stack.position(), moveBits);
 		}
@@ -467,16 +467,17 @@ namespace pygmalion
 			static_cast<instanceType*>(this)->template onEndNodeDelta<PLAYER>(stack);
 		}
 		template<size_t PLAYER, bool TACTICAL>
-		PYGMALION_INLINE void beginMove(const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth) noexcept
+		PYGMALION_INLINE nodecounterType beginMove(const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth) noexcept
 		{
 #if !defined(NDEBUG)
 			PYGMALION_ASSERT(m_IsSearching);
 			m_MoveDepth++;
 #endif
 			static_cast<instanceType*>(this)->template onBeginMove<PLAYER, TACTICAL>(stack, moveBits, depth);
+			return m_NodeCounter;
 		}
 		template<size_t PLAYER, bool PRUNED, bool TACTICAL>
-		PYGMALION_INLINE void endMoveAccepted(const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth, const scoreType score, const scoreType eval, const bool fromStack, const depthType depthRemaining) noexcept
+		PYGMALION_INLINE nodecounterType endMoveAccepted(const nodecounterType nodeCount, const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth, const scoreType score, const scoreType eval, const bool fromStack, const depthType depthRemaining) noexcept
 		{
 #if !defined(NDEBUG)
 			PYGMALION_ASSERT(m_IsSearching);
@@ -499,9 +500,10 @@ namespace pygmalion
 				m_KillerSlots[depth].template accepted<PLAYER, TACTICAL>(stack, moveBits, score, eval);
 			}
 			static_cast<instanceType*>(this)->template onEndMoveAccepted<PLAYER, TACTICAL>(stack, moveBits, depth, score);
+			return m_NodeCounter - nodeCount;
 		}
 		template<size_t PLAYER, bool PRUNED, bool TACTICAL>
-		PYGMALION_INLINE void endMoveRefuted(const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth, const scoreType score, const scoreType eval, const bool fromStack, const depthType depthRemaining) noexcept
+		PYGMALION_INLINE nodecounterType endMoveRefuted(const nodecounterType nodeCount, const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth, const scoreType score, const scoreType eval, const bool fromStack, const depthType depthRemaining) noexcept
 		{
 #if !defined(NDEBUG)
 			PYGMALION_ASSERT(m_IsSearching);
@@ -524,15 +526,17 @@ namespace pygmalion
 				m_KillerSlots[depth].template refuted<PLAYER, TACTICAL>(stack, moveBits, score, eval);
 			}
 			static_cast<instanceType*>(this)->template onEndMoveRefuted<PLAYER, TACTICAL>(stack, moveBits, depth, score);
+			return m_NodeCounter - nodeCount;
 		}
 		template<size_t PLAYER, bool TACTICAL>
-		PYGMALION_INLINE void endMoveSilent(const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth, const depthType depthRemaining) noexcept
+		PYGMALION_INLINE nodecounterType endMoveSilent(const nodecounterType nodeCount, const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth, const depthType depthRemaining) noexcept
 		{
 #if !defined(NDEBUG)
 			PYGMALION_ASSERT(m_IsSearching);
 			m_MoveDepth--;
 #endif
 			static_cast<instanceType*>(this)->template onEndMoveSilent<PLAYER, TACTICAL>(stack, moveBits, depth);
+			return m_NodeCounter - nodeCount;
 		}
 		template<size_t PLAYER, bool TACTICAL>
 		PYGMALION_INLINE void endMoveFutile(const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth) noexcept

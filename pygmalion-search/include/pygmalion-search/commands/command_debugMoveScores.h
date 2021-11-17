@@ -47,7 +47,8 @@ namespace pygmalion::search
 						else
 						{
 							this->output() << generatorType::moveToString(node.stack(), movebits, this->searchEngine().history().length()) << "\t";
-							this->output() << this->searchEngine().heuristics().moveScore(node.stack(), movebits, this->searchEngine().history().length()) << "\t";
+							if constexpr(staticMoveScores)
+								this->output() << this->searchEngine().heuristics().staticMoveScore(node.stack(), movebits, this->searchEngine().history().length()) << "\t";
 							if (node.lastMoveFromTT())
 								this->output() << "hash move\t";
 							else if (node.lastMoveIsTacticalKiller())
