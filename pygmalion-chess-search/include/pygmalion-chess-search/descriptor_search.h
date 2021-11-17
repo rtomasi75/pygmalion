@@ -7,6 +7,7 @@ namespace pygmalion::chess
 		| searchFlags::principalVariationSearch
 		| searchFlags::iterativeDeepening
 		| searchFlags::staticMoveScores
+		| searchFlags::dynamicMoveScores
 		| searchFlags::quietKillerMovesHeuristic
 		| searchFlags::tacticalKillerMovesHeuristic
 		| searchFlags::futilityPruning

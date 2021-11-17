@@ -11,9 +11,14 @@ using quietKillermovesType = typename descriptorSearch::quietKillermovesType;
 using tacticalKillermovesType = typename descriptorSearch::tacticalKillermovesType;
 using knuthType = typename descriptorSearch::knuthType;
 using nodecounterType = typename descriptorSearch::nodecounterType;
+using nodecountlistType = typename descriptorSearch::nodecountlistType;
+using quietkillernodecountlistType = typename descriptorSearch::quietkillernodecountlistType;
+using tacticalkillernodecountlistType = typename descriptorSearch::tacticalkillernodecountlistType;
+using ttnodecountlistType = typename descriptorSearch::ttnodecountlistType;
 
 constexpr static const size_t countSearchPlies{ descriptorSearch::countSearchPlies };
 constexpr static const bool staticMoveScores{ descriptorSearch::staticMoveScores };
+constexpr static const bool dynamicMoveScores{ descriptorSearch::dynamicMoveScores };
 constexpr static const size_t quietKillerMoves{ descriptorSearch::quietKillerMoves };
 constexpr static const size_t tacticalKillerMoves{ descriptorSearch::tacticalKillerMoves };
 constexpr static const bool pruneNullmove{ descriptorSearch::pruneNullmove };

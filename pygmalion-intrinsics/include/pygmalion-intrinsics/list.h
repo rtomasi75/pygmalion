@@ -95,7 +95,6 @@ namespace pygmalion
 			PYGMALION_ASSERT(idx >= 0);
 			PYGMALION_ASSERT(std::max(m_Length, static_cast<counterType>(idx + 1)) <= maxLength);
 			PYGMALION_ASSERT(idx <= (m_Length + 1));
-			PYGMALION_ASSERT(m_Length < (maxLength - 1));
 			m_Items[idx] = item;
 			m_Length = std::max(m_Length, static_cast<counterType>(idx + 1));
 		}

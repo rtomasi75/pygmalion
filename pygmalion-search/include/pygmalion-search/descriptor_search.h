@@ -14,6 +14,7 @@ namespace pygmalion
 		constexpr static const unsigned int aspirationWindows{ 128 };
 		constexpr static const unsigned int transpositionTable{ 256 };
 		constexpr static const unsigned int deltaPruning{ 512 };
+		constexpr static const unsigned int dynamicMoveScores{ 1024 };
 	};
 
 
@@ -26,6 +27,7 @@ namespace pygmalion
 		using descriptorEvaluation = typename EVALUATOR::descriptorEvaluation;
 		constexpr static const size_t countSearchPlies{ COUNT_SEARCH_PLIES };
 		constexpr static const bool staticMoveScores{ (SEARCH_FLAGS & searchFlags::staticMoveScores) != 0 };
+		constexpr static const bool dynamicMoveScores{ (SEARCH_FLAGS & searchFlags::dynamicMoveScores) != 0 };
 		constexpr static const size_t quietKillerMoves{ ((SEARCH_FLAGS & searchFlags::quietKillerMovesHeuristic) != 0) ? KILLER_MOVES_QUIET : 0 };
 		constexpr static const size_t killerLookBackDistance{ KILLER_LOOKBACK_DISTANCE };
 		constexpr static const size_t tacticalKillerMoves{ ((SEARCH_FLAGS & searchFlags::tacticalKillerMovesHeuristic) != 0) ? KILLER_MOVES_TACTICAL : 0 };
@@ -46,7 +48,11 @@ namespace pygmalion
 		using quietKillermovesType = list<typename descriptorEvaluation::movebitsType, quietKillerMoves + quietKillerMoves * killerLookBackDistance>;
 		using tacticalKillermovesType = list<typename descriptorEvaluation::movebitsType, tacticalKillerMoves + tacticalKillerMoves * killerLookBackDistance>;
 		using knuthType = std::int8_t;
-		using nodecounterType = std::uintmax_t;
+		using nodecounterType = std::uint64_t;
+		using nodecountlistType = list<nodecounterType, descriptorEvaluation::countMaxGeneratedMoves>;
+		using quietkillernodecountlistType = list<nodecounterType, quietKillerMoves + quietKillerMoves * killerLookBackDistance>;
+		using tacticalkillernodecountlistType = list<nodecounterType, tacticalKillerMoves + tacticalKillerMoves * killerLookBackDistance>;
+		using ttnodecountlistType = list<nodecounterType, searchTranspositionTableBucketCount>;
 		constexpr static const knuthType PVSnode{ 0 };
 		constexpr static const knuthType CUTnode{ 1 };
 		constexpr static const knuthType ALLnode{ -1 };
