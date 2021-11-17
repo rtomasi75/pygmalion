@@ -15,6 +15,8 @@ namespace pygmalion
 		constexpr static const unsigned int transpositionTable{ 256 };
 		constexpr static const unsigned int deltaPruning{ 512 };
 		constexpr static const unsigned int dynamicMoveScores{ 1024 };
+		constexpr static const unsigned int lateMoveReductions{ 2048 };
+		constexpr static const unsigned int allowSelectionSort{ 4096 };
 	};
 
 
@@ -26,6 +28,8 @@ namespace pygmalion
 		using evaluatorType = EVALUATOR;
 		using descriptorEvaluation = typename EVALUATOR::descriptorEvaluation;
 		constexpr static const size_t countSearchPlies{ COUNT_SEARCH_PLIES };
+		constexpr static const bool allowSelectionSort{ (SEARCH_FLAGS & searchFlags::allowSelectionSort) != 0 };
+		constexpr static const bool lateMoveReductions{ (SEARCH_FLAGS & searchFlags::lateMoveReductions) != 0 };
 		constexpr static const bool staticMoveScores{ (SEARCH_FLAGS & searchFlags::staticMoveScores) != 0 };
 		constexpr static const bool dynamicMoveScores{ (SEARCH_FLAGS & searchFlags::dynamicMoveScores) != 0 };
 		constexpr static const size_t quietKillerMoves{ ((SEARCH_FLAGS & searchFlags::quietKillerMovesHeuristic) != 0) ? KILLER_MOVES_QUIET : 0 };

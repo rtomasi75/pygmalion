@@ -290,11 +290,14 @@ namespace pygmalion
 			{
 				this->template beginMove<false>(move);
 				variationType subVariation;
+				bool bCanPrune{ true };
+				if constexpr (pruneFutility || lateMoveReductions)
+					bCanPrune = this->canPruneMove(move);
 				if constexpr (SCOUT)
 				{
 					if constexpr (pruneFutility)
 					{
-						if (m_FutilityPruningAllowed && this->canPruneMove(move) && this->canFutilityPruneMove(move))
+						if (m_FutilityPruningAllowed && bCanPrune && this->canFutilityPruneMove(move))
 						{
 							this->template endMoveFutile<false, false>(move);
 							return false;
@@ -308,16 +311,21 @@ namespace pygmalion
 						const bool bIsLateMove{ !(m_IsKiller | m_IsTacticalKiller | m_IsTTMove) };
 						if (bIsLateMove)
 						{
-							sc = this->zwsearchMove(move, alpha, depthRemaining, m_EmptyNullMoveHistory, allowStoreTTsubnode, CUTnode);
-							if (sc > alpha && sc < beta)
+							if constexpr (lateMoveReductions)
 							{
-								sc = this->template searchMove<false>(move, alpha, beta, depthRemaining, subVariation, allowStoreTTsubnode, nullptr);
+								const bool bAllowLMR{ bCanPrune && !m_Stack.isPositionCritical() };
+								if (bAllowLMR)
+									sc = this->zwsearchMove(move, alpha, depthRemaining - 2, m_EmptyNullMoveHistory, allowStoreTTsubnode, CUTnode);
+								else
+									sc = this->zwsearchMove(move, alpha, depthRemaining, m_EmptyNullMoveHistory, allowStoreTTsubnode, CUTnode);
 							}
+							else
+								sc = this->zwsearchMove(move, alpha, depthRemaining, m_EmptyNullMoveHistory, allowStoreTTsubnode, CUTnode);
+							if (sc > alpha && sc < beta)
+								sc = this->template searchMove<false>(move, alpha, beta, depthRemaining, subVariation, allowStoreTTsubnode, nullptr);
 						}
 						else
-						{
 							sc = this->template searchMove<false>(move, alpha, beta, depthRemaining, subVariation, allowStoreTTsubnode, nullptr);
-						}
 						if (sc > best)
 						{
 							allowStoreTT &= allowStoreTTsubnode;
@@ -429,11 +437,14 @@ namespace pygmalion
 			PYGMALION_INLINE bool zwsearchSubNode(const movebitsType move, scoreType& alpha, scoreType& beta, scoreType& best, movebitsType& bestmove, const depthType depthRemaining, const uint_t<countPlayers, false> nullMoveHistory, const bool fromStack, bool& allowStoreTT, const knuthType expectedNodeType) noexcept
 			{
 				this->template beginMove<false>(move);
+				bool bCanPrune{ true };
+				if constexpr (((!PRUNED) && pruneFutility) || lateMoveReductions)
+					bCanPrune = this->canPruneMove(move);
 				if constexpr (!PRUNED)
 				{
 					if constexpr (pruneFutility)
 					{
-						if (m_FutilityPruningAllowed && this->canPruneMove(move) && this->canFutilityPruneMove(move))
+						if (m_FutilityPruningAllowed && bCanPrune && this->canFutilityPruneMove(move))
 						{
 							this->template endMoveFutile<PRUNED, false>(move);
 							return false;
@@ -442,7 +453,26 @@ namespace pygmalion
 				}
 				bool allowStoreTTsubnode{ true };
 				const bool bIsLateMove{ !(m_IsKiller | m_IsTacticalKiller | m_IsTTMove) };
-				const scoreType sc{ this->zwsearchMove(move, alpha, depthRemaining, nullMoveHistory, allowStoreTTsubnode,bIsLateMove ? ALLnode : expectedNodeType) };
+				scoreType sc;
+				if constexpr (lateMoveReductions)
+				{
+					if (bIsLateMove)
+					{
+						const bool bAllowLMR{ bCanPrune && !m_Stack.isPositionCritical() };
+						if (bAllowLMR)
+						{
+							sc = this->zwsearchMove(move, alpha, depthRemaining - 2, nullMoveHistory, allowStoreTTsubnode, bIsLateMove ? ALLnode : expectedNodeType);
+							if (sc > alpha)
+								sc = this->zwsearchMove(move, alpha, depthRemaining, nullMoveHistory, allowStoreTTsubnode, bIsLateMove ? ALLnode : expectedNodeType);
+						}
+						else
+							sc = this->zwsearchMove(move, alpha, depthRemaining, nullMoveHistory, allowStoreTTsubnode, bIsLateMove ? ALLnode : expectedNodeType);
+					}
+					else
+						sc = this->zwsearchMove(move, alpha, depthRemaining, nullMoveHistory, allowStoreTTsubnode, bIsLateMove ? ALLnode : expectedNodeType);
+				}
+				else
+					sc = this->zwsearchMove(move, alpha, depthRemaining, nullMoveHistory, allowStoreTTsubnode, bIsLateMove ? ALLnode : expectedNodeType);
 				if (sc > best)
 				{
 					allowStoreTT &= allowStoreTTsubnode;
@@ -1607,19 +1637,43 @@ namespace pygmalion
 				}
 				if constexpr (dynamicMoveScores)
 				{
-					if (m_NeedsSorting)
+					if constexpr ((!EXPECT_CUTOFF) || (!allowSelectionSort))
 					{
-						if constexpr (PRUNED)
-							sort<movebitsType, nodecounterType>::sortValues(m_CriticalMoves.ptr(), m_Nodecounts.ptr(), m_CriticalMoves.length());
-						else
-							sort<movebitsType, nodecounterType>::sortValues(m_Moves.ptr(), m_Nodecounts.ptr(), m_Moves.length());
-						m_NeedsSorting = false;
+						if (m_NeedsSorting)
+						{
+							if constexpr (PRUNED)
+								sort<movebitsType, nodecounterType>::sortValues(m_CriticalMoves.ptr() + m_CriticalMove, m_Nodecounts.ptr() + m_CriticalMove, m_CriticalMoves.length() + m_CriticalMove);
+							else
+								sort<movebitsType, nodecounterType>::sortValues(m_Moves.ptr() + m_CriticalMove, m_Nodecounts.ptr() + m_CriticalMove, m_Moves.length() + m_CriticalMove);
+							m_NeedsSorting = false;
+						}
 					}
 				}
 				if constexpr (PRUNED)
 				{
 					while (m_CriticalMove < m_CriticalMoves.length())
 					{
+						if constexpr (dynamicMoveScores)
+						{
+							indexType best = m_CriticalMove;
+							if constexpr (EXPECT_CUTOFF && allowSelectionSort)
+							{
+								nodecounterType highest{ m_Nodecounts[best] };
+								for (indexType i = m_CriticalMove + 1; i < m_CriticalMoves.length(); i++)
+								{
+									if (m_Nodecounts[i] > highest)
+									{
+										highest = m_Nodecounts[i];
+										best = i;
+									}
+								}
+							}
+							if (m_CriticalMove != best)
+							{
+								m_Nodecounts.swap(m_CriticalMove, best);
+								m_CriticalMoves.swap(m_CriticalMove, best);
+							}
+						}
 						movebits = m_CriticalMoves[m_CriticalMove];
 						const bool bDouble{ m_MovesTT.contains(movebits) || m_QuietMovesKiller.contains(movebits) || m_TacticalMovesKiller.contains(movebits) };
 						++m_CriticalMove;
@@ -1633,6 +1687,27 @@ namespace pygmalion
 				{
 					while (m_Move < m_Moves.length())
 					{
+						if constexpr (dynamicMoveScores)
+						{
+							indexType best = m_Move;
+							if constexpr (EXPECT_CUTOFF && allowSelectionSort)
+							{
+								nodecounterType highest{ m_Nodecounts[best] };
+								for (indexType i = m_Move + 1; i < m_Moves.length(); i++)
+								{
+									if (m_Nodecounts[i] > highest)
+									{
+										highest = m_Nodecounts[i];
+										best = i;
+									}
+								}
+							}
+							if (m_Move != best)
+							{
+								m_Nodecounts.swap(m_Move, best);
+								m_Moves.swap(m_Move, best);
+							}
+						}
 						movebits = m_Moves[m_Move];
 						const bool bDouble{ m_MovesTT.contains(movebits) || m_QuietMovesKiller.contains(movebits) || m_TacticalMovesKiller.contains(movebits) };
 						++m_Move;
@@ -1648,7 +1723,7 @@ namespace pygmalion
 					if constexpr (staticMoveScores)
 					{
 						const auto lambda{ [this](const movebitsType& bits) { return this->m_Heuristics.moveScore(m_Stack, bits, m_Depth); } };
-						while (m_Stack.template nextCriticalMove<decltype(lambda), EXPECT_CUTOFF>(testBits, m_Depth, m_Heuristics.feedback(), lambda))
+						while (m_Stack.template nextCriticalMove<decltype(lambda), EXPECT_CUTOFF && allowSelectionSort>(testBits, m_Depth, m_Heuristics.feedback(), lambda))
 						{
 							const bool bDouble{ m_MovesTT.contains(testBits) || m_QuietMovesKiller.contains(testBits) || m_TacticalMovesKiller.contains(testBits) };
 							movebits = testBits;
@@ -1686,7 +1761,7 @@ namespace pygmalion
 					if constexpr (staticMoveScores)
 					{
 						const auto lambda{ [this](const movebitsType& bits) { return this->m_Heuristics.moveScore(m_Stack, bits, m_Depth); } };
-						while (m_Stack.template nextMove<decltype(lambda), EXPECT_CUTOFF>(testBits, m_Depth, m_Heuristics.feedback(), lambda))
+						while (m_Stack.template nextMove<decltype(lambda), EXPECT_CUTOFF && allowSelectionSort>(testBits, m_Depth, m_Heuristics.feedback(), lambda))
 						{
 							const bool bDouble{ m_MovesTT.contains(testBits) || m_QuietMovesKiller.contains(testBits) || m_TacticalMovesKiller.contains(testBits) };
 							movebits = testBits;
@@ -1775,7 +1850,7 @@ namespace pygmalion
 				if constexpr (staticMoveScores)
 				{
 					const auto lambda{ [this](const movebitsType& bits) { return this->m_Heuristics.moveScore(m_Stack, bits, m_Depth); } };
-					while (m_Stack.template nextTacticalMove<decltype(lambda), EXPECT_CUTOFF>(testBits, m_Depth, m_Heuristics.feedback(), lambda))
+					while (m_Stack.template nextTacticalMove<decltype(lambda), EXPECT_CUTOFF && allowSelectionSort>(testBits, m_Depth, m_Heuristics.feedback(), lambda))
 					{
 						const bool bDouble{ m_TacticalMovesTT.contains(testBits) || m_TacticalMovesKiller.contains(testBits) };
 						movebits = testBits;

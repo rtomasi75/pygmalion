@@ -19,12 +19,12 @@ namespace pygmalion::chess
 		}
 		PYGMALION_INLINE PYGMALION_TUNABLE static scoreType initialAspirationWindowSize() noexcept
 		{
-			PYGMALION_TUNABLE const scoreType delta{ rootDelta(static_cast<scoreType>(boardType::materialDelta())) / 8 };
+			PYGMALION_TUNABLE const scoreType delta{ rootDelta(static_cast<scoreType>(boardType::materialDelta())) };
 			return delta;
 		}
 		PYGMALION_INLINE constexpr static size_t countAspirationWindows_Implementation() noexcept
 		{
-			return 128;
+			return 4;
 		}
 		static std::deque<std::shared_ptr<pygmalion::intrinsics::command>> commandsImplementation() noexcept;
 		template<size_t PLAYER, bool LAZY>

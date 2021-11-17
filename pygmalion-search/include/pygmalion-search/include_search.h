@@ -34,5 +34,7 @@ constexpr static const depthType countMaxExtensions{ descriptorSearch::countMaxE
 constexpr static const knuthType PVSnode{ descriptorSearch::PVSnode };
 constexpr static const knuthType CUTnode{ descriptorSearch::CUTnode };
 constexpr static const knuthType ALLnode{ descriptorSearch::ALLnode };
+constexpr static const bool lateMoveReductions{ descriptorSearch::lateMoveReductions };
+constexpr static const bool allowSelectionSort{ descriptorSearch::allowSelectionSort };
 
 #include <pygmalion-evaluation/include_evaluation.h>
