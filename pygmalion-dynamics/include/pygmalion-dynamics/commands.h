@@ -4,3 +4,5 @@
 #include "commands/command_debugDynamics.h"
 #include "commands/command_debugPerft.h"
 #include "commands/command_debugPasses.h"
+#include "commands/command_setFen.h"
+#include "commands/command_getFen.h"

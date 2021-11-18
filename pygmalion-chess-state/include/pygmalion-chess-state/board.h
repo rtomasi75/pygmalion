@@ -295,27 +295,27 @@ namespace pygmalion::chess
 		{
 			return m_PlayerPieceSquareHash[player][piece][square];
 		}
-		PYGMALION_TUNABLE PYGMALION_INLINE static materialScore materialValueAbsolute(const pieceType pc, const squareType sq, const playerType pl) noexcept
+		PYGMALION_TUNABLE_INLINE static materialScore materialValueAbsolute(const pieceType pc, const squareType sq, const playerType pl) noexcept
 		{
 			return m_Material.absoluteMaterial(pl, pc, sq);
 		}
-		PYGMALION_TUNABLE PYGMALION_INLINE static materialScore materialValueRelative(const pieceType pc, const squareType sq, const playerType pl) noexcept
+		PYGMALION_TUNABLE_INLINE static materialScore materialValueRelative(const pieceType pc, const squareType sq, const playerType pl) noexcept
 		{
 			return m_Material.relativeMaterial(pl, pc, sq);
 		}
-		PYGMALION_TUNABLE PYGMALION_INLINE static materialScore materialUpperBound(const pieceType pc) noexcept
+		PYGMALION_TUNABLE_INLINE static materialScore materialUpperBound(const pieceType pc) noexcept
 		{
 			return m_Material.materialUpperBound(pc);
 		}
-		PYGMALION_TUNABLE PYGMALION_INLINE static materialScore materialLowerBound(const pieceType pc) noexcept
+		PYGMALION_TUNABLE_INLINE static materialScore materialLowerBound(const pieceType pc) noexcept
 		{
 			return m_Material.materialLowerBound(pc);
 		}
-		PYGMALION_INLINE PYGMALION_TUNABLE static int minorPieceKnightOffset() noexcept
+		PYGMALION_TUNABLE_INLINE static int minorPieceKnightOffset() noexcept
 		{
 			return m_Material.minorPieceKnightOffset();
 		}
-		PYGMALION_INLINE PYGMALION_TUNABLE static materialScore materialDelta() noexcept
+		PYGMALION_TUNABLE_INLINE static materialScore materialDelta() noexcept
 		{
 			return m_Material.materialDelta();
 		}
@@ -433,8 +433,6 @@ namespace pygmalion::chess
 		{
 			return (pieceOccupancy(king) & playerOccupancy(player)).first();
 		}
-		bool setFen(const std::string& fen, std::string& error) noexcept;
-		std::string getFen() const noexcept;
 		PYGMALION_INLINE materialScore material() const noexcept
 		{
 			return cumulation().score();
@@ -495,15 +493,8 @@ namespace pygmalion::chess
 		{
 			return cumulation().pawnHash();
 		}
-		std::string getPositionString_Implementation() const noexcept
-		{
-			return getFen();
-		}
-		bool setPositionString_Implementation(const std::string& fen) noexcept
-		{
-			std::string error;
-			return setFen(fen, error);
-		}
+		static std::string flagsToString_Implementation(const flagsType flags, const playerType movingPlayer) noexcept;
+		static bool parseFlags_Implementation(const std::string& text, flagsType& flags, size_t& count) noexcept;
 	};
 
 	std::ostream& operator<<(std::ostream& str, const board& position) noexcept;

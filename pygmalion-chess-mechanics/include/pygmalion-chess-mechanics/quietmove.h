@@ -106,15 +106,15 @@ namespace pygmalion::chess
 			const pieceType pc{ position.getPiece(from) };
 			const playerType p{ position.getPlayer(from) };
 			const uint_t<countFlags, false> oldFlags{ position.extractFlagRange<0, 11>() };
-			const std::uint16_t reversiblePlies{ position.cumulation().reversiblePlies() };
+			const std::uint16_t reversiblePlies{ static_cast<std::uint16_t>(position.getReversiblePlyCount()) };
 			position.clearEnPassantFiles();
 			position.removePiece(pc, from, p);
 			position.addPiece(pc, to, p);
 			position.setMovingPlayer(++position.movingPlayer());
 			if (pc == pawn)
-				position.cumulation().reversiblePlies() = 0;
+				position.resetReversiblePlyCount();
 			else
-				position.cumulation().reversiblePlies()++;
+				position.doReversiblePly();
 			if (p == whitePlayer)
 			{
 				switch (pc)
@@ -164,7 +164,7 @@ namespace pygmalion::chess
 			position.removePiece(data.piece(), data.to(), p);
 			position.addPiece(data.piece(), data.from(), p);
 			position.storeFlagRange<0, 11>(data.oldFlags());
-			position.cumulation().reversiblePlies() = data.reversiblePlies();
+			position.setReversiblePlyCount(static_cast<size_t>(data.reversiblePlies()));
 		}
 		PYGMALION_INLINE constexpr typename quietmove::movebitsType create(const squareType from, const squareType to) const noexcept
 		{

@@ -87,10 +87,9 @@ namespace pygmalion::chess::dynamics
 			this->output() << "Expected: " << set.expected() << std::endl;
 			historyType history;
 			boardType position;
-			std::string error;
-			if (!position.setFen(set.fen(), error))
+			if (!position.setFen(set.fen()))
 			{
-				this->output() << "Invalid FEN: " << error << std::endl;
+				this->output() << "Invalid FEN: " << set.fen() << std::endl;
 			}
 			this->output() << "Computed: ";
 			typename generatorType::contextType* pContext = new typename generatorType::contextType[set.depth() + 1];

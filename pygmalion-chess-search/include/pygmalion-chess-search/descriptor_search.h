@@ -16,7 +16,7 @@ namespace pygmalion::chess
 //		| searchFlags::aspirationWindows
 		| searchFlags::transpositionTable
 //		| searchFlags::allowSelectionSort
-		| searchFlags::lateMoveReductions
+//		| searchFlags::lateMoveReductions
 	};
 
 	constexpr const size_t countQuietKillerMoveSlots{ 2 };

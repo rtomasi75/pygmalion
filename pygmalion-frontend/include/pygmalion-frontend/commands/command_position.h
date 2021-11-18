@@ -41,7 +41,7 @@ namespace pygmalion::frontend
 					parser::parseTokenCaseSensitive(remainder2, fen5, remainder);
 					parser::parseTokenCaseSensitive(remainder, fen6, remainder2);
 					std::string fen = fen1 + " " + fen2 + " " + fen3 + " " + fen4 + " " + fen5 + " " + fen6;
-					if (!this->stateEngine().currentGame().position().setPositionString(fen))
+					if (!this->stateEngine().currentGame().position().setFen(fen))
 					{
 						return false;
 					}

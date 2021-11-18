@@ -88,7 +88,7 @@ namespace pygmalion::chess
 			const playerType p{ position.movingPlayer() };
 			const fileType f{ doublepushmove::extractFile(moveBits) };
 			const uint_t<countFiles, false> oldFlags{ position.extractFlagRange<4, 11>() };
-			const std::uint16_t reversiblePlies{ position.cumulation().reversiblePlies() };
+			const std::uint16_t reversiblePlies{ static_cast<std::uint16_t>(position.getReversiblePlyCount()) };
 			if (p == whitePlayer)
 			{
 				const rankType r1{ rank2 };
@@ -100,7 +100,7 @@ namespace pygmalion::chess
 				position.addPiece(pawn, to, p);
 				position.setEnPassantFile(f);
 				position.setMovingPlayer(++position.movingPlayer());
-				position.cumulation().reversiblePlies() = 0;
+				position.resetReversiblePlyCount();
 				movedata = doublepushmove::movedataType(from, to, oldFlags, reversiblePlies);
 			}
 			else
@@ -114,7 +114,7 @@ namespace pygmalion::chess
 				position.addPiece(pawn, to, p);
 				position.setEnPassantFile(f);
 				position.setMovingPlayer(++position.movingPlayer());
-				position.cumulation().reversiblePlies() = 0;
+				position.resetReversiblePlyCount();
 				movedata = typename doublepushmove::movedataType(from, to, oldFlags, reversiblePlies);
 			}
 		}
@@ -125,7 +125,7 @@ namespace pygmalion::chess
 			position.removePiece(pawn, data.to(), p);
 			position.addPiece(pawn, data.from(), p);
 			position.storeFlagRange<4, 11>(data.oldFlags());
-			position.cumulation().reversiblePlies() = data.reversiblePlies();
+			position.setReversiblePlyCount(static_cast<size_t>(data.reversiblePlies()));
 		}
 		PYGMALION_INLINE typename doublepushmove::movebitsType create(const fileType file) const noexcept
 		{

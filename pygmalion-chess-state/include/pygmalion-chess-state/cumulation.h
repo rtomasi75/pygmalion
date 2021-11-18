@@ -9,13 +9,11 @@ namespace pygmalion::chess::state
 	private:
 		hashType m_PawnHash;
 		materialScore m_Material;
-		std::uint16_t m_ReversiblePlies;
 		constexpr static const materialScore m_Zero{ materialScore::zero() };
 	public:
 		PYGMALION_INLINE constexpr void clear() noexcept
 		{
 			m_Material = m_Zero;
-			m_ReversiblePlies = 0;
 			m_PawnHash = 0;
 		}
 		PYGMALION_INLINE constexpr const hashType& pawnHash() const noexcept
@@ -34,17 +32,8 @@ namespace pygmalion::chess::state
 		{
 			return m_Material;
 		}
-		PYGMALION_INLINE constexpr const std::uint16_t& reversiblePlies() const noexcept
-		{
-			return m_ReversiblePlies;
-		}
-		PYGMALION_INLINE constexpr std::uint16_t& reversiblePlies() noexcept
-		{
-			return m_ReversiblePlies;
-		}
 		constexpr cumulation() noexcept :
 			m_Material{ m_Zero },
-			m_ReversiblePlies{ 0 },
 			m_PawnHash{ 0 }
 		{
 		}
@@ -54,11 +43,11 @@ namespace pygmalion::chess::state
 		constexpr cumulation& operator=(const cumulation&) noexcept = default;
 		PYGMALION_INLINE constexpr bool operator==(const cumulation& other) const noexcept
 		{
-			return m_Material == other.m_Material && m_ReversiblePlies == other.reversiblePlies();
+			return m_Material == other.m_Material && m_PawnHash == other.m_PawnHash;
 		}
 		PYGMALION_INLINE constexpr bool operator!=(const cumulation& other) const noexcept
 		{
-			return m_Material != other.m_Material || m_ReversiblePlies != other.reversiblePlies();
+			return m_Material != other.m_Material || m_PawnHash != other.m_PawnHash;
 		}
 		~cumulation() noexcept = default;
 	};

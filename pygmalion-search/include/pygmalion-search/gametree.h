@@ -1560,10 +1560,6 @@ namespace pygmalion
 			{
 				return m_Stack;
 			}
-			scoreType lastMoveScore() const noexcept
-			{
-				return m_LastMoveScore;
-			}
 			template<bool PRUNED, bool EXPECT_CUTOFF>
 			bool nextMove(const depthType depthRemaining, movebitsType& movebits, bool& fromStack) noexcept
 			{

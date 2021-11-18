@@ -114,13 +114,13 @@ namespace pygmalion::chess
 			const pieceType pc2{ position.getPiece(to) };
 			const playerType p2{ position.getPlayer(to) };
 			const uint_t<countFlags, false> oldFlags{ position.extractFlagRange<0, 11>() };
-			const std::uint16_t reversiblePlies{ position.cumulation().reversiblePlies() };
+			const std::uint16_t reversiblePlies{ static_cast<std::uint16_t>(position.getReversiblePlyCount()) };
 			position.clearEnPassantFiles();
 			position.removePiece(pc, from, p);
 			position.removePiece(pc2, to, p2);
 			position.addPiece(pc, to, p);
 			position.setMovingPlayer(++position.movingPlayer());
-			position.cumulation().reversiblePlies() = 0;
+			position.resetReversiblePlyCount();
 			if (p == whitePlayer)
 			{
 				switch (pc)
@@ -196,7 +196,7 @@ namespace pygmalion::chess
 			position.addPiece(data.piece(), data.from(), p1);
 			position.addPiece(data.capturedPiece(), data.to(), p2);
 			position.storeFlagRange<0, 11>(data.oldFlags());
-			position.cumulation().reversiblePlies() = data.reversiblePlies();
+			position.setReversiblePlyCount(static_cast<size_t>(data.reversiblePlies()));
 		}
 		PYGMALION_INLINE typename capturemove::movebitsType create(const squareType from, const squareType to) const noexcept
 		{

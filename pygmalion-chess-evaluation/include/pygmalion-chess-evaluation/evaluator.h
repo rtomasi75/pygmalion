@@ -32,7 +32,7 @@ namespace pygmalion::chess
 		{
 			if constexpr (!LAZY)
 			{
-				if (stack.position().cumulation().reversiblePlies() >= 100)
+				if (stack.position().getReversiblePlyCount() >= 100)
 				{
 					allowStoreTT = false;
 					return gamestateType::draw();

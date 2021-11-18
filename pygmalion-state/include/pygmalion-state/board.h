@@ -11,11 +11,13 @@ namespace pygmalion
 	private:
 		std::array<squaresType, countPieces> m_PieceOccupancy;
 		std::array<squaresType, countPlayers> m_PlayerOccupancy;
-		playerType m_MovingPlayer;
-		gamestateType m_Arbitration;
-		flagsType m_Flags;
-		hashType m_Hash;
 		cumulationType m_Cumulation;
+		hashType m_Hash;
+		size_t m_PlyCount;
+		size_t m_ReversiblePlyCount;
+		flagsType m_Flags;
+		gamestateType m_Arbitration;
+		playerType m_MovingPlayer;
 		static inline std::array<hashType, 1 << flagType::countValues> m_FlagsHash
 		{
 			arrayhelper::generate<1 << flagType::countValues,hashType>([](const size_t index)
@@ -93,6 +95,42 @@ namespace pygmalion
 			return (first <= last) && (last < countFlags);
 		}
 	public:
+		PYGMALION_INLINE size_t getPlyCount() const noexcept
+		{
+			return m_PlyCount;
+		}
+		PYGMALION_INLINE size_t getReversiblePlyCount() const noexcept
+		{
+			return m_ReversiblePlyCount;
+		}
+		PYGMALION_INLINE void resetReversiblePlyCount() noexcept
+		{
+			m_ReversiblePlyCount = 0;
+		}
+		PYGMALION_INLINE void doReversiblePly() noexcept
+		{
+			m_ReversiblePlyCount++;
+		}
+		PYGMALION_INLINE void undoReversiblePly() noexcept
+		{
+			m_ReversiblePlyCount--;
+		}
+		PYGMALION_INLINE void doPly() noexcept
+		{
+			m_PlyCount++;
+		}
+		PYGMALION_INLINE void undoPly() noexcept
+		{
+			m_PlyCount--;
+		}
+		PYGMALION_INLINE void setReversiblePlyCount(const size_t count) noexcept
+		{
+			m_ReversiblePlyCount = count;
+		}
+		PYGMALION_INLINE void setPlyCount(const size_t count) noexcept
+		{
+			m_PlyCount = count;
+		}
 		PYGMALION_INLINE gamestateType arbitration() const noexcept
 		{
 			return m_Arbitration;
@@ -206,6 +244,14 @@ namespace pygmalion
 				}
 			}
 			return false;
+		}
+		static std::string flagsToString(const flagsType flags, const playerType movingPlayer) noexcept
+		{
+			return boardType::flagsToString_Implementation(flags, movingPlayer);
+		}
+		static bool parseFlags(const std::string& text, flagsType& flags, size_t& count) noexcept
+		{
+			return boardType::parseFlags_Implementation(text, flags, count);
 		}
 		PYGMALION_INLINE void setFlag(const flagType flag) noexcept
 		{
@@ -429,7 +475,7 @@ namespace pygmalion
 						return p;
 				}
 				PYGMALION_ASSERT(false);
-				return playerType::invalid;
+return playerType::invalid;
 			}
 		}
 		PYGMALION_INLINE void clear() noexcept
@@ -444,6 +490,8 @@ namespace pygmalion
 			m_Arbitration = gamestateType::open();
 			onClear();
 			m_Hash = playerHash(m_MovingPlayer) ^ flagsHash(m_Flags);
+			m_PlyCount = 0;
+			m_ReversiblePlyCount = 0;
 		}
 		board() noexcept :
 			m_PieceOccupancy{ },
@@ -464,13 +512,181 @@ namespace pygmalion
 		board& operator=(board&&) noexcept = default;
 		board& operator=(const board&) noexcept = default;
 		~board() noexcept = default;
-		std::string getPositionString() const noexcept
+		std::string getFen() const noexcept
 		{
-			return static_cast<const boardType*>(this)->getPositionString_Implementation();
+			std::stringstream fen;
+			for (typename rankType::baseType rank = countRanks - 1; rank >= 0; rank--)
+			{
+				size_t l{ 0 };
+				for (typename fileType::baseType file = 0; file < countFiles; file++)
+				{
+					const squareType square{ fileType(file) & rankType(rank) };
+					if (totalOccupancy()[square])
+					{
+						if (l != 0)
+						{
+							fen << parser::fromInt(l);
+						}
+						l = 0;
+						const playerType side{ getPlayer(square) };
+						const pieceType piece{ getPiece(square) };
+						fen << boardType::pieceToString(piece, side);
+					}
+					else
+						l++;
+				}
+				if (l != 0)
+					fen << parser::fromInt(l);
+				if (rank != 0)
+					fen << "/";
+			}
+			fen << " ";
+			fen << board::playerToString(movingPlayer()) << " ";
+			fen << board::flagsToString(flags(), movingPlayer()) << " ";
+			fen << parser::fromInt(getReversiblePlyCount()) << " ";
+			fen << parser::fromInt(getPlyCount());
+			return fen.str();
 		}
-		bool setPositionString(const std::string& fen) noexcept
+		bool setFen(const std::string & fen) noexcept
 		{
-			return static_cast<boardType*>(this)->setPositionString_Implementation(fen);
+			clear();
+			size_t pos{ 0 };
+			typename fileType::baseType file{ 0 };
+			typename rankType::baseType rank{ static_cast<typename rankType::baseType>(countRanks - 1) };
+			bool bParse{ true };
+			size_t count{ 0 };
+			pieceType piece;
+			playerType player;
+			while (bParse)
+			{
+				if (fen.length() <= pos)
+				{
+					clear();
+					return false;
+				}
+				switch (fen[pos])
+				{
+				default:
+					count = 0;
+					if (board::parsePiece(fen.substr(pos, fen.length() - pos), piece, player, count))
+					{
+						addPiece(piece, fileType(file) & rankType(rank), player);
+						file++;
+					}
+					else
+					{
+						clear();
+						return false;
+					}
+					pos += count;
+				break;
+				case ' ':
+					bParse = false;
+					pos++;
+					break;
+				case '1':
+					file++;
+					pos++;
+					break;
+				case '2':
+					file += 2;
+					pos++;
+					break;
+				case '3':
+					file += 3;
+					pos++;
+					break;
+				case '4':
+					file += 4;
+					pos++;
+					break;
+				case '5':
+					file += 5;
+					pos++;
+					break;
+				case '6':
+					file += 6;
+					pos++;
+					break;
+				case '7':
+					file += 7;
+					pos++;
+					break;
+				case '8':
+					pos++;
+					break;
+				case '/':
+					file = 0;
+					rank--;
+					pos++;
+					break;
+				}
+				if (file < 0)
+					break;
+			}
+			if (fen.length() <= pos)
+			{
+				clear();
+				return false;
+			}
+			count = 0;
+			if (!board::parsePlayer(fen.substr(pos, fen.length() - pos), player, count))
+			{
+				clear();
+				return false;
+			}
+			pos += count;
+			setMovingPlayer(player);
+			if (fen.length() <= pos)
+			{
+				clear();
+				return false;
+			}
+			if (fen[pos] != ' ')
+			{
+				clear();
+				return false;
+			}
+			pos++;
+			if (fen.length() <= pos)
+			{
+				clear();
+				return false;
+			}
+			count = 0;
+			if (!board::parseFlags(fen.substr(pos, fen.length() - pos), m_Flags, count))
+			{
+				clear();
+				return false;
+			}
+			pos += count;
+			if (fen[pos] != ' ')
+			{
+				clear();
+				return false;
+			}
+			pos++;
+			std::string revCountStr = "";
+			std::string remainder;
+			parser::parseToken(parser::trimString(fen.substr(pos, fen.length() - pos)), revCountStr, remainder);
+			if (revCountStr != "")
+				setReversiblePlyCount(static_cast<size_t>(parser::parseInt(revCountStr)));
+			else
+			{
+				clear();
+				return false;
+			}
+			std::string mvCountStr = "";
+			std::string remainder2;
+			parser::parseToken(remainder, mvCountStr, remainder2);
+			if (mvCountStr != "")
+				setPlyCount(static_cast<size_t>(parser::parseInt(mvCountStr)));
+			else
+			{
+				clear();
+				return false;
+			}
+			return true;
 		}
 	};
 

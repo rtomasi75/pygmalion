@@ -255,11 +255,6 @@ namespace pygmalion
 		PYGMALION_INLINE void onEndNodeDelta(const stackType<PLAYER>& stack) noexcept
 		{
 		}
-		PYGMALION_INLINE void sortMoves(movelistType& moves, std::array<scoreType, countMaxGeneratedMoves>& scores, const indexType fromMoveIndex, const indexType fromScoreIndex) noexcept
-		{
-			const indexType length{ static_cast<indexType>(moves.length() - fromMoveIndex) };
-			sort<movebitsType, scoreType>::sortValues(moves.ptr() + static_cast<size_t>(fromMoveIndex), scores.data() + static_cast<size_t>(fromScoreIndex), length);
-		}
 	public:
 		void expandToDepth(const size_t depth) noexcept
 		{
@@ -329,19 +324,6 @@ namespace pygmalion
 							killermoves.add(lookBackKillers[i]);
 					}
 				}
-			}
-		}
-		template<size_t PLAYER>
-		void sortMoves(const stackType<PLAYER>& stack, movelistType& moves, const indexType fromMoveIndex, const size_t depth, scorelistType& scores) noexcept
-		{
-			if constexpr (heuristicMoves)
-			{
-				for (size_t i = static_cast<size_t>(fromMoveIndex); i < static_cast<size_t>(moves.length()); ++i)
-				{
-					scores.replace(i, moveScore(stack, moves[i], depth));
-				}
-				const indexType length{ static_cast<indexType>(moves.length() - fromMoveIndex) };
-				sort<movebitsType, scoreType>::sortValues(moves.ptr() + static_cast<size_t>(fromMoveIndex), scores.ptr() + static_cast<size_t>(fromMoveIndex), length);
 			}
 		}
 		PYGMALION_INLINE movegenFeedback& feedback() noexcept

@@ -66,10 +66,10 @@ namespace pygmalion::chess
 		PYGMALION_INLINE void doMove_Implementation(boardType& position, const typename nullmove::movebitsType moveBits, typename nullmove::movedataType& movedata) const noexcept
 		{
 			const uint_t<countFlags, false> oldFlags{ position.extractFlagRange<0, 11>() };
-			const std::uint16_t reversiblePlies{ position.cumulation().reversiblePlies() };
+			const std::uint16_t reversiblePlies{ static_cast<std::uint16_t>(position.getReversiblePlyCount()) };
 			position.clearEnPassantFiles();
 			position.setMovingPlayer(++position.movingPlayer());
-			position.cumulation().reversiblePlies() = 0;
+			position.resetReversiblePlyCount();
 			movedata = typename nullmove::movedataType(oldFlags, reversiblePlies);
 		}
 		PYGMALION_INLINE void undoMove_Implementation(boardType& position, const typename nullmove::movedataType& data) const noexcept
@@ -77,7 +77,7 @@ namespace pygmalion::chess
 			const playerType p{ --position.movingPlayer() };
 			position.setMovingPlayer(p);
 			position.storeFlagRange<0, 11>(data.oldFlags());
-			position.cumulation().reversiblePlies() = data.reversiblePlies();
+			position.setReversiblePlyCount(static_cast<size_t>(data.reversiblePlies()));
 		}
 		PYGMALION_INLINE constexpr typename nullmove::movebitsType create() const noexcept
 		{

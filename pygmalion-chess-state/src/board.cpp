@@ -173,9 +173,9 @@ namespace pygmalion::chess
 		default:
 			return "?";
 		case whitePlayer:
-			return "+";
+			return "w";
 		case blackPlayer:
-			return "-";
+			return "b";
 		}
 	}
 
@@ -185,11 +185,15 @@ namespace pygmalion::chess
 		{
 			switch (text[0])
 			{
+			case 'W':
+			case 'w':
 			case '+':
 			case '0':
 				player = 0;
 				count++;
 				return true;
+			case 'B':
+			case 'b':
 			case '-':
 			case '1':
 				player = 1;
@@ -323,162 +327,68 @@ namespace pygmalion::chess
 			return false;
 	}
 
-	bool board::setFen(const std::string& fen, std::string& error) noexcept
+	std::string board::flagsToString_Implementation(const flagsType flags, const playerType movingPlayer) noexcept
 	{
-		clear();
+		std::stringstream fen;
+		if (!flags.extractRange<0, 3>())
+			fen << "- ";
+		else
+		{
+			if (flags[castleRightKingsideWhite])
+				fen << "K";
+			if (flags[castleRightQueensideWhite])
+				fen << "Q";
+			if (flags[castleRightKingsideBlack])
+				fen << "k";
+			if (flags[castleRightQueensideBlack])
+				fen << "q";
+			fen << " ";
+		}
+		if (!flags.extractRange<4, 11>())
+			fen << "-";
+		else
+		{
+			if (flags[enPassantFlag(fileA)])
+				fen << "a";
+			else if (flags[enPassantFlag(fileB)])
+				fen << "b";
+			else if (flags[enPassantFlag(fileC)])
+				fen << "c";
+			else if (flags[enPassantFlag(fileD)])
+				fen << "d";
+			else if (flags[enPassantFlag(fileE)])
+				fen << "e";
+			else if (flags[enPassantFlag(fileF)])
+				fen << "f";
+			else if (flags[enPassantFlag(fileG)])
+				fen << "g";
+			else if (flags[enPassantFlag(fileH)])
+				fen << "h";
+			if (movingPlayer == whitePlayer)
+				fen << "6";
+			else
+				fen << "3";
+		}
+		return fen.str();
+	}
+
+	bool board::parseFlags_Implementation(const std::string& text, flagsType& flags, size_t& count) noexcept
+	{
 		size_t pos{ 0 };
-		typename fileType::baseType file{ fileA };
-		typename rankType::baseType rank{ rank8 };
-		bool bParse{ true };
-		while (bParse)
+		flags.clear();
+		if (text.length() <= pos)
 		{
-			if (fen.length() <= pos)
-			{
-				error = "Unexpected end of string.";
-				clear();
-				return false;
-			}
-			switch (fen[pos])
-			{
-			default:
-				error = "Invalid symbol.";
-				clear();
-				return false;
-			case ' ':
-				bParse = false;
-				break;
-			case '1':
-				file++;
-				break;
-			case '2':
-				file += 2;
-				break;
-			case '3':
-				file += 3;
-				break;
-			case '4':
-				file += 4;
-				break;
-			case '5':
-				file += 5;
-				break;
-			case '6':
-				file += 6;
-				break;
-			case '7':
-				file += 7;
-				break;
-			case '8':
-				break;
-			case '/':
-				file = 0;
-				rank--;
-				break;
-			case 'p':
-				addPiece(pawn, fileType(file) & rankType(rank), blackPlayer);
-				file++;
-				break;
-			case 'P':
-				addPiece(pawn, fileType(file) & rankType(rank), whitePlayer);
-				file++;
-				break;
-			case 'n':
-				addPiece(knight, fileType(file) & rankType(rank), blackPlayer);
-				file++;
-				break;
-			case 'N':
-				addPiece(knight, fileType(file) & rankType(rank), whitePlayer);
-				file++;
-				break;
-			case 'b':
-				addPiece(bishop, fileType(file) & rankType(rank), blackPlayer);
-				file++;
-				break;
-			case 'B':
-				addPiece(bishop, fileType(file) & rankType(rank), whitePlayer);
-				file++;
-				break;
-			case 'r':
-				addPiece(rook, fileType(file) & rankType(rank), blackPlayer);
-				file++;
-				break;
-			case 'R':
-				addPiece(rook, fileType(file) & rankType(rank), whitePlayer);
-				file++;
-				break;
-			case 'q':
-				addPiece(queen, fileType(file) & rankType(rank), blackPlayer);
-				file++;
-				break;
-			case 'Q':
-				addPiece(queen, fileType(file) & rankType(rank), whitePlayer);
-				file++;
-				break;
-			case 'k':
-				addPiece(king, fileType(file) & rankType(rank), blackPlayer);
-				file++;
-				break;
-			case 'K':
-				addPiece(king, fileType(file) & rankType(rank), whitePlayer);
-				file++;
-				break;
-			}
-			pos++;
-			if (file < 0)
-				break;
-		}
-		if (fen.length() <= pos)
-		{
-			error = "Unexpected end of string.";
-			clear();
 			return false;
 		}
-		switch (fen[pos])
-		{
-		default:
-			error = "Invalid symbol.";
-			clear();
-			return false;
-		case 'w':
-			setMovingPlayer(whitePlayer);
-			break;
-		case 'b':
-			setMovingPlayer(blackPlayer);
-			break;
-		}
-		pos++;
-		if (fen.length() <= pos)
-		{
-			error = "Unexpected end of string.";
-			clear();
-			return false;
-		}
-		if (fen[pos] != ' ')
-		{
-			error = "Invalid symbol.";
-			clear();
-			return false;
-		}
-		pos++;
-		if (fen.length() <= pos)
-		{
-			error = "Unexpected end of string.";
-			clear();
-			return false;
-		}
-		if (fen[pos] == '-')
+		if (text[pos] == '-')
 		{
 			pos++;
-			if (fen.length() <= pos)
+			if (text.length() <= pos)
 			{
-				error = "Unexpected end of string.";
-				clear();
 				return false;
 			}
-			if (fen[pos] != ' ')
+			if (text[pos] != ' ')
 			{
-				error = "Invalid symbol.";
-				clear();
 				return false;
 			}
 			pos++;
@@ -491,30 +401,26 @@ namespace pygmalion::chess
 			{
 				if (len >= 5)
 				{
-					error = "Invalid symbol.";
-					clear();
 					return false;
 				}
-				switch (fen[pos])
+				switch (text[pos])
 				{
 				default:
-					error = "Invalid symbol.";
-					clear();
 					return false;
 				case ' ':
 					bParsing = false;
 					break;
 				case 'K':
-					setCastleRightKingsideWhite();
+					flags.set(castleRightKingsideWhite);
 					break;
 				case 'k':
-					setCastleRightKingsideBlack();
+					flags.set(castleRightKingsideBlack);
 					break;
 				case 'Q':
-					setCastleRightQueensideWhite();
+					flags.set(castleRightQueensideWhite);
 					break;
 				case 'q':
-					setCastleRightQueensideBlack();
+					flags.set(castleRightQueensideBlack);
 					break;
 				}
 				pos++;
@@ -522,26 +428,20 @@ namespace pygmalion::chess
 			}
 			if (len == 0)
 			{
-				error = "Invalid symbol.";
-				clear();
 				return false;
 			}
 		}
-		if (fen.length() <= pos)
+		if (text.length() <= pos)
 		{
-			error = "Unexpected end of string.";
-			clear();
 			return false;
 		}
-		if (fen[pos] != '-')
+		if (text[pos] != '-')
 		{
 			typename fileType::baseType epfile{ 0 };
 			typename rankType::baseType eprank{ 0 };
-			switch (fen[pos])
+			switch (text[pos])
 			{
 			default:
-				error = "Invalid symbol.";
-				clear();
 				return false;
 			case 'a':
 				epfile = 0;
@@ -569,17 +469,13 @@ namespace pygmalion::chess
 				break;
 			}
 			pos++;
-			if (fen.length() <= pos)
+			if (text.length() <= pos)
 			{
-				error = "Unexpected end of string.";
-				clear();
 				return false;
 			}
-			switch (fen[pos])
+			switch (text[pos])
 			{
 			default:
-				error = "Invalid symbol.";
-				clear();
 				return false;
 			case '3':
 				eprank = 3;
@@ -589,242 +485,14 @@ namespace pygmalion::chess
 				break;
 			}
 			pos++;
-			const playerType moveSide{ movingPlayer() };
-			if ((eprank == 3) && (moveSide == blackPlayer))
-			{
-				const squaresType whitepawns{ pieceOccupancy(pawn) & playerOccupancy(whitePlayer) };
-				setEnPassantFile(fileType(epfile));
-			}
-			else if ((eprank == 6) && (moveSide == whitePlayer))
-			{
-				const squaresType blackpawns{ pieceOccupancy(pawn) & playerOccupancy(blackPlayer) };
-				setEnPassantFile(fileType(epfile));
-			}
+			flags.set(enPassantFlag(epfile));
 		}
 		else
 			pos++;
-		pos++;
-		std::string revCountStr = "";
-		while (pos < fen.length())
-		{
-			bool bBreak = false;
-			switch (fen[pos])
-			{
-			case '0':
-				revCountStr += fen[pos];
-				break;
-			case '1':
-				revCountStr += fen[pos];
-				break;
-			case '2':
-				revCountStr += fen[pos];
-				break;
-			case '3':
-				revCountStr += fen[pos];
-				break;
-			case '4':
-				revCountStr += fen[pos];
-				break;
-			case '5':
-				revCountStr += fen[pos];
-				break;
-			case '6':
-				revCountStr += fen[pos];
-				break;
-			case '7':
-				revCountStr += fen[pos];
-				break;
-			case '8':
-				revCountStr += fen[pos];
-				break;
-			case '9':
-				revCountStr += fen[pos];
-				break;
-			default:
-				bBreak = true;
-				break;
-			}
-			pos++;
-			if (bBreak)
-				break;
-		}
-		if (revCountStr != "")
-			cumulation().reversiblePlies() = static_cast<std::uint16_t>(parser::parseInt(revCountStr));
-		std::string mvCountStr = "";
-		while (pos < fen.length())
-		{
-			bool bBreak = false;
-			switch (fen[pos])
-			{
-			case '0':
-				mvCountStr += fen[pos];
-				break;
-			case '1':
-				mvCountStr += fen[pos];
-				break;
-			case '2':
-				mvCountStr += fen[pos];
-				break;
-			case '3':
-				mvCountStr += fen[pos];
-				break;
-			case '4':
-				mvCountStr += fen[pos];
-				break;
-			case '5':
-				mvCountStr += fen[pos];
-				break;
-			case '6':
-				mvCountStr += fen[pos];
-				break;
-			case '7':
-				mvCountStr += fen[pos];
-				break;
-			case '8':
-				mvCountStr += fen[pos];
-				break;
-			case '9':
-				mvCountStr += fen[pos];
-				break;
-			default:
-				bBreak = true;
-				break;
-			}
-			pos++;
-			if (bBreak)
-				break;
-		}
+		count += pos;
 		return true;
 	}
-
-	std::string board::getFen() const noexcept
-	{
-		std::string fen = "";
-		for (typename rankType::baseType rank = 7; rank >= 0; rank--)
-		{
-			size_t l{ 0 };
-			for (typename fileType::baseType file = 0; file < 8; file++)
-			{
-				const squareType square{ fileType(file) & rankType(rank) };
-				if (totalOccupancy()[square])
-				{
-					if (l != 0)
-					{
-						fen = fen + parser::fromInt(l);
-					}
-					l = 0;
-					const playerType side{ getPlayer(square) };
-					const pieceType piece{ getPiece(square) };
-					if (side == whitePlayer)
-					{
-						switch (piece)
-						{
-						default:
-							PYGMALION_UNREACHABLE;
-							break;
-						case pawn:
-							fen = fen + "P";
-							break;
-						case rook:
-							fen = fen + "R";
-							break;
-						case bishop:
-							fen = fen + "B";
-							break;
-						case knight:
-							fen = fen + "N";
-							break;
-						case queen:
-							fen = fen + "Q";
-							break;
-						case king:
-							fen = fen + "K";
-							break;
-						}
-					}
-					else
-					{
-						switch (piece)
-						{
-						default:
-							PYGMALION_UNREACHABLE;
-							break;
-						case pawn:
-							fen = fen + "p";
-							break;
-						case rook:
-							fen = fen + "r";
-							break;
-						case bishop:
-							fen = fen + "b";
-							break;
-						case knight:
-							fen = fen + "n";
-							break;
-						case queen:
-							fen = fen + "q";
-							break;
-						case king:
-							fen = fen + "k";
-							break;
-						}
-					}
-				}
-				else
-					l++;
-			}
-			if (l != 0)
-				fen = fen + parser::fromInt(l);
-			if (rank != 0)
-				fen = fen + "/";
-		}
-		fen = fen + " ";
-		if (movingPlayer() == whitePlayer)
-			fen = fen + "w ";
-		else
-			fen = fen + "b ";
-		if (!extractFlagRange<0, 3>())
-			fen = fen + "- ";
-		else
-		{
-			if (checkCastleRightKingsideWhite())
-				fen = fen + "K";
-			if (checkCastleRightQueensideWhite())
-				fen = fen + "Q";
-			if (checkCastleRightKingsideBlack())
-				fen = fen + "k";
-			if (checkCastleRightQueensideBlack())
-				fen = fen + "q";
-			fen = fen + " ";
-		}
-		if (!extractFlagRange<4, 11>())
-			fen = fen + "-";
-		else
-		{
-			if (checkEnPassantFile(fileA))
-				fen = fen + "a";
-			else if (checkEnPassantFile(fileB))
-				fen = fen + "b";
-			else if (checkEnPassantFile(fileC))
-				fen = fen + "c";
-			else if (checkEnPassantFile(fileD))
-				fen = fen + "d";
-			else if (checkEnPassantFile(fileE))
-				fen = fen + "e";
-			else if (checkEnPassantFile(fileF))
-				fen = fen + "f";
-			else if (checkEnPassantFile(fileG))
-				fen = fen + "g";
-			else if (checkEnPassantFile(fileH))
-				fen = fen + "h";
-			if (movingPlayer() == whitePlayer)
-				fen = fen + "6 ";
-			else
-				fen = fen + "3 ";
-		}
-		return fen;
-	}
-
+	
 	void board::onInitialize_Implementation() noexcept
 	{
 		setMovingPlayer(whitePlayer);
@@ -946,7 +614,8 @@ namespace pygmalion::chess
 		str << std::endl;
 		str << "Hash: " << std::setw(8) << std::hex << static_cast<std::uint64_t>(position.hash()) << std::dec << std::endl;
 		str << std::endl;
-		str << "Half-move clock: " << static_cast<std::uint64_t>(position.cumulation().reversiblePlies()) << std::endl;
+		str << "Half-move clock: " << static_cast<std::uint64_t>(position.getReversiblePlyCount()) << std::endl;
+		str << "Plies played:    " << static_cast<std::uint64_t>(position.getPlyCount()) << std::endl;
 		str << std::endl;
 		str << "Player " << boardType::playerToString(position.movingPlayer()) << " is on the move." << std::endl;
 		return str;
