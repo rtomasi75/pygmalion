@@ -20,7 +20,7 @@ namespace pygmalion
 	};
 
 
-	template<typename EVALUATOR, size_t COUNT_SEARCH_PLIES, unsigned int SEARCH_FLAGS, size_t COUNT_TT_BUCKETS, size_t KILLER_MOVES_QUIET, size_t KILLER_MOVES_TACTICAL, size_t KILLER_LOOKBACK_DISTANCE, size_t COUNT_MAX_EXTENSION, typename HEURISTICS>
+	template<typename EVALUATOR, size_t COUNT_SEARCH_PLIES, unsigned int SEARCH_FLAGS, size_t COUNT_TT_BUCKETS, size_t KILLER_MOVES_QUIET, size_t KILLER_MOVES_TACTICAL, size_t KILLER_LOOKBACK_DISTANCE, size_t COUNT_MAX_EXTENSION, size_t COUNT_LATEMOVE_REDUCTION, size_t LATEMOVE_REDUCTION_MINDEPTH, typename HEURISTICS>
 	class descriptor_search :
 		public EVALUATOR::descriptorEvaluation
 	{
@@ -28,6 +28,8 @@ namespace pygmalion
 		using evaluatorType = EVALUATOR;
 		using descriptorEvaluation = typename EVALUATOR::descriptorEvaluation;
 		constexpr static const size_t countSearchPlies{ COUNT_SEARCH_PLIES };
+		constexpr static const size_t lateMoveRecutionPlies{ COUNT_LATEMOVE_REDUCTION };
+		constexpr static const size_t lateMoveRecutionMinDepth{ LATEMOVE_REDUCTION_MINDEPTH };
 		constexpr static const bool allowSelectionSort{ (SEARCH_FLAGS & searchFlags::allowSelectionSort) != 0 };
 		constexpr static const bool lateMoveReductions{ (SEARCH_FLAGS & searchFlags::lateMoveReductions) != 0 };
 		constexpr static const bool staticMoveScores{ (SEARCH_FLAGS & searchFlags::staticMoveScores) != 0 };

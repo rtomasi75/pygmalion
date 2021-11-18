@@ -304,14 +304,14 @@ namespace pygmalion
 					bool allowStoreTTsubnode{ true };
 					if constexpr (searchScout && !ANALYZE)
 					{
-						const bool bIsLateMove{ !(m_IsKiller | m_IsTacticalKiller | m_IsTTMove) };
+						const bool bIsLateMove{ !(m_IsKiller || m_IsTacticalKiller || m_IsTTMove) };
 						if (bIsLateMove)
 						{
 							if constexpr (lateMoveReductions)
 							{
-								const bool bAllowLMR{ bCanPrune && !m_Stack.isPositionCritical() };
+								const bool bAllowLMR{ bCanPrune && (depthRemaining >= lateMoveRecutionMinDepth) && !(m_Stack.isPositionCritical() || generatorType::isMoveTactical(m_Stack,move)) };
 								if (bAllowLMR)
-									sc = this->zwsearchMove(move, alpha, depthRemaining - 2, m_EmptyNullMoveHistory, allowStoreTTsubnode, CUTnode);
+									sc = this->zwsearchMove(move, alpha, depthRemaining - lateMoveRecutionPlies, m_EmptyNullMoveHistory, allowStoreTTsubnode, CUTnode);
 								else
 									sc = this->zwsearchMove(move, alpha, depthRemaining, m_EmptyNullMoveHistory, allowStoreTTsubnode, CUTnode);
 							}
@@ -448,16 +448,16 @@ namespace pygmalion
 					}
 				}
 				bool allowStoreTTsubnode{ true };
-				const bool bIsLateMove{ !(m_IsKiller | m_IsTacticalKiller | m_IsTTMove) };
+				const bool bIsLateMove{ !(m_IsKiller || m_IsTacticalKiller || m_IsTTMove || !generatorType::isMoveTactical(m_Stack,move)) };
 				scoreType sc;
 				if constexpr (lateMoveReductions)
 				{
 					if (bIsLateMove)
 					{
-						const bool bAllowLMR{ bCanPrune && !m_Stack.isPositionCritical() };
+						const bool bAllowLMR{ bCanPrune && (depthRemaining >= lateMoveRecutionMinDepth) && !(m_Stack.isPositionCritical() || generatorType::isMoveTactical(m_Stack,move)) };
 						if (bAllowLMR)
 						{
-							sc = this->zwsearchMove(move, alpha, depthRemaining - 2, nullMoveHistory, allowStoreTTsubnode, bIsLateMove ? ALLnode : expectedNodeType);
+							sc = this->zwsearchMove(move, alpha, depthRemaining - lateMoveRecutionPlies, nullMoveHistory, allowStoreTTsubnode, bIsLateMove ? ALLnode : expectedNodeType);
 							if (sc > alpha)
 								sc = this->zwsearchMove(move, alpha, depthRemaining, nullMoveHistory, allowStoreTTsubnode, bIsLateMove ? ALLnode : expectedNodeType);
 						}
