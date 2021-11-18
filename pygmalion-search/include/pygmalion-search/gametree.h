@@ -309,9 +309,9 @@ namespace pygmalion
 						{
 							if constexpr (lateMoveReductions)
 							{
-								const bool bAllowLMR{ bCanPrune && (depthRemaining >= lateMoveRecutionMinDepth) && !(m_Stack.isPositionCritical() || generatorType::isMoveTactical(m_Stack,move)) };
+								const bool bAllowLMR{ bCanPrune && (depthRemaining >= lateMoveReductionMinDepth) && !(m_Stack.isPositionCritical() || generatorType::isMoveTactical(m_Stack,move)) };
 								if (bAllowLMR)
-									sc = this->zwsearchMove(move, alpha, depthRemaining - lateMoveRecutionPlies, m_EmptyNullMoveHistory, allowStoreTTsubnode, CUTnode);
+									sc = this->zwsearchMove(move, alpha, depthRemaining - lateMoveReductionPlies, m_EmptyNullMoveHistory, allowStoreTTsubnode, CUTnode);
 								else
 									sc = this->zwsearchMove(move, alpha, depthRemaining, m_EmptyNullMoveHistory, allowStoreTTsubnode, CUTnode);
 							}
@@ -454,10 +454,10 @@ namespace pygmalion
 				{
 					if (bIsLateMove)
 					{
-						const bool bAllowLMR{ bCanPrune && (depthRemaining >= lateMoveRecutionMinDepth) && !(m_Stack.isPositionCritical() || generatorType::isMoveTactical(m_Stack,move)) };
+						const bool bAllowLMR{ bCanPrune && (depthRemaining >= lateMoveReductionMinDepth) && !(m_Stack.isPositionCritical() || generatorType::isMoveTactical(m_Stack,move)) };
 						if (bAllowLMR)
 						{
-							sc = this->zwsearchMove(move, alpha, depthRemaining - lateMoveRecutionPlies, nullMoveHistory, allowStoreTTsubnode, bIsLateMove ? ALLnode : expectedNodeType);
+							sc = this->zwsearchMove(move, alpha, depthRemaining - lateMoveReductionPlies, nullMoveHistory, allowStoreTTsubnode, bIsLateMove ? ALLnode : expectedNodeType);
 							if (sc > alpha)
 								sc = this->zwsearchMove(move, alpha, depthRemaining, nullMoveHistory, allowStoreTTsubnode, bIsLateMove ? ALLnode : expectedNodeType);
 						}

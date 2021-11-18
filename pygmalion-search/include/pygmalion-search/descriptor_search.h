@@ -28,8 +28,8 @@ namespace pygmalion
 		using evaluatorType = EVALUATOR;
 		using descriptorEvaluation = typename EVALUATOR::descriptorEvaluation;
 		constexpr static const size_t countSearchPlies{ COUNT_SEARCH_PLIES };
-		constexpr static const size_t lateMoveRecutionPlies{ COUNT_LATEMOVE_REDUCTION };
-		constexpr static const size_t lateMoveRecutionMinDepth{ LATEMOVE_REDUCTION_MINDEPTH };
+		constexpr static const size_t lateMoveReductionPlies{ COUNT_LATEMOVE_REDUCTION };
+		constexpr static const size_t lateMoveReductionMinDepth{ LATEMOVE_REDUCTION_MINDEPTH };
 		constexpr static const bool allowSelectionSort{ (SEARCH_FLAGS & searchFlags::allowSelectionSort) != 0 };
 		constexpr static const bool lateMoveReductions{ (SEARCH_FLAGS & searchFlags::lateMoveReductions) != 0 };
 		constexpr static const bool staticMoveScores{ (SEARCH_FLAGS & searchFlags::staticMoveScores) != 0 };

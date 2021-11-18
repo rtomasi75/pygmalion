@@ -36,7 +36,7 @@ constexpr static const knuthType CUTnode{ descriptorSearch::CUTnode };
 constexpr static const knuthType ALLnode{ descriptorSearch::ALLnode };
 constexpr static const bool lateMoveReductions{ descriptorSearch::lateMoveReductions };
 constexpr static const bool allowSelectionSort{ descriptorSearch::allowSelectionSort };
-constexpr static const size_t lateMoveRecutionPlies{ descriptorSearch::lateMoveRecutionPlies };
-constexpr static const size_t lateMoveRecutionMinDepth{ descriptorSearch::lateMoveRecutionMinDepth };
+constexpr static const size_t lateMoveReductionPlies{ descriptorSearch::lateMoveReductionPlies };
+constexpr static const size_t lateMoveReductionMinDepth{ descriptorSearch::lateMoveReductionMinDepth };
 
 #include <pygmalion-evaluation/include_evaluation.h>
