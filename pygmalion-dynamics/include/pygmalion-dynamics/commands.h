@@ -6,3 +6,4 @@
 #include "commands/command_debugPasses.h"
 #include "commands/command_setFen.h"
 #include "commands/command_getFen.h"
+#include "commands/command_debugSAN.h"

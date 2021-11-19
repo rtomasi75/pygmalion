@@ -13,7 +13,7 @@ namespace pygmalion
 		std::array<squaresType, countPlayers> m_PlayerOccupancy;
 		cumulationType m_Cumulation;
 		hashType m_Hash;
-		size_t m_PlyCount;
+		size_t m_MoveCount;
 		size_t m_ReversiblePlyCount;
 		flagsType m_Flags;
 		gamestateType m_Arbitration;
@@ -95,9 +95,9 @@ namespace pygmalion
 			return (first <= last) && (last < countFlags);
 		}
 	public:
-		PYGMALION_INLINE size_t getPlyCount() const noexcept
+		PYGMALION_INLINE size_t getMoveCount() const noexcept
 		{
-			return m_PlyCount;
+			return m_MoveCount;
 		}
 		PYGMALION_INLINE size_t getReversiblePlyCount() const noexcept
 		{
@@ -115,21 +115,21 @@ namespace pygmalion
 		{
 			m_ReversiblePlyCount--;
 		}
-		PYGMALION_INLINE void doPly() noexcept
+		PYGMALION_INLINE void doMove() noexcept
 		{
-			m_PlyCount++;
+			m_MoveCount++;
 		}
-		PYGMALION_INLINE void undoPly() noexcept
+		PYGMALION_INLINE void undoMove() noexcept
 		{
-			m_PlyCount--;
+			m_MoveCount--;
 		}
 		PYGMALION_INLINE void setReversiblePlyCount(const size_t count) noexcept
 		{
 			m_ReversiblePlyCount = count;
 		}
-		PYGMALION_INLINE void setPlyCount(const size_t count) noexcept
+		PYGMALION_INLINE void setMoveCount(const size_t count) noexcept
 		{
-			m_PlyCount = count;
+			m_MoveCount = count;
 		}
 		PYGMALION_INLINE gamestateType arbitration() const noexcept
 		{
@@ -475,7 +475,7 @@ namespace pygmalion
 						return p;
 				}
 				PYGMALION_ASSERT(false);
-return playerType::invalid;
+				return playerType::invalid;
 			}
 		}
 		PYGMALION_INLINE void clear() noexcept
@@ -490,7 +490,7 @@ return playerType::invalid;
 			m_Arbitration = gamestateType::open();
 			onClear();
 			m_Hash = playerHash(m_MovingPlayer) ^ flagsHash(m_Flags);
-			m_PlyCount = 0;
+			m_MoveCount = 0;
 			m_ReversiblePlyCount = 0;
 		}
 		board() noexcept :
@@ -544,10 +544,10 @@ return playerType::invalid;
 			fen << board::playerToString(movingPlayer()) << " ";
 			fen << board::flagsToString(flags(), movingPlayer()) << " ";
 			fen << parser::fromInt(getReversiblePlyCount()) << " ";
-			fen << parser::fromInt(getPlyCount());
+			fen << parser::fromInt(getMoveCount() / 2);
 			return fen.str();
 		}
-		bool setFen(const std::string & fen) noexcept
+		bool setFen(const std::string& fen) noexcept
 		{
 			clear();
 			size_t pos{ 0 };
@@ -579,7 +579,7 @@ return playerType::invalid;
 						return false;
 					}
 					pos += count;
-				break;
+					break;
 				case ' ':
 					bParse = false;
 					pos++;
@@ -680,7 +680,7 @@ return playerType::invalid;
 			std::string remainder2;
 			parser::parseToken(remainder, mvCountStr, remainder2);
 			if (mvCountStr != "")
-				setPlyCount(static_cast<size_t>(parser::parseInt(mvCountStr)));
+				setMoveCount(static_cast<size_t>(2 * parser::parseInt(mvCountStr)) + (static_cast<size_t>(player) == (countPlayers - 1)));
 			else
 			{
 				clear();

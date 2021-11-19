@@ -167,5 +167,15 @@ namespace pygmalion::tictactoe
 		{
 			return 1;
 		}
+		template<size_t PLAYER>
+		static bool parseSAN_Implementation(const std::string& san, const stackType<PLAYER>& stack, movebitsType& mv, size_t& count) noexcept
+		{
+			return motorType::move().parse(stack.position(), san, mv, count);
+		}
+		template<size_t PLAYER>
+		static std::string moveToSAN_Implementation(const stackType<PLAYER>& stack, const movebitsType mv, const size_t depth)
+		{
+			return motorType::move().toString(stack.position(), mv);
+		}
 	};
 }

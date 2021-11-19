@@ -217,42 +217,42 @@ namespace pygmalion::state
 		}
 		PYGMALION_INLINE constexpr squares& operator|=(const fileType file) noexcept
 		{
-			m_Bits |= squares(file);
+			m_Bits |= squares(file).m_Bits;
 			return *this;
 		}
 		PYGMALION_INLINE constexpr squares& operator&=(const fileType file) noexcept
 		{
-			m_Bits &= squares(file);
+			m_Bits &= squares(file).m_Bits;
 			return *this;
 		}
 		PYGMALION_INLINE constexpr squares& operator-=(const fileType file) noexcept
 		{
-			m_Bits &= ~squares(file);
+			m_Bits &= ~squares(file).m_Bits;
 			return *this;
 		}
 		PYGMALION_INLINE constexpr squares& operator^=(const fileType file) noexcept
 		{
-			m_Bits ^= squares(file);
+			m_Bits ^= squares(file).m_Bits;
 			return *this;
 		}
 		PYGMALION_INLINE constexpr squares& operator|=(const rankType rank) noexcept
 		{
-			m_Bits |= squares(rank);
+			m_Bits |= squares(rank).m_Bits;
 			return *this;
 		}
 		PYGMALION_INLINE constexpr squares& operator&=(const rankType rank) noexcept
 		{
-			m_Bits &= squares(rank);
+			m_Bits &= squares(rank).m_Bits;
 			return *this;
 		}
 		PYGMALION_INLINE constexpr squares& operator-=(const rankType rank) noexcept
 		{
-			m_Bits &= ~squares(rank);
+			m_Bits &= ~squares(rank).m_Bits;
 			return *this;
 		}
 		PYGMALION_INLINE constexpr squares& operator^=(const rankType rank) noexcept
 		{
-			m_Bits ^= squares(rank);
+			m_Bits ^= squares(rank).m_Bits;
 			return *this;
 		}
 		PYGMALION_INLINE constexpr squares singlePiece() const noexcept

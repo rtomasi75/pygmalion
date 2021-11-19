@@ -19,12 +19,12 @@ namespace pygmalion
 		PYGMALION_INLINE static void makeMove(boardType& position, const movebitsType movebits, movedataType& data) noexcept
 		{
 			m_Move.doMove(position, movebits, data);
-			position.doPly();
+			position.doMove();
 		}
 
 		PYGMALION_INLINE static void unmakeMove(boardType& position, const movedataType& data) noexcept
 		{
-			position.undoPly();
+			position.undoMove();
 			m_Move.undoMove(position, data);
 		}
 

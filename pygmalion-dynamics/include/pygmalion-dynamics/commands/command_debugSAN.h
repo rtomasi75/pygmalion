@@ -1,7 +1,7 @@
 namespace pygmalion::dynamics
 {
 	template<typename DESCRIPTION_DYNAMICS, typename GENERATOR>
-	class command_debugMoves :
+	class command_debugSAN :
 		public pygmalion::dynamics::command<DESCRIPTION_DYNAMICS, GENERATOR>
 	{
 	public:
@@ -9,35 +9,31 @@ namespace pygmalion::dynamics
 		template<size_t PLAYER>
 		using stackType = typename generatorType::template stackType<PLAYER>;
 		using descriptorDynamics = DESCRIPTION_DYNAMICS;
-#include "../include_dynamics.h"	
+		using movegenFeedback = typename generatorType::movegenFeedback;
+#include "../include_dynamics.h"
 	private:
 		template<size_t PLAYER>
-		void process() noexcept
+		void process(const std::string& remainder2) noexcept
 		{
 			if constexpr (PLAYER < countPlayers)
 			{
 				constexpr const playerType player{ static_cast<playerType>(PLAYER) };
 				if (player == this->position().movingPlayer())
 				{
-					movelistType moves;
 					typename generatorType::contextType context;
-					stackType<PLAYER> stack{ stackType<PLAYER>(this->position(), this->history(), &context) };
+					stackType<PLAYER> stack{ stackType<PLAYER>(this->position(),this->history(), &context) };
 					movebitsType movebits;
-					bool hasMoves{ false };
-					this->feedback().expandToDepth(this->history().length() + 1);
-					while (stack.nextMove(movebits, this->history().length(), this->feedback()))
+					size_t count{ 0 };
+					if (generatorType::parseSAN(remainder2, stack, movebits, count))
 					{
-						hasMoves = true;
-						this->output() << generatorType::moveToSAN(stack, movebits) << "\t";
-						this->output() << std::endl;
+						this->output() << "Performed move " << generatorType::moveToSAN(stack, movebits) << std::endl;
+						this->mechanicsEngine().makeMove(movebits);
 					}
-					if (!hasMoves)
-					{
-						this->output() << "(no moves possible)" << std::endl;
-					}
+					else
+						this->output() << "\'" << remainder2 << "\' is not a valid move in SAN." << std::endl;
 				}
 				else
-					this->template process<PLAYER + 1>();
+					this->template process<PLAYER + 1>(remainder2);
 			}
 			else
 				PYGMALION_ASSERT(false);
@@ -45,10 +41,13 @@ namespace pygmalion::dynamics
 	protected:
 		virtual bool onProcess(const std::string& cmd) noexcept override
 		{
-			if (cmd == "debug-moves")
+			std::string token;
+			std::string remainder;
+			parser::parseToken(cmd, token, remainder);
+			if (token == "debug-san")
 			{
 				this->output() << std::endl;
-				this->template process<0>();
+				this->template process<0>(remainder);
 				this->output() << std::endl;
 				return true;
 			}
@@ -57,7 +56,7 @@ namespace pygmalion::dynamics
 		}
 		virtual std::string help() noexcept override
 		{
-			return "DEBUG-MOVES";
+			return "DEBUG-SAN";
 		}
 	};
 

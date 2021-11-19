@@ -26,7 +26,7 @@ namespace pygmalion::search
 				constexpr playerType player{ static_cast<playerType>(PLAYER) };
 				constexpr playerType nextPlayer{ player.next() };
 				std::stringstream sstr;
-				sstr << stack.moveToString(variation[depth], depth) << " ";
+				sstr << stack.moveToSAN(variation[depth], depth) << " ";
 				stackType<static_cast<size_t>(nextPlayer)> subStack{ stackType<static_cast<size_t>(nextPlayer)>(stack, variation[depth]) };
 				sstr << variationToStringFromDepth<static_cast<size_t>(nextPlayer)>(subStack, variation, depth + 1);
 				return sstr.str();

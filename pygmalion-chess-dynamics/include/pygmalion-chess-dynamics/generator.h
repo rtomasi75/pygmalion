@@ -4614,7 +4614,7 @@ namespace pygmalion::chess
 			}
 		}
 		template<size_t PLAYER>
-		static void movesFromSquare(const stackType<PLAYER>& stack, const squareType square, squaresType& moves, squaresType& captures, const size_t depth) noexcept
+		static void movesFromSquare(const stackType<PLAYER>& stack, const squareType square, squaresType& moves, squaresType& captures) noexcept
 		{
 			const boardType& position{ stack.position() };
 			constexpr const squaresType none{ squaresType::none() };
@@ -4645,7 +4645,487 @@ namespace pygmalion::chess
 			}
 		}
 		template<size_t PLAYER>
-		static std::string moveToString_Implementation(const stackType<PLAYER>& stack, const movebitsType mv, const size_t depth) noexcept
+		static bool parseSAN_Implementation(const std::string& san, const stackType<PLAYER>& stack, movebitsType& mv, size_t& count) noexcept
+		{
+			if (san.length() >= 3 && san.substr(0, 3) == "O-O" || san.substr(0, 3) == "o-o")
+			{
+				mv = motorType::move().createKingsideCastle();
+				count += 3;
+				return true;
+			}
+			if (san.length() >= 5 && san.substr(0, 5) == "O-O-O" || san.substr(0, 3) == "o-o-o")
+			{
+				mv = motorType::move().createQueensideCastle();
+				count += 5;
+				return true;
+			}
+			size_t pos{ 0 };
+			if (san.length() <= pos)
+				return false;
+			pieceType piece;
+			switch (san[pos])
+			{
+			case 'p':
+			case 'P':
+				pos++;
+			default:
+				piece = pawn;
+				break;
+			case 'k':
+			case 'K':
+				pos++;
+				piece = king;
+				break;
+			case 'n':
+			case 'N':
+				pos++;
+				piece = knight;
+				break;
+			case 'b':
+			case 'B':
+				pos++;
+				piece = bishop;
+				break;
+			case 'r':
+			case 'R':
+				pos++;
+				piece = rook;
+				break;
+			case 'q':
+			case 'Q':
+				pos++;
+				piece = queen;
+				break;
+			}
+			if (san.length() <= pos)
+				return false;
+			bool bCapture{ san[pos] == 'x' || san[pos] == 'X' };
+			if (bCapture)
+				pos++;
+			bool bParse{ true };
+			std::string parsed = "";
+			size_t subPos{ 0 };
+			while (bParse)
+			{
+				if (san.length() <= (pos + subPos))
+					break;
+				switch (san[pos + subPos])
+				{
+				case 'a':
+				case 'b':
+				case 'c':
+				case 'd':
+				case 'e':
+				case 'f':
+				case 'g':
+				case 'h':
+				case 'A':
+				case 'B':
+				case 'C':
+				case 'D':
+				case 'E':
+				case 'F':
+				case 'G':
+				case 'H':
+				case '1':
+				case '2':
+				case '3':
+				case '4':
+				case '5':
+				case '6':
+				case '7':
+				case '8':
+				case 'x':
+				case 'X':
+					parsed += san[pos + subPos];
+					subPos++;
+					break;
+				default:
+					bParse = false;
+					break;
+				}
+			}
+			count = 0;
+			squareType to;
+			squareType from{ squareType::invalid };
+			squaresType origins;
+			rankType originRank{ rankType::invalid };
+			fileType originFile{ fileType::invalid };
+			switch (parsed.length())
+			{
+			case 1:
+			case 0:
+				return false;
+			case 2:
+				if (boardType::parseSquare(san.substr(pos, san.length() - pos), to, count))
+				{
+					PYGMALION_ASSERT(count == 2);
+					pos += count;
+				}
+				else
+					return false;
+				break;
+			case 3:
+				if (boardType::parseFile(san.substr(pos, san.length() - pos), originFile, count))
+				{
+					PYGMALION_ASSERT(count == 1);
+					pos += count;
+					count = 0;
+				}
+				else if (boardType::parseRank(san.substr(pos, san.length() - pos), originRank, count))
+				{
+					PYGMALION_ASSERT(count == 1);
+					pos += count;
+					count = 0;
+				}
+				else
+					return false;
+				if (boardType::parseSquare(san.substr(pos, san.length() - pos), to, count))
+				{
+					PYGMALION_ASSERT(count == 2);
+					pos += count;
+				}
+				else
+					return false;
+				break;
+			case 4:
+				if (san[pos] == 'x' || san[pos] == 'X')
+				{
+					bCapture = true;
+					pos++;
+					if (boardType::parseFile(san.substr(pos, san.length() - pos), originFile, count))
+					{
+						PYGMALION_ASSERT(count == 1);
+						pos += count;
+						count = 0;
+					}
+					else if (boardType::parseRank(san.substr(pos, san.length() - pos), originRank, count))
+					{
+						PYGMALION_ASSERT(count == 1);
+						pos += count;
+						count = 0;
+					}
+					else
+						return false;
+				}
+				else
+				{
+					if (boardType::parseSquare(san.substr(pos, san.length() - pos), from, count))
+					{
+						PYGMALION_ASSERT(count == 2);
+						pos += count;
+						count = 0;
+					}
+					else
+						return false;
+				}
+				if (boardType::parseSquare(san.substr(pos, san.length() - pos), to, count))
+				{
+					PYGMALION_ASSERT(count == 2);
+					pos += count;
+				}
+				else
+					return false;
+				break;
+			case 5:
+				if (boardType::parseSquare(san.substr(pos, san.length() - pos), from, count))
+				{
+					PYGMALION_ASSERT(count == 2);
+					pos += count;
+					count = 0;
+				}
+				else
+					return false;
+				if (san[pos] == 'x' || san[pos] == 'X')
+				{
+					bCapture = true;
+					pos++;
+					if (boardType::parseFile(san.substr(pos, san.length() - pos), originFile, count))
+					{
+						PYGMALION_ASSERT(count == 1);
+						pos += count;
+						count = 0;
+					}
+					else if (boardType::parseRank(san.substr(pos, san.length() - pos), originRank, count))
+					{
+						PYGMALION_ASSERT(count == 1);
+						pos += count;
+						count = 0;
+					}
+					else
+						return false;
+				}
+				else
+					return false;
+				if (boardType::parseSquare(san.substr(pos, san.length() - pos), to, count))
+				{
+					PYGMALION_ASSERT(count == 2);
+					pos += count;
+				}
+				else
+					return false;
+				break;
+			}
+			if (!from.isValid())
+			{
+				switch (piece)
+				{
+				case king:
+					if (bCapture)
+						origins = generatorType::movegenKing.inverseAttacks(to, squaresType::all());
+					else
+						origins = generatorType::movegenKing.inverseTargets(to, squaresType::all());
+					origins &= stack.position().pieceOccupancy(piece);
+					origins &= stack.position().playerOccupancy(stack.movingPlayer());
+					break;
+				case knight:
+					if (bCapture)
+						origins = generatorType::movegenKnight.inverseAttacks(to, squaresType::all());
+					else
+						origins = generatorType::movegenKnight.inverseTargets(to, squaresType::all());
+					origins &= stack.position().pieceOccupancy(piece);
+					origins &= stack.position().playerOccupancy(stack.movingPlayer());
+					break;
+				case bishop:
+					if (bCapture)
+						origins = generatorType::movegenSlidersDiag.inverseAttacks(to, ~stack.position().totalOccupancy());
+					else
+						origins = generatorType::movegenSlidersDiag.inverseAttacks(to, ~stack.position().totalOccupancy());
+					origins &= stack.position().pieceOccupancy(piece);
+					origins &= stack.position().playerOccupancy(stack.movingPlayer());
+					break;
+				case rook:
+					if (bCapture)
+						origins = generatorType::movegenSlidersHV.inverseAttacks(to, ~stack.position().totalOccupancy());
+					else
+						origins = generatorType::movegenSlidersHV.inverseAttacks(to, ~stack.position().totalOccupancy());
+					origins &= stack.position().pieceOccupancy(piece);
+					origins &= stack.position().playerOccupancy(stack.movingPlayer());
+					break;
+				case queen:
+					if (bCapture)
+						origins = generatorType::movegenSlidersHV.inverseAttacks(to, ~stack.position().totalOccupancy()) | generatorType::movegenSlidersDiag.inverseAttacks(to, ~stack.position().totalOccupancy());
+					else
+						origins = generatorType::movegenSlidersHV.inverseAttacks(to, ~stack.position().totalOccupancy()) | generatorType::movegenSlidersDiag.inverseAttacks(to, ~stack.position().totalOccupancy());
+					origins &= stack.position().pieceOccupancy(piece);
+					origins &= stack.position().playerOccupancy(stack.movingPlayer());
+					break;
+				case pawn:
+					if (stack.movingPlayer() == whitePlayer)
+					{
+						if (bCapture)
+						{
+							if (!stack.position().playerOccupancy(stack.movingPlayer().next())[to])
+								origins = generatorType::movegenPawnCaptureWhite.inverseAttacks(to, squaresType::all());
+							else
+								origins = generatorType::movegenPawnCaptureWhite.inverseAttacks(to, squaresType::all()) | generatorType::movegenPawnPromoCaptureWhite.inverseAttacks(to, squaresType::all());
+							origins &= stack.position().pieceOccupancy(piece);
+							origins &= stack.position().playerOccupancy(stack.movingPlayer());
+						}
+						else
+						{
+							origins = generatorType::movegenPawnDoublePushWhite.inverseTargets(to, squaresType::all()) | generatorType::movegenPawnPushWhite.inverseTargets(to, squaresType::all()) | generatorType::movegenPawnPromotionWhite.inverseTargets(to, squaresType::all());
+							origins &= stack.position().pieceOccupancy(piece);
+							origins &= stack.position().playerOccupancy(stack.movingPlayer());
+						}
+					}
+					else
+					{
+						if (bCapture)
+						{
+							if (!stack.position().playerOccupancy(stack.movingPlayer().next())[to])
+								origins = generatorType::movegenPawnCaptureBlack.inverseAttacks(to, squaresType::all());
+							else
+								origins = generatorType::movegenPawnCaptureBlack.inverseAttacks(to, squaresType::all()) | generatorType::movegenPawnPromoCaptureBlack.inverseAttacks(to, squaresType::all());
+							origins &= stack.position().pieceOccupancy(piece);
+							origins &= stack.position().playerOccupancy(stack.movingPlayer());
+						}
+						else
+						{
+							origins = generatorType::movegenPawnDoublePushBlack.inverseTargets(to, squaresType::all()) | generatorType::movegenPawnPushBlack.inverseTargets(to, squaresType::all()) | generatorType::movegenPawnPromotionBlack.inverseTargets(to, squaresType::all());
+							origins &= stack.position().pieceOccupancy(piece);
+							origins &= stack.position().playerOccupancy(stack.movingPlayer());
+						}
+					}
+					break;
+				default:
+					PYGMALION_UNREACHABLE;
+					break;
+				}
+				if (originRank.isValid())
+					origins &= originRank;
+				if (originFile.isValid())
+					origins &= originFile;
+				PYGMALION_ASSERT(origins.count() == 1);
+				from = origins.first();
+			}
+			pieceType promoPiece;
+			bool bPromotion{ false };
+			if (san.length() > pos)
+			{
+				size_t offset{ 0 };
+				bool bBracket{ false };
+				switch (san[pos])
+				{
+				case '(':
+					bBracket = true;
+				case '=':
+				case '/':
+					offset++;
+					break;
+				default:
+					break;
+				}
+				count = 0;
+				playerType dummy;
+				if (boardType::parsePiece(san.substr(pos + offset, san.length() - pos - offset), promoPiece, dummy, count))
+				{
+					if (bBracket)
+					{
+						if (san.length() <= pos)
+							return false;
+						if (san[pos + offset + count] != ')')
+							return false;
+						offset++;
+					}
+				}
+				bPromotion = true;
+				pos += offset;
+				pos += count;
+			}
+			if (bCapture)
+			{
+				if (piece == pawn)
+				{
+					if (stack.movingPlayer() == whitePlayer)
+					{
+						if (stack.position().checkEnPassantFile(to.file()) && to.rank() == rank6)
+							mv = motorType::move().createEnPassant(from.file(), to.file());
+						else
+						{
+							if (to.rank() != rank8)
+							{
+								if (bPromotion)
+									return false;
+								mv = motorType::move().createCapture(from, to);
+							}
+							else
+							{
+								if (!bPromotion)
+									return false;
+								switch (promoPiece)
+								{
+								default:
+									return false;
+								case knight:
+									mv = motorType::move().createPromoCaptureKnight(from, to);
+									break;
+								case bishop:
+									mv = motorType::move().createPromoCaptureBishop(from, to);
+									break;
+								case rook:
+									mv = motorType::move().createPromoCaptureRook(from, to);
+									break;
+								case queen:
+									mv = motorType::move().createPromoCaptureQueen(from, to);
+									break;
+								}
+							}
+						}
+					}
+					else
+					{
+						if (stack.position().checkEnPassantFile(to.file()) && to.rank() == rank3)
+							mv = motorType::move().createEnPassant(from.file(), to.file());
+						else
+						{
+							if (to.rank() != rank1)
+							{
+								if (bPromotion)
+									return false;
+								mv = motorType::move().createCapture(from, to);
+							}
+							else
+							{
+								if (!bPromotion)
+									return false;
+								switch (promoPiece)
+								{
+								default:
+									return false;
+								case knight:
+									mv = motorType::move().createPromoCaptureKnight(from, to);
+									break;
+								case bishop:
+									mv = motorType::move().createPromoCaptureBishop(from, to);
+									break;
+								case rook:
+									mv = motorType::move().createPromoCaptureRook(from, to);
+									break;
+								case queen:
+									mv = motorType::move().createPromoCaptureQueen(from, to);
+									break;
+								}
+							}
+						}
+					}
+				}
+				else
+					mv = motorType::move().createCapture(from, to);
+			}
+			else
+			{
+				if (piece == pawn)
+				{
+					if (stack.movingPlayer() == whitePlayer)
+					{
+						if (to.rank() == rank4 && from.rank() == rank2)
+							mv = motorType::move().createDoublePush(from.file());
+						else
+						{
+							if (to.rank() != rank8)
+							{
+								if (bPromotion)
+									return false;
+								mv = motorType::move().createQuiet(from, to);
+							}
+						}
+					}
+					else
+					{
+						if (to.rank() == rank5 && from.rank() == rank7)
+							mv = motorType::move().createDoublePush(from.file());
+						else
+						{
+							if (to.rank() != rank1)
+							{
+								if (bPromotion)
+									return false;
+								mv = motorType::move().createQuiet(from, to);
+							}
+						}
+					}
+				}
+				else
+					mv = motorType::move().createQuiet(from, to);
+			}
+			if (san.length() > pos)
+			{
+				switch (san[pos])
+				{
+				case '+':
+				case '#':
+					pos++;
+					break;
+				default:
+					return false;
+				}
+			}
+			count = pos;
+			return true;
+		}
+		template<size_t PLAYER>
+		static std::string moveToSAN_Implementation(const stackType<PLAYER>& stack, const movebitsType mv) noexcept
 		{
 			const boardType& position{ stack.position() };
 			const squareType from{ motorType::move().fromSquare(position,mv) };
@@ -4688,7 +5168,7 @@ namespace pygmalion::chess
 				{
 					squaresType captures{ none };
 					squaresType moves{ none };
-					generatorType::movesFromSquare(stack, sq, moves, captures, depth);
+					generatorType::movesFromSquare(stack, sq, moves, captures);
 					if ((captures | moves)[to])
 					{
 						countamb++;
@@ -4705,7 +5185,7 @@ namespace pygmalion::chess
 					{
 						squaresType captures{ none };
 						squaresType moves{ none };
-						generatorType::movesFromSquare(stack, sq, moves, captures, depth);
+						generatorType::movesFromSquare(stack, sq, moves, captures);
 						if ((captures | moves)[to])
 						{
 							if (sq.file() == file)
@@ -4723,7 +5203,7 @@ namespace pygmalion::chess
 						{
 							squaresType captures{ none };
 							squaresType moves{ none };
-							generatorType::movesFromSquare(stack, sq, moves, captures, depth);
+							generatorType::movesFromSquare(stack, sq, moves, captures);
 							if ((captures | moves)[to])
 							{
 								if (sq.rank() == rank)
@@ -4806,13 +5286,7 @@ namespace pygmalion::chess
 			if (motorType::move().isCapture(mv))
 			{
 				ret += "x";
-				if (motorType::move().isEnPassant(mv))
-				{
-					ret = ret + boardType::squareToString(motorType::move().captureSquare(position, mv));
-					ret += "ep";
-				}
-				else
-					ret = ret + boardType::squareToString(to);
+				ret = ret + boardType::squareToString(to);
 			}
 			else
 				ret = ret + boardType::squareToString(to);
@@ -4836,6 +5310,16 @@ namespace pygmalion::chess
 					ret += "=Q";
 					break;
 				}
+			}
+			if (generatorType::template isMoveCritical<PLAYER, stackType<PLAYER>>(stack, mv))
+			{
+				stackType<static_cast<size_t>(side.next())> substack{ stackType<static_cast<size_t>(side.next())>(stack,mv) };
+				movegenFeedback fb;
+				fb.expandToDepth(1);
+				if (substack.hasLegalMove(0, fb))
+					ret += "+";
+				else
+					ret += "#";
 			}
 			return ret;
 		}

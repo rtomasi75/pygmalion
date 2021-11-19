@@ -615,7 +615,7 @@ namespace pygmalion::chess
 		str << "Hash: " << std::setw(8) << std::hex << static_cast<std::uint64_t>(position.hash()) << std::dec << std::endl;
 		str << std::endl;
 		str << "Half-move clock: " << static_cast<std::uint64_t>(position.getReversiblePlyCount()) << std::endl;
-		str << "Plies played:    " << static_cast<std::uint64_t>(position.getPlyCount()) << std::endl;
+		str << "Moves played:    " << static_cast<std::uint64_t>(position.getMoveCount()) << std::endl;
 		str << std::endl;
 		str << "Player " << boardType::playerToString(position.movingPlayer()) << " is on the move." << std::endl;
 		return str;

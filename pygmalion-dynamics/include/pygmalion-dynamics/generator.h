@@ -1201,9 +1201,13 @@ namespace pygmalion
 				if (!m_IsNullmove)
 					motorType::move().undoMove(m_Position, m_MoveData);
 			}
-			std::string moveToString(const movebitsType moveBits, const size_t depth) const
+			std::string moveToSAN(const movebitsType moveBits, const size_t depth) const noexcept
 			{
-				return generatorType::moveToString(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits, depth);
+				return generatorType::moveToSAN(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits);
+			}
+			bool parseSAN(const std::string& san, movebitsType& mv, size_t& count) const noexcept
+			{
+				return generatorType::parseSAN(san, *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), mv, count);
 			}
 			bool occurs(const boardType& position, const int times, const int start, const int frequency) const noexcept
 			{
@@ -1254,9 +1258,14 @@ namespace pygmalion
 			return generatorType::commandsImplementation();
 		}
 		template<typename stackType>
-		static std::string moveToString(const stackType& stack, const movebitsType moveBits, const size_t depth) noexcept
+		static bool parseSAN(const std::string& san, const stackType& stack, movebitsType& mv, size_t& count) noexcept
 		{
-			return generatorType::moveToString_Implementation(stack, moveBits, depth);
+			return generatorType::parseSAN_Implementation(san, stack, mv, count);
+		}
+		template<typename stackType>
+		static std::string moveToSAN(const stackType& stack, const movebitsType moveBits) noexcept
+		{
+			return generatorType::moveToSAN_Implementation(stack, moveBits);
 		}
 		static std::string passToString(const stageType stage, const passType pass) noexcept
 		{

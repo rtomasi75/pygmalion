@@ -39,14 +39,14 @@ namespace pygmalion::search
 						{
 							const stageType stage{ node.stack().lastNormalStage() };
 							const passType pass{ node.stack().lastNormalPass() };
-							const std::string movestring{ generatorType::moveToString(node.stack(), movebits, this->searchEngine().history().length()) };
+							const std::string movestring{ generatorType::moveToSAN(node.stack(), movebits) };
 							this->output() << movestring << "\t";
 							this->output() << node.stack().lastNormalScore() << "\t";
 							this->output() << generatorType::passToString(stage, pass) << "\t";
 						}
 						else
 						{
-							this->output() << generatorType::moveToString(node.stack(), movebits, this->searchEngine().history().length()) << "\t";
+							this->output() << generatorType::moveToSAN(node.stack(), movebits) << "\t";
 							if constexpr(staticMoveScores)
 								this->output() << this->searchEngine().heuristics().staticMoveScore(node.stack(), movebits, this->searchEngine().history().length()) << "\t";
 							if (node.lastMoveFromTT())
