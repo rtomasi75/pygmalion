@@ -55,6 +55,7 @@ namespace pygmalion::dynamics
 						const std::uintmax_t leafs{ this->template perft<PLAYER>(stack,0, i, this->feedback(), nodes) };
 						p.stop();
 						this->output() << "depth: " << std::setw(2) << static_cast<int>(i + 1) << " leafs: " << parser::valueToString(static_cast<double>(leafs), "") << " nodes: " << parser::valueToString(static_cast<double>(nodes), "") << " time: " << parser::durationToString(p.duration()) << " speed: " << p.computeSpeed(nodes, "N") << ", " << p.computeSpeed(leafs + nodes, "mv") << std::endl;
+						this->flushOutput();
 					}
 					delete[] pContext;
 				}
