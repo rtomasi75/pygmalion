@@ -11,6 +11,10 @@ namespace pygmalion::frontend
 #include "include_frontend.h"
 		template<size_t PLAYER>
 		using nodeType = typename gametreeType::template nodeType<PLAYER>;
+		template<size_t PLAYER>
+		using stackType = typename generatorType::template stackType<PLAYER>;
+		using contextType = typename generatorType::contextType;
+		using feedbackType = typename generatorType::movegenFeedback;
 	private:
 		frontType m_Front;
 		std::string scoreToString(const scoreType& score)
@@ -258,7 +262,66 @@ namespace pygmalion::frontend
 				}
 				);
 		}
+		PYGMALION_INLINE static double sigmoid(double s, double K) noexcept
+		{
+			return 1.0 / (1.0 + std::pow(10.0, -(K * s) / 400.0));
+		}
+		template<size_t PLAYER>
+		PYGMALION_INLINE scoreType QScore(boardType& board, contextType* pContext, historyType& history, heuristicsType& heuristics) noexcept
+		{
+			if constexpr (PLAYER < countPlayers)
+			{
+				constexpr const playerType player{ static_cast<playerType>(PLAYER) };
+				if (player == board.movingPlayer())
+				{
+					signal terminate{ signal(false) };
+					stackType<PLAYER> stack{ stackType<PLAYER>(board, history, pContext) };
+					nodeType<static_cast<size_t>(static_cast<playerType>(PLAYER))> node(stack, terminate, heuristics, 0);
+					variationType principalVariation;
+					heuristics.beginSearch();
+					principalVariation.clear();
+					bool allowStoreTT;
+					const scoreType score{ node.search(scoreType::minimum(), scoreType::maximum(), -1, principalVariation, allowStoreTT) };
+					heuristics.endSearch();
+					return score;
+				}
+				else
+					return this->template QScore<PLAYER + 1>(board, pContext, history, heuristics);
+			}
+			else
+			{
+				PYGMALION_ASSERT(false);
+				return scoreType::minimum();
+			}
+		}
 	public:
+		double tuningError(const tuningpositions& tp, const double K) noexcept
+		{
+			boardType board;
+			contextType* pContext = new contextType[countSearchPlies];
+			historyType history;
+			feedbackType fb;
+			heuristicsType heuristics(fb);
+			double accum{ 0.0 };
+			size_t n{ 0 };
+			for (size_t i = 0; i < tp.size(); i++)
+			{
+				const tuningposition& p{ tp[i] };
+				board.setFen(p.fen());
+				const scoreType sc{ this->template QScore<0>(board, pContext, history, heuristics) };
+				if (sc.isOpen())
+				{
+					const double residual{ p.score() - sigmoid(static_cast<double>(sc),K) };
+					accum += residual * residual;
+					n++;
+				}
+			}
+			delete[] pContext;
+			if (n == 0)
+				return 0.0;
+			else
+				return accum / static_cast<double>(n);
+		}
 		bool ponderEnabled() const noexcept
 		{
 			return m_PonderEnabled;
@@ -323,6 +386,8 @@ namespace pygmalion::frontend
 			this->template addCommand<command_go<descriptorFrontend, frontType>>();
 			this->template addCommand<command_debugFrontend<descriptorFrontend, frontType>>();
 			this->template addCommand<command_debugClocks<descriptorFrontend, frontType>>();
+			this->template addCommand<command_tune<descriptorFrontend, frontType>>();
+			this->template addCommand<command_prepareTuning<descriptorFrontend, frontType>>();
 		}
 		virtual ~engine() noexcept
 		{

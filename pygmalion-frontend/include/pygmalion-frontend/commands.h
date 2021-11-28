@@ -9,3 +9,5 @@
 #include "commands/command_stop.h"
 #include "commands/command_uci.h"
 #include "commands/command_ucinewgame.h"
+#include "commands/command_tune.h"
+#include "commands/command_prepareTuning.h"

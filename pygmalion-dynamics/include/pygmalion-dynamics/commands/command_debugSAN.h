@@ -20,8 +20,8 @@ namespace pygmalion::dynamics
 				constexpr const playerType player{ static_cast<playerType>(PLAYER) };
 				if (player == this->position().movingPlayer())
 				{
-					typename generatorType::contextType context;
-					stackType<PLAYER> stack{ stackType<PLAYER>(this->position(),this->history(), &context) };
+					typename generatorType::contextType context[2];
+					stackType<PLAYER> stack{ stackType<PLAYER>(this->position(),this->history(), &context[0]) };
 					movebitsType movebits;
 					size_t count{ 0 };
 					if (generatorType::parseSAN(remainder2, stack, movebits, count))

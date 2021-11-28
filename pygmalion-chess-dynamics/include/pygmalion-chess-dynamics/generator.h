@@ -4647,69 +4647,76 @@ namespace pygmalion::chess
 		template<size_t PLAYER>
 		static bool parseSAN_Implementation(const std::string& san, const stackType<PLAYER>& stack, movebitsType& mv, size_t& count) noexcept
 		{
-			if (san.length() >= 3 && san.substr(0, 3) == "O-O" || san.substr(0, 3) == "o-o")
-			{
-				mv = motorType::move().createKingsideCastle();
-				count += 3;
-				return true;
-			}
-			if (san.length() >= 5 && san.substr(0, 5) == "O-O-O" || san.substr(0, 3) == "o-o-o")
+			std::string san2{ san };
+			if (san2.length() >= 5 && san2.substr(0, 5) == "O-O-O")
 			{
 				mv = motorType::move().createQueensideCastle();
 				count += 5;
 				return true;
 			}
-			size_t pos{ 0 };
-			if (san.length() <= pos)
-				return false;
-			pieceType piece;
-			switch (san[pos])
+			if (san2.length() >= 3 && san2.substr(0, 3) == "O-O")
 			{
-			case 'p':
+				mv = motorType::move().createKingsideCastle();
+				count += 3;
+				return true;
+			}
+			size_t pos{ 0 };
+			if (san2.length() <= pos)
+				return false;
+			bool bCapture{ false };
+			for (size_t i = 0; i < std::min(san2.length(), static_cast<size_t>(4)); i++)
+			{
+				if (san2[i] == 'x')
+				{
+					san2 = "";
+					for (size_t j = 0; j < san.length(); j++)
+					{
+						if (san[j] != 'x')
+							san2 += san[j];
+					}
+					bCapture = true;
+					break;
+				}
+			}
+			pieceType piece;
+			switch (san2[pos])
+			{
 			case 'P':
 				pos++;
 			default:
 				piece = pawn;
 				break;
-			case 'k':
 			case 'K':
 				pos++;
 				piece = king;
 				break;
-			case 'n':
 			case 'N':
 				pos++;
 				piece = knight;
 				break;
-			case 'b':
 			case 'B':
 				pos++;
 				piece = bishop;
 				break;
-			case 'r':
 			case 'R':
 				pos++;
 				piece = rook;
 				break;
-			case 'q':
 			case 'Q':
 				pos++;
 				piece = queen;
 				break;
 			}
-			if (san.length() <= pos)
+			if (san2.length() <= pos)
 				return false;
-			bool bCapture{ san[pos] == 'x' || san[pos] == 'X' };
-			if (bCapture)
-				pos++;
 			bool bParse{ true };
 			std::string parsed = "";
 			size_t subPos{ 0 };
 			while (bParse)
 			{
-				if (san.length() <= (pos + subPos))
+				if (san2.length() <= (pos + subPos))
 					break;
-				switch (san[pos + subPos])
+				switch (san2[pos + subPos])
 				{
 				case 'a':
 				case 'b':
@@ -4735,9 +4742,7 @@ namespace pygmalion::chess
 				case '6':
 				case '7':
 				case '8':
-				case 'x':
-				case 'X':
-					parsed += san[pos + subPos];
+					parsed += san2[pos + subPos];
 					subPos++;
 					break;
 				default:
@@ -4757,7 +4762,7 @@ namespace pygmalion::chess
 			case 0:
 				return false;
 			case 2:
-				if (boardType::parseSquare(san.substr(pos, san.length() - pos), to, count))
+				if (boardType::parseSquare(san2.substr(pos, san2.length() - pos), to, count))
 				{
 					PYGMALION_ASSERT(count == 2);
 					pos += count;
@@ -4766,13 +4771,13 @@ namespace pygmalion::chess
 					return false;
 				break;
 			case 3:
-				if (boardType::parseFile(san.substr(pos, san.length() - pos), originFile, count))
+				if (boardType::parseFile(san2.substr(pos, san2.length() - pos), originFile, count))
 				{
 					PYGMALION_ASSERT(count == 1);
 					pos += count;
 					count = 0;
 				}
-				else if (boardType::parseRank(san.substr(pos, san.length() - pos), originRank, count))
+				else if (boardType::parseRank(san2.substr(pos, san2.length() - pos), originRank, count))
 				{
 					PYGMALION_ASSERT(count == 1);
 					pos += count;
@@ -4780,7 +4785,7 @@ namespace pygmalion::chess
 				}
 				else
 					return false;
-				if (boardType::parseSquare(san.substr(pos, san.length() - pos), to, count))
+				if (boardType::parseSquare(san2.substr(pos, san2.length() - pos), to, count))
 				{
 					PYGMALION_ASSERT(count == 2);
 					pos += count;
@@ -4789,46 +4794,7 @@ namespace pygmalion::chess
 					return false;
 				break;
 			case 4:
-				if (san[pos] == 'x' || san[pos] == 'X')
-				{
-					bCapture = true;
-					pos++;
-					if (boardType::parseFile(san.substr(pos, san.length() - pos), originFile, count))
-					{
-						PYGMALION_ASSERT(count == 1);
-						pos += count;
-						count = 0;
-					}
-					else if (boardType::parseRank(san.substr(pos, san.length() - pos), originRank, count))
-					{
-						PYGMALION_ASSERT(count == 1);
-						pos += count;
-						count = 0;
-					}
-					else
-						return false;
-				}
-				else
-				{
-					if (boardType::parseSquare(san.substr(pos, san.length() - pos), from, count))
-					{
-						PYGMALION_ASSERT(count == 2);
-						pos += count;
-						count = 0;
-					}
-					else
-						return false;
-				}
-				if (boardType::parseSquare(san.substr(pos, san.length() - pos), to, count))
-				{
-					PYGMALION_ASSERT(count == 2);
-					pos += count;
-				}
-				else
-					return false;
-				break;
-			case 5:
-				if (boardType::parseSquare(san.substr(pos, san.length() - pos), from, count))
+				if (boardType::parseSquare(san2.substr(pos, san2.length() - pos), from, count))
 				{
 					PYGMALION_ASSERT(count == 2);
 					pos += count;
@@ -4836,28 +4802,7 @@ namespace pygmalion::chess
 				}
 				else
 					return false;
-				if (san[pos] == 'x' || san[pos] == 'X')
-				{
-					bCapture = true;
-					pos++;
-					if (boardType::parseFile(san.substr(pos, san.length() - pos), originFile, count))
-					{
-						PYGMALION_ASSERT(count == 1);
-						pos += count;
-						count = 0;
-					}
-					else if (boardType::parseRank(san.substr(pos, san.length() - pos), originRank, count))
-					{
-						PYGMALION_ASSERT(count == 1);
-						pos += count;
-						count = 0;
-					}
-					else
-						return false;
-				}
-				else
-					return false;
-				if (boardType::parseSquare(san.substr(pos, san.length() - pos), to, count))
+				if (boardType::parseSquare(san2.substr(pos, san2.length() - pos), to, count))
 				{
 					PYGMALION_ASSERT(count == 2);
 					pos += count;
@@ -4927,6 +4872,7 @@ namespace pygmalion::chess
 							origins = generatorType::movegenPawnDoublePushWhite.inverseTargets(to, squaresType::all()) | generatorType::movegenPawnPushWhite.inverseTargets(to, squaresType::all()) | generatorType::movegenPawnPromotionWhite.inverseTargets(to, squaresType::all());
 							origins &= stack.position().pieceOccupancy(piece);
 							origins &= stack.position().playerOccupancy(stack.movingPlayer());
+							origins &= ~origins.down();
 						}
 					}
 					else
@@ -4945,6 +4891,7 @@ namespace pygmalion::chess
 							origins = generatorType::movegenPawnDoublePushBlack.inverseTargets(to, squaresType::all()) | generatorType::movegenPawnPushBlack.inverseTargets(to, squaresType::all()) | generatorType::movegenPawnPromotionBlack.inverseTargets(to, squaresType::all());
 							origins &= stack.position().pieceOccupancy(piece);
 							origins &= stack.position().playerOccupancy(stack.movingPlayer());
+							origins &= ~origins.up();
 						}
 					}
 					break;
@@ -4956,16 +4903,16 @@ namespace pygmalion::chess
 					origins &= originRank;
 				if (originFile.isValid())
 					origins &= originFile;
-				PYGMALION_ASSERT(origins.count() == 1);
-				from = origins.first();
 			}
+			else
+				origins = squaresType(from);
 			pieceType promoPiece;
 			bool bPromotion{ false };
-			if (san.length() > pos)
+			if (san2.length() > pos)
 			{
 				size_t offset{ 0 };
 				bool bBracket{ false };
-				switch (san[pos])
+				switch (san2[pos])
 				{
 				case '(':
 					bBracket = true;
@@ -4978,21 +4925,196 @@ namespace pygmalion::chess
 				}
 				count = 0;
 				playerType dummy;
-				if (boardType::parsePiece(san.substr(pos + offset, san.length() - pos - offset), promoPiece, dummy, count))
+				if (boardType::parsePiece(san2.substr(pos + offset, san2.length() - pos - offset), promoPiece, dummy, count))
 				{
 					if (bBracket)
 					{
-						if (san.length() <= pos)
+						if (san2.length() <= pos)
 							return false;
-						if (san[pos + offset + count] != ')')
+						if (san2[pos + offset + count] != ')')
 							return false;
 						offset++;
 					}
+					bPromotion = true;
+					pos += offset;
+					pos += count;
 				}
-				bPromotion = true;
-				pos += offset;
-				pos += count;
 			}
+			for (const auto testFrom : origins)
+			{
+				if (bCapture)
+				{
+					if (piece == pawn)
+					{
+						if (stack.movingPlayer() == whitePlayer)
+						{
+							if (stack.position().checkEnPassantFile(to.file()) && to.rank() == rank6)
+								mv = motorType::move().createEnPassant(testFrom.file(), to.file());
+							else
+							{
+								if (to.rank() != rank8)
+								{
+									if (bPromotion)
+										return false;
+									mv = motorType::move().createCapture(testFrom, to);
+								}
+								else
+								{
+									if (!bPromotion)
+										return false;
+									switch (promoPiece)
+									{
+									default:
+										return false;
+									case knight:
+										mv = motorType::move().createPromoCaptureKnight(testFrom, to);
+										break;
+									case bishop:
+										mv = motorType::move().createPromoCaptureBishop(testFrom, to);
+										break;
+									case rook:
+										mv = motorType::move().createPromoCaptureRook(testFrom, to);
+										break;
+									case queen:
+										mv = motorType::move().createPromoCaptureQueen(testFrom, to);
+										break;
+									}
+								}
+							}
+						}
+						else
+						{
+							if (stack.position().checkEnPassantFile(to.file()) && to.rank() == rank3)
+								mv = motorType::move().createEnPassant(testFrom.file(), to.file());
+							else
+							{
+								if (to.rank() != rank1)
+								{
+									if (bPromotion)
+										return false;
+									mv = motorType::move().createCapture(testFrom, to);
+								}
+								else
+								{
+									if (!bPromotion)
+										return false;
+									switch (promoPiece)
+									{
+									default:
+										return false;
+									case knight:
+										mv = motorType::move().createPromoCaptureKnight(testFrom, to);
+										break;
+									case bishop:
+										mv = motorType::move().createPromoCaptureBishop(testFrom, to);
+										break;
+									case rook:
+										mv = motorType::move().createPromoCaptureRook(testFrom, to);
+										break;
+									case queen:
+										mv = motorType::move().createPromoCaptureQueen(testFrom, to);
+										break;
+									}
+								}
+							}
+						}
+					}
+					else
+						mv = motorType::move().createCapture(testFrom, to);
+				}
+				else
+				{
+					if (piece == pawn)
+					{
+						if (stack.movingPlayer() == whitePlayer)
+						{
+							if (to.rank() == rank4 && testFrom.rank() == rank2)
+								mv = motorType::move().createDoublePush(testFrom.file());
+							else
+							{
+								if (to.rank() != rank8)
+								{
+									if (bPromotion)
+										return false;
+									mv = motorType::move().createQuiet(testFrom, to);
+								}
+								else
+								{
+									if (!bPromotion)
+										return false;
+									switch (promoPiece)
+									{
+									default:
+										return false;
+									case knight:
+										mv = motorType::move().createPromotionKnight(testFrom, to);
+										break;
+									case bishop:
+										mv = motorType::move().createPromotionBishop(testFrom, to);
+										break;
+									case rook:
+										mv = motorType::move().createPromotionRook(testFrom, to);
+										break;
+									case queen:
+										mv = motorType::move().createPromotionQueen(testFrom, to);
+										break;
+									}
+								}
+							}
+						}
+						else
+						{
+							if (to.rank() == rank5 && testFrom.rank() == rank7)
+								mv = motorType::move().createDoublePush(testFrom.file());
+							else
+							{
+								if (to.rank() != rank1)
+								{
+									if (bPromotion)
+										return false;
+									mv = motorType::move().createQuiet(testFrom, to);
+								}
+								else
+								{
+									if (!bPromotion)
+										return false;
+									switch (promoPiece)
+									{
+									default:
+										return false;
+									case knight:
+										mv = motorType::move().createPromotionKnight(testFrom, to);
+										break;
+									case bishop:
+										mv = motorType::move().createPromotionBishop(testFrom, to);
+										break;
+									case rook:
+										mv = motorType::move().createPromotionRook(testFrom, to);
+										break;
+									case queen:
+										mv = motorType::move().createPromotionQueen(testFrom, to);
+										break;
+									}
+								}
+							}
+						}
+					}
+					else
+						mv = motorType::move().createQuiet(testFrom, to);
+				}
+				if (!generatorType::isMoveLegal(stack, mv))
+					origins -= testFrom;
+			}
+			if (origins.count() != 1)
+			{
+#if _DEBUG
+		//		std::string error = stack.position().getFen() + " => " + san + "\n";
+		//		std::cout << error;
+		//		PYGMALION_ASSERT(false);
+#endif
+				return false;
+			}
+			from = origins.first();
 			if (bCapture)
 			{
 				if (piece == pawn)
@@ -5089,6 +5211,28 @@ namespace pygmalion::chess
 									return false;
 								mv = motorType::move().createQuiet(from, to);
 							}
+							else
+							{
+								if (!bPromotion)
+									return false;
+								switch (promoPiece)
+								{
+								default:
+									return false;
+								case knight:
+									mv = motorType::move().createPromotionKnight(from, to);
+									break;
+								case bishop:
+									mv = motorType::move().createPromotionBishop(from, to);
+									break;
+								case rook:
+									mv = motorType::move().createPromotionRook(from, to);
+									break;
+								case queen:
+									mv = motorType::move().createPromotionQueen(from, to);
+									break;
+								}
+							}
 						}
 					}
 					else
@@ -5103,15 +5247,37 @@ namespace pygmalion::chess
 									return false;
 								mv = motorType::move().createQuiet(from, to);
 							}
+							else
+							{
+								if (!bPromotion)
+									return false;
+								switch (promoPiece)
+								{
+								default:
+									return false;
+								case knight:
+									mv = motorType::move().createPromotionKnight(from, to);
+									break;
+								case bishop:
+									mv = motorType::move().createPromotionBishop(from, to);
+									break;
+								case rook:
+									mv = motorType::move().createPromotionRook(from, to);
+									break;
+								case queen:
+									mv = motorType::move().createPromotionQueen(from, to);
+									break;
+								}
+							}
 						}
 					}
 				}
 				else
 					mv = motorType::move().createQuiet(from, to);
 			}
-			if (san.length() > pos)
+			if (san2.length() > pos)
 			{
-				switch (san[pos])
+				switch (san2[pos])
 				{
 				case '+':
 				case '#':

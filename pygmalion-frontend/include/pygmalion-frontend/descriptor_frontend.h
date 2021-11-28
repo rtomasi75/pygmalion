@@ -7,6 +7,7 @@ namespace pygmalion
 	public:
 		using gametreeType = GAMETREE;
 		using descriptorSearch = typename gametreeType::descriptorSearch;
+		using recordType = record<typename descriptorSearch::descriptorDynamics, typename descriptorSearch::generatorType>;
 	};
 
 }
