@@ -20,7 +20,7 @@ namespace pygmalion
 	};
 
 
-	template<typename EVALUATOR, size_t COUNT_SEARCH_PLIES, unsigned int SEARCH_FLAGS, size_t COUNT_TT_BUCKETS, size_t KILLER_MOVES_QUIET, size_t KILLER_MOVES_TACTICAL, size_t KILLER_LOOKBACK_DISTANCE, size_t COUNT_MAX_EXTENSION, size_t COUNT_LATEMOVE_REDUCTION, size_t LATEMOVE_REDUCTION_MINDEPTH, typename HEURISTICS>
+	template<typename EVALUATOR, size_t COUNT_SEARCH_PLIES, unsigned int SEARCH_FLAGS, size_t COUNT_TT_BUCKETS, size_t KILLER_MOVES_QUIET, size_t KILLER_MOVES_TACTICAL, size_t KILLER_LOOKBACK_DISTANCE, size_t COUNT_QS1_PLIES, size_t COUNT_QS2_PLIES, size_t COUNT_LATEMOVE_REDUCTION, size_t LATEMOVE_REDUCTION_MINDEPTH, typename HEURISTICS>
 	class descriptor_search :
 		public EVALUATOR::descriptorEvaluation
 	{
@@ -47,7 +47,8 @@ namespace pygmalion
 		constexpr static const bool searchAspiration{ (SEARCH_FLAGS & searchFlags::aspirationWindows) != 0 };
 		using variationType = list<typename descriptorEvaluation::movebitsType, countSearchPlies>;
 		using depthType = typename variationType::counterType;
-		constexpr static const depthType countMaxExtensions{ depthType(COUNT_MAX_EXTENSION) };
+		constexpr static const depthType countQs1Plies{ depthType(COUNT_QS1_PLIES) };
+		constexpr static const depthType countQs2Plies{ depthType(COUNT_QS2_PLIES) };
 		using heuristicsType = HEURISTICS;
 		using moveinfoType = moveinfo<descriptorEvaluation>;
 		using ttmovesType = list<typename descriptorEvaluation::movebitsType, searchTranspositionTableBucketCount>;

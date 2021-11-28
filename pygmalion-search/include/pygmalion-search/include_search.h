@@ -30,7 +30,8 @@ constexpr static const size_t searchTranspositionTableBucketCount{ descriptorSea
 constexpr static const bool pruneFutility{ descriptorSearch::pruneFutility };
 constexpr static const bool pruneDelta{ descriptorSearch::pruneDelta };
 constexpr static const size_t killerLookBackDistance{ descriptorSearch::killerLookBackDistance };
-constexpr static const depthType countMaxExtensions{ descriptorSearch::countMaxExtensions };
+constexpr static const depthType countQs1Plies{ descriptorSearch::countQs1Plies };
+constexpr static const depthType countQs2Plies{ descriptorSearch::countQs2Plies };
 constexpr static const knuthType PVSnode{ descriptorSearch::PVSnode };
 constexpr static const knuthType CUTnode{ descriptorSearch::CUTnode };
 constexpr static const knuthType ALLnode{ descriptorSearch::ALLnode };

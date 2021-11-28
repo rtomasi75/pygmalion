@@ -20,5 +20,5 @@ namespace pygmalion::tictactoe
 	constexpr const size_t lateMoveReductionPlies{ 0 };
 	constexpr const size_t lateMoveReductionMinDepth{ 0 };
 
-	using descriptor_search = pygmalion::descriptor_search<evaluator, 10, searchOptions, countTranspositionTableBuckets, countQuietKillerMoveSlots, countTacticalKillerMoveSlots, killerMovesLookBackDistance, 3, lateMoveReductionPlies, lateMoveReductionMinDepth, heuristics>;
+	using descriptor_search = pygmalion::descriptor_search<evaluator, 10, searchOptions, countTranspositionTableBuckets, countQuietKillerMoveSlots, countTacticalKillerMoveSlots, killerMovesLookBackDistance, 3, 6, lateMoveReductionPlies, lateMoveReductionMinDepth, heuristics>;
 }

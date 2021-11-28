@@ -23,9 +23,10 @@ namespace pygmalion::chess
 	constexpr const size_t countTacticalKillerMoveSlots{ 2 };
 	constexpr const size_t countTranspositionTableBuckets{ 2 };
 	constexpr const size_t killerMovesLookBackDistance{ 1 };
-	constexpr const size_t countMaxQuiesenceSearchDepth{ 63 };
+	constexpr const size_t countQs1Plies{ 4 };
+	constexpr const size_t countQs2Plies{ 4 };
 	constexpr const size_t lateMoveReductionMinPlies{ 2 };
 	constexpr const size_t lateMoveReductionMinDepth{ 1 };
 
-	using descriptor_search = pygmalion::descriptor_search<evaluator, 63, searchOptions, countTranspositionTableBuckets, countQuietKillerMoveSlots, countTacticalKillerMoveSlots, killerMovesLookBackDistance, countMaxQuiesenceSearchDepth, lateMoveReductionMinPlies, lateMoveReductionMinDepth, heuristics>;
+	using descriptor_search = pygmalion::descriptor_search<evaluator, 63, searchOptions, countTranspositionTableBuckets, countQuietKillerMoveSlots, countTacticalKillerMoveSlots, killerMovesLookBackDistance, countQs1Plies, countQs2Plies, lateMoveReductionMinPlies, lateMoveReductionMinDepth, heuristics>;
 }
