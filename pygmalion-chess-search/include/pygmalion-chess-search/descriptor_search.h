@@ -23,8 +23,8 @@ namespace pygmalion::chess
 	constexpr const size_t countTacticalKillerMoveSlots{ 2 };
 	constexpr const size_t countTranspositionTableBuckets{ 2 };
 	constexpr const size_t killerMovesLookBackDistance{ 1 };
-	constexpr const size_t countQs1Plies{ 4 };
-	constexpr const size_t countQs2Plies{ 4 };
+	constexpr const size_t countQs1Plies{ 2 };
+	constexpr const size_t countQs2Plies{ 2 };
 	constexpr const size_t lateMoveReductionMinPlies{ 2 };
 	constexpr const size_t lateMoveReductionMinDepth{ 1 };
 

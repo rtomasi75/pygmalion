@@ -7,6 +7,7 @@ namespace pygmalion::chess
 		, evaluationstage_mobility
 		, evaluationstage_control
 		, evaluationstage_kingsafety
+		, evaluationstage_kingareasafety
 		>
 	{
 	public:

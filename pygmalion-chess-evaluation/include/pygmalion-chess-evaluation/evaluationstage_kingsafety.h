@@ -4,8 +4,12 @@ namespace pygmalion::chess
 		public pygmalion::evaluationstage<descriptor_evaluation, evaluationstage_kingsafety>
 	{
 	public:
-		PYGMALION_TUNABLE static inline double KingSafety{ 0.0125 };
-		//		constexpr static inline double KingAreaSafety{ 0.05 };
+		PYGMALION_TUNABLE static inline double KingSafetyPawn{ 0.00625 };
+		PYGMALION_TUNABLE static inline double KingSafetyKnight{ 0.0125 };
+		PYGMALION_TUNABLE static inline double KingSafetyBishop{ 0.0125 };
+		PYGMALION_TUNABLE static inline double KingSafetyRook{ 0.0125 };
+		PYGMALION_TUNABLE static inline double KingSafetyQueen{ 0.025 };
+		PYGMALION_TUNABLE static inline double KingSafetyKing{ 0.00625 };
 	private:
 		class scoreLookUp
 		{
@@ -33,9 +37,13 @@ namespace pygmalion::chess
 			constexpr scoreLookUp& operator=(const scoreLookUp&) noexcept = default;
 			constexpr scoreLookUp& operator=(scoreLookUp&&) noexcept = default;
 		};
-		//		static inline scoreLookUp m_KingAreaSafetyScores{ scoreLookUp(KingAreaSafety) };
-		static inline scoreLookUp m_KingSafetyScores{ scoreLookUp(KingSafety) };
-		PYGMALION_TUNABLE static inline scoreType KingSafetyDelta{ static_cast<scoreType>(8.0 * (KingSafety)) };
+		static inline scoreLookUp m_KingSafetyScoresPawn{ scoreLookUp(KingSafetyPawn) };
+		static inline scoreLookUp m_KingSafetyScoresKnight{ scoreLookUp(KingSafetyKnight) };
+		static inline scoreLookUp m_KingSafetyScoresBishop{ scoreLookUp(KingSafetyBishop) };
+		static inline scoreLookUp m_KingSafetyScoresRook{ scoreLookUp(KingSafetyRook) };
+		static inline scoreLookUp m_KingSafetyScoresQueen{ scoreLookUp(KingSafetyQueen) };
+		static inline scoreLookUp m_KingSafetyScoresKing{ scoreLookUp(KingSafetyKing) };
+		PYGMALION_TUNABLE static inline scoreType KingSafetyDelta{ static_cast<scoreType>(8.0 * std::max(std::max(std::max(KingSafetyPawn,KingSafetyKnight), std::max(KingSafetyBishop, KingSafetyRook)), std::max(KingSafetyQueen, KingSafetyKing))) };
 		template<size_t PLAYER>
 		PYGMALION_INLINE static scoreType scoreKingsafety(const generatorType::template stackType<PLAYER>& stack, const playerType player) noexcept
 		{
@@ -54,7 +62,7 @@ namespace pygmalion::chess
 				{
 					if (kingTropism.distanceSquares(pawn, d)[sq])
 					{
-						safetyScore -= m_KingSafetyScores[d];
+						safetyScore -= m_KingSafetyScoresPawn[d];
 						bFound = true;
 						break;
 					}
@@ -64,12 +72,12 @@ namespace pygmalion::chess
 					if (otherPlayer == whitePlayer)
 					{
 						const squaresType pawnTargets{ generatorType::movegenPawnPushWhite.targets(sq, unoccupied) | generatorType::movegenPawnDoublePushWhite.targets(sq, unoccupied) };
-						safetyScore -= static_cast<typename scoreType::valueType>(static_cast<bool>(kingTropism.distanceSquares(pawn, generatorType::tropismType::maxDistance) & pawnTargets)) * m_KingSafetyScores[generatorType::tropismType::maxDistance + 1];
+						safetyScore -= static_cast<typename scoreType::valueType>(static_cast<bool>(kingTropism.distanceSquares(pawn, generatorType::tropismType::maxDistance) & pawnTargets)) * m_KingSafetyScoresPawn[generatorType::tropismType::maxDistance + 1];
 					}
 					else
 					{
 						const squaresType pawnTargets{ generatorType::movegenPawnPushBlack.targets(sq, unoccupied) | generatorType::movegenPawnDoublePushBlack.targets(sq, unoccupied) };
-						safetyScore -= static_cast<typename scoreType::valueType>(static_cast<bool>(kingTropism.distanceSquares(pawn, generatorType::tropismType::maxDistance) & pawnTargets)) * m_KingSafetyScores[generatorType::tropismType::maxDistance + 1];
+						safetyScore -= static_cast<typename scoreType::valueType>(static_cast<bool>(kingTropism.distanceSquares(pawn, generatorType::tropismType::maxDistance) & pawnTargets)) * m_KingSafetyScoresPawn[generatorType::tropismType::maxDistance + 1];
 					}
 				}
 			}
@@ -79,7 +87,7 @@ namespace pygmalion::chess
 			{
 				if (kingTropism.distanceSquares(pawn, d)[otherKing])
 				{
-					safetyScore -= m_KingSafetyScores[d];
+					safetyScore -= m_KingSafetyScoresPawn[d];
 					bFound = true;
 					break;
 				}
@@ -87,7 +95,7 @@ namespace pygmalion::chess
 			if (!bFound)
 			{
 				const squaresType kingTargets{ generatorType::movegenKing.targets(otherKing, unoccupied) | (generatorType::movegenKing.attacks(otherKing, unoccupied) & playerOcc) };
-				safetyScore -= static_cast<typename scoreType::valueType>(static_cast<bool>(kingTropism.distanceSquares(king, generatorType::tropismType::maxDistance) & kingTargets)) * m_KingSafetyScores[generatorType::tropismType::maxDistance + 1];
+				safetyScore -= static_cast<typename scoreType::valueType>(static_cast<bool>(kingTropism.distanceSquares(king, generatorType::tropismType::maxDistance) & kingTargets)) * m_KingSafetyScoresKing[generatorType::tropismType::maxDistance + 1];
 			}
 			for (const auto sq : pieces[knight])
 			{
@@ -96,7 +104,7 @@ namespace pygmalion::chess
 				{
 					if (kingTropism.distanceSquares(knight, d)[sq])
 					{
-						safetyScore -= m_KingSafetyScores[d];
+						safetyScore -= m_KingSafetyScoresKnight[d];
 						bFound = true;
 						break;
 					}
@@ -104,7 +112,7 @@ namespace pygmalion::chess
 				if (!bFound)
 				{
 					const squaresType knightTargets{ generatorType::movegenKnight.targets(sq, unoccupied) | (generatorType::movegenKnight.attacks(sq, unoccupied) & playerOcc) };
-					safetyScore -= static_cast<typename scoreType::valueType>(static_cast<bool>(kingTropism.distanceSquares(knight, generatorType::tropismType::maxDistance) & knightTargets)) * m_KingSafetyScores[generatorType::tropismType::maxDistance + 1];
+					safetyScore -= static_cast<typename scoreType::valueType>(static_cast<bool>(kingTropism.distanceSquares(knight, generatorType::tropismType::maxDistance) & knightTargets)) * m_KingSafetyScoresKnight[generatorType::tropismType::maxDistance + 1];
 				}
 			}
 			for (const auto sq : pieces[rook])
@@ -114,7 +122,7 @@ namespace pygmalion::chess
 				{
 					if (kingTropism.distanceSquares(rook, d)[sq])
 					{
-						safetyScore -= m_KingSafetyScores[d];
+						safetyScore -= m_KingSafetyScoresRook[d];
 						bFound = true;
 						break;
 					}
@@ -122,7 +130,7 @@ namespace pygmalion::chess
 				if (!bFound)
 				{
 					const squaresType rookTargets{ generatorType::movegenSlidersHV.targets(sq, unoccupied) | (generatorType::movegenSlidersHV.attacks(sq, unoccupied) & playerOcc) };
-					safetyScore -= static_cast<typename scoreType::valueType>(static_cast<bool>(kingTropism.distanceSquares(rook, generatorType::tropismType::maxDistance) & rookTargets)) * m_KingSafetyScores[generatorType::tropismType::maxDistance + 1];
+					safetyScore -= static_cast<typename scoreType::valueType>(static_cast<bool>(kingTropism.distanceSquares(rook, generatorType::tropismType::maxDistance) & rookTargets)) * m_KingSafetyScoresRook[generatorType::tropismType::maxDistance + 1];
 				}
 			}
 			for (const auto sq : pieces[bishop])
@@ -132,7 +140,7 @@ namespace pygmalion::chess
 				{
 					if (kingTropism.distanceSquares(bishop, d)[sq])
 					{
-						safetyScore -= m_KingSafetyScores[d];
+						safetyScore -= m_KingSafetyScoresBishop[d];
 						bFound = true;
 						break;
 					}
@@ -140,7 +148,7 @@ namespace pygmalion::chess
 				if (!bFound)
 				{
 					const squaresType bishopTargets{ generatorType::movegenSlidersDiag.targets(sq, unoccupied) | (generatorType::movegenSlidersDiag.attacks(sq, unoccupied) & playerOcc) };
-					safetyScore -= static_cast<typename scoreType::valueType>(static_cast<bool>(kingTropism.distanceSquares(bishop, generatorType::tropismType::maxDistance) & bishopTargets)) * m_KingSafetyScores[generatorType::tropismType::maxDistance + 1];
+					safetyScore -= static_cast<typename scoreType::valueType>(static_cast<bool>(kingTropism.distanceSquares(bishop, generatorType::tropismType::maxDistance) & bishopTargets)) * m_KingSafetyScoresBishop[generatorType::tropismType::maxDistance + 1];
 				}
 			}
 			for (const auto sq : pieces[queen])
@@ -150,7 +158,7 @@ namespace pygmalion::chess
 				{
 					if (kingTropism.distanceSquares(queen, d)[sq])
 					{
-						safetyScore -= m_KingSafetyScores[d];
+						safetyScore -= m_KingSafetyScoresQueen[d];
 						bFound = true;
 						break;
 					}
@@ -158,7 +166,7 @@ namespace pygmalion::chess
 				if (!bFound)
 				{
 					const squaresType queenTargets{ generatorType::movegenSlidersDiag.targets(sq, unoccupied) | generatorType::movegenSlidersHV.targets(sq, unoccupied) | (generatorType::movegenSlidersDiag.attacks(sq, unoccupied) & playerOcc) | (generatorType::movegenSlidersHV.attacks(sq, unoccupied) & playerOcc) };
-					safetyScore -= static_cast<typename scoreType::valueType>(static_cast<bool>(kingTropism.distanceSquares(queen, generatorType::tropismType::maxDistance) & queenTargets)) * m_KingSafetyScores[generatorType::tropismType::maxDistance + 1];
+					safetyScore -= static_cast<typename scoreType::valueType>(static_cast<bool>(kingTropism.distanceSquares(queen, generatorType::tropismType::maxDistance) & queenTargets)) * m_KingSafetyScoresQueen[generatorType::tropismType::maxDistance + 1];
 				}
 			}
 			return safetyScore;
@@ -166,18 +174,63 @@ namespace pygmalion::chess
 	public:
 		constexpr static size_t getParameterCount_Implementation() noexcept
 		{
-			return 1;
+			return 6;
 		}
 		static parameter getParameter_Implementation(const size_t index) noexcept
 		{
-			return parameter(KingSafety, 0.0, 1.0, 0.001, "term_kingsafety");
+			switch (index)
+			{
+			default:
+				PYGMALION_ASSERT(false);
+				return parameter(0.0, 0.0, 1.0, 0.001, "term_kingsafety_error");
+			case 0:
+				return parameter(KingSafetyPawn, 0.0, 1.0, 0.001, "term_kingsafety_pawn");
+			case 1:
+				return parameter(KingSafetyKnight, 0.0, 1.0, 0.001, "term_kingsafety_knight");
+			case 2:
+				return parameter(KingSafetyBishop, 0.0, 1.0, 0.001, "term_kingsafety_bishop");
+			case 3:
+				return parameter(KingSafetyRook, 0.0, 1.0, 0.001, "term_kingsafety_rook");
+			case 4:
+				return parameter(KingSafetyQueen, 0.0, 1.0, 0.001, "term_kingsafety_queen");
+			case 5:
+				return parameter(KingSafetyKing, 0.0, 1.0, 0.001, "term_kingsafety_king");
+			}
 		}
 #if defined(PYGMALION_TUNE)
 		static void setParameter_Implementation(const size_t index, double value) noexcept
 		{
-			KingSafety = value;
-			m_KingSafetyScores = scoreLookUp(KingSafety);
-			KingSafetyDelta = static_cast<scoreType>(8.0 * (KingSafety));
+			switch (index)
+			{
+			default:
+				PYGMALION_ASSERT(false);
+				break;
+			case 0:
+				KingSafetyPawn = value;
+				m_KingSafetyScoresPawn = scoreLookUp(KingSafetyPawn);
+				break;
+			case 1:
+				KingSafetyKnight = value;
+				m_KingSafetyScoresKnight = scoreLookUp(KingSafetyKnight);
+				break;
+			case 2:
+				KingSafetyBishop = value;
+				m_KingSafetyScoresBishop = scoreLookUp(KingSafetyBishop);
+				break;
+			case 3:
+				KingSafetyRook = value;
+				m_KingSafetyScoresRook = scoreLookUp(KingSafetyRook);
+				break;
+			case 4:
+				KingSafetyQueen = value;
+				m_KingSafetyScoresQueen = scoreLookUp(KingSafetyQueen);
+				break;
+			case 5:
+				KingSafetyKing = value;
+				m_KingSafetyScoresKing = scoreLookUp(KingSafetyKing);
+				break;
+			}
+			KingSafetyDelta = static_cast<scoreType>(8.0 * std::max(std::max(std::max(KingSafetyPawn,KingSafetyKnight), std::max(KingSafetyBishop, KingSafetyRook)), std::max(KingSafetyQueen, KingSafetyKing)));
 		}
 #endif
 		PYGMALION_TUNABLE static scoreType computeDelta_Implementation() noexcept
