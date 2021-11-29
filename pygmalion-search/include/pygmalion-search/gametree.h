@@ -27,10 +27,8 @@ namespace pygmalion
 			heuristicsType& m_Heuristics;
 			const int m_DistanceFromRoot;
 			movelistType m_Moves;
-			movelistType m_CriticalMoves;
 			movelistType m_TacticalMoves;
 			nodecountlistType m_Nodecounts;
-			nodecountlistType m_CriticalNodecounts;
 			nodecountlistType m_TacticalNodecounts;
 			quietkillernodecountlistType m_QuietKillerNodecounts;
 			tacticalkillernodecountlistType m_TacticalKillerNodecounts;
@@ -58,7 +56,6 @@ namespace pygmalion
 			indexType m_QuietMoveKiller;
 			indexType m_TacticalMoveKiller;
 			indexType m_Move;
-			indexType m_CriticalMove;
 			indexType m_TacticalMove;
 			size_t m_Depth;
 			nodecounterType m_MoveNodecount;
@@ -96,12 +93,7 @@ namespace pygmalion
 					else if (m_IsKiller)
 						m_QuietKillerNodecounts.replace(m_QuietMoveKiller - 1, count);
 					else
-					{
-						if constexpr (PRUNED)
-							m_Nodecounts.replace(m_CriticalMove - 1, m_Nodecounts[m_CriticalMove - 1] + count);
-						else
-							m_Nodecounts.replace(m_Move - 1, m_Nodecounts[m_Move - 1] + count);
-					}
+						m_Nodecounts.replace(m_Move - 1, m_Nodecounts[m_Move - 1] + count);
 				}
 			}
 			template<bool PRUNED, bool TACTICAL>
@@ -117,12 +109,7 @@ namespace pygmalion
 					else if (m_IsKiller)
 						m_QuietKillerNodecounts.replace(m_QuietMoveKiller - 1, count);
 					else
-					{
-						if constexpr (PRUNED)
-							m_Nodecounts.replace(m_CriticalMove - 1, m_Nodecounts[m_CriticalMove - 1] + count);
-						else
-							m_Nodecounts.replace(m_Move - 1, m_Nodecounts[m_Move - 1] + count);
-					}
+						m_Nodecounts.replace(m_Move - 1, m_Nodecounts[m_Move - 1] + count);
 				}
 			}
 			template<bool PRUNED, bool TACTICAL>
@@ -1197,10 +1184,7 @@ namespace pygmalion
 				}
 				else
 				{
-					if constexpr (PRUNED)
-						m_CriticalMove = 0;
-					else
-						m_Move = 0;
+					m_Move = 0;
 					m_MoveGeneratorStage = -1;
 				}
 				if constexpr (dynamicMoveScores)
@@ -1212,10 +1196,7 @@ namespace pygmalion
 						{
 							bool bFound = false;
 							movebitsType movebits;
-							if constexpr (PRUNED)
-								movebits = m_CriticalMoves[i];
-							else
-								movebits = m_Moves[i];
+							movebits = m_Moves[i];
 							for (indexType j = 0; j < m_MovesTT.length(); j++)
 							{
 								if (m_MovesTT[j] == movebits)
@@ -1466,12 +1447,10 @@ namespace pygmalion
 				m_TacticalMovesKiller{ tacticalKillermovesType() },
 				m_TacticalMovesTT{ ttmovesType() },
 				m_Moves{ movelistType() },
-				m_CriticalMoves{ movelistType() },
 				m_TacticalMoves{ movelistType() },
 				m_TacticalMoveGeneratorStage{ -1 },
 				m_MoveGeneratorStage{ -1 },
 				m_Move{ 0 },
-				m_CriticalMove{ 0 },
 				m_TacticalMove{ 0 },
 				m_NeedsSorting{ false },
 				m_FutilityPruningAllowed{ false },
@@ -1503,12 +1482,10 @@ namespace pygmalion
 				m_TacticalMovesKiller{ tacticalKillermovesType() },
 				m_TacticalMovesTT{ ttmovesType() },
 				m_Moves{ movelistType() },
-				m_CriticalMoves{ movelistType() },
 				m_TacticalMoves{ movelistType() },
 				m_TacticalMoveGeneratorStage{ -1 },
 				m_MoveGeneratorStage{ -1 },
 				m_Move{ 0 },
-				m_CriticalMove{ 0 },
 				m_TacticalMove{ 0 },
 				m_NeedsSorting{ false },
 				m_FutilityPruningAllowed{ false },
@@ -1760,86 +1737,43 @@ namespace pygmalion
 					{
 						if (m_NeedsSorting)
 						{
-							if constexpr (PRUNED)
-								sort<movebitsType, nodecounterType>::sortValues(m_CriticalMoves.ptr() + m_CriticalMove, m_Nodecounts.ptr() + m_CriticalMove, m_CriticalMoves.length() + m_CriticalMove);
-							else
-								sort<movebitsType, nodecounterType>::sortValues(m_Moves.ptr() + m_CriticalMove, m_Nodecounts.ptr() + m_CriticalMove, m_Moves.length() + m_CriticalMove);
+							sort<movebitsType, nodecounterType>::sortValues(m_Moves.ptr() + m_Move, m_Nodecounts.ptr() + m_Move, m_Moves.length() + m_Move);
 							m_NeedsSorting = false;
 						}
 					}
 				}
-				if constexpr (PRUNED)
+				while (m_Move < m_Moves.length())
 				{
-					while (m_CriticalMove < m_CriticalMoves.length())
+					if constexpr (dynamicMoveScores)
 					{
-						if constexpr (dynamicMoveScores)
+						if (m_NeedsSorting)
 						{
-							if (m_NeedsSorting)
+							indexType best = m_Move;
+							if constexpr (EXPECT_CUTOFF && allowSelectionSort)
 							{
-								indexType best = m_CriticalMove;
-								if constexpr (EXPECT_CUTOFF && allowSelectionSort)
+								nodecounterType highest{ m_Nodecounts[best] };
+								for (indexType i = m_Move + 1; i < m_Moves.length(); i++)
 								{
-									nodecounterType highest{ m_Nodecounts[best] };
-									for (indexType i = m_CriticalMove + 1; i < m_CriticalMoves.length(); i++)
+									if (m_Nodecounts[i] > highest)
 									{
-										if (m_Nodecounts[i] > highest)
-										{
-											highest = m_Nodecounts[i];
-											best = i;
-										}
+										highest = m_Nodecounts[i];
+										best = i;
 									}
 								}
-								if (m_CriticalMove != best)
-								{
-									m_Nodecounts.swap(m_CriticalMove, best);
-									m_CriticalMoves.swap(m_CriticalMove, best);
-								}
 							}
-						}
-						movebits = m_CriticalMoves[m_CriticalMove];
-						const bool bDouble{ m_MovesTT.contains(movebits) || m_QuietMovesKiller.contains(movebits) || m_TacticalMovesKiller.contains(movebits) };
-						++m_CriticalMove;
-						if (!bDouble)
-						{
-							return true;
+							if (m_Move != best)
+							{
+								m_Nodecounts.swap(m_Move, best);
+								m_Moves.swap(m_Move, best);
+							}
 						}
 					}
-				}
-				else
-				{
-					while (m_Move < m_Moves.length())
+					movebits = m_Moves[m_Move];
+					const bool bDouble{ m_MovesTT.contains(movebits) || m_QuietMovesKiller.contains(movebits) || m_TacticalMovesKiller.contains(movebits) };
+					++m_Move;
+					if (!bDouble)
 					{
-						if constexpr (dynamicMoveScores)
-						{
-							if (m_NeedsSorting)
-							{
-								indexType best = m_Move;
-								if constexpr (EXPECT_CUTOFF && allowSelectionSort)
-								{
-									nodecounterType highest{ m_Nodecounts[best] };
-									for (indexType i = m_Move + 1; i < m_Moves.length(); i++)
-									{
-										if (m_Nodecounts[i] > highest)
-										{
-											highest = m_Nodecounts[i];
-											best = i;
-										}
-									}
-								}
-								if (m_Move != best)
-								{
-									m_Nodecounts.swap(m_Move, best);
-									m_Moves.swap(m_Move, best);
-								}
-							}
-						}
-						movebits = m_Moves[m_Move];
-						const bool bDouble{ m_MovesTT.contains(movebits) || m_QuietMovesKiller.contains(movebits) || m_TacticalMovesKiller.contains(movebits) };
-						++m_Move;
-						if (!bDouble)
-						{
-							return true;
-						}
+						return true;
 					}
 				}
 				movebitsType testBits{ movebitsType(0) };
@@ -1854,10 +1788,10 @@ namespace pygmalion
 						{
 							const bool bDouble{ m_MovesTT.contains(testBits) || m_QuietMovesKiller.contains(testBits) || m_TacticalMovesKiller.contains(testBits) };
 							movebits = testBits;
-							m_CriticalMoves.add(movebits);
+							m_Moves.add(movebits);
 							if constexpr (dynamicMoveScores)
 								m_Nodecounts.add(0);
-							++m_CriticalMove;
+							++m_Move;
 							if (!bDouble)
 							{
 								fromStack = true;
@@ -1871,10 +1805,10 @@ namespace pygmalion
 						{
 							const bool bDouble{ m_MovesTT.contains(testBits) || m_QuietMovesKiller.contains(testBits) || m_TacticalMovesKiller.contains(testBits) };
 							movebits = testBits;
-							m_CriticalMoves.add(movebits);
+							m_Moves.add(movebits);
 							if constexpr (dynamicMoveScores)
 								m_Nodecounts.add(0);
-							++m_CriticalMove;
+							++m_Move;
 							if (!bDouble)
 							{
 								fromStack = true;
@@ -1885,6 +1819,8 @@ namespace pygmalion
 				}
 				else
 				{
+					if constexpr (dynamicMoveScores)
+						m_NeedsSorting = false;
 					if constexpr (staticMoveScores)
 					{
 						const auto lambda{ [this](const movebitsType& bits) { return this->m_Heuristics.staticMoveScore(m_Stack, bits, m_Depth); } };
