@@ -8,7 +8,8 @@ namespace pygmalion
 		tactical,
 		criticalEvasion,
 		tacticalCrtiticalEvasion,
-		critical
+		critical,
+		tacticalCritical
 	};
 
 	template<typename DESCRIPTOR_DYNAMICS, typename INSTANCE >
@@ -163,15 +164,19 @@ namespace pygmalion
 		private:
 			stagelistType m_NormalStages;
 			stagelistType m_TacticalStages;
+			stagelistType m_TacticalCriticalStages;
 			stagelistType m_CriticalStages;
 			scorelistType m_NormalScores;
 			scorelistType m_TacticalScores;
+			scorelistType m_TacticalCriticalScores;
 			scorelistType m_CriticalScores;
 			movelistType m_NormalMoves;
 			movelistType m_TacticalMoves;
+			movelistType m_TacticalCriticalMoves;
 			movelistType m_CriticalMoves;
 			passlistType m_NormalPasses;
 			passlistType m_TacticalPasses;
+			passlistType m_TacticalCriticalPasses;
 			passlistType m_CriticalPasses;
 		public:
 			context() noexcept
@@ -227,6 +232,22 @@ namespace pygmalion
 			{
 				return m_CriticalPasses;
 			}
+			PYGMALION_INLINE scorelistType& tacticalCriticalScores() noexcept
+			{
+				return m_TacticalCriticalScores;
+			}
+			PYGMALION_INLINE movelistType& tacticalCriticalMoves() noexcept
+			{
+				return m_TacticalCriticalMoves;
+			}
+			PYGMALION_INLINE stagelistType& tacticalCriticalStages() noexcept
+			{
+				return m_TacticalCriticalStages;
+			}
+			PYGMALION_INLINE passlistType& tacticalCriticalPasses() noexcept
+			{
+				return m_TacticalCriticalPasses;
+			}
 			void clearMovegenLists() noexcept
 			{
 				m_NormalStages.clear();
@@ -241,6 +262,10 @@ namespace pygmalion
 				m_CriticalScores.clear();
 				m_CriticalMoves.clear();
 				m_CriticalPasses.clear();
+				m_TacticalCriticalStages.clear();
+				m_TacticalCriticalScores.clear();
+				m_TacticalCriticalMoves.clear();
+				m_TacticalCriticalPasses.clear();
 			}
 		};
 		template<size_t PLAYER>
@@ -266,21 +291,27 @@ namespace pygmalion
 			movedataType m_MoveData;
 			mutable scoreType m_LastNormalScore;
 			mutable scoreType m_LastTacticalScore;
+			mutable scoreType m_LastTacticalCriticalScore;
 			mutable scoreType m_LastCriticalScore;
 			mutable stageType m_LastNormalStage;
 			mutable stageType m_CurrentNormalStage;
 			mutable stageType m_LastTacticalStage;
+			mutable stageType m_LastTacticalCriticalStage;
 			mutable stageType m_CurrentTacticalStage;
+			mutable stageType m_CurrentTacticalCriticalStage;
 			mutable stageType m_LastCriticalStage;
 			mutable stageType m_CurrentCriticalStage;
 			mutable passType m_CurrentNormalPass;
 			mutable passType m_LastNormalPass;
 			mutable passType m_CurrentTacticalPass;
+			mutable passType m_CurrentTacticalCriticalPass;
 			mutable passType m_LastTacticalPass;
+			mutable passType m_LastTacticalCriticalPass;
 			mutable passType m_CurrentCriticalPass;
 			mutable passType m_LastCriticalPass;
 			mutable indexType m_CurrentNormalMove;
 			mutable indexType m_CurrentTacticalMove;
+			mutable indexType m_CurrentTacticalCriticalMove;
 			mutable indexType m_CurrentCriticalMove;
 			mutable indexType m_CurrentLegalMove;
 			mutable bool m_HasLegalMove;
@@ -298,6 +329,11 @@ namespace pygmalion
 			constexpr static inline const std::array<stageType, countTacticalStages> m_TacticalStages
 			{
 				arrayhelper::generate< countTacticalStages, stageType>([](const size_t index) {return generatorType::movegenStage(movegenPhase::tactical, index); })
+			};
+			constexpr static inline const size_t countTacticalCriticalStages{ generatorType::countMovegenStages(movegenPhase::tacticalCritical) };
+			constexpr static inline const std::array<stageType, countTacticalCriticalStages> m_TacticalCriticalStages
+			{
+				arrayhelper::generate< countTacticalCriticalStages, stageType>([](const size_t index) {return generatorType::movegenStage(movegenPhase::tacticalCritical, index); })
 			};
 			constexpr static inline const size_t countCriticalEvasionStages{ generatorType::countMovegenStages(movegenPhase::criticalEvasion) };
 			constexpr static inline const std::array<stageType, countCriticalEvasionStages> m_CriticalEvasionStages
@@ -321,6 +357,10 @@ namespace pygmalion
 			constexpr static inline const std::array<size_t, countTacticalStages> countTacticalPasses
 			{
 				arrayhelper::generate< countTacticalStages, stageType>([](const size_t index) {return generatorType::countMovegenPasses(generatorType::movegenStage(movegenPhase::tactical, index)); })
+			};
+			constexpr static inline const std::array<size_t, countTacticalCriticalStages> countTacticalCriticalPasses
+			{
+				arrayhelper::generate< countTacticalCriticalStages, stageType>([](const size_t index) {return generatorType::countMovegenPasses(generatorType::movegenStage(movegenPhase::tacticalCritical, index)); })
 			};
 			constexpr static inline const std::array<size_t, countCriticalEvasionStages> countCriticalEvasionPasses
 			{
@@ -522,6 +562,10 @@ namespace pygmalion
 			{
 				return m_LastTacticalScore;
 			}
+			PYGMALION_INLINE scoreType lastTacticalCriticalScore() const noexcept
+			{
+				return m_LastTacticalCriticalScore;
+			}
 			PYGMALION_INLINE scoreType lastCriticalScore() const noexcept
 			{
 				return m_LastCriticalScore;
@@ -580,6 +624,24 @@ namespace pygmalion
 				PYGMALION_ASSERT(stageIndex < countCriticalStages);
 				return feedback.index(m_CriticalStages[stageIndex], passIndex, m_History.length());
 			}
+			constexpr size_t tacticalCriticalStagesCount() const noexcept
+			{
+				return countTacticalCriticalStages;
+			}
+			constexpr size_t tacticalCriticalPassesCount(const stageType stage) const noexcept
+			{
+				return countTacticalCriticalPasses[stage];
+			}
+			PYGMALION_INLINE stageType tacticalCriticalStage(const size_t stageIndex) const noexcept
+			{
+				PYGMALION_ASSERT(stageIndex < countTacticalCriticalStages);
+				return m_TacticalCriticalStages[stageIndex];
+			}
+			PYGMALION_INLINE passType tacticalCriticalPass(movegenFeedback& feedback, const size_t stageIndex, const size_t passIndex) const noexcept
+			{
+				PYGMALION_ASSERT(stageIndex < countTacticalCriticalStages);
+				return feedback.index(m_TacticalCriticalStages[stageIndex], passIndex, m_History.length());
+			}
 			constexpr bool isPositionCritical() const noexcept
 			{
 				if (!m_IsPositionCriticalValid)
@@ -604,6 +666,14 @@ namespace pygmalion
 			PYGMALION_INLINE void tacticalCutMove(movegenFeedback& feedback, const size_t depth, const scoreType score, const scoreType eval) const noexcept
 			{
 				feedback.cutMoveRaw(m_LastTacticalStage, m_LastTacticalPass, depth, generatorType::template makeSubjective<PLAYER>(score), generatorType::template makeSubjective<PLAYER>(eval));
+			}
+			PYGMALION_INLINE void tacticalCriticalAllMove(movegenFeedback& feedback, const size_t depth, const scoreType score, const scoreType eval) const noexcept
+			{
+				feedback.allMoveRaw(m_LastTacticalCriticalStage, m_LastTacticalCriticalPass, depth, generatorType::template makeSubjective<PLAYER>(score), generatorType::template makeSubjective<PLAYER>(eval));
+			}
+			PYGMALION_INLINE void tacticalCriticalCutMove(movegenFeedback& feedback, const size_t depth, const scoreType score, const scoreType eval) const noexcept
+			{
+				feedback.cutMoveRaw(m_LastTacticalCriticalStage, m_LastTacticalCriticalPass, depth, generatorType::template makeSubjective<PLAYER>(score), generatorType::template makeSubjective<PLAYER>(eval));
 			}
 			PYGMALION_INLINE void criticalAllMove(movegenFeedback& feedback, const size_t depth, const scoreType score, const scoreType eval) const noexcept
 			{
@@ -889,6 +959,75 @@ namespace pygmalion
 				}
 				return nextTacticalMove(moveBits, depth, feedback);
 			}
+			bool nextTacticalCriticalMove(movebitsType& moveBits, const size_t depth, movegenFeedback& feedback) const noexcept
+			{
+				while (m_CurrentTacticalCriticalMove >= m_pContext->tacticalCriticalMoves().length())
+				{
+					if (isPositionCritical())
+					{
+						if (m_CurrentTacticalCriticalStage < countCriticalEvasionTacticalCriticalStages)
+						{
+							if (m_CurrentTacticalCriticalPass < countCriticalEvasionTacticalCriticalPasses[m_CurrentTacticalCriticalStage])
+							{
+								const auto index{ feedback.index(m_CriticalEvasionTacticalCriticalStages[m_CurrentTacticalCriticalStage], m_CurrentTacticalCriticalPass, depth) };
+								generatorType::generateMoves(m_CriticalEvasionTacticalCriticalStages[m_CurrentTacticalCriticalStage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->tacticalCriticalMoves(), index);
+								while (m_pContext->tacticalCriticalPasses().length() < m_pContext->tacticalCriticalMoves().length())
+								{
+									m_pContext->tacticalCriticalPasses().add(index);
+									m_pContext->tacticalCriticalStages().add(m_CriticalEvasionTacticalCriticalStages[m_CurrentTacticalCriticalStage]);
+								}
+								++m_CurrentTacticalCriticalPass;
+							}
+							else
+							{
+								++m_CurrentTacticalCriticalStage;
+								m_CurrentTacticalCriticalPass = 0;
+							}
+						}
+						else
+							return false;
+					}
+					else
+					{
+						if (m_CurrentTacticalCriticalStage < countTacticalCriticalStages)
+						{
+							if (m_CurrentTacticalCriticalPass < countTacticalCriticalPasses[m_CurrentTacticalCriticalStage])
+							{
+								const auto index{ feedback.index(m_TacticalCriticalStages[m_CurrentTacticalCriticalStage], m_CurrentTacticalCriticalPass, depth) };
+								generatorType::generateMoves(m_TacticalCriticalStages[m_CurrentTacticalCriticalStage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->tacticalCriticalMoves(), index);
+								while (m_pContext->tacticalCriticalPasses().length() < m_pContext->tacticalCriticalMoves().length())
+								{
+									m_pContext->tacticalCriticalPasses().add(index);
+									m_pContext->tacticalCriticalStages().add(m_TacticalCriticalStages[m_CurrentTacticalCriticalStage]);
+								}
+								++m_CurrentTacticalCriticalPass;
+							}
+							else
+							{
+								++m_CurrentTacticalCriticalStage;
+								m_CurrentTacticalCriticalPass = 0;
+							}
+						}
+						else
+							return false;
+					}
+				}
+				constexpr const scoreType minimum{ scoreType::minimum() };
+				while (m_CurrentTacticalCriticalMove < m_pContext->tacticalCriticalMoves().length())
+				{
+					moveBits = m_pContext->tacticalCriticalMoves()[m_CurrentTacticalCriticalMove];
+					if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits))
+					{
+						m_LastTacticalCriticalPass = m_pContext->tacticalCriticalPasses()[m_CurrentTacticalCriticalMove];
+						m_LastTacticalCriticalStage = m_pContext->tacticalCriticalStages()[m_CurrentTacticalCriticalMove];
+						m_LastTacticalCriticalScore = minimum;
+						++m_CurrentTacticalCriticalMove;
+						return true;
+					}
+					++m_CurrentTacticalCriticalMove;
+				}
+				return nextTacticalCriticalMove(moveBits, depth, feedback);
+			}
 			template<typename LAMBDA, bool EXPECT_CUTOFF>
 			bool nextTacticalMove(movebitsType& moveBits, const size_t depth, movegenFeedback& feedback, const LAMBDA& lambda) const noexcept
 			{
@@ -999,6 +1138,117 @@ namespace pygmalion
 					}
 				}
 				return this->template nextTacticalMove<LAMBDA, EXPECT_CUTOFF>(moveBits, depth, feedback, lambda);
+			}
+			template<typename LAMBDA, bool EXPECT_CUTOFF>
+			bool nextTacticalCriticalMove(movebitsType& moveBits, const size_t depth, movegenFeedback& feedback, const LAMBDA& lambda) const noexcept
+			{
+				while (m_CurrentTacticalCriticalMove >= m_pContext->tacticalCriticalMoves().length())
+				{
+					if (isPositionCritical())
+					{
+						if (m_CurrentTacticalCriticalStage < countCriticalEvasionTacticalCriticalStages)
+						{
+							if (m_CurrentTacticalCriticalPass < countCriticalEvasionTacticalCriticalPasses[m_CurrentTacticalCriticalStage])
+							{
+								const auto index{ feedback.index(m_CriticalEvasionTacticalCriticalStages[m_CurrentTacticalCriticalStage], m_CurrentTacticalCriticalPass, depth) };
+								generatorType::generateMoves(m_CriticalEvasionTacticalCriticalStages[m_CurrentTacticalCriticalStage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->tacticalCriticalMoves(), index);
+								const auto start{ m_pContext->tacticalCriticalPasses().length() };
+								while (m_pContext->tacticalCriticalPasses().length() < m_pContext->tacticalCriticalMoves().length())
+								{
+									m_pContext->tacticalCriticalScores().add(lambda(m_pContext->tacticalCriticalMoves()[m_pContext->tacticalCriticalPasses().length()]));
+									m_pContext->tacticalCriticalPasses().add(index);
+									m_pContext->tacticalCriticalStages().add(m_CriticalEvasionTacticalCriticalStages[m_CurrentTacticalCriticalStage]);
+								}
+								++m_CurrentTacticalCriticalPass;
+								if constexpr (!EXPECT_CUTOFF)
+									sort<movebitsType, scoreType>::sortValues(m_pContext->tacticalCriticalMoves().ptr() + start, m_pContext->tacticalCriticalScores().ptr() + start, m_pContext->tacticalCriticalMoves().length() - start);
+							}
+							else
+							{
+								++m_CurrentTacticalCriticalStage;
+								m_CurrentTacticalCriticalPass = 0;
+							}
+						}
+						else
+							return false;
+					}
+					else
+					{
+						if (m_CurrentTacticalCriticalStage < countTacticalCriticalStages)
+						{
+							if (m_CurrentTacticalCriticalPass < countTacticalCriticalPasses[m_CurrentTacticalCriticalStage])
+							{
+								const auto index{ feedback.index(m_TacticalCriticalStages[m_CurrentTacticalCriticalStage], m_CurrentTacticalCriticalPass, depth) };
+								generatorType::generateMoves(m_TacticalCriticalStages[m_CurrentTacticalCriticalStage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->tacticalCriticalMoves(), index);
+								const auto start{ m_pContext->tacticalCriticalPasses().length() };
+								while (m_pContext->tacticalCriticalPasses().length() < m_pContext->tacticalCriticalMoves().length())
+								{
+									m_pContext->tacticalCriticalScores().add(lambda(m_pContext->tacticalCriticalMoves()[m_pContext->tacticalCriticalPasses().length()]));
+									m_pContext->tacticalCriticalPasses().add(index);
+									m_pContext->tacticalCriticalStages().add(m_TacticalStages[m_CurrentTacticalCriticalStage]);
+								}
+								++m_CurrentTacticalCriticalPass;
+								if constexpr (!EXPECT_CUTOFF)
+									sort<movebitsType, scoreType>::sortValues(m_pContext->tacticalCriticalMoves().ptr() + start, m_pContext->tacticalCriticalScores().ptr() + start, m_pContext->tacticalCriticalMoves().length() - start);
+							}
+							else
+							{
+								++m_CurrentTacticalCriticalStage;
+								m_CurrentTacticalCriticalPass = 0;
+							}
+						}
+						else
+							return false;
+					}
+				}
+				while (m_CurrentTacticalCriticalMove < m_pContext->tacticalCriticalMoves().length())
+				{
+					if constexpr (EXPECT_CUTOFF)
+					{
+						constexpr scoreType minimum{ scoreType::minimum() };
+						scoreType best{ minimum };
+						indexType bestIdx{ m_CurrentTacticalCriticalMove };
+						for (indexType i = m_CurrentTacticalCriticalMove; i < m_pContext->tacticalCriticalMoves().length(); i++)
+						{
+							if (m_pContext->tacticalCriticalScores()[i] > best)
+							{
+								best = m_pContext->tacticalCriticalScores()[i];
+								bestIdx = i;
+							}
+						}
+						if (bestIdx != m_CurrentTacticalCriticalMove)
+						{
+							m_pContext->tacticalCriticalMoves().swap(m_CurrentTacticalCriticalMove, bestIdx);
+							m_pContext->tacticalCriticalStages().swap(m_CurrentTacticalCriticalMove, bestIdx);
+							m_pContext->tacticalCriticalScores().swap(m_CurrentTacticalCriticalMove, bestIdx);
+							m_pContext->tacticalCriticalPasses().swap(m_CurrentTacticalCriticalMove, bestIdx);
+						}
+						moveBits = m_pContext->tacticalCriticalMoves()[m_CurrentTacticalCriticalMove];
+						if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits))
+						{
+							m_LastTacticalCriticalPass = m_pContext->tacticalCriticalPasses()[m_CurrentTacticalCriticalMove];
+							m_LastTacticalCriticalStage = m_pContext->tacticalCriticalStages()[m_CurrentTacticalCriticalMove];
+							m_LastTacticalCriticalScore = m_pContext->tacticalCriticalScores()[m_CurrentTacticalCriticalMove];
+							++m_CurrentTacticalCriticalMove;
+							return true;
+						}
+						++m_CurrentTacticalCriticalMove;
+					}
+					else
+					{
+						moveBits = m_pContext->tacticalCriticalMoves()[m_CurrentTacticalCriticalMove];
+						if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits))
+						{
+							m_LastTacticalCriticalPass = m_pContext->tacticalCriticalPasses()[m_CurrentTacticalCriticalMove];
+							m_LastTacticalCriticalStage = m_pContext->tacticalCriticalStages()[m_CurrentTacticalCriticalMove];
+							m_LastTacticalCriticalScore = m_pContext->tacticalCriticalScores()[m_CurrentTacticalCriticalMove];
+							++m_CurrentTacticalCriticalMove;
+							return true;
+						}
+						++m_CurrentTacticalCriticalMove;
+					}
+				}
+				return this->template nextTacticalCriticalMove<LAMBDA, EXPECT_CUTOFF>(moveBits, depth, feedback, lambda);
 			}
 			bool nextCriticalMove(movebitsType& moveBits, const size_t depth, movegenFeedback& feedback) const noexcept
 			{
@@ -1140,6 +1390,9 @@ namespace pygmalion
 				m_CurrentTacticalPass{ 0 },
 				m_CurrentTacticalMove{ 0 },
 				m_CurrentTacticalStage{ 0 },
+				m_CurrentTacticalCriticalPass{ 0 },
+				m_CurrentTacticalCriticalMove{ 0 },
+				m_CurrentTacticalCriticalStage{ 0 },
 				m_LastTacticalPass{ 0 },
 				m_LastTacticalStage{ 0 },
 				m_CurrentCriticalPass{ 0 },
@@ -1165,6 +1418,9 @@ namespace pygmalion
 				m_CurrentTacticalPass{ 0 },
 				m_CurrentTacticalMove{ 0 },
 				m_CurrentTacticalStage{ 0 },
+				m_CurrentTacticalCriticalPass{ 0 },
+				m_CurrentTacticalCriticalMove{ 0 },
+				m_CurrentTacticalCriticalStage{ 0 },
 				m_LastTacticalPass{ 0 },
 				m_LastTacticalStage{ 0 },
 				m_CurrentCriticalPass{ 0 },
