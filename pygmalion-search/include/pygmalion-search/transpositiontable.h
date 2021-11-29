@@ -377,7 +377,7 @@ namespace pygmalion
 			}
 		}
 		template<size_t PLAYER>
-		void probeTacticalMoves(const stackType<PLAYER>& stack, ttmovesType& moves) const noexcept
+		void probeTacticalMoves(const stackType<PLAYER>& stack, const depthType depthRemaining, ttmovesType& moves) const noexcept
 		{
 			if constexpr (countBuckets > 0)
 			{
@@ -395,7 +395,7 @@ namespace pygmalion
 							{
 								if (!moves.contains(m_Entry[index].move()))
 								{
-									score[moves.length()] = -std::abs(m_Entry[index].draft() + 1);
+									score[moves.length()] = -std::abs(m_Entry[index].draft() - depthRemaining);
 									moves.add(m_Entry[index].move());
 								}
 							}

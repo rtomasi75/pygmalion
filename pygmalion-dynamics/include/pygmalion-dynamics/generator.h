@@ -1146,18 +1146,18 @@ namespace pygmalion
 				{
 					if (isPositionCritical())
 					{
-						if (m_CurrentTacticalCriticalStage < countCriticalEvasionTacticalCriticalStages)
+						if (m_CurrentTacticalCriticalStage < countCriticalEvasionStages)
 						{
-							if (m_CurrentTacticalCriticalPass < countCriticalEvasionTacticalCriticalPasses[m_CurrentTacticalCriticalStage])
+							if (m_CurrentTacticalCriticalPass < countCriticalEvasionPasses[m_CurrentTacticalCriticalStage])
 							{
-								const auto index{ feedback.index(m_CriticalEvasionTacticalCriticalStages[m_CurrentTacticalCriticalStage], m_CurrentTacticalCriticalPass, depth) };
-								generatorType::generateMoves(m_CriticalEvasionTacticalCriticalStages[m_CurrentTacticalCriticalStage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->tacticalCriticalMoves(), index);
+								const auto index{ feedback.index(m_CriticalEvasionStages[m_CurrentTacticalCriticalStage], m_CurrentTacticalCriticalPass, depth) };
+								generatorType::generateMoves(m_CriticalEvasionStages[m_CurrentTacticalCriticalStage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->tacticalCriticalMoves(), index);
 								const auto start{ m_pContext->tacticalCriticalPasses().length() };
 								while (m_pContext->tacticalCriticalPasses().length() < m_pContext->tacticalCriticalMoves().length())
 								{
 									m_pContext->tacticalCriticalScores().add(lambda(m_pContext->tacticalCriticalMoves()[m_pContext->tacticalCriticalPasses().length()]));
 									m_pContext->tacticalCriticalPasses().add(index);
-									m_pContext->tacticalCriticalStages().add(m_CriticalEvasionTacticalCriticalStages[m_CurrentTacticalCriticalStage]);
+									m_pContext->tacticalCriticalStages().add(m_CriticalEvasionStages[m_CurrentTacticalCriticalStage]);
 								}
 								++m_CurrentTacticalCriticalPass;
 								if constexpr (!EXPECT_CUTOFF)
@@ -1185,7 +1185,7 @@ namespace pygmalion
 								{
 									m_pContext->tacticalCriticalScores().add(lambda(m_pContext->tacticalCriticalMoves()[m_pContext->tacticalCriticalPasses().length()]));
 									m_pContext->tacticalCriticalPasses().add(index);
-									m_pContext->tacticalCriticalStages().add(m_TacticalStages[m_CurrentTacticalCriticalStage]);
+									m_pContext->tacticalCriticalStages().add(m_TacticalCriticalStages[m_CurrentTacticalCriticalStage]);
 								}
 								++m_CurrentTacticalCriticalPass;
 								if constexpr (!EXPECT_CUTOFF)
@@ -1226,11 +1226,14 @@ namespace pygmalion
 						moveBits = m_pContext->tacticalCriticalMoves()[m_CurrentTacticalCriticalMove];
 						if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits))
 						{
-							m_LastTacticalCriticalPass = m_pContext->tacticalCriticalPasses()[m_CurrentTacticalCriticalMove];
-							m_LastTacticalCriticalStage = m_pContext->tacticalCriticalStages()[m_CurrentTacticalCriticalMove];
-							m_LastTacticalCriticalScore = m_pContext->tacticalCriticalScores()[m_CurrentTacticalCriticalMove];
-							++m_CurrentTacticalCriticalMove;
-							return true;
+							if ((!isPositionCritical()) || (generatorType::isMoveTactical(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits) || generatorType::template isMoveCritical<PLAYER, typename generatorType::template stackType<PLAYER>>(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits)))
+							{
+								m_LastTacticalCriticalPass = m_pContext->tacticalCriticalPasses()[m_CurrentTacticalCriticalMove];
+								m_LastTacticalCriticalStage = m_pContext->tacticalCriticalStages()[m_CurrentTacticalCriticalMove];
+								m_LastTacticalCriticalScore = m_pContext->tacticalCriticalScores()[m_CurrentTacticalCriticalMove];
+								++m_CurrentTacticalCriticalMove;
+								return true;
+							}
 						}
 						++m_CurrentTacticalCriticalMove;
 					}
@@ -1239,11 +1242,14 @@ namespace pygmalion
 						moveBits = m_pContext->tacticalCriticalMoves()[m_CurrentTacticalCriticalMove];
 						if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits))
 						{
-							m_LastTacticalCriticalPass = m_pContext->tacticalCriticalPasses()[m_CurrentTacticalCriticalMove];
-							m_LastTacticalCriticalStage = m_pContext->tacticalCriticalStages()[m_CurrentTacticalCriticalMove];
-							m_LastTacticalCriticalScore = m_pContext->tacticalCriticalScores()[m_CurrentTacticalCriticalMove];
-							++m_CurrentTacticalCriticalMove;
-							return true;
+							if ((!isPositionCritical()) || (generatorType::isMoveTactical(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits) || generatorType::template isMoveCritical<PLAYER, typename generatorType::template stackType<PLAYER>>(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits)))
+							{
+								m_LastTacticalCriticalPass = m_pContext->tacticalCriticalPasses()[m_CurrentTacticalCriticalMove];
+								m_LastTacticalCriticalStage = m_pContext->tacticalCriticalStages()[m_CurrentTacticalCriticalMove];
+								m_LastTacticalCriticalScore = m_pContext->tacticalCriticalScores()[m_CurrentTacticalCriticalMove];
+								++m_CurrentTacticalCriticalMove;
+								return true;
+							}
 						}
 						++m_CurrentTacticalCriticalMove;
 					}

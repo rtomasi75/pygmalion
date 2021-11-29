@@ -944,22 +944,39 @@ namespace pygmalion::chess
 			}
 			PYGMALION_INLINE scoreType moveDeltaValue_Implementation(const movebitsType move) const noexcept
 			{
-				PYGMALION_ASSERT(motorType::move().isCapture(move));
 				constexpr const scoreType zero{ scoreType::zero() };
-				const playerType movingSide{ this->stack().position().movingPlayer() };
-				const playerType defendingSide{ movingSide.next() };
-				const squareType captureSquare{ motorType::move().captureSquare(this->stack().position(),move) };
-				const pieceType capturedPiece{ this->stack().position().getPiece(captureSquare) };
-				const scoreType victimValue{ static_cast<scoreType>(boardType::materialValueRelative(capturedPiece,captureSquare,defendingSide)) };
-				if (motorType::move().isPromotion(move))
+				if (motorType::move().isCapture(move))
 				{
-					const squareType from{ motorType::move().fromSquare(this->stack().position(),move) };
-					const pieceType promotedPiece{ motorType::move().promotedPiece(move) };
-					const scoreType promotionValue{ static_cast<scoreType>(boardType::materialValueRelative(promotedPiece,captureSquare,movingSide) - boardType::materialValueRelative(descriptorState::pawn,from,movingSide)) };
-					return victimValue + promotionValue;
+					const playerType movingSide{ this->stack().movingPlayer() };
+					const playerType defendingSide{ movingSide.next() };
+					const squareType captureSquare{ motorType::move().captureSquare(this->stack().position(),move) };
+					const pieceType capturedPiece{ this->stack().position().getPiece(captureSquare) };
+					const scoreType victimValue{ static_cast<scoreType>(boardType::materialValueRelative(capturedPiece,captureSquare,defendingSide)) };
+					if (motorType::move().isPromotion(move))
+					{
+						const squareType from{ motorType::move().fromSquare(this->stack().position(),move) };
+						const pieceType promotedPiece{ motorType::move().promotedPiece(move) };
+						const scoreType promotionValue{ static_cast<scoreType>(boardType::materialValueRelative(promotedPiece,captureSquare,movingSide) - boardType::materialValueRelative(descriptorState::pawn,from,movingSide)) };
+						return victimValue + promotionValue;
+					}
+					else
+						return victimValue;
 				}
 				else
-					return victimValue;
+				{
+					const playerType movingSide{ this->stack().movingPlayer() };
+					const squareType toSquare{ motorType::move().toSquare(this->stack().position(),move)};
+					const scoreType victimValue{ zero };
+					if (motorType::move().isPromotion(move))
+					{
+						const squareType from{ motorType::move().fromSquare(this->stack().position(),move) };
+						const pieceType promotedPiece{ motorType::move().promotedPiece(move) };
+						const scoreType promotionValue{ static_cast<scoreType>(boardType::materialValueRelative(promotedPiece,toSquare,movingSide) - boardType::materialValueRelative(descriptorState::pawn,from,movingSide)) };
+						return victimValue + promotionValue;
+					}
+					else
+						return victimValue;
+				}
 			}
 		};
 		template<size_t PLAYER>
