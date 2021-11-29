@@ -749,7 +749,7 @@ namespace pygmalion
 				bool fromStack;
 				allowStoreTT = true;
 				constexpr const scoreType zero{ scoreType::zero() };
-				if ((!hasLegalMove) && this->template nextTacticalMove<false>(move, fromStack))
+				if ((!hasLegalMove) && this->template nextTacticalMove<false, false>(move, fromStack))
 				{
 					hasLegalMove = true;
 					if constexpr ((QSDEPTH >= countQs1Plies) && staticMoveScores)
@@ -761,6 +761,12 @@ namespace pygmalion
 								this->template resetMoveGen<false, true>();
 								return best;
 							}
+						}
+						else
+						{
+							this->template resetMoveGen<false, true>();
+							m_Heuristics.endNodeLate(m_Stack);
+							return alpha;
 						}
 					}
 					else
@@ -805,7 +811,7 @@ namespace pygmalion
 						return late;
 					}
 				}
-				while (this->template nextTacticalMove<false>(move, fromStack))
+				while (this->template nextTacticalMove<false, false>(move, fromStack))
 				{
 					if constexpr ((QSDEPTH >= countQs1Plies) && staticMoveScores)
 					{
@@ -817,6 +823,10 @@ namespace pygmalion
 								return best;
 							}
 						}
+						else
+						{
+							break;
+						}
 					}
 					else
 					{
@@ -827,6 +837,7 @@ namespace pygmalion
 						}
 					}
 				}
+				this->template resetMoveGen<false, true>();
 				m_Heuristics.endNodeLate(m_Stack);
 				return alpha;
 			}
@@ -926,7 +937,7 @@ namespace pygmalion
 				constexpr const scoreType zero{ scoreType::zero() };
 				if (expectedNodeType == CUTnode)
 				{
-					if ((!hasLegalMove) && this->template nextTacticalMove<true>(move, fromStack))
+					if ((!hasLegalMove) && this->template nextTacticalMove<false, true>(move, fromStack))
 					{
 						hasLegalMove = true;
 						if constexpr ((QSDEPTH >= countQs1Plies) && staticMoveScores)
@@ -938,6 +949,12 @@ namespace pygmalion
 									this->template resetMoveGen<false, true>();
 									return best;
 								}
+							}
+							else
+							{
+								this->template resetMoveGen<false, true>();
+								m_Heuristics.endNodeLate(m_Stack);
+								return alpha;
 							}
 						}
 						else
@@ -952,7 +969,7 @@ namespace pygmalion
 				}
 				else
 				{
-					if ((!hasLegalMove) && this->template nextTacticalMove<false>(move, fromStack))
+					if ((!hasLegalMove) && this->template nextTacticalMove<false, false>(move, fromStack))
 					{
 						hasLegalMove = true;
 						if constexpr ((QSDEPTH >= countQs1Plies) && staticMoveScores)
@@ -964,6 +981,12 @@ namespace pygmalion
 									this->template resetMoveGen<false, true>();
 									return best;
 								}
+							}
+							else
+							{
+								this->template resetMoveGen<false, true>();
+								m_Heuristics.endNodeLate(m_Stack);
+								return alpha;
 							}
 						}
 						else
@@ -1013,7 +1036,7 @@ namespace pygmalion
 				}
 				if (expectedNodeType == CUTnode)
 				{
-					while (this->template nextTacticalMove<true>(move, fromStack))
+					while (this->template nextTacticalMove<false, true>(move, fromStack))
 					{
 						if constexpr ((QSDEPTH >= countQs1Plies) && staticMoveScores)
 						{
@@ -1025,6 +1048,8 @@ namespace pygmalion
 									return best;
 								}
 							}
+							else
+								break;
 						}
 						else
 						{
@@ -1038,7 +1063,7 @@ namespace pygmalion
 				}
 				else
 				{
-					while (this->template nextTacticalMove<false>(move, fromStack))
+					while (this->template nextTacticalMove<false, false>(move, fromStack))
 					{
 						if constexpr ((QSDEPTH >= countQs1Plies) && staticMoveScores)
 						{
@@ -1050,6 +1075,8 @@ namespace pygmalion
 									return best;
 								}
 							}
+							else
+								break;
 						}
 						else
 						{
@@ -1702,7 +1729,6 @@ namespace pygmalion
 				}
 				if (m_MoveGeneratorStage == 2)
 				{
-					constexpr const scoreType winning{ scoreType::winning() };
 					m_IsKiller = true;
 					while (m_QuietMoveKiller < m_QuietMovesKiller.length())
 					{
@@ -1859,7 +1885,7 @@ namespace pygmalion
 				}
 				return false;
 			}
-			template<bool EXPECT_CUTOFF>
+			template<bool CRITICALS, bool EXPECT_CUTOFF>
 			bool nextTacticalMove(movebitsType& movebits, bool& fromStack) noexcept
 			{
 				fromStack = false;
@@ -1867,17 +1893,33 @@ namespace pygmalion
 				{
 					m_TacticalMoveGeneratorStage = 0;
 					m_TacticalMovesTT.clear();
-					m_Heuristics.transpositionTable().probeTacticalMoves(m_Stack, m_TacticalMovesTT);
+					if constexpr (CRITICALS)
+						m_Heuristics.transpositionTable().probeMoves(m_Stack, m_MovesTT);
+					else
+						m_Heuristics.transpositionTable().probeTacticalMoves(m_Stack, m_TacticalMovesTT);
 					m_TacticalMoveTT = 0;
 				}
 				if (m_TacticalMoveGeneratorStage == 0)
 				{
 					m_IsTTMove = true;
-					while (m_TacticalMoveTT < m_TacticalMovesTT.length())
+					if constexpr (CRITICALS)
 					{
-						movebits = m_TacticalMovesTT[m_TacticalMoveTT];
-						++m_TacticalMoveTT;
-						return true;
+						while (m_MoveTT < m_MovesTT.length())
+						{
+							movebits = m_MovesTT[m_MoveTT];
+							++m_MoveTT;
+							if (generatorType::template isMoveCritical<PLAYER, stackType>(m_Stack, movebits))
+								return true;
+						}
+					}
+					else
+					{
+						while (m_TacticalMoveTT < m_TacticalMovesTT.length())
+						{
+							movebits = m_TacticalMovesTT[m_TacticalMoveTT];
+							++m_TacticalMoveTT;
+							return true;
+						}
 					}
 					m_IsTTMove = false;
 					m_TacticalMoveGeneratorStage = 1;
@@ -1897,47 +1939,122 @@ namespace pygmalion
 							return true;
 					}
 					m_IsTacticalKiller = false;
-					m_TacticalMoveGeneratorStage = 2;
+					if constexpr (CRITICALS)
+					{
+						m_MoveGeneratorStage = 2;
+						m_QuietMovesKiller.clear();
+						m_Heuristics.quietKillers(m_Stack, m_Depth, m_QuietMovesKiller);
+						m_QuietMoveKiller = 0;
+					}
+					else
+						m_TacticalMoveGeneratorStage = 3;
+				}
+				if (m_MoveGeneratorStage == 2)
+				{
+					m_IsKiller = true;
+					while (m_QuietMoveKiller < m_QuietMovesKiller.length())
+					{
+						movebits = m_QuietMovesKiller[m_QuietMoveKiller];
+						++m_QuietMoveKiller;
+						if (generatorType::template isMoveCritical<PLAYER>(m_Stack, movebits))
+						{
+							const bool bDouble{ m_MovesTT.contains(movebits) || m_TacticalMovesKiller.contains(movebits) };
+							if (!bDouble)
+							{
+								if (generatorType::template isMoveCritical<PLAYER>(m_Stack, movebits))
+									return true;
+							}
+						}
+					}
+					m_IsKiller = false;
+					m_MoveGeneratorStage = 3;
 				}
 				while (m_TacticalMove < m_TacticalMoves.length())
 				{
 					movebits = m_TacticalMoves[m_TacticalMove];
-					const bool bDouble{ m_TacticalMovesTT.contains(movebits) || m_TacticalMovesKiller.contains(movebits) };
 					++m_TacticalMove;
-					if (!bDouble)
+					if constexpr (CRITICALS)
 					{
-						return true;
+						const bool bDouble{ m_MovesTT.contains(movebits) || m_TacticalMovesKiller.contains(movebits) || m_QuietMovesKiller.contains(movebits) };
+						if (!bDouble)
+						{
+							return true;
+						}
+					}
+					else
+					{
+						const bool bDouble{ m_TacticalMovesTT.contains(movebits) || m_TacticalMovesKiller.contains(movebits) };
+						if (!bDouble)
+						{
+							return true;
+						}
 					}
 				}
 				movebitsType testBits{ movebitsType(0) };
 				if constexpr (staticMoveScores)
 				{
 					const auto lambda{ [this](const movebitsType& bits) { return this->m_Heuristics.staticMoveScore(m_Stack, bits, m_Depth); } };
-					while (m_Stack.template nextTacticalMove<decltype(lambda), EXPECT_CUTOFF && allowSelectionSort>(testBits, m_Depth, m_Heuristics.feedback(), lambda))
+					if constexpr (CRITICALS)
 					{
-						const bool bDouble{ m_TacticalMovesTT.contains(testBits) || m_TacticalMovesKiller.contains(testBits) };
-						movebits = testBits;
-						m_TacticalMoves.add(testBits);
-						++m_TacticalMove;
-						if (!bDouble)
+						while (m_Stack.template nextTacticalCriticalMove<decltype(lambda), EXPECT_CUTOFF && allowSelectionSort>(testBits, m_Depth, m_Heuristics.feedback(), lambda))
 						{
-							fromStack = true;
-							return true;
+							movebits = testBits;
+							m_TacticalMoves.add(testBits);
+							++m_TacticalMove;
+							const bool bDouble{ m_MovesTT.contains(movebits) || m_TacticalMovesKiller.contains(movebits) || m_QuietMovesKiller.contains(movebits) };
+							if (!bDouble)
+							{
+								fromStack = true;
+								return true;
+							}
+						}
+					}
+					else
+					{
+						while (m_Stack.template nextTacticalMove<decltype(lambda), EXPECT_CUTOFF && allowSelectionSort>(testBits, m_Depth, m_Heuristics.feedback(), lambda))
+						{
+							movebits = testBits;
+							m_TacticalMoves.add(testBits);
+							++m_TacticalMove;
+							const bool bDouble{ m_TacticalMovesTT.contains(testBits) || m_TacticalMovesKiller.contains(testBits) };
+							if (!bDouble)
+							{
+								fromStack = true;
+								return true;
+							}
 						}
 					}
 				}
 				else
 				{
-					while (m_Stack.nextTacticalMove(testBits, m_Depth, m_Heuristics.feedback()))
+					if constexpr (CRITICALS)
 					{
-						const bool bDouble{ m_TacticalMovesTT.contains(testBits) || m_TacticalMovesKiller.contains(testBits) };
-						movebits = testBits;
-						m_TacticalMoves.add(testBits);
-						++m_TacticalMove;
-						if (!bDouble)
+						while (m_Stack.nextTacticalCriticalMove(testBits, m_Depth, m_Heuristics.feedback()))
 						{
-							fromStack = true;
-							return true;
+							movebits = testBits;
+							m_TacticalMoves.add(testBits);
+							++m_TacticalMove;
+							const bool bDouble{ m_MovesTT.contains(movebits) || m_TacticalMovesKiller.contains(movebits) || m_QuietMovesKiller.contains(movebits) };
+							if (!bDouble)
+							{
+								fromStack = true;
+								return true;
+							}
+						}
+					}
+					else
+					{
+						while (m_Stack.nextTacticalMove(testBits, m_Depth, m_Heuristics.feedback()))
+						{
+							movebits = testBits;
+							m_TacticalMoves.add(testBits);
+							++m_TacticalMove;
+							const bool bDouble{ m_TacticalMovesTT.contains(testBits) || m_TacticalMovesKiller.contains(testBits) };
+							if (!bDouble)
+							{
+								fromStack = true;
+								return true;
+							}
 						}
 					}
 				}

@@ -5,10 +5,10 @@ namespace pygmalion::chess
 	{
 	public:
 		PYGMALION_TUNABLE static inline double KingAreaSafetyPawn{ 0.00625 };
-		PYGMALION_TUNABLE static inline double KingAreaSafetyKnight{ 0.0125 };
-		PYGMALION_TUNABLE static inline double KingAreaSafetyBishop{ 0.0125 };
-		PYGMALION_TUNABLE static inline double KingAreaSafetyRook{ 0.0125 };
-		PYGMALION_TUNABLE static inline double KingAreaSafetyQueen{ 0.025 };
+		PYGMALION_TUNABLE static inline double KingAreaSafetyKnight{ 0.00625 };
+		PYGMALION_TUNABLE static inline double KingAreaSafetyBishop{ 0.00625 };
+		PYGMALION_TUNABLE static inline double KingAreaSafetyRook{ 0.00625 };
+		PYGMALION_TUNABLE static inline double KingAreaSafetyQueen{ 0.00625 };
 		PYGMALION_TUNABLE static inline double KingAreaSafetyKing{ 0.00625 };
 	private:
 		class scoreLookUp

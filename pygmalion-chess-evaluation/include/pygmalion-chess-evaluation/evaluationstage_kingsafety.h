@@ -4,12 +4,12 @@ namespace pygmalion::chess
 		public pygmalion::evaluationstage<descriptor_evaluation, evaluationstage_kingsafety>
 	{
 	public:
-		PYGMALION_TUNABLE static inline double KingSafetyPawn{ 0.00625 };
+		PYGMALION_TUNABLE static inline double KingSafetyPawn{ 0.0125 };
 		PYGMALION_TUNABLE static inline double KingSafetyKnight{ 0.0125 };
 		PYGMALION_TUNABLE static inline double KingSafetyBishop{ 0.0125 };
 		PYGMALION_TUNABLE static inline double KingSafetyRook{ 0.0125 };
-		PYGMALION_TUNABLE static inline double KingSafetyQueen{ 0.025 };
-		PYGMALION_TUNABLE static inline double KingSafetyKing{ 0.00625 };
+		PYGMALION_TUNABLE static inline double KingSafetyQueen{ 0.0125 };
+		PYGMALION_TUNABLE static inline double KingSafetyKing{ 0.0125 };
 	private:
 		class scoreLookUp
 		{
