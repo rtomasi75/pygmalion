@@ -763,20 +763,6 @@ namespace pygmalion
 								return best;
 							}
 						}
-						else
-						{
-							this->template resetMoveGen<false, true>();
-							m_Heuristics.endNodeLate(m_Stack);
-							return alpha;
-						}
-					}
-					else
-					{
-						if (this->template qsearchSubNode<QSDEPTH, USE_TT>(move, alpha, beta, best, bestmove, principalVariation, fromStack, allowStoreTT))
-						{
-							this->template resetMoveGen<false, true>();
-							return best;
-						}
 					}
 				}
 				if (!hasLegalMove)
@@ -950,23 +936,9 @@ namespace pygmalion
 									return best;
 								}
 							}
-							else
-							{
-								this->template resetMoveGen<false, true>();
-								m_Heuristics.endNodeLate(m_Stack);
-								return alpha;
-							}
-						}
-						else
-						{
-							if (this->qzwsearchSubNode<QSDEPTH, USE_TT>(move, alpha, beta, best, bestmove, fromStack, allowStoreTT, -expectedNodeType))
-							{
-								this->template resetMoveGen<false, true>();
-								return best;
-							}
 						}
 					}
-				}
+				} 
 				else
 				{
 					if ((!hasLegalMove) && this->template nextTacticalMove<(QSDEPTH < countQsPhase1Plies), false>(ttDraft, move, fromStack))
@@ -981,20 +953,6 @@ namespace pygmalion
 									this->template resetMoveGen<false, true>();
 									return best;
 								}
-							}
-							else
-							{
-								this->template resetMoveGen<false, true>();
-								m_Heuristics.endNodeLate(m_Stack);
-								return alpha;
-							}
-						}
-						else
-						{
-							if (this->qzwsearchSubNode<QSDEPTH, USE_TT>(move, alpha, beta, best, bestmove, fromStack, allowStoreTT, -expectedNodeType))
-							{
-								this->template resetMoveGen<false, true>();
-								return best;
 							}
 						}
 					}
