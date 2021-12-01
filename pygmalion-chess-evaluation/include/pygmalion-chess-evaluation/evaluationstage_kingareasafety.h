@@ -50,7 +50,7 @@ namespace pygmalion::chess
 			const playerType otherPlayer{ player.next() };
 			const std::array<squaresType, countPieces> pieces{ arrayhelper::generate<countPieces,squaresType>([&stack,otherPlayer](const size_t index) {return stack.position().pieceOccupancy(static_cast<pieceType>(index)) & stack.position().playerOccupancy(otherPlayer); }) };
 			const auto& entry{ generatorType::pawnTable().entry(stack) };
-			const auto& kingAreaTropism{ entry.kingAreaTropism(player) };
+			const auto& kingAreaTropism{ entry.template kingAreaTropism<PLAYER>() };
 			scoreType safetyScore{ scoreType::zero() };
 			bool bFound;
 			const squaresType unoccupied{ ~stack.position().totalOccupancy() };

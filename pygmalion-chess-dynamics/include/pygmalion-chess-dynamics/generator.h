@@ -148,20 +148,26 @@ namespace pygmalion::chess
 				{
 					return m_KingSquare[pl];
 				}
-				PYGMALION_INLINE const typename generatorType::tropismType& kingTropism(const playerType& pl) const noexcept
+				template<size_t PLAYER>
+				PYGMALION_INLINE const typename generatorType::tropismType& kingTropism() const noexcept
 				{
+					constexpr const playerType pl{ static_cast<playerType>(PLAYER) };
+					constexpr const playerType npl{ pl.next() };
 					if (!(m_Flags & flagsKingTropism[pl]))
 					{
-						m_KingTropism[pl].compute(m_KingSquare[pl], pl.next(), m_Pawns[blackPlayer], m_Pawns[whitePlayer], m_KingSquare[blackPlayer], m_KingSquare[whitePlayer]);
+						m_KingTropism[pl].template compute<static_cast<size_t>(npl)>(m_KingSquare[pl], m_Pawns[npl], m_Pawns[pl], m_KingSquare[npl], m_KingSquare[pl]);
 						m_Flags |= flagsKingTropism[pl];
 					}
 					return m_KingTropism[pl];
 				}
-				PYGMALION_INLINE const typename generatorType::tropismType& kingAreaTropism(const playerType& pl) const noexcept
+				template<size_t PLAYER>
+				PYGMALION_INLINE const typename generatorType::tropismType& kingAreaTropism() const noexcept
 				{
+					constexpr const playerType pl{ static_cast<playerType>(PLAYER) };
+					constexpr const playerType npl{ pl.next() };
 					if (!(m_Flags & flagsKingTropism[pl]))
 					{
-						m_KingAreaTropism[pl].compute(generatorType::kingArea(m_KingSquare[pl]), pl.next(), m_Pawns[blackPlayer], m_Pawns[whitePlayer], m_KingSquare[blackPlayer], m_KingSquare[whitePlayer]);
+						m_KingAreaTropism[pl].template compute<static_cast<size_t>(npl)>(generatorType::kingArea(m_KingSquare[pl]), m_Pawns[npl], m_Pawns[pl], m_KingSquare[npl], m_KingSquare[pl]);
 						m_Flags |= flagsKingAreaTropism[pl];
 					}
 					return m_KingAreaTropism[pl];
@@ -3521,12 +3527,14 @@ namespace pygmalion::chess
 		{
 			return movegenSlidersHV.inverseAttacks(sq, unoccupiedSquares) | movegenSlidersDiag.inverseAttacks(sq, unoccupiedSquares);
 		}
-		static squaresType tropismPawn(const squareType sq, const playerType pl, const squaresType& unoccupiedSquares, const squaresType& victims) noexcept
+		template<size_t PLAYER>
+		static squaresType tropismPawn(const squareType sq, const squaresType& unoccupiedSquares, const squaresType& victims) noexcept
 		{
+			constexpr const playerType pl{ static_cast<playerType>(PLAYER) };
 			constexpr const squaresType all{ squaresType::all() };
 			squaresType tropism;
 			const rankType rank{ sq.rank() };
-			if (pl == whitePlayer)
+			if constexpr (pl == whitePlayer)
 			{
 				if (victims[sq])
 					tropism = rank != rank8 ? movegenPawnCaptureWhite.inverseAttacks(sq, all) : movegenPawnPromoCaptureWhite.inverseAttacks(sq, all);
@@ -3550,14 +3558,16 @@ namespace pygmalion::chess
 			}
 			return tropism;
 		}
-		static squaresType tropismPawn(const squaresType& sq, const playerType pl, const squaresType& unoccupiedSquares, const squaresType& victims) noexcept
+		template<size_t PLAYER>
+		static squaresType tropismPawn(const squaresType& sq, const squaresType& unoccupiedSquares, const squaresType& victims) noexcept
 		{
+			constexpr const playerType pl{ static_cast<playerType>(PLAYER) };
 			constexpr const squaresType all{ squaresType::all() };
 			constexpr const squaresType none{ squaresType::none() };
 			squaresType tropism{ none };
 			const squaresType pushDestinations{ sq & ~victims };
 			const squaresType captureDestinations{ sq & victims };
-			if (pl == whitePlayer)
+			if constexpr (pl == whitePlayer)
 			{
 				if (pushDestinations)
 				{
@@ -3582,7 +3592,7 @@ namespace pygmalion::chess
 		}
 	public:
 		template<unsigned MAXDIST>
-		static void attackTropismKing(const squareType sq, const playerType pl, const squaresType& allowedSquares, std::array<squaresType, MAXDIST + 1>& tropism) noexcept
+		static void attackTropismKing(const squareType sq, const squaresType& allowedSquares, std::array<squaresType, MAXDIST + 1>& tropism) noexcept
 		{
 			tropism[0] = tropismKing(sq);
 			if constexpr (MAXDIST > 0)
@@ -3598,7 +3608,7 @@ namespace pygmalion::chess
 			}
 		}
 		template<unsigned MAXDIST>
-		static void attackTropismKing(const squaresType& sq, const playerType pl, const squaresType& allowedSquares, std::array<squaresType, MAXDIST + 1>& tropism) noexcept
+		static void attackTropismKing(const squaresType& sq, const squaresType& allowedSquares, std::array<squaresType, MAXDIST + 1>& tropism) noexcept
 		{
 			tropism[0] = tropismKing(sq);
 			if constexpr (MAXDIST > 0)
@@ -3614,7 +3624,7 @@ namespace pygmalion::chess
 			}
 		}
 		template<unsigned MAXDIST>
-		static void attackTropismKnight(const squareType sq, const playerType pl, const squaresType& allowedSquares, std::array<squaresType, MAXDIST + 1>& tropism) noexcept
+		static void attackTropismKnight(const squareType sq, const squaresType& allowedSquares, std::array<squaresType, MAXDIST + 1>& tropism) noexcept
 		{
 			tropism[0] = tropismKnight(sq);
 			if constexpr (MAXDIST > 0)
@@ -3630,7 +3640,7 @@ namespace pygmalion::chess
 			}
 		}
 		template<unsigned MAXDIST>
-		static void attackTropismKnight(const squaresType& sq, const playerType pl, const squaresType& allowedSquares, std::array<squaresType, MAXDIST + 1>& tropism) noexcept
+		static void attackTropismKnight(const squaresType& sq, const squaresType& allowedSquares, std::array<squaresType, MAXDIST + 1>& tropism) noexcept
 		{
 			tropism[0] = tropismKnight(sq);
 			if constexpr (MAXDIST > 0)
@@ -3646,7 +3656,7 @@ namespace pygmalion::chess
 			}
 		}
 		template<unsigned MAXDIST>
-		static void attackTropismRook(const squareType sq, const playerType pl, const squaresType& allowedSquares, const squaresType& unoccupiedSquares, std::array<squaresType, MAXDIST + 1>& tropism) noexcept
+		static void attackTropismRook(const squareType sq, const squaresType& allowedSquares, const squaresType& unoccupiedSquares, std::array<squaresType, MAXDIST + 1>& tropism) noexcept
 		{
 			tropism[0] = tropismRook(sq, unoccupiedSquares);
 			if constexpr (MAXDIST > 0)
@@ -3662,7 +3672,7 @@ namespace pygmalion::chess
 			}
 		}
 		template<unsigned MAXDIST>
-		static void attackTropismRook(const squaresType& sq, const playerType pl, const squaresType& allowedSquares, const squaresType& unoccupiedSquares, std::array<squaresType, MAXDIST + 1>& tropism) noexcept
+		static void attackTropismRook(const squaresType& sq, const squaresType& allowedSquares, const squaresType& unoccupiedSquares, std::array<squaresType, MAXDIST + 1>& tropism) noexcept
 		{
 			tropism[0] = tropismRook(sq, unoccupiedSquares);
 			if constexpr (MAXDIST > 0)
@@ -3678,7 +3688,7 @@ namespace pygmalion::chess
 			}
 		}
 		template<unsigned MAXDIST>
-		static void attackTropismBishop(const squareType sq, const playerType pl, const squaresType& allowedSquares, const squaresType& unoccupiedSquares, std::array<squaresType, MAXDIST + 1>& tropism) noexcept
+		static void attackTropismBishop(const squareType sq, const squaresType& allowedSquares, const squaresType& unoccupiedSquares, std::array<squaresType, MAXDIST + 1>& tropism) noexcept
 		{
 			tropism[0] = tropismBishop(sq, unoccupiedSquares);
 			if constexpr (MAXDIST > 0)
@@ -3694,7 +3704,7 @@ namespace pygmalion::chess
 			}
 		}
 		template<unsigned MAXDIST>
-		static void attackTropismBishop(const squaresType& sq, const playerType pl, const squaresType& allowedSquares, const squaresType& unoccupiedSquares, std::array<squaresType, MAXDIST + 1>& tropism) noexcept
+		static void attackTropismBishop(const squaresType& sq, const squaresType& allowedSquares, const squaresType& unoccupiedSquares, std::array<squaresType, MAXDIST + 1>& tropism) noexcept
 		{
 			tropism[0] = tropismBishop(sq, unoccupiedSquares);
 			if constexpr (MAXDIST > 0)
@@ -3710,7 +3720,7 @@ namespace pygmalion::chess
 			}
 		}
 		template<unsigned MAXDIST>
-		static void attackTropismQueen(const squareType sq, const playerType pl, const squaresType& allowedSquares, const squaresType& unoccupiedSquares, std::array<squaresType, MAXDIST + 1>& tropism) noexcept
+		static void attackTropismQueen(const squareType sq, const squaresType& allowedSquares, const squaresType& unoccupiedSquares, std::array<squaresType, MAXDIST + 1>& tropism) noexcept
 		{
 			tropism[0] = tropismQueen(sq, unoccupiedSquares);
 			if constexpr (MAXDIST > 0)
@@ -3726,7 +3736,7 @@ namespace pygmalion::chess
 			}
 		}
 		template<unsigned MAXDIST>
-		static void attackTropismQueen(const squaresType& sq, const playerType pl, const squaresType& allowedSquares, const squaresType& unoccupiedSquares, std::array<squaresType, MAXDIST + 1>& tropism) noexcept
+		static void attackTropismQueen(const squaresType& sq, const squaresType& allowedSquares, const squaresType& unoccupiedSquares, std::array<squaresType, MAXDIST + 1>& tropism) noexcept
 		{
 			tropism[0] = tropismQueen(sq, unoccupiedSquares);
 			if constexpr (MAXDIST > 0)
@@ -3741,86 +3751,53 @@ namespace pygmalion::chess
 				tropism[MAXDIST] = tropismQueen(tropism[MAXDIST - 1] & allowedSquares, unoccupiedSquares) & ~visited[MAXDIST - 1];
 			}
 		}
-		template<unsigned MAXDIST>
+		template<unsigned MAXDIST, size_t PLAYER>
 		static void attackTropismPawn(const squareType sq, const playerType pl, const squaresType& allowedSquares, const squaresType& unoccupiedSquares, const squaresType& victims, const std::array<squaresType, MAXDIST + 1>& tropismKnight, const std::array<squaresType, MAXDIST + 1>& tropismBishop, const std::array<squaresType, MAXDIST + 1>& tropismRook, const std::array<squaresType, MAXDIST + 1>& tropismQueen, std::array<squaresType, MAXDIST + 1>& tropism) noexcept
 		{
-			if (pl == whitePlayer)
-			{
-				const rankType rank{ sq.rank() };
-				constexpr const squaresType all{ squaresType::all() };
+			constexpr const playerType player{ static_cast<playerType>(PLAYER) };
+			const rankType rank{ sq.rank() };
+			constexpr const squaresType all{ squaresType::all() };
+			if constexpr (player == whitePlayer)
 				tropism[0] = movegenPawnCaptureWhite.inverseTargets(sq, all) | movegenPawnPromoCaptureWhite.inverseTargets(sq, all);
-				if constexpr (MAXDIST > 0)
-				{
-					std::array<squaresType, MAXDIST> visited;
-					visited[0] = tropism[0];
-					for (unsigned i = 1; i < MAXDIST; i++)
-					{
-						const squaresType tropismPromotion{ (tropismKnight[i - 1] | tropismBishop[i - 1] | tropismRook[i - 1] | tropismQueen[i - 1]) & rank8 };
-						tropism[i] = tropismPawn((tropism[i - 1] | tropismPromotion) & allowedSquares, whitePlayer, unoccupiedSquares, victims) & ~visited[i - 1];
-						visited[i] = visited[i - 1] | tropism[i];
-					}
-					const squaresType tropismPromotion2{ (tropismKnight[MAXDIST - 1] | tropismBishop[MAXDIST - 1] | tropismRook[MAXDIST - 1] | tropismQueen[MAXDIST - 1]) & rank8 };
-					tropism[MAXDIST] = tropismPawn((tropism[MAXDIST - 1] | tropismPromotion2) & allowedSquares, whitePlayer, unoccupiedSquares, victims) & ~visited[MAXDIST - 1];
-				}
-			}
 			else
-			{
-				const rankType rank{ sq.rank() };
-				constexpr const squaresType all{ squaresType::all() };
 				tropism[0] = movegenPawnCaptureBlack.inverseTargets(sq, all) | movegenPawnPromoCaptureBlack.inverseTargets(sq, all);
-				if constexpr (MAXDIST > 0)
+			constexpr const rankType promotionRank{ (player == whitePlayer) ? rank8 : rank1 };
+			if constexpr (MAXDIST > 0)
+			{
+				std::array<squaresType, MAXDIST> visited;
+				visited[0] = tropism[0];
+				for (unsigned i = 1; i < MAXDIST; i++)
 				{
-					std::array<squaresType, MAXDIST> visited;
-					visited[0] = tropism[0];
-					for (unsigned i = 1; i < MAXDIST; i++)
-					{
-						const squaresType tropismPromotion{ (tropismKnight[i - 1] | tropismBishop[i - 1] | tropismRook[i - 1] | tropismQueen[i - 1]) & rank1 };
-						tropism[i] = tropismPawn((tropism[i - 1] | tropismPromotion) & allowedSquares, blackPlayer, unoccupiedSquares, victims) & ~visited[i - 1];
-						visited[i] = visited[i - 1] | tropism[i];
-					}
-					const squaresType tropismPromotion2{ (tropismKnight[MAXDIST - 1] | tropismBishop[MAXDIST - 1] | tropismRook[MAXDIST - 1] | tropismQueen[MAXDIST - 1]) & rank1 };
-					tropism[MAXDIST] = tropismPawn((tropism[MAXDIST - 1] | tropismPromotion2) & allowedSquares, blackPlayer, unoccupiedSquares, victims) & ~visited[MAXDIST - 1];
+					const squaresType tropismPromotion{ (tropismKnight[i - 1] | tropismBishop[i - 1] | tropismRook[i - 1] | tropismQueen[i - 1]) & promotionRank };
+					tropism[i] = tropismPawn((tropism[i - 1] | tropismPromotion) & allowedSquares, player, unoccupiedSquares, victims) & ~visited[i - 1];
+					visited[i] = visited[i - 1] | tropism[i];
 				}
+				const squaresType tropismPromotion2{ (tropismKnight[MAXDIST - 1] | tropismBishop[MAXDIST - 1] | tropismRook[MAXDIST - 1] | tropismQueen[MAXDIST - 1]) & promotionRank };
+				tropism[MAXDIST] = tropismPawn((tropism[MAXDIST - 1] | tropismPromotion2) & allowedSquares, player, unoccupiedSquares, victims) & ~visited[MAXDIST - 1];
 			}
 		}
-		template<unsigned MAXDIST>
-		static void attackTropismPawn(const squaresType& sq, const playerType pl, const squaresType& allowedSquares, const squaresType& unoccupiedSquares, const squaresType& victims, const std::array<squaresType, MAXDIST + 1>& tropismKnight, const std::array<squaresType, MAXDIST + 1>& tropismBishop, const std::array<squaresType, MAXDIST + 1>& tropismRook, const std::array<squaresType, MAXDIST + 1>& tropismQueen, std::array<squaresType, MAXDIST + 1>& tropism) noexcept
+		template<unsigned MAXDIST, size_t PLAYER>
+		static void attackTropismPawn(const squaresType& sq, const squaresType& allowedSquares, const squaresType& unoccupiedSquares, const squaresType& victims, const std::array<squaresType, MAXDIST + 1>& tropismKnight, const std::array<squaresType, MAXDIST + 1>& tropismBishop, const std::array<squaresType, MAXDIST + 1>& tropismRook, const std::array<squaresType, MAXDIST + 1>& tropismQueen, std::array<squaresType, MAXDIST + 1>& tropism) noexcept
 		{
-			if (pl == whitePlayer)
-			{
-				constexpr const squaresType all{ squaresType::all() };
+			constexpr const playerType player{ static_cast<playerType>(PLAYER) };
+			constexpr const squaresType all{ squaresType::all() };
+			if constexpr (player == whitePlayer)
 				tropism[0] = movegenPawnCaptureWhite.inverseTargets(sq, all) | movegenPawnPromoCaptureWhite.inverseTargets(sq, all);
-				if constexpr (MAXDIST > 0)
-				{
-					std::array<squaresType, MAXDIST> visited;
-					visited[0] = tropism[0];
-					for (unsigned i = 1; i < MAXDIST; i++)
-					{
-						const squaresType tropismPromotion{ (tropismKnight[i - 1] | tropismBishop[i - 1] | tropismRook[i - 1] | tropismQueen[i - 1]) & rank8 };
-						tropism[i] = tropismPawn((tropism[i - 1] | tropismPromotion) & allowedSquares, whitePlayer, unoccupiedSquares, victims) & ~visited[i - 1];
-						visited[i] = visited[i - 1] | tropism[i];
-					}
-					const squaresType tropismPromotion2{ (tropismKnight[MAXDIST - 1] | tropismBishop[MAXDIST - 1] | tropismRook[MAXDIST - 1] | tropismQueen[MAXDIST - 1]) & rank8 };
-					tropism[MAXDIST] = tropismPawn((tropism[MAXDIST - 1] | tropismPromotion2) & allowedSquares, whitePlayer, unoccupiedSquares, victims) & ~visited[MAXDIST - 1];
-				}
-			}
 			else
-			{
-				constexpr const squaresType all{ squaresType::all() };
 				tropism[0] = movegenPawnCaptureBlack.inverseTargets(sq, all) | movegenPawnPromoCaptureBlack.inverseTargets(sq, all);
-				if constexpr (MAXDIST > 0)
+			constexpr const rankType promotionRank{ (player == whitePlayer) ? rank8 : rank1 };
+			if constexpr (MAXDIST > 0)
+			{
+				std::array<squaresType, MAXDIST> visited;
+				visited[0] = tropism[0];
+				for (unsigned i = 1; i < MAXDIST; i++)
 				{
-					std::array<squaresType, MAXDIST> visited;
-					visited[0] = tropism[0];
-					for (unsigned i = 1; i < MAXDIST; i++)
-					{
-						const squaresType tropismPromotion{ (tropismKnight[i - 1] | tropismBishop[i - 1] | tropismRook[i - 1] | tropismQueen[i - 1]) & rank1 };
-						tropism[i] = tropismPawn((tropism[i - 1] | tropismPromotion) & allowedSquares, blackPlayer, unoccupiedSquares, victims) & ~visited[i - 1];
-						visited[i] = visited[i - 1] | tropism[i];
-					}
-					const squaresType tropismPromotion2{ (tropismKnight[MAXDIST - 1] | tropismBishop[MAXDIST - 1] | tropismRook[MAXDIST - 1] | tropismQueen[MAXDIST - 1]) & rank1 };
-					tropism[MAXDIST] = tropismPawn((tropism[MAXDIST - 1] | tropismPromotion2) & allowedSquares, blackPlayer, unoccupiedSquares, victims) & ~visited[MAXDIST - 1];
+					const squaresType tropismPromotion{ (tropismKnight[i - 1] | tropismBishop[i - 1] | tropismRook[i - 1] | tropismQueen[i - 1]) & promotionRank };
+					tropism[i] = tropismPawn<PLAYER>((tropism[i - 1] | tropismPromotion) & allowedSquares, unoccupiedSquares, victims) & ~visited[i - 1];
+					visited[i] = visited[i - 1] | tropism[i];
 				}
+				const squaresType tropismPromotion2{ (tropismKnight[MAXDIST - 1] | tropismBishop[MAXDIST - 1] | tropismRook[MAXDIST - 1] | tropismQueen[MAXDIST - 1]) & promotionRank };
+				tropism[MAXDIST] = tropismPawn<PLAYER>((tropism[MAXDIST - 1] | tropismPromotion2) & allowedSquares, unoccupiedSquares, victims) & ~visited[MAXDIST - 1];
 			}
 		}
 		PYGMALION_INLINE static const rays& getRays() noexcept
@@ -5120,12 +5097,12 @@ namespace pygmalion::chess
 			if (origins.count() != 1)
 			{
 #if _DEBUG
-		//		std::string error = stack.position().getFen() + " => " + san + "\n";
-		//		std::cout << error;
-		//		PYGMALION_ASSERT(false);
+				//		std::string error = stack.position().getFen() + " => " + san + "\n";
+				//		std::cout << error;
+				//		PYGMALION_ASSERT(false);
 #endif
 				return false;
-			}
+		}
 			from = origins.first();
 			if (bCapture)
 			{
@@ -5301,7 +5278,7 @@ namespace pygmalion::chess
 			}
 			count = pos;
 			return true;
-		}
+	}
 		template<size_t PLAYER>
 		static std::string moveToSAN_Implementation(const stackType<PLAYER>& stack, const movebitsType mv) noexcept
 		{
@@ -5746,5 +5723,5 @@ namespace pygmalion::chess
 				return 0;
 			}
 		}
-	};
-}
+};
+	}

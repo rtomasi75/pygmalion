@@ -44,14 +44,17 @@ namespace pygmalion::chess
 		static inline scoreLookUp m_KingSafetyScoresQueen{ scoreLookUp(KingSafetyQueen) };
 		static inline scoreLookUp m_KingSafetyScoresKing{ scoreLookUp(KingSafetyKing) };
 		PYGMALION_TUNABLE static inline scoreType KingSafetyDelta{ static_cast<scoreType>(8.0 * std::max(std::max(std::max(KingSafetyPawn,KingSafetyKnight), std::max(KingSafetyBishop, KingSafetyRook)), std::max(KingSafetyQueen, KingSafetyKing))) };
-		template<size_t PLAYER>
-		PYGMALION_INLINE static scoreType scoreKingsafety(const generatorType::template stackType<PLAYER>& stack, const playerType player) noexcept
+		template<size_t PLAYER, bool MOVINGPLAYER>
+		PYGMALION_INLINE static scoreType scoreKingsafety(const generatorType::template stackType<PLAYER>& stack) noexcept
 		{
-			const playerType otherPlayer{ player.next() };
+			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
+			constexpr const playerType player{ MOVINGPLAYER ? movingPlayer : movingPlayer.next() };
+			constexpr const playerType otherPlayer{ player.next() };
 			const std::array<squaresType, countPieces> pieces{ arrayhelper::generate<countPieces,squaresType>([&stack,otherPlayer](const size_t index) {return stack.position().pieceOccupancy(static_cast<pieceType>(index)) & stack.position().playerOccupancy(otherPlayer); }) };
 			const auto& entry{ generatorType::pawnTable().entry(stack) };
-			const auto& kingTropism{ entry.kingTropism(player) };
-			scoreType safetyScore{ scoreType::zero() };
+			const auto& kingTropism{ entry.template kingTropism<static_cast<playerType>(player)>() };
+			constexpr const scoreType zero{ scoreType::zero() };
+			scoreType safetyScore{ zero };
 			bool bFound;
 			const squaresType unoccupied{ ~stack.position().totalOccupancy() };
 			const squaresType playerOcc{ stack.position().playerOccupancy(player) };
@@ -69,7 +72,7 @@ namespace pygmalion::chess
 				}
 				if (!bFound)
 				{
-					if (otherPlayer == whitePlayer)
+					if constexpr (otherPlayer == whitePlayer)
 					{
 						const squaresType pawnTargets{ generatorType::movegenPawnPushWhite.targets(sq, unoccupied) | generatorType::movegenPawnDoublePushWhite.targets(sq, unoccupied) };
 						safetyScore -= static_cast<typename scoreType::valueType>(static_cast<bool>(kingTropism.distanceSquares(pawn, generatorType::tropismType::maxDistance) & pawnTargets)) * m_KingSafetyScoresPawn[generatorType::tropismType::maxDistance + 1];
@@ -230,7 +233,7 @@ namespace pygmalion::chess
 				m_KingSafetyScoresKing = scoreLookUp(KingSafetyKing);
 				break;
 			}
-			KingSafetyDelta = static_cast<scoreType>(8.0 * std::max(std::max(std::max(KingSafetyPawn,KingSafetyKnight), std::max(KingSafetyBishop, KingSafetyRook)), std::max(KingSafetyQueen, KingSafetyKing)));
+			KingSafetyDelta = static_cast<scoreType>(8.0 * std::max(std::max(std::max(KingSafetyPawn, KingSafetyKnight), std::max(KingSafetyBishop, KingSafetyRook)), std::max(KingSafetyQueen, KingSafetyKing)));
 		}
 #endif
 		PYGMALION_TUNABLE static scoreType computeDelta_Implementation() noexcept
@@ -240,11 +243,10 @@ namespace pygmalion::chess
 		template<size_t PLAYER>
 		PYGMALION_INLINE static scoreType evaluate_Implementation(const generatorType::template stackType<PLAYER>& stack) noexcept
 		{
-			const scoreType kingSafetyWhite{ scoreKingsafety<PLAYER>(stack,whitePlayer) };
-			const scoreType kingSafetyBlack{ scoreKingsafety<PLAYER>(stack,blackPlayer) };
-			const scoreType scoreKingSafety{ kingSafetyWhite - kingSafetyBlack };
-			const bool invert{ stack.movingPlayer() == blackPlayer };
-			return invert ? -scoreKingSafety : scoreKingSafety;
+			const scoreType kingSafetyMover{ scoreKingsafety<PLAYER, true>(stack) };
+			const scoreType kingSafetyOther{ scoreKingsafety<PLAYER, false>(stack) };
+			const scoreType scoreKingSafety{ kingSafetyMover - kingSafetyOther };
+			return scoreKingSafety;
 		}
 		static std::string name_Implementation() noexcept
 		{

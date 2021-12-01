@@ -109,7 +109,7 @@ namespace pygmalion::chess::state
 									case descriptorState::queen:
 										return static_cast<materialScore>(m_PST_Queen[sq] + m_LazyMaterial[pc]);
 									case descriptorState::king:
-										return static_cast<materialScore>(m_PST_King[sq] + m_LazyMaterial[pc]);
+										return static_cast<materialScore>(-m_PST_King[sq] + m_LazyMaterial[pc]);
 									case descriptorState::bishop:
 										return static_cast<materialScore>(m_PST_Bishop[sq] + m_LazyMaterial[pc]);
 									default:
@@ -129,7 +129,7 @@ namespace pygmalion::chess::state
 									case descriptorState::queen:
 										return static_cast<materialScore>(m_PST_Queen[sq.flipRank()] + m_LazyMaterial[pc]);
 									case descriptorState::king:
-										return static_cast<materialScore>(m_PST_King[sq.flipRank()] + m_LazyMaterial[pc]);
+										return static_cast<materialScore>(-m_PST_King[sq.flipRank()] + m_LazyMaterial[pc]);
 									case descriptorState::bishop:
 										return static_cast<materialScore>(m_PST_Bishop[sq.flipRank()] + m_LazyMaterial[pc]);
 									default:

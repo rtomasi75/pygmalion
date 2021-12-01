@@ -26,9 +26,9 @@ namespace pygmalion::chess::dynamics
 					const squareType blackKing{ stack.kingSquare(blackPlayer) };
 					typename generatorType::tropismType tropism;
 					if (pl == whitePlayer)
-						tropism.compute(sq, whitePlayer, whitePawns, blackPawns, whiteKing, blackKing);
+						tropism.compute<PLAYER>(sq, whitePawns, blackPawns, whiteKing, blackKing);
 					else
-						tropism.compute(sq, blackPlayer, blackPawns, whitePawns, blackKing, whiteKing);
+						tropism.compute<PLAYER>(sq, blackPawns, whitePawns, blackKing, whiteKing);
 					tropism.dumpDistances(pc, this->output());
 				}
 				else

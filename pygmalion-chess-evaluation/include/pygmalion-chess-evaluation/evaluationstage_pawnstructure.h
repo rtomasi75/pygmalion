@@ -4,7 +4,7 @@ namespace pygmalion::chess
 		public pygmalion::evaluationstage<descriptor_evaluation, evaluationstage_pawnstructure>
 	{
 	public:
-		PYGMALION_TUNABLE static inline double PawnStructure{ 0.25 };
+		PYGMALION_TUNABLE static inline double PawnStructure{ 0.5 };
 		PYGMALION_TUNABLE static inline scoreType PawnStructureDelta{ static_cast<scoreType>(1.5 * PawnStructure) };
 		constexpr static size_t getParameterCount_Implementation() noexcept
 		{
