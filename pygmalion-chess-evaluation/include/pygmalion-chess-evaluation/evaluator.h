@@ -2,9 +2,9 @@ namespace pygmalion::chess
 {
 	class evaluator :
 		public pygmalion::evaluator<descriptor_evaluation, evaluator
-		, evaluationstage_pawnstructure
 		, evaluationstage_attacks
 		, evaluationstage_mobility
+		, evaluationstage_pawnstructure
 		, evaluationstage_control
 		, evaluationstage_kingsafety
 		, evaluationstage_kingareasafety
@@ -196,6 +196,27 @@ namespace pygmalion::chess
 			return gain[0];
 		}
 		PYGMALION_INLINE static scoreType staticMoveScore_Implementation(const boardType& position, const movebitsType move) noexcept
+		{
+			constexpr const materialScore zero{ materialScore::zero() };
+			const squareType to{ motorType::move().toSquare(position, move) };
+			const squareType from{ motorType::move().fromSquare(position, move) };
+			pieceType attackingPiece{ position.getPiece(from) };
+			playerType movingSide{ position.getPlayer(from) };
+			playerType defendingSide{ movingSide.next() };
+			PYGMALION_ASSERT(attackingPiece.isValid());
+			pieceType promotedPiece{ attackingPiece };
+			if (motorType::move().isPromotion(move))
+				promotedPiece = motorType::move().promotedPiece(move);
+			materialScore gain = boardType::materialValueRelative(promotedPiece, to, movingSide) - boardType::materialValueRelative(attackingPiece, from, movingSide);
+			if (motorType::move().isCapture(move))
+			{
+				const squareType captureSquare{ motorType::move().captureSquare(position, move) };
+				const pieceType capPiece = position.getPiece(captureSquare);
+				gain += boardType::materialValueRelative(capPiece, captureSquare, defendingSide);
+			}
+			return static_cast<scoreType>(gain);
+		}
+		PYGMALION_INLINE static scoreType staticExchangeScore_Implementation(const boardType& position, const movebitsType move) noexcept
 		{
 			return static_cast<scoreType>(staticExchange(move, position));
 		}

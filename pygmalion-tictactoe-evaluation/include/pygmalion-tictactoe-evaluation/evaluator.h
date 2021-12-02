@@ -97,5 +97,9 @@ namespace pygmalion::tictactoe
 		{
 			return scoreType::zero();
 		}
+		PYGMALION_INLINE static scoreType staticExchangeScore_Implementation(const boardType& position, const movebitsType move) noexcept
+		{
+			return scoreType::zero();
+		}
 	};
 }

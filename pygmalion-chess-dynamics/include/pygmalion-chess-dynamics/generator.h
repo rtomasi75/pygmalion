@@ -5613,13 +5613,19 @@ namespace pygmalion::chess
 			case movegenPhase::normal:
 				//return 1;
 				return 4;
-			case movegenPhase::tacticalCritical:
+			case movegenPhase::QSPhase1:
 				return 4;
-			case movegenPhase::tactical:
+			case movegenPhase::QSPhase2:
 				return 3;
-			case movegenPhase::criticalEvasion:
+			case movegenPhase::QSPhase3:
 				return 1;
-			case movegenPhase::tacticalCrtiticalEvasion:
+			case movegenPhase::QSPhase1_CriticalEvasion:
+				return 1;
+			case movegenPhase::QSPhase2_CriticalEvasion:
+				return 1;
+			case movegenPhase::QSPhase3_CriticalEvasion:
+				return 1;
+			case movegenPhase::criticalEvasion:
 				return 1;
 			case movegenPhase::critical:
 				return 1;
@@ -5683,21 +5689,7 @@ namespace pygmalion::chess
 					return 0;
 				}
 				//				return movegenStage_AllMoves;
-			case movegenPhase::tactical:
-				switch (stageIndex)
-				{
-				case 0:
-					return movegenStage_WinningMoves;
-				case 1:
-					return movegenStage_EqualMoves;
-				case 2:
-					return movegenStage_LosingMoves;
-				default:
-					PYGMALION_UNREACHABLE;
-					return 0;
-				}
-				break;
-			case movegenPhase::tacticalCritical:
+			case movegenPhase::QSPhase1:
 				switch (stageIndex)
 				{
 				case 0:
@@ -5713,10 +5705,62 @@ namespace pygmalion::chess
 					return 0;
 				}
 				break;
+			case movegenPhase::QSPhase2:
+				switch (stageIndex)
+				{
+				case 0:
+					return movegenStage_WinningMoves;
+				case 1:
+					return movegenStage_EqualMoves;
+				case 2:
+					return movegenStage_LosingMoves;
+				default:
+					PYGMALION_UNREACHABLE;
+					return 0;
+				}
+				break;
+			case movegenPhase::QSPhase3:
+				switch (stageIndex)
+				{
+				case 0:
+					return movegenStage_WinningMoves;
+				default:
+					PYGMALION_UNREACHABLE;
+					return 0;
+				}
+				break;
+			case movegenPhase::QSPhase1_CriticalEvasion:
+				switch (stageIndex)
+				{
+				case 0:
+					return movegenStage_CriticalEvasionMoves;
+				default:
+					PYGMALION_UNREACHABLE;
+					return 0;
+				}
+				break;
+			case movegenPhase::QSPhase2_CriticalEvasion:
+				switch (stageIndex)
+				{
+				case 0:
+					return movegenStage_CriticalEvasionMoves;
+				default:
+					PYGMALION_UNREACHABLE;
+					return 0;
+				}
+				break;
+			case movegenPhase::QSPhase3_CriticalEvasion:
+				switch (stageIndex)
+				{
+				case 0:
+					return movegenStage_TacticalCriticalEvasionMoves;
+				default:
+					PYGMALION_UNREACHABLE;
+					return 0;
+				}
+				break;
 			case movegenPhase::criticalEvasion:
 				return movegenStage_CriticalEvasionMoves;
-			case movegenPhase::tacticalCrtiticalEvasion:
-				return movegenStage_TacticalCriticalEvasionMoves;
 			case movegenPhase::critical:
 				return movegenStage_CriticalMoves;
 			default:

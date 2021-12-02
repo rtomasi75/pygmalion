@@ -25,7 +25,7 @@ namespace pygmalion::dynamics
 					movebitsType movebits;
 					bool hasMoves{ false };
 					this->feedback().expandToDepth(this->history().length() + 1);
-					while (stack.nextTacticalMove(movebits, this->history().length(), this->feedback()))
+					while (stack.nextQSPhase1Move(movebits, this->history().length(), this->feedback()))
 					{
 						hasMoves = true;
 						this->output() << motorType::move().toString(this->position(), movebits) << "\t";

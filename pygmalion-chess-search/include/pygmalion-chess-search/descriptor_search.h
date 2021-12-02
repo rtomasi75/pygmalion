@@ -7,7 +7,7 @@ namespace pygmalion::chess
 		| searchFlags::principalVariationSearch
 		| searchFlags::iterativeDeepening
 		| searchFlags::staticMoveScores
-		| searchFlags::dynamicMoveScores
+//		| searchFlags::dynamicMoveScores
 		| searchFlags::quietKillerMovesHeuristic
 		| searchFlags::tacticalKillerMovesHeuristic
 		| searchFlags::futilityPruning
@@ -24,8 +24,8 @@ namespace pygmalion::chess
 	constexpr const size_t countTranspositionTableBuckets{ 2 };
 	constexpr const size_t killerMovesLookBackDistance{ 1 };
 	constexpr const size_t countQsPhase1Plies{ 4 };
-	constexpr const size_t countQsPhase2Plies{ 4 };
-	constexpr const size_t countQsPhase3Plies{ 4 };
+	constexpr const size_t countQsPhase2Plies{ 8 };
+	constexpr const size_t countQsPhase3Plies{ 16 };
 	constexpr const size_t lateMoveReductionMinPlies{ 2 };
 	constexpr const size_t lateMoveReductionMinDepth{ 2 };
 

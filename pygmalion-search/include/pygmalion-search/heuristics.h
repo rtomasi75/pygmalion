@@ -45,49 +45,72 @@ namespace pygmalion
 						killerMoves.add(m_QuietKillers[i]);
 				}
 			}
-			template<size_t PLAYER>
+			template<size_t PLAYER, int QSPHASE>
 			PYGMALION_INLINE void tacticalKillers(const stackType<PLAYER>& stack, tacticalKillermovesType& killerMoves) const noexcept
 			{
 				for (size_t i = 0; i < m_TacticalKillerCount; i++)
 				{
-					if (generatorType::isMoveLegal(stack, m_TacticalKillers[i]))
-						killerMoves.add(m_TacticalKillers[i]);
+					if constexpr (QSPHASE == 0)
+					{
+						if (generatorType::isMoveLegal(stack, m_TacticalKillers[i]))
+							killerMoves.add(m_TacticalKillers[i]);
+					}
+					else if constexpr (QSPHASE == 1)
+					{
+						if (generatorType::isMoveTactical(stack, m_TacticalKillers[i]))
+						{
+							if (generatorType::isMoveLegal(stack, m_TacticalKillers[i]))
+								killerMoves.add(m_TacticalKillers[i]);
+						}
+					}
+					else
+					{
+						constexpr const scoreType zero{ scoreType::zero() };
+						if (generatorType::isMoveTactical(stack, m_TacticalKillers[i]) && (evaluatorType::staticMoveScore(stack.position(), m_TacticalKillers[i]) > zero))
+						{
+							if (generatorType::isMoveLegal(stack, m_TacticalKillers[i]))
+								killerMoves.add(m_TacticalKillers[i]);
+						}
+					}
 				}
 			}
-			template<size_t PLAYER, bool TACTICAL>
+			template<size_t PLAYER, int QSPHASE>
 			PYGMALION_INLINE void refuted(const stackType<PLAYER>& stack, const movebitsType moveBits, const scoreType score, const scoreType eval) noexcept
 			{
 				bool contains{ false };
-				if constexpr (TACTICAL)
+				if constexpr (QSPHASE >= 0)
 				{
-					if constexpr (tacticalKillerMoves > 0)
+					if constexpr (QSPHASE < 2)
 					{
-						const boardType& position{ stack.position() };
-						for (size_t i = 0; i < m_TacticalKillerCount; i++)
+						if constexpr (tacticalKillerMoves > 0)
 						{
-							if (m_TacticalKillers[i] == moveBits)
+							const boardType& position{ stack.position() };
+							for (size_t i = 0; i < m_TacticalKillerCount; i++)
 							{
-								if (i != 0)
+								if (m_TacticalKillers[i] == moveBits)
 								{
-									for (size_t k = 0; k < i; k++)
+									if (i != 0)
 									{
-										const size_t idx{ tacticalKillerMoves - k - 1 };
-										m_TacticalKillers[idx] = m_TacticalKillers[idx - 1];
+										for (size_t k = 0; k < i; k++)
+										{
+											const size_t idx{ tacticalKillerMoves - k - 1 };
+											m_TacticalKillers[idx] = m_TacticalKillers[idx - 1];
+										}
+										m_TacticalKillers[0] = moveBits;
 									}
-									m_TacticalKillers[0] = moveBits;
+									contains = true;
 								}
-								contains = true;
 							}
-						}
-						if (!contains)
-						{
-							for (size_t k = 0; k < tacticalKillerMoves - 1; k++)
+							if (!contains)
 							{
-								const size_t idx{ tacticalKillerMoves - k - 1 };
-								m_TacticalKillers[idx] = m_TacticalKillers[idx - 1];
+								for (size_t k = 0; k < tacticalKillerMoves - 1; k++)
+								{
+									const size_t idx{ tacticalKillerMoves - k - 1 };
+									m_TacticalKillers[idx] = m_TacticalKillers[idx - 1];
+								}
+								m_TacticalKillers[0] = moveBits;
+								m_TacticalKillerCount = std::min(m_TacticalKillerCount + 1, tacticalKillerMoves);
 							}
-							m_TacticalKillers[0] = moveBits;
-							m_TacticalKillerCount = std::min(m_TacticalKillerCount + 1, tacticalKillerMoves);
 						}
 					}
 				}
@@ -161,7 +184,7 @@ namespace pygmalion
 					}
 				}
 			}
-			template<size_t PLAYER, bool TACTICAL>
+			template<size_t PLAYER, int QSPHASE>
 			PYGMALION_INLINE void accepted(const stackType<PLAYER>& stack, const movebitsType moveBits, const scoreType score, const scoreType eval) noexcept
 			{
 			}
@@ -207,27 +230,27 @@ namespace pygmalion
 		PYGMALION_INLINE void onEndNodeLate(const stackType<PLAYER>& stack) noexcept
 		{
 		}
-		template<size_t PLAYER, bool TACTICAL>
+		template<size_t PLAYER, int QSPHASE>
 		PYGMALION_INLINE void onBeginMove(const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth) noexcept
 		{
 		}
-		template<size_t PLAYER, bool TACTICAL>
+		template<size_t PLAYER, int QSPHASE>
 		PYGMALION_INLINE void onEndMoveRefuted(const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth, const scoreType score) noexcept
 		{
 		}
-		template<size_t PLAYER, bool TACTICAL>
+		template<size_t PLAYER, int QSPHASE>
 		PYGMALION_INLINE void onEndMoveSilent(const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth) noexcept
 		{
 		}
-		template<size_t PLAYER, bool TACTICAL>
+		template<size_t PLAYER, int QSPHASE>
 		PYGMALION_INLINE void onEndMoveFutile(const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth) noexcept
 		{
 		}
-		template<size_t PLAYER, bool TACTICAL>
+		template<size_t PLAYER, int QSPHASE>
 		PYGMALION_INLINE void onEndMoveDelta(const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth) noexcept
 		{
 		}
-		template<size_t PLAYER, bool TACTICAL>
+		template<size_t PLAYER, int QSPHASE>
 		PYGMALION_INLINE void onEndMoveAccepted(const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth, const scoreType score) noexcept
 		{
 		}
@@ -299,12 +322,12 @@ namespace pygmalion
 				}
 			}
 		}
-		template<size_t PLAYER>
+		template<size_t PLAYER, int QSPHASE>
 		void tacticalKillers(const stackType<PLAYER>& stack, const size_t depth, tacticalKillermovesType& killermoves) noexcept
 		{
 			if constexpr (tacticalKillerMoves > 0)
 			{
-				m_KillerSlots[depth].tacticalKillers(stack, killermoves);
+				m_KillerSlots[depth].template tacticalKillers<PLAYER, QSPHASE>(stack, killermoves);
 				if constexpr (killerLookBackDistance > 0)
 				{
 					tacticalKillermovesType lookBackKillers;
@@ -313,7 +336,7 @@ namespace pygmalion
 						const size_t offset{ countPlayers * i };
 						if (depth >= offset)
 						{
-							m_KillerSlots[depth - offset].tacticalKillers(stack, lookBackKillers);
+							m_KillerSlots[depth - offset].template tacticalKillers<PLAYER, QSPHASE>(stack, lookBackKillers);
 						}
 						else
 							break;
@@ -448,17 +471,17 @@ namespace pygmalion
 #endif
 			static_cast<instanceType*>(this)->template onEndNodeDelta<PLAYER>(stack);
 		}
-		template<size_t PLAYER, bool TACTICAL>
+		template<size_t PLAYER, int QSPHASE>
 		PYGMALION_INLINE nodecounterType beginMove(const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth) noexcept
 		{
 #if !defined(NDEBUG)
 			PYGMALION_ASSERT(m_IsSearching);
 			m_MoveDepth++;
 #endif
-			static_cast<instanceType*>(this)->template onBeginMove<PLAYER, TACTICAL>(stack, moveBits, depth);
+			static_cast<instanceType*>(this)->template onBeginMove<PLAYER, QSPHASE>(stack, moveBits, depth);
 			return m_NodeCounter;
 		}
-		template<size_t PLAYER, bool PRUNED, bool TACTICAL>
+		template<size_t PLAYER, bool PRUNED, int QSPHASE>
 		PYGMALION_INLINE nodecounterType endMoveAccepted(const nodecounterType nodeCount, const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth, const scoreType score, const scoreType eval, const bool fromStack, const depthType depthRemaining) noexcept
 		{
 #if !defined(NDEBUG)
@@ -469,8 +492,12 @@ namespace pygmalion
 			{
 				if constexpr (!PRUNED)
 				{
-					if constexpr (TACTICAL)
-						stack.tacticalAllMove(m_Feedback, depth, score, eval);
+					if constexpr (QSPHASE == 0)
+						stack.qsPhase1AllMove(m_Feedback, depth, score, eval);
+					else if constexpr (QSPHASE == 1)
+						stack.qsPhase2AllMove(m_Feedback, depth, score, eval);
+					else if constexpr (QSPHASE == 2)
+						stack.qsPhase3AllMove(m_Feedback, depth, score, eval);
 					else
 						stack.normalAllMove(m_Feedback, depth, score, eval);
 				}
@@ -479,12 +506,12 @@ namespace pygmalion
 			}
 			if constexpr ((quietKillerMoves > 0) || (tacticalKillerMoves > 0))
 			{
-				m_KillerSlots[depth].template accepted<PLAYER, TACTICAL>(stack, moveBits, score, eval);
+				m_KillerSlots[depth].template accepted<PLAYER, QSPHASE>(stack, moveBits, score, eval);
 			}
-			static_cast<instanceType*>(this)->template onEndMoveAccepted<PLAYER, TACTICAL>(stack, moveBits, depth, score);
+			static_cast<instanceType*>(this)->template onEndMoveAccepted<PLAYER, QSPHASE>(stack, moveBits, depth, score);
 			return m_NodeCounter - nodeCount;
 		}
-		template<size_t PLAYER, bool PRUNED, bool TACTICAL>
+		template<size_t PLAYER, bool PRUNED, int QSPHASE>
 		PYGMALION_INLINE nodecounterType endMoveRefuted(const nodecounterType nodeCount, const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth, const scoreType score, const scoreType eval, const bool fromStack, const depthType depthRemaining) noexcept
 		{
 #if !defined(NDEBUG)
@@ -495,8 +522,12 @@ namespace pygmalion
 			{
 				if constexpr (!PRUNED)
 				{
-					if constexpr (TACTICAL)
-						stack.tacticalCutMove(m_Feedback, depth, score, eval);
+					if constexpr (QSPHASE == 0)
+						stack.qsPhase1CutMove(m_Feedback, depth, score, eval);
+					else if constexpr (QSPHASE == 1)
+						stack.qsPhase2CutMove(m_Feedback, depth, score, eval);
+					else if constexpr (QSPHASE == 2)
+						stack.qsPhase3CutMove(m_Feedback, depth, score, eval);
 					else
 						stack.normalCutMove(m_Feedback, depth, score, eval);
 				}
@@ -505,38 +536,38 @@ namespace pygmalion
 			}
 			if constexpr ((quietKillerMoves > 0) || (tacticalKillerMoves > 0))
 			{
-				m_KillerSlots[depth].template refuted<PLAYER, TACTICAL>(stack, moveBits, score, eval);
+				m_KillerSlots[depth].template refuted<PLAYER, QSPHASE>(stack, moveBits, score, eval);
 			}
-			static_cast<instanceType*>(this)->template onEndMoveRefuted<PLAYER, TACTICAL>(stack, moveBits, depth, score);
+			static_cast<instanceType*>(this)->template onEndMoveRefuted<PLAYER, QSPHASE>(stack, moveBits, depth, score);
 			return m_NodeCounter - nodeCount;
 		}
-		template<size_t PLAYER, bool TACTICAL>
+		template<size_t PLAYER, int QSPHASE>
 		PYGMALION_INLINE nodecounterType endMoveSilent(const nodecounterType nodeCount, const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth, const depthType depthRemaining) noexcept
 		{
 #if !defined(NDEBUG)
 			PYGMALION_ASSERT(m_IsSearching);
 			m_MoveDepth--;
 #endif
-			static_cast<instanceType*>(this)->template onEndMoveSilent<PLAYER, TACTICAL>(stack, moveBits, depth);
+			static_cast<instanceType*>(this)->template onEndMoveSilent<PLAYER, QSPHASE>(stack, moveBits, depth);
 			return m_NodeCounter - nodeCount;
 		}
-		template<size_t PLAYER, bool TACTICAL>
+		template<size_t PLAYER, int QSPHASE>
 		PYGMALION_INLINE void endMoveFutile(const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth) noexcept
 		{
 #if !defined(NDEBUG)
 			PYGMALION_ASSERT(m_IsSearching);
 			m_MoveDepth--;
 #endif
-			static_cast<instanceType*>(this)->template onEndMoveFutile<PLAYER, TACTICAL>(stack, moveBits, depth);
+			static_cast<instanceType*>(this)->template onEndMoveFutile<PLAYER, QSPHASE>(stack, moveBits, depth);
 		}
-		template<size_t PLAYER, bool TACTICAL>
+		template<size_t PLAYER, int QSPHASE>
 		PYGMALION_INLINE void endMoveDelta(const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth) noexcept
 		{
 #if !defined(NDEBUG)
 			PYGMALION_ASSERT(m_IsSearching);
 			m_MoveDepth--;
 #endif
-			static_cast<instanceType*>(this)->template onEndMoveDelta<PLAYER, TACTICAL>(stack, moveBits, depth);
+			static_cast<instanceType*>(this)->template onEndMoveDelta<PLAYER, QSPHASE>(stack, moveBits, depth);
 		}
 		template<size_t PLAYER>
 		PYGMALION_INLINE void endNodeCut(const stackType<PLAYER>& stack) noexcept

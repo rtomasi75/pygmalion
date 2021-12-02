@@ -236,9 +236,13 @@ namespace pygmalion
 		{
 			return evaluatorType::countAspirationWindows_Implementation();;
 		}
-		static scoreType staticMoveScore(const boardType& position, const movebitsType move) noexcept
+		PYGMALION_INLINE static scoreType staticMoveScore(const boardType& position, const movebitsType move) noexcept
 		{
 			return evaluatorType::staticMoveScore_Implementation(position, move);
+		}
+		PYGMALION_INLINE static scoreType staticExchangeScore(const boardType& position, const movebitsType move) noexcept
+		{
+			return evaluatorType::staticExchangeScore_Implementation(position, move);
 		}
 	};
 }

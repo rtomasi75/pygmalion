@@ -28,11 +28,6 @@ namespace pygmalion
 			const int m_DistanceFromRoot;
 			movelistType m_Moves;
 			movelistType m_TacticalMoves;
-			nodecountlistType m_Nodecounts;
-			nodecountlistType m_TacticalNodecounts;
-			quietkillernodecountlistType m_QuietKillerNodecounts;
-			tacticalkillernodecountlistType m_TacticalKillerNodecounts;
-			ttnodecountlistType m_NodecountsTT;
 			quietKillermovesType m_QuietMovesKiller;
 			tacticalKillermovesType m_TacticalMovesKiller;
 			ttmovesType m_MovesTT;
@@ -75,57 +70,35 @@ namespace pygmalion
 					return gamestateType::isWin(lateState, movingPlayer) ? win : loss;
 				}
 			}
-			template<bool TACTICAL>
+			template<int QSPHASE>
 			PYGMALION_INLINE void beginMove(const movebitsType moveBits) noexcept
 			{
-				m_MoveNodecount = m_Heuristics.template beginMove<PLAYER, TACTICAL>(m_Stack, moveBits, m_Depth);
+				m_MoveNodecount = m_Heuristics.template beginMove<PLAYER, QSPHASE>(m_Stack, moveBits, m_Depth);
 			}
-			template<bool PRUNED, bool TACTICAL>
+			template<bool PRUNED, int QSPHASE>
 			PYGMALION_INLINE void endMoveAccepted(const movebitsType moveBits, const scoreType score, const scoreType eval, const bool fromStack, const depthType depthRemaining) noexcept
 			{
-				const nodecounterType count{ m_Heuristics.template endMoveAccepted<PLAYER, PRUNED, TACTICAL>(m_MoveNodecount, m_Stack, moveBits, m_Depth, score, eval, fromStack, depthRemaining) };
-				if constexpr (!TACTICAL)
-				{
-					if (m_IsTTMove)
-						m_NodecountsTT.replace(m_MoveTT - 1, count);
-					else if (m_IsTacticalKiller)
-						m_TacticalKillerNodecounts.replace(m_TacticalMoveKiller - 1, count);
-					else if (m_IsKiller)
-						m_QuietKillerNodecounts.replace(m_QuietMoveKiller - 1, count);
-					else
-						m_Nodecounts.replace(m_Move - 1, m_Nodecounts[m_Move - 1] + count);
-				}
+				const nodecounterType count{ m_Heuristics.template endMoveAccepted<PLAYER, PRUNED, QSPHASE>(m_MoveNodecount, m_Stack, moveBits, m_Depth, score, eval, fromStack, depthRemaining) };
 			}
-			template<bool PRUNED, bool TACTICAL>
+			template<bool PRUNED, int QSPHASE>
 			PYGMALION_INLINE void endMoveRefuted(const movebitsType moveBits, const scoreType score, const scoreType eval, const bool fromStack, const depthType depthRemaining) noexcept
 			{
-				const nodecounterType count{ m_Heuristics.template endMoveRefuted<PLAYER, PRUNED, TACTICAL>(m_MoveNodecount, m_Stack, moveBits, m_Depth, score, eval, fromStack, depthRemaining) };
-				if constexpr (!TACTICAL)
-				{
-					if (m_IsTTMove)
-						m_NodecountsTT.replace(m_MoveTT - 1, count);
-					else if (m_IsTacticalKiller)
-						m_TacticalKillerNodecounts.replace(m_TacticalMoveKiller - 1, count);
-					else if (m_IsKiller)
-						m_QuietKillerNodecounts.replace(m_QuietMoveKiller - 1, count);
-					else
-						m_Nodecounts.replace(m_Move - 1, m_Nodecounts[m_Move - 1] + count);
-				}
+				const nodecounterType count{ m_Heuristics.template endMoveRefuted<PLAYER, PRUNED, QSPHASE>(m_MoveNodecount, m_Stack, moveBits, m_Depth, score, eval, fromStack, depthRemaining) };
 			}
-			template<bool PRUNED, bool TACTICAL>
+			template<bool PRUNED, int QSPHASE>
 			PYGMALION_INLINE void endMoveSilent(const movebitsType moveBits, const depthType depthRemaining) noexcept
 			{
-				m_Heuristics.template endMoveSilent<PLAYER, TACTICAL>(m_MoveNodecount, m_Stack, moveBits, m_Depth, depthRemaining);
+				m_Heuristics.template endMoveSilent<PLAYER, QSPHASE>(m_MoveNodecount, m_Stack, moveBits, m_Depth, depthRemaining);
 			}
-			template<bool PRUNED, bool TACTICAL>
+			template<bool PRUNED, int QSPHASE>
 			PYGMALION_INLINE void endMoveFutile(const movebitsType moveBits) noexcept
 			{
-				m_Heuristics.template endMoveFutile<PLAYER, TACTICAL>(m_Stack, moveBits, m_Depth);
+				m_Heuristics.template endMoveFutile<PLAYER, QSPHASE>(m_Stack, moveBits, m_Depth);
 			}
-			template<bool PRUNED, bool TACTICAL>
+			template<bool PRUNED, int QSPHASE>
 			PYGMALION_INLINE void endMoveDelta(const movebitsType moveBits) noexcept
 			{
-				m_Heuristics.template endMoveDelta<PLAYER, TACTICAL>(m_Stack, moveBits, m_Depth);
+				m_Heuristics.template endMoveDelta<PLAYER, QSPHASE>(m_Stack, moveBits, m_Depth);
 			}
 			template<bool LAZY>
 			PYGMALION_INLINE bool earlyScore(scoreType& score, bool& allowStoreTT) const noexcept
@@ -271,7 +244,7 @@ namespace pygmalion
 			template<bool SCOUT, bool ANALYZE>
 			PYGMALION_INLINE bool searchSubNode(const movebitsType move, scoreType& alpha, scoreType& beta, scoreType& best, movebitsType& bestmove, const depthType depthRemaining, variationType& principalVariation, const bool fromStack, bool& allowStoreTT, indexType* pCurrentMove)  noexcept
 			{
-				this->template beginMove<false>(move);
+				this->template beginMove<-1>(move);
 				variationType subVariation;
 				bool bCanPrune{ true };
 				if constexpr (pruneFutility || lateMoveReductions)
@@ -282,7 +255,7 @@ namespace pygmalion
 					{
 						if (m_FutilityPruningAllowed && bCanPrune && this->canFutilityPruneMove(move))
 						{
-							this->template endMoveFutile<false, false>(move);
+							this->template endMoveFutile<false, -1>(move);
 							return false;
 						}
 					}
@@ -322,7 +295,7 @@ namespace pygmalion
 										if (allowStoreTT)
 											m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, best, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
 									}
-									this->template endMoveRefuted<false, false>(move, best, evaluate(alpha, best), fromStack, depthRemaining);
+									this->template endMoveRefuted<false, -1>(move, best, evaluate(alpha, best), fromStack, depthRemaining);
 									m_Heuristics.endNodeCut(m_Stack);
 									return true;
 								}
@@ -332,16 +305,16 @@ namespace pygmalion
 									if (allowStoreTT)
 										m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, sc, transpositiontable<descriptorSearch>::flags_upper | transpositiontable<descriptorSearch>::flags_move, move);
 								}
-								this->template endMoveAccepted<false, false>(move, sc, evaluate(alpha, best), fromStack, depthRemaining);
+								this->template endMoveAccepted<false, -1>(move, sc, evaluate(alpha, best), fromStack, depthRemaining);
 								alpha = sc;
 							}
 							else
-								this->template endMoveSilent<false, false>(move, depthRemaining);
+								this->template endMoveSilent<false, -1>(move, depthRemaining);
 							principalVariation.combine(move, subVariation);
 							bestmove = move;
 						}
 						else
-							this->template endMoveSilent<false, false>(move, depthRemaining);
+							this->template endMoveSilent<false, -1>(move, depthRemaining);
 					}
 					else
 					{
@@ -359,7 +332,7 @@ namespace pygmalion
 										if (allowStoreTT)
 											m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, best, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
 									}
-									this->template endMoveRefuted<false, false>(move, best, evaluate(alpha, best), fromStack, depthRemaining);
+									this->template endMoveRefuted<false, -1>(move, best, evaluate(alpha, best), fromStack, depthRemaining);
 									m_Heuristics.endNodeCut(m_Stack);
 									return true;
 								}
@@ -369,16 +342,16 @@ namespace pygmalion
 									if (allowStoreTT)
 										m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, sc, transpositiontable<descriptorSearch>::flags_upper | transpositiontable<descriptorSearch>::flags_move, move);
 								}
-								this->template endMoveAccepted<false, false>(move, best, evaluate(alpha, best), fromStack, depthRemaining);
+								this->template endMoveAccepted<false, -1>(move, best, evaluate(alpha, best), fromStack, depthRemaining);
 								alpha = sc;
 							}
 							else
-								this->template endMoveSilent<false, false>(move, depthRemaining);
+								this->template endMoveSilent<false, -1>(move, depthRemaining);
 							principalVariation.combine(move, subVariation);
 							bestmove = move;
 						}
 						else
-							this->template endMoveSilent<false, false>(move, depthRemaining);
+							this->template endMoveSilent<false, -1>(move, depthRemaining);
 					}
 					return false;
 				}
@@ -398,7 +371,7 @@ namespace pygmalion
 								if (allowStoreTT)
 									m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, best, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
 							}
-							this->template endMoveRefuted<false, false>(move, best, evaluate(alpha, best), fromStack, depthRemaining);
+							this->template endMoveRefuted<false, -1>(move, best, evaluate(alpha, best), fromStack, depthRemaining);
 							return true;
 						}
 						principalVariation.combine(move, subVariation);
@@ -408,18 +381,18 @@ namespace pygmalion
 							if (allowStoreTT)
 								m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, best, transpositiontable<descriptorSearch>::flags_upper | transpositiontable<descriptorSearch>::flags_move, move);
 						}
-						this->template endMoveAccepted<false, false>(move, best, evaluate(alpha, best), fromStack, depthRemaining);
+						this->template endMoveAccepted<false, -1>(move, best, evaluate(alpha, best), fromStack, depthRemaining);
 						alpha = best;
 					}
 					else
-						this->template endMoveSilent<false, false>(move, depthRemaining);
+						this->template endMoveSilent<false, -1>(move, depthRemaining);
 					return false;
 				}
 			}
 			template<bool PRUNED>
 			PYGMALION_INLINE bool zwsearchSubNode(const movebitsType move, scoreType& alpha, scoreType& beta, scoreType& best, movebitsType& bestmove, const depthType depthRemaining, const uint_t<countPlayers, false> nullMoveHistory, const bool fromStack, bool& allowStoreTT, const knuthType expectedNodeType) noexcept
 			{
-				this->template beginMove<false>(move);
+				this->template beginMove<-1>(move);
 				bool bCanPrune{ true };
 				if constexpr (((!PRUNED) && pruneFutility) || lateMoveReductions)
 					bCanPrune = this->canPruneMove(move);
@@ -429,7 +402,7 @@ namespace pygmalion
 					{
 						if (m_FutilityPruningAllowed && bCanPrune && this->canFutilityPruneMove(move))
 						{
-							this->template endMoveFutile<PRUNED, false>(move);
+							this->template endMoveFutile<PRUNED, -1>(move);
 							return false;
 						}
 					}
@@ -467,24 +440,25 @@ namespace pygmalion
 							if (allowStoreTT)
 								m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, best, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
 						}
-						this->template endMoveRefuted<PRUNED, false>(move, best, evaluate(alpha, best), fromStack, depthRemaining);
+						this->template endMoveRefuted<PRUNED, -1>(move, best, evaluate(alpha, best), fromStack, depthRemaining);
 						m_Heuristics.endNodeCut(m_Stack);
 						return true;
 					}
 					bestmove = move;
 				}
-				this->template endMoveSilent<PRUNED, false>(move, depthRemaining);
+				this->template endMoveSilent<PRUNED, -1>(move, depthRemaining);
 				return false;
 			}
 			template<int QSDEPTH, bool USE_TT>
 			PYGMALION_INLINE bool qsearchSubNode(const movebitsType move, scoreType& alpha, scoreType& beta, scoreType& best, movebitsType& bestmove, variationType& principalVariation, const bool fromStack, bool& allowStoreTT) noexcept
 			{
-				this->template beginMove<true>(move);
+				constexpr const int QSPHASE{ (QSDEPTH < (countQsPhase1Plies + countQsPhase2Plies)) ? ((QSDEPTH < countQsPhase1Plies) ? 0 : 1) : 2 };
+				this->template beginMove<QSPHASE>(move);
 				if constexpr (pruneDelta)
 				{
 					if (m_DeltaPruningAllowed && this->canPruneMove(move) && this->canDeltaPruneMove(move))
 					{
-						this->template endMoveDelta<false, true>(move);
+						this->template endMoveDelta<false, QSPHASE>(move);
 						return false;
 					}
 				}
@@ -494,7 +468,7 @@ namespace pygmalion
 				scoreType sc;
 				if constexpr (QSDEPTH >= (countQsPhase1Plies + countQsPhase2Plies + countQsPhase3Plies))
 				{
-					sc = evaluate(alpha, beta) + evaluatorType::staticMoveScore(m_Stack.position(), move);
+					sc = evaluate(alpha, beta) + evaluatorType::staticExchangeScore(m_Stack.position(), move);
 					allowStoreTTsubnode = false;
 				}
 				else
@@ -530,7 +504,7 @@ namespace pygmalion
 								m_Heuristics.transpositionTable().store(m_Stack, ttDraft, best, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
 							}
 						}
-						this->template endMoveRefuted<false, true>(move, best, evaluate(oldAlpha, best), fromStack, ttDraft);
+						this->template endMoveRefuted<false, QSPHASE>(move, best, evaluate(oldAlpha, best), fromStack, ttDraft);
 						m_Heuristics.template endNodeCut<PLAYER>(m_Stack);
 						return true;
 					}
@@ -538,20 +512,21 @@ namespace pygmalion
 					bestmove = move;
 				}
 				if (!bEnded)
-					this->template endMoveSilent<false, true>(move, ttDraft);
+					this->template endMoveSilent<false, QSPHASE>(move, ttDraft);
 				else
-					this->template endMoveAccepted<false, true>(move, alpha, evaluate(oldAlpha, best), fromStack, ttDraft);
+					this->template endMoveAccepted<false, QSPHASE>(move, alpha, evaluate(oldAlpha, best), fromStack, ttDraft);
 				return false;
 			}
 			template<int QSDEPTH, bool USE_TT>
 			PYGMALION_INLINE bool qzwsearchSubNode(const movebitsType move, scoreType& alpha, scoreType& beta, scoreType& best, movebitsType& bestmove, const bool fromStack, bool& allowStoreTT, const knuthType expectedNodeType) noexcept
 			{
-				this->template beginMove<true>(move);
+				constexpr const int QSPHASE{ (QSDEPTH < (countQsPhase1Plies + countQsPhase2Plies)) ? ((QSDEPTH < countQsPhase1Plies) ? 0 : 1) : 2 };
+				this->template beginMove<QSPHASE>(move);
 				if constexpr (pruneDelta)
 				{
 					if (m_DeltaPruningAllowed && this->canPruneMove(move) && this->canDeltaPruneMove(move))
 					{
-						this->template endMoveDelta<false, true>(move);
+						this->template endMoveDelta<false, QSPHASE>(move);
 						return false;
 					}
 				}
@@ -559,7 +534,7 @@ namespace pygmalion
 				scoreType sc;
 				if constexpr (QSDEPTH >= (countQsPhase1Plies + countQsPhase2Plies + countQsPhase3Plies))
 				{
-					sc = evaluate(alpha, beta) + evaluatorType::staticMoveScore(m_Stack.position(), move);
+					sc = evaluate(alpha, beta) + evaluatorType::staticExchangeScore(m_Stack.position(), move);
 					allowStoreTTsubnode = false;
 				}
 				else
@@ -579,11 +554,11 @@ namespace pygmalion
 							m_Heuristics.transpositionTable().store(m_Stack, ttDraft, best, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
 						}
 					}
-					this->template endMoveRefuted<false, true>(move, best, evaluate(alpha, best), fromStack, ttDraft);
+					this->template endMoveRefuted<false, QSPHASE>(move, best, evaluate(alpha, best), fromStack, ttDraft);
 					m_Heuristics.template endNodeCut<PLAYER>(m_Stack);
 					return true;
 				}
-				this->template endMoveSilent<false, true>(move, ttDraft);
+				this->template endMoveSilent<false, QSPHASE>(move, ttDraft);
 				return false;
 			}
 			PYGMALION_INLINE static uint_t<countPlayers, false> noNullMove(const uint_t<countPlayers, false> nullMoveHistory) noexcept
@@ -755,6 +730,7 @@ namespace pygmalion
 			template<int QSDEPTH, bool USE_TT>
 			PYGMALION_INLINE scoreType evalLoop(scoreType& alpha, scoreType& beta, scoreType& best, variationType& principalVariation, bool& allowStoreTT) noexcept
 			{
+				constexpr const int QSPHASE{ (QSDEPTH < (countQsPhase1Plies + countQsPhase2Plies)) ? ((QSDEPTH < countQsPhase1Plies) ? 0 : 1) : 2 };
 				movebitsType bestmove;
 				bool hasLegalMove{ false };
 				movebitsType move;
@@ -762,19 +738,13 @@ namespace pygmalion
 				allowStoreTT = true;
 				constexpr const scoreType zero{ scoreType::zero() };
 				constexpr const depthType ttDraft{ node::template qsearchDraft<QSDEPTH>() };
-				if ((!hasLegalMove) && this->template nextTacticalMove<(QSDEPTH < countQsPhase1Plies), false>(ttDraft, move, fromStack))
+				if ((!hasLegalMove) && this->template nextTacticalMove<QSPHASE, false>(ttDraft, move, fromStack))
 				{
 					hasLegalMove = true;
-					if constexpr ((QSDEPTH >= (countQsPhase1Plies + countQsPhase2Plies)) && staticMoveScores)
+					if (this->template qsearchSubNode<QSDEPTH, USE_TT>(move, alpha, beta, best, bestmove, principalVariation, fromStack, allowStoreTT))
 					{
-						if (evaluatorType::staticMoveScore(m_Stack.position(), move) > zero)
-						{
-							if (this->template qsearchSubNode<QSDEPTH, USE_TT>(move, alpha, beta, best, bestmove, principalVariation, fromStack, allowStoreTT))
-							{
-								this->template resetMoveGen<false, true>();
-								return best;
-							}
-						}
+						this->template resetMoveGen<false, true>();
+						return best;
 					}
 				}
 				if (!hasLegalMove)
@@ -808,30 +778,12 @@ namespace pygmalion
 						return late;
 					}
 				}
-				while (this->template nextTacticalMove<(QSDEPTH < countQsPhase1Plies), false>(ttDraft, move, fromStack))
+				while (this->template nextTacticalMove<QSPHASE, false>(ttDraft, move, fromStack))
 				{
-					if constexpr ((QSDEPTH >= (countQsPhase1Plies + countQsPhase2Plies)) && staticMoveScores)
+					if (this->template qsearchSubNode<QSDEPTH, USE_TT>(move, alpha, beta, best, bestmove, principalVariation, fromStack, allowStoreTT))
 					{
-						if (evaluatorType::staticMoveScore(m_Stack.position(), move) > zero)
-						{
-							if (this->template qsearchSubNode<QSDEPTH, USE_TT>(move, alpha, beta, best, bestmove, principalVariation, fromStack, allowStoreTT))
-							{
-								this->template resetMoveGen<false, true>();
-								return best;
-							}
-						}
-						else
-						{
-							break;
-						}
-					}
-					else
-					{
-						if (this->template qsearchSubNode<QSDEPTH, USE_TT>(move, alpha, beta, best, bestmove, principalVariation, fromStack, allowStoreTT))
-						{
-							this->template resetMoveGen<false, true>();
-							return best;
-						}
+						this->template resetMoveGen<false, true>();
+						return best;
 					}
 				}
 				this->template resetMoveGen<false, true>();
@@ -926,6 +878,7 @@ namespace pygmalion
 			template<int QSDEPTH, bool USE_TT>
 			PYGMALION_INLINE scoreType zwevalLoop(scoreType& alpha, scoreType& beta, scoreType& best, bool& allowStoreTT, const knuthType expectedNodeType) noexcept
 			{
+				constexpr const int QSPHASE{ (QSDEPTH < (countQsPhase1Plies + countQsPhase2Plies)) ? ((QSDEPTH < countQsPhase1Plies) ? 0 : 1) : 2 };
 				movebitsType bestmove;
 				bool hasLegalMove{ false };
 				movebitsType move;
@@ -935,37 +888,25 @@ namespace pygmalion
 				constexpr const depthType ttDraft{ node::template qsearchDraft<QSDEPTH>() };
 				if (expectedNodeType == CUTnode)
 				{
-					if ((!hasLegalMove) && this->template nextTacticalMove<(QSDEPTH < countQsPhase1Plies), true>(ttDraft, move, fromStack))
+					if ((!hasLegalMove) && this->template nextTacticalMove<QSPHASE, true>(ttDraft, move, fromStack))
 					{
 						hasLegalMove = true;
-						if constexpr ((QSDEPTH >= (countQsPhase1Plies + countQsPhase2Plies)) && staticMoveScores)
+						if (this->qzwsearchSubNode<QSDEPTH, USE_TT>(move, alpha, beta, best, bestmove, fromStack, allowStoreTT, -expectedNodeType))
 						{
-							if (evaluatorType::staticMoveScore(m_Stack.position(), move) > zero)
-							{
-								if (this->qzwsearchSubNode<QSDEPTH, USE_TT>(move, alpha, beta, best, bestmove, fromStack, allowStoreTT, -expectedNodeType))
-								{
-									this->template resetMoveGen<false, true>();
-									return best;
-								}
-							}
+							this->template resetMoveGen<false, true>();
+							return best;
 						}
 					}
 				}
 				else
 				{
-					if ((!hasLegalMove) && this->template nextTacticalMove<(QSDEPTH < countQsPhase1Plies), false>(ttDraft, move, fromStack))
+					if ((!hasLegalMove) && this->template nextTacticalMove<QSPHASE, false>(ttDraft, move, fromStack))
 					{
 						hasLegalMove = true;
-						if constexpr ((QSDEPTH >= (countQsPhase1Plies + countQsPhase2Plies)) && staticMoveScores)
+						if (this->qzwsearchSubNode<QSDEPTH, USE_TT>(move, alpha, beta, best, bestmove, fromStack, allowStoreTT, -expectedNodeType))
 						{
-							if (evaluatorType::staticMoveScore(m_Stack.position(), move) > zero)
-							{
-								if (this->qzwsearchSubNode<QSDEPTH, USE_TT>(move, alpha, beta, best, bestmove, fromStack, allowStoreTT, -expectedNodeType))
-								{
-									this->template resetMoveGen<false, true>();
-									return best;
-								}
-							}
+							this->template resetMoveGen<false, true>();
+							return best;
 						}
 					}
 				}
@@ -1005,55 +946,23 @@ namespace pygmalion
 				}
 				if (expectedNodeType == CUTnode)
 				{
-					while (this->template nextTacticalMove<(QSDEPTH < countQsPhase1Plies), true>(ttDraft, move, fromStack))
+					while (this->template nextTacticalMove<QSPHASE, true>(ttDraft, move, fromStack))
 					{
-						if constexpr ((QSDEPTH >= (countQsPhase1Plies + countQsPhase2Plies)) && staticMoveScores)
+						if (this->qzwsearchSubNode<QSDEPTH, USE_TT>(move, alpha, beta, best, bestmove, fromStack, allowStoreTT, -expectedNodeType))
 						{
-							if (evaluatorType::staticMoveScore(m_Stack.position(), move) > zero)
-							{
-								if (this->qzwsearchSubNode<QSDEPTH, USE_TT>(move, alpha, beta, best, bestmove, fromStack, allowStoreTT, -expectedNodeType))
-								{
-									this->template resetMoveGen<false, true>();
-									return best;
-								}
-							}
-							else
-								break;
-						}
-						else
-						{
-							if (this->qzwsearchSubNode<QSDEPTH, USE_TT>(move, alpha, beta, best, bestmove, fromStack, allowStoreTT, -expectedNodeType))
-							{
-								this->template resetMoveGen<false, true>();
-								return best;
-							}
+							this->template resetMoveGen<false, true>();
+							return best;
 						}
 					}
 				}
 				else
 				{
-					while (this->template nextTacticalMove<(QSDEPTH < countQsPhase1Plies), false>(ttDraft, move, fromStack))
+					while (this->template nextTacticalMove<QSPHASE, false>(ttDraft, move, fromStack))
 					{
-						if constexpr ((QSDEPTH >= (countQsPhase1Plies + countQsPhase2Plies)) && staticMoveScores)
+						if (this->qzwsearchSubNode<QSDEPTH, USE_TT>(move, alpha, beta, best, bestmove, fromStack, allowStoreTT, -expectedNodeType))
 						{
-							if (evaluatorType::staticMoveScore(m_Stack.position(), move) > zero)
-							{
-								if (this->qzwsearchSubNode<QSDEPTH, USE_TT>(move, alpha, beta, best, bestmove, fromStack, allowStoreTT, -expectedNodeType))
-								{
-									this->template resetMoveGen<false, true>();
-									return best;
-								}
-							}
-							else
-								break;
-						}
-						else
-						{
-							if (this->qzwsearchSubNode<QSDEPTH, USE_TT>(move, alpha, beta, best, bestmove, fromStack, allowStoreTT, -expectedNodeType))
-							{
-								this->template resetMoveGen<false, true>();
-								return best;
-							}
+							this->template resetMoveGen<false, true>();
+							return best;
 						}
 					}
 				}
@@ -1177,60 +1086,11 @@ namespace pygmalion
 				{
 					m_TacticalMove = 0;
 					m_TacticalMoveGeneratorStage = -1;
-					m_MovesTT.clear();
-					m_QuietMovesKiller.clear();
-					m_TacticalMovesKiller.clear();
 				}
 				else
 				{
 					m_Move = 0;
 					m_MoveGeneratorStage = -1;
-				}
-				if constexpr (dynamicMoveScores)
-				{
-					if constexpr (!TACTICAL)
-					{
-						m_NeedsSorting = true;
-						for (indexType i = 0; i < m_Nodecounts.length(); i++)
-						{
-							bool bFound = false;
-							movebitsType movebits;
-							movebits = m_Moves[i];
-							for (indexType j = 0; j < m_MovesTT.length(); j++)
-							{
-								if (m_MovesTT[j] == movebits)
-								{
-									bFound = true;
-									m_Nodecounts.replace(i, m_Nodecounts[i] + m_NodecountsTT[j]);
-									break;
-								}
-							}
-							if (!bFound)
-							{
-								for (indexType j = 0; j < m_TacticalMovesKiller.length(); j++)
-								{
-									if (m_TacticalMovesKiller[j] == movebits)
-									{
-										bFound = true;
-										m_Nodecounts.replace(i, m_Nodecounts[i] + m_TacticalKillerNodecounts[j]);
-										break;
-									}
-								}
-							}
-							if (!bFound)
-							{
-								for (indexType j = 0; j < m_QuietMovesKiller.length(); j++)
-								{
-									if (m_QuietMovesKiller[j] == movebits)
-									{
-										bFound = true;
-										m_Nodecounts.replace(i, m_Nodecounts[i] + m_QuietKillerNodecounts[j]);
-										break;
-									}
-								}
-							}
-						}
-					}
 				}
 			}
 			scoreType zwsearch(scoreType beta, const depthType depthRemaining, const uint_t<countPlayers, false> nullMoveHistory, bool& allowStoreTT, const knuthType expectedNodeType) noexcept
@@ -1620,12 +1480,6 @@ namespace pygmalion
 					m_MovesTT.clear();
 					m_Heuristics.transpositionTable().probeMoves(m_Stack, depthRemaining, m_MovesTT);
 					m_MoveTT = 0;
-					if constexpr (dynamicMoveScores)
-					{
-						m_NodecountsTT.clear();
-						while (m_NodecountsTT.length() < m_MovesTT.length())
-							m_NodecountsTT.add(0);
-					}
 				}
 				if (m_MoveGeneratorStage == 0)
 				{
@@ -1650,14 +1504,8 @@ namespace pygmalion
 					m_IsTTMove = false;
 					m_MoveGeneratorStage = 1;
 					m_TacticalMovesKiller.clear();
-					m_Heuristics.tacticalKillers(m_Stack, m_Depth, m_TacticalMovesKiller);
+					m_Heuristics.template tacticalKillers<PLAYER, 0>(m_Stack, m_Depth, m_TacticalMovesKiller);
 					m_TacticalMoveKiller = 0;
-					if constexpr (dynamicMoveScores)
-					{
-						m_TacticalKillerNodecounts.clear();
-						while (m_TacticalKillerNodecounts.length() < m_TacticalMovesKiller.length())
-							m_TacticalKillerNodecounts.add(0);
-					}
 				}
 				if (m_MoveGeneratorStage == 1)
 				{
@@ -1692,12 +1540,6 @@ namespace pygmalion
 					m_QuietMovesKiller.clear();
 					m_Heuristics.quietKillers(m_Stack, m_Depth, m_QuietMovesKiller);
 					m_QuietMoveKiller = 0;
-					if constexpr (dynamicMoveScores)
-					{
-						m_QuietKillerNodecounts.clear();
-						while (m_QuietKillerNodecounts.length() < m_QuietMovesKiller.length())
-							m_QuietKillerNodecounts.add(0);
-					}
 				}
 				if (m_MoveGeneratorStage == 2)
 				{
@@ -1729,43 +1571,8 @@ namespace pygmalion
 					m_IsKiller = false;
 					m_MoveGeneratorStage = 3;
 				}
-				if constexpr (dynamicMoveScores)
-				{
-					if constexpr ((!EXPECT_CUTOFF) || (!allowSelectionSort))
-					{
-						if (m_NeedsSorting)
-						{
-							sort<movebitsType, nodecounterType>::sortValues(m_Moves.ptr() + m_Move, m_Nodecounts.ptr() + m_Move, m_Moves.length() + m_Move);
-							m_NeedsSorting = false;
-						}
-					}
-				}
 				while (m_Move < m_Moves.length())
 				{
-					if constexpr (dynamicMoveScores)
-					{
-						if (m_NeedsSorting)
-						{
-							indexType best = m_Move;
-							if constexpr (EXPECT_CUTOFF && allowSelectionSort)
-							{
-								nodecounterType highest{ m_Nodecounts[best] };
-								for (indexType i = m_Move + 1; i < m_Moves.length(); i++)
-								{
-									if (m_Nodecounts[i] > highest)
-									{
-										highest = m_Nodecounts[i];
-										best = i;
-									}
-								}
-							}
-							if (m_Move != best)
-							{
-								m_Nodecounts.swap(m_Move, best);
-								m_Moves.swap(m_Move, best);
-							}
-						}
-					}
 					movebits = m_Moves[m_Move];
 					const bool bDouble{ m_MovesTT.contains(movebits) || m_QuietMovesKiller.contains(movebits) || m_TacticalMovesKiller.contains(movebits) };
 					++m_Move;
@@ -1777,8 +1584,6 @@ namespace pygmalion
 				movebitsType testBits{ movebitsType(0) };
 				if constexpr (PRUNED)
 				{
-					if constexpr (dynamicMoveScores)
-						m_NeedsSorting = false;
 					if constexpr (staticMoveScores)
 					{
 						const auto lambda{ [this](const movebitsType& bits) { return this->m_Heuristics.staticMoveScore(m_Stack, bits, m_Depth); } };
@@ -1787,8 +1592,6 @@ namespace pygmalion
 							const bool bDouble{ m_MovesTT.contains(testBits) || m_QuietMovesKiller.contains(testBits) || m_TacticalMovesKiller.contains(testBits) };
 							movebits = testBits;
 							m_Moves.add(movebits);
-							if constexpr (dynamicMoveScores)
-								m_Nodecounts.add(0);
 							++m_Move;
 							if (!bDouble)
 							{
@@ -1804,8 +1607,6 @@ namespace pygmalion
 							const bool bDouble{ m_MovesTT.contains(testBits) || m_QuietMovesKiller.contains(testBits) || m_TacticalMovesKiller.contains(testBits) };
 							movebits = testBits;
 							m_Moves.add(movebits);
-							if constexpr (dynamicMoveScores)
-								m_Nodecounts.add(0);
 							++m_Move;
 							if (!bDouble)
 							{
@@ -1817,8 +1618,6 @@ namespace pygmalion
 				}
 				else
 				{
-					if constexpr (dynamicMoveScores)
-						m_NeedsSorting = false;
 					if constexpr (staticMoveScores)
 					{
 						const auto lambda{ [this](const movebitsType& bits) { return this->m_Heuristics.staticMoveScore(m_Stack, bits, m_Depth); } };
@@ -1827,8 +1626,6 @@ namespace pygmalion
 							const bool bDouble{ m_MovesTT.contains(testBits) || m_QuietMovesKiller.contains(testBits) || m_TacticalMovesKiller.contains(testBits) };
 							movebits = testBits;
 							m_Moves.add(movebits);
-							if constexpr (dynamicMoveScores)
-								m_Nodecounts.add(0);
 							++m_Move;
 							if (!bDouble)
 							{
@@ -1843,8 +1640,6 @@ namespace pygmalion
 						{
 							const bool bDouble{ m_MovesTT.contains(testBits) || m_QuietMovesKiller.contains(testBits) || m_TacticalMovesKiller.contains(testBits) };
 							m_Moves.add(movebits);
-							if constexpr (dynamicMoveScores)
-								m_Nodecounts.add(0);
 							++m_Move;
 							if (!bDouble)
 							{
@@ -1857,52 +1652,35 @@ namespace pygmalion
 				}
 				return false;
 			}
-			template<bool CRITICALS, bool EXPECT_CUTOFF>
+			template<int QSPHASE, bool EXPECT_CUTOFF>
 			bool nextTacticalMove(const depthType depthRemaining, movebitsType& movebits, bool& fromStack) noexcept
 			{
 				fromStack = false;
 				if (m_TacticalMoveGeneratorStage < 0)
 				{
 					m_TacticalMoveGeneratorStage = 0;
-					if constexpr (CRITICALS)
-					{
-						m_MovesTT.clear();
-						m_Heuristics.transpositionTable().probeMoves(m_Stack, depthRemaining, m_MovesTT);
-						m_MoveTT = 0;
-					}
+					m_TacticalMovesTT.clear();
+					if constexpr (QSPHASE == 0)
+						m_Heuristics.transpositionTable().probeQSPhase1Moves(m_Stack, depthRemaining, m_TacticalMovesTT);
+					else if constexpr (QSPHASE == 1)
+						m_Heuristics.transpositionTable().probeQSPhase2Moves(m_Stack, depthRemaining, m_TacticalMovesTT);
 					else
-					{
-						m_TacticalMovesTT.clear();
-						m_Heuristics.transpositionTable().probeTacticalMoves(m_Stack, depthRemaining, m_TacticalMovesTT);
-						m_TacticalMoveTT = 0;
-					}
+						m_Heuristics.transpositionTable().probeQSPhase3Moves(m_Stack, depthRemaining, m_TacticalMovesTT);
+					m_TacticalMoveTT = 0;
 				}
 				if (m_TacticalMoveGeneratorStage == 0)
 				{
 					m_IsTTMove = true;
-					if constexpr (CRITICALS)
+					while (m_TacticalMoveTT < m_TacticalMovesTT.length())
 					{
-						while (m_MoveTT < m_MovesTT.length())
-						{
-							movebits = m_MovesTT[m_MoveTT];
-							++m_MoveTT;
-							if (generatorType::template isMoveCritical<PLAYER, stackType>(m_Stack, movebits))
-								return true;
-						}
-					}
-					else
-					{
-						while (m_TacticalMoveTT < m_TacticalMovesTT.length())
-						{
-							movebits = m_TacticalMovesTT[m_TacticalMoveTT];
-							++m_TacticalMoveTT;
-							return true;
-						}
+						movebits = m_TacticalMovesTT[m_TacticalMoveTT];
+						++m_TacticalMoveTT;
+						return true;
 					}
 					m_IsTTMove = false;
 					m_TacticalMoveGeneratorStage = 1;
 					m_TacticalMovesKiller.clear();
-					m_Heuristics.tacticalKillers(m_Stack, m_Depth, m_TacticalMovesKiller);
+					m_Heuristics.template tacticalKillers<PLAYER, QSPHASE>(m_Stack, m_Depth, m_TacticalMovesKiller);
 					m_TacticalMoveKiller = 0;
 				}
 				if (m_TacticalMoveGeneratorStage == 1)
@@ -1917,69 +1695,45 @@ namespace pygmalion
 							return true;
 					}
 					m_IsTacticalKiller = false;
-					if constexpr (CRITICALS)
-					{
-						m_MoveGeneratorStage = 2;
-						m_QuietMovesKiller.clear();
-						m_Heuristics.quietKillers(m_Stack, m_Depth, m_QuietMovesKiller);
-						m_QuietMoveKiller = 0;
-					}
-					else
-						m_TacticalMoveGeneratorStage = 3;
-				}
-				if (m_TacticalMoveGeneratorStage == 2)
-				{
-					m_IsKiller = true;
-					while (m_QuietMoveKiller < m_QuietMovesKiller.length())
-					{
-						movebits = m_QuietMovesKiller[m_QuietMoveKiller];
-						++m_QuietMoveKiller;
-						if (generatorType::template isMoveCritical<PLAYER>(m_Stack, movebits))
-						{
-							const bool bDouble{ m_MovesTT.contains(movebits) || m_TacticalMovesKiller.contains(movebits) };
-							if (!bDouble)
-							{
-								if (generatorType::template isMoveCritical<PLAYER>(m_Stack, movebits))
-									return true;
-							}
-						}
-					}
-					m_IsKiller = false;
-					m_MoveGeneratorStage = 3;
+					m_TacticalMoveGeneratorStage = 2;
 				}
 				while (m_TacticalMove < m_TacticalMoves.length())
 				{
 					movebits = m_TacticalMoves[m_TacticalMove];
 					++m_TacticalMove;
-					if constexpr (CRITICALS)
+					const bool bDouble{ m_TacticalMovesTT.contains(movebits) || m_TacticalMovesKiller.contains(movebits) };
+					if (!bDouble)
 					{
-						const bool bDouble{ m_MovesTT.contains(movebits) || m_TacticalMovesKiller.contains(movebits) || m_QuietMovesKiller.contains(movebits) };
-						if (!bDouble)
-						{
-							return true;
-						}
-					}
-					else
-					{
-						const bool bDouble{ m_TacticalMovesTT.contains(movebits) || m_TacticalMovesKiller.contains(movebits) };
-						if (!bDouble)
-						{
-							return true;
-						}
+						return true;
 					}
 				}
 				movebitsType testBits{ movebitsType(0) };
 				if constexpr (staticMoveScores)
 				{
 					const auto lambda{ [this](const movebitsType& bits) { return this->m_Heuristics.staticMoveScore(m_Stack, bits, m_Depth); } };
-					if constexpr (CRITICALS)
+					if constexpr (QSPHASE == 0)
 					{
-						while (m_Stack.template nextTacticalCriticalMove<decltype(lambda), EXPECT_CUTOFF && allowSelectionSort>(testBits, m_Depth, m_Heuristics.feedback(), lambda))
+						while (m_Stack.template nextQSPhase1Move<decltype(lambda), EXPECT_CUTOFF && allowSelectionSort>(testBits, m_Depth, m_Heuristics.feedback(), lambda))
 						{
 							movebits = testBits;
 							m_TacticalMoves.add(testBits);
 							++m_TacticalMove;
-							const bool bDouble{ m_MovesTT.contains(movebits) || m_TacticalMovesKiller.contains(movebits) || m_QuietMovesKiller.contains(movebits) };
+							const bool bDouble{ m_MovesTT.contains(movebits) || m_TacticalMovesKiller.contains(movebits) };
+							if (!bDouble)
+							{
+								fromStack = true;
+								return true;
+							}
+						}
+					}
+					else if constexpr (QSPHASE == 1)
+					{
+						while (m_Stack.template nextQSPhase2Move<decltype(lambda), EXPECT_CUTOFF && allowSelectionSort>(testBits, m_Depth, m_Heuristics.feedback(), lambda))
+						{
+							movebits = testBits;
+							m_TacticalMoves.add(testBits);
+							++m_TacticalMove;
+							const bool bDouble{ m_MovesTT.contains(movebits) || m_TacticalMovesKiller.contains(movebits) };
 							if (!bDouble)
 							{
 								fromStack = true;
@@ -1989,7 +1743,7 @@ namespace pygmalion
 					}
 					else
 					{
-						while (m_Stack.template nextTacticalMove<decltype(lambda), EXPECT_CUTOFF && allowSelectionSort>(testBits, m_Depth, m_Heuristics.feedback(), lambda))
+						while (m_Stack.template nextQSPhase3Move<decltype(lambda), EXPECT_CUTOFF && allowSelectionSort>(testBits, m_Depth, m_Heuristics.feedback(), lambda))
 						{
 							movebits = testBits;
 							m_TacticalMoves.add(testBits);
@@ -2005,14 +1759,29 @@ namespace pygmalion
 				}
 				else
 				{
-					if constexpr (CRITICALS)
+					if constexpr (QSPHASE == 0)
 					{
-						while (m_Stack.nextTacticalCriticalMove(testBits, m_Depth, m_Heuristics.feedback()))
+						while (m_Stack.nextQSPhase1Move(testBits, m_Depth, m_Heuristics.feedback()))
 						{
 							movebits = testBits;
 							m_TacticalMoves.add(testBits);
 							++m_TacticalMove;
-							const bool bDouble{ m_MovesTT.contains(movebits) || m_TacticalMovesKiller.contains(movebits) || m_QuietMovesKiller.contains(movebits) };
+							const bool bDouble{ m_MovesTT.contains(movebits) || m_TacticalMovesKiller.contains(movebits) };
+							if (!bDouble)
+							{
+								fromStack = true;
+								return true;
+							}
+						}
+					}
+					else if constexpr (QSPHASE == 1)
+					{
+						while (m_Stack.nextQSPhase2Move(testBits, m_Depth, m_Heuristics.feedback()))
+						{
+							movebits = testBits;
+							m_TacticalMoves.add(testBits);
+							++m_TacticalMove;
+							const bool bDouble{ m_TacticalMovesTT.contains(testBits) || m_TacticalMovesKiller.contains(testBits) };
 							if (!bDouble)
 							{
 								fromStack = true;
@@ -2022,7 +1791,7 @@ namespace pygmalion
 					}
 					else
 					{
-						while (m_Stack.nextTacticalMove(testBits, m_Depth, m_Heuristics.feedback()))
+						while (m_Stack.nextQSPhase3Move(testBits, m_Depth, m_Heuristics.feedback()))
 						{
 							movebits = testBits;
 							m_TacticalMoves.add(testBits);

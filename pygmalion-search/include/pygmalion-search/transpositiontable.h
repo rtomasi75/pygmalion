@@ -1,6 +1,6 @@
 namespace pygmalion
 {
-//#define PYGMALION_TTSTATISTICS
+	//#define PYGMALION_TTSTATISTICS
 
 	template<typename DESCRIPTION_SEARCH>
 	class transpositiontable :
@@ -377,7 +377,36 @@ namespace pygmalion
 			}
 		}
 		template<size_t PLAYER>
-		void probeTacticalMoves(const stackType<PLAYER>& stack, const depthType depthRemaining, ttmovesType& moves) const noexcept
+		void probeQSPhase1Moves(const stackType<PLAYER>& stack, const depthType depthRemaining, ttmovesType& moves) const noexcept
+		{
+			if constexpr (countBuckets > 0)
+			{
+				const size_t idx{ computeIndex(stack.position().hash()) };
+				depthType score[countBuckets];
+				const size_t base{ idx * countBuckets };
+				for (size_t j = 0; j < countBuckets; j++)
+				{
+					const size_t index{ base + j };
+					if (m_Entry[index].isValid(stack))
+					{
+						if (m_Entry[index].flags() & flags_move)
+						{
+							if (generatorType::isMoveTactical(stack, m_Entry[index].move()) || generatorType::template isMoveCritical<PLAYER, stackType<PLAYER>>(stack, m_Entry[index].move()))
+							{
+								if (!moves.contains(m_Entry[index].move()))
+								{
+									score[moves.length()] = -std::abs(m_Entry[index].draft() - depthRemaining);
+									moves.add(m_Entry[index].move());
+								}
+							}
+						}
+					}
+				}
+				sort<movebitsType, depthType>::sortValues(moves.ptr(), &score[0], moves.length());
+			}
+		}
+		template<size_t PLAYER>
+		void probeQSPhase2Moves(const stackType<PLAYER>& stack, const depthType depthRemaining, ttmovesType& moves) const noexcept
 		{
 			if constexpr (countBuckets > 0)
 			{
@@ -392,6 +421,36 @@ namespace pygmalion
 						if (m_Entry[index].flags() & flags_move)
 						{
 							if (generatorType::isMoveTactical(stack, m_Entry[index].move()))
+							{
+								if (!moves.contains(m_Entry[index].move()))
+								{
+									score[moves.length()] = -std::abs(m_Entry[index].draft() - depthRemaining);
+									moves.add(m_Entry[index].move());
+								}
+							}
+						}
+					}
+				}
+				sort<movebitsType, depthType>::sortValues(moves.ptr(), &score[0], moves.length());
+			}
+		}
+		template<size_t PLAYER>
+		void probeQSPhase3Moves(const stackType<PLAYER>& stack, const depthType depthRemaining, ttmovesType& moves) const noexcept
+		{
+			if constexpr (countBuckets > 0)
+			{
+				const size_t idx{ computeIndex(stack.position().hash()) };
+				depthType score[countBuckets];
+				const size_t base{ idx * countBuckets };
+				for (size_t j = 0; j < countBuckets; j++)
+				{
+					const size_t index{ base + j };
+					if (m_Entry[index].isValid(stack))
+					{
+						if (m_Entry[index].flags() & flags_move)
+						{
+							constexpr const scoreType zero{ scoreType::zero() };
+							if (generatorType::isMoveTactical(stack, m_Entry[index].move()) && (evaluatorType::staticMoveScore(stack.position(), m_Entry[index].move()) > zero))
 							{
 								if (!moves.contains(m_Entry[index].move()))
 								{

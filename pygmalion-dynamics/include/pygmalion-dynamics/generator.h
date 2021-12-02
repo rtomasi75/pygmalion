@@ -5,11 +5,14 @@ namespace pygmalion
 	enum class movegenPhase
 	{
 		normal,
-		tactical,
 		criticalEvasion,
-		tacticalCrtiticalEvasion,
 		critical,
-		tacticalCritical
+		QSPhase1,
+		QSPhase1_CriticalEvasion,
+		QSPhase2,
+		QSPhase2_CriticalEvasion,
+		QSPhase3,
+		QSPhase3_CriticalEvasion
 	};
 
 	template<typename DESCRIPTOR_DYNAMICS, typename INSTANCE >
@@ -163,21 +166,25 @@ namespace pygmalion
 #include "include_dynamics.h"
 		private:
 			stagelistType m_NormalStages;
-			stagelistType m_TacticalStages;
-			stagelistType m_TacticalCriticalStages;
-			stagelistType m_CriticalStages;
 			scorelistType m_NormalScores;
-			scorelistType m_TacticalScores;
-			scorelistType m_TacticalCriticalScores;
-			scorelistType m_CriticalScores;
 			movelistType m_NormalMoves;
-			movelistType m_TacticalMoves;
-			movelistType m_TacticalCriticalMoves;
-			movelistType m_CriticalMoves;
 			passlistType m_NormalPasses;
-			passlistType m_TacticalPasses;
-			passlistType m_TacticalCriticalPasses;
+			stagelistType m_CriticalStages;
+			scorelistType m_CriticalScores;
+			movelistType m_CriticalMoves;
 			passlistType m_CriticalPasses;
+			stagelistType m_QSPhase1Stages;
+			scorelistType m_QSPhase1Scores;
+			movelistType m_QSPhase1Moves;
+			passlistType m_QSPhase1Passes;
+			stagelistType m_QSPhase2Stages;
+			scorelistType m_QSPhase2Scores;
+			movelistType m_QSPhase2Moves;
+			passlistType m_QSPhase2Passes;
+			stagelistType m_QSPhase3Stages;
+			scorelistType m_QSPhase3Scores;
+			movelistType m_QSPhase3Moves;
+			passlistType m_QSPhase3Passes;
 		public:
 			context() noexcept
 			{
@@ -200,22 +207,6 @@ namespace pygmalion
 			{
 				return m_NormalPasses;
 			}
-			PYGMALION_INLINE scorelistType& tacticalScores() noexcept
-			{
-				return m_TacticalScores;
-			}
-			PYGMALION_INLINE movelistType& tacticalMoves() noexcept
-			{
-				return m_TacticalMoves;
-			}
-			PYGMALION_INLINE stagelistType& tacticalStages() noexcept
-			{
-				return m_TacticalStages;
-			}
-			PYGMALION_INLINE passlistType& tacticalPasses() noexcept
-			{
-				return m_TacticalPasses;
-			}
 			PYGMALION_INLINE stagelistType& criticalStages() noexcept
 			{
 				return m_CriticalStages;
@@ -232,21 +223,53 @@ namespace pygmalion
 			{
 				return m_CriticalPasses;
 			}
-			PYGMALION_INLINE scorelistType& tacticalCriticalScores() noexcept
+			PYGMALION_INLINE scorelistType& qsPhase1Scores() noexcept
 			{
-				return m_TacticalCriticalScores;
+				return m_QSPhase1Scores;
 			}
-			PYGMALION_INLINE movelistType& tacticalCriticalMoves() noexcept
+			PYGMALION_INLINE movelistType& qsPhase1Moves() noexcept
 			{
-				return m_TacticalCriticalMoves;
+				return m_QSPhase1Moves;
 			}
-			PYGMALION_INLINE stagelistType& tacticalCriticalStages() noexcept
+			PYGMALION_INLINE stagelistType& qsPhase1Stages() noexcept
 			{
-				return m_TacticalCriticalStages;
+				return m_QSPhase1Stages;
 			}
-			PYGMALION_INLINE passlistType& tacticalCriticalPasses() noexcept
+			PYGMALION_INLINE passlistType& qsPhase1Passes() noexcept
 			{
-				return m_TacticalCriticalPasses;
+				return m_QSPhase1Passes;
+			}
+			PYGMALION_INLINE scorelistType& qsPhase2Scores() noexcept
+			{
+				return m_QSPhase2Scores;
+			}
+			PYGMALION_INLINE movelistType& qsPhase2Moves() noexcept
+			{
+				return m_QSPhase2Moves;
+			}
+			PYGMALION_INLINE stagelistType& qsPhase2Stages() noexcept
+			{
+				return m_QSPhase2Stages;
+			}
+			PYGMALION_INLINE passlistType& qsPhase2Passes() noexcept
+			{
+				return m_QSPhase1Passes;
+			}
+			PYGMALION_INLINE scorelistType& qsPhase3Scores() noexcept
+			{
+				return m_QSPhase3Scores;
+			}
+			PYGMALION_INLINE movelistType& qsPhase3Moves() noexcept
+			{
+				return m_QSPhase3Moves;
+			}
+			PYGMALION_INLINE stagelistType& qsPhase3Stages() noexcept
+			{
+				return m_QSPhase3Stages;
+			}
+			PYGMALION_INLINE passlistType& qsPhase3Passes() noexcept
+			{
+				return m_QSPhase3Passes;
 			}
 			void clearMovegenLists() noexcept
 			{
@@ -254,18 +277,22 @@ namespace pygmalion
 				m_NormalScores.clear();
 				m_NormalMoves.clear();
 				m_NormalPasses.clear();
-				m_TacticalStages.clear();
-				m_TacticalScores.clear();
-				m_TacticalMoves.clear();
-				m_TacticalPasses.clear();
 				m_CriticalStages.clear();
 				m_CriticalScores.clear();
 				m_CriticalMoves.clear();
 				m_CriticalPasses.clear();
-				m_TacticalCriticalStages.clear();
-				m_TacticalCriticalScores.clear();
-				m_TacticalCriticalMoves.clear();
-				m_TacticalCriticalPasses.clear();
+				m_QSPhase1Stages.clear();
+				m_QSPhase1Scores.clear();
+				m_QSPhase1Moves.clear();
+				m_QSPhase1Passes.clear();
+				m_QSPhase2Stages.clear();
+				m_QSPhase2Scores.clear();
+				m_QSPhase2Moves.clear();
+				m_QSPhase2Passes.clear();
+				m_QSPhase3Stages.clear();
+				m_QSPhase3Scores.clear();
+				m_QSPhase3Moves.clear();
+				m_QSPhase3Passes.clear();
 			}
 		};
 		template<size_t PLAYER>
@@ -290,28 +317,36 @@ namespace pygmalion
 			historyType& m_History;
 			movedataType m_MoveData;
 			mutable scoreType m_LastNormalScore;
-			mutable scoreType m_LastTacticalScore;
-			mutable scoreType m_LastTacticalCriticalScore;
-			mutable scoreType m_LastCriticalScore;
 			mutable stageType m_LastNormalStage;
 			mutable stageType m_CurrentNormalStage;
-			mutable stageType m_LastTacticalStage;
-			mutable stageType m_LastTacticalCriticalStage;
-			mutable stageType m_CurrentTacticalStage;
-			mutable stageType m_CurrentTacticalCriticalStage;
-			mutable stageType m_LastCriticalStage;
-			mutable stageType m_CurrentCriticalStage;
 			mutable passType m_CurrentNormalPass;
 			mutable passType m_LastNormalPass;
-			mutable passType m_CurrentTacticalPass;
-			mutable passType m_CurrentTacticalCriticalPass;
-			mutable passType m_LastTacticalPass;
-			mutable passType m_LastTacticalCriticalPass;
+			mutable indexType m_CurrentNormalMove;
+
+			mutable scoreType m_LastQSPhase1Score;
+			mutable stageType m_LastQSPhase1Stage;
+			mutable stageType m_CurrentQSPhase1Stage;
+			mutable passType m_CurrentQSPhase1Pass;
+			mutable passType m_LastQSPhase1Pass;
+			mutable indexType m_CurrentQSPhase1Move;
+			mutable scoreType m_LastQSPhase2Score;
+			mutable stageType m_LastQSPhase2Stage;
+			mutable stageType m_CurrentQSPhase2Stage;
+			mutable passType m_CurrentQSPhase2Pass;
+			mutable passType m_LastQSPhase2Pass;
+			mutable indexType m_CurrentQSPhase2Move;
+			mutable scoreType m_LastQSPhase3Score;
+			mutable stageType m_LastQSPhase3Stage;
+			mutable stageType m_CurrentQSPhase3Stage;
+			mutable passType m_CurrentQSPhase3Pass;
+			mutable passType m_LastQSPhase3Pass;
+			mutable indexType m_CurrentQSPhase3Move;
+
+			mutable scoreType m_LastCriticalScore;
+			mutable stageType m_LastCriticalStage;
+			mutable stageType m_CurrentCriticalStage;
 			mutable passType m_CurrentCriticalPass;
 			mutable passType m_LastCriticalPass;
-			mutable indexType m_CurrentNormalMove;
-			mutable indexType m_CurrentTacticalMove;
-			mutable indexType m_CurrentTacticalCriticalMove;
 			mutable indexType m_CurrentCriticalMove;
 			mutable indexType m_CurrentLegalMove;
 			mutable bool m_HasLegalMove;
@@ -325,50 +360,77 @@ namespace pygmalion
 			{
 				arrayhelper::generate< countNormalStages, stageType>([](const size_t index) {return generatorType::movegenStage(movegenPhase::normal, index); })
 			};
-			constexpr static inline const size_t countTacticalStages{ generatorType::countMovegenStages(movegenPhase::tactical) };
-			constexpr static inline const std::array<stageType, countTacticalStages> m_TacticalStages
+			constexpr static inline const std::array<size_t, countNormalStages> countNormalPasses
 			{
-				arrayhelper::generate< countTacticalStages, stageType>([](const size_t index) {return generatorType::movegenStage(movegenPhase::tactical, index); })
+				arrayhelper::generate< countNormalStages, stageType>([](const size_t index) {return generatorType::countMovegenPasses(generatorType::movegenStage(movegenPhase::normal, index)); })
 			};
-			constexpr static inline const size_t countTacticalCriticalStages{ generatorType::countMovegenStages(movegenPhase::tacticalCritical) };
-			constexpr static inline const std::array<stageType, countTacticalCriticalStages> m_TacticalCriticalStages
+			constexpr static inline const size_t countQSPhase1Stages{ generatorType::countMovegenStages(movegenPhase::QSPhase1) };
+			constexpr static inline const std::array<stageType, countQSPhase1Stages> m_QSPhase1Stages
 			{
-				arrayhelper::generate< countTacticalCriticalStages, stageType>([](const size_t index) {return generatorType::movegenStage(movegenPhase::tacticalCritical, index); })
+				arrayhelper::generate< countQSPhase1Stages, stageType>([](const size_t index) {return generatorType::movegenStage(movegenPhase::QSPhase1, index); })
+			};
+			constexpr static inline const std::array<size_t, countQSPhase1Stages> countQSPhase1Passes
+			{
+				arrayhelper::generate< countQSPhase1Stages, stageType>([](const size_t index) {return generatorType::countMovegenPasses(generatorType::movegenStage(movegenPhase::QSPhase1, index)); })
+			};
+			constexpr static inline const size_t countQSPhase1CriticalEvasionStages{ generatorType::countMovegenStages(movegenPhase::QSPhase1_CriticalEvasion) };
+			constexpr static inline const std::array<stageType, countQSPhase1CriticalEvasionStages> m_QSPhase1CriticalEvasionStages
+			{
+				arrayhelper::generate< countQSPhase1CriticalEvasionStages, stageType>([](const size_t index) {return generatorType::movegenStage(movegenPhase::QSPhase1_CriticalEvasion, index); })
+			};
+			constexpr static inline const std::array<size_t, countQSPhase1CriticalEvasionStages> countQSPhase1CriticalEvasionPasses
+			{
+				arrayhelper::generate< countQSPhase1CriticalEvasionStages, stageType>([](const size_t index) {return generatorType::countMovegenPasses(generatorType::movegenStage(movegenPhase::QSPhase1_CriticalEvasion, index)); })
+			};
+			constexpr static inline const size_t countQSPhase2Stages{ generatorType::countMovegenStages(movegenPhase::QSPhase2) };
+			constexpr static inline const std::array<stageType, countQSPhase2Stages> m_QSPhase2Stages
+			{
+				arrayhelper::generate< countQSPhase2Stages, stageType>([](const size_t index) {return generatorType::movegenStage(movegenPhase::QSPhase2, index); })
+			};
+			constexpr static inline const std::array<size_t, countQSPhase2Stages> countQSPhase2Passes
+			{
+				arrayhelper::generate< countQSPhase2Stages, stageType>([](const size_t index) {return generatorType::countMovegenPasses(generatorType::movegenStage(movegenPhase::QSPhase2, index)); })
+			};
+			constexpr static inline const size_t countQSPhase2CriticalEvasionStages{ generatorType::countMovegenStages(movegenPhase::QSPhase2_CriticalEvasion) };
+			constexpr static inline const std::array<stageType, countQSPhase2CriticalEvasionStages> m_QSPhase2CriticalEvasionStages
+			{
+				arrayhelper::generate< countQSPhase2CriticalEvasionStages, stageType>([](const size_t index) {return generatorType::movegenStage(movegenPhase::QSPhase2_CriticalEvasion, index); })
+			};
+			constexpr static inline const std::array<size_t, countQSPhase2CriticalEvasionStages> countQSPhase2CriticalEvasionPasses
+			{
+				arrayhelper::generate< countQSPhase2CriticalEvasionStages, stageType>([](const size_t index) {return generatorType::countMovegenPasses(generatorType::movegenStage(movegenPhase::QSPhase2_CriticalEvasion, index)); })
+			};
+			constexpr static inline const size_t countQSPhase3Stages{ generatorType::countMovegenStages(movegenPhase::QSPhase3) };
+			constexpr static inline const std::array<stageType, countQSPhase3Stages> m_QSPhase3Stages
+			{
+				arrayhelper::generate< countQSPhase3Stages, stageType>([](const size_t index) {return generatorType::movegenStage(movegenPhase::QSPhase3, index); })
+			};
+			constexpr static inline const std::array<size_t, countQSPhase3Stages> countQSPhase3Passes
+			{
+				arrayhelper::generate< countQSPhase3Stages, stageType>([](const size_t index) {return generatorType::countMovegenPasses(generatorType::movegenStage(movegenPhase::QSPhase3, index)); })
+			};
+			constexpr static inline const size_t countQSPhase3CriticalEvasionStages{ generatorType::countMovegenStages(movegenPhase::QSPhase3_CriticalEvasion) };
+			constexpr static inline const std::array<stageType, countQSPhase3CriticalEvasionStages> m_QSPhase3CriticalEvasionStages
+			{
+				arrayhelper::generate< countQSPhase3CriticalEvasionStages, stageType>([](const size_t index) {return generatorType::movegenStage(movegenPhase::QSPhase3_CriticalEvasion, index); })
+			};
+			constexpr static inline const std::array<size_t, countQSPhase3CriticalEvasionStages> countQSPhase3CriticalEvasionPasses
+			{
+				arrayhelper::generate< countQSPhase3CriticalEvasionStages, stageType>([](const size_t index) {return generatorType::countMovegenPasses(generatorType::movegenStage(movegenPhase::QSPhase3_CriticalEvasion, index)); })
 			};
 			constexpr static inline const size_t countCriticalEvasionStages{ generatorType::countMovegenStages(movegenPhase::criticalEvasion) };
 			constexpr static inline const std::array<stageType, countCriticalEvasionStages> m_CriticalEvasionStages
 			{
 				arrayhelper::generate< countCriticalEvasionStages, stageType>([](const size_t index) {return generatorType::movegenStage(movegenPhase::criticalEvasion, index); })
 			};
-			constexpr static inline const size_t countCriticalEvasionTacticalStages{ generatorType::countMovegenStages(movegenPhase::tacticalCrtiticalEvasion) };
-			constexpr static inline const std::array<stageType, countCriticalEvasionTacticalStages> m_CriticalEvasionTacticalStages
+			constexpr static inline const std::array<size_t, countCriticalEvasionStages> countCriticalEvasionPasses
 			{
-				arrayhelper::generate< countCriticalEvasionTacticalStages, stageType>([](const size_t index) {return generatorType::movegenStage(movegenPhase::tacticalCrtiticalEvasion, index); })
+				arrayhelper::generate< countCriticalEvasionStages, stageType>([](const size_t index) {return generatorType::countMovegenPasses(generatorType::movegenStage(movegenPhase::criticalEvasion, index)); })
 			};
 			constexpr static inline const size_t countCriticalStages{ generatorType::countMovegenStages(movegenPhase::critical) };
 			constexpr static inline const std::array<stageType, countCriticalStages> m_CriticalStages
 			{
 				arrayhelper::generate< countCriticalStages, stageType>([](const size_t index) {return generatorType::movegenStage(movegenPhase::critical, index); })
-			};
-			constexpr static inline const std::array<size_t, countNormalStages> countNormalPasses
-			{
-				arrayhelper::generate< countNormalStages, stageType>([](const size_t index) {return generatorType::countMovegenPasses(generatorType::movegenStage(movegenPhase::normal, index)); })
-			};
-			constexpr static inline const std::array<size_t, countTacticalStages> countTacticalPasses
-			{
-				arrayhelper::generate< countTacticalStages, stageType>([](const size_t index) {return generatorType::countMovegenPasses(generatorType::movegenStage(movegenPhase::tactical, index)); })
-			};
-			constexpr static inline const std::array<size_t, countTacticalCriticalStages> countTacticalCriticalPasses
-			{
-				arrayhelper::generate< countTacticalCriticalStages, stageType>([](const size_t index) {return generatorType::countMovegenPasses(generatorType::movegenStage(movegenPhase::tacticalCritical, index)); })
-			};
-			constexpr static inline const std::array<size_t, countCriticalEvasionStages> countCriticalEvasionPasses
-			{
-				arrayhelper::generate< countCriticalEvasionStages, stageType>([](const size_t index) {return generatorType::countMovegenPasses(generatorType::movegenStage(movegenPhase::criticalEvasion, index)); })
-			};
-			constexpr static inline const std::array<size_t, countCriticalEvasionTacticalStages> countCriticalEvasionTacticalPasses
-			{
-				arrayhelper::generate< countCriticalEvasionTacticalStages, stageType>([](const size_t index) {return generatorType::countMovegenPasses(generatorType::movegenStage(movegenPhase::tacticalCrtiticalEvasion, index)); })
 			};
 			constexpr static inline const std::array<size_t, countCriticalStages> countCriticalPasses
 			{
@@ -588,23 +650,59 @@ namespace pygmalion
 				PYGMALION_ASSERT(stageIndex < countNormalStages);
 				return feedback.index(m_NormalStages[stageIndex], passIndex, m_History.length());
 			}
-			constexpr size_t tacticalStagesCount() const noexcept
+			constexpr size_t countStages_QSPhase1() const noexcept
 			{
-				return countTacticalStages;
+				return countQSPhase1Stages;
 			}
-			constexpr size_t tacticalPassesCount(const stageType stage) const noexcept
+			constexpr size_t countPasses_QSPhase1(const stageType stage) const noexcept
 			{
-				return countTacticalPasses[stage];
+				return countQSPhase1Passes[stage];
 			}
-			PYGMALION_INLINE stageType tacticalStage(const size_t stageIndex) const noexcept
+			PYGMALION_INLINE stageType stageQSPhase1(const size_t stageIndex) const noexcept
 			{
-				PYGMALION_ASSERT(stageIndex < countTacticalStages);
-				return m_TacticalStages[stageIndex];
+				PYGMALION_ASSERT(stageIndex < countQSPhase1Stages);
+				return m_QSPhase1Stages[stageIndex];
 			}
-			PYGMALION_INLINE passType tacticalPass(movegenFeedback& feedback, const size_t stageIndex, const size_t passIndex) const noexcept
+			PYGMALION_INLINE passType passQSPhase1(movegenFeedback& feedback, const size_t stageIndex, const size_t passIndex) const noexcept
 			{
-				PYGMALION_ASSERT(stageIndex < countTacticalStages);
-				return feedback.index(m_TacticalStages[stageIndex], passIndex, m_History.length());
+				PYGMALION_ASSERT(stageIndex < countQSPhase1Stages);
+				return feedback.index(m_QSPhase1Stages[stageIndex], passIndex, m_History.length());
+			}
+			constexpr size_t countStages_QSPhase2() const noexcept
+			{
+				return countQSPhase2Stages;
+			}
+			constexpr size_t countPasses_QSPhase2(const stageType stage) const noexcept
+			{
+				return countQSPhase2Passes[stage];
+			}
+			PYGMALION_INLINE stageType stageQSPhase2(const size_t stageIndex) const noexcept
+			{
+				PYGMALION_ASSERT(stageIndex < countQSPhase2Stages);
+				return m_QSPhase2Stages[stageIndex];
+			}
+			PYGMALION_INLINE passType passQSPhase2(movegenFeedback& feedback, const size_t stageIndex, const size_t passIndex) const noexcept
+			{
+				PYGMALION_ASSERT(stageIndex < countQSPhase2Stages);
+				return feedback.index(m_QSPhase2Stages[stageIndex], passIndex, m_History.length());
+			}
+			constexpr size_t countStages_QSPhase3() const noexcept
+			{
+				return countQSPhase3Stages;
+			}
+			constexpr size_t countPasses_QSPhase3(const stageType stage) const noexcept
+			{
+				return countQSPhase3Passes[stage];
+			}
+			PYGMALION_INLINE stageType stageQSPhase3(const size_t stageIndex) const noexcept
+			{
+				PYGMALION_ASSERT(stageIndex < countQSPhase3Stages);
+				return m_QSPhase3Stages[stageIndex];
+			}
+			PYGMALION_INLINE passType passQSPhase3(movegenFeedback& feedback, const size_t stageIndex, const size_t passIndex) const noexcept
+			{
+				PYGMALION_ASSERT(stageIndex < countQSPhase3Stages);
+				return feedback.index(m_QSPhase3Stages[stageIndex], passIndex, m_History.length());
 			}
 			constexpr size_t criticalStagesCount() const noexcept
 			{
@@ -624,24 +722,6 @@ namespace pygmalion
 				PYGMALION_ASSERT(stageIndex < countCriticalStages);
 				return feedback.index(m_CriticalStages[stageIndex], passIndex, m_History.length());
 			}
-			constexpr size_t tacticalCriticalStagesCount() const noexcept
-			{
-				return countTacticalCriticalStages;
-			}
-			constexpr size_t tacticalCriticalPassesCount(const stageType stage) const noexcept
-			{
-				return countTacticalCriticalPasses[stage];
-			}
-			PYGMALION_INLINE stageType tacticalCriticalStage(const size_t stageIndex) const noexcept
-			{
-				PYGMALION_ASSERT(stageIndex < countTacticalCriticalStages);
-				return m_TacticalCriticalStages[stageIndex];
-			}
-			PYGMALION_INLINE passType tacticalCriticalPass(movegenFeedback& feedback, const size_t stageIndex, const size_t passIndex) const noexcept
-			{
-				PYGMALION_ASSERT(stageIndex < countTacticalCriticalStages);
-				return feedback.index(m_TacticalCriticalStages[stageIndex], passIndex, m_History.length());
-			}
 			constexpr bool isPositionCritical() const noexcept
 			{
 				if (!m_IsPositionCriticalValid)
@@ -659,21 +739,29 @@ namespace pygmalion
 			{
 				feedback.cutMoveRaw(m_LastNormalStage, m_LastNormalPass, depth, generatorType::template makeSubjective<PLAYER>(score), generatorType::template makeSubjective<PLAYER>(eval));
 			}
-			PYGMALION_INLINE void tacticalAllMove(movegenFeedback& feedback, const size_t depth, const scoreType score, const scoreType eval) const noexcept
+			PYGMALION_INLINE void qsPhase1AllMove(movegenFeedback& feedback, const size_t depth, const scoreType score, const scoreType eval) const noexcept
 			{
-				feedback.allMoveRaw(m_LastTacticalStage, m_LastTacticalPass, depth, generatorType::template makeSubjective<PLAYER>(score), generatorType::template makeSubjective<PLAYER>(eval));
+				feedback.allMoveRaw(m_LastQSPhase1Stage, m_LastQSPhase1Pass, depth, generatorType::template makeSubjective<PLAYER>(score), generatorType::template makeSubjective<PLAYER>(eval));
 			}
-			PYGMALION_INLINE void tacticalCutMove(movegenFeedback& feedback, const size_t depth, const scoreType score, const scoreType eval) const noexcept
+			PYGMALION_INLINE void qsPhase1CutMove(movegenFeedback& feedback, const size_t depth, const scoreType score, const scoreType eval) const noexcept
 			{
-				feedback.cutMoveRaw(m_LastTacticalStage, m_LastTacticalPass, depth, generatorType::template makeSubjective<PLAYER>(score), generatorType::template makeSubjective<PLAYER>(eval));
+				feedback.cutMoveRaw(m_LastQSPhase1Stage, m_LastQSPhase1Pass, depth, generatorType::template makeSubjective<PLAYER>(score), generatorType::template makeSubjective<PLAYER>(eval));
 			}
-			PYGMALION_INLINE void tacticalCriticalAllMove(movegenFeedback& feedback, const size_t depth, const scoreType score, const scoreType eval) const noexcept
+			PYGMALION_INLINE void qsPhase2AllMove(movegenFeedback& feedback, const size_t depth, const scoreType score, const scoreType eval) const noexcept
 			{
-				feedback.allMoveRaw(m_LastTacticalCriticalStage, m_LastTacticalCriticalPass, depth, generatorType::template makeSubjective<PLAYER>(score), generatorType::template makeSubjective<PLAYER>(eval));
+				feedback.allMoveRaw(m_LastQSPhase2Stage, m_LastQSPhase2Pass, depth, generatorType::template makeSubjective<PLAYER>(score), generatorType::template makeSubjective<PLAYER>(eval));
 			}
-			PYGMALION_INLINE void tacticalCriticalCutMove(movegenFeedback& feedback, const size_t depth, const scoreType score, const scoreType eval) const noexcept
+			PYGMALION_INLINE void qsPhase2CutMove(movegenFeedback& feedback, const size_t depth, const scoreType score, const scoreType eval) const noexcept
 			{
-				feedback.cutMoveRaw(m_LastTacticalCriticalStage, m_LastTacticalCriticalPass, depth, generatorType::template makeSubjective<PLAYER>(score), generatorType::template makeSubjective<PLAYER>(eval));
+				feedback.cutMoveRaw(m_LastQSPhase2Stage, m_LastQSPhase2Pass, depth, generatorType::template makeSubjective<PLAYER>(score), generatorType::template makeSubjective<PLAYER>(eval));
+			}
+			PYGMALION_INLINE void qsPhase3AllMove(movegenFeedback& feedback, const size_t depth, const scoreType score, const scoreType eval) const noexcept
+			{
+				feedback.allMoveRaw(m_LastQSPhase3Stage, m_LastQSPhase3Pass, depth, generatorType::template makeSubjective<PLAYER>(score), generatorType::template makeSubjective<PLAYER>(eval));
+			}
+			PYGMALION_INLINE void qsPhase3CutMove(movegenFeedback& feedback, const size_t depth, const scoreType score, const scoreType eval) const noexcept
+			{
+				feedback.cutMoveRaw(m_LastQSPhase3Stage, m_LastQSPhase3Pass, depth, generatorType::template makeSubjective<PLAYER>(score), generatorType::template makeSubjective<PLAYER>(eval));
 			}
 			PYGMALION_INLINE void criticalAllMove(movegenFeedback& feedback, const size_t depth, const scoreType score, const scoreType eval) const noexcept
 			{
@@ -890,29 +978,29 @@ namespace pygmalion
 				}
 				return this->template nextMove<LAMBDA, EXPECT_CUTOFF>(moveBits, depth, feedback, lambda);
 			}
-			bool nextTacticalMove(movebitsType& moveBits, const size_t depth, movegenFeedback& feedback) const noexcept
+			bool nextQSPhase1Move(movebitsType& moveBits, const size_t depth, movegenFeedback& feedback) const noexcept
 			{
-				while (m_CurrentTacticalMove >= m_pContext->tacticalMoves().length())
+				while (m_CurrentQSPhase1Move >= m_pContext->qsPhase1Moves().length())
 				{
 					if (isPositionCritical())
 					{
-						if (m_CurrentTacticalStage < countCriticalEvasionTacticalStages)
+						if (m_CurrentQSPhase1Stage < countQSPhase1CriticalEvasionStages)
 						{
-							if (m_CurrentTacticalPass < countCriticalEvasionTacticalPasses[m_CurrentTacticalStage])
+							if (m_CurrentQSPhase1Pass < countQSPhase1CriticalEvasionPasses[m_CurrentQSPhase1Stage])
 							{
-								const auto index{ feedback.index(m_CriticalEvasionTacticalStages[m_CurrentTacticalStage], m_CurrentTacticalPass, depth) };
-								generatorType::generateMoves(m_CriticalEvasionTacticalStages[m_CurrentTacticalStage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->tacticalMoves(), index);
-								while (m_pContext->tacticalPasses().length() < m_pContext->tacticalMoves().length())
+								const auto index{ feedback.index(m_QSPhase1CriticalEvasionStages[m_CurrentQSPhase1Stage], m_CurrentQSPhase1Pass, depth) };
+								generatorType::generateMoves(m_QSPhase1CriticalEvasionStages[m_CurrentQSPhase1Stage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->qsPhase1Moves(), index);
+								while (m_pContext->qsPhase1Passes().length() < m_pContext->qsPhase1Moves().length())
 								{
-									m_pContext->tacticalPasses().add(index);
-									m_pContext->tacticalStages().add(m_CriticalEvasionTacticalStages[m_CurrentTacticalStage]);
+									m_pContext->qsPhase1Passes().add(index);
+									m_pContext->qsPhase1Stages().add(m_QSPhase1CriticalEvasionStages[m_CurrentQSPhase1Stage]);
 								}
-								++m_CurrentTacticalPass;
+								++m_CurrentQSPhase1Pass;
 							}
 							else
 							{
-								++m_CurrentTacticalStage;
-								m_CurrentTacticalPass = 0;
+								++m_CurrentQSPhase1Stage;
+								m_CurrentQSPhase1Pass = 0;
 							}
 						}
 						else
@@ -920,23 +1008,23 @@ namespace pygmalion
 					}
 					else
 					{
-						if (m_CurrentTacticalStage < countTacticalStages)
+						if (m_CurrentQSPhase1Stage < countQSPhase1Stages)
 						{
-							if (m_CurrentTacticalPass < countTacticalPasses[m_CurrentTacticalStage])
+							if (m_CurrentQSPhase1Pass < countQSPhase1Passes[m_CurrentQSPhase1Stage])
 							{
-								const auto index{ feedback.index(m_TacticalStages[m_CurrentTacticalStage], m_CurrentTacticalPass, depth) };
-								generatorType::generateMoves(m_TacticalStages[m_CurrentTacticalStage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->tacticalMoves(), index);
-								while (m_pContext->tacticalPasses().length() < m_pContext->tacticalMoves().length())
+								const auto index{ feedback.index(m_QSPhase1Stages[m_CurrentQSPhase1Stage], m_CurrentQSPhase1Pass, depth) };
+								generatorType::generateMoves(m_QSPhase1Stages[m_CurrentQSPhase1Stage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->qsPhase1Moves(), index);
+								while (m_pContext->qsPhase1Passes().length() < m_pContext->qsPhase1Moves().length())
 								{
-									m_pContext->tacticalPasses().add(index);
-									m_pContext->tacticalStages().add(m_TacticalStages[m_CurrentTacticalStage]);
+									m_pContext->qsPhase1Passes().add(index);
+									m_pContext->qsPhase1Stages().add(m_QSPhase1Stages[m_CurrentQSPhase1Stage]);
 								}
-								++m_CurrentTacticalPass;
+								++m_CurrentQSPhase1Pass;
 							}
 							else
 							{
-								++m_CurrentTacticalStage;
-								m_CurrentTacticalPass = 0;
+								++m_CurrentQSPhase1Stage;
+								m_CurrentQSPhase1Pass = 0;
 							}
 						}
 						else
@@ -944,44 +1032,49 @@ namespace pygmalion
 					}
 				}
 				constexpr const scoreType minimum{ scoreType::minimum() };
-				while (m_CurrentTacticalMove < m_pContext->tacticalMoves().length())
+				while (m_CurrentQSPhase1Move < m_pContext->qsPhase1Moves().length())
 				{
-					moveBits = m_pContext->tacticalMoves()[m_CurrentTacticalMove];
+					moveBits = m_pContext->qsPhase1Moves()[m_CurrentQSPhase1Move];
 					if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits))
 					{
-						m_LastTacticalPass = m_pContext->tacticalPasses()[m_CurrentTacticalMove];
-						m_LastTacticalStage = m_pContext->tacticalStages()[m_CurrentTacticalMove];
-						m_LastTacticalScore = minimum;
-						++m_CurrentTacticalMove;
+						m_LastQSPhase1Pass = m_pContext->qsPhase1Passes()[m_CurrentQSPhase1Move];
+						m_LastQSPhase1Stage = m_pContext->qsPhase1Stages()[m_CurrentQSPhase1Move];
+						m_LastQSPhase1Score = minimum;
+						++m_CurrentQSPhase1Move;
 						return true;
 					}
-					++m_CurrentTacticalMove;
+					++m_CurrentQSPhase1Move;
 				}
-				return nextTacticalMove(moveBits, depth, feedback);
+				return nextQSPhase1Move(moveBits, depth, feedback);
 			}
-			bool nextTacticalCriticalMove(movebitsType& moveBits, const size_t depth, movegenFeedback& feedback) const noexcept
+			template<typename LAMBDA, bool EXPECT_CUTOFF>
+			bool nextQSPhase1Move(movebitsType& moveBits, const size_t depth, movegenFeedback& feedback, const LAMBDA& lambda) const noexcept
 			{
-				while (m_CurrentTacticalCriticalMove >= m_pContext->tacticalCriticalMoves().length())
+				while (m_CurrentQSPhase1Move >= m_pContext->qsPhase1Moves().length())
 				{
 					if (isPositionCritical())
 					{
-						if (m_CurrentTacticalCriticalStage < countCriticalEvasionTacticalCriticalStages)
+						if (m_CurrentQSPhase1Stage < countQSPhase1CriticalEvasionStages)
 						{
-							if (m_CurrentTacticalCriticalPass < countCriticalEvasionTacticalCriticalPasses[m_CurrentTacticalCriticalStage])
+							if (m_CurrentQSPhase1Pass < countQSPhase1CriticalEvasionPasses[m_CurrentQSPhase1Stage])
 							{
-								const auto index{ feedback.index(m_CriticalEvasionTacticalCriticalStages[m_CurrentTacticalCriticalStage], m_CurrentTacticalCriticalPass, depth) };
-								generatorType::generateMoves(m_CriticalEvasionTacticalCriticalStages[m_CurrentTacticalCriticalStage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->tacticalCriticalMoves(), index);
-								while (m_pContext->tacticalCriticalPasses().length() < m_pContext->tacticalCriticalMoves().length())
+								const auto index{ feedback.index(m_QSPhase1CriticalEvasionStages[m_CurrentQSPhase1Stage], m_CurrentQSPhase1Pass, depth) };
+								generatorType::generateMoves(m_QSPhase1CriticalEvasionStages[m_CurrentQSPhase1Stage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->qsPhase1Moves(), index);
+								const auto start{ m_pContext->qsPhase1Passes().length() };
+								while (m_pContext->qsPhase1Passes().length() < m_pContext->qsPhase1Moves().length())
 								{
-									m_pContext->tacticalCriticalPasses().add(index);
-									m_pContext->tacticalCriticalStages().add(m_CriticalEvasionTacticalCriticalStages[m_CurrentTacticalCriticalStage]);
+									m_pContext->qsPhase1Scores().add(lambda(m_pContext->qsPhase1Moves()[m_pContext->qsPhase1Passes().length()]));
+									m_pContext->qsPhase1Passes().add(index);
+									m_pContext->qsPhase1Stages().add(m_QSPhase1CriticalEvasionStages[m_CurrentQSPhase1Stage]);
 								}
-								++m_CurrentTacticalCriticalPass;
+								++m_CurrentQSPhase1Pass;
+								if constexpr (!EXPECT_CUTOFF)
+									sort<movebitsType, scoreType>::sortValues(m_pContext->qsPhase1Moves().ptr() + start, m_pContext->qsPhase1Scores().ptr() + start, m_pContext->qsPhase1Moves().length() - start);
 							}
 							else
 							{
-								++m_CurrentTacticalCriticalStage;
-								m_CurrentTacticalCriticalPass = 0;
+								++m_CurrentQSPhase1Stage;
+								m_CurrentQSPhase1Pass = 0;
 							}
 						}
 						else
@@ -989,23 +1082,129 @@ namespace pygmalion
 					}
 					else
 					{
-						if (m_CurrentTacticalCriticalStage < countTacticalCriticalStages)
+						if (m_CurrentQSPhase1Stage < countQSPhase1Stages)
 						{
-							if (m_CurrentTacticalCriticalPass < countTacticalCriticalPasses[m_CurrentTacticalCriticalStage])
+							if (m_CurrentQSPhase1Pass < countQSPhase1Passes[m_CurrentQSPhase1Stage])
 							{
-								const auto index{ feedback.index(m_TacticalCriticalStages[m_CurrentTacticalCriticalStage], m_CurrentTacticalCriticalPass, depth) };
-								generatorType::generateMoves(m_TacticalCriticalStages[m_CurrentTacticalCriticalStage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->tacticalCriticalMoves(), index);
-								while (m_pContext->tacticalCriticalPasses().length() < m_pContext->tacticalCriticalMoves().length())
+								const auto index{ feedback.index(m_QSPhase1Stages[m_CurrentQSPhase1Stage], m_CurrentQSPhase1Pass, depth) };
+								generatorType::generateMoves(m_QSPhase1Stages[m_CurrentQSPhase1Stage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->qsPhase1Moves(), index);
+								const auto start{ m_pContext->qsPhase1Passes().length() };
+								while (m_pContext->qsPhase1Passes().length() < m_pContext->qsPhase1Moves().length())
 								{
-									m_pContext->tacticalCriticalPasses().add(index);
-									m_pContext->tacticalCriticalStages().add(m_TacticalCriticalStages[m_CurrentTacticalCriticalStage]);
+									m_pContext->qsPhase1Scores().add(lambda(m_pContext->qsPhase1Moves()[m_pContext->qsPhase1Passes().length()]));
+									m_pContext->qsPhase1Passes().add(index);
+									m_pContext->qsPhase1Stages().add(m_QSPhase1Stages[m_CurrentQSPhase1Stage]);
 								}
-								++m_CurrentTacticalCriticalPass;
+								++m_CurrentQSPhase1Pass;
+								if constexpr (!EXPECT_CUTOFF)
+									sort<movebitsType, scoreType>::sortValues(m_pContext->qsPhase1Moves().ptr() + start, m_pContext->qsPhase1Scores().ptr() + start, m_pContext->qsPhase1Moves().length() - start);
 							}
 							else
 							{
-								++m_CurrentTacticalCriticalStage;
-								m_CurrentTacticalCriticalPass = 0;
+								++m_CurrentQSPhase1Stage;
+								m_CurrentQSPhase1Pass = 0;
+							}
+						}
+						else
+							return false;
+					}
+				}
+				while (m_CurrentQSPhase1Move < m_pContext->qsPhase1Moves().length())
+				{
+					if constexpr (EXPECT_CUTOFF)
+					{
+						constexpr scoreType minimum{ scoreType::minimum() };
+						scoreType best{ minimum };
+						indexType bestIdx{ m_CurrentQSPhase1Move };
+						for (indexType i = m_CurrentQSPhase1Move; i < m_pContext->qsPhase1Moves().length(); i++)
+						{
+							if (m_pContext->qsPhase1Scores()[i] > best)
+							{
+								best = m_pContext->qsPhase1Scores()[i];
+								bestIdx = i;
+							}
+						}
+						if (bestIdx != m_CurrentQSPhase1Move)
+						{
+							m_pContext->qsPhase1Moves().swap(m_CurrentQSPhase1Move, bestIdx);
+							m_pContext->qsPhase1Stages().swap(m_CurrentQSPhase1Move, bestIdx);
+							m_pContext->qsPhase1Scores().swap(m_CurrentQSPhase1Move, bestIdx);
+							m_pContext->qsPhase1Passes().swap(m_CurrentQSPhase1Move, bestIdx);
+						}
+						moveBits = m_pContext->qsPhase1Moves()[m_CurrentQSPhase1Move];
+						if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits))
+						{
+							m_LastQSPhase1Pass = m_pContext->qsPhase1Passes()[m_CurrentQSPhase1Move];
+							m_LastQSPhase1Stage = m_pContext->qsPhase1Stages()[m_CurrentQSPhase1Move];
+							m_LastQSPhase1Score = m_pContext->qsPhase1Scores()[m_CurrentQSPhase1Move];
+							++m_CurrentQSPhase1Move;
+							return true;
+						}
+						++m_CurrentQSPhase1Move;
+					}
+					else
+					{
+						moveBits = m_pContext->qsPhase1Moves()[m_CurrentQSPhase1Move];
+						if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits))
+						{
+							m_LastQSPhase1Pass = m_pContext->qsPhase1Passes()[m_CurrentQSPhase1Move];
+							m_LastQSPhase1Stage = m_pContext->qsPhase1Stages()[m_CurrentQSPhase1Move];
+							m_LastQSPhase1Score = m_pContext->qsPhase1Scores()[m_CurrentQSPhase1Move];
+							++m_CurrentQSPhase1Move;
+							return true;
+						}
+						++m_CurrentQSPhase1Move;
+					}
+				}
+				return this->template nextQSPhase1Move<LAMBDA, EXPECT_CUTOFF>(moveBits, depth, feedback, lambda);
+			}
+			bool nextQSPhase2Move(movebitsType& moveBits, const size_t depth, movegenFeedback& feedback) const noexcept
+			{
+				while (m_CurrentQSPhase2Move >= m_pContext->qsPhase2Moves().length())
+				{
+					if (isPositionCritical())
+					{
+						if (m_CurrentQSPhase2Stage < countQSPhase2CriticalEvasionStages)
+						{
+							if (m_CurrentQSPhase2Pass < countQSPhase2CriticalEvasionPasses[m_CurrentQSPhase2Stage])
+							{
+								const auto index{ feedback.index(m_QSPhase2CriticalEvasionStages[m_CurrentQSPhase2Stage], m_CurrentQSPhase2Pass, depth) };
+								generatorType::generateMoves(m_QSPhase2CriticalEvasionStages[m_CurrentQSPhase2Stage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->qsPhase2Moves(), index);
+								while (m_pContext->qsPhase2Passes().length() < m_pContext->qsPhase2Moves().length())
+								{
+									m_pContext->qsPhase2Passes().add(index);
+									m_pContext->qsPhase2Stages().add(m_QSPhase2CriticalEvasionStages[m_CurrentQSPhase2Stage]);
+								}
+								++m_CurrentQSPhase2Pass;
+							}
+							else
+							{
+								++m_CurrentQSPhase2Stage;
+								m_CurrentQSPhase2Pass = 0;
+							}
+						}
+						else
+							return false;
+					}
+					else
+					{
+						if (m_CurrentQSPhase2Stage < countQSPhase2Stages)
+						{
+							if (m_CurrentQSPhase2Pass < countQSPhase2Passes[m_CurrentQSPhase2Stage])
+							{
+								const auto index{ feedback.index(m_QSPhase2Stages[m_CurrentQSPhase2Stage], m_CurrentQSPhase2Pass, depth) };
+								generatorType::generateMoves(m_QSPhase2Stages[m_CurrentQSPhase2Stage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->qsPhase2Moves(), index);
+								while (m_pContext->qsPhase2Passes().length() < m_pContext->qsPhase2Moves().length())
+								{
+									m_pContext->qsPhase2Passes().add(index);
+									m_pContext->qsPhase2Stages().add(m_QSPhase2Stages[m_CurrentQSPhase2Stage]);
+								}
+								++m_CurrentQSPhase2Pass;
+							}
+							else
+							{
+								++m_CurrentQSPhase2Stage;
+								m_CurrentQSPhase2Pass = 0;
 							}
 						}
 						else
@@ -1013,49 +1212,49 @@ namespace pygmalion
 					}
 				}
 				constexpr const scoreType minimum{ scoreType::minimum() };
-				while (m_CurrentTacticalCriticalMove < m_pContext->tacticalCriticalMoves().length())
+				while (m_CurrentQSPhase2Move < m_pContext->qsPhase2Moves().length())
 				{
-					moveBits = m_pContext->tacticalCriticalMoves()[m_CurrentTacticalCriticalMove];
+					moveBits = m_pContext->qsPhase2Moves()[m_CurrentQSPhase2Move];
 					if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits))
 					{
-						m_LastTacticalCriticalPass = m_pContext->tacticalCriticalPasses()[m_CurrentTacticalCriticalMove];
-						m_LastTacticalCriticalStage = m_pContext->tacticalCriticalStages()[m_CurrentTacticalCriticalMove];
-						m_LastTacticalCriticalScore = minimum;
-						++m_CurrentTacticalCriticalMove;
+						m_LastQSPhase2Pass = m_pContext->qsPhase2Passes()[m_CurrentQSPhase2Move];
+						m_LastQSPhase2Stage = m_pContext->qsPhase2Stages()[m_CurrentQSPhase2Move];
+						m_LastQSPhase2Score = minimum;
+						++m_CurrentQSPhase2Move;
 						return true;
 					}
-					++m_CurrentTacticalCriticalMove;
+					++m_CurrentQSPhase2Move;
 				}
-				return nextTacticalCriticalMove(moveBits, depth, feedback);
+				return nextQSPhase2Move(moveBits, depth, feedback);
 			}
 			template<typename LAMBDA, bool EXPECT_CUTOFF>
-			bool nextTacticalMove(movebitsType& moveBits, const size_t depth, movegenFeedback& feedback, const LAMBDA& lambda) const noexcept
+			bool nextQSPhase2Move(movebitsType& moveBits, const size_t depth, movegenFeedback& feedback, const LAMBDA& lambda) const noexcept
 			{
-				while (m_CurrentTacticalMove >= m_pContext->tacticalMoves().length())
+				while (m_CurrentQSPhase2Move >= m_pContext->qsPhase2Moves().length())
 				{
 					if (isPositionCritical())
 					{
-						if (m_CurrentTacticalStage < countCriticalEvasionTacticalStages)
+						if (m_CurrentQSPhase2Stage < countQSPhase2CriticalEvasionStages)
 						{
-							if (m_CurrentTacticalPass < countCriticalEvasionTacticalPasses[m_CurrentTacticalStage])
+							if (m_CurrentQSPhase2Pass < countQSPhase2CriticalEvasionPasses[m_CurrentQSPhase2Stage])
 							{
-								const auto index{ feedback.index(m_CriticalEvasionTacticalStages[m_CurrentTacticalStage], m_CurrentTacticalPass, depth) };
-								generatorType::generateMoves(m_CriticalEvasionTacticalStages[m_CurrentTacticalStage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->tacticalMoves(), index);
-								const auto start{ m_pContext->tacticalPasses().length() };
-								while (m_pContext->tacticalPasses().length() < m_pContext->tacticalMoves().length())
+								const auto index{ feedback.index(m_QSPhase2CriticalEvasionStages[m_CurrentQSPhase2Stage], m_CurrentQSPhase2Pass, depth) };
+								generatorType::generateMoves(m_QSPhase2CriticalEvasionStages[m_CurrentQSPhase2Stage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->qsPhase2Moves(), index);
+								const auto start{ m_pContext->qsPhase2Passes().length() };
+								while (m_pContext->qsPhase2Passes().length() < m_pContext->qsPhase2Moves().length())
 								{
-									m_pContext->tacticalScores().add(lambda(m_pContext->tacticalMoves()[m_pContext->tacticalPasses().length()]));
-									m_pContext->tacticalPasses().add(index);
-									m_pContext->tacticalStages().add(m_CriticalEvasionTacticalStages[m_CurrentTacticalStage]);
+									m_pContext->qsPhase2Scores().add(lambda(m_pContext->qsPhase2Moves()[m_pContext->qsPhase2Passes().length()]));
+									m_pContext->qsPhase2Passes().add(index);
+									m_pContext->qsPhase2Stages().add(m_QSPhase2CriticalEvasionStages[m_CurrentQSPhase2Stage]);
 								}
-								++m_CurrentTacticalPass;
+								++m_CurrentQSPhase2Pass;
 								if constexpr (!EXPECT_CUTOFF)
-									sort<movebitsType, scoreType>::sortValues(m_pContext->tacticalMoves().ptr() + start, m_pContext->tacticalScores().ptr() + start, m_pContext->tacticalMoves().length() - start);
+									sort<movebitsType, scoreType>::sortValues(m_pContext->qsPhase2Moves().ptr() + start, m_pContext->qsPhase2Scores().ptr() + start, m_pContext->qsPhase2Moves().length() - start);
 							}
 							else
 							{
-								++m_CurrentTacticalStage;
-								m_CurrentTacticalPass = 0;
+								++m_CurrentQSPhase2Stage;
+								m_CurrentQSPhase2Pass = 0;
 							}
 						}
 						else
@@ -1063,110 +1262,105 @@ namespace pygmalion
 					}
 					else
 					{
-						if (m_CurrentTacticalStage < countTacticalStages)
+						if (m_CurrentQSPhase2Stage < countQSPhase2Stages)
 						{
-							if (m_CurrentTacticalPass < countTacticalPasses[m_CurrentTacticalStage])
+							if (m_CurrentQSPhase2Pass < countQSPhase2Passes[m_CurrentQSPhase2Stage])
 							{
-								const auto index{ feedback.index(m_TacticalStages[m_CurrentTacticalStage], m_CurrentTacticalPass, depth) };
-								generatorType::generateMoves(m_TacticalStages[m_CurrentTacticalStage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->tacticalMoves(), index);
-								const auto start{ m_pContext->tacticalPasses().length() };
-								while (m_pContext->tacticalPasses().length() < m_pContext->tacticalMoves().length())
+								const auto index{ feedback.index(m_QSPhase2Stages[m_CurrentQSPhase2Stage], m_CurrentQSPhase2Pass, depth) };
+								generatorType::generateMoves(m_QSPhase2Stages[m_CurrentQSPhase2Stage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->qsPhase2Moves(), index);
+								const auto start{ m_pContext->qsPhase2Passes().length() };
+								while (m_pContext->qsPhase2Passes().length() < m_pContext->qsPhase2Moves().length())
 								{
-									m_pContext->tacticalScores().add(lambda(m_pContext->tacticalMoves()[m_pContext->tacticalPasses().length()]));
-									m_pContext->tacticalPasses().add(index);
-									m_pContext->tacticalStages().add(m_TacticalStages[m_CurrentTacticalStage]);
+									m_pContext->qsPhase2Scores().add(lambda(m_pContext->qsPhase2Moves()[m_pContext->qsPhase2Passes().length()]));
+									m_pContext->qsPhase2Passes().add(index);
+									m_pContext->qsPhase2Stages().add(m_QSPhase2Stages[m_CurrentQSPhase2Stage]);
 								}
-								++m_CurrentTacticalPass;
+								++m_CurrentQSPhase2Pass;
 								if constexpr (!EXPECT_CUTOFF)
-									sort<movebitsType, scoreType>::sortValues(m_pContext->tacticalMoves().ptr() + start, m_pContext->tacticalScores().ptr() + start, m_pContext->tacticalMoves().length() - start);
+									sort<movebitsType, scoreType>::sortValues(m_pContext->qsPhase2Moves().ptr() + start, m_pContext->qsPhase2Scores().ptr() + start, m_pContext->qsPhase2Moves().length() - start);
 							}
 							else
 							{
-								++m_CurrentTacticalStage;
-								m_CurrentTacticalPass = 0;
+								++m_CurrentQSPhase2Stage;
+								m_CurrentQSPhase2Pass = 0;
 							}
 						}
 						else
 							return false;
 					}
 				}
-				while (m_CurrentTacticalMove < m_pContext->tacticalMoves().length())
+				while (m_CurrentQSPhase2Move < m_pContext->qsPhase2Moves().length())
 				{
 					if constexpr (EXPECT_CUTOFF)
 					{
 						constexpr scoreType minimum{ scoreType::minimum() };
 						scoreType best{ minimum };
-						indexType bestIdx{ m_CurrentTacticalMove };
-						for (indexType i = m_CurrentTacticalMove; i < m_pContext->tacticalMoves().length(); i++)
+						indexType bestIdx{ m_CurrentQSPhase2Move };
+						for (indexType i = m_CurrentQSPhase2Move; i < m_pContext->qsPhase2Moves().length(); i++)
 						{
-							if (m_pContext->tacticalScores()[i] > best)
+							if (m_pContext->qsPhase2Scores()[i] > best)
 							{
-								best = m_pContext->tacticalScores()[i];
+								best = m_pContext->qsPhase2Scores()[i];
 								bestIdx = i;
 							}
 						}
-						if (bestIdx != m_CurrentTacticalMove)
+						if (bestIdx != m_CurrentQSPhase2Move)
 						{
-							m_pContext->tacticalMoves().swap(m_CurrentTacticalMove, bestIdx);
-							m_pContext->tacticalStages().swap(m_CurrentTacticalMove, bestIdx);
-							m_pContext->tacticalScores().swap(m_CurrentTacticalMove, bestIdx);
-							m_pContext->tacticalPasses().swap(m_CurrentTacticalMove, bestIdx);
+							m_pContext->qsPhase2Moves().swap(m_CurrentQSPhase2Move, bestIdx);
+							m_pContext->qsPhase2Stages().swap(m_CurrentQSPhase2Move, bestIdx);
+							m_pContext->qsPhase2Scores().swap(m_CurrentQSPhase2Move, bestIdx);
+							m_pContext->qsPhase2Passes().swap(m_CurrentQSPhase2Move, bestIdx);
 						}
-						moveBits = m_pContext->tacticalMoves()[m_CurrentTacticalMove];
+						moveBits = m_pContext->qsPhase2Moves()[m_CurrentQSPhase2Move];
 						if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits))
 						{
-							m_LastTacticalPass = m_pContext->tacticalPasses()[m_CurrentTacticalMove];
-							m_LastTacticalStage = m_pContext->tacticalStages()[m_CurrentTacticalMove];
-							m_LastTacticalScore = m_pContext->tacticalScores()[m_CurrentTacticalMove];
-							++m_CurrentTacticalMove;
+							m_LastQSPhase2Pass = m_pContext->qsPhase2Passes()[m_CurrentQSPhase2Move];
+							m_LastQSPhase2Stage = m_pContext->qsPhase2Stages()[m_CurrentQSPhase2Move];
+							m_LastQSPhase2Score = m_pContext->qsPhase2Scores()[m_CurrentQSPhase2Move];
+							++m_CurrentQSPhase2Move;
 							return true;
 						}
-						++m_CurrentTacticalMove;
+						++m_CurrentQSPhase2Move;
 					}
 					else
 					{
-						moveBits = m_pContext->tacticalMoves()[m_CurrentTacticalMove];
+						moveBits = m_pContext->qsPhase2Moves()[m_CurrentQSPhase2Move];
 						if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits))
 						{
-							m_LastTacticalPass = m_pContext->tacticalPasses()[m_CurrentTacticalMove];
-							m_LastTacticalStage = m_pContext->tacticalStages()[m_CurrentTacticalMove];
-							m_LastTacticalScore = m_pContext->tacticalScores()[m_CurrentTacticalMove];
-							++m_CurrentTacticalMove;
+							m_LastQSPhase2Pass = m_pContext->qsPhase2Passes()[m_CurrentQSPhase2Move];
+							m_LastQSPhase2Stage = m_pContext->qsPhase2Stages()[m_CurrentQSPhase2Move];
+							m_LastQSPhase2Score = m_pContext->qsPhase2Scores()[m_CurrentQSPhase2Move];
+							++m_CurrentQSPhase2Move;
 							return true;
 						}
-						++m_CurrentTacticalMove;
+						++m_CurrentQSPhase2Move;
 					}
 				}
-				return this->template nextTacticalMove<LAMBDA, EXPECT_CUTOFF>(moveBits, depth, feedback, lambda);
+				return this->template nextQSPhase2Move<LAMBDA, EXPECT_CUTOFF>(moveBits, depth, feedback, lambda);
 			}
-			template<typename LAMBDA, bool EXPECT_CUTOFF>
-			bool nextTacticalCriticalMove(movebitsType& moveBits, const size_t depth, movegenFeedback& feedback, const LAMBDA& lambda) const noexcept
+			bool nextQSPhase3Move(movebitsType& moveBits, const size_t depth, movegenFeedback& feedback) const noexcept
 			{
-				while (m_CurrentTacticalCriticalMove >= m_pContext->tacticalCriticalMoves().length())
+				while (m_CurrentQSPhase3Move >= m_pContext->qsPhase3Moves().length())
 				{
 					if (isPositionCritical())
 					{
-						if (m_CurrentTacticalCriticalStage < countCriticalEvasionStages)
+						if (m_CurrentQSPhase3Stage < countQSPhase3CriticalEvasionStages)
 						{
-							if (m_CurrentTacticalCriticalPass < countCriticalEvasionPasses[m_CurrentTacticalCriticalStage])
+							if (m_CurrentQSPhase3Pass < countQSPhase3CriticalEvasionPasses[m_CurrentQSPhase3Stage])
 							{
-								const auto index{ feedback.index(m_CriticalEvasionStages[m_CurrentTacticalCriticalStage], m_CurrentTacticalCriticalPass, depth) };
-								generatorType::generateMoves(m_CriticalEvasionStages[m_CurrentTacticalCriticalStage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->tacticalCriticalMoves(), index);
-								const auto start{ m_pContext->tacticalCriticalPasses().length() };
-								while (m_pContext->tacticalCriticalPasses().length() < m_pContext->tacticalCriticalMoves().length())
+								const auto index{ feedback.index(m_QSPhase3CriticalEvasionStages[m_CurrentQSPhase3Stage], m_CurrentQSPhase3Pass, depth) };
+								generatorType::generateMoves(m_QSPhase3CriticalEvasionStages[m_CurrentQSPhase3Stage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->qsPhase3Moves(), index);
+								while (m_pContext->qsPhase3Passes().length() < m_pContext->qsPhase3Moves().length())
 								{
-									m_pContext->tacticalCriticalScores().add(lambda(m_pContext->tacticalCriticalMoves()[m_pContext->tacticalCriticalPasses().length()]));
-									m_pContext->tacticalCriticalPasses().add(index);
-									m_pContext->tacticalCriticalStages().add(m_CriticalEvasionStages[m_CurrentTacticalCriticalStage]);
+									m_pContext->qsPhase3Passes().add(index);
+									m_pContext->qsPhase3Stages().add(m_QSPhase3CriticalEvasionStages[m_CurrentQSPhase3Stage]);
 								}
-								++m_CurrentTacticalCriticalPass;
-								if constexpr (!EXPECT_CUTOFF)
-									sort<movebitsType, scoreType>::sortValues(m_pContext->tacticalCriticalMoves().ptr() + start, m_pContext->tacticalCriticalScores().ptr() + start, m_pContext->tacticalCriticalMoves().length() - start);
+								++m_CurrentQSPhase3Pass;
 							}
 							else
 							{
-								++m_CurrentTacticalCriticalStage;
-								m_CurrentTacticalCriticalPass = 0;
+								++m_CurrentQSPhase3Stage;
+								m_CurrentQSPhase3Pass = 0;
 							}
 						}
 						else
@@ -1174,87 +1368,155 @@ namespace pygmalion
 					}
 					else
 					{
-						if (m_CurrentTacticalCriticalStage < countTacticalCriticalStages)
+						if (m_CurrentQSPhase3Stage < countQSPhase3Stages)
 						{
-							if (m_CurrentTacticalCriticalPass < countTacticalCriticalPasses[m_CurrentTacticalCriticalStage])
+							if (m_CurrentQSPhase3Pass < countQSPhase3Passes[m_CurrentQSPhase3Stage])
 							{
-								const auto index{ feedback.index(m_TacticalCriticalStages[m_CurrentTacticalCriticalStage], m_CurrentTacticalCriticalPass, depth) };
-								generatorType::generateMoves(m_TacticalCriticalStages[m_CurrentTacticalCriticalStage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->tacticalCriticalMoves(), index);
-								const auto start{ m_pContext->tacticalCriticalPasses().length() };
-								while (m_pContext->tacticalCriticalPasses().length() < m_pContext->tacticalCriticalMoves().length())
+								const auto index{ feedback.index(m_QSPhase3Stages[m_CurrentQSPhase3Stage], m_CurrentQSPhase3Pass, depth) };
+								generatorType::generateMoves(m_QSPhase3Stages[m_CurrentQSPhase3Stage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->qsPhase3Moves(), index);
+								while (m_pContext->qsPhase3Passes().length() < m_pContext->qsPhase3Moves().length())
 								{
-									m_pContext->tacticalCriticalScores().add(lambda(m_pContext->tacticalCriticalMoves()[m_pContext->tacticalCriticalPasses().length()]));
-									m_pContext->tacticalCriticalPasses().add(index);
-									m_pContext->tacticalCriticalStages().add(m_TacticalCriticalStages[m_CurrentTacticalCriticalStage]);
+									m_pContext->qsPhase3Passes().add(index);
+									m_pContext->qsPhase3Stages().add(m_QSPhase3Stages[m_CurrentQSPhase3Stage]);
 								}
-								++m_CurrentTacticalCriticalPass;
-								if constexpr (!EXPECT_CUTOFF)
-									sort<movebitsType, scoreType>::sortValues(m_pContext->tacticalCriticalMoves().ptr() + start, m_pContext->tacticalCriticalScores().ptr() + start, m_pContext->tacticalCriticalMoves().length() - start);
+								++m_CurrentQSPhase3Pass;
 							}
 							else
 							{
-								++m_CurrentTacticalCriticalStage;
-								m_CurrentTacticalCriticalPass = 0;
+								++m_CurrentQSPhase3Stage;
+								m_CurrentQSPhase3Pass = 0;
 							}
 						}
 						else
 							return false;
 					}
 				}
-				while (m_CurrentTacticalCriticalMove < m_pContext->tacticalCriticalMoves().length())
+				constexpr const scoreType minimum{ scoreType::minimum() };
+				while (m_CurrentQSPhase3Move < m_pContext->qsPhase3Moves().length())
+				{
+					moveBits = m_pContext->qsPhase3Moves()[m_CurrentQSPhase3Move];
+					if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits))
+					{
+						m_LastQSPhase3Pass = m_pContext->qsPhase3Passes()[m_CurrentQSPhase3Move];
+						m_LastQSPhase3Stage = m_pContext->qsPhase3Stages()[m_CurrentQSPhase3Move];
+						m_LastQSPhase3Score = minimum;
+						++m_CurrentQSPhase3Move;
+						return true;
+					}
+					++m_CurrentQSPhase3Move;
+				}
+				return nextQSPhase3Move(moveBits, depth, feedback);
+			}
+			template<typename LAMBDA, bool EXPECT_CUTOFF>
+			bool nextQSPhase3Move(movebitsType& moveBits, const size_t depth, movegenFeedback& feedback, const LAMBDA& lambda) const noexcept
+			{
+				while (m_CurrentQSPhase3Move >= m_pContext->qsPhase3Moves().length())
+				{
+					if (isPositionCritical())
+					{
+						if (m_CurrentQSPhase3Stage < countQSPhase3CriticalEvasionStages)
+						{
+							if (m_CurrentQSPhase3Pass < countQSPhase3CriticalEvasionPasses[m_CurrentQSPhase3Stage])
+							{
+								const auto index{ feedback.index(m_QSPhase3CriticalEvasionStages[m_CurrentQSPhase3Stage], m_CurrentQSPhase3Pass, depth) };
+								generatorType::generateMoves(m_QSPhase3CriticalEvasionStages[m_CurrentQSPhase3Stage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->qsPhase3Moves(), index);
+								const auto start{ m_pContext->qsPhase3Passes().length() };
+								while (m_pContext->qsPhase3Passes().length() < m_pContext->qsPhase3Moves().length())
+								{
+									m_pContext->qsPhase3Scores().add(lambda(m_pContext->qsPhase3Moves()[m_pContext->qsPhase3Passes().length()]));
+									m_pContext->qsPhase3Passes().add(index);
+									m_pContext->qsPhase3Stages().add(m_QSPhase3CriticalEvasionStages[m_CurrentQSPhase3Stage]);
+								}
+								++m_CurrentQSPhase3Pass;
+								if constexpr (!EXPECT_CUTOFF)
+									sort<movebitsType, scoreType>::sortValues(m_pContext->qsPhase3Moves().ptr() + start, m_pContext->qsPhase3Scores().ptr() + start, m_pContext->qsPhase3Moves().length() - start);
+							}
+							else
+							{
+								++m_CurrentQSPhase3Stage;
+								m_CurrentQSPhase3Pass = 0;
+							}
+						}
+						else
+							return false;
+					}
+					else
+					{
+						if (m_CurrentQSPhase3Stage < countQSPhase3Stages)
+						{
+							if (m_CurrentQSPhase3Pass < countQSPhase3Passes[m_CurrentQSPhase3Stage])
+							{
+								const auto index{ feedback.index(m_QSPhase3Stages[m_CurrentQSPhase3Stage], m_CurrentQSPhase3Pass, depth) };
+								generatorType::generateMoves(m_QSPhase3Stages[m_CurrentQSPhase3Stage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->qsPhase3Moves(), index);
+								const auto start{ m_pContext->qsPhase3Passes().length() };
+								while (m_pContext->qsPhase3Passes().length() < m_pContext->qsPhase3Moves().length())
+								{
+									m_pContext->qsPhase3Scores().add(lambda(m_pContext->qsPhase3Moves()[m_pContext->qsPhase3Passes().length()]));
+									m_pContext->qsPhase3Passes().add(index);
+									m_pContext->qsPhase3Stages().add(m_QSPhase3Stages[m_CurrentQSPhase3Stage]);
+								}
+								++m_CurrentQSPhase3Pass;
+								if constexpr (!EXPECT_CUTOFF)
+									sort<movebitsType, scoreType>::sortValues(m_pContext->qsPhase3Moves().ptr() + start, m_pContext->qsPhase3Scores().ptr() + start, m_pContext->qsPhase3Moves().length() - start);
+							}
+							else
+							{
+								++m_CurrentQSPhase3Stage;
+								m_CurrentQSPhase3Pass = 0;
+							}
+						}
+						else
+							return false;
+					}
+				}
+				while (m_CurrentQSPhase3Move < m_pContext->qsPhase3Moves().length())
 				{
 					if constexpr (EXPECT_CUTOFF)
 					{
 						constexpr scoreType minimum{ scoreType::minimum() };
 						scoreType best{ minimum };
-						indexType bestIdx{ m_CurrentTacticalCriticalMove };
-						for (indexType i = m_CurrentTacticalCriticalMove; i < m_pContext->tacticalCriticalMoves().length(); i++)
+						indexType bestIdx{ m_CurrentQSPhase3Move };
+						for (indexType i = m_CurrentQSPhase3Move; i < m_pContext->qsPhase3Moves().length(); i++)
 						{
-							if (m_pContext->tacticalCriticalScores()[i] > best)
+							if (m_pContext->qsPhase3Scores()[i] > best)
 							{
-								best = m_pContext->tacticalCriticalScores()[i];
+								best = m_pContext->qsPhase3Scores()[i];
 								bestIdx = i;
 							}
 						}
-						if (bestIdx != m_CurrentTacticalCriticalMove)
+						if (bestIdx != m_CurrentQSPhase3Move)
 						{
-							m_pContext->tacticalCriticalMoves().swap(m_CurrentTacticalCriticalMove, bestIdx);
-							m_pContext->tacticalCriticalStages().swap(m_CurrentTacticalCriticalMove, bestIdx);
-							m_pContext->tacticalCriticalScores().swap(m_CurrentTacticalCriticalMove, bestIdx);
-							m_pContext->tacticalCriticalPasses().swap(m_CurrentTacticalCriticalMove, bestIdx);
+							m_pContext->qsPhase3Moves().swap(m_CurrentQSPhase3Move, bestIdx);
+							m_pContext->qsPhase3Stages().swap(m_CurrentQSPhase3Move, bestIdx);
+							m_pContext->qsPhase3Scores().swap(m_CurrentQSPhase3Move, bestIdx);
+							m_pContext->qsPhase3Passes().swap(m_CurrentQSPhase3Move, bestIdx);
 						}
-						moveBits = m_pContext->tacticalCriticalMoves()[m_CurrentTacticalCriticalMove];
+						moveBits = m_pContext->qsPhase3Moves()[m_CurrentQSPhase3Move];
 						if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits))
 						{
-							if ((!isPositionCritical()) || (generatorType::isMoveTactical(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits) || generatorType::template isMoveCritical<PLAYER, typename generatorType::template stackType<PLAYER>>(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits)))
-							{
-								m_LastTacticalCriticalPass = m_pContext->tacticalCriticalPasses()[m_CurrentTacticalCriticalMove];
-								m_LastTacticalCriticalStage = m_pContext->tacticalCriticalStages()[m_CurrentTacticalCriticalMove];
-								m_LastTacticalCriticalScore = m_pContext->tacticalCriticalScores()[m_CurrentTacticalCriticalMove];
-								++m_CurrentTacticalCriticalMove;
-								return true;
-							}
+							m_LastQSPhase3Pass = m_pContext->qsPhase3Passes()[m_CurrentQSPhase3Move];
+							m_LastQSPhase3Stage = m_pContext->qsPhase3Stages()[m_CurrentQSPhase3Move];
+							m_LastQSPhase3Score = m_pContext->qsPhase3Scores()[m_CurrentQSPhase3Move];
+							++m_CurrentQSPhase3Move;
+							return true;
 						}
-						++m_CurrentTacticalCriticalMove;
+						++m_CurrentQSPhase3Move;
 					}
 					else
 					{
-						moveBits = m_pContext->tacticalCriticalMoves()[m_CurrentTacticalCriticalMove];
+						moveBits = m_pContext->qsPhase3Moves()[m_CurrentQSPhase3Move];
 						if (generatorType::isGeneratedMoveLegal(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits))
 						{
-							if ((!isPositionCritical()) || (generatorType::isMoveTactical(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits) || generatorType::template isMoveCritical<PLAYER, typename generatorType::template stackType<PLAYER>>(*static_cast<const typename generatorType::template stackType<PLAYER>*>(this), moveBits)))
-							{
-								m_LastTacticalCriticalPass = m_pContext->tacticalCriticalPasses()[m_CurrentTacticalCriticalMove];
-								m_LastTacticalCriticalStage = m_pContext->tacticalCriticalStages()[m_CurrentTacticalCriticalMove];
-								m_LastTacticalCriticalScore = m_pContext->tacticalCriticalScores()[m_CurrentTacticalCriticalMove];
-								++m_CurrentTacticalCriticalMove;
-								return true;
-							}
+							m_LastQSPhase3Pass = m_pContext->qsPhase3Passes()[m_CurrentQSPhase3Move];
+							m_LastQSPhase3Stage = m_pContext->qsPhase3Stages()[m_CurrentQSPhase3Move];
+							m_LastQSPhase3Score = m_pContext->qsPhase3Scores()[m_CurrentQSPhase3Move];
+							++m_CurrentQSPhase3Move;
+							return true;
 						}
-						++m_CurrentTacticalCriticalMove;
+						++m_CurrentQSPhase3Move;
 					}
 				}
-				return this->template nextTacticalCriticalMove<LAMBDA, EXPECT_CUTOFF>(moveBits, depth, feedback, lambda);
+				return this->template nextQSPhase3Move<LAMBDA, EXPECT_CUTOFF>(moveBits, depth, feedback, lambda);
 			}
 			bool nextCriticalMove(movebitsType& moveBits, const size_t depth, movegenFeedback& feedback) const noexcept
 			{
@@ -1393,14 +1655,15 @@ namespace pygmalion
 				m_CurrentNormalPass{ 0 },
 				m_CurrentNormalMove{ 0 },
 				m_CurrentNormalStage{ 0 },
-				m_CurrentTacticalPass{ 0 },
-				m_CurrentTacticalMove{ 0 },
-				m_CurrentTacticalStage{ 0 },
-				m_CurrentTacticalCriticalPass{ 0 },
-				m_CurrentTacticalCriticalMove{ 0 },
-				m_CurrentTacticalCriticalStage{ 0 },
-				m_LastTacticalPass{ 0 },
-				m_LastTacticalStage{ 0 },
+				m_CurrentQSPhase1Pass{ 0 },
+				m_CurrentQSPhase1Move{ 0 },
+				m_CurrentQSPhase1Stage{ 0 },
+				m_CurrentQSPhase2Pass{ 0 },
+				m_CurrentQSPhase2Move{ 0 },
+				m_CurrentQSPhase2Stage{ 0 },
+				m_CurrentQSPhase3Pass{ 0 },
+				m_CurrentQSPhase3Move{ 0 },
+				m_CurrentQSPhase3Stage{ 0 },
 				m_CurrentCriticalPass{ 0 },
 				m_CurrentCriticalMove{ 0 },
 				m_CurrentCriticalStage{ 0 },
@@ -1421,14 +1684,15 @@ namespace pygmalion
 				m_CurrentNormalPass{ 0 },
 				m_CurrentNormalMove{ 0 },
 				m_CurrentNormalStage{ 0 },
-				m_CurrentTacticalPass{ 0 },
-				m_CurrentTacticalMove{ 0 },
-				m_CurrentTacticalStage{ 0 },
-				m_CurrentTacticalCriticalPass{ 0 },
-				m_CurrentTacticalCriticalMove{ 0 },
-				m_CurrentTacticalCriticalStage{ 0 },
-				m_LastTacticalPass{ 0 },
-				m_LastTacticalStage{ 0 },
+				m_CurrentQSPhase1Pass{ 0 },
+				m_CurrentQSPhase1Move{ 0 },
+				m_CurrentQSPhase1Stage{ 0 },
+				m_CurrentQSPhase2Pass{ 0 },
+				m_CurrentQSPhase2Move{ 0 },
+				m_CurrentQSPhase2Stage{ 0 },
+				m_CurrentQSPhase3Pass{ 0 },
+				m_CurrentQSPhase3Move{ 0 },
+				m_CurrentQSPhase3Stage{ 0 },
 				m_CurrentCriticalPass{ 0 },
 				m_CurrentCriticalMove{ 0 },
 				m_CurrentCriticalStage{ 0 },
@@ -1651,9 +1915,13 @@ namespace pygmalion
 		constexpr static size_t countMaxMovegenStages() noexcept
 		{
 			size_t n{ countMovegenStages(movegenPhase::normal) };
-			n = std::max(n, countMovegenStages(movegenPhase::tactical));
+			n = std::max(n, countMovegenStages(movegenPhase::QSPhase1));
+			n = std::max(n, countMovegenStages(movegenPhase::QSPhase2));
+			n = std::max(n, countMovegenStages(movegenPhase::QSPhase3));
+			n = std::max(n, countMovegenStages(movegenPhase::QSPhase1_CriticalEvasion));
+			n = std::max(n, countMovegenStages(movegenPhase::QSPhase2_CriticalEvasion));
+			n = std::max(n, countMovegenStages(movegenPhase::QSPhase3_CriticalEvasion));
 			n = std::max(n, countMovegenStages(movegenPhase::criticalEvasion));
-			n = std::max(n, countMovegenStages(movegenPhase::tacticalCrtiticalEvasion));
 			n = std::max(n, countMovegenStages(movegenPhase::critical));
 			return n;
 		}
@@ -1676,9 +1944,13 @@ namespace pygmalion
 		{
 			size_t n{ 0 };
 			n = std::max(n, countMaxMovegenPasses(movegenPhase::normal));
-			n = std::max(n, countMaxMovegenPasses(movegenPhase::tactical));
+			n = std::max(n, countMaxMovegenPasses(movegenPhase::QSPhase1));
+			n = std::max(n, countMaxMovegenPasses(movegenPhase::QSPhase2));
+			n = std::max(n, countMaxMovegenPasses(movegenPhase::QSPhase3));
+			n = std::max(n, countMaxMovegenPasses(movegenPhase::QSPhase1_CriticalEvasion));
+			n = std::max(n, countMaxMovegenPasses(movegenPhase::QSPhase2_CriticalEvasion));
+			n = std::max(n, countMaxMovegenPasses(movegenPhase::QSPhase3_CriticalEvasion));
 			n = std::max(n, countMaxMovegenPasses(movegenPhase::criticalEvasion));
-			n = std::max(n, countMaxMovegenPasses(movegenPhase::tacticalCrtiticalEvasion));
 			n = std::max(n, countMaxMovegenPasses(movegenPhase::critical));
 			return n;
 		}
