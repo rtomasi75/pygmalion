@@ -24,8 +24,7 @@ namespace pygmalion::dynamics
 					stackType<PLAYER> stack{ stackType<PLAYER>(this->position(), this->history(), &context) };
 					movebitsType movebits;
 					bool hasMoves{ false };
-					this->feedback().expandToDepth(this->history().length() + 1);
-					while (stack.nextQSPhase1Move(movebits, this->history().length(), this->feedback()))
+					while (stack.nextQSPhase1Move(movebits))
 					{
 						hasMoves = true;
 						this->output() << motorType::move().toString(this->position(), movebits) << "\t";

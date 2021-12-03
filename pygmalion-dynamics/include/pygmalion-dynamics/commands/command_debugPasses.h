@@ -19,9 +19,6 @@ namespace pygmalion::dynamics
 				constexpr const playerType player{ static_cast<playerType>(PLAYER) };
 				if (player == this->position().movingPlayer())
 				{
-					this->dynamicsEngine().feedback().expandToDepth(this->history().length());
-					this->dynamicsEngine().feedback().sortPasses(this->history().length());
-					//				this->dynamicsEngine().feedback().sortPasses(this->history().length());
 					typename generatorType::contextType context;
 					stackType<PLAYER> stack{ stackType<PLAYER>(this->position(), this->history(), &context) };
 					this->output() << std::endl;
@@ -30,9 +27,8 @@ namespace pygmalion::dynamics
 					{
 						for (size_t i = 0; i < stack.normalPassesCount(stage); i++)
 						{
-							const auto index{ this->dynamicsEngine().feedback().index(stage,i, this->history().length()) };
-							auto& fb{ this->dynamicsEngine().feedback() };
-							this->output() << "    " << std::setw(3) << stage << ", " << std::setw(3) << i << std::setw(8) << fb.counterRaw(stack.normalStage(stage), index, this->history().length()) << std::setw(12) << fb.scoreRaw(stack.normalStage(stage), index, this->history().length()) << " " << generatorType::passToString(stack.normalStage(stage), stack.normalPass(fb, stage, i)) << std::endl;
+							const auto index{ generatorType::movegenFeedback::index(stage,i) };
+							this->output() << "    " << std::setw(3) << stage << ", " << std::setw(3) << i << " " << generatorType::passToString(stack.normalStage(stage), stack.normalPass(stage, i)) << std::endl;
 						}
 					}
 					this->output() << std::endl;

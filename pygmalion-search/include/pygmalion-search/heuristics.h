@@ -73,7 +73,7 @@ namespace pygmalion
 				}
 			}
 			template<size_t PLAYER, int QSPHASE>
-			PYGMALION_INLINE void refuted(const stackType<PLAYER>& stack, const movebitsType moveBits, const scoreType score, const scoreType eval) noexcept
+			PYGMALION_INLINE void refuted(const stackType<PLAYER>& stack, const movebitsType moveBits) noexcept
 			{
 				bool contains{ false };
 				if constexpr (QSPHASE >= 0)
@@ -183,7 +183,7 @@ namespace pygmalion
 				}
 			}
 			template<size_t PLAYER, int QSPHASE>
-			PYGMALION_INLINE void accepted(const stackType<PLAYER>& stack, const movebitsType moveBits, const scoreType score, const scoreType eval) noexcept
+			PYGMALION_INLINE void accepted(const stackType<PLAYER>& stack, const movebitsType moveBits) noexcept
 			{
 			}
 			void clear() noexcept
@@ -233,7 +233,7 @@ namespace pygmalion
 		{
 		}
 		template<size_t PLAYER, int QSPHASE>
-		PYGMALION_INLINE void onEndMoveRefuted(const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth, const scoreType score) noexcept
+		PYGMALION_INLINE void onEndMoveRefuted(const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth) noexcept
 		{
 		}
 		template<size_t PLAYER, int QSPHASE>
@@ -249,7 +249,7 @@ namespace pygmalion
 		{
 		}
 		template<size_t PLAYER, int QSPHASE>
-		PYGMALION_INLINE void onEndMoveAccepted(const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth, const scoreType score) noexcept
+		PYGMALION_INLINE void onEndMoveAccepted(const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth) noexcept
 		{
 		}
 		template<size_t PLAYER>
@@ -286,7 +286,6 @@ namespace pygmalion
 					m_KillerSlots.emplace_back(killerslots());
 				}
 			}
-			m_Feedback.expandToDepth(depth);
 		}
 		template<size_t PLAYER>
 		PYGMALION_INLINE scoreType staticMoveScore(const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth) noexcept
@@ -480,63 +479,31 @@ namespace pygmalion
 			return m_NodeCounter;
 		}
 		template<size_t PLAYER, bool PRUNED, int QSPHASE>
-		PYGMALION_INLINE nodecounterType endMoveAccepted(const nodecounterType nodeCount, const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth, const scoreType score, const scoreType eval, const bool fromStack, const depthType depthRemaining) noexcept
+		PYGMALION_INLINE nodecounterType endMoveAccepted(const nodecounterType nodeCount, const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth, const depthType depthRemaining) noexcept
 		{
 #if !defined(NDEBUG)
 			PYGMALION_ASSERT(m_IsSearching);
 			m_MoveDepth--;
 #endif
-			if (fromStack)
-			{
-				if constexpr (!PRUNED)
-				{
-					if constexpr (QSPHASE == 0)
-						stack.qsPhase1AllMove(m_Feedback, depth, score, eval);
-					else if constexpr (QSPHASE == 1)
-						stack.qsPhase2AllMove(m_Feedback, depth, score, eval);
-					else if constexpr (QSPHASE == 2)
-						stack.qsPhase3AllMove(m_Feedback, depth, score, eval);
-					else
-						stack.normalAllMove(m_Feedback, depth, score, eval);
-				}
-				else
-					stack.criticalAllMove(m_Feedback, depth, score, eval);
-			}
 			if constexpr ((quietKillerMoves > 0) || (tacticalKillerMoves > 0))
 			{
-				m_KillerSlots[depth].template accepted<PLAYER, QSPHASE>(stack, moveBits, score, eval);
+				m_KillerSlots[depth].template accepted<PLAYER, QSPHASE>(stack, moveBits);
 			}
-			static_cast<instanceType*>(this)->template onEndMoveAccepted<PLAYER, QSPHASE>(stack, moveBits, depth, score);
+			static_cast<instanceType*>(this)->template onEndMoveAccepted<PLAYER, QSPHASE>(stack, moveBits, depth);
 			return m_NodeCounter - nodeCount;
 		}
 		template<size_t PLAYER, bool PRUNED, int QSPHASE>
-		PYGMALION_INLINE nodecounterType endMoveRefuted(const nodecounterType nodeCount, const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth, const scoreType score, const scoreType eval, const bool fromStack, const depthType depthRemaining) noexcept
+		PYGMALION_INLINE nodecounterType endMoveRefuted(const nodecounterType nodeCount, const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth, const depthType depthRemaining) noexcept
 		{
 #if !defined(NDEBUG)
 			PYGMALION_ASSERT(m_IsSearching);
 			m_MoveDepth--;
 #endif
-			if (fromStack)
-			{
-				if constexpr (!PRUNED)
-				{
-					if constexpr (QSPHASE == 0)
-						stack.qsPhase1CutMove(m_Feedback, depth, score, eval);
-					else if constexpr (QSPHASE == 1)
-						stack.qsPhase2CutMove(m_Feedback, depth, score, eval);
-					else if constexpr (QSPHASE == 2)
-						stack.qsPhase3CutMove(m_Feedback, depth, score, eval);
-					else
-						stack.normalCutMove(m_Feedback, depth, score, eval);
-				}
-				else
-					stack.criticalCutMove(m_Feedback, depth, score, eval);
-			}
 			if constexpr ((quietKillerMoves > 0) || (tacticalKillerMoves > 0))
 			{
-				m_KillerSlots[depth].template refuted<PLAYER, QSPHASE>(stack, moveBits, score, eval);
+				m_KillerSlots[depth].template refuted<PLAYER, QSPHASE>(stack, moveBits);
 			}
-			static_cast<instanceType*>(this)->template onEndMoveRefuted<PLAYER, QSPHASE>(stack, moveBits, depth, score);
+			static_cast<instanceType*>(this)->template onEndMoveRefuted<PLAYER, QSPHASE>(stack, moveBits, depth);
 			return m_NodeCounter - nodeCount;
 		}
 		template<size_t PLAYER, int QSPHASE>

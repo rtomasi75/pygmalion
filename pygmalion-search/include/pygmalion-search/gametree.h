@@ -76,14 +76,14 @@ namespace pygmalion
 				m_MoveNodecount = m_Heuristics.template beginMove<PLAYER, QSPHASE>(m_Stack, moveBits, m_Depth);
 			}
 			template<bool PRUNED, int QSPHASE>
-			PYGMALION_INLINE void endMoveAccepted(const movebitsType moveBits, const scoreType score, const scoreType eval, const bool fromStack, const depthType depthRemaining) noexcept
+			PYGMALION_INLINE void endMoveAccepted(const movebitsType moveBits, const depthType depthRemaining) noexcept
 			{
-				const nodecounterType count{ m_Heuristics.template endMoveAccepted<PLAYER, PRUNED, QSPHASE>(m_MoveNodecount, m_Stack, moveBits, m_Depth, score, eval, fromStack, depthRemaining) };
+				const nodecounterType count{ m_Heuristics.template endMoveAccepted<PLAYER, PRUNED, QSPHASE>(m_MoveNodecount, m_Stack, moveBits, m_Depth, depthRemaining) };
 			}
 			template<bool PRUNED, int QSPHASE>
-			PYGMALION_INLINE void endMoveRefuted(const movebitsType moveBits, const scoreType score, const scoreType eval, const bool fromStack, const depthType depthRemaining) noexcept
+			PYGMALION_INLINE void endMoveRefuted(const movebitsType moveBits, const depthType depthRemaining) noexcept
 			{
-				const nodecounterType count{ m_Heuristics.template endMoveRefuted<PLAYER, PRUNED, QSPHASE>(m_MoveNodecount, m_Stack, moveBits, m_Depth, score, eval, fromStack, depthRemaining) };
+				const nodecounterType count{ m_Heuristics.template endMoveRefuted<PLAYER, PRUNED, QSPHASE>(m_MoveNodecount, m_Stack, moveBits, m_Depth, depthRemaining) };
 			}
 			template<bool PRUNED, int QSPHASE>
 			PYGMALION_INLINE void endMoveSilent(const movebitsType moveBits, const depthType depthRemaining) noexcept
@@ -242,7 +242,7 @@ namespace pygmalion
 				return -subnode.zwsearch(-alpha.plyDown(), depthRemaining - depthType(1), nullMoveHistory, allowStoreTT, expectedNodeType).plyUp();
 			}
 			template<bool SCOUT, bool ANALYZE>
-			PYGMALION_INLINE bool searchSubNode(const movebitsType move, scoreType& alpha, scoreType& beta, scoreType& best, movebitsType& bestmove, const depthType depthRemaining, variationType& principalVariation, const bool fromStack, bool& allowStoreTT, indexType* pCurrentMove)  noexcept
+			PYGMALION_INLINE bool searchSubNode(const movebitsType move, scoreType& alpha, scoreType& beta, scoreType& best, movebitsType& bestmove, const depthType depthRemaining, variationType& principalVariation, bool& allowStoreTT, indexType* pCurrentMove)  noexcept
 			{
 				this->template beginMove<-1>(move);
 				variationType subVariation;
@@ -295,7 +295,7 @@ namespace pygmalion
 										if (allowStoreTT)
 											m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, best, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
 									}
-									this->template endMoveRefuted<false, -1>(move, best, evaluate(alpha, best), fromStack, depthRemaining);
+									this->template endMoveRefuted<false, -1>(move, depthRemaining);
 									m_Heuristics.endNodeCut(m_Stack);
 									return true;
 								}
@@ -305,7 +305,7 @@ namespace pygmalion
 									if (allowStoreTT)
 										m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, sc, transpositiontable<descriptorSearch>::flags_upper | transpositiontable<descriptorSearch>::flags_move, move);
 								}
-								this->template endMoveAccepted<false, -1>(move, sc, evaluate(alpha, best), fromStack, depthRemaining);
+								this->template endMoveAccepted<false, -1>(move, depthRemaining);
 								alpha = sc;
 							}
 							else
@@ -332,7 +332,7 @@ namespace pygmalion
 										if (allowStoreTT)
 											m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, best, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
 									}
-									this->template endMoveRefuted<false, -1>(move, best, evaluate(alpha, best), fromStack, depthRemaining);
+									this->template endMoveRefuted<false, -1>(move, depthRemaining);
 									m_Heuristics.endNodeCut(m_Stack);
 									return true;
 								}
@@ -342,7 +342,7 @@ namespace pygmalion
 									if (allowStoreTT)
 										m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, sc, transpositiontable<descriptorSearch>::flags_upper | transpositiontable<descriptorSearch>::flags_move, move);
 								}
-								this->template endMoveAccepted<false, -1>(move, best, evaluate(alpha, best), fromStack, depthRemaining);
+								this->template endMoveAccepted<false, -1>(move, depthRemaining);
 								alpha = sc;
 							}
 							else
@@ -371,7 +371,7 @@ namespace pygmalion
 								if (allowStoreTT)
 									m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, best, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
 							}
-							this->template endMoveRefuted<false, -1>(move, best, evaluate(alpha, best), fromStack, depthRemaining);
+							this->template endMoveRefuted<false, -1>(move, depthRemaining);
 							return true;
 						}
 						principalVariation.combine(move, subVariation);
@@ -381,7 +381,7 @@ namespace pygmalion
 							if (allowStoreTT)
 								m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, best, transpositiontable<descriptorSearch>::flags_upper | transpositiontable<descriptorSearch>::flags_move, move);
 						}
-						this->template endMoveAccepted<false, -1>(move, best, evaluate(alpha, best), fromStack, depthRemaining);
+						this->template endMoveAccepted<false, -1>(move, depthRemaining);
 						alpha = best;
 					}
 					else
@@ -390,7 +390,7 @@ namespace pygmalion
 				}
 			}
 			template<bool PRUNED>
-			PYGMALION_INLINE bool zwsearchSubNode(const movebitsType move, scoreType& alpha, scoreType& beta, scoreType& best, movebitsType& bestmove, const depthType depthRemaining, const uint_t<countPlayers, false> nullMoveHistory, const bool fromStack, bool& allowStoreTT, const knuthType expectedNodeType) noexcept
+			PYGMALION_INLINE bool zwsearchSubNode(const movebitsType move, scoreType& alpha, scoreType& beta, scoreType& best, movebitsType& bestmove, const depthType depthRemaining, const uint_t<countPlayers, false> nullMoveHistory, bool& allowStoreTT, const knuthType expectedNodeType) noexcept
 			{
 				this->template beginMove<-1>(move);
 				bool bCanPrune{ true };
@@ -440,7 +440,7 @@ namespace pygmalion
 							if (allowStoreTT)
 								m_Heuristics.transpositionTable().store(m_Stack, depthRemaining, best, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
 						}
-						this->template endMoveRefuted<PRUNED, -1>(move, best, evaluate(alpha, best), fromStack, depthRemaining);
+						this->template endMoveRefuted<PRUNED, -1>(move, depthRemaining);
 						m_Heuristics.endNodeCut(m_Stack);
 						return true;
 					}
@@ -450,7 +450,7 @@ namespace pygmalion
 				return false;
 			}
 			template<int QSDEPTH, bool USE_TT>
-			PYGMALION_INLINE bool qsearchSubNode(const movebitsType move, scoreType& alpha, scoreType& beta, scoreType& best, movebitsType& bestmove, variationType& principalVariation, const bool fromStack, bool& allowStoreTT) noexcept
+			PYGMALION_INLINE bool qsearchSubNode(const movebitsType move, scoreType& alpha, scoreType& beta, scoreType& best, movebitsType& bestmove, variationType& principalVariation, bool& allowStoreTT) noexcept
 			{
 				constexpr const int QSPHASE{ (QSDEPTH < (countQsPhase1Plies + countQsPhase2Plies)) ? ((QSDEPTH < countQsPhase1Plies) ? 0 : 1) : 2 };
 				this->template beginMove<QSPHASE>(move);
@@ -504,7 +504,7 @@ namespace pygmalion
 								m_Heuristics.transpositionTable().store(m_Stack, ttDraft, best, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
 							}
 						}
-						this->template endMoveRefuted<false, QSPHASE>(move, best, evaluate(oldAlpha, best), fromStack, ttDraft);
+						this->template endMoveRefuted<false, QSPHASE>(move, ttDraft);
 						m_Heuristics.template endNodeCut<PLAYER>(m_Stack);
 						return true;
 					}
@@ -514,11 +514,11 @@ namespace pygmalion
 				if (!bEnded)
 					this->template endMoveSilent<false, QSPHASE>(move, ttDraft);
 				else
-					this->template endMoveAccepted<false, QSPHASE>(move, alpha, evaluate(oldAlpha, best), fromStack, ttDraft);
+					this->template endMoveAccepted<false, QSPHASE>(move, ttDraft);
 				return false;
 			}
 			template<int QSDEPTH, bool USE_TT>
-			PYGMALION_INLINE bool qzwsearchSubNode(const movebitsType move, scoreType& alpha, scoreType& beta, scoreType& best, movebitsType& bestmove, const bool fromStack, bool& allowStoreTT, const knuthType expectedNodeType) noexcept
+			PYGMALION_INLINE bool qzwsearchSubNode(const movebitsType move, scoreType& alpha, scoreType& beta, scoreType& best, movebitsType& bestmove, bool& allowStoreTT, const knuthType expectedNodeType) noexcept
 			{
 				constexpr const int QSPHASE{ (QSDEPTH < (countQsPhase1Plies + countQsPhase2Plies)) ? ((QSDEPTH < countQsPhase1Plies) ? 0 : 1) : 2 };
 				this->template beginMove<QSPHASE>(move);
@@ -554,7 +554,7 @@ namespace pygmalion
 							m_Heuristics.transpositionTable().store(m_Stack, ttDraft, best, transpositiontable<descriptorSearch>::flags_lower | transpositiontable<descriptorSearch>::flags_move, move);
 						}
 					}
-					this->template endMoveRefuted<false, QSPHASE>(move, best, evaluate(alpha, best), fromStack, ttDraft);
+					this->template endMoveRefuted<false, QSPHASE>(move, ttDraft);
 					m_Heuristics.template endNodeCut<PLAYER>(m_Stack);
 					return true;
 				}
@@ -738,10 +738,10 @@ namespace pygmalion
 				allowStoreTT = true;
 				constexpr const scoreType zero{ scoreType::zero() };
 				constexpr const depthType ttDraft{ node::template qsearchDraft<QSDEPTH>() };
-				if ((!hasLegalMove) && this->template nextTacticalMove<QSPHASE, false>(ttDraft, move, fromStack))
+				if ((!hasLegalMove) && this->template nextTacticalMove<QSPHASE, false>(ttDraft, move))
 				{
 					hasLegalMove = true;
-					if (this->template qsearchSubNode<QSDEPTH, USE_TT>(move, alpha, beta, best, bestmove, principalVariation, fromStack, allowStoreTT))
+					if (this->template qsearchSubNode<QSDEPTH, USE_TT>(move, alpha, beta, best, bestmove, principalVariation, allowStoreTT))
 					{
 						this->template resetMoveGen<false, true>();
 						return best;
@@ -754,10 +754,10 @@ namespace pygmalion
 					if constexpr (staticMoveScores)
 					{
 						const auto lambda{ [this](const movebitsType& bits) { return this->m_Heuristics.staticMoveScore(m_Stack, bits, m_Depth); } };
-						hasLegalMove = m_Stack.template hasLegalMove<decltype(lambda), false>(m_Depth, m_Heuristics.feedback(), lambda);
+						hasLegalMove = m_Stack.template hasLegalMove<decltype(lambda), false>(lambda);
 					}
 					else
-						hasLegalMove = m_Stack.hasLegalMove(m_Depth, m_Heuristics.feedback());
+						hasLegalMove = m_Stack.hasLegalMove();
 					if (hasLegalMove)
 					{
 						if constexpr (USE_TT)
@@ -778,9 +778,9 @@ namespace pygmalion
 						return late;
 					}
 				}
-				while (this->template nextTacticalMove<QSPHASE, false>(ttDraft, move, fromStack))
+				while (this->template nextTacticalMove<QSPHASE, false>(ttDraft, move))
 				{
-					if (this->template qsearchSubNode<QSDEPTH, USE_TT>(move, alpha, beta, best, bestmove, principalVariation, fromStack, allowStoreTT))
+					if (this->template qsearchSubNode<QSDEPTH, USE_TT>(move, alpha, beta, best, bestmove, principalVariation, allowStoreTT))
 					{
 						this->template resetMoveGen<false, true>();
 						return best;
@@ -882,16 +882,15 @@ namespace pygmalion
 				movebitsType bestmove;
 				bool hasLegalMove{ false };
 				movebitsType move;
-				bool fromStack;
 				allowStoreTT = true;
 				constexpr const scoreType zero{ scoreType::zero() };
 				constexpr const depthType ttDraft{ node::template qsearchDraft<QSDEPTH>() };
 				if (expectedNodeType == CUTnode)
 				{
-					if ((!hasLegalMove) && this->template nextTacticalMove<QSPHASE, true>(ttDraft, move, fromStack))
+					if ((!hasLegalMove) && this->template nextTacticalMove<QSPHASE, true>(ttDraft, move))
 					{
 						hasLegalMove = true;
-						if (this->qzwsearchSubNode<QSDEPTH, USE_TT>(move, alpha, beta, best, bestmove, fromStack, allowStoreTT, -expectedNodeType))
+						if (this->qzwsearchSubNode<QSDEPTH, USE_TT>(move, alpha, beta, best, bestmove, allowStoreTT, -expectedNodeType))
 						{
 							this->template resetMoveGen<false, true>();
 							return best;
@@ -900,10 +899,10 @@ namespace pygmalion
 				}
 				else
 				{
-					if ((!hasLegalMove) && this->template nextTacticalMove<QSPHASE, false>(ttDraft, move, fromStack))
+					if ((!hasLegalMove) && this->template nextTacticalMove<QSPHASE, false>(ttDraft, move))
 					{
 						hasLegalMove = true;
-						if (this->qzwsearchSubNode<QSDEPTH, USE_TT>(move, alpha, beta, best, bestmove, fromStack, allowStoreTT, -expectedNodeType))
+						if (this->qzwsearchSubNode<QSDEPTH, USE_TT>(move, alpha, beta, best, bestmove, allowStoreTT, -expectedNodeType))
 						{
 							this->template resetMoveGen<false, true>();
 							return best;
@@ -918,9 +917,9 @@ namespace pygmalion
 					{
 						const auto lambda{ [this](const movebitsType& bits) { return this->m_Heuristics.staticMoveScore(m_Stack, bits, m_Depth); } };
 						if (expectedNodeType == CUTnode)
-							hasLegalMove = m_Stack.template hasLegalMove<decltype(lambda), true>(m_Depth, m_Heuristics.feedback(), lambda);
+							hasLegalMove = m_Stack.template hasLegalMove<decltype(lambda), true>(lambda);
 						else
-							hasLegalMove = m_Stack.template hasLegalMove<decltype(lambda), false>(m_Depth, m_Heuristics.feedback(), lambda);
+							hasLegalMove = m_Stack.template hasLegalMove<decltype(lambda), false>(lambda);
 					}
 					else
 						hasLegalMove = m_Stack.hasLegalMove(m_Depth, m_Heuristics.feedback());
@@ -946,9 +945,9 @@ namespace pygmalion
 				}
 				if (expectedNodeType == CUTnode)
 				{
-					while (this->template nextTacticalMove<QSPHASE, true>(ttDraft, move, fromStack))
+					while (this->template nextTacticalMove<QSPHASE, true>(ttDraft, move))
 					{
-						if (this->qzwsearchSubNode<QSDEPTH, USE_TT>(move, alpha, beta, best, bestmove, fromStack, allowStoreTT, -expectedNodeType))
+						if (this->qzwsearchSubNode<QSDEPTH, USE_TT>(move, alpha, beta, best, bestmove, allowStoreTT, -expectedNodeType))
 						{
 							this->template resetMoveGen<false, true>();
 							return best;
@@ -957,9 +956,9 @@ namespace pygmalion
 				}
 				else
 				{
-					while (this->template nextTacticalMove<QSPHASE, false>(ttDraft, move, fromStack))
+					while (this->template nextTacticalMove<QSPHASE, false>(ttDraft, move))
 					{
-						if (this->qzwsearchSubNode<QSDEPTH, USE_TT>(move, alpha, beta, best, bestmove, fromStack, allowStoreTT, -expectedNodeType))
+						if (this->qzwsearchSubNode<QSDEPTH, USE_TT>(move, alpha, beta, best, bestmove, allowStoreTT, -expectedNodeType))
 						{
 							this->template resetMoveGen<false, true>();
 							return best;
@@ -977,10 +976,10 @@ namespace pygmalion
 				bool fromStack;
 				if (expectedNodeType == CUTnode)
 				{
-					if ((!hasLegalMove) && this->template nextMove<PRUNED, true>(depthRemaining, move, fromStack))
+					if ((!hasLegalMove) && this->template nextMove<PRUNED, true>(depthRemaining, move))
 					{
 						hasLegalMove = true;
-						if (this->zwsearchSubNode<PRUNED>(move, alpha, beta, best, bestmove, depthRemaining, noNullMove(nullMoveHistory), fromStack, allowStoreTT, CUTnode))
+						if (this->zwsearchSubNode<PRUNED>(move, alpha, beta, best, bestmove, depthRemaining, noNullMove(nullMoveHistory), allowStoreTT, CUTnode))
 						{
 							this->template resetMoveGen<PRUNED, false>();
 							return best;
@@ -989,10 +988,10 @@ namespace pygmalion
 				}
 				else
 				{
-					if ((!hasLegalMove) && this->template nextMove<PRUNED, false>(depthRemaining, move, fromStack))
+					if ((!hasLegalMove) && this->template nextMove<PRUNED, false>(depthRemaining, move))
 					{
 						hasLegalMove = true;
-						if (this->zwsearchSubNode<PRUNED>(move, alpha, beta, best, bestmove, depthRemaining, noNullMove(nullMoveHistory), fromStack, allowStoreTT, -expectedNodeType))
+						if (this->zwsearchSubNode<PRUNED>(move, alpha, beta, best, bestmove, depthRemaining, noNullMove(nullMoveHistory), allowStoreTT, -expectedNodeType))
 						{
 							this->template resetMoveGen<PRUNED, false>();
 							return best;
@@ -1011,10 +1010,10 @@ namespace pygmalion
 				}
 				if (expectedNodeType == CUTnode)
 				{
-					while (this->template nextMove<PRUNED, true>(depthRemaining, move, fromStack))
+					while (this->template nextMove<PRUNED, true>(depthRemaining, move))
 					{
 						bool allowStoreTTsubnode;
-						if (this->zwsearchSubNode<PRUNED>(move, alpha, beta, best, bestmove, depthRemaining, noNullMove(nullMoveHistory), fromStack, allowStoreTT, CUTnode))
+						if (this->zwsearchSubNode<PRUNED>(move, alpha, beta, best, bestmove, depthRemaining, noNullMove(nullMoveHistory), allowStoreTT, CUTnode))
 						{
 							this->template resetMoveGen<PRUNED, false>();
 							return best;
@@ -1023,10 +1022,10 @@ namespace pygmalion
 				}
 				else
 				{
-					while (this->template nextMove<PRUNED, false>(depthRemaining, move, fromStack))
+					while (this->template nextMove<PRUNED, false>(depthRemaining, move))
 					{
 						bool allowStoreTTsubnode;
-						if (this->zwsearchSubNode<PRUNED>(move, alpha, beta, best, bestmove, depthRemaining, noNullMove(nullMoveHistory), fromStack, allowStoreTT, CUTnode))
+						if (this->zwsearchSubNode<PRUNED>(move, alpha, beta, best, bestmove, depthRemaining, noNullMove(nullMoveHistory), allowStoreTT, CUTnode))
 						{
 							this->template resetMoveGen<PRUNED, false>();
 							return best;
@@ -1045,12 +1044,11 @@ namespace pygmalion
 				constexpr const scoreType minimum{ scoreType::minimum() };
 				scoreType best{ minimum };
 				movebitsType bestmove;
-				bool fromStack;
 				allowStoreTT = true;
-				if ((!hasLegalMove) && this->template nextMove<false, false>(depthRemaining, move, fromStack))
+				if ((!hasLegalMove) && this->template nextMove<false, false>(depthRemaining, move))
 				{
 					hasLegalMove = true;
-					if (this->searchSubNode<false, ANALYZE>(move, alpha, beta, best, bestmove, depthRemaining, principalVariation, fromStack, allowStoreTT, pCurrentMove))
+					if (this->searchSubNode<false, ANALYZE>(move, alpha, beta, best, bestmove, depthRemaining, principalVariation, allowStoreTT, pCurrentMove))
 					{
 						this->template resetMoveGen<false, false>();
 						return best;
@@ -1066,9 +1064,9 @@ namespace pygmalion
 					this->template resetMoveGen<false, false>();
 					return late;
 				}
-				while (this->template nextMove<false, false>(depthRemaining, move, fromStack))
+				while (this->template nextMove<false, false>(depthRemaining, move))
 				{
-					if (this->searchSubNode<true, ANALYZE>(move, alpha, beta, best, bestmove, depthRemaining, principalVariation, fromStack, allowStoreTT, pCurrentMove))
+					if (this->searchSubNode<true, ANALYZE>(move, alpha, beta, best, bestmove, depthRemaining, principalVariation, allowStoreTT, pCurrentMove))
 					{
 						this->template resetMoveGen<false, false>();
 						return best;
@@ -1330,7 +1328,6 @@ namespace pygmalion
 				m_Eval = zero;
 				m_FutileGap = zero;
 				m_DeltaGap = zero;
-				m_Heuristics.feedback().sortPasses(m_Depth);
 			}
 			PYGMALION_INLINE node(const parentType& parent, const movebitsType moveBits) noexcept :
 				m_Stack(parent.m_Stack, moveBits),
@@ -1362,7 +1359,6 @@ namespace pygmalion
 				m_Eval = zero;
 				m_FutileGap = zero;
 				m_DeltaGap = zero;
-				//m_Heuristics.feedback().sortPasses(m_Depth);
 			}
 			bool lastMoveFromTT() const noexcept
 			{
@@ -1471,9 +1467,8 @@ namespace pygmalion
 				return m_Stack;
 			}
 			template<bool PRUNED, bool EXPECT_CUTOFF>
-			bool nextMove(const depthType depthRemaining, movebitsType& movebits, bool& fromStack) noexcept
+			bool nextMove(const depthType depthRemaining, movebitsType& movebits) noexcept
 			{
-				fromStack = false;
 				if (m_MoveGeneratorStage < 0)
 				{
 					m_MoveGeneratorStage = 0;
@@ -1587,7 +1582,7 @@ namespace pygmalion
 					if constexpr (staticMoveScores)
 					{
 						const auto lambda{ [this](const movebitsType& bits) { return this->m_Heuristics.staticMoveScore(m_Stack, bits, m_Depth); } };
-						while (m_Stack.template nextCriticalMove<decltype(lambda), EXPECT_CUTOFF && allowSelectionSort>(testBits, m_Depth, m_Heuristics.feedback(), lambda))
+						while (m_Stack.template nextCriticalMove<decltype(lambda), EXPECT_CUTOFF && allowSelectionSort>(testBits, lambda))
 						{
 							const bool bDouble{ m_MovesTT.contains(testBits) || m_QuietMovesKiller.contains(testBits) || m_TacticalMovesKiller.contains(testBits) };
 							movebits = testBits;
@@ -1595,14 +1590,13 @@ namespace pygmalion
 							++m_Move;
 							if (!bDouble)
 							{
-								fromStack = true;
 								return true;
 							}
 						}
 					}
 					else
 					{
-						while (m_Stack.nextCriticalMove(testBits, m_Depth, m_Heuristics.feedback()))
+						while (m_Stack.nextCriticalMove(testBits))
 						{
 							const bool bDouble{ m_MovesTT.contains(testBits) || m_QuietMovesKiller.contains(testBits) || m_TacticalMovesKiller.contains(testBits) };
 							movebits = testBits;
@@ -1610,7 +1604,6 @@ namespace pygmalion
 							++m_Move;
 							if (!bDouble)
 							{
-								fromStack = true;
 								return true;
 							}
 						}
@@ -1621,7 +1614,7 @@ namespace pygmalion
 					if constexpr (staticMoveScores)
 					{
 						const auto lambda{ [this](const movebitsType& bits) { return this->m_Heuristics.staticMoveScore(m_Stack, bits, m_Depth); } };
-						while (m_Stack.template nextMove<decltype(lambda), EXPECT_CUTOFF && allowSelectionSort>(testBits, m_Depth, m_Heuristics.feedback(), lambda))
+						while (m_Stack.template nextMove<decltype(lambda), EXPECT_CUTOFF && allowSelectionSort>(testBits, lambda))
 						{
 							const bool bDouble{ m_MovesTT.contains(testBits) || m_QuietMovesKiller.contains(testBits) || m_TacticalMovesKiller.contains(testBits) };
 							movebits = testBits;
@@ -1629,22 +1622,20 @@ namespace pygmalion
 							++m_Move;
 							if (!bDouble)
 							{
-								fromStack = true;
 								return true;
 							}
 						}
 					}
 					else
 					{
-						while (m_Stack.nextMove(testBits, m_Depth, m_Heuristics.feedback()))
+						while (m_Stack.nextMove(testBits))
 						{
 							const bool bDouble{ m_MovesTT.contains(testBits) || m_QuietMovesKiller.contains(testBits) || m_TacticalMovesKiller.contains(testBits) };
+							movebits = testBits;
 							m_Moves.add(movebits);
 							++m_Move;
 							if (!bDouble)
 							{
-								fromStack = true;
-								movebits = testBits;
 								return true;
 							}
 						}
@@ -1653,9 +1644,8 @@ namespace pygmalion
 				return false;
 			}
 			template<int QSPHASE, bool EXPECT_CUTOFF>
-			bool nextTacticalMove(const depthType depthRemaining, movebitsType& movebits, bool& fromStack) noexcept
+			bool nextTacticalMove(const depthType depthRemaining, movebitsType& movebits) noexcept
 			{
-				fromStack = false;
 				if (m_TacticalMoveGeneratorStage < 0)
 				{
 					m_TacticalMoveGeneratorStage = 0;
@@ -1713,7 +1703,7 @@ namespace pygmalion
 					const auto lambda{ [this](const movebitsType& bits) { return this->m_Heuristics.staticMoveScore(m_Stack, bits, m_Depth); } };
 					if constexpr (QSPHASE == 0)
 					{
-						while (m_Stack.template nextQSPhase1Move<decltype(lambda), EXPECT_CUTOFF && allowSelectionSort>(testBits, m_Depth, m_Heuristics.feedback(), lambda))
+						while (m_Stack.template nextQSPhase1Move<decltype(lambda), EXPECT_CUTOFF && allowSelectionSort>(testBits, lambda))
 						{
 							movebits = testBits;
 							m_TacticalMoves.add(testBits);
@@ -1721,14 +1711,13 @@ namespace pygmalion
 							const bool bDouble{ m_MovesTT.contains(movebits) || m_TacticalMovesKiller.contains(movebits) };
 							if (!bDouble)
 							{
-								fromStack = true;
 								return true;
 							}
 						}
 					}
 					else if constexpr (QSPHASE == 1)
 					{
-						while (m_Stack.template nextQSPhase2Move<decltype(lambda), EXPECT_CUTOFF && allowSelectionSort>(testBits, m_Depth, m_Heuristics.feedback(), lambda))
+						while (m_Stack.template nextQSPhase2Move<decltype(lambda), EXPECT_CUTOFF && allowSelectionSort>(testBits, lambda))
 						{
 							movebits = testBits;
 							m_TacticalMoves.add(testBits);
@@ -1736,14 +1725,13 @@ namespace pygmalion
 							const bool bDouble{ m_MovesTT.contains(movebits) || m_TacticalMovesKiller.contains(movebits) };
 							if (!bDouble)
 							{
-								fromStack = true;
 								return true;
 							}
 						}
 					}
 					else
 					{
-						while (m_Stack.template nextQSPhase3Move<decltype(lambda), EXPECT_CUTOFF && allowSelectionSort>(testBits, m_Depth, m_Heuristics.feedback(), lambda))
+						while (m_Stack.template nextQSPhase3Move<decltype(lambda), EXPECT_CUTOFF && allowSelectionSort>(testBits, lambda))
 						{
 							movebits = testBits;
 							m_TacticalMoves.add(testBits);
@@ -1751,7 +1739,6 @@ namespace pygmalion
 							const bool bDouble{ m_TacticalMovesTT.contains(testBits) || m_TacticalMovesKiller.contains(testBits) };
 							if (!bDouble)
 							{
-								fromStack = true;
 								return true;
 							}
 						}
@@ -1769,7 +1756,6 @@ namespace pygmalion
 							const bool bDouble{ m_MovesTT.contains(movebits) || m_TacticalMovesKiller.contains(movebits) };
 							if (!bDouble)
 							{
-								fromStack = true;
 								return true;
 							}
 						}
@@ -1784,7 +1770,6 @@ namespace pygmalion
 							const bool bDouble{ m_TacticalMovesTT.contains(testBits) || m_TacticalMovesKiller.contains(testBits) };
 							if (!bDouble)
 							{
-								fromStack = true;
 								return true;
 							}
 						}
@@ -1799,7 +1784,6 @@ namespace pygmalion
 							const bool bDouble{ m_TacticalMovesTT.contains(testBits) || m_TacticalMovesKiller.contains(testBits) };
 							if (!bDouble)
 							{
-								fromStack = true;
 								return true;
 							}
 						}

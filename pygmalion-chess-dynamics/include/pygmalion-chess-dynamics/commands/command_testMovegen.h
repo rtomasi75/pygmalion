@@ -103,8 +103,7 @@ namespace pygmalion::chess::dynamics
 					profiler p;
 					p.start();
 					stackType<PLAYER> stack{ stackType<PLAYER>(position, history, pContext) };
-					this->feedback().expandToDepth(set.depth());
-					std::uintmax_t computed{ generatorType::template perft<PLAYER,stackType<PLAYER>>(stack, set.depth(),0, nodes, this->feedback()) };
+					std::uintmax_t computed{ generatorType::template perft<PLAYER,stackType<PLAYER>>(stack, set.depth(),0, nodes) };
 					p.stop();
 					delete[] pContext;
 					duration += p.duration();

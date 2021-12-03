@@ -13,25 +13,24 @@ namespace pygmalion::dynamics
 		using movegenFeedback = typename generatorType::movegenFeedback;
 	private:
 		template<size_t PLAYER>
-		static std::uintmax_t perft(const stackType<PLAYER>& stack, const size_t depth, const size_t maxDepth, movegenFeedback& feedback, std::uintmax_t& nodes) noexcept
+		static std::uintmax_t perft(const stackType<PLAYER>& stack, const size_t depth, const size_t maxDepth, std::uintmax_t& nodes) noexcept
 		{
 			constexpr const playerType nextPlayer{ static_cast<playerType>(PLAYER).next() };
 			movebitsType moveBits;
 			std::uintmax_t counter{ 0 };
-			feedback.expandToDepth(depth);
 			if (depth == maxDepth)
 			{
-				while (stack.nextMove(moveBits, depth, feedback))
+				while (stack.nextMove(moveBits))
 				{
 					counter++;
 				}
 			}
 			else
 			{
-				while (stack.nextMove(moveBits, depth, feedback))
+				while (stack.nextMove(moveBits))
 				{
 					const stackType<static_cast<size_t>(nextPlayer)> substack{ stackType<static_cast<size_t>(nextPlayer)>(stack,moveBits) };
-					counter += perft(substack, depth + 1, maxDepth, feedback, nodes);
+					counter += perft(substack, depth + 1, maxDepth, nodes);
 				}
 			}
 			nodes++;
@@ -52,7 +51,7 @@ namespace pygmalion::dynamics
 						p.start();
 						stackType<PLAYER> stack{ stackType<PLAYER>(this->position(),this->history(), pContext) };
 						std::uintmax_t nodes{ 0 };
-						const std::uintmax_t leafs{ this->template perft<PLAYER>(stack,0, i, this->feedback(), nodes) };
+						const std::uintmax_t leafs{ this->template perft<PLAYER>(stack,0, i, nodes) };
 						p.stop();
 						this->output() << "depth: " << std::setw(2) << static_cast<int>(i + 1) << " leafs: " << parser::valueToString(static_cast<double>(leafs), "") << " nodes: " << parser::valueToString(static_cast<double>(nodes), "") << " time: " << parser::durationToString(p.duration()) << " speed: " << p.computeSpeed(nodes, "N") << ", " << p.computeSpeed(leafs + nodes, "mv") << std::endl;
 						this->flushOutput();

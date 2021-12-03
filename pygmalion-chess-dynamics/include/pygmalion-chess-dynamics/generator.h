@@ -5469,9 +5469,7 @@ namespace pygmalion::chess
 			if (generatorType::template isMoveCritical<PLAYER, stackType<PLAYER>>(stack, mv))
 			{
 				stackType<static_cast<size_t>(side.next())> substack{ stackType<static_cast<size_t>(side.next())>(stack,mv) };
-				movegenFeedback fb;
-				fb.expandToDepth(1);
-				if (substack.hasLegalMove(0, fb))
+				if (substack.hasLegalMove())
 					ret += "+";
 				else
 					ret += "#";

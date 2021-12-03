@@ -23,7 +23,7 @@ namespace pygmalion::chess::dynamics
 					if (stack.isPositionCritical())
 					{
 						movebitsType moveBits;
-						if (stack.nextMove(moveBits, 0, this->feedback()))
+						if (stack.nextMove(moveBits))
 							this->output() << "Check." << std::endl;
 						else
 							this->output() << "Checkmate." << std::endl;

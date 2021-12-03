@@ -29,13 +29,21 @@ namespace pygmalion::search
 					movebitsType movebits;
 					bool hasMoves{ false };
 					bool fromStack;
-					this->feedback().expandToDepth(this->history().length() + 1);
 					this->output() << "Generated:" << std::endl;
-					while (node.template nextMove<false, false>(0, movebits, fromStack))
+					while (node.template nextMove<false, false>(0, movebits))
 					{
 						this->output() << "    ";
 						hasMoves = true;
-						if (fromStack)
+						this->output() << generatorType::moveToSAN(node.stack(), movebits) << "\t";
+						if constexpr (staticMoveScores)
+							this->output() << this->searchEngine().heuristics().staticMoveScore(node.stack(), movebits, this->searchEngine().history().length()) << "\t";
+						if (node.lastMoveFromTT())
+							this->output() << "hash move\t";
+						else if (node.lastMoveIsTacticalKiller())
+							this->output() << "tactical killer\t";
+						else if (node.lastMoveIsKiller())
+							this->output() << "quiet killer\t";
+						else
 						{
 							const stageType stage{ node.stack().lastNormalStage() };
 							const passType pass{ node.stack().lastNormalPass() };
@@ -44,20 +52,7 @@ namespace pygmalion::search
 							this->output() << node.stack().lastNormalScore() << "\t";
 							this->output() << generatorType::passToString(stage, pass) << "\t";
 						}
-						else
-						{
-							this->output() << generatorType::moveToSAN(node.stack(), movebits) << "\t";
-							if constexpr(staticMoveScores)
-								this->output() << this->searchEngine().heuristics().staticMoveScore(node.stack(), movebits, this->searchEngine().history().length()) << "\t";
-							if (node.lastMoveFromTT())
-								this->output() << "hash move\t";
-							else if (node.lastMoveIsTacticalKiller())
-								this->output() << "tactical killer\t";
-							else if (node.lastMoveIsKiller())
-								this->output() << "quiet killer\t";
-							else
-								this->output() << "cached\t";
-						}
+						this->output() << std::endl;
 						this->output() << std::endl;
 						this->flushOutput();
 					}

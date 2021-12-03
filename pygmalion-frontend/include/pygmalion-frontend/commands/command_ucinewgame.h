@@ -14,7 +14,6 @@ namespace pygmalion::frontend
 			if ((this->front().isUCI()) && (cmd == "ucinewgame"))
 			{
 				this->mechanicsEngine().history().clear();
-				this->dynamicsEngine().feedback().reset();
 				this->searchEngine().heuristics().clear();
 				return true;
 			}

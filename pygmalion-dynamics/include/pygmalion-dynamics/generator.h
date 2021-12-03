@@ -26,135 +26,24 @@ namespace pygmalion
 		class movegenFeedback
 		{
 		private:
-			class feedback
+			constexpr static std::array<std::array<passType, generatorType::countMaxMovegenPasses()>, generatorType::countTotalMovegenStages()> m_Indices
 			{
-			private:
-				std::array<std::array<std::uint64_t, generatorType::countMaxMovegenPasses()>, generatorType::countTotalMovegenStages()> m_MoveCounters;
-				std::array<std::array<passType, generatorType::countMaxMovegenPasses()>, generatorType::countTotalMovegenStages()> m_Indices;
-				std::array<std::array<heuristicScore, generatorType::countMaxMovegenPasses()>, generatorType::countTotalMovegenStages()> m_ScoreCounters;
-				void sortIndicesStage(const stageType stage, const movegenFeedback& mf, const size_t depth) noexcept
-				{
-					std::array <scoreType, generatorType::countMaxMovegenPasses()> scores;
-					for (size_t pass = 0; pass < generatorType::countMovegenPasses(stage); pass++)
+				arrayhelper::generate<generatorType::countTotalMovegenStages(), std::array<passType, generatorType::countMaxMovegenPasses()>>(
+					[](const size_t stage)
 					{
-						const passType idx{ index(stage,pass) };
-						scores[pass] = mf.scoreRaw(stage, idx, depth);
+						return arrayhelper::generate<generatorType::countMaxMovegenPasses(), passType>(
+							[stage](const size_t i)
+							{
+								return static_cast<passType>(i);
+							}
+						);
 					}
-					sort<passType, scoreType>::sortValues(m_Indices[static_cast<size_t>(stage)].data(), scores.data(), generatorType::countMovegenPasses(stage));
-				}
-				void resetStage(const stageType stage) noexcept
-				{
-					constexpr const heuristicScore zero{ heuristicScore::zero() };
-					for (size_t i = 0; i < generatorType::countMaxMovegenPasses(); i++)
-					{
-						m_MoveCounters[stage][i] = 0;
-						m_ScoreCounters[stage][i] = zero;
-						m_Indices[stage][i] = i;
-					}
-				}
-			public:
-				void sortIndices(const movegenFeedback& mf, const size_t depth) noexcept
-				{
-					for (size_t stage = 0; stage < generatorType::countTotalMovegenStages(); stage++)
-						sortIndicesStage(stage, mf, depth);
-				}
-				PYGMALION_INLINE passType index(const stageType stage, const passType pass) const noexcept
-				{
-					return m_Indices[stage][pass];
-				}
-				feedback() noexcept
-				{
-					reset();
-				}
-				scoreType scoreRaw(const stageType stage, const passType pass) const noexcept
-				{
-					if (m_MoveCounters[static_cast<size_t>(stage)][static_cast<size_t>(pass)] == 0)
-					{
-						constexpr const scoreType minimum{ scoreType::minimum() };
-						return minimum;
-					}
-					const heuristicScore score{ m_ScoreCounters[static_cast<size_t>(stage)][static_cast<size_t>(pass)] };
-					return static_cast<scoreType>(score / m_MoveCounters[static_cast<size_t>(stage)][static_cast<size_t>(pass)]);
-				}
-				PYGMALION_INLINE const std::uint64_t& counterRaw(const stageType stage, const passType pass) const noexcept
-				{
-					return m_MoveCounters[stage][pass];
-				}
-				PYGMALION_INLINE void incrementMoveRaw(const stageType stage, const passType pass, const scoreType score, const scoreType eval) noexcept
-				{
-					if (score.isOpen())
-					{
-						m_ScoreCounters[stage][pass] += static_cast<heuristicScore>(score - eval);
-						m_MoveCounters[stage][pass]++;
-					}
-				}
-				void reset() noexcept
-				{
-					for (size_t stage = 0; stage < generatorType::countTotalMovegenStages(); stage++)
-						resetStage(static_cast<stageType>(stage));
-				}
+				)
 			};
-			mutable std::vector<feedback> m_Feedback;
 		public:
-			movegenFeedback() noexcept :
-				m_Feedback{ std::vector<feedback>(0) }
+			constexpr static passType index(const stageType stage, const passType pass) noexcept
 			{
-
-			}
-			void sortPasses(const size_t depth) noexcept
-			{
-				for (size_t i = depth; i < m_Feedback.size(); i++)
-					m_Feedback[i].sortIndices(*this, i);
-				//	m_Feedback[depth].sortIndices(*this, depth);
-			}
-			PYGMALION_INLINE  const std::uint64_t& counterRaw(const stageType stage, const passType pass, const size_t depth) const noexcept
-			{
-				return m_Feedback[depth].counterRaw(stage, pass);
-			}
-			PYGMALION_INLINE  scoreType scoreRaw(const stageType stage, const passType pass, const size_t depth) const noexcept
-			{
-				constexpr const scoreType minimum{ scoreType::minimum() };
-				const scoreType scoreFrontier{ m_Feedback[depth].scoreRaw(stage, pass) };
-				if (scoreFrontier > minimum)
-				{
-					if (depth >= 2)
-					{
-						const scoreType scorePreFrontier{ m_Feedback[depth - 2].scoreRaw(stage, pass) };
-						if (scorePreFrontier > minimum)
-						{
-							return (scorePreFrontier + scoreFrontier) / 2;
-						}
-						else
-							return scoreFrontier;
-					}
-					else
-						return scoreFrontier;
-				}
-				else
-					return minimum;
-			}
-			void cutMoveRaw(const stageType stage, const passType pass, const size_t depth, const scoreType score, const scoreType eval) noexcept
-			{
-				m_Feedback[depth].incrementMoveRaw(stage, pass, score, eval);
-			}
-			void allMoveRaw(const stageType stage, const passType pass, const size_t depth, const scoreType score, const scoreType eval) noexcept
-			{
-				m_Feedback[depth].incrementMoveRaw(stage, pass, score, eval);
-			}
-			void reset() noexcept
-			{
-				m_Feedback.clear();
-			}
-			PYGMALION_INLINE  passType index(const stageType stage, const passType pass, const size_t depth) const noexcept
-			{
-				return m_Feedback[depth].index(stage, pass);
-			}
-			void expandToDepth(const size_t depth) const noexcept
-			{
-				while (m_Feedback.size() <= depth)
-				{
-					m_Feedback.emplace_back(feedback());
-				}
+				return m_Indices[stage][pass];
 			}
 		};
 		class context :
@@ -436,7 +325,7 @@ namespace pygmalion
 			{
 				arrayhelper::generate< countCriticalStages, stageType>([](const size_t index) {return generatorType::countMovegenPasses(generatorType::movegenStage(movegenPhase::critical, index)); })
 			};
-			bool computeHasLegalMove(const size_t depth, movegenFeedback& feedback) const
+			bool computeHasLegalMove() const
 			{
 				while (m_CurrentLegalMove >= m_pContext->normalMoves().length())
 				{
@@ -446,7 +335,7 @@ namespace pygmalion
 						{
 							if (m_CurrentNormalPass < countCriticalEvasionPasses[m_CurrentNormalStage])
 							{
-								const auto index{ feedback.index(m_CriticalEvasionStages[m_CurrentNormalStage], m_CurrentNormalPass, depth) };
+								const auto index{ generatorType::movegenFeedback::index(m_CriticalEvasionStages[m_CurrentNormalStage], m_CurrentNormalPass) };
 								generatorType::generateMoves(m_CriticalEvasionStages[m_CurrentNormalStage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->normalMoves(), index);
 								while (m_pContext->normalPasses().length() < m_pContext->normalMoves().length())
 								{
@@ -470,7 +359,7 @@ namespace pygmalion
 						{
 							if (m_CurrentNormalPass < countNormalPasses[m_CurrentNormalStage])
 							{
-								const auto index{ feedback.index(m_NormalStages[m_CurrentNormalStage], m_CurrentNormalPass, depth) };
+								const auto index{ generatorType::movegenFeedback::index(m_NormalStages[m_CurrentNormalStage], m_CurrentNormalPass) };
 								generatorType::generateMoves(m_NormalStages[m_CurrentNormalStage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->normalMoves(), index);
 								while (m_pContext->normalPasses().length() < m_pContext->normalMoves().length())
 								{
@@ -498,10 +387,10 @@ namespace pygmalion
 					}
 					++m_CurrentLegalMove;
 				}
-				return computeHasLegalMove(depth, feedback);
+				return computeHasLegalMove();
 			}
 			template<typename LAMBDA, bool EXPECT_CUTOFF>
-			bool computeHasLegalMove(const size_t depth, movegenFeedback& feedback, const LAMBDA& lambda) const
+			bool computeHasLegalMove(const LAMBDA& lambda) const
 			{
 				while (m_CurrentLegalMove >= m_pContext->normalMoves().length())
 				{
@@ -511,7 +400,7 @@ namespace pygmalion
 						{
 							if (m_CurrentNormalPass < countCriticalEvasionPasses[m_CurrentNormalStage])
 							{
-								const auto index{ feedback.index(m_CriticalEvasionStages[m_CurrentNormalStage], m_CurrentNormalPass, depth) };
+								const auto index{ generatorType::movegenFeedback::index(m_CriticalEvasionStages[m_CurrentNormalStage], m_CurrentNormalPass) };
 								generatorType::generateMoves(m_CriticalEvasionStages[m_CurrentNormalStage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->normalMoves(), index);
 								const auto start{ m_pContext->normalPasses().length() };
 								while (m_pContext->normalPasses().length() < m_pContext->normalMoves().length())
@@ -539,7 +428,7 @@ namespace pygmalion
 						{
 							if (m_CurrentNormalPass < countNormalPasses[m_CurrentNormalStage])
 							{
-								const auto index{ feedback.index(m_NormalStages[m_CurrentNormalStage], m_CurrentNormalPass, depth) };
+								const auto index{ generatorType::movegenFeedback::index(m_NormalStages[m_CurrentNormalStage], m_CurrentNormalPass) };
 								generatorType::generateMoves(m_NormalStages[m_CurrentNormalStage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->normalMoves(), index);
 								const auto start{ m_pContext->normalPasses().length() };
 								while (m_pContext->normalPasses().length() < m_pContext->normalMoves().length())
@@ -605,7 +494,7 @@ namespace pygmalion
 						++m_CurrentLegalMove;
 					}
 				}
-				return this->template computeHasLegalMove<LAMBDA, EXPECT_CUTOFF>(depth, feedback, lambda);
+				return this->template computeHasLegalMove<LAMBDA, EXPECT_CUTOFF>(lambda);
 			}
 		public:
 			PYGMALION_INLINE passType lastNormalPass() const noexcept
@@ -645,10 +534,10 @@ namespace pygmalion
 				PYGMALION_ASSERT(stageIndex < countNormalStages);
 				return m_NormalStages[stageIndex];
 			}
-			PYGMALION_INLINE passType normalPass(movegenFeedback& feedback, const size_t stageIndex, const size_t passIndex) const noexcept
+			PYGMALION_INLINE passType normalPass(const size_t stageIndex, const size_t passIndex) const noexcept
 			{
 				PYGMALION_ASSERT(stageIndex < countNormalStages);
-				return feedback.index(m_NormalStages[stageIndex], passIndex, m_History.length());
+				return generatorType::movegenFeedback::index(m_NormalStages[stageIndex], passIndex);
 			}
 			constexpr size_t countStages_QSPhase1() const noexcept
 			{
@@ -731,61 +620,21 @@ namespace pygmalion
 				}
 				return m_IsPositionCritical;
 			}
-			PYGMALION_INLINE void normalAllMove(movegenFeedback& feedback, const size_t depth, const scoreType score, const scoreType eval) const noexcept
-			{
-				feedback.allMoveRaw(m_LastNormalStage, m_LastNormalPass, depth, generatorType::template makeSubjective<PLAYER>(score), generatorType::template makeSubjective<PLAYER>(eval));
-			}
-			PYGMALION_INLINE void normalCutMove(movegenFeedback& feedback, const size_t depth, const scoreType score, const scoreType eval) const noexcept
-			{
-				feedback.cutMoveRaw(m_LastNormalStage, m_LastNormalPass, depth, generatorType::template makeSubjective<PLAYER>(score), generatorType::template makeSubjective<PLAYER>(eval));
-			}
-			PYGMALION_INLINE void qsPhase1AllMove(movegenFeedback& feedback, const size_t depth, const scoreType score, const scoreType eval) const noexcept
-			{
-				feedback.allMoveRaw(m_LastQSPhase1Stage, m_LastQSPhase1Pass, depth, generatorType::template makeSubjective<PLAYER>(score), generatorType::template makeSubjective<PLAYER>(eval));
-			}
-			PYGMALION_INLINE void qsPhase1CutMove(movegenFeedback& feedback, const size_t depth, const scoreType score, const scoreType eval) const noexcept
-			{
-				feedback.cutMoveRaw(m_LastQSPhase1Stage, m_LastQSPhase1Pass, depth, generatorType::template makeSubjective<PLAYER>(score), generatorType::template makeSubjective<PLAYER>(eval));
-			}
-			PYGMALION_INLINE void qsPhase2AllMove(movegenFeedback& feedback, const size_t depth, const scoreType score, const scoreType eval) const noexcept
-			{
-				feedback.allMoveRaw(m_LastQSPhase2Stage, m_LastQSPhase2Pass, depth, generatorType::template makeSubjective<PLAYER>(score), generatorType::template makeSubjective<PLAYER>(eval));
-			}
-			PYGMALION_INLINE void qsPhase2CutMove(movegenFeedback& feedback, const size_t depth, const scoreType score, const scoreType eval) const noexcept
-			{
-				feedback.cutMoveRaw(m_LastQSPhase2Stage, m_LastQSPhase2Pass, depth, generatorType::template makeSubjective<PLAYER>(score), generatorType::template makeSubjective<PLAYER>(eval));
-			}
-			PYGMALION_INLINE void qsPhase3AllMove(movegenFeedback& feedback, const size_t depth, const scoreType score, const scoreType eval) const noexcept
-			{
-				feedback.allMoveRaw(m_LastQSPhase3Stage, m_LastQSPhase3Pass, depth, generatorType::template makeSubjective<PLAYER>(score), generatorType::template makeSubjective<PLAYER>(eval));
-			}
-			PYGMALION_INLINE void qsPhase3CutMove(movegenFeedback& feedback, const size_t depth, const scoreType score, const scoreType eval) const noexcept
-			{
-				feedback.cutMoveRaw(m_LastQSPhase3Stage, m_LastQSPhase3Pass, depth, generatorType::template makeSubjective<PLAYER>(score), generatorType::template makeSubjective<PLAYER>(eval));
-			}
-			PYGMALION_INLINE void criticalAllMove(movegenFeedback& feedback, const size_t depth, const scoreType score, const scoreType eval) const noexcept
-			{
-				feedback.allMoveRaw(m_LastCriticalStage, m_LastCriticalPass, depth, generatorType::template makeSubjective<PLAYER>(score), generatorType::template makeSubjective<PLAYER>(eval));
-			}
-			PYGMALION_INLINE void criticalCutMove(movegenFeedback& feedback, const size_t depth, const scoreType score, const scoreType eval) const noexcept
-			{
-				feedback.cutMoveRaw(m_LastCriticalStage, m_LastCriticalPass, depth, generatorType::template makeSubjective<PLAYER>(score), generatorType::template makeSubjective<PLAYER>(eval));
-			}
-			bool hasLegalMove(const size_t depth, movegenFeedback& feedback) const
+			bool hasLegalMove() const
 			{
 				if (!m_HasLegalMoveValid)
 				{
-					m_HasLegalMove = computeHasLegalMove(depth, feedback);
+					m_HasLegalMove = computeHasLegalMove();
 					m_HasLegalMoveValid = true;
 				}
 				return m_HasLegalMove;
 			}
 			template<typename LAMBDA, bool EXPECT_CUTOFF>
-			bool hasLegalMove(const size_t depth, movegenFeedback& feedback, const LAMBDA& lambda) const
+			bool hasLegalMove(const LAMBDA& lambda) const
 			{
 				if (!m_HasLegalMoveValid)
 				{
-					m_HasLegalMove = this->computeHasLegalMove<LAMBDA, EXPECT_CUTOFF>(depth, feedback, lambda);
+					m_HasLegalMove = this->computeHasLegalMove<LAMBDA, EXPECT_CUTOFF>(lambda);
 					m_HasLegalMoveValid = true;
 				}
 				return m_HasLegalMove;
@@ -794,7 +643,7 @@ namespace pygmalion
 			{
 				return generatorType::isMoveLegal(*static_cast<const typename generatorType::stackType*>(this), moveBits);
 			}
-			bool nextMove(movebitsType& moveBits, const size_t depth, movegenFeedback& feedback) const noexcept
+			bool nextMove(movebitsType& moveBits) const noexcept
 			{
 				if (m_CurrentNormalMove >= m_pContext->normalMoves().length())
 				{
@@ -804,7 +653,7 @@ namespace pygmalion
 						{
 							if (m_CurrentNormalPass < countCriticalEvasionPasses[m_CurrentNormalStage])
 							{
-								const auto index{ feedback.index(m_CriticalEvasionStages[m_CurrentNormalStage], m_CurrentNormalPass, depth) };
+								const auto index{ movegenFeedback::index(m_CriticalEvasionStages[m_CurrentNormalStage], m_CurrentNormalPass) };
 								generatorType::generateMoves(m_CriticalEvasionStages[m_CurrentNormalStage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->normalMoves(), index);
 								while (m_pContext->normalPasses().length() < m_pContext->normalMoves().length())
 								{
@@ -828,7 +677,7 @@ namespace pygmalion
 						{
 							if (m_CurrentNormalPass < countNormalPasses[m_CurrentNormalStage])
 							{
-								const auto index{ feedback.index(m_NormalStages[m_CurrentNormalStage], m_CurrentNormalPass, depth) };
+								const auto index{ movegenFeedback::index(m_NormalStages[m_CurrentNormalStage], m_CurrentNormalPass) };
 								generatorType::generateMoves(m_NormalStages[m_CurrentNormalStage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->normalMoves(), index);
 								while (m_pContext->normalPasses().length() < m_pContext->normalMoves().length())
 								{
@@ -861,10 +710,10 @@ namespace pygmalion
 					}
 					++m_CurrentNormalMove;
 				}
-				return nextMove(moveBits, depth, feedback);
+				return nextMove(moveBits);
 			}
 			template<typename LAMBDA, bool EXPECT_CUTOFF>
-			bool nextMove(movebitsType& moveBits, const size_t depth, movegenFeedback& feedback, const LAMBDA& lambda) const noexcept
+			bool nextMove(movebitsType& moveBits, const LAMBDA& lambda) const noexcept
 			{
 				while (m_CurrentNormalMove >= m_pContext->normalMoves().length())
 				{
@@ -874,7 +723,7 @@ namespace pygmalion
 						{
 							if (m_CurrentNormalPass < countCriticalEvasionPasses[m_CurrentNormalStage])
 							{
-								const auto index{ feedback.index(m_CriticalEvasionStages[m_CurrentNormalStage], m_CurrentNormalPass, depth) };
+								const auto index{ generatorType::movegenFeedback::index(m_CriticalEvasionStages[m_CurrentNormalStage], m_CurrentNormalPass) };
 								generatorType::generateMoves(m_CriticalEvasionStages[m_CurrentNormalStage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->normalMoves(), index);
 								const auto start{ m_pContext->normalPasses().length() };
 								while (m_pContext->normalPasses().length() < m_pContext->normalMoves().length())
@@ -902,7 +751,7 @@ namespace pygmalion
 						{
 							if (m_CurrentNormalPass < countNormalPasses[m_CurrentNormalStage])
 							{
-								const auto index{ feedback.index(m_NormalStages[m_CurrentNormalStage], m_CurrentNormalPass, depth) };
+								const auto index{ generatorType::movegenFeedback::index(m_NormalStages[m_CurrentNormalStage], m_CurrentNormalPass) };
 								generatorType::generateMoves(m_NormalStages[m_CurrentNormalStage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->normalMoves(), index);
 								const auto start{ m_pContext->normalPasses().length() };
 								while (m_pContext->normalPasses().length() < m_pContext->normalMoves().length())
@@ -976,9 +825,9 @@ namespace pygmalion
 						++m_CurrentNormalMove;
 					}
 				}
-				return this->template nextMove<LAMBDA, EXPECT_CUTOFF>(moveBits, depth, feedback, lambda);
+				return this->template nextMove<LAMBDA, EXPECT_CUTOFF>(moveBits, lambda);
 			}
-			bool nextQSPhase1Move(movebitsType& moveBits, const size_t depth, movegenFeedback& feedback) const noexcept
+			bool nextQSPhase1Move(movebitsType& moveBits) const noexcept
 			{
 				while (m_CurrentQSPhase1Move >= m_pContext->qsPhase1Moves().length())
 				{
@@ -988,7 +837,7 @@ namespace pygmalion
 						{
 							if (m_CurrentQSPhase1Pass < countQSPhase1CriticalEvasionPasses[m_CurrentQSPhase1Stage])
 							{
-								const auto index{ feedback.index(m_QSPhase1CriticalEvasionStages[m_CurrentQSPhase1Stage], m_CurrentQSPhase1Pass, depth) };
+								const auto index{ generatorType::movegenFeedback::index(m_QSPhase1CriticalEvasionStages[m_CurrentQSPhase1Stage], m_CurrentQSPhase1Pass) };
 								generatorType::generateMoves(m_QSPhase1CriticalEvasionStages[m_CurrentQSPhase1Stage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->qsPhase1Moves(), index);
 								while (m_pContext->qsPhase1Passes().length() < m_pContext->qsPhase1Moves().length())
 								{
@@ -1012,7 +861,7 @@ namespace pygmalion
 						{
 							if (m_CurrentQSPhase1Pass < countQSPhase1Passes[m_CurrentQSPhase1Stage])
 							{
-								const auto index{ feedback.index(m_QSPhase1Stages[m_CurrentQSPhase1Stage], m_CurrentQSPhase1Pass, depth) };
+								const auto index{ generatorType::movegenFeedback::index(m_QSPhase1Stages[m_CurrentQSPhase1Stage], m_CurrentQSPhase1Pass) };
 								generatorType::generateMoves(m_QSPhase1Stages[m_CurrentQSPhase1Stage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->qsPhase1Moves(), index);
 								while (m_pContext->qsPhase1Passes().length() < m_pContext->qsPhase1Moves().length())
 								{
@@ -1045,10 +894,10 @@ namespace pygmalion
 					}
 					++m_CurrentQSPhase1Move;
 				}
-				return nextQSPhase1Move(moveBits, depth, feedback);
+				return nextQSPhase1Move(moveBits);
 			}
 			template<typename LAMBDA, bool EXPECT_CUTOFF>
-			bool nextQSPhase1Move(movebitsType& moveBits, const size_t depth, movegenFeedback& feedback, const LAMBDA& lambda) const noexcept
+			bool nextQSPhase1Move(movebitsType& moveBits, const LAMBDA& lambda) const noexcept
 			{
 				while (m_CurrentQSPhase1Move >= m_pContext->qsPhase1Moves().length())
 				{
@@ -1058,7 +907,7 @@ namespace pygmalion
 						{
 							if (m_CurrentQSPhase1Pass < countQSPhase1CriticalEvasionPasses[m_CurrentQSPhase1Stage])
 							{
-								const auto index{ feedback.index(m_QSPhase1CriticalEvasionStages[m_CurrentQSPhase1Stage], m_CurrentQSPhase1Pass, depth) };
+								const auto index{ generatorType::movegenFeedback::index(m_QSPhase1CriticalEvasionStages[m_CurrentQSPhase1Stage], m_CurrentQSPhase1Pass) };
 								generatorType::generateMoves(m_QSPhase1CriticalEvasionStages[m_CurrentQSPhase1Stage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->qsPhase1Moves(), index);
 								const auto start{ m_pContext->qsPhase1Passes().length() };
 								while (m_pContext->qsPhase1Passes().length() < m_pContext->qsPhase1Moves().length())
@@ -1086,7 +935,7 @@ namespace pygmalion
 						{
 							if (m_CurrentQSPhase1Pass < countQSPhase1Passes[m_CurrentQSPhase1Stage])
 							{
-								const auto index{ feedback.index(m_QSPhase1Stages[m_CurrentQSPhase1Stage], m_CurrentQSPhase1Pass, depth) };
+								const auto index{ generatorType::movegenFeedback::index(m_QSPhase1Stages[m_CurrentQSPhase1Stage], m_CurrentQSPhase1Pass) };
 								generatorType::generateMoves(m_QSPhase1Stages[m_CurrentQSPhase1Stage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->qsPhase1Moves(), index);
 								const auto start{ m_pContext->qsPhase1Passes().length() };
 								while (m_pContext->qsPhase1Passes().length() < m_pContext->qsPhase1Moves().length())
@@ -1156,9 +1005,9 @@ namespace pygmalion
 						++m_CurrentQSPhase1Move;
 					}
 				}
-				return this->template nextQSPhase1Move<LAMBDA, EXPECT_CUTOFF>(moveBits, depth, feedback, lambda);
+				return this->template nextQSPhase1Move<LAMBDA, EXPECT_CUTOFF>(moveBits, lambda);
 			}
-			bool nextQSPhase2Move(movebitsType& moveBits, const size_t depth, movegenFeedback& feedback) const noexcept
+			bool nextQSPhase2Move(movebitsType& moveBits) const noexcept
 			{
 				while (m_CurrentQSPhase2Move >= m_pContext->qsPhase2Moves().length())
 				{
@@ -1228,7 +1077,7 @@ namespace pygmalion
 				return nextQSPhase2Move(moveBits, depth, feedback);
 			}
 			template<typename LAMBDA, bool EXPECT_CUTOFF>
-			bool nextQSPhase2Move(movebitsType& moveBits, const size_t depth, movegenFeedback& feedback, const LAMBDA& lambda) const noexcept
+			bool nextQSPhase2Move(movebitsType& moveBits, const LAMBDA& lambda) const noexcept
 			{
 				while (m_CurrentQSPhase2Move >= m_pContext->qsPhase2Moves().length())
 				{
@@ -1238,7 +1087,7 @@ namespace pygmalion
 						{
 							if (m_CurrentQSPhase2Pass < countQSPhase2CriticalEvasionPasses[m_CurrentQSPhase2Stage])
 							{
-								const auto index{ feedback.index(m_QSPhase2CriticalEvasionStages[m_CurrentQSPhase2Stage], m_CurrentQSPhase2Pass, depth) };
+								const auto index{ generatorType::movegenFeedback::index(m_QSPhase2CriticalEvasionStages[m_CurrentQSPhase2Stage], m_CurrentQSPhase2Pass) };
 								generatorType::generateMoves(m_QSPhase2CriticalEvasionStages[m_CurrentQSPhase2Stage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->qsPhase2Moves(), index);
 								const auto start{ m_pContext->qsPhase2Passes().length() };
 								while (m_pContext->qsPhase2Passes().length() < m_pContext->qsPhase2Moves().length())
@@ -1266,7 +1115,7 @@ namespace pygmalion
 						{
 							if (m_CurrentQSPhase2Pass < countQSPhase2Passes[m_CurrentQSPhase2Stage])
 							{
-								const auto index{ feedback.index(m_QSPhase2Stages[m_CurrentQSPhase2Stage], m_CurrentQSPhase2Pass, depth) };
+								const auto index{ generatorType::movegenFeedback::index(m_QSPhase2Stages[m_CurrentQSPhase2Stage], m_CurrentQSPhase2Pass) };
 								generatorType::generateMoves(m_QSPhase2Stages[m_CurrentQSPhase2Stage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->qsPhase2Moves(), index);
 								const auto start{ m_pContext->qsPhase2Passes().length() };
 								while (m_pContext->qsPhase2Passes().length() < m_pContext->qsPhase2Moves().length())
@@ -1336,9 +1185,9 @@ namespace pygmalion
 						++m_CurrentQSPhase2Move;
 					}
 				}
-				return this->template nextQSPhase2Move<LAMBDA, EXPECT_CUTOFF>(moveBits, depth, feedback, lambda);
+				return this->template nextQSPhase2Move<LAMBDA, EXPECT_CUTOFF>(moveBits, lambda);
 			}
-			bool nextQSPhase3Move(movebitsType& moveBits, const size_t depth, movegenFeedback& feedback) const noexcept
+			bool nextQSPhase3Move(movebitsType& moveBits) const noexcept
 			{
 				while (m_CurrentQSPhase3Move >= m_pContext->qsPhase3Moves().length())
 				{
@@ -1408,7 +1257,7 @@ namespace pygmalion
 				return nextQSPhase3Move(moveBits, depth, feedback);
 			}
 			template<typename LAMBDA, bool EXPECT_CUTOFF>
-			bool nextQSPhase3Move(movebitsType& moveBits, const size_t depth, movegenFeedback& feedback, const LAMBDA& lambda) const noexcept
+			bool nextQSPhase3Move(movebitsType& moveBits, const LAMBDA& lambda) const noexcept
 			{
 				while (m_CurrentQSPhase3Move >= m_pContext->qsPhase3Moves().length())
 				{
@@ -1418,7 +1267,7 @@ namespace pygmalion
 						{
 							if (m_CurrentQSPhase3Pass < countQSPhase3CriticalEvasionPasses[m_CurrentQSPhase3Stage])
 							{
-								const auto index{ feedback.index(m_QSPhase3CriticalEvasionStages[m_CurrentQSPhase3Stage], m_CurrentQSPhase3Pass, depth) };
+								const auto index{ generatorType::movegenFeedback::index(m_QSPhase3CriticalEvasionStages[m_CurrentQSPhase3Stage], m_CurrentQSPhase3Pass) };
 								generatorType::generateMoves(m_QSPhase3CriticalEvasionStages[m_CurrentQSPhase3Stage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->qsPhase3Moves(), index);
 								const auto start{ m_pContext->qsPhase3Passes().length() };
 								while (m_pContext->qsPhase3Passes().length() < m_pContext->qsPhase3Moves().length())
@@ -1446,7 +1295,7 @@ namespace pygmalion
 						{
 							if (m_CurrentQSPhase3Pass < countQSPhase3Passes[m_CurrentQSPhase3Stage])
 							{
-								const auto index{ feedback.index(m_QSPhase3Stages[m_CurrentQSPhase3Stage], m_CurrentQSPhase3Pass, depth) };
+								const auto index{ generatorType::movegenFeedback::index(m_QSPhase3Stages[m_CurrentQSPhase3Stage], m_CurrentQSPhase3Pass) };
 								generatorType::generateMoves(m_QSPhase3Stages[m_CurrentQSPhase3Stage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->qsPhase3Moves(), index);
 								const auto start{ m_pContext->qsPhase3Passes().length() };
 								while (m_pContext->qsPhase3Passes().length() < m_pContext->qsPhase3Moves().length())
@@ -1516,9 +1365,9 @@ namespace pygmalion
 						++m_CurrentQSPhase3Move;
 					}
 				}
-				return this->template nextQSPhase3Move<LAMBDA, EXPECT_CUTOFF>(moveBits, depth, feedback, lambda);
+				return this->template nextQSPhase3Move<LAMBDA, EXPECT_CUTOFF>(moveBits, lambda);
 			}
-			bool nextCriticalMove(movebitsType& moveBits, const size_t depth, movegenFeedback& feedback) const noexcept
+			bool nextCriticalMove(movebitsType& moveBits) const noexcept
 			{
 				while (m_CurrentCriticalMove >= m_pContext->criticalMoves().length())
 				{
@@ -1526,7 +1375,7 @@ namespace pygmalion
 					{
 						if (m_CurrentCriticalPass < countCriticalPasses[static_cast<size_t>(m_CriticalStages[static_cast<size_t>(m_CurrentCriticalStage)])])
 						{
-							const auto index{ feedback.index(m_CriticalStages[static_cast<size_t>(m_CurrentCriticalStage)], m_CurrentCriticalPass, depth) };
+							const auto index{ generatorType::movegenFeedback::index(m_CriticalStages[static_cast<size_t>(m_CurrentCriticalStage)], m_CurrentCriticalPass) };
 							generatorType::generateMoves(m_CriticalStages[static_cast<size_t>(m_CurrentCriticalStage)], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->criticalMoves(), index);
 							while (m_pContext->criticalPasses().length() < m_pContext->criticalMoves().length())
 							{
@@ -1561,7 +1410,7 @@ namespace pygmalion
 				return nextCriticalMove(moveBits, depth, feedback);
 			}
 			template<typename LAMBDA, bool EXPECT_CUTOFF>
-			bool nextCriticalMove(movebitsType& moveBits, const size_t depth, movegenFeedback& feedback, const LAMBDA& lambda) const noexcept
+			bool nextCriticalMove(movebitsType& moveBits, const LAMBDA& lambda) const noexcept
 			{
 				while (m_CurrentCriticalMove >= m_pContext->criticalMoves().length())
 				{
@@ -1569,7 +1418,7 @@ namespace pygmalion
 					{
 						if (m_CurrentCriticalPass < countCriticalPasses[m_CurrentCriticalStage])
 						{
-							const auto index{ feedback.index(m_CriticalStages[m_CurrentCriticalStage], m_CurrentCriticalPass, depth) };
+							const auto index{ generatorType::movegenFeedback::index(m_CriticalStages[m_CurrentCriticalStage], m_CurrentCriticalPass) };
 							generatorType::generateMoves(m_CriticalStages[m_CurrentCriticalStage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->criticalMoves(), index);
 							const auto start{ m_pContext->criticalPasses().length() };
 							while (m_pContext->criticalPasses().length() < m_pContext->criticalMoves().length())
@@ -1638,7 +1487,7 @@ namespace pygmalion
 						++m_CurrentCriticalMove;
 					}
 				}
-				return this->template nextCriticalMove<LAMBDA, EXPECT_CUTOFF>(moveBits, depth, feedback, lambda);
+				return this->template nextCriticalMove<LAMBDA, EXPECT_CUTOFF>(moveBits, lambda);
 			}
 			contextType& context() noexcept
 			{
@@ -1833,7 +1682,7 @@ namespace pygmalion
 			return generatorType::isGeneratedMoveLegal_Implementation(stack, moveBits);
 		}
 		template<size_t PLAYER, typename stackType>
-		static std::uintmax_t perft(const stackType& stack, const size_t depthRemaining, const size_t depth, std::uintmax_t& nodes, movegenFeedback& feedback) noexcept
+		static std::uintmax_t perft(const stackType& stack, const size_t depthRemaining, const size_t depth, std::uintmax_t& nodes) noexcept
 		{
 			if (depthRemaining <= 0)
 				return 1;
@@ -1842,12 +1691,12 @@ namespace pygmalion
 				constexpr const playerType player{ static_cast<playerType>(PLAYER) };
 				movebitsType mb;
 				std::uintmax_t count{ 0 };
-				while (stack.nextMove(mb, depth, feedback))
+				while (stack.nextMove(mb))
 				{
 					nodes++;
 					using subStackType = typename generatorType::template stackType<static_cast<size_t>(player.next())>;
 					subStackType subStack{ subStackType(stack, mb) };
-					count += generator::perft<static_cast<size_t>(player.next()), subStackType>(subStack, depthRemaining - 1, depth + 1, nodes, feedback);
+					count += generator::perft<static_cast<size_t>(player.next()), subStackType>(subStack, depthRemaining - 1, depth + 1, nodes);
 				}
 				return count;
 			}
