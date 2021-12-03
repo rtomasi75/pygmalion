@@ -450,7 +450,7 @@ namespace pygmalion
 						if (m_Entry[index].flags() & flags_move)
 						{
 							constexpr const scoreType zero{ scoreType::zero() };
-							if (generatorType::isMoveTactical(stack, m_Entry[index].move()) && (evaluatorType::staticMoveScore(stack.position(), m_Entry[index].move()) > zero))
+							if (generatorType::isMoveTactical(stack, m_Entry[index].move()))
 							{
 								if (!moves.contains(m_Entry[index].move()))
 								{

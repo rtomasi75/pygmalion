@@ -1089,7 +1089,10 @@ namespace pygmalion
 				}
 				else
 				{
-					m_Move = 0;
+					if constexpr (PRUNED)
+						m_CriticalMove = 0;
+					else
+						m_Move = 0;
 					m_MoveGeneratorStage = -1;
 				}
 			}

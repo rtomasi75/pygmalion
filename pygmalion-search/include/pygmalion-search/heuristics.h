@@ -57,17 +57,15 @@ namespace pygmalion
 					}
 					else if constexpr (QSPHASE == 1)
 					{
-						if (generatorType::isMoveTactical(stack, m_TacticalKillers[i]))
-						{
-							if (generatorType::isMoveLegal(stack, m_TacticalKillers[i]))
+						if (generatorType::isMoveLegal(stack, m_TacticalKillers[i]))
+							if (generatorType::isMoveTactical(stack, m_TacticalKillers[i]))
 								killerMoves.add(m_TacticalKillers[i]);
-						}
 					}
 					else
 					{
 						constexpr const scoreType zero{ scoreType::zero() };
 						if (generatorType::isMoveLegal(stack, m_TacticalKillers[i]))
-							if (generatorType::isMoveTactical(stack, m_TacticalKillers[i]) && (evaluatorType::staticMoveScore(stack.position(), m_TacticalKillers[i]) > zero))
+							if (generatorType::isMoveTactical(stack, m_TacticalKillers[i]))
 								killerMoves.add(m_TacticalKillers[i]);
 					}
 				}

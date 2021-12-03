@@ -5616,7 +5616,7 @@ namespace pygmalion::chess
 			case movegenPhase::QSPhase2:
 				return 3;
 			case movegenPhase::QSPhase3:
-				return 1;
+				return 3;
 			case movegenPhase::QSPhase1_CriticalEvasion:
 				return 1;
 			case movegenPhase::QSPhase2_CriticalEvasion:
@@ -5722,6 +5722,10 @@ namespace pygmalion::chess
 				{
 				case 0:
 					return movegenStage_WinningMoves;
+				case 1:
+					return movegenStage_EqualMoves;
+				case 2:
+					return movegenStage_LosingMoves;
 				default:
 					PYGMALION_UNREACHABLE;
 					return 0;
