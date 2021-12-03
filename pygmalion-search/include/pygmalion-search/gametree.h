@@ -27,6 +27,7 @@ namespace pygmalion
 			heuristicsType& m_Heuristics;
 			const int m_DistanceFromRoot;
 			movelistType m_Moves;
+			movelistType m_CriticalMoves;
 			movelistType m_TacticalMoves;
 			quietKillermovesType m_QuietMovesKiller;
 			tacticalKillermovesType m_TacticalMovesKiller;
@@ -51,6 +52,7 @@ namespace pygmalion
 			indexType m_QuietMoveKiller;
 			indexType m_TacticalMoveKiller;
 			indexType m_Move;
+			indexType m_CriticalMove;
 			indexType m_TacticalMove;
 			size_t m_Depth;
 			nodecounterType m_MoveNodecount;
@@ -1566,14 +1568,30 @@ namespace pygmalion
 					m_IsKiller = false;
 					m_MoveGeneratorStage = 3;
 				}
-				while (m_Move < m_Moves.length())
+				if constexpr (PRUNED)
 				{
-					movebits = m_Moves[m_Move];
-					const bool bDouble{ m_MovesTT.contains(movebits) || m_QuietMovesKiller.contains(movebits) || m_TacticalMovesKiller.contains(movebits) };
-					++m_Move;
-					if (!bDouble)
+					while (m_CriticalMove < m_CriticalMoves.length())
 					{
-						return true;
+						movebits = m_CriticalMoves[m_CriticalMove];
+						const bool bDouble{ m_MovesTT.contains(movebits) || m_QuietMovesKiller.contains(movebits) || m_TacticalMovesKiller.contains(movebits) };
+						++m_CriticalMove;
+						if (!bDouble)
+						{
+							return true;
+						}
+					}
+				}
+				else
+				{
+					while (m_Move < m_Moves.length())
+					{
+						movebits = m_Moves[m_Move];
+						const bool bDouble{ m_MovesTT.contains(movebits) || m_QuietMovesKiller.contains(movebits) || m_TacticalMovesKiller.contains(movebits) };
+						++m_Move;
+						if (!bDouble)
+						{
+							return true;
+						}
 					}
 				}
 				movebitsType testBits{ movebitsType(0) };
@@ -1585,11 +1603,11 @@ namespace pygmalion
 						while (m_Stack.template nextCriticalMove<decltype(lambda), EXPECT_CUTOFF && allowSelectionSort>(testBits, lambda))
 						{
 							const bool bDouble{ m_MovesTT.contains(testBits) || m_QuietMovesKiller.contains(testBits) || m_TacticalMovesKiller.contains(testBits) };
-							movebits = testBits;
-							m_Moves.add(movebits);
-							++m_Move;
+							m_CriticalMoves.add(testBits);
+							++m_CriticalMove;
 							if (!bDouble)
 							{
+								movebits = testBits;
 								return true;
 							}
 						}
@@ -1599,11 +1617,11 @@ namespace pygmalion
 						while (m_Stack.nextCriticalMove(testBits))
 						{
 							const bool bDouble{ m_MovesTT.contains(testBits) || m_QuietMovesKiller.contains(testBits) || m_TacticalMovesKiller.contains(testBits) };
-							movebits = testBits;
-							m_Moves.add(movebits);
-							++m_Move;
+							m_CriticalMoves.add(testBits);
+							++m_CriticalMove;
 							if (!bDouble)
 							{
+								movebits = testBits;
 								return true;
 							}
 						}
@@ -1617,11 +1635,11 @@ namespace pygmalion
 						while (m_Stack.template nextMove<decltype(lambda), EXPECT_CUTOFF && allowSelectionSort>(testBits, lambda))
 						{
 							const bool bDouble{ m_MovesTT.contains(testBits) || m_QuietMovesKiller.contains(testBits) || m_TacticalMovesKiller.contains(testBits) };
-							movebits = testBits;
-							m_Moves.add(movebits);
+							m_Moves.add(testBits);
 							++m_Move;
 							if (!bDouble)
 							{
+								movebits = testBits;
 								return true;
 							}
 						}
@@ -1631,11 +1649,11 @@ namespace pygmalion
 						while (m_Stack.nextMove(testBits))
 						{
 							const bool bDouble{ m_MovesTT.contains(testBits) || m_QuietMovesKiller.contains(testBits) || m_TacticalMovesKiller.contains(testBits) };
-							movebits = testBits;
-							m_Moves.add(movebits);
+							m_Moves.add(testBits);
 							++m_Move;
 							if (!bDouble)
 							{
+								movebits = testBits;
 								return true;
 							}
 						}

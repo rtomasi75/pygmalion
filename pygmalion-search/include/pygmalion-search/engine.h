@@ -88,7 +88,7 @@ namespace pygmalion::search
 		engine(engine&&) = delete;
 		engine(std::istream& input, std::ostream& output) noexcept :
 			pygmalion::evaluation::engine<typename GAMETREE::evaluatorType>(input, output),
-			m_Heuristics{ heuristicsType(this->feedback()) },
+			m_Heuristics{ heuristicsType() },
 			m_pAuxContexts{ new contextType[countSearchPlies] },
 			m_pContexts{ new contextType[countSearchPlies] }
 		{

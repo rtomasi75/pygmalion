@@ -203,7 +203,6 @@ namespace pygmalion
 		profiler m_SearchProfiler;
 		nodecounterType m_NodeCounter;
 		transpositiontable<descriptorSearch> m_TranspositionTable;
-		movegenFeedback& m_Feedback;
 		std::vector<killerslots> m_KillerSlots;
 	protected:
 		PYGMALION_INLINE void onBeginSearch() noexcept
@@ -552,7 +551,7 @@ namespace pygmalion
 #endif
 			static_cast<instanceType*>(this)->template onEndNodeLeaf<PLAYER>(stack);
 		}
-		heuristics(movegenFeedback& feedback) noexcept :
+		heuristics() noexcept :
 #if !defined(NDEBUG)
 			m_IsSearching{ false },
 			m_NodeDepth{ 0 },
@@ -560,7 +559,6 @@ namespace pygmalion
 #endif
 			m_NodeCounter{ 0 },
 			m_TranspositionTable{ transpositiontable<descriptorSearch>() },
-			m_Feedback{ feedback },
 			m_KillerSlots{ std::vector<killerslots>(0) }
 		{
 		}
@@ -693,8 +691,8 @@ namespace pygmalion
 			sstr << "delta:  " << std::setw(9) << parser::nodesCountToString(deltaNodeCount()) << std::endl;
 			return sstr.str();
 		}
-		heuristics(movegenFeedback& feedback) noexcept :
-			baseclassType(feedback),
+		heuristics() noexcept :
+			baseclassType(),
 			m_EarlyNodes{ 0 },
 			m_LateNodes{ 0 },
 			m_CutNodes{ 0 },

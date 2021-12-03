@@ -41,6 +41,8 @@ namespace pygmalion
 				)
 			};
 		public:
+			movegenFeedback() = delete;
+			~movegenFeedback() = delete;
 			constexpr static passType index(const stageType stage, const passType pass) noexcept
 			{
 				return m_Indices[stage][pass];

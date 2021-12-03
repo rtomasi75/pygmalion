@@ -9,18 +9,8 @@ namespace pygmalion::dynamics
 		using generatorType = GENERATOR;
 		using descriptorDynamics = typename GENERATOR::descriptorDynamics;
 #include "include_dynamics.h"
-		using feedbackType = typename generatorType::movegenFeedback;
 	private:
-		feedbackType m_Feedback{ typename generatorType::movegenFeedback() };
 	public:
-		constexpr const feedbackType& feedback() const noexcept
-		{
-			return m_Feedback;
-		}
-		constexpr feedbackType& feedback() noexcept
-		{
-			return m_Feedback;
-		}
 		engine() noexcept = delete;
 		engine(const engine&) = delete;
 		engine(engine&&) = delete;

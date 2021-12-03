@@ -4,8 +4,8 @@ namespace pygmalion::tictactoe
 		public pygmalion::heuristics<false, descriptor_search, heuristics>
 	{
 	public:
-		heuristics(movegenFeedback& feedback) :
-			pygmalion::heuristics<false, descriptor_search, heuristics>(feedback)
+		heuristics() :
+			pygmalion::heuristics<false, descriptor_search, heuristics>()
 		{
 
 		}

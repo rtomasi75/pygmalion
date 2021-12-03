@@ -300,8 +300,7 @@ namespace pygmalion::frontend
 			boardType board;
 			contextType* pContext = new contextType[countSearchPlies];
 			historyType history;
-			feedbackType fb;
-			heuristicsType heuristics(fb);
+			heuristicsType heuristics;
 			double accum{ 0.0 };
 			size_t n{ 0 };
 			for (size_t i = 0; i < tp.size(); i++)
