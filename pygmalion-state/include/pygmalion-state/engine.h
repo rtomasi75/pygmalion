@@ -9,14 +9,21 @@ namespace pygmalion::state
 		using boardType = BOARD;
 		using gameType = game<boardType>;
 		using descriptorState = typename BOARD::descriptorState;
+		using materialTableType = state::materialTables<descriptorState, boardType>;
 #include "include_state.h"
 	private:
+		materialTableType m_MaterialTable;
 		gameType m_Game;
-	public:
+	protected:
 		virtual void onPositionChanged() noexcept
 		{
 
 		}
+		void initialize() noexcept
+		{
+			m_Game.initialize(materialTable());
+		}
+	public:
 		void positionChanged() noexcept
 		{
 			this->onPositionChanged();
@@ -41,7 +48,8 @@ namespace pygmalion::state
 		engine(const engine&) = delete;
 		engine(engine&&) = delete;
 		engine(std::istream& input, std::ostream& output) noexcept :
-			pygmalion::intrinsics::engine(input, output)
+			pygmalion::intrinsics::engine(input, output),
+			m_Game{ gameType() }
 		{
 			this->template addCommand<command_debugPlayers<descriptorState, boardType>>();
 			this->template addCommand<command_debugPieces<descriptorState, boardType>>();
@@ -62,7 +70,16 @@ namespace pygmalion::state
 			this->template addCommand<command_debugOccupancy<descriptorState, boardType>>();
 			this->template addCommand<command_debugSquares<descriptorState, boardType>>();
 			this->template addCommand<command_debugState<descriptorState, boardType>>();
-			m_Game.initialize();
+			this->template addCommand<command_debugMaterial<descriptorState, boardType>>();
+			m_Game.initialize(this->materialTable());
+		}
+		materialTableType& materialTable() noexcept
+		{
+			return m_MaterialTable;
+		}
+		const materialTableType& materialTable() const noexcept
+		{
+			return m_MaterialTable;
 		}
 		virtual ~engine() noexcept = default;
 		virtual std::string version() const noexcept override

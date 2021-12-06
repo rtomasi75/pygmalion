@@ -21,7 +21,7 @@ namespace pygmalion::dynamics
 				if (player == this->position().movingPlayer())
 				{
 					typename generatorType::contextType context[2];
-					stackType<PLAYER> stack{ stackType<PLAYER>(this->position(),this->history(), &context[0]) };
+					stackType<PLAYER> stack{ stackType<PLAYER>(this->position(),this->history(), &context[0], this->stateEngine().materialTable(), this->dynamicsEngine().delta()) };
 					movebitsType movebits;
 					size_t count{ 0 };
 					if (generatorType::parseSAN(remainder2, stack, movebits, count))

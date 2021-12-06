@@ -87,7 +87,7 @@ namespace pygmalion::tictactoe
 			}
 			return stack.movingPlayer() == playerType(0) ? sc : -sc;
 		}
-		static scoreType staticMoveScore_Implementation(const boardType& position, const movebitsType move) noexcept
+		static scoreType staticMoveScore_Implementation(const boardType& position, const movebitsType move, const materialTableType& materialTable) noexcept
 		{
 			PYGMALION_ASSERT(false);
 			constexpr const scoreType zero{ scoreType::zero() };
@@ -97,7 +97,7 @@ namespace pygmalion::tictactoe
 		{
 			return scoreType::zero();
 		}
-		PYGMALION_INLINE static scoreType staticExchangeScore_Implementation(const boardType& position, const movebitsType move) noexcept
+		PYGMALION_INLINE static scoreType staticExchangeScore_Implementation(const boardType& position, const movebitsType move, const materialTableType& materialTable) noexcept
 		{
 			return scoreType::zero();
 		}

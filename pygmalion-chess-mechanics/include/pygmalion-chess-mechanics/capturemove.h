@@ -105,7 +105,7 @@ namespace pygmalion::chess
 		{
 			return *this;
 		}
-		PYGMALION_INLINE void doMove_Implementation(boardType& position, const typename capturemove::movebitsType moveBits, typename capturemove::movedataType& movedata) const noexcept
+		PYGMALION_INLINE void doMove_Implementation(boardType& position, const typename capturemove::movebitsType moveBits, typename capturemove::movedataType& movedata, const materialTableType& materialTable) const noexcept
 		{
 			const squareType from{ capturemove::extractFrom(moveBits) };
 			const squareType to{ capturemove::extractTo(moveBits) };
@@ -116,9 +116,8 @@ namespace pygmalion::chess
 			const uint_t<countFlags, false> oldFlags{ position.extractFlagRange<0, 11>() };
 			const std::uint16_t reversiblePlies{ static_cast<std::uint16_t>(position.getReversiblePlyCount()) };
 			position.clearEnPassantFiles();
-			position.removePiece(pc, from, p);
-			position.removePiece(pc2, to, p2);
-			position.addPiece(pc, to, p);
+			position.removePiece(pc2, to, p2, materialTable);
+			position.movePiece(pc, from, to, p, materialTable);
 			position.setMovingPlayer(++position.movingPlayer());
 			position.resetReversiblePlyCount();
 			if (p == whitePlayer)
@@ -187,14 +186,13 @@ namespace pygmalion::chess
 			}
 			movedata = typename capturemove::movedataType(pc, from, to, oldFlags, pc2, reversiblePlies);
 		}
-		PYGMALION_INLINE void undoMove_Implementation(boardType& position, const typename capturemove::movedataType& data) const noexcept
+		PYGMALION_INLINE void undoMove_Implementation(boardType& position, const typename capturemove::movedataType& data, const materialTableType& materialTable) const noexcept
 		{
 			const playerType p2{ position.movingPlayer() };
 			const playerType p1{ --position.movingPlayer() };
 			position.setMovingPlayer(p1);
-			position.removePiece(data.piece(), data.to(), p1);
-			position.addPiece(data.piece(), data.from(), p1);
-			position.addPiece(data.capturedPiece(), data.to(), p2);
+			position.movePiece(data.piece(), data.to(), data.from(), p1, materialTable);
+			position.addPiece(data.capturedPiece(), data.to(), p2, materialTable);
 			position.storeFlagRange<0, 11>(data.oldFlags());
 			position.setReversiblePlyCount(static_cast<size_t>(data.reversiblePlies()));
 		}

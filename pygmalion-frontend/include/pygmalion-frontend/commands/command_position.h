@@ -24,7 +24,7 @@ namespace pygmalion::frontend
 				this->mechanicsEngine().history().clear();
 				if (token == "startpos")
 				{
-					this->stateEngine().currentGame().position().initialize();
+					this->stateEngine().currentGame().position().initialize(this->stateEngine().materialTable());
 				}
 				else if (token == "fen")
 				{
@@ -41,7 +41,7 @@ namespace pygmalion::frontend
 					parser::parseTokenCaseSensitive(remainder2, fen5, remainder);
 					parser::parseTokenCaseSensitive(remainder, fen6, remainder2);
 					std::string fen = fen1 + " " + fen2 + " " + fen3 + " " + fen4 + " " + fen5 + " " + fen6;
-					if (!this->stateEngine().currentGame().position().setFen(fen))
+					if (!this->stateEngine().currentGame().position().setFen(fen, this->stateEngine().materialTable()))
 					{
 						return false;
 					}

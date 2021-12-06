@@ -22,9 +22,12 @@ namespace pygmalion
 			friend node< static_cast<size_t>(movingPlayer.next()), typename gametreeType::template nodeType< static_cast<size_t>(movingPlayer.next()) > >;
 			using parentType = node< static_cast<size_t>(movingPlayer.previous()), typename gametreeType::template nodeType< static_cast<size_t>(movingPlayer.previous()) >>;
 			using childType = node< static_cast<size_t>(movingPlayer.next()), typename gametreeType::template nodeType< static_cast<size_t>(movingPlayer.next()) > >;
+			using dataType = typename evaluatorType::dataType;
 		private:
 			stackType m_Stack;
+			dataType m_Data;
 			heuristicsType& m_Heuristics;
+			const std::vector<scoreType>& m_Parameters;
 			const int m_DistanceFromRoot;
 			movelistType m_Moves;
 			movelistType m_CriticalMoves;
@@ -470,7 +473,7 @@ namespace pygmalion
 				scoreType sc;
 				if constexpr (QSDEPTH >= (countQsPhase1Plies + countQsPhase2Plies + countQsPhase3Plies))
 				{
-					sc = evaluate(alpha, beta) + evaluatorType::staticExchangeScore(m_Stack.position(), move);
+					sc = evaluate(alpha, beta) + evaluatorType::template staticExchangeScore<PLAYER>(m_Stack.position(), move, m_Stack.materialTable());
 					allowStoreTTsubnode = false;
 				}
 				else
@@ -536,7 +539,7 @@ namespace pygmalion
 				scoreType sc;
 				if constexpr (QSDEPTH >= (countQsPhase1Plies + countQsPhase2Plies + countQsPhase3Plies))
 				{
-					sc = evaluate(alpha, beta) + evaluatorType::staticExchangeScore(m_Stack.position(), move);
+					sc = evaluate(alpha, beta) + evaluatorType::template staticExchangeScore<PLAYER>(m_Stack.position(), move, m_Stack.materialTable());
 					allowStoreTTsubnode = false;
 				}
 				else
@@ -578,21 +581,6 @@ namespace pygmalion
 				return !nullMoveHistory[countPlayers - 1];
 			}
 			constexpr static inline uint_t<countPlayers, false> m_EmptyNullMoveHistory{ uint_t<countPlayers, false>(0) };
-			void printIndentation(std::ostream& str) const noexcept
-			{
-				for (int i = 0; i < m_DistanceFromRoot; i++)
-					str << "    ";
-			}
-			PYGMALION_INLINE scoreType evaluate(const scoreType alpha, const scoreType beta) noexcept
-			{
-				if ((alpha < m_EvalAlpha) || (beta > m_EvalBeta))
-				{
-					m_Eval = evaluatorType::evaluate(alpha, beta, m_Stack);
-					m_EvalAlpha = alpha;
-					m_EvalBeta = beta;
-				}
-				return m_Eval;
-			}
 			PYGMALION_INLINE scoreType futileGap() const noexcept
 			{
 				return m_FutileGap;
@@ -625,21 +613,21 @@ namespace pygmalion
 			{
 				return instanceType::futilityPruningEnabled_Implementation(depthRemaining);
 			}
-			PYGMALION_INLINE static scoreType futilityMargin(const size_t depthRemaining, const stackType& stack) noexcept
+			PYGMALION_INLINE scoreType futilityMargin(const size_t depthRemaining, const stackType& stack) const noexcept
 			{
-				return instanceType::futilityMargin_Implementation(depthRemaining, stack);
+				return static_cast<const instanceType*>(this)->futilityMargin_Implementation(depthRemaining, stack);
 			}
-			PYGMALION_INLINE static scoreType deltaMargin(const stackType& stack) noexcept
+			PYGMALION_INLINE scoreType deltaMargin(const stackType& stack) const noexcept
 			{
-				return instanceType::deltaMargin_Implementation(stack);
+				return static_cast<const instanceType*>(this)->deltaMargin_Implementation(stack);
 			}
-			PYGMALION_INLINE static scoreType futilityGlobalMargin(const size_t depthRemaining, const stackType& stack) noexcept
+			PYGMALION_INLINE scoreType futilityGlobalMargin(const size_t depthRemaining, const stackType& stack) const noexcept
 			{
-				return instanceType::futilityGlobalMargin_Implementation(depthRemaining, stack);
+				return static_cast<const instanceType*>(this)->futilityGlobalMargin_Implementation(depthRemaining, stack);
 			}
-			PYGMALION_INLINE static scoreType deltaGlobalMargin(const stackType& stack) noexcept
+			PYGMALION_INLINE scoreType deltaGlobalMargin(const stackType& stack) const noexcept
 			{
-				return instanceType::deltaGlobalMargin_Implementation(stack);
+				return static_cast<const instanceType*>(this)->deltaGlobalMargin_Implementation(stack);
 			}
 			PYGMALION_INLINE bool pruningAllowed(const scoreType alpha, const scoreType beta) const noexcept
 			{
@@ -1079,6 +1067,16 @@ namespace pygmalion
 				return alpha;
 			}
 		public:
+			PYGMALION_INLINE scoreType evaluate(const scoreType alpha, const scoreType beta) noexcept
+			{
+				if ((alpha < m_EvalAlpha) || (beta > m_EvalBeta))
+				{
+					m_Eval = evaluatorType::evaluate(alpha, beta, m_Stack, m_Data, m_Parameters);
+					m_EvalAlpha = alpha;
+					m_EvalBeta = beta;
+				}
+				return m_Eval;
+			}
 			template<bool PRUNED, bool TACTICAL >
 			PYGMALION_INLINE void resetMoveGen()
 			{
@@ -1164,7 +1162,8 @@ namespace pygmalion
 									scoreType nmsc{ zero };
 									const depthType remainingNullMoveDepth{ static_cast<depthType>(depthRemaining - nullMoveReduction(depthRemaining) - 1) };
 									{
-										childType subnode(childType(*static_cast<const instanceType*>(this), generatorType::nullMove()));
+										constexpr const movebitsType nullMove{ generatorType::nullMove() };
+										childType subnode(childType(*static_cast<const instanceType*>(this), nullMove));
 										constexpr const scoreType atom{ scoreType::atom() };
 										nmsc = -subnode.zwsearch((atom - beta).plyDown(), remainingNullMoveDepth, doNullMove(nullMoveHistory), allowStoreTTsubnode, CUTnode).plyUp();
 									}
@@ -1183,10 +1182,10 @@ namespace pygmalion
 							{
 								if (instanceType::futilityPruningEnabled(depthRemaining))
 								{
-									const scoreType futileGlobalScore{ alpha - instanceType::futilityGlobalMargin(depthRemaining, m_Stack) };
+									const scoreType futileGlobalScore{ alpha - static_cast<const instanceType*>(this)->futilityGlobalMargin(depthRemaining, m_Stack) };
 									constexpr const scoreType maximum{ scoreType::maximum() };
 									const scoreType eval{ evaluate(futileGlobalScore, maximum) };
-									m_FutileGap = alpha - eval - instanceType::futilityMargin(depthRemaining, m_Stack);
+									m_FutileGap = alpha - eval - static_cast<const instanceType*>(this)->futilityMargin(depthRemaining, m_Stack);
 									m_FutilityPruningAllowed = m_FutileGap >= zero;
 									bPruned |= futileGlobalScore >= eval;
 								}
@@ -1283,10 +1282,10 @@ namespace pygmalion
 							{
 								if (instanceType::futilityPruningEnabled(depthRemaining))
 								{
-									const scoreType futileGlobalScore{ alpha - instanceType::futilityGlobalMargin(depthRemaining, m_Stack) };
+									const scoreType futileGlobalScore{ alpha - static_cast<instanceType*>(this)->futilityGlobalMargin(depthRemaining, m_Stack) };
 									constexpr const scoreType maximum{ scoreType::maximum() };
 									const scoreType eval{ evaluate(futileGlobalScore, maximum) };
-									m_FutileGap = alpha - eval - instanceType::futilityMargin(depthRemaining, m_Stack);
+									m_FutileGap = alpha - eval - static_cast<instanceType*>(this)->futilityMargin(depthRemaining, m_Stack);
 									m_FutilityPruningAllowed = m_FutileGap >= zero;
 								}
 							}
@@ -1300,7 +1299,8 @@ namespace pygmalion
 				}
 			}
 			node() = delete;
-			PYGMALION_INLINE node(const stackType& stack, signal& terminate, heuristicsType& heuristics, const size_t depth) noexcept :
+			PYGMALION_INLINE node(const stackType& stack, signal& terminate, heuristicsType& heuristics, const size_t depth, const std::vector<scoreType>& parameters) noexcept :
+				m_Parameters{ parameters },
 				m_Stack{ stack },
 				m_Terminate{ terminate },
 				m_Heuristics{ heuristics },
@@ -1313,6 +1313,7 @@ namespace pygmalion
 				m_TacticalMoveGeneratorStage{ -1 },
 				m_MoveGeneratorStage{ -1 },
 				m_Move{ 0 },
+				m_CriticalMove{ 0 },
 				m_TacticalMove{ 0 },
 				m_NeedsSorting{ false },
 				m_FutilityPruningAllowed{ false },
@@ -1333,8 +1334,10 @@ namespace pygmalion
 				m_Eval = zero;
 				m_FutileGap = zero;
 				m_DeltaGap = zero;
+				evaluatorType::createData(m_Data);
 			}
 			PYGMALION_INLINE node(const parentType& parent, const movebitsType moveBits) noexcept :
+				m_Parameters{ parent.m_Parameters },
 				m_Stack(parent.m_Stack, moveBits),
 				m_Terminate{ parent.m_Terminate },
 				m_Heuristics{ parent.m_Heuristics },
@@ -1347,6 +1350,7 @@ namespace pygmalion
 				m_TacticalMoveGeneratorStage{ -1 },
 				m_MoveGeneratorStage{ -1 },
 				m_Move{ 0 },
+				m_CriticalMove{ 0 },
 				m_TacticalMove{ 0 },
 				m_NeedsSorting{ false },
 				m_FutilityPruningAllowed{ false },
@@ -1364,6 +1368,7 @@ namespace pygmalion
 				m_Eval = zero;
 				m_FutileGap = zero;
 				m_DeltaGap = zero;
+				evaluatorType::createData(m_Data);
 			}
 			bool lastMoveFromTT() const noexcept
 			{

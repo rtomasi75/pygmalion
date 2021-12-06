@@ -99,7 +99,7 @@ namespace pygmalion::chess
 		{
 			return *this;
 		}
-		PYGMALION_INLINE void doMove_Implementation(boardType& position, const typename quietmove::movebitsType moveBits, typename quietmove::movedataType& movedata) const noexcept
+		PYGMALION_INLINE void doMove_Implementation(boardType& position, const typename quietmove::movebitsType moveBits, typename quietmove::movedataType& movedata, const materialTableType& materialTable) const noexcept
 		{
 			const squareType from{ quietmove::extractFrom(moveBits) };
 			const squareType to{ quietmove::extractTo(moveBits) };
@@ -108,8 +108,7 @@ namespace pygmalion::chess
 			const uint_t<countFlags, false> oldFlags{ position.extractFlagRange<0, 11>() };
 			const std::uint16_t reversiblePlies{ static_cast<std::uint16_t>(position.getReversiblePlyCount()) };
 			position.clearEnPassantFiles();
-			position.removePiece(pc, from, p);
-			position.addPiece(pc, to, p);
+			position.movePiece(pc, from, to, p, materialTable);
 			position.setMovingPlayer(++position.movingPlayer());
 			if (pc == pawn)
 				position.resetReversiblePlyCount();
@@ -157,12 +156,11 @@ namespace pygmalion::chess
 			}
 			movedata = typename quietmove::movedataType(pc, from, to, oldFlags, reversiblePlies);
 		}
-		PYGMALION_INLINE void undoMove_Implementation(boardType& position, const typename quietmove::movedataType& data) const noexcept
+		PYGMALION_INLINE void undoMove_Implementation(boardType& position, const typename quietmove::movedataType& data, const materialTableType& materialTable) const noexcept
 		{
 			const playerType p{ --position.movingPlayer() };
 			position.setMovingPlayer(p);
-			position.removePiece(data.piece(), data.to(), p);
-			position.addPiece(data.piece(), data.from(), p);
+			position.movePiece(data.piece(), data.to(), data.from(), p, materialTable);
 			position.storeFlagRange<0, 11>(data.oldFlags());
 			position.setReversiblePlyCount(static_cast<size_t>(data.reversiblePlies()));
 		}

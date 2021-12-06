@@ -7,6 +7,10 @@ constexpr static const size_t countSquares{ descriptorState::countSquares };
 constexpr static const size_t countFlags{ descriptorState::countFlags };
 constexpr static const size_t countHashBits{ descriptorState::countHashBits };
 constexpr static const bool hasCustomHashing{ descriptorState::hasCustomHashing };
+constexpr static const size_t scoreMantissa{ descriptorState::scoreMantissa };
+constexpr static const size_t scoreShift{ descriptorState::scoreShift };
+constexpr static const size_t scoreMaxDistance{ descriptorState::scoreMaxDistance };
+using scoreType = typename descriptorState::scoreType;
 using playerType = typename descriptorState::playerType;
 using pieceType = typename descriptorState::pieceType;
 using rankType = typename descriptorState::rankType;
@@ -19,4 +23,6 @@ using gamestateType = typename descriptorState::gamestateType;
 using cumulationType = typename descriptorState::cumulationType;
 using hashType = typename descriptorState::hashType;
 using signatureType = typename descriptorState::signatureType;
+using piecemaskType = typename descriptorState::piecemaskType;
+using deltaType = typename descriptorState::deltaType;
 

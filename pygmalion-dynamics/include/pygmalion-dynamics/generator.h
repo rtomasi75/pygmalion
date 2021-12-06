@@ -164,14 +164,14 @@ namespace pygmalion
 			}
 			void clearMovegenLists() noexcept
 			{
-				m_NormalStages.clear();
-				m_NormalScores.clear();
-				m_NormalMoves.clear();
-				m_NormalPasses.clear();
 				m_CriticalStages.clear();
 				m_CriticalScores.clear();
 				m_CriticalMoves.clear();
 				m_CriticalPasses.clear();
+				m_NormalStages.clear();
+				m_NormalScores.clear();
+				m_NormalMoves.clear();
+				m_NormalPasses.clear();
 				m_QSPhase1Stages.clear();
 				m_QSPhase1Scores.clear();
 				m_QSPhase1Moves.clear();
@@ -195,25 +195,26 @@ namespace pygmalion
 			using descriptorDynamics = DESCRIPTOR_DYNAMICS;
 #include "include_dynamics.h"
 			using contextType = typename generatorType::contextType;
-		private:
-			constexpr static inline const playerType m_MovingPlayer{ static_cast<playerType>(PLAYER) };
-			constexpr static inline const playerType m_NextPlayer{ m_MovingPlayer.next() };
 		public:
-			using parentType = stack< static_cast<size_t>(m_MovingPlayer.previous())>;
-			friend stack< static_cast<size_t>(m_MovingPlayer.next())>;
+			constexpr static inline const playerType MovingPlayer{ static_cast<playerType>(PLAYER) };
+			constexpr static inline const playerType NextPlayer{ MovingPlayer.next() };
+			constexpr static inline const playerType PreviousPlayer{ MovingPlayer.previous() };
+			using parentType = stack< static_cast<size_t>(PreviousPlayer)>;
+			friend stack< static_cast<size_t>(NextPlayer)>;
 		private:
+			const materialTableType& m_MaterialTable;
 			const parentType* m_pParent;
 			contextType* m_pContext;
 			boardType& m_Position;
 			historyType& m_History;
 			movedataType m_MoveData;
+			const deltaType& m_Delta;
 			mutable scoreType m_LastNormalScore;
 			mutable stageType m_LastNormalStage;
 			mutable stageType m_CurrentNormalStage;
 			mutable passType m_CurrentNormalPass;
 			mutable passType m_LastNormalPass;
 			mutable indexType m_CurrentNormalMove;
-
 			mutable scoreType m_LastQSPhase1Score;
 			mutable stageType m_LastQSPhase1Stage;
 			mutable stageType m_CurrentQSPhase1Stage;
@@ -232,7 +233,6 @@ namespace pygmalion
 			mutable passType m_CurrentQSPhase3Pass;
 			mutable passType m_LastQSPhase3Pass;
 			mutable indexType m_CurrentQSPhase3Move;
-
 			mutable scoreType m_LastCriticalScore;
 			mutable stageType m_LastCriticalStage;
 			mutable stageType m_CurrentCriticalStage;
@@ -499,6 +499,10 @@ namespace pygmalion
 				return this->template computeHasLegalMove<LAMBDA, EXPECT_CUTOFF>(lambda);
 			}
 		public:
+			PYGMALION_INLINE const deltaType& delta() const noexcept
+			{
+				return m_Delta;
+			}
 			PYGMALION_INLINE passType lastNormalPass() const noexcept
 			{
 				return m_LastNormalPass;
@@ -1519,12 +1523,14 @@ namespace pygmalion
 				m_CurrentCriticalMove{ 0 },
 				m_CurrentCriticalStage{ 0 },
 				m_IsNullmove{ false },
-				m_Hash{ m_Position.hash() }
+				m_MaterialTable{ parent.m_MaterialTable },
+				m_Hash{ m_Position.hash() },
+				m_Delta{ parent.m_Delta }
 			{
-				motorType::move().doMove(m_Position, moveBits, m_MoveData);
+				motorType::move().doMove(m_Position, moveBits, m_MoveData, m_MaterialTable);
 				m_pContext->clearMovegenLists();
 			}
-			PYGMALION_INLINE stack(boardType& position, historyType& history, contextType* pContext) noexcept :
+			PYGMALION_INLINE stack(boardType& position, historyType& history, contextType* pContext, const materialTableType& materialTable, const deltaType& delta) noexcept :
 				m_pContext{ pContext },
 				m_pParent{ nullptr },
 				m_Position{ position },
@@ -1548,10 +1554,12 @@ namespace pygmalion
 				m_CurrentCriticalMove{ 0 },
 				m_CurrentCriticalStage{ 0 },
 				m_IsNullmove{ true },
-				m_Hash{ m_Position.hash() }
+				m_MaterialTable{ materialTable },
+				m_Hash{ m_Position.hash() },
+				m_Delta{ delta }
 			{
 				m_pContext->clearMovegenLists();
-				PYGMALION_ASSERT(position.movingPlayer() == m_MovingPlayer);
+				PYGMALION_ASSERT(position.movingPlayer() == MovingPlayer);
 			}
 			PYGMALION_INLINE contextType* getContext() const noexcept
 			{
@@ -1561,22 +1569,10 @@ namespace pygmalion
 			{
 				return m_Position;
 			}
-			PYGMALION_INLINE playerType movingPlayer() const noexcept
-			{
-				return m_MovingPlayer;
-			}
-			PYGMALION_INLINE playerType nextPlayer() const noexcept
-			{
-				return m_NextPlayer;
-			}
-			PYGMALION_INLINE playerType previousPlayer() const noexcept
-			{
-				return m_MoveData.movingPlayer();
-			}
 			PYGMALION_INLINE ~stack() noexcept
 			{
 				if (!m_IsNullmove)
-					motorType::move().undoMove(m_Position, m_MoveData);
+					motorType::move().undoMove(m_Position, m_MoveData, m_MaterialTable);
 			}
 			std::string moveToSAN(const movebitsType moveBits, const size_t depth) const noexcept
 			{
@@ -1609,6 +1605,10 @@ namespace pygmalion
 				{
 					return m_History.occurs(position, times, start, frequency);
 				}
+			}
+			PYGMALION_INLINE const materialTableType& materialTable() const noexcept
+			{
+				return m_MaterialTable;
 			}
 		};
 	private:
@@ -1754,11 +1754,6 @@ namespace pygmalion
 			else
 				std::cerr << "(no squares)" << std::endl;
 		}
-		template<size_t PLAYER>
-		PYGMALION_INLINE static scoreType makeSubjective(const scoreType score) noexcept
-		{
-			return generatorType::template makeSubjective_Implementation<PLAYER>(score);
-		}
 		constexpr static size_t countMovegenStages(const movegenPhase phase) noexcept
 		{
 			return generatorType::countMovegenStages_Implementation(phase);
@@ -1808,6 +1803,137 @@ namespace pygmalion
 		constexpr static size_t movegenStage(const movegenPhase phase, const size_t stageIndex) noexcept
 		{
 			return generatorType::movegenStage_Implementation(phase, stageIndex);
+		}
+		PYGMALION_INLINE static squaresType promotionOrigins(const playerType pl, const pieceType pc) noexcept
+		{
+			return generatorType::promotionOrigins_Implementation(pl, pc);
+		}
+		PYGMALION_INLINE static squaresType promoCaptureOrigins(const playerType pl, const pieceType pc) noexcept
+		{
+			return generatorType::promoCaptureOrigins_Implementation(pl, pc);
+		}
+		PYGMALION_INLINE static squaresType quietOrigins(const playerType pl, const pieceType pc) noexcept
+		{
+			return generatorType::quietOrigins_Implementation(pl, pc);
+		}
+		PYGMALION_INLINE static squaresType captureOrigins(const playerType pl, const pieceType pc) noexcept
+		{
+			return generatorType::captureOrigins_Implementation(pl, pc);
+		}
+		PYGMALION_INLINE static squaresType promotionTargets(const playerType pl, const pieceType pc, const squareType from) noexcept
+		{
+			return generatorType::promotionTargets_Implementation(pl, pc, from);
+		}
+		PYGMALION_INLINE static squaresType promoCaptureTargets(const playerType pl, const pieceType pc, const squareType from) noexcept
+		{
+			return generatorType::promoCaptureTargets_Implementation(pl, pc, from);
+		}
+		PYGMALION_INLINE static squaresType quietTargets(const playerType pl, const pieceType pc, const squareType from) noexcept
+		{
+			return generatorType::quietTargets_Implementation(pl, pc, from);
+		}
+		PYGMALION_INLINE static squaresType captureTargets(const playerType pl, const pieceType pc, const squareType from) noexcept
+		{
+			return generatorType::captureTargets_Implementation(pl, pc, from);
+		}
+		PYGMALION_INLINE static piecemaskType promotionResults(const playerType player) noexcept
+		{
+			return generatorType::promotionResults_Implementation(player);
+		}
+		static deltaType computeMaterialDelta(const materialTableType& materialTable) noexcept
+		{
+			constexpr const scoreType zero{ scoreType::zero() };
+			constexpr const scoreType minimum{ scoreType::minimum() };
+			deltaType delta;
+			for (const auto pl : playerType::range)
+			{
+				for (const auto originPieces : piecemaskType::range)
+				{
+					delta.maxQuietChange(originPieces) = zero;
+					delta.maxPromotionChange(originPieces) = zero;
+					for (const auto pc : originPieces)
+					{
+						for (const auto from : generatorType::quietOrigins(pl, pc))
+						{
+							const scoreType materialFrom{ materialTable.material(pl,pc,from) };
+							for (const auto to : generatorType::quietTargets(pl, pc, from))
+							{
+								const scoreType materialTo{ materialTable.material(pl,pc,to) };
+								const scoreType materialDelta{ materialTo - materialFrom };
+								if (materialDelta > delta.maxQuietChange(originPieces))
+									delta.maxQuietChange(originPieces) = materialDelta;
+							}
+						}
+						for (const auto from : generatorType::promotionOrigins(pl, pc))
+						{
+							const scoreType materialFrom{ materialTable.material(pl,pc,from) };
+							for (const auto to : generatorType::promotionTargets(pl, pc, from))
+							{
+								for (const auto promoted : generatorType::promotionResults(pl))
+								{
+									const scoreType materialTo{ materialTable.material(pl,promoted,to) };
+									const scoreType materialDelta{ materialTo - materialFrom };
+									if (materialDelta > delta.maxPromotionChange(originPieces))
+										delta.maxPromotionChange(originPieces) = materialDelta;
+								}
+							}
+						}
+						for (const auto from : generatorType::captureOrigins(pl, pc))
+						{
+							const scoreType materialFrom{ materialTable.material(pl,pc,from) };
+							for (const auto to : generatorType::captureTargets(pl, pc, from))
+							{
+								const scoreType materialTo{ materialTable.material(pl,pc,to) };
+								for (const auto victimPieces : piecemaskType::range)
+								{
+									for (const auto vpc : victimPieces)
+									{
+										for (const auto vpl : playerType::range)
+										{
+											if (vpl != pl)
+											{
+												const scoreType materialVictim{ materialTable.material(vpl,victim,to) };
+												const scoreType materialTo{ materialTable.material(pl,pc,to) };
+												const scoreType materialDelta{ materialTo - materialFrom - materialVictim };
+												if (materialDelta > delta.maxCaptureChange(originPieces, victimPieces))
+													delta.maxCaptureChange(originPieces, victimPieces) = materialDelta;
+											}
+										}
+									}
+								}
+							}
+						}
+						for (const auto from : generatorType::promoCaptureOrigins(pl, pc))
+						{
+							const scoreType materialFrom{ materialTable.material(pl,pc,from) };
+							for (const auto to : generatorType::promoCaptureTargets(pl, pc, from))
+							{
+								const scoreType materialTo{ materialTable.material(pl,pc,to) };
+								for (const auto victimPieces : piecemaskType::range)
+								{
+									for (const auto vpc : victimPieces)
+									{
+										for (const auto vpl : playerType::range)
+										{
+											if (vpl != pl)
+											{
+												for (const auto promoted : generatorType::promotionResults(pl))
+												{
+													const scoreType materialVictim{ materialTable.material(vpl,victim,to) };
+													const scoreType materialTo{ materialTable.material(pl,promoted,to) };
+													const scoreType materialDelta{ materialTo - materialFrom - materialVictim };
+													if (materialDelta > delta.maxPromoCaptureChange(originPieces, victimPieces))
+														delta.maxPromoCaptureChange(originPieces, victimPieces) = materialDelta;
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
 		}
 	};
 }

@@ -55,7 +55,7 @@ namespace pygmalion::chess
 		{
 			return *this;
 		}
-		PYGMALION_INLINE void doMove_Implementation(boardType& position, const typename kingsidecastlemove::movebitsType moveBits, typename kingsidecastlemove::movedataType& movedata) const noexcept
+		PYGMALION_INLINE void doMove_Implementation(boardType& position, const typename kingsidecastlemove::movebitsType moveBits, typename kingsidecastlemove::movedataType& movedata, const materialTableType& materialTable) const noexcept
 		{
 			const playerType p{ position.movingPlayer() };
 			const uint_t<countFlags, false> oldFlags{ position.extractFlagRange<0, 11>() };
@@ -68,10 +68,8 @@ namespace pygmalion::chess
 				constexpr const squareType kingTo{ squareG1 };
 				constexpr const squareType rookFrom{ squareH1 };
 				constexpr const squareType rookTo{ squareF1 };
-				position.removePiece(king, kingFrom, whitePlayer);
-				position.removePiece(rook, rookFrom, whitePlayer);
-				position.addPiece(king, kingTo, whitePlayer);
-				position.addPiece(rook, rookTo, whitePlayer);
+				position.movePiece(king, kingFrom, kingTo, whitePlayer, materialTable);
+				position.movePiece(rook, rookFrom, rookTo, whitePlayer, materialTable);
 				position.doReversiblePly();
 				movedata = typename kingsidecastlemove::movedataType(oldFlags);
 			}
@@ -82,15 +80,13 @@ namespace pygmalion::chess
 				constexpr const squareType kingTo{ squareG8 };
 				constexpr const squareType rookFrom{ squareH8 };
 				constexpr const squareType rookTo{ squareF8 };
-				position.removePiece(king, kingFrom, blackPlayer);
-				position.removePiece(rook, rookFrom, blackPlayer);
-				position.addPiece(king, kingTo, blackPlayer);
-				position.addPiece(rook, rookTo, blackPlayer);
+				position.movePiece(king, kingFrom, kingTo, blackPlayer, materialTable);
+				position.movePiece(rook, rookFrom, rookTo, blackPlayer, materialTable);
 				position.doReversiblePly();
 				movedata = typename kingsidecastlemove::movedataType(oldFlags);
 			}
 		}
-		PYGMALION_INLINE void undoMove_Implementation(boardType& position, const typename kingsidecastlemove::movedataType& data) const noexcept
+		PYGMALION_INLINE void undoMove_Implementation(boardType& position, const typename kingsidecastlemove::movedataType& data, const materialTableType& materialTable) const noexcept
 		{
 			const playerType p{ --position.movingPlayer() };
 			position.setMovingPlayer(p);
@@ -101,10 +97,8 @@ namespace pygmalion::chess
 				constexpr const squareType kingTo{ squareG1 };
 				constexpr const squareType rookFrom{ squareH1 };
 				constexpr const squareType rookTo{ squareF1 };
-				position.addPiece(king, kingFrom, whitePlayer);
-				position.addPiece(rook, rookFrom, whitePlayer);
-				position.removePiece(king, kingTo, whitePlayer);
-				position.removePiece(rook, rookTo, whitePlayer);
+				position.movePiece(king, kingTo, kingFrom, whitePlayer, materialTable);
+				position.movePiece(rook, rookTo, rookFrom, whitePlayer, materialTable);
 			}
 			else
 			{
@@ -112,10 +106,8 @@ namespace pygmalion::chess
 				constexpr const squareType kingTo{ squareG8 };
 				constexpr const squareType rookFrom{ squareH8 };
 				constexpr const squareType rookTo{ squareF8 };
-				position.addPiece(king, kingFrom, blackPlayer);
-				position.addPiece(rook, rookFrom, blackPlayer);
-				position.removePiece(king, kingTo, blackPlayer);
-				position.removePiece(rook, rookTo, blackPlayer);
+				position.movePiece(king, kingTo, kingFrom, blackPlayer, materialTable);
+				position.movePiece(rook, rookTo, rookFrom, blackPlayer, materialTable);
 			}
 			position.undoReversiblePly();
 		}

@@ -59,7 +59,7 @@ namespace pygmalion::search
 		template<size_t PLAYER>
 		std::string variationToString(const variationType& variation) noexcept
 		{
-			stackType<PLAYER> stack{ stackType<PLAYER>(this->position(), this->history(), m_pAuxContexts) };
+			stackType<PLAYER> stack{ stackType<PLAYER>(this->position(), this->history(), m_pAuxContexts, this->materialTable(), this->delta()) };
 			return variationToStringFromDepth(stack, variation, 0);
 		}
 		template<size_t PLAYER>

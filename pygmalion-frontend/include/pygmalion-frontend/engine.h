@@ -145,20 +145,22 @@ namespace pygmalion::frontend
 		{
 			m_IsRunning.raise();
 			this->writeDebugString("Search started...");
-			typename descriptorFrontend::template stackType<PLAYER> stack{ typename descriptorFrontend::template stackType<PLAYER>(this->position(), this->history(), this->rootContext()) };
+			typename descriptorFrontend::template stackType<PLAYER> stack{ typename descriptorFrontend::template stackType<PLAYER>(this->position(), this->history(), this->rootContext(), this->materialTable(), this->delta()) };
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			constexpr const playerType nextPlayer{ movingPlayer.next() };
 			m_CurrentDepth = 0;
 			variationType finalVariation{ variationType() };
 			durationType searchTime{ durationType(0) };
 			std::array<double, countPlayers> factor{ arrayhelper::make<countPlayers,double>(0.0) };
-			m_ScoreFromPreviousDepth = evaluatorType::evaluate(scoreType::minimum(), scoreType::maximum(), stack);
+			typename evaluatorType::dataType data;
+			evaluatorType::createData(data);
 			timeType start{ chronographType::now() };
 			scoreType finalScore;
 			depthType finalDepth{ depthType(-1) };
 			std::uintmax_t finalNodes{ UINTMAX_C(0) };
 			durationType finalDuration{ durationType(0) };
-			nodeType<PLAYER> node(stack, m_Stop, this->heuristics(), this->history().length());
+			nodeType<PLAYER> node(stack, m_Stop, this->heuristics(), this->history().length(), this->parameters());
+			m_ScoreFromPreviousDepth = node.evaluate(scoreType::minimum(), scoreType::maximum());
 			while (principalVariationSearch(node, m_CurrentDepth, finalDuration, finalNodes, finalDepth, finalVariation, finalScore))
 			{
 				++m_CurrentDepth;
@@ -275,8 +277,8 @@ namespace pygmalion::frontend
 				if (player == board.movingPlayer())
 				{
 					signal terminate{ signal(false) };
-					stackType<PLAYER> stack{ stackType<PLAYER>(board, history, pContext) };
-					nodeType<static_cast<size_t>(static_cast<playerType>(PLAYER))> node(stack, terminate, heuristics, 0);
+					stackType<PLAYER> stack{ stackType<PLAYER>(board, history, pContext, this->materialTable(), this->delta()) };
+					nodeType<static_cast<size_t>(static_cast<playerType>(PLAYER))> node(stack, terminate, heuristics, 0, this->parameters());
 					variationType principalVariation;
 					heuristics.beginSearch();
 					principalVariation.clear();
@@ -306,7 +308,7 @@ namespace pygmalion::frontend
 			for (size_t i = 0; i < tp.size(); i++)
 			{
 				const tuningposition& p{ tp[i] };
-				board.setFen(p.fen());
+				board.setFen(p.fen(), this->materialTable());
 				const scoreType sc{ this->template QScore<0>(board, pContext, history, heuristics) };
 				if (sc.isOpen())
 				{

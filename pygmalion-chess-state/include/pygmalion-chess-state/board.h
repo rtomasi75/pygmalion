@@ -5,7 +5,6 @@ namespace pygmalion::chess
 		public pygmalion::board<state::descriptor_state, board>
 	{
 	private:
-		constexpr static inline state::materialTables<state::descriptor_state> m_Material{ state::materialTables<state::descriptor_state>() };
 		constexpr static inline hashType m_PieceHash[768]
 		{
 			hashType(UINT64_C(0x9D39247E33776D41)), hashType(UINT64_C(0x2AF7398005AAA5C7)), hashType(UINT64_C(0x44DB015024623547)), hashType(UINT64_C(0x9C15F73E62A76AE2)),
@@ -226,7 +225,7 @@ namespace pygmalion::chess
 		};
 		constexpr static inline std::array<std::array<std::array<hashType, countSquares>, countPieces>, countPlayers> m_PlayerPieceSquareHash
 		{
-			arrayhelper::generate<countPlayers, std::array<std::array<hashType, countSquares>, countPieces>>([](const size_t player) { return arrayhelper::generate<countPieces, std::array<hashType, countSquares>>([player](const size_t piece) {return arrayhelper::generate<countSquares, hashType>([player, piece](const size_t square) 
+			arrayhelper::generate<countPlayers, std::array<std::array<hashType, countSquares>, countPieces>>([](const size_t player) { return arrayhelper::generate<countPieces, std::array<hashType, countSquares>>([player](const size_t piece) {return arrayhelper::generate<countSquares, hashType>([player, piece](const size_t square)
 				{
 					constexpr const size_t piecePlayerIndex[2][8]
 					{
@@ -279,7 +278,8 @@ namespace pygmalion::chess
 				})
 		};
 	public:
-		board() noexcept
+		board() noexcept :
+			pygmalion::board<state::descriptor_state, board>()
 		{
 		}
 		PYGMALION_INLINE static const hashType& customPlayerHash(const playerType player) noexcept
@@ -295,48 +295,6 @@ namespace pygmalion::chess
 		{
 			return m_PlayerPieceSquareHash[player][piece][square];
 		}
-		PYGMALION_TUNABLE_INLINE static materialScore materialValueAbsolute(const pieceType pc, const squareType sq, const playerType pl) noexcept
-		{
-			return m_Material.absoluteMaterial(pl, pc, sq);
-		}
-		PYGMALION_TUNABLE_INLINE static materialScore materialValueRelative(const pieceType pc, const squareType sq, const playerType pl) noexcept
-		{
-			return m_Material.relativeMaterial(pl, pc, sq);
-		}
-		PYGMALION_TUNABLE_INLINE static materialScore materialUpperBound(const pieceType pc) noexcept
-		{
-			return m_Material.materialUpperBound(pc);
-		}
-		PYGMALION_TUNABLE_INLINE static materialScore materialLowerBound(const pieceType pc) noexcept
-		{
-			return m_Material.materialLowerBound(pc);
-		}
-		PYGMALION_TUNABLE_INLINE static int minorPieceKnightOffset() noexcept
-		{
-			return m_Material.minorPieceKnightOffset();
-		}
-		PYGMALION_TUNABLE_INLINE static materialScore materialDelta() noexcept
-		{
-			return m_Material.materialDelta();
-		}
-		static double getMaterial(const pieceType pc) noexcept
-		{
-			return m_Material.getTunedMaterial(pc);
-		}
-		static double getPST(const pieceType pc, const squareType sq) noexcept
-		{
-			return m_Material.getTunedPST(pc, sq);
-		}
-#if defined(PYGMALION_TUNE)&&(PYGMALION_TUNE==1)
-		static void setMaterial(const pieceType pc, const double score) noexcept
-		{
-			return m_Material.setTunedMaterial(pc, score);
-		}
-		static void setPST(const pieceType pc, const squareType sq, const double score) noexcept
-		{
-			m_Material.setTunedPST(pc, sq, score);
-		}
-#endif
 		PYGMALION_INLINE void clearCastleRightQueensideBlack() noexcept
 		{
 			clearFlag(castleRightQueensideBlack);
@@ -433,9 +391,14 @@ namespace pygmalion::chess
 		{
 			return (pieceOccupancy(king) & playerOccupancy(player)).first();
 		}
-		PYGMALION_INLINE materialScore material() const noexcept
+		template<size_t PLAYER>
+		PYGMALION_INLINE static scoreType makeSubjective_Implementation(const scoreType score) noexcept
 		{
-			return cumulation().score();
+			constexpr const playerType player{ static_cast<playerType>(PLAYER) };
+			if constexpr (player == whitePlayer)
+				return score;
+			else
+				return -score;
 		}
 		// Implementation
 		static std::string flagToString_Implementation(const flagType flag) noexcept;
@@ -454,7 +417,6 @@ namespace pygmalion::chess
 		}
 		PYGMALION_INLINE void onAddedPiece_Implementation(const pieceType piece, const squareType square, const playerType player) noexcept
 		{
-			cumulation().score() += m_Material.absoluteMaterial(player, piece, square);
 			switch (piece)
 			{
 			case pawn:
@@ -468,9 +430,22 @@ namespace pygmalion::chess
 		PYGMALION_INLINE void onSetMovingPlayer_Implementation(const playerType player) noexcept
 		{
 		}
+		PYGMALION_INLINE void onMovedPiece_Implementation(const pieceType piece, const squareType from, const squareType to, const playerType player) noexcept
+		{
+			switch (piece)
+			{
+			case pawn:
+				cumulation().pawnHash() ^= pieceHash(pawn, from, player);
+				cumulation().pawnHash() ^= pieceHash(pawn, to, player);
+				break;
+			case king:
+				cumulation().pawnHash() ^= pieceHash(king, from, player);
+				cumulation().pawnHash() ^= pieceHash(king, to, player);
+				break;
+			}
+		}
 		PYGMALION_INLINE void onRemovedPiece_Implementation(const pieceType piece, const squareType square, const playerType player) noexcept
 		{
-			cumulation().score() -= m_Material.absoluteMaterial(player, piece, square);
 			switch (piece)
 			{
 			case pawn:
@@ -487,7 +462,7 @@ namespace pygmalion::chess
 		PYGMALION_INLINE void onClearedFlag_Implementation(const flagType flag) noexcept
 		{
 		}
-		void onInitialize_Implementation() noexcept;
+		void onInitialize_Implementation(const materialTableType& materialTable) noexcept;
 		static std::string cumulationToString_Implementation(const cumulationType&) noexcept;
 		PYGMALION_INLINE hashType pawnHash() const noexcept
 		{
@@ -495,6 +470,113 @@ namespace pygmalion::chess
 		}
 		static std::string flagsToString_Implementation(const flagsType flags, const playerType movingPlayer) noexcept;
 		static bool parseFlags_Implementation(const std::string& text, flagsType& flags, size_t& count) noexcept;
+	private:
+		constexpr static inline double m_PST_King[64]
+		{
+				-0.32, -0.064, -0.064, -0.064, -0.064, -0.064, -0.064, -0.32,
+				-0.064, 0.32, 0.32, 0.32, 0.32, 0.32, 0.32, -0.064,
+				-0.064, 0.32, 0.32, 0.32, 0.32, 0.32, 0.32, -0.064,
+				-0.064, 0.32, 0.32, 0.32, 0.32, 0.32, 0.32, -0.064,
+				-0.064, 0.32, 0.32, 0.32, 0.32, 0.32, 0.32, -0.064,
+				-0.064, 0.32, 0.32, 0.32, 0.32, 0.32, 0.32, -0.064,
+				-0.064, 0.32, 0.32, 0.32, 0.32, 0.32, 0.32, -0.064,
+				-0.32, -0.064, -0.064, -0.064, -0.064, -0.064, -0.064, -0.32,
+		};
+		constexpr static inline double m_PST_Knight[64]
+		{
+				-0.384, -0.256, -0.128, -0.128, -0.128, -0.128, -0.256, -0.384,
+				-0.256, -0.128, 0.128, 0.128, 0.128, 0.128, -0.128, -0.256,
+				-0.128, 0.128, 0.384, 0.384, 0.384, 0.384, 0.128, -0.128,
+				-0.128, 0.128, 0.384, 0.384, 0.384, 0.384, 0.128, -0.128,
+				-0.128, 0.128, 0.384, 0.384, 0.384, 0.384, 0.128, -0.128,
+				-0.128, 0.128, 0.384, 0.384, 0.384, 0.384, 0.128, -0.128,
+				-0.256, -0.128, 0.128, 0.128, 0.128, 0.128, -0.128, -0.256,
+				-0.384, -0.256, -0.128, -0.128, -0.128, -0.128, -0.256, -0.384,
+		};
+		constexpr static inline double m_PST_Bishop[64]
+		{
+				-0.384, -0.384, -0.384, -0.384, -0.384, -0.384, -0.384, -0.384,
+				-0.384, -0.128, -0.128, -0.128, -0.128, -0.128, -0.128, -0.384,
+				-0.384, -0.128, 0.128, 0.128, 0.128, 0.128, -0.128, -0.384,
+				-0.384, -0.128, 0.128, 0.384, 0.384, 0.128, -0.128, -0.384,
+				-0.384, -0.128, 0.128, 0.384, 0.384, 0.128, -0.128, -0.384,
+				-0.384, -0.128, 0.128, 0.128, 0.128, 0.128, -0.128, -0.384,
+				-0.384, -0.128, -0.128, -0.128, -0.128, -0.128, -0.128, -0.384,
+				-0.384, -0.384, -0.384, -0.384, -0.384, -0.384, -0.384, -0.384,
+		};
+		constexpr static inline double m_PST_Rook[64]
+		{
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+		};
+		constexpr static inline double m_PST_Queen[64]
+		{
+				-0.384, -0.384, -0.384, -0.384, -0.384, -0.384, -0.384, -0.384,
+				-0.384, -0.128, -0.128, -0.128, -0.128, -0.128, -0.128, -0.384,
+				-0.384, -0.128, 0.128, 0.128, 0.128, 0.128, -0.128, -0.384,
+				-0.384, -0.128, 0.128, 0.384, 0.384, 0.128, -0.128, -0.384,
+				-0.384, -0.128, 0.128, 0.384, 0.384, 0.128, -0.128, -0.384,
+				-0.384, -0.128, 0.128, 0.128, 0.128, 0.128, -0.128, -0.384,
+				-0.384, -0.128, -0.128, -0.128, -0.128, -0.128, -0.128, -0.384,
+				-0.384, -0.384, -0.384, -0.384, -0.384, -0.384, -0.384, -0.384,
+		};
+		constexpr static inline double m_PST_Pawn[64]
+		{
+				0, 0, 0, 0, 0, 0, 0, 0,
+				-0.288, -0.224, -0.224, -0.224, -0.224, -0.224, -0.224, -0.288,
+				-0.224, -0.16, -0.16, -0.16, -0.16, -0.16, -0.16, -0.224,
+				-0.096, -0.032, -0.032, -0.032, -0.032, -0.032, -0.032, -0.096,
+				0.032, 0.096, 0.096, 0.096, 0.096, 0.096, 0.096, 0.032,
+				0.16, 0.224, 0.224, 0.224, 0.224, 0.224, 0.224, 0.16,
+				0.224, 0.288, 0.288, 0.288, 0.288, 0.288, 0.288, 0.224,
+				0, 0, 0, 0, 0, 0, 0, 0,
+		};
+		constexpr static inline double m_LazyMaterial[6]
+		{
+			3.0,  //knight
+			3.3,  //bishop
+			5.5,  //rook
+			10.0, //queen
+			1.0,  //pawn
+			0.0   //king
+		};
+	public:
+		PYGMALION_INLINE static scoreType defaultLazyMaterial_Implementation(const pieceType pc) noexcept
+		{
+			return static_cast<scoreType>(m_LazyMaterial[pc]);
+		}
+		PYGMALION_INLINE static scoreType defaultMaterial_Implementation(const playerType pl, const pieceType pc, const squareType sq) noexcept
+		{
+			squareType lsq;
+			if (pl == whitePlayer)
+				lsq = sq;
+			else
+				lsq = sq.flipRank();
+			switch (pc)
+			{
+			default:
+				PYGMALION_UNREACHABLE;
+				return scoreType::zero();
+			case pawn:
+				return static_cast<scoreType>(m_PST_Pawn[lsq]);
+			case knight:
+				return static_cast<scoreType>(m_PST_Knight[lsq]);
+			case bishop:
+				return static_cast<scoreType>(m_PST_Bishop[lsq]);
+			case rook:
+				return static_cast<scoreType>(m_PST_Rook[lsq]);
+			case queen:
+				return static_cast<scoreType>(m_PST_Queen[lsq]);
+			case king:
+				return static_cast<scoreType>(m_PST_King[lsq]);
+			}
+		}
 	};
 
 	std::ostream& operator<<(std::ostream& str, const board& position) noexcept;

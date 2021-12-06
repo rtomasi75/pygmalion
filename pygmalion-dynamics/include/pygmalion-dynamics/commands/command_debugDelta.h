@@ -1,7 +1,7 @@
 namespace pygmalion::dynamics
 {
 	template<typename DESCRIPTION_DYNAMICS, typename GENERATOR>
-	class command_debugMoves :
+	class command_debugDelta :
 		public pygmalion::dynamics::command<DESCRIPTION_DYNAMICS, GENERATOR>
 	{
 	public:
@@ -12,31 +12,17 @@ namespace pygmalion::dynamics
 #include "../include_dynamics.h"	
 	private:
 		template<size_t PLAYER>
-		void process() noexcept
+		void process(const playerType pl, const pieceType pc, const squareType sq) noexcept
 		{
 			if constexpr (PLAYER < countPlayers)
 			{
 				constexpr const playerType player{ static_cast<playerType>(PLAYER) };
-				if (player == this->position().movingPlayer())
+				if (player == pl)
 				{
-					movelistType moves;
-					typename generatorType::contextType context;
-					stackType<PLAYER> stack{ stackType<PLAYER>(this->position(), this->history(), &context, this->stateEngine().materialTable(), this->dynamicsEngine().delta()) };
-					movebitsType movebits;
-					bool hasMoves{ false };
-					while (stack.nextMove(movebits))
-					{
-						hasMoves = true;
-						this->output() << generatorType::moveToSAN(stack, movebits) << "\t";
-						this->output() << std::endl;
-					}
-					if (!hasMoves)
-					{
-						this->output() << "(no moves possible)" << std::endl;
-					}
+					this->dumpSquares(generatorType::template attackMask<PLAYER>(pc, sq));
 				}
 				else
-					this->template process<PLAYER + 1>();
+					this->template process<PLAYER + 1>(pl, pc, sq);
 			}
 			else
 				PYGMALION_ASSERT(false);
@@ -44,10 +30,14 @@ namespace pygmalion::dynamics
 	protected:
 		virtual bool onProcess(const std::string& cmd) noexcept override
 		{
-			if (cmd == "debug-moves")
+			if (cmd == "debug-delta")
 			{
 				this->output() << std::endl;
-				this->template process<0>();
+				constexpr const typename piecemaskType::maskType n{ typename piecemaskType::maskType(1) << countPieces };
+				for (typename piecemaskType::maskType i = typename piecemaskType::maskType(0); i < n; ++i)
+				{
+					const piecemaskType mask{ piecemaskType(i) };
+				}
 				this->output() << std::endl;
 				return true;
 			}
@@ -56,7 +46,7 @@ namespace pygmalion::dynamics
 		}
 		virtual std::string help() noexcept override
 		{
-			return "DEBUG-MOVES";
+			return "DEBUG-DELTA";
 		}
 	};
 

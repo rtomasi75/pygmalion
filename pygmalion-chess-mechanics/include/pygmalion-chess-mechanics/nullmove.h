@@ -63,7 +63,7 @@ namespace pygmalion::chess
 		{
 			return *this;
 		}
-		PYGMALION_INLINE void doMove_Implementation(boardType& position, const typename nullmove::movebitsType moveBits, typename nullmove::movedataType& movedata) const noexcept
+		PYGMALION_INLINE void doMove_Implementation(boardType& position, const typename nullmove::movebitsType moveBits, typename nullmove::movedataType& movedata, const materialTableType& materialTable) const noexcept
 		{
 			const uint_t<countFlags, false> oldFlags{ position.extractFlagRange<0, 11>() };
 			const std::uint16_t reversiblePlies{ static_cast<std::uint16_t>(position.getReversiblePlyCount()) };
@@ -72,7 +72,7 @@ namespace pygmalion::chess
 			position.resetReversiblePlyCount();
 			movedata = typename nullmove::movedataType(oldFlags, reversiblePlies);
 		}
-		PYGMALION_INLINE void undoMove_Implementation(boardType& position, const typename nullmove::movedataType& data) const noexcept
+		PYGMALION_INLINE void undoMove_Implementation(boardType& position, const typename nullmove::movedataType& data, const materialTableType& materialTable) const noexcept
 		{
 			const playerType p{ --position.movingPlayer() };
 			position.setMovingPlayer(p);

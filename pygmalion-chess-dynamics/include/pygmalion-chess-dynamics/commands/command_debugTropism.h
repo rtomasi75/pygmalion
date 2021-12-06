@@ -19,7 +19,7 @@ namespace pygmalion::chess::dynamics
 				if (player == this->position().movingPlayer())
 				{
 					typename generatorType::contextType context;
-					stackType<PLAYER> stack{ stackType<PLAYER>(this->position(), this->history(), &context) };
+					stackType<PLAYER> stack{ stackType<PLAYER>(this->position(), this->history(), &context, this->stateEngine().materialTable(), this->dynamicsEngine().delta()) };
 					const squaresType whitePawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(whitePlayer) };
 					const squaresType blackPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(blackPlayer) };
 					const squareType whiteKing{ stack.kingSquare(whitePlayer) };

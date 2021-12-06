@@ -1,13 +1,10 @@
 namespace pygmalion::chess
 {
 	class evaluationstage_attacks :
-		public pygmalion::evaluationstage<descriptor_evaluation, evaluationstage_attacks>
+		public pygmalion::evaluationstage<descriptor_evaluation, evaluationstage_attacks, int>
 	{
 	public:
-		PYGMALION_TUNABLE static inline double Attack{ 0.125 };
-	private:
-		PYGMALION_TUNABLE static inline scoreType AttackFactor{ static_cast<scoreType>(Attack / 64.0) };
-		PYGMALION_TUNABLE static inline scoreType AttackDelta{ static_cast<scoreType>(48.0 * Attack / 64.0) };
+		PYGMALION_TUNABLE static inline double Attack{ 0.125 / 64.0 };
 	public:
 		constexpr static size_t getParameterCount_Implementation() noexcept
 		{
@@ -17,31 +14,33 @@ namespace pygmalion::chess
 		{
 			return parameter(Attack, 0.0, 1.0, 0.001, "term_attack");
 		}
-#if defined(PYGMALION_TUNE)
-		static void setParameter_Implementation(const size_t index, double value) noexcept
+		PYGMALION_TUNABLE static scoreType computeDelta_Implementation(const scoreType* pParameters) noexcept
 		{
-			Attack = value;
-			AttackFactor = static_cast<scoreType>(Attack / 64.0);
-			AttackDelta = static_cast<scoreType>(48.0 * Attack / 64.0);
-		}
-#endif
-		PYGMALION_TUNABLE static scoreType computeDelta_Implementation() noexcept
-		{
-			return AttackDelta;
+			return 48 * pParameters[0];
 		}
 		template<size_t PLAYER>
-		static scoreType evaluate_Implementation(const generatorType::template stackType<PLAYER>& stack) noexcept
+		PYGMALION_INLINE static void computeData_Implementation(const generatorType::template stackType<PLAYER>& stack, int& data) noexcept
 		{
+			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			const squaresType attackedByBlack{ stack.template squaresAttackedByPlayer<static_cast<size_t>(blackPlayer)>() };
 			const squaresType attackedByWhite{ stack.template squaresAttackedByPlayer<static_cast<size_t>(whitePlayer)>() };
 			const int attacks{ static_cast<int>(attackedByWhite.count()) - static_cast<int>(attackedByBlack.count()) };
-			const scoreType scoreAttacks{ attacks * AttackFactor };
-			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
-			constexpr const bool invert{ movingPlayer == blackPlayer };
-			if constexpr (invert)
-				return -scoreAttacks;
+			if constexpr (movingPlayer == blackPlayer)
+				data = -attacks;
 			else
-				return scoreAttacks;
+				data = attacks;
+		}
+		template<size_t PLAYER>
+		PYGMALION_INLINE static scoreType evaluate_Implementation(const int data, const scoreType* pParameters) noexcept
+		{
+			const scoreType scoreAttacks{ data * pParameters[0] };
+			return scoreAttacks;
+		}
+		template<size_t PLAYER>
+		PYGMALION_INLINE static scoreType differentiate_Implementation(const dataType, const size_t parameterIndex, const scoreType* pParameters) noexcept
+		{
+			PYGMALION_ASSERT(parameterIndex == 0);
+			return static_cast<scoreType>(data);
 		}
 		static std::string name_Implementation() noexcept
 		{

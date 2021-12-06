@@ -12,20 +12,20 @@ namespace pygmalion
 	private:
 		constexpr static const inline moveType m_Move{ moveType() };
 	public:
-		PYGMALION_INLINE static const moveType& move() noexcept
+		constexpr PYGMALION_INLINE static const moveType& move() noexcept
 		{
 			return m_Move;
 		}
-		PYGMALION_INLINE static void makeMove(boardType& position, const movebitsType movebits, movedataType& data) noexcept
+		PYGMALION_INLINE static void makeMove(boardType& position, const movebitsType movebits, movedataType& data, const materialTableType& materialTable) noexcept
 		{
-			m_Move.doMove(position, movebits, data);
+			m_Move.doMove(position, movebits, data, materialTable);
 			position.doMove();
 		}
 
-		PYGMALION_INLINE static void unmakeMove(boardType& position, const movedataType& data) noexcept
+		PYGMALION_INLINE static void unmakeMove(boardType& position, const movedataType& data, const materialTableType& materialTable) noexcept
 		{
 			position.undoMove();
-			m_Move.undoMove(position, data);
+			m_Move.undoMove(position, data, materialTable);
 		}
 
 		PYGMALION_INLINE static bool parseMove(const boardType& position, const std::string& text, movebitsType& movebits, size_t& count) noexcept

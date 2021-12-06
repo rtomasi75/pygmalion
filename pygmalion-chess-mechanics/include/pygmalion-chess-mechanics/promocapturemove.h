@@ -8,6 +8,7 @@ namespace pygmalion::chess
 			using boardType = board;
 			using descriptorState = typename boardType::descriptorState;
 #include <pygmalion-state/include_state.h>
+			using materialTableType = pygmalion::state::materialTables<descriptorState, boardType>;
 		private:
 			squareType m_From;
 			squareType m_To;
@@ -60,6 +61,7 @@ namespace pygmalion::chess
 		using boardType = board;
 		using descriptorState = typename boardType::descriptorState;
 #include <pygmalion-state/include_state.h>
+		using materialTableType = pygmalion::state::materialTables<descriptorState, boardType>;
 		using movebitsType = typename pygmalion::mechanics::move<board, 2 * board::squareType::countUnsignedBits, detail::promocaptureMovedata, promocapturemove<PIECE>>::movebitsType;
 		constexpr static const size_t countFromBits{ squareType::countUnsignedBits };
 		constexpr static const size_t countToBits{ squareType::countUnsignedBits };
@@ -100,7 +102,7 @@ namespace pygmalion::chess
 		constexpr promocapturemove(promocapturemove&&) noexcept = default;
 		constexpr promocapturemove(const promocapturemove&) noexcept = default;
 	public:
-		PYGMALION_INLINE void doMove_Implementation(boardType& position, const typename promocapturemove::movebitsType moveBits, typename promocapturemove::movedataType& movedata) const noexcept
+		PYGMALION_INLINE void doMove_Implementation(boardType& position, const typename promocapturemove::movebitsType moveBits, typename promocapturemove::movedataType& movedata, const materialTableType& materialTable) const noexcept
 		{
 			const squareType from{ promocapturemove::extractFrom(moveBits) };
 			const squareType to{ promocapturemove::extractTo(moveBits) };
@@ -110,9 +112,9 @@ namespace pygmalion::chess
 			const uint_t<countFlags, false> oldFlags{ position.extractFlagRange<0, 11>() };
 			const std::uint16_t reversiblePlies{ static_cast<std::uint16_t>(position.getReversiblePlyCount()) };
 			position.clearEnPassantFiles();
-			position.removePiece(pawn, from, p);
-			position.removePiece(pc2, to, p2);
-			position.addPiece(m_PromotedPiece, to, p);
+			position.removePiece(pawn, from, p, materialTable);
+			position.removePiece(pc2, to, p2, materialTable);
+			position.addPiece(m_PromotedPiece, to, p, materialTable);
 			position.setMovingPlayer(p2);
 			position.resetReversiblePlyCount();
 			if (p == whitePlayer)
@@ -147,14 +149,14 @@ namespace pygmalion::chess
 			}
 			movedata = typename promocapturemove::movedataType(from, to, oldFlags, pc2, reversiblePlies);
 		}
-		PYGMALION_INLINE void undoMove_Implementation(boardType& position, const typename promocapturemove::movedataType& data) const noexcept
+		PYGMALION_INLINE void undoMove_Implementation(boardType& position, const typename promocapturemove::movedataType& data, const materialTableType& materialTable) const noexcept
 		{
 			const playerType p2{ position.movingPlayer() };
 			const playerType p{ --position.movingPlayer() };
 			position.setMovingPlayer(p);
-			position.removePiece(m_PromotedPiece, data.to(), p);
-			position.addPiece(pawn, data.from(), p);
-			position.addPiece(data.capturedPiece(), data.to(), p2);
+			position.removePiece(m_PromotedPiece, data.to(), p, materialTable);
+			position.addPiece(pawn, data.from(), p, materialTable);
+			position.addPiece(data.capturedPiece(), data.to(), p2, materialTable);
 			position.storeFlagRange<0, 11>(data.oldFlags());
 			position.setReversiblePlyCount(static_cast<size_t>(data.reversiblePlies()));
 		}

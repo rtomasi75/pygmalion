@@ -18,15 +18,17 @@ namespace pygmalion::evaluation
 				if (player == this->position().movingPlayer())
 				{
 					typename generatorType::contextType context;
-					typename generatorType::template stackType<PLAYER> stack{ typename generatorType::template stackType<PLAYER>(this->position(), this->history(), &context) };
-					this->output() << "material: \t" << evaluatorType::template computeMaterial<PLAYER>(stack) << std::endl;
+					typename generatorType::template stackType<PLAYER> stack{ typename generatorType::template stackType<PLAYER>(this->position(), this->history(), &context, this->stateEngine().materialTable(), this->dynamicsEngine().delta()) };
+					this->output() << "material: \t" << stack.position().template materialRelative<PLAYER>() << std::endl;
+					typename evaluatorType::dataType data;
+					evaluatorType::createData(data);
 					for (size_t i = 0; i < evaluatorType::countStages; i++)
 					{
-						const scoreType value{ evaluatorType::template stageScore<PLAYER>(i,stack) };
+						const scoreType value{ evaluatorType::template stage<PLAYER>(i,stack,data, this->evaluationEngine().evaluationParameters()) };
 						this->output() << evaluatorType::stageName(i) << ": \t" << value << std::endl;
 					}
 					this->output() << "___________________________________________" << std::endl;
-					scoreType eval{ evaluatorType::template evaluate<PLAYER>(scoreType::minimum(), scoreType::maximum(),stack) };
+					scoreType eval{ evaluatorType::template evaluate<PLAYER>(scoreType::minimum(), scoreType::maximum(),stack,data, this->evaluationEngine().evaluationParameters()) };
 					this->output() << "total: \t\t" << eval << std::endl;
 				}
 				else

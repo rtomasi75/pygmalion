@@ -287,7 +287,7 @@ namespace pygmalion
 		template<size_t PLAYER>
 		PYGMALION_INLINE scoreType staticMoveScore(const stackType<PLAYER>& stack, const movebitsType moveBits, const size_t depth) noexcept
 		{
-			return evaluatorType::staticMoveScore(stack.position(), moveBits);
+			return evaluatorType::template staticMoveScore<PLAYER>(stack.position(), moveBits, stack.materialTable());
 		}
 		template<size_t PLAYER>
 		void quietKillers(const stackType<PLAYER>& stack, const size_t depth, quietKillermovesType& killermoves) noexcept

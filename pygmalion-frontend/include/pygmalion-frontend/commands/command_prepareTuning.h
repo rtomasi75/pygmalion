@@ -26,8 +26,8 @@ namespace pygmalion::frontend
 					bool bOk{ true };
 					while (bOk)
 					{
-						recordType rec;
-						if (recordType::read(pgn, rec))
+						recordType rec(this->stateEngine().materialTable());
+						if (recordType::read(pgn, rec, this->stateEngine().materialTable(), this->dynamicsEngine().delta()))
 						{
 							records.emplace_back(rec);
 							std::string temp = parser::valueToString(records.size(), " games");

@@ -1,7 +1,7 @@
 namespace pygmalion::chess::state
 {
 	class descriptor_state :
-		public pygmalion::descriptor_state<6, 8, 8, 12, 32, true, pygmalion::chess::state::cumulation>
+		public pygmalion::descriptor_state<6, 8, 8, 12, 32, true, pygmalion::chess::state::cumulation, 31, 15, 1024>
 	{
 	public:
 		constexpr static const playerType whitePlayer{ 0 };

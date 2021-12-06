@@ -21,7 +21,7 @@ namespace pygmalion::chess::frontend
 		engine(std::istream& input, std::ostream& output) noexcept :
 			pygmalion::frontend::engine<FRONT>(input, output)
 		{
-			this->template addCommand<command_debugMaterial<typename pygmalion::frontend::engine<FRONT>::descriptorFrontend, typename pygmalion::frontend::engine<FRONT>::frontType>>();
+	//		this->template addCommand<command_debugMaterial<typename pygmalion::frontend::engine<FRONT>::descriptorFrontend, typename pygmalion::frontend::engine<FRONT>::frontType>>();
 		}
 		virtual bool handleOptions(const std::string& token, const std::string& remainder) noexcept override
 		{

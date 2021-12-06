@@ -19,7 +19,7 @@ namespace pygmalion::dynamics
 			if (token == "set-fen")
 			{
 				this->output() << std::endl;
-				if (this->position().setFen(remainder))
+				if (this->position().setFen(remainder, this->stateEngine().materialTable()))
 				{
 					this->stateEngine().positionChanged();
 					this->output() << "New position: " << this->position().getFen() << std::endl;

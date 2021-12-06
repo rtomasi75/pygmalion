@@ -14,5 +14,10 @@ namespace pygmalion::chess
 			else
 				return "0-1";
 		}
+		front() noexcept :
+			pygmalion::front<descriptor_frontend, front>()
+		{
+
+		}
 	};
 }

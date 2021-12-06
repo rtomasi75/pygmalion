@@ -99,7 +99,7 @@ namespace pygmalion::chess::dynamics
 						typename generatorType::contextType* pContext = new typename generatorType::contextType[depth + 1];
 						profiler p;
 						p.start();
-						stackType<PLAYER> stack{ stackType<PLAYER>(this->position(),this->history(),pContext) };
+						stackType<PLAYER> stack{ stackType<PLAYER>(this->position(),this->history(),pContext, this->stateEngine().materialTable(), this->dynamicsEngine().delta()) };
 						movebitsType moveBits;
 						while (stack.nextMove(moveBits))
 						{

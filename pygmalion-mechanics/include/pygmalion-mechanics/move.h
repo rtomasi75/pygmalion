@@ -8,6 +8,7 @@ namespace pygmalion::mechanics
 		using boardType = BOARD;
 		using descriptorState = typename boardType::descriptorState;
 #include <pygmalion-state/include_state.h>
+		using materialTableType = state::materialTables<descriptorState, boardType>;
 		constexpr static const size_t countBits{ COUNT_BITS };
 		using movebitsType = uint_t<countBits, false>;
 		using movedataType = MOVEDATA;
@@ -23,13 +24,13 @@ namespace pygmalion::mechanics
 		{
 			return instanceType::name_Implementation();
 		}
-		PYGMALION_INLINE void doMove(boardType& position, const movebitsType moveBits, movedataType& movedata) const noexcept
+		PYGMALION_INLINE void doMove(boardType& position, const movebitsType moveBits, movedataType& movedata, const materialTableType& materialTable) const noexcept
 		{
-			static_cast<const instanceType*>(this)->doMove_Implementation(position, moveBits, movedata);
+			static_cast<const instanceType*>(this)->doMove_Implementation(position, moveBits, movedata, materialTable);
 		}
-		PYGMALION_INLINE void undoMove(boardType& position, const movedataType& data) const noexcept
+		PYGMALION_INLINE void undoMove(boardType& position, const movedataType& data, const materialTableType& materialTable) const noexcept
 		{
-			static_cast<const instanceType*>(this)->undoMove_Implementation(position, data);
+			static_cast<const instanceType*>(this)->undoMove_Implementation(position, data, materialTable);
 		}
 		bool parse(const boardType& position, const std::string& text, movebitsType& moveBits, size_t& count) const noexcept
 		{

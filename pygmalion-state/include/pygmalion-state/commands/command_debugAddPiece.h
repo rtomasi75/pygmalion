@@ -35,7 +35,7 @@ namespace pygmalion::state
 						else
 						{
 							this->output() << "adding " << boardType::pieceToString(pc, p) << " on " << boardType::squareToString(sq) << "." << std::endl;
-							this->position().addPiece(pc, sq, p);
+							this->position().addPiece(pc, sq, p, this->stateEngine().materialTable());
 						}
 					}
 					else

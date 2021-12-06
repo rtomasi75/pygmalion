@@ -1,7 +1,7 @@
 namespace pygmalion::dynamics
 {
 	template<typename DESCRIPTION_DYNAMICS, typename GENERATOR>
-	class command_debugMoves :
+	class command_debugPromotionOrigins :
 		public pygmalion::dynamics::command<DESCRIPTION_DYNAMICS, GENERATOR>
 	{
 	public:
@@ -12,31 +12,17 @@ namespace pygmalion::dynamics
 #include "../include_dynamics.h"	
 	private:
 		template<size_t PLAYER>
-		void process() noexcept
+		void process(const playerType pl, const pieceType pc) noexcept
 		{
 			if constexpr (PLAYER < countPlayers)
 			{
 				constexpr const playerType player{ static_cast<playerType>(PLAYER) };
-				if (player == this->position().movingPlayer())
+				if (player == pl)
 				{
-					movelistType moves;
-					typename generatorType::contextType context;
-					stackType<PLAYER> stack{ stackType<PLAYER>(this->position(), this->history(), &context, this->stateEngine().materialTable(), this->dynamicsEngine().delta()) };
-					movebitsType movebits;
-					bool hasMoves{ false };
-					while (stack.nextMove(movebits))
-					{
-						hasMoves = true;
-						this->output() << generatorType::moveToSAN(stack, movebits) << "\t";
-						this->output() << std::endl;
-					}
-					if (!hasMoves)
-					{
-						this->output() << "(no moves possible)" << std::endl;
-					}
+					this->dumpSquares(generatorType::promotionOrigins(player, pc));
 				}
 				else
-					this->template process<PLAYER + 1>();
+					this->template process<PLAYER + 1>(pl, pc);
 			}
 			else
 				PYGMALION_ASSERT(false);
@@ -44,10 +30,17 @@ namespace pygmalion::dynamics
 	protected:
 		virtual bool onProcess(const std::string& cmd) noexcept override
 		{
-			if (cmd == "debug-moves")
+			if (cmd == "debug-promotionorigins")
 			{
 				this->output() << std::endl;
-				this->template process<0>();
+				for (const auto pc : pieceType::range)
+				{
+					for (const auto pl : playerType::range)
+					{
+						this->output() << boardType::pieceToString(pc, pl) << std::endl;
+						this->template process<0>(pl, pc);
+					}
+				}
 				this->output() << std::endl;
 				return true;
 			}
@@ -56,7 +49,7 @@ namespace pygmalion::dynamics
 		}
 		virtual std::string help() noexcept override
 		{
-			return "DEBUG-MOVES";
+			return "DEBUG-PROMOTIONORIGINS";
 		}
 	};
 

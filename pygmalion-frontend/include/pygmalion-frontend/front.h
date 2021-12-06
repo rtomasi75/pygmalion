@@ -169,7 +169,8 @@ namespace pygmalion
 			m_MaxTime{ -1 },
 			m_Rating{ arrayhelper::make<countPlayers,std::uint16_t>(0) },
 			m_HasHint{ false },
-			m_IsPondering{ false }
+			m_IsPondering{ false },
+			m_PonderBoard{ boardType() }
 		{
 
 		}

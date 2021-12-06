@@ -21,7 +21,7 @@ namespace pygmalion::dynamics
 				{
 					movelistType moves;
 					typename generatorType::contextType context;
-					stackType<PLAYER> stack{ stackType<PLAYER>(this->position(), this->history(), &context) };
+					stackType<PLAYER> stack{ stackType<PLAYER>(this->position(), this->history(), &context, this->stateEngine().materialTable(), this->dynamicsEngine().delta()) };
 					movebitsType movebits;
 					bool hasMoves{ false };
 					while (stack.nextQSPhase1Move(movebits))

@@ -1,13 +1,13 @@
-namespace pygmalion::chess::frontend
+namespace pygmalion::state
 {
-	template<typename DESCRIPTION_FRONTEND, typename FRONT>
+	template<typename DESCRIPTION_STATE, typename BOARD>
 	class command_debugMaterial :
-		public pygmalion::frontend::command<DESCRIPTION_FRONTEND, FRONT>
+		public pygmalion::state::command<DESCRIPTION_STATE, BOARD>
 	{
 	public:
-		using frontType = FRONT;
-		using descriptorFrontend = DESCRIPTION_FRONTEND;
-#include <pygmalion-frontend/include_frontend.h>
+		using boardType = BOARD;
+		using descriptorState = DESCRIPTION_STATE;
+#include "../include_state.h"	
 	protected:
 		virtual bool onProcess(const std::string& cmd) noexcept override
 		{
@@ -25,7 +25,7 @@ namespace pygmalion::chess::frontend
 							{
 								const squareType sq{ rank & file };
 								this->output() << "\t";
-								this->output() << boardType::materialValueRelative(pc, sq, pl);
+								this->output() << this->stateEngine().materialTable().materialAbsolute(pl, pc, sq);
 							}
 							this->output() << std::endl;
 						}

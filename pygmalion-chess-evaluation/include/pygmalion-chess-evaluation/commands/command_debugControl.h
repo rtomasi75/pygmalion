@@ -19,7 +19,7 @@ namespace pygmalion::chess::evaluation
 				if (player == this->position().movingPlayer())
 				{
 					typename generatorType::contextType context;
-					stackType<PLAYER> stack{ stackType<PLAYER>(this->position(), this->history(), &context) };
+					stackType<PLAYER> stack{ stackType<PLAYER>(this->position(), this->history(), &context, this->stateEngine().materialTable(), this->dynamicsEngine().delta()) };
 					constexpr const squaresType none{ squaresType::none() };
 					squaresType controlWhite{ none };
 					squaresType controlBlack{ none };

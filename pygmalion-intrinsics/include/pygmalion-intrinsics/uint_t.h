@@ -423,6 +423,16 @@ namespace pygmalion
 		{
 			return (~(*this))++;
 		}
+		PYGMALION_INLINE constexpr void check(const size_t bit, const bool value) noexcept
+		{
+			const size_t word{ bit / countBitsPerWord };
+			const size_t wbit{ bit % countBitsPerWord };
+			const wordType mask{ static_cast<wordType>(wordType(1) << wbit) };
+			constexpr const wordType zero{ static_cast<wordType>(0) };
+			m_Words[word] &= mask;
+			m_Words[word] |= value ? ~mask : zero;
+			m_Words[countWords - 1] = normalizeHighestWord(m_Words[countWords - 1]);
+		}
 		constexpr bool test(const size_t bit) const noexcept
 		{
 			const size_t word{ bit / countBitsPerWord };
@@ -1827,6 +1837,12 @@ namespace pygmalion
 						return uint_t(res, false);
 					}
 		}
+		PYGMALION_INLINE constexpr void check(const size_t bit, const bool value) noexcept
+		{
+			const wordType mask{ static_cast<wordType>(wordType(1) << bit) };
+			constexpr const wordType zero{ static_cast<wordType>(0) };
+			m_Word = normalizeWord((m_Word & mask) | (value ? ~mask : zero));
+		}
 		PYGMALION_INLINE constexpr bool test(const size_t bit) const noexcept
 		{
 			const wordType mask{ static_cast<wordType>(wordType(1) << bit) };
@@ -2164,9 +2180,9 @@ namespace pygmalion
 				{
 					m_State.m_Word &= m_State.m_Word - 1;
 					m_State.bitscanForward(m_Current);
-				}
-				return *this;
 			}
+				return *this;
+		}
 			PYGMALION_INLINE constexpr value_type operator*() const noexcept
 			{
 				return m_Current;
@@ -2179,7 +2195,7 @@ namespace pygmalion
 			{
 				return m_State != other.m_State;
 			}
-		};
+	};
 		class counterType
 		{
 			friend class uint_t;
@@ -2324,8 +2340,8 @@ namespace pygmalion
 					constexpr const wordType mask{ static_cast<wordType>((wordType(1) << LEN) - wordType(1)) };
 					return L(bits & mask);
 				}
-			}
 		}
+}
 		template<typename LAMBDA>
 		PYGMALION_INLINE void foreach(const LAMBDA& lambda) const noexcept
 		{
@@ -3231,7 +3247,7 @@ namespace pygmalion
 			{
 				for (const auto index : *this)
 					lambda(index);
-			}
+		}
 		}
 	};
 
@@ -3257,6 +3273,10 @@ namespace pygmalion
 			return (start + length) <= countBits;
 		}
 	public:
+		PYGMALION_INLINE constexpr void check(const size_t bit, const bool value) noexcept
+		{
+			m_Word = value;
+		}
 		PYGMALION_INLINE constexpr uint_t twosComplement() const noexcept
 		{
 			return *this;
@@ -3748,6 +3768,10 @@ namespace pygmalion
 		PYGMALION_INLINE uint_t deposePattern(const uint_t mask) const noexcept
 		{
 			return *this;
+		}
+		PYGMALION_INLINE constexpr void check(const size_t bit, const bool value) noexcept
+		{
+			PYGMALION_ASSERT(false);
 		}
 		PYGMALION_INLINE constexpr bool test(const size_t bit) const noexcept
 		{

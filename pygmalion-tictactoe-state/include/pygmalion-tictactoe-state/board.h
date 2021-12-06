@@ -1,6 +1,6 @@
 namespace pygmalion::tictactoe
 {
-	using descriptorState = pygmalion::descriptor_state<1, 3, 3, 0, 8, false, bool>;
+	using descriptorState = pygmalion::descriptor_state<1, 3, 3, 0, 8, false, bool, 7, 0, 10>;
 
 	class board :
 		public pygmalion::board<descriptorState, board>
@@ -160,7 +160,7 @@ namespace pygmalion::tictactoe
 		void onClearedFlag_Implementation(const flagType flag) noexcept
 		{
 		}
-		void onInitialize_Implementation() noexcept
+		void onInitialize_Implementation(const materialTableType& materialTable) noexcept
 		{
 		}
 		static std::string flagsToString_Implementation(const flagsType flags, const playerType movingPlayer) noexcept
@@ -170,6 +170,14 @@ namespace pygmalion::tictactoe
 		static bool parseFlags_Implementation(const std::string& text, flagsType& flags, size_t& count) noexcept
 		{
 			return true;
+		}
+		static scoreType defaultLazyMaterial_Implementation(const pieceType pc) noexcept
+		{
+			return scoreType::zero();
+		}
+		static scoreType defaultMaterial_Implementation(const playerType pl, const pieceType pc, const squareType sq) noexcept
+		{
+			return scoreType::zero();
 		}
 	};
 }

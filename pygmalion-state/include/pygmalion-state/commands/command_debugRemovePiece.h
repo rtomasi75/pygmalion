@@ -30,7 +30,7 @@ namespace pygmalion::state
 						const pieceType pc{ this->position().getPiece(sq) };
 						const playerType p{ this->position().getPlayer(sq) };
 						this->output() << "removing " << boardType::pieceToString(pc, p) << " from " << boardType::squareToString(sq) << "." << std::endl;
-						this->position().removePiece(pc, sq, p);
+						this->position().removePiece(pc, sq, p, this->stateEngine().materialTable());
 					}
 				}
 				else

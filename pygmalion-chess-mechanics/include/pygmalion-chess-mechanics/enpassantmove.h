@@ -99,7 +99,7 @@ namespace pygmalion::chess
 		{
 			return *this;
 		}
-		PYGMALION_INLINE void doMove_Implementation(boardType& position, const typename enpassantmove::movebitsType moveBits, typename enpassantmove::movedataType& movedata) const noexcept
+		PYGMALION_INLINE void doMove_Implementation(boardType& position, const typename enpassantmove::movebitsType moveBits, typename enpassantmove::movedataType& movedata, const materialTableType& materialTable) const noexcept
 		{
 			const playerType p{ position.movingPlayer() };
 			const playerType p2{ ++position.movingPlayer() };
@@ -115,9 +115,8 @@ namespace pygmalion::chess
 				const squareType to{ f2 & r2 };
 				const squareType capture{ f2 & r1 };
 				position.clearEnPassantFiles();
-				position.removePiece(pawn, from, p);
-				position.addPiece(pawn, to, p);
-				position.removePiece(pawn, capture, p2);
+				position.removePiece(pawn, capture, p2, materialTable);
+				position.movePiece(pawn, from, to, p, materialTable);
 				position.setMovingPlayer(p2);
 				position.resetReversiblePlyCount();
 				movedata = typename enpassantmove::movedataType(from, to, oldFlags, capture, reversiblePlies);
@@ -130,22 +129,20 @@ namespace pygmalion::chess
 				const squareType to{ f2 & r2 };
 				const squareType capture{ f2 & r1 };
 				position.clearEnPassantFiles();
-				position.removePiece(pawn, from, p);
-				position.addPiece(pawn, to, p);
-				position.removePiece(pawn, capture, p2);
+				position.removePiece(pawn, capture, p2, materialTable);
+				position.movePiece(pawn, from, to, p, materialTable);
 				position.setMovingPlayer(p2);
 				position.resetReversiblePlyCount();
 				movedata = typename enpassantmove::movedataType(from, to, oldFlags, capture, reversiblePlies);
 			}
 		}
-		PYGMALION_INLINE void undoMove_Implementation(boardType& position, const typename enpassantmove::movedataType& data) const noexcept
+		PYGMALION_INLINE void undoMove_Implementation(boardType& position, const typename enpassantmove::movedataType& data, const materialTableType& materialTable) const noexcept
 		{
 			const playerType p2{ position.movingPlayer() };
 			const playerType p{ --position.movingPlayer() };
 			position.setMovingPlayer(p);
-			position.removePiece(pawn, data.to(), p);
-			position.addPiece(pawn, data.from(), p);
-			position.addPiece(pawn, data.captureSquare(), p2);
+			position.movePiece(pawn, data.to(), data.from(), p, materialTable);
+			position.addPiece(pawn, data.captureSquare(), p2, materialTable);
 			position.storeFlagRange<4, 11>(data.oldFlags());
 			position.setReversiblePlyCount(static_cast<size_t>(data.reversiblePlies()));
 		}

@@ -23,9 +23,9 @@ namespace pygmalion::search
 				{
 					movelistType moves;
 					typename generatorType::contextType context;
-					stackType<PLAYER> stack{ stackType<PLAYER>(this->position(), this->history(), &context) };
+					stackType<PLAYER> stack{ stackType<PLAYER>(this->position(), this->history(), &context, this->stateEngine().materialTable(), this->dynamicsEngine().delta()) };
 					signal terminate{ signal(false) };
-					nodeType<static_cast<size_t>(static_cast<playerType>(PLAYER))> node(stack, terminate, this->searchEngine().heuristics(), this->searchEngine().history().length());
+					nodeType<static_cast<size_t>(static_cast<playerType>(PLAYER))> node(stack, terminate, this->searchEngine().heuristics(), this->searchEngine().history().length(), this->evaluationEngine().parameters());
 					movebitsType movebits;
 					bool hasMoves{ false };
 					bool fromStack;

@@ -7,6 +7,7 @@ namespace pygmalion
 	public:
 		using boardType = BOARD;
 		using descriptorState = typename BOARD::descriptorState;
+		using materialTableType = state::materialTables<descriptorState, boardType>;
 #include "include_state.h"	
 	private:
 		boardType m_Board;
@@ -80,9 +81,9 @@ namespace pygmalion
 		{
 			return m_Board;
 		}
-		constexpr void initialize() noexcept
+		constexpr void initialize(const materialTableType& materialTable) noexcept
 		{
-			m_Board.initialize();
+			m_Board.initialize(materialTable);
 			resetTimeControl();
 		}
 	};

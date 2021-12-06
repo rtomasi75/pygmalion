@@ -49,7 +49,7 @@ namespace pygmalion::dynamics
 					for (size_t i = 0; i < depth; i++)
 					{
 						p.start();
-						stackType<PLAYER> stack{ stackType<PLAYER>(this->position(),this->history(), pContext) };
+						stackType<PLAYER> stack{ stackType<PLAYER>(this->position(),this->history(), pContext, this->stateEngine().materialTable(), this->dynamicsEngine().delta()) };
 						std::uintmax_t nodes{ 0 };
 						const std::uintmax_t leafs{ this->template perft<PLAYER>(stack,0, i, nodes) };
 						p.stop();

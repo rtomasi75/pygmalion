@@ -1,7 +1,7 @@
 namespace pygmalion::chess
 {
 	class evaluationstage_pawnstructure :
-		public pygmalion::evaluationstage<descriptor_evaluation, evaluationstage_pawnstructure>
+		public pygmalion::evaluationstage<descriptor_evaluation, evaluationstage_pawnstructure, typename descriptor_evaluation::scoreType>
 	{
 	public:
 		PYGMALION_TUNABLE static inline double PawnStructure{ 0.5 };
@@ -14,19 +14,12 @@ namespace pygmalion::chess
 		{
 			return parameter(PawnStructure, 0.0, 1.0, 0.001, "term_pawnstructure");
 		}
-#if defined(PYGMALION_TUNE)
-		static void setParameter_Implementation(const size_t index, double value) noexcept
+		PYGMALION_TUNABLE static scoreType computeDelta_Implementation(const scoreType* pParameters) noexcept
 		{
-			PawnStructure = value;
-			PawnStructureDelta = static_cast<scoreType>(1.5 * PawnStructure);
-		}
-#endif
-		PYGMALION_TUNABLE static scoreType computeDelta_Implementation() noexcept
-		{
-			return PawnStructureDelta;
+			return (3 * pParameters[0]) / 2;
 		}
 		template<size_t PLAYER>
-		PYGMALION_INLINE static scoreType evaluate_Implementation(const generatorType::template stackType<PLAYER>& stack) noexcept
+		PYGMALION_INLINE static void computeData_Implementation(const generatorType::template stackType<PLAYER>& stack, scoreType& data) noexcept
 		{
 			auto& entry{ generatorType::pawnTable().entry(stack) };
 			constexpr const playerType movingPlayer0{ static_cast<playerType>(PLAYER) };
@@ -87,7 +80,7 @@ namespace pygmalion::chess
 							blackRank3 = 0;
 						}
 						std::int8_t distanceToPromotion{ pawnstructure::distance(movingPlayer, whiteRank1, whiteRank2, whiteRank3, blackRank1, blackRank2, blackRank3) };
-						PYGMALION_TUNABLE const scoreType baseScore{ static_cast<scoreType>(PawnStructure) };
+						constexpr const scoreType baseScore{ static_cast<scoreType>(1.0) };
 						if (distanceToPromotion > 0)
 						{
 							const int divisor{ 1 << distanceToPromotion };
@@ -99,16 +92,27 @@ namespace pygmalion::chess
 							pawnStructureScore -= baseScore / divisor;
 						}
 					}
-					entry.setPawnStructureScore(movingPlayer, pawnStructureScore);
+					constexpr bool invert{ movingPlayer0 == blackPlayer };
+					if constexpr (invert)
+						entry.setPawnStructureScore(movingPlayer, -pawnStructureScore);
+					else
+						entry.setPawnStructureScore(movingPlayer, pawnStructureScore);
 				}
 			}
-			constexpr bool invert{ movingPlayer0 == blackPlayer };
-			if constexpr (invert)
-				return -(entry.getPawnStructureScore(movingPlayer0) + entry.getPawnStructureScore(otherPlayer0));
-			else
-				return entry.getPawnStructureScore(movingPlayer0) + entry.getPawnStructureScore(otherPlayer0);
+			data = entry.getPawnStructureScore(movingPlayer0) + entry.getPawnStructureScore(otherPlayer0);
 		}
-		static std::string name_Implementation() noexcept
+		template<size_t PLAYER>
+		PYGMALION_INLINE static scoreType evaluate_Implementation(const scoreType data, const scoreType* pParameters) noexcept
+		{
+			return pParameters[0] * data;
+		}
+		template<size_t PLAYER>
+		PYGMALION_INLINE static scoreType differentiate_Implementation(const dataType, const size_t parameterIndex, const scoreType* pParameters) noexcept
+		{
+			PYGMALION_ASSERT(parameterIndex == 0);
+			return static_cast<scoreType>(data);
+		}
+		PYGMALION_INLINE static std::string name_Implementation() noexcept
 		{
 			return "pawnstructure";
 		}

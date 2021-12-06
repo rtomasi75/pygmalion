@@ -34,7 +34,34 @@ namespace pygmalion
 		{
 			return make_impl<SIZE>(std::forward<T>(value), std::make_index_sequence<SIZE - 1>{});
 		}
+		template <size_t... n>
+		struct ct_integers_list {
+			template <size_t m>
+			struct push_back
+			{
+				typedef ct_integers_list<n..., m> type;
+			};
+		};
+
+		template <size_t max>
+		struct ct_iota_1
+		{
+			typedef typename ct_iota_1<max - 1>::type::template push_back<max>::type type;
+		};
+
+		template <>
+		struct ct_iota_1<0>
+		{
+			typedef ct_integers_list<> type;
+		};
 	public:
+		template <size_t... indices, typename Tuple>
+		constexpr auto tuple_subset(const Tuple& tpl, ct_integers_list<indices...>) -> decltype(std::make_tuple(std::get<indices>(tpl)...))
+		{
+			return std::make_tuple(std::get<indices>(tpl)...);
+			// this means:
+			//   make_tuple(get<indices[0]>(tpl), get<indices[1]>(tpl), ...)
+		}
 		constexpr static size_t requiredSignedBytes(const std::uintmax_t number) noexcept
 		{
 			if (number >= (UINTMAX_C(1) << 31))

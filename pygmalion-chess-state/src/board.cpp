@@ -492,41 +492,41 @@ namespace pygmalion::chess
 		count += pos;
 		return true;
 	}
-	
-	void board::onInitialize_Implementation() noexcept
+
+	void board::onInitialize_Implementation(const materialTableType& materialTable) noexcept
 	{
 		setMovingPlayer(whitePlayer);
 		// pawns
 		for (const auto f : fileType::range)
 		{
-			addPiece(pawn, rank2 & f, whitePlayer);
-			addPiece(pawn, rank7 & f, blackPlayer);
+			addPiece(pawn, rank2 & f, whitePlayer, materialTable);
+			addPiece(pawn, rank7 & f, blackPlayer, materialTable);
 		}
 		clearEnPassantFiles();
-		addPiece(king, squareE1, whitePlayer);
-		addPiece(king, squareE8, blackPlayer);
+		addPiece(king, squareE1, whitePlayer, materialTable);
+		addPiece(king, squareE8, blackPlayer, materialTable);
 		// rooks
-		addPiece(rook, squareA1, whitePlayer);
-		addPiece(rook, squareH1, whitePlayer);
-		addPiece(rook, squareA8, blackPlayer);
-		addPiece(rook, squareH8, blackPlayer);
+		addPiece(rook, squareA1, whitePlayer, materialTable);
+		addPiece(rook, squareH1, whitePlayer, materialTable);
+		addPiece(rook, squareA8, blackPlayer, materialTable);
+		addPiece(rook, squareH8, blackPlayer, materialTable);
 		setCastleRightQueensideBlack();
 		setCastleRightQueensideWhite();
 		setCastleRightKingsideBlack();
 		setCastleRightKingsideWhite();
 		// knights
-		addPiece(knight, squareB1, whitePlayer);
-		addPiece(knight, squareG1, whitePlayer);
-		addPiece(knight, squareB8, blackPlayer);
-		addPiece(knight, squareG8, blackPlayer);
+		addPiece(knight, squareB1, whitePlayer, materialTable);
+		addPiece(knight, squareG1, whitePlayer, materialTable);
+		addPiece(knight, squareB8, blackPlayer, materialTable);
+		addPiece(knight, squareG8, blackPlayer, materialTable);
 		// bishops
-		addPiece(bishop, squareC1, whitePlayer);
-		addPiece(bishop, squareF1, whitePlayer);
-		addPiece(bishop, squareC8, blackPlayer);
-		addPiece(bishop, squareF8, blackPlayer);
+		addPiece(bishop, squareC1, whitePlayer, materialTable);
+		addPiece(bishop, squareF1, whitePlayer, materialTable);
+		addPiece(bishop, squareC8, blackPlayer, materialTable);
+		addPiece(bishop, squareF8, blackPlayer, materialTable);
 		// queens
-		addPiece(queen, squareD1, whitePlayer);
-		addPiece(queen, squareD8, blackPlayer);
+		addPiece(queen, squareD1, whitePlayer, materialTable);
+		addPiece(queen, squareD8, blackPlayer, materialTable);
 	}
 
 	std::ostream& operator<<(std::ostream& str, const board& position) noexcept
@@ -609,8 +609,10 @@ namespace pygmalion::chess
 				str << "_";
 		}
 		str << std::endl;
+		str << "Pieces: " << boardType::pieceMaskToString(position.pieceMask(descriptorState::whitePlayer), descriptorState::whitePlayer) << ":" << boardType::pieceMaskToString(position.pieceMask(descriptorState::blackPlayer), descriptorState::blackPlayer) << std::endl;
 		str << std::endl;
-		str << "Material: " << position.material() << std::endl;
+		str << std::endl;
+		str << "Material: " << position.materialRelative(position.movingPlayer()) << std::endl;
 		str << std::endl;
 		str << "Hash: " << std::setw(8) << std::hex << static_cast<std::uint64_t>(position.hash()) << std::dec << std::endl;
 		str << std::endl;

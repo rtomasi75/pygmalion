@@ -20,7 +20,7 @@ namespace pygmalion::dynamics
 				if (player == this->position().movingPlayer())
 				{
 					typename generatorType::contextType context;
-					stackType<PLAYER> stack{ stackType<PLAYER>(this->position(), this->history(), &context) };
+					stackType<PLAYER> stack{ stackType<PLAYER>(this->position(), this->history(), &context, this->stateEngine().materialTable(), this->dynamicsEngine().delta()) };
 					this->output() << std::endl;
 					this->output() << "normal passes:" << std::endl;
 					for (size_t stage = 0; stage < stack.normalStagesCount(); stage++)

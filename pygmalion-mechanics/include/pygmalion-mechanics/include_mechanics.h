@@ -9,6 +9,6 @@ constexpr static const size_t countValuesBloomfilter{ descriptorMechanics::count
 using historyType = typename descriptorMechanics::historyType;
 using bloomfilterType = typename descriptorMechanics::bloomfilterType;
 using gameType=typename descriptorMechanics::gameType;
-
+using materialTableType = typename descriptorMechanics::materialTableType;
 using descriptorState = typename descriptorMechanics::descriptorState;
 #include <pygmalion-state/include_state.h>

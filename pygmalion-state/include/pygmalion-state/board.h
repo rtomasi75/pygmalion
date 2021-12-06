@@ -7,6 +7,7 @@ namespace pygmalion
 	public:
 		using boardType = INSTANCE;
 		using descriptorState = DESCRIPTOR_STATE;
+		using materialTableType = state::materialTables<descriptorState, boardType>;
 #include "include_state.h"
 	private:
 		std::array<squaresType, countPieces> m_PieceOccupancy;
@@ -15,7 +16,9 @@ namespace pygmalion
 		hashType m_Hash;
 		size_t m_MoveCount;
 		size_t m_ReversiblePlyCount;
+		scoreType m_Material;
 		flagsType m_Flags;
+		std::array<piecemaskType, countPlayers> m_PieceMask;
 		gamestateType m_Arbitration;
 		playerType m_MovingPlayer;
 		static inline std::array<hashType, 1 << flagType::countValues> m_FlagsHash
@@ -78,6 +81,10 @@ namespace pygmalion
 		{
 			static_cast<boardType*>(this)->onRemovedPiece_Implementation(piece, square, player);
 		}
+		PYGMALION_INLINE void onMovedPiece(const pieceType piece, const squareType from, const squareType to, const playerType player) noexcept
+		{
+			static_cast<boardType*>(this)->onMovedPiece_Implementation(piece, from, to, player);
+		}
 		PYGMALION_INLINE void onSetFlag(const flagType& flag) noexcept
 		{
 			static_cast<boardType*>(this)->onSetFlag_Implementation(flag);
@@ -86,15 +93,60 @@ namespace pygmalion
 		{
 			static_cast<boardType*>(this)->onClearedFlag_Implementation(flag);
 		}
-		PYGMALION_INLINE void onInitialize() noexcept
+		PYGMALION_INLINE void onInitialize(const materialTableType& materialTable) noexcept
 		{
-			static_cast<boardType*>(this)->onInitialize_Implementation();
+			static_cast<boardType*>(this)->onInitialize_Implementation(materialTable);
 		}
 		constexpr static bool enableRange(const size_t first, const size_t last) noexcept
 		{
 			return (first <= last) && (last < countFlags);
 		}
+		template<size_t PLAYER>
+		PYGMALION_INLINE static scoreType makeSubjectivePacked(const playerType pl, const scoreType score) noexcept
+		{
+			if constexpr (PLAYER >= countPlayers)
+			{
+				PYGMALION_ASSERT(false);
+				return scoreType::zero();
+			}
+			else
+			{
+				constexpr const playerType PL{ static_cast<playerType>(PLAYER) };
+				if (pl == PL)
+					return boardType::template makeSubjective<PLAYER>(score);
+				else
+					return makeSubjectivePacked<PLAYER + 1>(pl, score);
+			}
+			return boardType::template makeSubjective_Implementation<PLAYER>(score);
+		}
 	public:
+		PYGMALION_INLINE piecemaskType pieceMask(const playerType pl) const noexcept
+		{
+			return m_PieceMask[pl];
+		}
+		constexpr static size_t countParameters{ materialTableType::countParameters };
+		PYGMALION_INLINE scoreType materialAbsolute() const noexcept
+		{
+			return m_Material;
+		}
+		template<size_t PLAYER>
+		PYGMALION_INLINE static scoreType makeSubjective(const scoreType score) noexcept
+		{
+			return boardType::template makeSubjective_Implementation<PLAYER>(score);
+		}
+		PYGMALION_INLINE static scoreType makeSubjective(const playerType pl, const scoreType score) noexcept
+		{
+			return makeSubjectivePacked<0>(pl, score);
+		}
+		template<size_t PLAYER>
+		PYGMALION_INLINE scoreType materialRelative() const noexcept
+		{
+			return this->template makeSubjective<PLAYER>(m_Material);
+		}
+		PYGMALION_INLINE scoreType materialRelative(const playerType pl) const noexcept
+		{
+			return makeSubjective(pl, m_Material);
+		}
 		PYGMALION_INLINE size_t getMoveCount() const noexcept
 		{
 			return m_MoveCount;
@@ -400,7 +452,7 @@ namespace pygmalion
 			PYGMALION_ASSERT(p.isValid());
 			return playerOccupancy(p)[sq];
 		}
-		PYGMALION_INLINE void addPiece(const pieceType piece, const squareType square, const playerType player) noexcept
+		PYGMALION_INLINE void addPiece(const pieceType piece, const squareType square, const playerType player, const materialTableType& materialTable) noexcept
 		{
 			PYGMALION_ASSERT(player.isValid());
 			PYGMALION_ASSERT(piece.isValid());
@@ -412,9 +464,11 @@ namespace pygmalion
 			m_PlayerOccupancy[player] |= square;
 			m_PieceOccupancy[piece] |= square;
 			m_Hash ^= pieceHash(piece, square, player);
+			m_Material += materialTable.materialAbsolute(player, piece, square);
+			m_PieceMask[player].setPiece(piece);
 			onAddedPiece(piece, square, player);
 		}
-		PYGMALION_INLINE void removePiece(const pieceType piece, const squareType square, const playerType player) noexcept
+		PYGMALION_INLINE void removePiece(const pieceType piece, const squareType square, const playerType player, const materialTableType& materialTable) noexcept
 		{
 			PYGMALION_ASSERT(player.isValid());
 			PYGMALION_ASSERT(piece.isValid());
@@ -426,7 +480,32 @@ namespace pygmalion
 			m_PlayerOccupancy[player] -= square;
 			m_PieceOccupancy[piece] -= square;
 			m_Hash ^= pieceHash(piece, square, player);
+			m_Material -= materialTable.materialAbsolute(player, piece, square);
+			const squaresType occ{ m_PlayerOccupancy[player] & m_PieceOccupancy[piece] };
+			m_PieceMask[player].setPiece(piece, m_PlayerOccupancy[player] & m_PieceOccupancy[piece]);
 			onRemovedPiece(piece, square, player);
+		}
+		PYGMALION_INLINE void movePiece(const pieceType piece, const squareType from, const squareType to, const playerType player, const materialTableType& materialTable) noexcept
+		{
+			PYGMALION_ASSERT(player.isValid());
+			PYGMALION_ASSERT(piece.isValid());
+			PYGMALION_ASSERT(from.isValid());
+			PYGMALION_ASSERT(to.isValid());
+#if !defined(NDEBUG)
+			PYGMALION_ASSERT(m_PlayerOccupancy[player][from]);
+			PYGMALION_ASSERT(m_PieceOccupancy[piece][from]);
+			PYGMALION_ASSERT(!m_PlayerOccupancy[player][to]);
+			PYGMALION_ASSERT(!m_PieceOccupancy[piece][to]);
+#endif
+			m_PlayerOccupancy[player] -= from;
+			m_PieceOccupancy[piece] -= from;
+			m_PlayerOccupancy[player] |= to;
+			m_PieceOccupancy[piece] |= to;
+			m_Hash ^= pieceHash(piece, from, player);
+			m_Hash ^= pieceHash(piece, to, player);
+			m_Material -= materialTable.materialAbsolute(player, piece, from);
+			m_Material += materialTable.materialAbsolute(player, piece, to);
+			onMovedPiece(piece, from, to, player);
 		}
 		PYGMALION_INLINE pieceType getPiece(const squareType sq) const noexcept
 		{
@@ -481,8 +560,8 @@ namespace pygmalion
 		PYGMALION_INLINE void clear() noexcept
 		{
 			constexpr const squaresType none{ squaresType::none() };
-			for (const auto p : playerType::range)
-				m_PlayerOccupancy[p] = none;
+			for (const auto pl : playerType::range)
+				m_PlayerOccupancy[pl] = none;
 			for (const auto pc : pieceType::range)
 				m_PieceOccupancy[pc] = none;
 			m_Flags.clear();
@@ -492,6 +571,10 @@ namespace pygmalion
 			m_Hash = playerHash(m_MovingPlayer) ^ flagsHash(m_Flags);
 			m_MoveCount = 0;
 			m_ReversiblePlyCount = 0;
+			constexpr const scoreType zero{ scoreType::zero() };
+			m_Material = zero;
+			for (const auto pl : playerType::range)
+				m_PieceMask[pl].clear();
 		}
 		board() noexcept :
 			m_PieceOccupancy{ },
@@ -502,10 +585,10 @@ namespace pygmalion
 		{
 			clear();
 		}
-		void initialize() noexcept
+		void initialize(const materialTableType& materialTable) noexcept
 		{
 			clear();
-			onInitialize();
+			onInitialize(materialTable);
 		}
 		board(board&&) noexcept = default;
 		board(const board&) noexcept = default;
@@ -547,7 +630,25 @@ namespace pygmalion
 			fen << parser::fromInt(getMoveCount() / 2);
 			return fen.str();
 		}
-		bool setFen(const std::string& fen) noexcept
+		static std::string pieceMaskToString(const piecemaskType& piecemask, const playerType pl) noexcept
+		{
+			std::stringstream str;
+			const std::string nullString{ "_" };
+			for (const auto pc : pieceType::range)
+			{
+				if (piecemask.getPiece(pc))
+				{
+					const std::string pcString{ boardType::pieceToString(pc,pl) };
+					str << pcString;
+				}
+				else
+				{
+					str << nullString;
+				}
+			}
+			return str.str();
+		}
+		bool setFen(const std::string& fen, const materialTableType& materialTable) noexcept
 		{
 			clear();
 			size_t pos{ 0 };
@@ -570,7 +671,7 @@ namespace pygmalion
 					count = 0;
 					if (board::parsePiece(fen.substr(pos, fen.length() - pos), piece, player, count))
 					{
-						addPiece(piece, fileType(file) & rankType(rank), player);
+						addPiece(piece, fileType(file) & rankType(rank), player, materialTable);
 						file++;
 					}
 					else
@@ -687,6 +788,14 @@ namespace pygmalion
 				return false;
 			}
 			return true;
+		}
+		PYGMALION_INLINE static scoreType defaultLazyMaterial(const pieceType pc) noexcept
+		{
+			return boardType::defaultLazyMaterial_Implementation(pc);
+		}
+		PYGMALION_INLINE static scoreType defaultMaterial(const playerType pl, const pieceType pc, const squareType sq) noexcept
+		{
+			return boardType::defaultMaterial_Implementation(pl, pc, sq);
 		}
 	};
 

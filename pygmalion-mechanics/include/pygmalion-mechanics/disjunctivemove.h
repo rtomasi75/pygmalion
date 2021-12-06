@@ -91,6 +91,7 @@ namespace pygmalion::mechanics
 		using boardType = BOARD;
 		using descriptorState = typename boardType::descriptorState;
 #include <pygmalion-state/include_state.h>
+		using materialTableType = state::materialTables<descriptorState, boardType>;
 		constexpr static bool enableIndex(const size_t idx) noexcept
 		{
 			return (idx < sizeof...(MOVES)) && (idx >= 0);
@@ -162,7 +163,7 @@ namespace pygmalion::mechanics
 		}
 	private:
 		template<size_t INDEX, typename MOVE, typename... MOVES2>
-		PYGMALION_INLINE void doMovePack(boardType& position, const size_t selector, const typename disjunctivemove::movebitsType moveBits, typename disjunctivemove::movedataType& combinedData) const noexcept
+		PYGMALION_INLINE void doMovePack(boardType& position, const size_t selector, const typename disjunctivemove::movebitsType moveBits, typename disjunctivemove::movedataType& combinedData, const materialTableType& materialTable) const noexcept
 		{
 			if (INDEX == selector)
 			{
@@ -171,45 +172,45 @@ namespace pygmalion::mechanics
 #endif
 				typename MOVE::movebitsType bits{ moveBits.template extractBits<0,MOVE::countBits>() };
 				typename MOVE::movedataType& data{ *reinterpret_cast<typename MOVE::movedataType*>(combinedData.dataPtr()) };
-				std::get<INDEX>(this->m_Moves).doMove(position, bits, data);
+				std::get<INDEX>(this->m_Moves).doMove(position, bits, data, materialTable);
 				constexpr const muxbitsType mux{ static_cast<muxbitsType>(static_cast<typename std::make_unsigned<size_t>::type>(INDEX)) };
 				combinedData.mux() = mux;
 			}
 			else
 			{
 				if constexpr (sizeof...(MOVES2) > 0)
-					this->template doMovePack<INDEX + 1, MOVES2...>(position, selector, moveBits, combinedData);
+					this->template doMovePack<INDEX + 1, MOVES2...>(position, selector, moveBits, combinedData, materialTable);
 			}
 		}
 	public:
-		PYGMALION_INLINE void doMove_Implementation(boardType& position, const typename disjunctivemove::movebitsType moveBits, typename disjunctivemove::movedataType& movedata) const noexcept
+		PYGMALION_INLINE void doMove_Implementation(boardType& position, const typename disjunctivemove::movebitsType moveBits, typename disjunctivemove::movedataType& movedata, const materialTableType& materialTable) const noexcept
 		{
 			const muxbitsType mux{ disjunctivemove::muxbits(moveBits) };
 			const size_t selector{ static_cast<size_t>(static_cast<typename std::make_unsigned<size_t>::type>(mux)) };
 			if constexpr (sizeof...(MOVES) > 0)
-				this->template doMovePack<0, MOVES...>(position, selector, moveBits, movedata);
+				this->template doMovePack<0, MOVES...>(position, selector, moveBits, movedata, materialTable);
 		}
 	private:
 		template<size_t INDEX, typename MOVE, typename... MOVES2>
-		PYGMALION_INLINE void undoMovePack(boardType& position, const typename disjunctivemove::movedataType& combinedData) const noexcept
+		PYGMALION_INLINE void undoMovePack(boardType& position, const typename disjunctivemove::movedataType& combinedData, const materialTableType& materialTable) const noexcept
 		{
 			constexpr const muxbitsType mux{ static_cast<muxbitsType>(static_cast<typename std::make_unsigned<size_t>::type>(INDEX)) };
 			if (mux == combinedData.mux())
 			{
 				const typename MOVE::movedataType& data{ *reinterpret_cast<const typename MOVE::movedataType*>(combinedData.dataPtr()) };
-				std::get<INDEX>(this->m_Moves).undoMove(position, data);
+				std::get<INDEX>(this->m_Moves).undoMove(position, data, materialTable);
 			}
 			else
 			{
 				if constexpr (sizeof...(MOVES2) > 0)
-					this->template undoMovePack<INDEX + 1, MOVES2...>(position, combinedData);
+					this->template undoMovePack<INDEX + 1, MOVES2...>(position, combinedData, materialTable);
 			}
 		}
 	public:
-		PYGMALION_INLINE void undoMove_Implementation(boardType& position, const typename disjunctivemove::movedataType& data) const noexcept
+		PYGMALION_INLINE void undoMove_Implementation(boardType& position, const typename disjunctivemove::movedataType& data, const materialTableType& materialTable) const noexcept
 		{
 			if constexpr (sizeof...(MOVES) > 0)
-				this->template undoMovePack<0, MOVES...>(position, data);
+				this->template undoMovePack<0, MOVES...>(position, data, materialTable);
 		}
 	private:
 		template<size_t INDEX, typename MOVE, typename... MOVES2>

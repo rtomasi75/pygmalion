@@ -11,6 +11,7 @@ namespace pygmalion
 		using contextType = typename generatorType::contextType;
 	private:
 		boardType m_StartPosition;
+		const materialTableType& m_MaterialTable;
 		std::vector<movebitsType> m_Moves;
 		std::string m_Players[countPlayers];
 		std::string m_Event;
@@ -83,19 +84,19 @@ namespace pygmalion
 			return true;
 		}
 		template<size_t PLAYER>
-		static bool parseMove(boardType& pos, historyType& history, contextType* pContext, const std::string& movetext, movebitsType& mv) noexcept
+		static bool parseMove(boardType& pos, historyType& history, contextType* pContext, const std::string& movetext, movebitsType& mv, const materialTableType& materialTable, const deltaType& delta) noexcept
 		{
 			if constexpr (PLAYER < countPlayers)
 			{
 				const playerType player{ static_cast<playerType>(PLAYER) };
 				if (player == pos.movingPlayer())
 				{
-					typename generatorType::template stackType<PLAYER> stack(pos, history, pContext);
+					typename generatorType::template stackType<PLAYER> stack(pos, history, pContext, materialTable, delta);
 					size_t count{ 0 };
 					return stack.parseSAN(movetext, mv, count);
 				}
 				else
-					return record::template parseMove<PLAYER + 1>(pos, history, pContext, movetext, mv);
+					return record::template parseMove<PLAYER + 1>(pos, history, pContext, movetext, mv, materialTable, delta);
 			}
 			else
 				return false;
@@ -122,7 +123,7 @@ namespace pygmalion
 			for (size_t i = 0; i < ply; i++)
 			{
 				movedataType data;
-				motorType::makeMove(pos, m_Moves[i], data);
+				motorType::makeMove(pos, m_Moves[i], data, m_MaterialTable);
 			}
 			return pos;
 		}
@@ -154,13 +155,14 @@ namespace pygmalion
 		{
 			return m_Outcome;
 		}
-		record() noexcept :
+		record(const materialTableType& materialTable) noexcept :
 			m_Event{ "" },
 			m_Site{ "" },
 			m_Date{ "" },
-			m_Round{ "" }
+			m_Round{ "" },
+			m_MaterialTable{ materialTable }
 		{
-			m_StartPosition.initialize();
+			m_StartPosition.initialize(m_MaterialTable);
 			for (size_t i = 0; i < countPlayers; i++)
 			{
 				m_Players[i] = "Player_" + parser::fromInt(i);
@@ -170,11 +172,37 @@ namespace pygmalion
 		~record() noexcept = default;
 		record(const record&) noexcept = default;
 		record(record&&) noexcept = default;
-		record& operator=(const record&) = default;
-		record& operator=(record&&) = default;
-		static bool read(std::ifstream& file, record& output) noexcept
+		record& operator=(const record& other) noexcept
 		{
-			output = record();
+			m_Moves = other.m_Moves;
+			for (size_t i = 0; i < countPlayers; i++)
+			{
+				m_Players[i] = other.m_Players[i];
+			}
+			m_Event = other.m_Event;
+			m_Site = other.m_Site;
+			m_Date = other.m_Date;
+			m_Round = other.m_Round;
+			m_Outcome = other.m_Outcome;
+			return *this;
+		}
+		record& operator=(record&& other) noexcept
+		{
+			m_Moves = std::move(other.m_Moves);
+			for (size_t i = 0; i < countPlayers; i++)
+			{
+				m_Players[i] = std::move(other.m_Players[i]);
+			}
+			m_Event = std::move(other.m_Event);
+			m_Site = std::move(other.m_Site);
+			m_Date = std::move(other.m_Date);
+			m_Round = std::move(other.m_Round);
+			m_Outcome = std::move(other.m_Outcome);
+			return *this;
+		}
+		static bool read(std::ifstream& file, record& output, const materialTableType& materialTable, const deltaType& delta) noexcept
+		{
+			output = record(materialTable);
 			bool bParseTags{ true };
 			bool bLeadIn{ true };
 			bool bSetUp{ false };
@@ -247,10 +275,10 @@ namespace pygmalion
 				if (fen == "")
 					return false;
 				else
-					output.m_StartPosition.setFen(fen);
+					output.m_StartPosition.setFen(fen, materialTable);
 			}
 			else
-				output.m_StartPosition.initialize();
+				output.m_StartPosition.initialize(materialTable);
 			boardType pos = output.m_StartPosition;
 			historyType history;
 			contextType context;
@@ -289,11 +317,11 @@ namespace pygmalion
 						movebitsType mv;
 						if ((!bStopped) && (token.length() > 0))
 						{
-							if (record::template parseMove<0>(pos, history, &context, token, mv))
+							if (record::template parseMove<0>(pos, history, &context, token, mv, materialTable, delta))
 							{
 								output.m_Moves.emplace_back(std::move(mv));
 								movedataType data;
-								motorType::makeMove(pos, mv, data);
+								motorType::makeMove(pos, mv, data, materialTable);
 							}
 							else
 								bStopped = true;

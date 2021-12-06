@@ -1,7 +1,7 @@
 namespace pygmalion::tictactoe
 {
 	class descriptor_dynamics :
-		public pygmalion::descriptor_dynamics<motor, 9, 7, 0, 10>
+		public pygmalion::descriptor_dynamics<motor, 9>
 	{
 	public:
 		static inline movetable<descriptor_dynamics> moveTable{ movetable<descriptor_dynamics>(0x0095,9) };
@@ -176,6 +176,46 @@ namespace pygmalion::tictactoe
 		static std::string moveToSAN_Implementation(const stackType<PLAYER>& stack, const movebitsType mv, const size_t depth)
 		{
 			return motorType::move().toString(stack.position(), mv);
+		}
+		PYGMALION_INLINE static squaresType promotionOriginsSqaures_Implementation(const playerType pl, const pieceType pc) noexcept
+		{
+			constexpr const squaresType none{ squaresType::none() };
+			return none;
+		}
+		PYGMALION_INLINE static squaresType promoCaptureOrigins_Implementation(const playerType pl, const pieceType pc) noexcept
+		{
+			constexpr const squaresType none{ squaresType::none() };
+			return none;
+		}
+		PYGMALION_INLINE static squaresType quietOrigins_Implementation(const playerType pl, const pieceType pc) noexcept
+		{
+			constexpr const squaresType none{ squaresType::none() };
+			return none;
+		}
+		PYGMALION_INLINE static squaresType captureOrigins_Implementation(const playerType pl, const pieceType pc) noexcept
+		{
+			constexpr const squaresType none{ squaresType::none() };
+			return none;
+		}
+		PYGMALION_INLINE static squaresType promotionTargets_Implementation(const playerType pl, const pieceType pc, const squareType from) noexcept
+		{
+			constexpr const squaresType none{ squaresType::none() };
+			return none;
+		}
+		PYGMALION_INLINE static squaresType promoCaptureTargets_Implementation(const playerType pl, const pieceType pc, const squareType from) noexcept
+		{
+			constexpr const squaresType none{ squaresType::none() };
+			return none;
+		}
+		PYGMALION_INLINE static squaresType quietTargets_Implementation(const playerType pl, const pieceType pc, const squareType from) noexcept
+		{
+			constexpr const squaresType none{ squaresType::none() };
+			return none;
+		}
+		PYGMALION_INLINE static squaresType captureTargets_Implementation(const playerType pl, const pieceType pc, const squareType from) noexcept
+		{
+			constexpr const squaresType none{ squaresType::none() };
+			return none;
 		}
 	};
 }

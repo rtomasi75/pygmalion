@@ -19,7 +19,7 @@ namespace pygmalion::chess::dynamics
 				if (player == this->position().movingPlayer())
 				{
 					typename generatorType::contextType context;
-					stackType<PLAYER> stack{ stackType<PLAYER>(this->position(), this->history(), &context) };
+					stackType<PLAYER> stack{ stackType<PLAYER>(this->position(), this->history(), &context, this->stateEngine().materialTable(), this->dynamicsEngine().delta()) };
 					if (p == whitePlayer)
 					{
 						const squaresType attacked{ stack.template squaresTargetedByPlayer<static_cast<size_t>(whitePlayer)>() };

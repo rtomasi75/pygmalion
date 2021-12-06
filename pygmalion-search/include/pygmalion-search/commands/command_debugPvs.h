@@ -22,9 +22,11 @@ namespace pygmalion::search
 				if (player == this->position().movingPlayer())
 				{
 					signal terminate{ signal(false) };
-					stackType<PLAYER> stack{ stackType<PLAYER>(this->position(), this->history(), this->searchEngine().rootContext()) };
-					scoreType scoreFromPreviousDepth{ descriptorSearch::evaluatorType::evaluate(scoreType::minimum(), scoreType::maximum(), stack) };
-					nodeType<static_cast<size_t>(static_cast<playerType>(PLAYER))> node(stack, terminate, this->searchEngine().heuristics(), this->history().length());
+					stackType<PLAYER> stack{ stackType<PLAYER>(this->position(), this->history(), this->searchEngine().rootContext(), this->stateEngine().materialTable(), this->dynamicsEngine().delta()) };
+					typename descriptorSearch::evaluatorType::dataType data;
+					descriptorSearch::evaluatorType::createData(data);
+					nodeType<static_cast<size_t>(static_cast<playerType>(PLAYER))> node(stack, terminate, this->searchEngine().heuristics(), this->history().length(), this->evaluationEngine().parameters());
+					scoreType scoreFromPreviousDepth{ node.evaluate(scoreType::minimum(), scoreType::maximum()) };
 					for (depthType i = -1; i <= depth - 1; ++i)
 					{
 						variationType principalVariation;

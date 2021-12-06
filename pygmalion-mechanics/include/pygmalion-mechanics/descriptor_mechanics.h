@@ -16,6 +16,7 @@ namespace pygmalion
 		using bloomfilterType = bloomfilter<typename descriptorState::hashType, COUNT_BITS_BLOOMFILTER, COUNT_VALUES_BLOOMFILTER - 1>;
 		using historyType = history<descriptor_mechanics, COUNT_BITS_BLOOMFILTER, COUNT_VALUES_BLOOMFILTER>;
 		using gameType = game<boardType>;
+		using materialTableType = state::materialTables<descriptorState, boardType>;
 	};
 
 }

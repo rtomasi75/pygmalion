@@ -8,6 +8,39 @@ namespace pygmalion
 		using evaluatorType = INSTANCE;
 		using descriptorEvaluation = DESCRIPTOR_EVALUATION;
 #include "include_evaluation.h"
+		constexpr static const inline size_t countEvaluationStages{ sizeof...(STAGES) };
+		using evaluationFlagsType = uint_t<countEvaluationStages + 1, false>;
+		template<size_t INDEX>
+		using evaluatorStageType = std::tuple_element_t<INDEX, std::tuple<STAGES...>>;
+		template<size_t INDEX>
+		using evaluatorStageSataType = typename evaluatorStageType<INDEX>::dataType;
+		class dataType
+		{
+		private:
+			mutable std::tuple<typename STAGES::dataType...> m_Values;
+			mutable scoreType m_Delta;
+			mutable evaluationFlagsType m_Flags;
+		public:
+			template<size_t PLAYER, size_t INDEX>
+			const evaluatorStageSataType<INDEX>& value(const typename generatorType::template stackType<PLAYER>& stack) const noexcept
+			{
+				if (!m_Flags.template extractBits<INDEX, 1>())
+				{
+					evaluatorStageType<INDEX>::computeData(stack, std::get<INDEX>(m_Values));
+					m_Flags.template setBits<INDEX, 1>();
+				}
+				return std::get<INDEX>(m_Values);
+			}
+			dataType() noexcept :
+				m_Flags{ evaluationFlagsType(0) }
+			{
+			}
+			~dataType() noexcept = default;
+			dataType(const dataType&) noexcept = default;
+			dataType(dataType&&) noexcept = default;
+			dataType& operator=(const dataType&) noexcept = default;
+			dataType& operator=(dataType&&) noexcept = default;
+		};
 	private:
 		template<typename COMMAND>
 		static std::shared_ptr<pygmalion::intrinsics::command> createCommand() noexcept
@@ -20,24 +53,24 @@ namespace pygmalion
 			return pCommand;
 		}
 		template<typename STAGE, typename... STAGES2>
-		PYGMALION_TUNABLE static scoreType computeDelta() noexcept
+		static deltaType&& computeDelta(const scoreType* pParameters) noexcept
 		{
-			PYGMALION_TUNABLE const scoreType sc2{ STAGE::computeDelta() };
+			deltaType sc2{ STAGE::computeDelta(pParameters) };
 			if constexpr (sizeof...(STAGES2) > 0)
-				return sc2 + computeDelta<STAGES2...>();
+				return std::move(sc2 + computeDelta<STAGES2...>(pParameters + STAGE::getParameterCount()));
 			else
-				return sc2;
+				return std::move(sc2);
 		}
-		template<size_t PLAYER, typename STAGE, typename... STAGES2>
-		PYGMALION_INLINE static scoreType computeStages(const scoreType alpha, const scoreType beta, const scoreType sc, const typename generatorType::template stackType<PLAYER>& stack) noexcept
+		template<size_t PLAYER, size_t INDEX, typename STAGE, typename... STAGES2>
+		PYGMALION_INLINE static scoreType computeStages(const scoreType alpha, const scoreType beta, const scoreType sc, const typename generatorType::template stackType<PLAYER>& stack, const dataType& data, const scoreType* pParameters) noexcept
 		{
 			scoreType sc2{ sc };
-			PYGMALION_TUNABLE const scoreType delta{ computeDelta<STAGE,STAGES2...>() };
+			const scoreType delta{ computeDelta<STAGE,STAGES2...>(pParameters) };
 			if (!isFutile(alpha, beta, sc, delta))
 			{
-				sc2 += STAGE::evaluate(stack);
+				sc2 += STAGE::template evaluate<PLAYER>(data.template value<PLAYER, INDEX>(stack), pParameters);
 				if constexpr (sizeof...(STAGES2) > 0)
-					return evaluatorType::template computeStages<PLAYER, STAGES2...>(alpha, beta, sc2, stack);
+					return evaluatorType::template computeStages<PLAYER, INDEX + 1, STAGES2...>(alpha, beta, sc2, stack, data, pParameters + STAGE::getParameterCount());
 			}
 			return sc2;
 		}
@@ -57,31 +90,21 @@ namespace pygmalion
 				}
 			}
 		}
-		template<size_t PLAYER, typename STAGE, typename... STAGES2>
-		PYGMALION_INLINE static scoreType stageScores(const size_t index, const size_t counter, const typename generatorType::template stackType<PLAYER>& stack) noexcept
+		template<size_t PLAYER, size_t INDEX, typename STAGE, typename... STAGES2>
+		static scoreType stageScores(const size_t index, const dataType& data, const typename generatorType::template stackType<PLAYER>& stack, const scoreType* pParameters) noexcept
 		{
-			if (index == counter)
-				return STAGE::template evaluate<PLAYER>(stack);
+			if (index == INDEX)
+				return STAGE::template evaluate<PLAYER>(data.template value<PLAYER, INDEX>(stack), pParameters);
 			else
 			{
 				if constexpr (sizeof...(STAGES2) > 0)
-					return evaluatorType::template stageScores<PLAYER, STAGES2...>(index, counter + 1, stack);
+					return evaluatorType::template stageScores<PLAYER, INDEX + 1, STAGES2...>(index, data, stack, pParameters + STAGE::getParameterCount());
 				else
 				{
 					PYGMALION_ASSERT(false);
-					constexpr const scoreType zero{ scoreType::zero() };
-					return zero;
+					return scoreType::zero();
 				}
 			}
-		}
-		template<typename STAGE, typename... STAGES2>
-		constexpr static size_t stageParameterCount() noexcept
-		{
-			size_t count{ STAGE::getParameterCount() };
-			if constexpr (sizeof...(STAGES2) > 0)
-				return count + evaluatorType::template stageParameterCount<STAGES2...>();
-			else
-				return count;
 		}
 		template<typename STAGE, typename... STAGES2>
 		static parameter stageParameter(const size_t index) noexcept
@@ -113,6 +136,24 @@ namespace pygmalion
 				}
 			}
 		}
+		template<typename STAGE, typename... STAGES2>
+		constexpr static size_t stageParameterCount() noexcept
+		{
+			size_t count{ STAGE::getParameterCount() };
+			if constexpr (sizeof...(STAGES2) > 0)
+				return count + evaluatorType::template stageParameterCount<STAGES2...>();
+			else
+				return count;
+		}
+		template<typename STAGE, typename... STAGES2>
+		static void computeDefaultParameters(std::vector<scoreType>& parameters) noexcept
+		{
+			constexpr const size_t n{ STAGE::getParameterCount() };
+			for (size_t i = 0; i < n; i++)
+			{
+				parameters.emplace_back(STAGE::getParameter(i).defaultValue());
+			}
+		}
 	protected:
 		template<typename COMMAND>
 		static void addCommand(std::deque<std::shared_ptr<pygmalion::intrinsics::command>>& list) noexcept
@@ -125,60 +166,27 @@ namespace pygmalion
 			return (approx + delta <= alpha) && (approx + delta < beta);
 		}
 	public:
-#if defined(PYGMALION_TUNE)
-		constexpr static size_t getParameterCount() noexcept
+		constexpr static const inline size_t countStages{ sizeof...(STAGES) };
+		static void defaultParameters(std::vector<scoreType>& parameters) noexcept
+		{
+			parameters.clear();
+			if constexpr (sizeof...(STAGES) > 0)
+				return computeDefaultParameters(parameters);
+		}
+		PYGMALION_INLINE static void createData(dataType& data) noexcept
+		{
+			data = dataType();
+		}
+		static deltaType&& delta(const std::vector<scoreType>& parameters) noexcept
 		{
 			if constexpr (sizeof...(STAGES) > 0)
-				return evaluatorType::countParameters_Implementation() + evaluatorType::template stageParameterCount<STAGES...>();
-			else
-				return evaluatorType::countParameters_Implementation();
-
-		}
-		constexpr static inline const size_t countParameters{ getParameterCount() };
-		static parameter getParameter(const size_t index) noexcept
-		{
-			if constexpr (sizeof...(STAGES) > 0)
-			{
-				constexpr size_t pars{ evaluatorType::countParameters_Implementation() };
-				if (index < pars)
-					return evaluatorType::getParameter_Implementation(index);
-				return evaluatorType::template stageParameter<STAGES...>(index - pars);
-			}
+				return computeDelta<STAGES...>(parameters.data());
 			else
 			{
-				return evaluatorType::getParameter_Implementation(index);
+				deltaType delta;
+				return std::move(delta);
 			}
 		}
-		static void setParameter(const size_t index, double value) noexcept
-		{
-			if constexpr (sizeof...(STAGES) > 0)
-			{
-				constexpr size_t pars{ evaluatorType::countParameters_Implementation() };
-				if (index < pars)
-					evaluatorType::setParameter_Implementation(index, value);
-				else
-					evaluatorType::template setStageParameter<STAGES...>(index - pars, value);
-			}
-			else
-				evaluatorType::setParameter_Implementation(index, value);
-		}
-#endif
-		PYGMALION_TUNABLE static scoreType rootDelta(const scoreType materialDelta) noexcept
-		{
-			if constexpr (sizeof...(STAGES) > 0)
-				return materialDelta + computeDelta<STAGES...>();
-			else
-			{
-				constexpr const scoreType zero{ scoreType::zero() };
-				return materialDelta;
-			}
-		}
-		template<size_t PLAYER>
-		static scoreType computeMaterial(const typename generatorType::template stackType<PLAYER>& stack) noexcept
-		{
-			return evaluatorType::template computeMaterial_Implementation<PLAYER>(stack);
-		}
-		constexpr static inline size_t countStages{ sizeof...(STAGES) };
 		static std::string stageName(const size_t index) noexcept
 		{
 			if constexpr (sizeof...(STAGES) > 0)
@@ -190,10 +198,10 @@ namespace pygmalion
 			}
 		}
 		template<size_t PLAYER>
-		static scoreType stageScore(const size_t index, const typename generatorType::template stackType<PLAYER>& stack) noexcept
+		static scoreType stage(const size_t stageIndex, const typename generatorType::template stackType<PLAYER>& stack, const dataType& data, const std::vector<scoreType>& parameters) noexcept
 		{
 			if constexpr (sizeof...(STAGES) > 0)
-				return evaluatorType::template stageScores<PLAYER, STAGES...>(index, 0, stack);
+				return evaluatorType::template stageScores<PLAYER, 0, STAGES...>(stageIndex, data, stack, parameters.data());
 			else
 			{
 				PYGMALION_ASSERT(false);
@@ -205,16 +213,16 @@ namespace pygmalion
 			return evaluatorType::commandsImplementation();
 		}
 		template<size_t PLAYER>
-		static scoreType evaluate(const scoreType& alpha, const scoreType& beta, const typename generatorType::template stackType<PLAYER>& stack) noexcept
+		PYGMALION_INLINE static scoreType evaluate(const scoreType& alpha, const scoreType& beta, const typename generatorType::template stackType<PLAYER>& stack, const dataType& data, const std::vector<scoreType>& parameters) noexcept
 		{
-			const scoreType sc{ computeMaterial(stack) };
+			const scoreType sc{ stack.position().template materialRelative<PLAYER>() };
 			if constexpr (sizeof...(STAGES) > 0)
-				return evaluatorType::template computeStages<PLAYER, STAGES...>(alpha, beta, sc, stack);
+				return evaluatorType::template computeStages<PLAYER, 0, STAGES...>(alpha, beta, sc, stack, data, parameters.data());
 			else
 				return sc;
 		}
 		template<size_t PLAYER, bool LAZY>
-		static gamestateType earlyResult(const typename generatorType::template stackType<PLAYER>& stack, bool& allowStoreTT) noexcept
+		PYGMALION_INLINE static gamestateType earlyResult(const typename generatorType::template stackType<PLAYER>& stack, bool& allowStoreTT) noexcept
 		{
 			if (!gamestateType::isOpen(stack.position().arbitration()))
 			{
@@ -224,7 +232,7 @@ namespace pygmalion
 			return evaluatorType::template earlyResult_Implementation<PLAYER, LAZY>(stack, allowStoreTT);
 		}
 		template<size_t PLAYER>
-		static gamestateType lateResult(const typename generatorType::template stackType<PLAYER>& stack) noexcept
+		PYGMALION_INLINE static gamestateType lateResult(const typename generatorType::template stackType<PLAYER>& stack) noexcept
 		{
 			return evaluatorType::template lateResult_Implementation<PLAYER>(stack);
 		}
@@ -236,13 +244,15 @@ namespace pygmalion
 		{
 			return evaluatorType::countAspirationWindows_Implementation();;
 		}
-		PYGMALION_INLINE static scoreType staticMoveScore(const boardType& position, const movebitsType move) noexcept
+		template<size_t PLAYER>
+		PYGMALION_INLINE static scoreType staticMoveScore(const boardType& position, const movebitsType move, const materialTableType& materialTable) noexcept
 		{
-			return evaluatorType::staticMoveScore_Implementation(position, move);
+			return evaluatorType::template staticMoveScore_Implementation<PLAYER>(position, move, materialTable);
 		}
-		PYGMALION_INLINE static scoreType staticExchangeScore(const boardType& position, const movebitsType move) noexcept
+		template<size_t PLAYER>
+		PYGMALION_INLINE static scoreType staticExchangeScore(const boardType& position, const movebitsType move, const materialTableType& materialTable) noexcept
 		{
-			return evaluatorType::staticExchangeScore_Implementation(position, move);
+			return evaluatorType::template staticExchangeScore_Implementation<PLAYER>(position, move, materialTable);
 		}
 	};
 }
