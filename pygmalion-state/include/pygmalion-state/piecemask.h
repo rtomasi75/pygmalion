@@ -61,14 +61,14 @@ namespace pygmalion::state
 		struct iteratorRange
 		{
 		private:
-			typename piecemask::maskType m_Current;
+			size_t m_Current;
 		public:
 			typedef piecemask value_type;
 			typedef std::ptrdiff_t difference_type;
 			typedef piecemask* pointer;
 			typedef piecemask& reference;
 			typedef std::input_iterator_tag iterator_category;
-			PYGMALION_INLINE constexpr iteratorRange(const piecemask::maskType& start) noexcept :
+			PYGMALION_INLINE constexpr iteratorRange(const size_t& start) noexcept :
 				m_Current{ start }
 			{
 
@@ -87,7 +87,7 @@ namespace pygmalion::state
 			}
 			PYGMALION_INLINE constexpr value_type operator*() const noexcept
 			{
-				return piecemask(m_Current);
+				return piecemask(static_cast<typename piecemask::maskType>(m_Current));
 			}
 			PYGMALION_INLINE constexpr bool operator==(const iteratorRange& other) const noexcept
 			{
@@ -105,7 +105,7 @@ namespace pygmalion::state
 			PYGMALION_INLINE ~piecemaskRange() noexcept = default;
 			PYGMALION_INLINE constexpr auto begin() const noexcept
 			{
-				return iterator(0);
+				return iteratorRange(0);
 			}
 			PYGMALION_INLINE constexpr auto end() const noexcept
 			{
@@ -156,6 +156,75 @@ namespace pygmalion::state
 				return m_Iterator != other.m_Iterator;
 			}
 		};
+		constexpr static piecemask none() noexcept
+		{
+			return piecemask(maskType::zero());
+		}
+		constexpr static piecemask all() noexcept
+		{
+			return ~none();
+		}
+		PYGMALION_INLINE constexpr piecemask operator|(const piecemask other) const noexcept
+		{
+			const maskType mask{ m_Mask | other.m_Mask };
+			return piecemask(std::move(mask));
+		}
+		PYGMALION_INLINE constexpr piecemask operator-(const piecemask other) const noexcept
+		{
+			return piecemask(m_Mask & ~other.m_Mask);
+		}
+		PYGMALION_INLINE constexpr piecemask operator&(const piecemask other) const noexcept
+		{
+			return piecemask(m_Mask & other.m_Mask);
+		}
+		PYGMALION_INLINE constexpr piecemask operator^(const piecemask other) const noexcept
+		{
+			return piecemask(m_Mask ^ other.m_Mask);
+		}
+		PYGMALION_INLINE constexpr piecemask operator~() const noexcept
+		{
+			return piecemask(~m_Mask);
+		}
+		PYGMALION_INLINE constexpr piecemask& operator|=(const piecemask other) noexcept
+		{
+			m_Mask |= other.m_Mask;
+			return *this;
+		}
+		PYGMALION_INLINE constexpr piecemask& operator-=(const piecemask other) noexcept
+		{
+			m_Mask &= ~other.m_Mask;
+			return *this;
+		}
+		PYGMALION_INLINE constexpr piecemask& operator&=(const piecemask other) noexcept
+		{
+			m_Mask &= other.m_Mask;
+			return *this;
+		}
+		PYGMALION_INLINE constexpr piecemask& operator^=(const piecemask other) noexcept
+		{
+			m_Mask ^= other.m_Mask;
+			return *this;
+		}
+		PYGMALION_INLINE constexpr piecemask& operator|=(const pieceType pc) noexcept
+		{
+			m_Mask.set(static_cast<typename pieceType::baseType>(pc));
+			return *this;
+		}
+		PYGMALION_INLINE constexpr piecemask& operator&=(const pieceType pc) noexcept
+		{
+			m_Mask &= maskType::setMask(static_cast<typename pieceType::baseType>(pc));
+			return *this;
+		}
+		PYGMALION_INLINE constexpr piecemask& operator-=(const pieceType pc) noexcept
+		{
+			m_Mask.clear(static_cast<typename pieceType::baseType>(pc));
+			return *this;
+		}
+		PYGMALION_INLINE constexpr piecemask& operator^=(const pieceType pc) noexcept
+		{
+			m_Mask.toggle(static_cast<typename pieceType::baseType>(pc));
+			return *this;
+		}
 		PYGMALION_INLINE constexpr auto begin() const noexcept
 		{
 			return iterator(m_Mask.begin());
@@ -167,6 +236,10 @@ namespace pygmalion::state
 		PYGMALION_INLINE constexpr auto counter() const noexcept
 		{
 			return counterType(*this);
+		}
+		PYGMALION_INLINE size_t count() const noexcept
+		{
+			return m_Mask.populationCount();
 		}
 	};
 

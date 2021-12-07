@@ -131,7 +131,7 @@ namespace pygmalion::chess
 			for (const auto sq : occ)
 			{
 				const pieceType pc{ position.getPiece(sq) };
-				const scoreType value{ materialTable.template materialRelative<PLAYER>(side,pc,sq) };
+				const scoreType value{ materialTable.material(side,pc,sq).template makeSubjective<PLAYER>() };
 				if (value < lowest)
 				{
 					best = sq;
@@ -141,26 +141,26 @@ namespace pygmalion::chess
 			return best;
 		}
 		template<size_t PLAYER>
-		PYGMALION_INLINE static scoreType staticExchange(const movebitsType move, const boardType& position, const materialTableType& materialTable) noexcept
+		PYGMALION_INLINE static objectiveType staticExchange(const movebitsType move, const boardType& position, const materialTableType& materialTable) noexcept
 		{
 			playerType movingSide{ static_cast<playerType>(PLAYER) };
 			playerType defendingSide{ movingSide.next() };
-			constexpr const scoreType zero{ scoreType::zero() };
+			constexpr const objectiveType zero{ objectiveType::zero() };
 			const squareType to{ motorType::move().toSquare(position, move) };
 			const squareType from{ motorType::move().fromSquare(position, move) };
 			PYGMALION_ASSERT(movingSide == position.getPlayer(from));
 			pieceType attackingPiece{ position.getPiece(from) };
 			PYGMALION_ASSERT(attackingPiece.isValid());
-			scoreType gain[32];
+			objectiveType gain[32];
 			pieceType promotedPiece{ attackingPiece };
 			if (motorType::move().isPromotion(move))
 				promotedPiece = motorType::move().promotedPiece(move);
-			gain[0] = materialTable.template materialRelative<PLAYER>(movingSide, promotedPiece, to) - materialTable.template materialRelative<PLAYER>(movingSide, attackingPiece, from);
+			gain[0] = materialTable.material(movingSide, promotedPiece, to) - materialTable.material(movingSide, attackingPiece, from);
 			if (motorType::move().isCapture(move))
 			{
 				const squareType captureSquare{ motorType::move().captureSquare(position, move) };
 				const pieceType capPiece = position.getPiece(captureSquare);
-				gain[0] -= materialTable.template materialRelative<PLAYER>(defendingSide, capPiece, captureSquare);
+				gain[0] -= materialTable.material(defendingSide, capPiece, captureSquare);
 			}
 			squaresType mayXrayHV{ position.pieceOccupancy(queen) | position.pieceOccupancy(rook) };
 			squaresType mayXrayDiag{ position.pieceOccupancy(queen) | position.pieceOccupancy(bishop) };
@@ -191,7 +191,7 @@ namespace pygmalion::chess
 					const squareType attackersquare{ leastSquare };
 					const pieceType capturedPiece{ promotedPiece };
 					promotedPiece = position.getPiece(attackersquare);
-					gain[d] = materialTable.template materialRelative<PLAYER>(movingSide, promotedPiece, to) - materialTable.template materialRelative<PLAYER>(movingSide, promotedPiece, attackersquare) - materialTable.template materialRelative<PLAYER>(defendingSide, capturedPiece, to) - gain[d - 1];
+					gain[d] = materialTable.material(movingSide, promotedPiece, to) - materialTable.material(movingSide, promotedPiece, attackersquare) - materialTable.material(defendingSide, capturedPiece, to) + gain[d - 1];
 					fromBB = squaresType(attackersquare);
 				}
 				else
@@ -200,12 +200,18 @@ namespace pygmalion::chess
 			if (d > 0)
 			{
 				while (--d)
-					gain[d - 1] = -scoreType::max(-gain[d - 1], gain[d]);
+				{
+					const scoreType scorePrev{ gain[d - 1].makeSubjective(movingSide) };
+					const scoreType scoreNow{ gain[d].makeSubjective(movingSide) };
+					if (scoreNow > scorePrev)
+						gain[d - 1] = gain[d];
+					movingSide = movingSide.previous();
+				}
 			}
 			return gain[0];
 		}
 		template<size_t PLAYER>
-		PYGMALION_INLINE static scoreType staticMoveScore_Implementation(const boardType& position, const movebitsType move, const materialTableType& materialTable) noexcept
+		PYGMALION_INLINE static objectiveType staticMoveScore_Implementation(const boardType& position, const movebitsType move, const materialTableType& materialTable) noexcept
 		{
 			constexpr const playerType movingSide{ static_cast<playerType>(PLAYER) };
 			constexpr const playerType defendingSide{ movingSide.next() };
@@ -217,20 +223,20 @@ namespace pygmalion::chess
 			pieceType promotedPiece{ attackingPiece };
 			if (motorType::move().isPromotion(move))
 				promotedPiece = motorType::move().promotedPiece(move);
-			scoreType gain;
-			gain = materialTable.template materialRelative<PLAYER>(movingSide, promotedPiece, to) - materialTable.template materialRelative<PLAYER>(movingSide, attackingPiece, from);
+			objectiveType gain;
+			gain = materialTable.material(movingSide, promotedPiece, to) - materialTable.material(movingSide, attackingPiece, from);
 			if (motorType::move().isCapture(move))
 			{
 				const squareType captureSquare{ motorType::move().captureSquare(position, move) };
 				const pieceType capPiece = position.getPiece(captureSquare);
-				gain -= materialTable.template materialRelative<PLAYER>(defendingSide, capPiece, captureSquare);
+				gain -= materialTable.material(defendingSide, capPiece, captureSquare);
 			}
-			return static_cast<scoreType>(gain);
+			return gain;
 		}
 		template<size_t PLAYER>
-		PYGMALION_INLINE static scoreType staticExchangeScore_Implementation(const boardType& position, const movebitsType move, const materialTableType& materialTable) noexcept
+		PYGMALION_INLINE static objectiveType staticExchangeScore_Implementation(const boardType& position, const movebitsType move, const materialTableType& materialTable) noexcept
 		{
-			return static_cast<scoreType>(evaluator::template staticExchange<PLAYER>(move, position, materialTable));
+			return static_cast<objectiveType>(evaluator::template staticExchange<PLAYER>(move, position, materialTable));
 		}
 	};
 }

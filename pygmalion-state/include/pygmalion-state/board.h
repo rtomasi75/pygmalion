@@ -16,7 +16,7 @@ namespace pygmalion
 		hashType m_Hash;
 		size_t m_MoveCount;
 		size_t m_ReversiblePlyCount;
-		scoreType m_Material;
+		objectiveType m_Material;
 		flagsType m_Flags;
 		std::array<piecemaskType, countPlayers> m_PieceMask;
 		gamestateType m_Arbitration;
@@ -124,28 +124,22 @@ namespace pygmalion
 		{
 			return m_PieceMask[pl];
 		}
+		PYGMALION_INLINE piecemaskType opponentPieceMask(const playerType pl) const noexcept
+		{
+			constexpr const piecemaskType none{ piecemaskType::none() };
+			piecemaskType opponents{ none };
+			const size_t playerIndex{ static_cast<size_t>(pl) };
+			size_t i;
+			for (i = 0; i < playerIndex; i++)
+				opponents |= m_PieceMask[i];
+			for (i++; i < countPlayers; i++)
+				opponents |= m_PieceMask[i];
+			return m_PieceMask[pl];
+		}
 		constexpr static size_t countParameters{ materialTableType::countParameters };
-		PYGMALION_INLINE scoreType materialAbsolute() const noexcept
+		PYGMALION_INLINE objectiveType material() const noexcept
 		{
 			return m_Material;
-		}
-		template<size_t PLAYER>
-		PYGMALION_INLINE static scoreType makeSubjective(const scoreType score) noexcept
-		{
-			return boardType::template makeSubjective_Implementation<PLAYER>(score);
-		}
-		PYGMALION_INLINE static scoreType makeSubjective(const playerType pl, const scoreType score) noexcept
-		{
-			return makeSubjectivePacked<0>(pl, score);
-		}
-		template<size_t PLAYER>
-		PYGMALION_INLINE scoreType materialRelative() const noexcept
-		{
-			return this->template makeSubjective<PLAYER>(m_Material);
-		}
-		PYGMALION_INLINE scoreType materialRelative(const playerType pl) const noexcept
-		{
-			return makeSubjective(pl, m_Material);
 		}
 		PYGMALION_INLINE size_t getMoveCount() const noexcept
 		{
@@ -304,6 +298,18 @@ namespace pygmalion
 		static bool parseFlags(const std::string& text, flagsType& flags, size_t& count) noexcept
 		{
 			return boardType::parseFlags_Implementation(text, flags, count);
+		}
+		static std::string piecemaskToString(const piecemaskType mask, const playerType pl) noexcept
+		{
+			std::stringstream str;
+			for (const auto pc : pieceType::range)
+			{
+				if (mask.getPiece(pc))
+					str << boardType::pieceToString(pc, pl);
+				else
+					str << "_";
+			}
+			return str.str();
 		}
 		PYGMALION_INLINE void setFlag(const flagType flag) noexcept
 		{
@@ -464,7 +470,7 @@ namespace pygmalion
 			m_PlayerOccupancy[player] |= square;
 			m_PieceOccupancy[piece] |= square;
 			m_Hash ^= pieceHash(piece, square, player);
-			m_Material += materialTable.materialAbsolute(player, piece, square);
+			m_Material += materialTable.material(player, piece, square);
 			m_PieceMask[player].setPiece(piece);
 			onAddedPiece(piece, square, player);
 		}
@@ -480,7 +486,7 @@ namespace pygmalion
 			m_PlayerOccupancy[player] -= square;
 			m_PieceOccupancy[piece] -= square;
 			m_Hash ^= pieceHash(piece, square, player);
-			m_Material -= materialTable.materialAbsolute(player, piece, square);
+			m_Material -= materialTable.material(player, piece, square);
 			const squaresType occ{ m_PlayerOccupancy[player] & m_PieceOccupancy[piece] };
 			m_PieceMask[player].setPiece(piece, m_PlayerOccupancy[player] & m_PieceOccupancy[piece]);
 			onRemovedPiece(piece, square, player);
@@ -503,8 +509,8 @@ namespace pygmalion
 			m_PieceOccupancy[piece] |= to;
 			m_Hash ^= pieceHash(piece, from, player);
 			m_Hash ^= pieceHash(piece, to, player);
-			m_Material -= materialTable.materialAbsolute(player, piece, from);
-			m_Material += materialTable.materialAbsolute(player, piece, to);
+			m_Material -= materialTable.material(player, piece, from);
+			m_Material += materialTable.material(player, piece, to);
 			onMovedPiece(piece, from, to, player);
 		}
 		PYGMALION_INLINE pieceType getPiece(const squareType sq) const noexcept
@@ -571,7 +577,7 @@ namespace pygmalion
 			m_Hash = playerHash(m_MovingPlayer) ^ flagsHash(m_Flags);
 			m_MoveCount = 0;
 			m_ReversiblePlyCount = 0;
-			constexpr const scoreType zero{ scoreType::zero() };
+			constexpr const objectiveType zero{ objectiveType::zero() };
 			m_Material = zero;
 			for (const auto pl : playerType::range)
 				m_PieceMask[pl].clear();

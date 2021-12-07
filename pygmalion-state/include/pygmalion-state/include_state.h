@@ -25,4 +25,5 @@ using hashType = typename descriptorState::hashType;
 using signatureType = typename descriptorState::signatureType;
 using piecemaskType = typename descriptorState::piecemaskType;
 using deltaType = typename descriptorState::deltaType;
+using objectiveType = typename descriptorState::objectiveType;
 

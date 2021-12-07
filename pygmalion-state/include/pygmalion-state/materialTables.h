@@ -17,23 +17,41 @@ namespace pygmalion::state
 		{
 			arrayhelper::make<countPieces,scoreType>(scoreType::zero())
 		};
-		std::array<std::array<std::array<scoreType, countSquares>, countPieces>, countPlayers> m_PST
+		std::array<std::array<std::array<objectiveType, countSquares>, countPieces>, countPlayers> m_PST
 		{
-			arrayhelper::make<countPlayers,std::array<std::array<scoreType, countSquares>, countPieces>>(arrayhelper::make<countPieces,std::array<scoreType, countSquares>>(arrayhelper::make<countSquares,scoreType>(scoreType::zero())))
-		};
-		std::array<scoreType, countPieces> m_MaterialUpperBound
-		{
-			arrayhelper::make<countPieces,scoreType>(scoreType::zero())
-		};
-		std::array<scoreType, countPieces> m_MaterialLowerBound
-		{
-			arrayhelper::make<countPieces,scoreType>(scoreType::zero())
+			arrayhelper::make<countPlayers,std::array<std::array<objectiveType, countSquares>, countPieces>>(arrayhelper::make<countPieces,std::array<objectiveType, countSquares>>(arrayhelper::make<countSquares,objectiveType>(objectiveType::zero())))
 		};
 		std::array<scoreType, countPieces> m_MaterialScore
 		{
 			arrayhelper::make<countPieces,scoreType>(scoreType::zero())
 		};
+		void recomputePSTs() noexcept
+		{
+			for (const auto pl : playerType::range)
+			{
+				for (const auto pc : pieceType::range)
+				{
+					for (const auto sq : squareType::range)
+					{
+						m_PST[pl][pc][sq] = objectiveType::makeObjective(this->m_LazyMaterial[pc] + this->m_PST_Parameters[pl][pc][sq], pl);
+					}
+				}
+			}
+			for (const auto pc : pieceType::range)
+			{
+				double value = 0.0;
+				for (const auto sq : squareType::range)
+				{
+					for (const auto pl : playerType::range)
+					{
+						value += static_cast<double>(this->material(pl, pc, sq).makeSubjective(pl));
+					}
+				}
+				m_MaterialScore[pc] = static_cast<scoreType>(value / (countSquares * countPlayers));
+			}
+		}
 	public:
+		constexpr static size_t countParameters{ countPieces + countPlayers * countPieces * countSquares };
 		PYGMALION_INLINE scoreType materialScore(const pieceType pc) const noexcept
 		{
 			return m_MaterialScore[pc];
@@ -42,111 +60,11 @@ namespace pygmalion::state
 		{
 		}
 		~materialTables() noexcept = default;
-		template<size_t RELATIVE_TO_PLAYER>
-		PYGMALION_INLINE scoreType materialRelative(const playerType p, const pieceType pc, const squareType sq) const noexcept
-		{
-			if constexpr (RELATIVE_TO_PLAYER == 0)
-				return m_PST[p][pc][sq];
-			else
-				return -m_PST[p][pc][sq];
-		}
-		PYGMALION_INLINE scoreType materialRelative(const playerType pl_relative, const playerType p, const pieceType pc, const squareType sq) const noexcept
-		{
-			if (static_cast<size_t>(pl_relative) == 0)
-				return m_PST[p][pc][sq];
-			else
-				return -m_PST[p][pc][sq];
-		}
-		PYGMALION_INLINE scoreType materialAbsolute(const playerType p, const pieceType pc, const squareType sq) const noexcept
+		PYGMALION_INLINE objectiveType material(const playerType p, const pieceType pc, const squareType sq) const noexcept
 		{
 			return m_PST[p][pc][sq];
 		}
-		PYGMALION_INLINE scoreType materialUpperBound(const pieceType pc) const noexcept
-		{
-			return m_MaterialUpperBound[pc];
-		}
-		PYGMALION_INLINE scoreType materialLowerBound(const pieceType pc) const noexcept
-		{
-			return m_MaterialLowerBound[pc];
-		}
-		constexpr static size_t countParameters{ countPieces + countPlayers * countPieces * countSquares };
-		void recomputePSTs() noexcept
-		{
-			const auto PSTLambda
-			{
-				[this](const size_t plIdx)
-				{
-					const playerType pl{static_cast<playerType>(plIdx)};
-					return arrayhelper::generate<countPieces, std::array<scoreType, countSquares>>(
-						[this,pl](const size_t pcIdx)
-						{
-							const pieceType pc{ static_cast<pieceType>(pcIdx) };
-							return arrayhelper::generate<countSquares, scoreType>(
-								[this, pl, pc](const size_t sqIdx)
-								{
-									const squareType sq{ static_cast<squareType>(sqIdx) };
-									return boardType::makeSubjective(pl, this->m_LazyMaterial[pc] + this->m_PST_Parameters[pl][pc][sq]);
-								}
-							);
-						}
-					);
-				}
-			};
-			m_PST = arrayhelper::generate< countPlayers, std::array<std::array<scoreType, countSquares>, countPieces>>(PSTLambda);
-			const auto UpperBoundLambda
-			{
-				[this](const size_t pcIdx)
-				{
-					scoreType best{scoreType::minimum()};
-					const pieceType pc{ static_cast<pieceType>(pcIdx) };
-					for (const auto pl : playerType::range)
-					{
-						for (const auto sq : squareType::range)
-						{
-							if (best < this->materialRelative(pl, pl, pc, sq))
-								best = this->materialRelative(pl, pl, pc, sq);
-						}
-					}
-					return best;
-				}
-			};
-			m_MaterialUpperBound = arrayhelper::generate<countPieces, scoreType>(UpperBoundLambda);
-			const auto LowerBoundLambda
-			{
-				[this](const size_t pcIdx)
-				{
-					scoreType best{scoreType::maximum()};
-					const pieceType pc{ static_cast<pieceType>(pcIdx) };
-					for (const auto pl : playerType::range)
-					{
-						for (const auto sq : squareType::range)
-						{
-							if (best > this->materialRelative(pl, pl, pc, sq))
-								best = this->materialRelative(pl, pl, pc, sq);
-						}
-					}
-					return best;
-				}
-			};
-			m_MaterialLowerBound = arrayhelper::generate<countPieces, scoreType>(LowerBoundLambda);
-			m_MaterialScore = arrayhelper::generate<countPieces, scoreType>
-				(
-					[this](const size_t pieceIndex)
-					{
-						const pieceType pc{ static_cast<pieceType>(pieceIndex) };
-						double value = 0.0;
-						for (const auto sq : squareType::range)
-						{
-							for (const auto pl : playerType::range)
-							{
-								value += static_cast<double>(this->materialRelative(pl, pl, pc, sq));
-							}
-						}
-						return static_cast<scoreType>(value / (countSquares * countPlayers));
-					}
-			);
-		}
-		std::string getParameterName(const size_t parameterIndex) const noexcept
+		static std::string getParameterName(const size_t parameterIndex) noexcept
 		{
 			PYGMALION_ASSERT(parameterIndex < countParameters);
 			if (parameterIndex < countPieces)
@@ -161,7 +79,7 @@ namespace pygmalion::state
 				const squareType sq{ static_cast<squareType>(indexSQ) };
 				const pieceType pc{ static_cast<pieceType>(indexPC) };
 				const playerType pl{ static_cast<playerType>(indexPL) };
-				return boardType::pieceToString(static_cast<pieceType>(parameterIndex), pl) + boardType::squareToString() + "_pst";
+				return boardType::pieceToString(pc, pl) + boardType::squareToString(sq) + "_pst";
 			}
 		}
 		void getParameterRange(const size_t parameterIndex, double& minimum, double& maximum) const noexcept
@@ -242,6 +160,25 @@ namespace pygmalion::state
 					const size_t indexPC{ indexPST2 % countPieces };
 					const size_t indexPL{ indexPST2 / countPieces };
 					m_PST_Parameters[indexPL][indexPC][indexSQ] = parameters[parameterIndex];
+				}
+			}
+			recomputePSTs();
+		}
+		void getParameters(std::vector<scoreType>& parameters) const noexcept
+		{
+			parameters.resize(countParameters);
+			for (size_t parameterIndex = 0; parameterIndex < countParameters; parameterIndex++)
+			{
+				if (parameterIndex < countPieces)
+					parameters[parameterIndex] = m_LazyMaterial[parameterIndex];
+				else
+				{
+					const size_t indexPST{ parameterIndex - countPieces };
+					const size_t indexSQ{ indexPST % countSquares };
+					const size_t indexPST2{ indexPST / countSquares };
+					const size_t indexPC{ indexPST2 % countPieces };
+					const size_t indexPL{ indexPST2 / countPieces };
+					parameters[parameterIndex] = m_PST_Parameters[indexPL][indexPC][indexSQ];
 				}
 			}
 		}

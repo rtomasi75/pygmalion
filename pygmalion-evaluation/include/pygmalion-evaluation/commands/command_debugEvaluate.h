@@ -19,7 +19,7 @@ namespace pygmalion::evaluation
 				{
 					typename generatorType::contextType context;
 					typename generatorType::template stackType<PLAYER> stack{ typename generatorType::template stackType<PLAYER>(this->position(), this->history(), &context, this->stateEngine().materialTable(), this->dynamicsEngine().delta()) };
-					this->output() << "material: \t" << stack.position().template materialRelative<PLAYER>() << std::endl;
+					this->output() << "material: \t" << stack.position().material().template makeSubjective<PLAYER>() << std::endl;
 					typename evaluatorType::dataType data;
 					evaluatorType::createData(data);
 					for (size_t i = 0; i < evaluatorType::countStages; i++)

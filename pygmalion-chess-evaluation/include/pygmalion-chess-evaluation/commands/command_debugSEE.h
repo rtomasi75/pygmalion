@@ -22,7 +22,7 @@ namespace pygmalion::chess::evaluation
 					stackType<PLAYER> stack{ stackType<PLAYER>(this->position(), this->history(), &context, this->stateEngine().materialTable(), this->dynamicsEngine().delta()) };
 					if (generatorType::isMoveLegal(stack, movebits))
 					{
-						materialScore score{ evaluatorType::template staticExchangeScore<PLAYER>(this->position(),movebits, this->stateEngine().materialTable()) };
+						objectiveType score{ evaluatorType::template staticExchangeScore<PLAYER>(this->position(),movebits, this->stateEngine().materialTable()) };
 						this->output() << "static exchange evaluation for " << motorType::moveToString(this->position(), movebits) << ":" << std::endl;
 						this->output() << score;
 					}

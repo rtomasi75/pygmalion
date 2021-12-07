@@ -1,6 +1,6 @@
 namespace pygmalion
 {
-	template<size_t COUNT_PIECES, size_t COUNT_RANKS, size_t COUNT_FILES, size_t COUNT_FLAGS, size_t COUNT_HASHBITS,bool CUSTOM_HASHING_ENABLED, typename CUMULATION, size_t MANTISSA, size_t SHIFT, size_t MAXDIST>
+	template<size_t COUNT_PIECES, size_t COUNT_RANKS, size_t COUNT_FILES, size_t COUNT_FLAGS, size_t COUNT_HASHBITS, bool CUSTOM_HASHING_ENABLED, typename CUMULATION, size_t MANTISSA, size_t SHIFT, size_t MAXDIST>
 	class descriptor_state
 	{
 	public:
@@ -27,6 +27,7 @@ namespace pygmalion
 		using scoreType = pygmalion::score<MANTISSA, SHIFT, MAXDIST>;
 		using piecemaskType = pygmalion::state::piecemask<descriptor_state>;
 		using deltaType = pygmalion::state::delta<descriptor_state>;
+		using objectiveType = objectivescore <scoreType, countPlayers>;
 		constexpr static const size_t scoreMantissa{ MANTISSA };
 		constexpr static const size_t scoreShift{ SHIFT };
 		constexpr static const size_t scoreMaxDistance{ MAXDIST };

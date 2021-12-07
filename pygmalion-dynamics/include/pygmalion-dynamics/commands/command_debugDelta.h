@@ -34,9 +34,26 @@ namespace pygmalion::dynamics
 			{
 				this->output() << std::endl;
 				constexpr const typename piecemaskType::maskType n{ typename piecemaskType::maskType(1) << countPieces };
-				for (typename piecemaskType::maskType i = typename piecemaskType::maskType(0); i < n; ++i)
+				const auto delta(this->dynamicsEngine().delta());
+				for (const auto mask : piecemaskType::range)
 				{
-					const piecemaskType mask{ piecemaskType(i) };
+					for (const auto spl : playerType::range)
+					{
+						for (const auto pl : playerType::range)
+						{
+							this->output() << boardType::playerToString(spl) << "=>" << boardType::piecemaskToString(mask, pl) << ": " << delta.maxQuietChange(spl, pl, mask) << std::endl;
+							this->output() << boardType::playerToString(spl) << "=>" << boardType::piecemaskToString(mask, pl) << "=" << boardType::piecemaskToString(generatorType::promotionResults(pl), pl) << ": " << delta.maxPromotionChange(spl, pl, mask) << std::endl;
+							for (const auto mask2 : piecemaskType::range)
+							{
+								this->output() << boardType::playerToString(spl) << "=>" << boardType::piecemaskToString(mask, pl) << "-" << boardType::piecemaskToString(mask, pl) << ": " << delta.maxCaptureChange(spl, pl, mask, mask2) << std::endl;
+							}
+							for (const auto mask2 : piecemaskType::range)
+							{
+								this->output() << boardType::playerToString(spl) << "=>" << boardType::piecemaskToString(mask, pl) << "-" << boardType::piecemaskToString(mask, pl) << "=" << boardType::piecemaskToString(generatorType::promotionResults(pl), pl) << ": " << delta.maxPromoCaptureChange(spl, pl, mask, mask2) << std::endl;
+							}
+							this->output() << std::endl;
+						}
+					}
 				}
 				this->output() << std::endl;
 				return true;

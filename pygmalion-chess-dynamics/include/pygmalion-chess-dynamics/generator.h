@@ -5932,7 +5932,7 @@ namespace pygmalion::chess
 		};
 		PYGMALION_INLINE static squaresType promotionOrigins_Implementation(const playerType pl, const pieceType pc) noexcept
 		{
-			return m_QuietOrigins[pl][pc];
+			return m_PromotionOrigins[pl][pc];
 		}
 		PYGMALION_INLINE static squaresType promoCaptureOrigins_Implementation(const playerType pl, const pieceType pc) noexcept
 		{
@@ -5961,6 +5961,16 @@ namespace pygmalion::chess
 		PYGMALION_INLINE static squaresType captureTargets_Implementation(const playerType pl, const pieceType pc, const squareType from) noexcept
 		{
 			return m_CaptureTargets[pl][pc][from];
+		}
+		PYGMALION_INLINE static piecemaskType promotionPieces_Implementation(const playerType player) noexcept
+		{
+			constexpr const piecemaskType promoPieces{ []() { piecemaskType mask; mask.setPiece(pawn); return mask; }() };
+			return promoPieces;
+		}
+		PYGMALION_INLINE static piecemaskType promotionResults_Implementation(const playerType player) noexcept
+		{
+			constexpr const piecemaskType promoPieces{ []() { piecemaskType mask; mask.setPiece(knight); mask.setPiece(bishop); mask.setPiece(rook); mask.setPiece(queen); return mask; }() };
+			return promoPieces;
 		}
 	};
 }

@@ -215,7 +215,7 @@ namespace pygmalion
 		template<size_t PLAYER>
 		PYGMALION_INLINE static scoreType evaluate(const scoreType& alpha, const scoreType& beta, const typename generatorType::template stackType<PLAYER>& stack, const dataType& data, const std::vector<scoreType>& parameters) noexcept
 		{
-			const scoreType sc{ stack.position().template materialRelative<PLAYER>() };
+			const scoreType sc{ stack.position().material().template makeSubjective<PLAYER>() };
 			if constexpr (sizeof...(STAGES) > 0)
 				return evaluatorType::template computeStages<PLAYER, 0, STAGES...>(alpha, beta, sc, stack, data, parameters.data());
 			else
@@ -245,12 +245,12 @@ namespace pygmalion
 			return evaluatorType::countAspirationWindows_Implementation();;
 		}
 		template<size_t PLAYER>
-		PYGMALION_INLINE static scoreType staticMoveScore(const boardType& position, const movebitsType move, const materialTableType& materialTable) noexcept
+		PYGMALION_INLINE static objectiveType staticMoveScore(const boardType& position, const movebitsType move, const materialTableType& materialTable) noexcept
 		{
 			return evaluatorType::template staticMoveScore_Implementation<PLAYER>(position, move, materialTable);
 		}
 		template<size_t PLAYER>
-		PYGMALION_INLINE static scoreType staticExchangeScore(const boardType& position, const movebitsType move, const materialTableType& materialTable) noexcept
+		PYGMALION_INLINE static objectiveType staticExchangeScore(const boardType& position, const movebitsType move, const materialTableType& materialTable) noexcept
 		{
 			return evaluatorType::template staticExchangeScore_Implementation<PLAYER>(position, move, materialTable);
 		}

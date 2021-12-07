@@ -1843,87 +1843,94 @@ namespace pygmalion
 		static deltaType computeMaterialDelta(const materialTableType& materialTable) noexcept
 		{
 			constexpr const scoreType zero{ scoreType::zero() };
-			constexpr const scoreType minimum{ scoreType::minimum() };
+			constexpr const scoreType maximum{ scoreType::maximum() };
+			constexpr const piecemaskType none{ piecemaskType::none() };
 			deltaType delta;
-			for (const auto pl : playerType::range)
+			for (const auto spl : playerType::range)
 			{
 				for (const auto originPieces : piecemaskType::range)
 				{
-					delta.maxQuietChange(originPieces) = zero;
-					delta.maxPromotionChange(originPieces) = zero;
-					for (const auto pc : originPieces)
+					for (const auto pl : playerType::range)
 					{
-						for (const auto from : generatorType::quietOrigins(pl, pc))
+						delta.maxQuietChange(spl, pl, originPieces) = zero;
+						delta.maxPromotionChange(spl, pl, originPieces) = zero;
+						for (const auto pc : originPieces)
 						{
-							const scoreType materialFrom{ materialTable.material(pl,pc,from) };
-							for (const auto to : generatorType::quietTargets(pl, pc, from))
+							for (const auto from : generatorType::quietOrigins(pl, pc))
 							{
-								const scoreType materialTo{ materialTable.material(pl,pc,to) };
-								const scoreType materialDelta{ materialTo - materialFrom };
-								if (materialDelta > delta.maxQuietChange(originPieces))
-									delta.maxQuietChange(originPieces) = materialDelta;
-							}
-						}
-						for (const auto from : generatorType::promotionOrigins(pl, pc))
-						{
-							const scoreType materialFrom{ materialTable.material(pl,pc,from) };
-							for (const auto to : generatorType::promotionTargets(pl, pc, from))
-							{
-								for (const auto promoted : generatorType::promotionResults(pl))
+								const objectiveType materialFrom{ materialTable.material(pl,pc,from) };
+								for (const auto to : generatorType::quietTargets(pl, pc, from))
 								{
-									const scoreType materialTo{ materialTable.material(pl,promoted,to) };
-									const scoreType materialDelta{ materialTo - materialFrom };
-									if (materialDelta > delta.maxPromotionChange(originPieces))
-										delta.maxPromotionChange(originPieces) = materialDelta;
+									const objectiveType materialTo{ materialTable.material(pl,pc,to) };
+									const scoreType materialDelta{ (materialTo - materialFrom).makeSubjective(spl) };
+									if (materialDelta > delta.maxQuietChange(spl, pl, originPieces))
+										delta.maxQuietChange(spl, pl, originPieces) = materialDelta;
 								}
 							}
-						}
-						for (const auto from : generatorType::captureOrigins(pl, pc))
-						{
-							const scoreType materialFrom{ materialTable.material(pl,pc,from) };
-							for (const auto to : generatorType::captureTargets(pl, pc, from))
+							for (const auto from : generatorType::promotionOrigins(pl, pc))
 							{
-								const scoreType materialTo{ materialTable.material(pl,pc,to) };
-								for (const auto victimPieces : piecemaskType::range)
+								const objectiveType materialFrom{ materialTable.material(pl,pc,from) };
+								for (const auto to : generatorType::promotionTargets(pl, pc, from))
 								{
-									for (const auto vpc : victimPieces)
+									for (const auto promoted : generatorType::promotionResults(pl))
 									{
-										for (const auto vpl : playerType::range)
-										{
-											if (vpl != pl)
-											{
-												const scoreType materialVictim{ materialTable.material(vpl,victim,to) };
-												const scoreType materialTo{ materialTable.material(pl,pc,to) };
-												const scoreType materialDelta{ materialTo - materialFrom - materialVictim };
-												if (materialDelta > delta.maxCaptureChange(originPieces, victimPieces))
-													delta.maxCaptureChange(originPieces, victimPieces) = materialDelta;
-											}
-										}
+										const objectiveType materialTo{ materialTable.material(pl,promoted,to) };
+										const scoreType materialDelta{ (materialTo - materialFrom).makeSubjective(spl) };
+										if (materialDelta > delta.maxPromotionChange(spl, pl, originPieces))
+											delta.maxPromotionChange(spl, pl, originPieces) = materialDelta;
 									}
 								}
 							}
 						}
-						for (const auto from : generatorType::promoCaptureOrigins(pl, pc))
+					}
+					for (const auto pl : playerType::range)
+					{
+						for (const auto victimPieces : piecemaskType::range)
 						{
-							const scoreType materialFrom{ materialTable.material(pl,pc,from) };
-							for (const auto to : generatorType::promoCaptureTargets(pl, pc, from))
+							delta.maxCaptureChange(spl, pl, originPieces, victimPieces) = zero;
+							delta.maxPromoCaptureChange(spl, pl, originPieces, victimPieces) = zero;
+							for (const auto pc : originPieces)
 							{
-								const scoreType materialTo{ materialTable.material(pl,pc,to) };
-								for (const auto victimPieces : piecemaskType::range)
+								for (const auto from : generatorType::captureOrigins(pl, pc))
 								{
-									for (const auto vpc : victimPieces)
+									const objectiveType materialFrom{ materialTable.material(pl,pc,from) };
+									for (const auto to : generatorType::captureTargets(pl, pc, from))
 									{
-										for (const auto vpl : playerType::range)
+										const objectiveType materialTo{ materialTable.material(pl,pc,to) };
+										for (const auto vpc : victimPieces)
 										{
-											if (vpl != pl)
+											for (const auto vpl : playerType::range)
 											{
-												for (const auto promoted : generatorType::promotionResults(pl))
+												if (vpl != pl)
 												{
-													const scoreType materialVictim{ materialTable.material(vpl,victim,to) };
-													const scoreType materialTo{ materialTable.material(pl,promoted,to) };
-													const scoreType materialDelta{ materialTo - materialFrom - materialVictim };
-													if (materialDelta > delta.maxPromoCaptureChange(originPieces, victimPieces))
-														delta.maxPromoCaptureChange(originPieces, victimPieces) = materialDelta;
+													const objectiveType materialVictim{ materialTable.material(vpl,vpc,to) };
+													const scoreType materialDelta{ (materialTo - materialFrom - materialVictim).makeSubjective(spl) };
+													if (materialDelta > delta.maxCaptureChange(spl, pl, originPieces, victimPieces))
+														delta.maxCaptureChange(spl, pl, originPieces, victimPieces) = materialDelta;
+												}
+											}
+										}
+									}
+								}
+								for (const auto from : generatorType::promoCaptureOrigins(pl, pc))
+								{
+									const objectiveType materialFrom{ materialTable.material(pl,pc,from) };
+									for (const auto to : generatorType::promoCaptureTargets(pl, pc, from))
+									{
+										for (const auto vpc : victimPieces)
+										{
+											for (const auto vpl : playerType::range)
+											{
+												if (vpl != pl)
+												{
+													for (const auto promoted : generatorType::promotionResults(pl))
+													{
+														const objectiveType materialTo{ materialTable.material(pl,promoted,to) };
+														const objectiveType materialVictim{ materialTable.material(vpl,vpc,to) };
+														const scoreType materialDelta{ (materialTo - materialFrom - materialVictim).makeSubjective(spl) };
+														if (materialDelta > delta.maxPromoCaptureChange(spl, pl, originPieces, victimPieces))
+															delta.maxPromoCaptureChange(spl, pl, originPieces, victimPieces) = materialDelta;
+													}
 												}
 											}
 										}
@@ -1934,6 +1941,11 @@ namespace pygmalion
 					}
 				}
 			}
+			return delta;
+		}
+		PYGMALION_INLINE static piecemaskType promotionPieces(const playerType player) noexcept
+		{
+			return generatorType::promotionPieces_Implementation(player);
 		}
 	};
 }

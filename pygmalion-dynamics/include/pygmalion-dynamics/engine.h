@@ -10,7 +10,6 @@ namespace pygmalion::dynamics
 		using descriptorDynamics = typename GENERATOR::descriptorDynamics;
 #include "include_dynamics.h"
 	private:
-		std::vector<scoreType> m_MaterialParameters;
 		deltaType m_MaterialDelta;
 	public:
 		PYGMALION_INLINE const deltaType& materialDelta() const noexcept
@@ -21,20 +20,21 @@ namespace pygmalion::dynamics
 		{
 			return materialDelta();
 		}
-		const std::vector<scoreType>& materialParameters() const noexcept
+		std::vector<scoreType> materialParameters() const noexcept
 		{
-			return m_MaterialParameters;
+			std::vector<scoreType> materialParameters;
+			this->materialTable().getParameters(materialParameters);
+			return materialParameters;
 		}
 		virtual std::vector<scoreType> parameters() const noexcept
 		{
 			return this->materialParameters();
 		}
-		void setMaterialParameters(std::vector<scoreType>& materialParameters) noexcept
+		void setMaterialParameters(const std::vector<scoreType>& materialParameters) noexcept
 		{
 			std::string fen = this->position().getFen();
-			m_MaterialParameters = materialParameters;
-			this->materialTable().setParameters(m_MaterialParameters);
-			this->materialTable().recomputePSTs();
+			this->materialTable().setParameters(materialParameters);
+			m_MaterialDelta = generatorType::computeMaterialDelta(this->materialTable());
 			this->initialize();
 			this->position().setFen(fen, this->materialTable());
 			this->positionChanged();
@@ -65,6 +65,7 @@ namespace pygmalion::dynamics
 			this->template addCommand<command_debugQuietOrigins<descriptorDynamics, generatorType>>();
 			this->template addCommand<command_debugPromotionOrigins<descriptorDynamics, generatorType>>();
 			this->template addCommand<command_debugDelta<descriptorDynamics, generatorType>>();
+			this->template addCommand<command_debugMaterialParameters<descriptorDynamics, generatorType>>();
 			std::deque<std::shared_ptr<pygmalion::intrinsics::command>> list{ generatorType::commands() };
 			for (auto& cmd : list)
 			{

@@ -25,7 +25,7 @@ namespace pygmalion::state
 							{
 								const squareType sq{ rank & file };
 								this->output() << "\t";
-								this->output() << this->stateEngine().materialTable().materialAbsolute(pl, pc, sq);
+								this->output() << this->stateEngine().materialTable().material(pl, pc, sq);
 							}
 							this->output() << std::endl;
 						}

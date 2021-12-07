@@ -473,7 +473,7 @@ namespace pygmalion
 				scoreType sc;
 				if constexpr (QSDEPTH >= (countQsPhase1Plies + countQsPhase2Plies + countQsPhase3Plies))
 				{
-					sc = evaluate(alpha, beta) + evaluatorType::template staticExchangeScore<PLAYER>(m_Stack.position(), move, m_Stack.materialTable());
+					sc = evaluate(alpha, beta) + evaluatorType::template staticExchangeScore<PLAYER>(m_Stack.position(), move, m_Stack.materialTable()).template makeSubjective<PLAYER>();
 					allowStoreTTsubnode = false;
 				}
 				else
@@ -539,7 +539,7 @@ namespace pygmalion
 				scoreType sc;
 				if constexpr (QSDEPTH >= (countQsPhase1Plies + countQsPhase2Plies + countQsPhase3Plies))
 				{
-					sc = evaluate(alpha, beta) + evaluatorType::template staticExchangeScore<PLAYER>(m_Stack.position(), move, m_Stack.materialTable());
+					sc = evaluate(alpha, beta) + evaluatorType::template staticExchangeScore<PLAYER>(m_Stack.position(), move, m_Stack.materialTable()).template makeSubjective<PLAYER>();
 					allowStoreTTsubnode = false;
 				}
 				else
@@ -615,7 +615,43 @@ namespace pygmalion
 			}
 			PYGMALION_INLINE scoreType futilityMargin(const size_t depthRemaining, const stackType& stack) const noexcept
 			{
-				return static_cast<const instanceType*>(this)->futilityMargin_Implementation(depthRemaining, stack);
+				constexpr const scoreType zero{ scoreType::zero() };
+				constexpr const squaresType none{ squaresType::none() };
+				const scoreType positionalMargin{ stack.delta().maxQuietChange(stackType::MovingPlayer,stackType::MovingPlayer,stack.position().pieceMask(stackType::MovingPlayer)) };
+				playerType player{ stackType::NextPlayer };
+				scoreType margin{ positionalMargin };
+				size_t d{ 0 };
+				while (depthRemaining > d)
+				{
+					const piecemaskType playerPieces{ stack.position().pieceMask(player) };
+					const piecemaskType opponentPieces{ stack.position().opponentPieceMask(player) };
+					const scoreType quietMargin{ stack.delta().maxQuietChange(stackType::MovingPlayer,player,playerPieces) };
+					const scoreType captureMargin{ stack.delta().maxCaptureChange(stackType::MovingPlayer,player,playerPieces,opponentPieces) };
+					const squaresType promotionOrigins{ none };
+					bool bPromotionPossible{ false };
+					for (const auto promoPiece : (generatorType::promotionPieces(player)& stack.position().pieceMask(player)))
+					{
+						if (stack.position().pieceOccupancy(promoPiece) & stack.position().playerOccupancy(player) & generatorType::promotionOrigins(player, promoPiece))
+						{
+							bPromotionPossible = true;
+							break;
+						}
+					}
+					const scoreType plyMargin{ scoreType::max(quietMargin, captureMargin) };
+					scoreType promoMargin;
+					if (bPromotionPossible)
+					{
+						const scoreType promotionMargin{ stack.delta().maxPromotionChange(stackType::MovingPlayer,player,playerPieces) };
+						const scoreType promoCaptureMargin{ stack.delta().maxPromoCaptureChange(stackType::MovingPlayer,player,playerPieces,opponentPieces) };
+						promoMargin = scoreType::max(promotionMargin, promoCaptureMargin);
+					}
+					else
+						promoMargin = zero;
+					margin += scoreType::max(promoMargin, plyMargin);
+					d++;
+					player++;
+				}
+				return margin;
 			}
 			PYGMALION_INLINE scoreType deltaMargin(const stackType& stack) const noexcept
 			{
@@ -623,7 +659,42 @@ namespace pygmalion
 			}
 			PYGMALION_INLINE scoreType futilityGlobalMargin(const size_t depthRemaining, const stackType& stack) const noexcept
 			{
-				return static_cast<const instanceType*>(this)->futilityGlobalMargin_Implementation(depthRemaining, stack);
+				constexpr const scoreType zero{ scoreType::zero() };
+				constexpr const squaresType none{ squaresType::none() };
+				playerType player{ stackType::MovingPlayer };
+				scoreType margin{ zero };
+				size_t d{ 0 };
+				while (depthRemaining >= d)
+				{
+					const piecemaskType playerPieces{ stack.position().pieceMask(player) };
+					const piecemaskType opponentPieces{ stack.position().opponentPieceMask(player) };
+					const scoreType quietMargin{ stack.delta().maxQuietChange(stackType::MovingPlayer,player,playerPieces) };
+					const scoreType captureMargin{ stack.delta().maxCaptureChange(stackType::MovingPlayer,player,playerPieces,opponentPieces) };
+					const squaresType promotionOrigins{ none };
+					bool bPromotionPossible{ false };
+					for (const auto promoPiece : (generatorType::promotionPieces(player)& stack.position().pieceMask(player)))
+					{
+						if (stack.position().pieceOccupancy(promoPiece) & stack.position().playerOccupancy(player) & generatorType::promotionOrigins(player, promoPiece))
+						{
+							bPromotionPossible = true;
+							break;
+						}
+					}
+					const scoreType plyMargin{ scoreType::max(quietMargin, captureMargin) };
+					scoreType promoMargin;
+					if (bPromotionPossible)
+					{
+						const scoreType promotionMargin{ stack.delta().maxPromotionChange(stackType::MovingPlayer,player,playerPieces) };
+						const scoreType promoCaptureMargin{ stack.delta().maxPromoCaptureChange(stackType::MovingPlayer,player,playerPieces,opponentPieces) };
+						promoMargin = scoreType::max(promotionMargin, promoCaptureMargin);
+					}
+					else
+						promoMargin = zero;
+					margin += scoreType::max(promoMargin, plyMargin);
+					d++;
+					player++;
+				}
+				return margin;
 			}
 			PYGMALION_INLINE scoreType deltaGlobalMargin(const stackType& stack) const noexcept
 			{

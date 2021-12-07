@@ -59,11 +59,11 @@ namespace pygmalion::state
 		{
 			return m_Bits;
 		}
-		constexpr static squares none()
+		constexpr static squares none() noexcept
 		{
 			return squares(bitsType::zero());
 		}
-		constexpr static squares all()
+		constexpr static squares all() noexcept
 		{
 			return ~none();
 		}
@@ -255,7 +255,7 @@ namespace pygmalion::state
 			m_Bits ^= squares(rank).m_Bits;
 			return *this;
 		}
-		PYGMALION_INLINE constexpr squares singlePiece() const noexcept
+		PYGMALION_INLINE constexpr squares singleSquare() const noexcept
 		{
 			assert((*this) != squares::none());
 			return squares(m_Bits.singleBit());

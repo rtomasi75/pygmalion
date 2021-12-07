@@ -612,7 +612,7 @@ namespace pygmalion::chess
 		str << "Pieces: " << boardType::pieceMaskToString(position.pieceMask(descriptorState::whitePlayer), descriptorState::whitePlayer) << ":" << boardType::pieceMaskToString(position.pieceMask(descriptorState::blackPlayer), descriptorState::blackPlayer) << std::endl;
 		str << std::endl;
 		str << std::endl;
-		str << "Material: " << position.materialRelative(position.movingPlayer()) << std::endl;
+		str << "Material: " << position.material().makeSubjective(position.movingPlayer()) << std::endl;
 		str << std::endl;
 		str << "Hash: " << std::setw(8) << std::hex << static_cast<std::uint64_t>(position.hash()) << std::dec << std::endl;
 		str << std::endl;
