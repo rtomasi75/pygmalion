@@ -5962,14 +5962,14 @@ namespace pygmalion::chess
 		{
 			return m_CaptureTargets[pl][pc][from];
 		}
-		PYGMALION_INLINE static piecemaskType promotionPieces_Implementation(const playerType player) noexcept
+		PYGMALION_INLINE static piecesType promotionPieces_Implementation(const playerType player) noexcept
 		{
-			constexpr const piecemaskType promoPieces{ []() { piecemaskType mask; mask.setPiece(pawn); return mask; }() };
+			constexpr const piecesType promoPieces{ []() { piecesType mask; mask|=pawn; return mask; }() };
 			return promoPieces;
 		}
-		PYGMALION_INLINE static piecemaskType promotionResults_Implementation(const playerType player) noexcept
+		PYGMALION_INLINE static piecesType promotionResults_Implementation(const playerType player) noexcept
 		{
-			constexpr const piecemaskType promoPieces{ []() { piecemaskType mask; mask.setPiece(knight); mask.setPiece(bishop); mask.setPiece(rook); mask.setPiece(queen); return mask; }() };
+			constexpr const piecesType promoPieces{ []() { piecesType mask; mask |= knight; mask |= bishop; mask |= rook; mask |= queen; return mask; }() };
 			return promoPieces;
 		}
 	};

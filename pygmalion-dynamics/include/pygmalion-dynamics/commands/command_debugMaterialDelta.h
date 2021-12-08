@@ -1,7 +1,7 @@
 namespace pygmalion::dynamics
 {
 	template<typename DESCRIPTION_DYNAMICS, typename GENERATOR>
-	class command_debugMaterialParameters :
+	class command_debugMaterialDelta :
 		public pygmalion::dynamics::command<DESCRIPTION_DYNAMICS, GENERATOR>
 	{
 	public:
@@ -13,16 +13,30 @@ namespace pygmalion::dynamics
 	protected:
 		virtual bool onProcess(const std::string& cmd) noexcept override
 		{
-			if (cmd == "debug-materialparameters")
+			if (cmd == "debug-materialdelta")
 			{
 				this->output() << std::endl;
-				std::vector<scoreType> current;
-				this->dynamicsEngine().materialTable().getParameters(current);
-				std::vector<scoreType> standard;
-				materialTableType::defaultParameters(standard);
-				constexpr const size_t n{ materialTableType::countParameters };
-				for (size_t i = 0; i < n; i++)
-					this->output() << materialTableType::getParameterName(i) << ": \t" << current[i] << " [" << standard[i] << "]" << std::endl;
+				const auto delta(this->dynamicsEngine().materialDelta());
+				for (const auto mask : piecesType::range)
+				{
+					for (const auto spl : playerType::range)
+					{
+						for (const auto pl : playerType::range)
+						{
+							this->output() << boardType::playerToString(spl) << "=>" << boardType::piecesToString(mask, pl) << ": " << delta.maxQuietChange(spl, pl, mask) << std::endl;
+							this->output() << boardType::playerToString(spl) << "=>" << boardType::piecesToString(mask, pl) << "=" << boardType::piecesToString(generatorType::promotionResults(pl), pl) << ": " << delta.maxPromotionChange(spl, pl, mask) << std::endl;
+							for (const auto mask2 : piecesType::range)
+							{
+								this->output() << boardType::playerToString(spl) << "=>" << boardType::piecesToString(mask, pl) << "-" << boardType::piecesToString(mask2, pl.next()) << ": " << delta.maxCaptureChange(spl, pl, mask, mask2) << std::endl;
+							}
+							for (const auto mask2 : piecesType::range)
+							{
+								this->output() << boardType::playerToString(spl) << "=>" << boardType::piecesToString(mask, pl) << "-" << boardType::piecesToString(mask2, pl.next()) << "=" << boardType::piecesToString(generatorType::promotionResults(pl), pl) << ": " << delta.maxPromoCaptureChange(spl, pl, mask, mask2) << std::endl;
+							}
+							this->output() << std::endl;
+						}
+					}
+				}
 				this->output() << std::endl;
 				return true;
 			}
@@ -31,7 +45,7 @@ namespace pygmalion::dynamics
 		}
 		virtual std::string help() noexcept override
 		{
-			return "DEBUG-MATERIALPARAMETERS";
+			return "DEBUG-MATERIALDELTA";
 		}
 	};
 

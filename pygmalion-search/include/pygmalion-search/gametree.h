@@ -28,6 +28,7 @@ namespace pygmalion
 			dataType m_Data;
 			heuristicsType& m_Heuristics;
 			const std::vector<scoreType>& m_Parameters;
+			const evaluationDeltaType& m_EvaluationDelta;
 			const int m_DistanceFromRoot;
 			movelistType m_Moves;
 			movelistType m_CriticalMoves;
@@ -591,11 +592,76 @@ namespace pygmalion
 			}
 			PYGMALION_INLINE scoreType moveFutilityValue(const movebitsType& move) const noexcept
 			{
-				return static_cast<const instanceType*>(this)->moveFutilityValue_Implementation(move);
+				constexpr const scoreType zero{ scoreType::zero() };
+				constexpr const playerType movingSide{ stackType::MovingPlayer };
+				constexpr const playerType defendingSide{ stackType::NextPlayer };
+				if (motorType::move().isCapture(move))
+				{
+					const squareType captureSquare{ motorType::move().captureSquare(this->stack().position(),move) };
+					const pieceType capturedPiece{ this->stack().position().getPiece(captureSquare) };
+					scoreType victimValue;
+					victimValue = -this->stack().materialTable().material(defendingSide, capturedPiece, captureSquare).template makeSubjective<static_cast<size_t>(movingSide)>();
+					if (motorType::move().isPromotion(move))
+					{
+						const squareType to{ motorType::move().toSquare(this->stack().position(),move) };
+						const squareType from{ motorType::move().fromSquare(this->stack().position(),move) };
+						const pieceType promotedPiece{ motorType::move().promotedPiece(move) };
+						const scoreType promotionValue{ this->stack().materialTable().material(movingSide, promotedPiece, to).template makeSubjective<static_cast<size_t>(movingSide)>() - this->stack().materialTable().material(movingSide, descriptorState::pawn, from).template makeSubjective<static_cast<size_t>(movingSide)>() };
+						return victimValue + promotionValue;
+					}
+					else
+						return victimValue;
+				}
+				else
+				{
+					if (motorType::move().isPromotion(move))
+					{
+						const squareType to{ motorType::move().toSquare(this->stack().position(),move) };
+						const squareType from{ motorType::move().fromSquare(this->stack().position(),move) };
+						const pieceType promotedPiece{ motorType::move().promotedPiece(move) };
+						const scoreType promotionValue{ this->stack().materialTable().material(movingSide, promotedPiece, to).template makeSubjective<static_cast<size_t>(movingSide)>() - this->stack().materialTable().material(movingSide, descriptorState::pawn, from).template makeSubjective<static_cast<size_t>(movingSide)>() };
+						return promotionValue;
+					}
+					else
+						return zero;
+				}
 			}
 			PYGMALION_INLINE scoreType moveDeltaValue(const movebitsType& move) const noexcept
 			{
-				return static_cast<const instanceType*>(this)->moveDeltaValue_Implementation(move);
+				constexpr const scoreType zero{ scoreType::zero() };
+				constexpr const playerType movingSide{ stackType::MovingPlayer };
+				constexpr const playerType defendingSide{ stackType::NextPlayer };
+				if (motorType::move().isCapture(move))
+				{
+					const squareType captureSquare{ motorType::move().captureSquare(this->stack().position(),move) };
+					const pieceType capturedPiece{ this->stack().position().getPiece(captureSquare) };
+					const scoreType victimValue{ this->stack().materialTable().material(defendingSide, capturedPiece, captureSquare).template makeSubjective<static_cast<size_t>(movingSide)>() };
+					if (motorType::move().isPromotion(move))
+					{
+						const squareType to{ motorType::move().toSquare(this->stack().position(),move) };
+						const squareType from{ motorType::move().fromSquare(this->stack().position(),move) };
+						const pieceType promotedPiece{ motorType::move().promotedPiece(move) };
+						const scoreType promotionValue{ this->stack().materialTable().material(movingSide, promotedPiece, to).template makeSubjective<static_cast<size_t>(movingSide)>() - this->stack().materialTable().material(movingSide, descriptorState::pawn, from).template makeSubjective<static_cast<size_t>(movingSide)>() };
+						return victimValue + promotionValue;
+					}
+					else
+						return victimValue;
+				}
+				else
+				{
+					const squareType toSquare{ motorType::move().toSquare(this->stack().position(),move) };
+					const scoreType victimValue{ zero };
+					if (motorType::move().isPromotion(move))
+					{
+						const squareType to{ motorType::move().toSquare(this->stack().position(),move) };
+						const squareType from{ motorType::move().fromSquare(this->stack().position(),move) };
+						const pieceType promotedPiece{ motorType::move().promotedPiece(move) };
+						const scoreType promotionValue{ this->stack().materialTable().material(movingSide, promotedPiece, to).template makeSubjective<static_cast<size_t>(movingSide)>() - this->stack().materialTable().material(movingSide, descriptorState::pawn, from).template makeSubjective<static_cast<size_t>(movingSide)>() };
+						return promotionValue;
+					}
+					else
+						return zero;
+				}
 			}
 			PYGMALION_INLINE bool canPruneMove(const movebitsType& move) const noexcept
 			{
@@ -611,7 +677,7 @@ namespace pygmalion
 			}
 			PYGMALION_INLINE static bool futilityPruningEnabled(const size_t depthRemaining) noexcept
 			{
-				return instanceType::futilityPruningEnabled_Implementation(depthRemaining);
+				return depthRemaining <= 1;
 			}
 			PYGMALION_INLINE scoreType futilityMargin(const size_t depthRemaining, const stackType& stack) const noexcept
 			{
@@ -623,8 +689,8 @@ namespace pygmalion
 				size_t d{ 0 };
 				while (depthRemaining > d)
 				{
-					const piecemaskType playerPieces{ stack.position().pieceMask(player) };
-					const piecemaskType opponentPieces{ stack.position().opponentPieceMask(player) };
+					const piecesType playerPieces{ stack.position().pieceMask(player) };
+					const piecesType opponentPieces{ stack.position().opponentPieceMask(player) };
 					const scoreType quietMargin{ stack.delta().maxQuietChange(stackType::MovingPlayer,player,playerPieces) };
 					const scoreType captureMargin{ stack.delta().maxCaptureChange(stackType::MovingPlayer,player,playerPieces,opponentPieces) };
 					const squaresType promotionOrigins{ none };
@@ -655,7 +721,34 @@ namespace pygmalion
 			}
 			PYGMALION_INLINE scoreType deltaMargin(const stackType& stack) const noexcept
 			{
-				return static_cast<const instanceType*>(this)->deltaMargin_Implementation(stack);
+				constexpr const scoreType zero{ scoreType::zero() };
+				constexpr const squaresType none{ squaresType::none() };
+				playerType player{ stackType::NextPlayer };
+				scoreType margin{ zero };
+				const piecesType playerPieces{ stack.position().pieceMask(player) };
+				const piecesType opponentPieces{ stack.position().opponentPieceMask(player) };
+				const scoreType captureMargin{ stack.delta().maxCaptureChange(stackType::MovingPlayer,player,playerPieces,opponentPieces) };
+				const squaresType promotionOrigins{ none };
+				bool bPromotionPossible{ false };
+				for (const auto promoPiece : (generatorType::promotionPieces(player)& stack.position().pieceMask(player)))
+				{
+					if (stack.position().pieceOccupancy(promoPiece) & stack.position().playerOccupancy(player) & generatorType::promotionOrigins(player, promoPiece))
+					{
+						bPromotionPossible = true;
+						break;
+					}
+				}
+				const scoreType plyMargin{ captureMargin };
+				scoreType promoMargin;
+				if (bPromotionPossible)
+				{
+					const scoreType promoCaptureMargin{ stack.delta().maxPromoCaptureChange(stackType::MovingPlayer,player,playerPieces,opponentPieces) };
+					promoMargin = promoCaptureMargin;
+				}
+				else
+					promoMargin = zero;
+				margin += scoreType::max(promoMargin, plyMargin);
+				return margin;
 			}
 			PYGMALION_INLINE scoreType futilityGlobalMargin(const size_t depthRemaining, const stackType& stack) const noexcept
 			{
@@ -666,8 +759,8 @@ namespace pygmalion
 				size_t d{ 0 };
 				while (depthRemaining >= d)
 				{
-					const piecemaskType playerPieces{ stack.position().pieceMask(player) };
-					const piecemaskType opponentPieces{ stack.position().opponentPieceMask(player) };
+					const piecesType playerPieces{ stack.position().pieceMask(player) };
+					const piecesType opponentPieces{ stack.position().opponentPieceMask(player) };
 					const scoreType quietMargin{ stack.delta().maxQuietChange(stackType::MovingPlayer,player,playerPieces) };
 					const scoreType captureMargin{ stack.delta().maxCaptureChange(stackType::MovingPlayer,player,playerPieces,opponentPieces) };
 					const squaresType promotionOrigins{ none };
@@ -698,7 +791,34 @@ namespace pygmalion
 			}
 			PYGMALION_INLINE scoreType deltaGlobalMargin(const stackType& stack) const noexcept
 			{
-				return static_cast<const instanceType*>(this)->deltaGlobalMargin_Implementation(stack);
+				constexpr const scoreType zero{ scoreType::zero() };
+				constexpr const squaresType none{ squaresType::none() };
+				playerType player{ stackType::MovingPlayer };
+				scoreType margin{ zero };
+				const piecesType playerPieces{ stack.position().pieceMask(player) };
+				const piecesType opponentPieces{ stack.position().opponentPieceMask(player) };
+				const scoreType captureMargin{ stack.delta().maxCaptureChange(stackType::MovingPlayer,player,playerPieces,opponentPieces) };
+				const squaresType promotionOrigins{ none };
+				bool bPromotionPossible{ false };
+				for (const auto promoPiece : (generatorType::promotionPieces(player)& stack.position().pieceMask(player)))
+				{
+					if (stack.position().pieceOccupancy(promoPiece) & stack.position().playerOccupancy(player) & generatorType::promotionOrigins(player, promoPiece))
+					{
+						bPromotionPossible = true;
+						break;
+					}
+				}
+				const scoreType plyMargin{ captureMargin };
+				scoreType promoMargin;
+				if (bPromotionPossible)
+				{
+					const scoreType promoCaptureMargin{ stack.delta().maxPromoCaptureChange(stackType::MovingPlayer,player,playerPieces,opponentPieces) };
+					promoMargin = promoCaptureMargin;
+				}
+				else
+					promoMargin = zero;
+				margin += scoreType::max(promoMargin, plyMargin);
+				return margin;
 			}
 			PYGMALION_INLINE bool pruningAllowed(const scoreType alpha, const scoreType beta) const noexcept
 			{
@@ -1142,7 +1262,7 @@ namespace pygmalion
 			{
 				if ((alpha < m_EvalAlpha) || (beta > m_EvalBeta))
 				{
-					m_Eval = evaluatorType::evaluate(alpha, beta, m_Stack, m_Data, m_Parameters);
+					m_Eval = evaluatorType::evaluate(alpha, beta, m_Stack, m_Data, m_Parameters, m_EvaluationDelta);
 					m_EvalAlpha = alpha;
 					m_EvalBeta = beta;
 				}
@@ -1370,8 +1490,9 @@ namespace pygmalion
 				}
 			}
 			node() = delete;
-			PYGMALION_INLINE node(const stackType& stack, signal& terminate, heuristicsType& heuristics, const size_t depth, const std::vector<scoreType>& parameters) noexcept :
+			PYGMALION_INLINE node(const stackType& stack, signal& terminate, heuristicsType& heuristics, const size_t depth, const std::vector<scoreType>& parameters, const evaluationDeltaType& evaluationDelta) noexcept :
 				m_Parameters{ parameters },
+				m_EvaluationDelta{ evaluationDelta },
 				m_Stack{ stack },
 				m_Terminate{ terminate },
 				m_Heuristics{ heuristics },
@@ -1409,6 +1530,7 @@ namespace pygmalion
 			}
 			PYGMALION_INLINE node(const parentType& parent, const movebitsType moveBits) noexcept :
 				m_Parameters{ parent.m_Parameters },
+				m_EvaluationDelta{ parent.m_EvaluationDelta },
 				m_Stack(parent.m_Stack, moveBits),
 				m_Terminate{ parent.m_Terminate },
 				m_Heuristics{ parent.m_Heuristics },

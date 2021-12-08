@@ -10,31 +10,33 @@ namespace pygmalion::dynamics
 		using descriptorDynamics = typename GENERATOR::descriptorDynamics;
 #include "include_dynamics.h"
 	private:
-		deltaType m_MaterialDelta;
+		deltaType* m_pMaterialDelta;
+		std::vector<scoreType> m_MaterialParameters;
 	public:
 		PYGMALION_INLINE const deltaType& materialDelta() const noexcept
 		{
-			return m_MaterialDelta;
+			return *m_pMaterialDelta;
 		}
-		virtual deltaType delta() const noexcept
+		virtual const deltaType& delta() const noexcept
 		{
-			return materialDelta();
+			return *m_pMaterialDelta;
 		}
-		std::vector<scoreType> materialParameters() const noexcept
+		const std::vector<scoreType>& materialParameters() const noexcept
 		{
 			std::vector<scoreType> materialParameters;
 			this->materialTable().getParameters(materialParameters);
-			return materialParameters;
+			return m_MaterialParameters;
 		}
-		virtual std::vector<scoreType> parameters() const noexcept
+		virtual const std::vector<scoreType>& parameters() const noexcept
 		{
 			return this->materialParameters();
 		}
 		void setMaterialParameters(const std::vector<scoreType>& materialParameters) noexcept
 		{
+			m_MaterialParameters = materialParameters;
 			std::string fen = this->position().getFen();
 			this->materialTable().setParameters(materialParameters);
-			m_MaterialDelta = generatorType::computeMaterialDelta(this->materialTable());
+			generatorType::computeMaterialDelta(this->materialTable(), *m_pMaterialDelta);
 			this->initialize();
 			this->position().setFen(fen, this->materialTable());
 			this->positionChanged();
@@ -43,7 +45,8 @@ namespace pygmalion::dynamics
 		engine(const engine&) = delete;
 		engine(engine&&) = delete;
 		engine(std::istream& input, std::ostream& output) noexcept :
-			pygmalion::mechanics::engine<typename GENERATOR::motorType>(input, output)
+			pygmalion::mechanics::engine<typename GENERATOR::motorType>(input, output),
+			m_pMaterialDelta{ new deltaType() }
 		{
 			std::vector<scoreType> params;
 			materialTableType::defaultParameters(params);
@@ -65,6 +68,7 @@ namespace pygmalion::dynamics
 			this->template addCommand<command_debugQuietOrigins<descriptorDynamics, generatorType>>();
 			this->template addCommand<command_debugPromotionOrigins<descriptorDynamics, generatorType>>();
 			this->template addCommand<command_debugDelta<descriptorDynamics, generatorType>>();
+			this->template addCommand<command_debugMaterialDelta<descriptorDynamics, generatorType>>();
 			this->template addCommand<command_debugMaterialParameters<descriptorDynamics, generatorType>>();
 			std::deque<std::shared_ptr<pygmalion::intrinsics::command>> list{ generatorType::commands() };
 			for (auto& cmd : list)
@@ -72,6 +76,9 @@ namespace pygmalion::dynamics
 				this->addCommand(cmd);
 			}
 		}
-		virtual ~engine() noexcept = default;
+		virtual ~engine() noexcept
+		{
+			delete m_pMaterialDelta;
+		}
 	};
 }

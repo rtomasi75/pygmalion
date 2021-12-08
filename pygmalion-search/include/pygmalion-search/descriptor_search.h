@@ -61,6 +61,7 @@ namespace pygmalion
 		using quietkillernodecountlistType = list<nodecounterType, quietKillerMoves + quietKillerMoves * killerLookBackDistance>;
 		using tacticalkillernodecountlistType = list<nodecounterType, tacticalKillerMoves + tacticalKillerMoves * killerLookBackDistance>;
 		using ttnodecountlistType = list<nodecounterType, searchTranspositionTableBucketCount>;
+		using evaluationDeltaType = typename evaluatorType::evaluationDeltaType;
 		constexpr static const knuthType PVSnode{ 0 };
 		constexpr static const knuthType CUTnode{ 1 };
 		constexpr static const knuthType ALLnode{ -1 };

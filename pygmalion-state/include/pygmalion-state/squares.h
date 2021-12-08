@@ -59,13 +59,18 @@ namespace pygmalion::state
 		{
 			return m_Bits;
 		}
-		constexpr static squares none() noexcept
+		PYGMALION_INLINE constexpr static squares none() noexcept
 		{
 			return squares(bitsType::zero());
 		}
-		constexpr static squares all() noexcept
+		PYGMALION_INLINE constexpr static squares all() noexcept
 		{
 			return ~none();
+		}
+		PYGMALION_INLINE constexpr void clear() noexcept
+		{
+			constexpr const bitsType zeroBits{ bitsType(0) };
+			m_Bits = zeroBits;
 		}
 		PYGMALION_INLINE constexpr squares right() const noexcept
 		{
@@ -260,7 +265,7 @@ namespace pygmalion::state
 			assert((*this) != squares::none());
 			return squares(m_Bits.singleBit());
 		}
-		PYGMALION_INLINE constexpr bool operator[](const squareType& square) const noexcept
+		PYGMALION_INLINE constexpr bool operator[](const squareType square) const noexcept
 		{
 			return m_Bits[static_cast<typename squareType::baseType>(square)];
 		}

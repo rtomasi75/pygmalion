@@ -41,6 +41,104 @@ namespace pygmalion
 			dataType& operator=(const dataType&) noexcept = default;
 			dataType& operator=(dataType&&) noexcept = default;
 		};
+		template<size_t COUNTSTAGES>
+		class evaluationdelta
+		{
+		private:
+			deltaType m_CurrentStageDelta;
+			evaluationdelta<COUNTSTAGES - 1> m_TailDelta;
+		public:
+			PYGMALION_INLINE ~evaluationdelta() noexcept = default;
+			PYGMALION_INLINE evaluationdelta(const evaluationdelta&) noexcept = default;
+			PYGMALION_INLINE evaluationdelta& operator=(const evaluationdelta&) noexcept = default;
+			PYGMALION_INLINE evaluationdelta(evaluationdelta&&) noexcept = default;
+			PYGMALION_INLINE evaluationdelta& operator=(evaluationdelta&&) noexcept = default;
+			template<size_t EVALUATIONSTAGE>
+			PYGMALION_INLINE const deltaType& stageDelta() const noexcept
+			{
+				if constexpr (EVALUATIONSTAGE == 0)
+					return m_CurrentStageDelta;
+				else
+					return m_TailDelta.template stageDelta<EVALUATIONSTAGE - 1>();
+			}
+			PYGMALION_INLINE const deltaType& stageDelta(const size_t evaluationStage) const noexcept
+			{
+				if (evaluationStage == 0)
+					return m_CurrentStageDelta;
+				else
+					return m_TailDelta.stageDelta(evaluationStage - 1);
+			}
+			PYGMALION_INLINE const deltaType& currentStageDelta() const noexcept
+			{
+				return m_CurrentStageDelta;
+			}
+			PYGMALION_INLINE deltaType& currentStageDelta() noexcept
+			{
+				return m_CurrentStageDelta;
+			}
+			PYGMALION_INLINE const evaluationdelta<COUNTSTAGES - 1>& tailDelta() const noexcept
+			{
+				return m_TailDelta;
+			}
+			PYGMALION_INLINE evaluationdelta<COUNTSTAGES - 1>& tailDelta() noexcept
+			{
+				return m_TailDelta;
+			}
+			PYGMALION_INLINE evaluationdelta() noexcept :
+				m_CurrentStageDelta{ deltaType() },
+				m_TailDelta{ evaluationdelta<COUNTSTAGES - 1>() }
+			{
+			}
+		};
+		template<>
+		class evaluationdelta<1>
+		{
+		private:
+			deltaType m_CurrentStageDelta;
+		public:
+			PYGMALION_INLINE ~evaluationdelta() noexcept = default;
+			PYGMALION_INLINE evaluationdelta(const evaluationdelta&) noexcept = default;
+			PYGMALION_INLINE evaluationdelta& operator=(const evaluationdelta&) noexcept = default;
+			PYGMALION_INLINE evaluationdelta(evaluationdelta&&) noexcept = default;
+			PYGMALION_INLINE evaluationdelta& operator=(evaluationdelta&&) noexcept = default;
+			template<size_t EVALUATIONSTAGE>
+			PYGMALION_INLINE const deltaType& stageDelta() const noexcept
+			{
+				static_assert(EVALUATIONSTAGE == 0);
+				return m_CurrentStageDelta;
+			}
+			PYGMALION_INLINE const deltaType& stageDelta(const size_t evaluationStage) const noexcept
+			{
+				PYGMALION_ASSERT(evaluationStage == 0);
+				return m_CurrentStageDelta;
+			}
+			PYGMALION_INLINE const deltaType& currentStageDelta() const noexcept
+			{
+				return m_CurrentStageDelta;
+			}
+			PYGMALION_INLINE deltaType& currentStageDelta() noexcept
+			{
+				return m_CurrentStageDelta;
+			}
+			PYGMALION_INLINE evaluationdelta() noexcept :
+				m_CurrentStageDelta{ deltaType() }
+			{
+			}
+		};
+		template<>
+		class evaluationdelta<0>
+		{
+		public:
+			PYGMALION_INLINE evaluationdelta() noexcept
+			{
+			}
+			PYGMALION_INLINE ~evaluationdelta() noexcept = default;
+			PYGMALION_INLINE evaluationdelta(const evaluationdelta&) noexcept = default;
+			PYGMALION_INLINE evaluationdelta& operator=(const evaluationdelta&) noexcept = default;
+			PYGMALION_INLINE evaluationdelta(evaluationdelta&&) noexcept = default;
+			PYGMALION_INLINE evaluationdelta& operator=(evaluationdelta&&) noexcept = default;
+		};
+		using evaluationDeltaType = evaluationdelta<countEvaluationStages>;
 	private:
 		template<typename COMMAND>
 		static std::shared_ptr<pygmalion::intrinsics::command> createCommand() noexcept
@@ -53,24 +151,56 @@ namespace pygmalion
 			return pCommand;
 		}
 		template<typename STAGE, typename... STAGES2>
-		static deltaType&& computeDelta(const scoreType* pParameters) noexcept
+		static void computeDelta(const scoreType* pParameters, evaluationdelta<1 + sizeof...(STAGES2)>& evaluationDelta) noexcept
 		{
-			deltaType sc2{ STAGE::computeDelta(pParameters) };
 			if constexpr (sizeof...(STAGES2) > 0)
-				return std::move(sc2 + computeDelta<STAGES2...>(pParameters + STAGE::getParameterCount()));
+			{
+				evaluator::template computeDelta<STAGES2...>(pParameters + STAGE::getParameterCount(), evaluationDelta.tailDelta());
+				STAGE::computeDelta(pParameters, evaluationDelta.currentStageDelta());
+				evaluationDelta.currentStageDelta() += evaluationDelta.tailDelta().currentStageDelta();
+			}
 			else
-				return std::move(sc2);
+				STAGE::computeDelta(pParameters, evaluationDelta.currentStageDelta());
 		}
-		template<size_t PLAYER, size_t INDEX, typename STAGE, typename... STAGES2>
-		PYGMALION_INLINE static scoreType computeStages(const scoreType alpha, const scoreType beta, const scoreType sc, const typename generatorType::template stackType<PLAYER>& stack, const dataType& data, const scoreType* pParameters) noexcept
+		template<size_t PLAYER, bool QUIET, bool PROMO, bool CAPTURE, bool PROMOCAPTURE>
+		PYGMALION_INLINE static bool isFutile(const typename generatorType::template stackType<PLAYER>& stack, const scoreType alpha, const scoreType beta, const scoreType approx, const deltaType& stageDelta) noexcept
+		{
+			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
+			constexpr const playerType nextPlayer{ movingPlayer.next() };
+			constexpr const scoreType zero{ scoreType::zero() };
+			scoreType marginPlayer0{ zero };
+			scoreType marginPlayer1{ zero };
+			if constexpr (QUIET)
+			{
+				marginPlayer0 = scoreType::max(marginPlayer0, stageDelta.maxQuietChange(movingPlayer, movingPlayer, stack.position().pieceMask(movingPlayer)));
+				marginPlayer1 = scoreType::max(marginPlayer1, stageDelta.maxQuietChange(nextPlayer, movingPlayer, stack.position().pieceMask(movingPlayer)));
+			}
+			if constexpr (PROMO)
+			{
+				marginPlayer0 = scoreType::max(marginPlayer0, stageDelta.maxPromotionChange(movingPlayer, movingPlayer, stack.position().pieceMask(movingPlayer)));
+				marginPlayer1 = scoreType::max(marginPlayer1, stageDelta.maxPromotionChange(nextPlayer, movingPlayer, stack.position().pieceMask(movingPlayer)));
+			}
+			if constexpr (CAPTURE)
+			{
+				marginPlayer0 = scoreType::max(marginPlayer0, stageDelta.maxCaptureChange(movingPlayer, movingPlayer, stack.position().pieceMask(movingPlayer), stack.position().opponentPieceMask(movingPlayer)));
+				marginPlayer1 = scoreType::max(marginPlayer1, stageDelta.maxCaptureChange(nextPlayer, movingPlayer, stack.position().pieceMask(movingPlayer), stack.position().opponentPieceMask(movingPlayer)));
+			}
+			if constexpr (PROMOCAPTURE)
+			{
+				marginPlayer0 = scoreType::max(marginPlayer0, stageDelta.maxPromoCaptureChange(movingPlayer, movingPlayer, stack.position().pieceMask(movingPlayer), stack.position().opponentPieceMask(movingPlayer)));
+				marginPlayer1 = scoreType::max(marginPlayer1, stageDelta.maxPromoCaptureChange(nextPlayer, movingPlayer, stack.position().pieceMask(movingPlayer), stack.position().opponentPieceMask(movingPlayer)));
+			}
+			return (approx + marginPlayer0 <= alpha) && (approx + marginPlayer1 < beta);
+		}
+		template<size_t PLAYER, size_t INDEX, bool QUIET, bool PROMO, bool CAPTURE, bool PROMOCAPTURE, typename STAGE, typename... STAGES2>
+		PYGMALION_INLINE static scoreType computeStages(const scoreType alpha, const scoreType beta, const scoreType sc, const typename generatorType::template stackType<PLAYER>& stack, const dataType& data, const scoreType* pParameters, const evaluationDeltaType& evaluationDelta) noexcept
 		{
 			scoreType sc2{ sc };
-			const scoreType delta{ computeDelta<STAGE,STAGES2...>(pParameters) };
-			if (!isFutile(alpha, beta, sc, delta))
+			if (!evaluatorType::template isFutile<PLAYER, QUIET, PROMO, CAPTURE, PROMOCAPTURE>(stack, alpha, beta, sc, evaluationDelta.currentStageDelta()))
 			{
 				sc2 += STAGE::template evaluate<PLAYER>(data.template value<PLAYER, INDEX>(stack), pParameters);
 				if constexpr (sizeof...(STAGES2) > 0)
-					return evaluatorType::template computeStages<PLAYER, INDEX + 1, STAGES2...>(alpha, beta, sc2, stack, data, pParameters + STAGE::getParameterCount());
+					return evaluatorType::template computeStages<PLAYER, INDEX + 1, QUIET, PROMO, CAPTURE, PROMOCAPTURE, STAGES2...>(alpha, beta, sc2, stack, data, pParameters + STAGE::getParameterCount(), evaluationDelta);
 			}
 			return sc2;
 		}
@@ -153,6 +283,17 @@ namespace pygmalion
 			{
 				parameters.emplace_back(STAGE::getParameter(i).defaultValue());
 			}
+			if constexpr (sizeof...(STAGES2) > 0)
+				evaluator::template computeDefaultParameters<STAGES2...>(parameters);
+		}
+		template<typename STAGE, typename... STAGES2>
+		static void computeStageParameterNames(std::vector<std::string>& parameterNames) noexcept
+		{
+			constexpr const size_t n{ STAGE::getParameterCount() };
+			for (size_t i = 0; i < n; i++)
+			{
+				parameterNames.emplace_back(STAGE::getParameter(i).name());
+			}
 		}
 	protected:
 		template<typename COMMAND>
@@ -161,31 +302,31 @@ namespace pygmalion
 			std::shared_ptr<pygmalion::intrinsics::command> pCommand{ createCommand<COMMAND>() };
 			list.emplace_back(std::move(pCommand));
 		}
-		PYGMALION_INLINE static bool isFutile(const scoreType alpha, const scoreType beta, const scoreType approx, const scoreType delta) noexcept
-		{
-			return (approx + delta <= alpha) && (approx + delta < beta);
-		}
 	public:
-		constexpr static const inline size_t countStages{ sizeof...(STAGES) };
+		constexpr static const size_t countParameters() noexcept
+		{
+			return evaluator::template stageParameterCount<STAGES...>();
+		};
 		static void defaultParameters(std::vector<scoreType>& parameters) noexcept
 		{
 			parameters.clear();
 			if constexpr (sizeof...(STAGES) > 0)
-				return computeDefaultParameters(parameters);
+				return evaluator::template computeDefaultParameters<STAGES...>(parameters);
+		}
+		static void parameterNames(std::vector<std::string>& parameterNames) noexcept
+		{
+			parameterNames.clear();
+			if constexpr (sizeof...(STAGES) > 0)
+				return evaluator::template computeStageParameterNames<STAGES...>(parameterNames);
 		}
 		PYGMALION_INLINE static void createData(dataType& data) noexcept
 		{
 			data = dataType();
 		}
-		static deltaType&& delta(const std::vector<scoreType>& parameters) noexcept
+		static void delta(const std::vector<scoreType>& parameters, evaluationDeltaType& evaluationDelta) noexcept
 		{
 			if constexpr (sizeof...(STAGES) > 0)
-				return computeDelta<STAGES...>(parameters.data());
-			else
-			{
-				deltaType delta;
-				return std::move(delta);
-			}
+				evaluator::template computeDelta<STAGES...>(parameters.data(), evaluationDelta);
 		}
 		static std::string stageName(const size_t index) noexcept
 		{
@@ -213,11 +354,88 @@ namespace pygmalion
 			return evaluatorType::commandsImplementation();
 		}
 		template<size_t PLAYER>
-		PYGMALION_INLINE static scoreType evaluate(const scoreType& alpha, const scoreType& beta, const typename generatorType::template stackType<PLAYER>& stack, const dataType& data, const std::vector<scoreType>& parameters) noexcept
+		PYGMALION_INLINE static scoreType evaluate(const scoreType& alpha, const scoreType& beta, const typename generatorType::template stackType<PLAYER>& stack, const dataType& data, const std::vector<scoreType>& parameters, const evaluationDeltaType& evaluationDelta) noexcept
 		{
+			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			const scoreType sc{ stack.position().material().template makeSubjective<PLAYER>() };
+			bool bQuietPossible{ false };
+			for (const auto quietPiece : stack.position().pieceMask(movingPlayer))
+			{
+				if (stack.position().pieceOccupancy(quietPiece) & stack.position().playerOccupancy(movingPlayer) & generatorType::promotionOrigins(movingPlayer, quietPiece))
+				{
+					bQuietPossible = true;
+					break;
+				}
+			}
+			bool bPromotionPossible{ false };
+			for (const auto promoPiece : (generatorType::promotionPieces(movingPlayer)& stack.position().pieceMask(movingPlayer)))
+			{
+				if (stack.position().pieceOccupancy(promoPiece) & stack.position().playerOccupancy(movingPlayer) & generatorType::promotionOrigins(movingPlayer, promoPiece))
+				{
+					bPromotionPossible = true;
+					break;
+				}
+			}
+			bool bCapturePossible{ false };
+			for (const auto capturePiece : stack.position().pieceMask(movingPlayer))
+			{
+				if (stack.position().pieceOccupancy(capturePiece) & stack.position().playerOccupancy(movingPlayer) & generatorType::captureOrigins(movingPlayer, capturePiece))
+				{
+					bCapturePossible = true;
+					break;
+				}
+			}
+			bool bPromoCapturePossible{ false };
+			for (const auto promoCapturePiece : (generatorType::promotionPieces(movingPlayer)& stack.position().pieceMask(movingPlayer)))
+			{
+				if (stack.position().pieceOccupancy(promoCapturePiece) & stack.position().playerOccupancy(movingPlayer) & generatorType::promotionOrigins(movingPlayer, promoCapturePiece))
+				{
+					bPromoCapturePossible = true;
+					break;
+				}
+			}
 			if constexpr (sizeof...(STAGES) > 0)
-				return evaluatorType::template computeStages<PLAYER, 0, STAGES...>(alpha, beta, sc, stack, data, parameters.data());
+			{
+				const std::uint8_t possibilityFlags{ static_cast<std::uint8_t>(static_cast<std::uint8_t>(bQuietPossible) | (static_cast<std::uint8_t>(bPromotionPossible) << 1) | (static_cast<std::uint8_t>(bCapturePossible) << 2) | (static_cast<std::uint8_t>(bPromoCapturePossible) << 3)) };
+				switch (possibilityFlags)
+				{
+				default:
+					PYGMALION_UNREACHABLE;
+					return scoreType::zero();
+				case 0x0:
+					return evaluatorType::template computeStages<PLAYER, 0, false, false, false, false, STAGES...>(alpha, beta, sc, stack, data, parameters.data(), evaluationDelta);
+				case 0x1:
+					return evaluatorType::template computeStages<PLAYER, 0, false, false, false, true, STAGES...>(alpha, beta, sc, stack, data, parameters.data(), evaluationDelta);
+				case 0x2:
+					return evaluatorType::template computeStages<PLAYER, 0, false, false, true, false, STAGES...>(alpha, beta, sc, stack, data, parameters.data(), evaluationDelta);
+				case 0x3:
+					return evaluatorType::template computeStages<PLAYER, 0, false, false, true, true, STAGES...>(alpha, beta, sc, stack, data, parameters.data(), evaluationDelta);
+				case 0x4:
+					return evaluatorType::template computeStages<PLAYER, 0, false, true, false, false, STAGES...>(alpha, beta, sc, stack, data, parameters.data(), evaluationDelta);
+				case 0x5:
+					return evaluatorType::template computeStages<PLAYER, 0, false, true, false, true, STAGES...>(alpha, beta, sc, stack, data, parameters.data(), evaluationDelta);
+				case 0x6:
+					return evaluatorType::template computeStages<PLAYER, 0, false, true, true, false, STAGES...>(alpha, beta, sc, stack, data, parameters.data(), evaluationDelta);
+				case 0x7:
+					return evaluatorType::template computeStages<PLAYER, 0, false, true, true, true, STAGES...>(alpha, beta, sc, stack, data, parameters.data(), evaluationDelta);
+				case 0x8:
+					return evaluatorType::template computeStages<PLAYER, 0, true, false, false, false, STAGES...>(alpha, beta, sc, stack, data, parameters.data(), evaluationDelta);
+				case 0x9:
+					return evaluatorType::template computeStages<PLAYER, 0, true, false, false, true, STAGES...>(alpha, beta, sc, stack, data, parameters.data(), evaluationDelta);
+				case 0xa:
+					return evaluatorType::template computeStages<PLAYER, 0, true, false, true, false, STAGES...>(alpha, beta, sc, stack, data, parameters.data(), evaluationDelta);
+				case 0xb:
+					return evaluatorType::template computeStages<PLAYER, 0, true, false, true, true, STAGES...>(alpha, beta, sc, stack, data, parameters.data(), evaluationDelta);
+				case 0xc:
+					return evaluatorType::template computeStages<PLAYER, 0, true, true, false, false, STAGES...>(alpha, beta, sc, stack, data, parameters.data(), evaluationDelta);
+				case 0xd:
+					return evaluatorType::template computeStages<PLAYER, 0, true, true, false, true, STAGES...>(alpha, beta, sc, stack, data, parameters.data(), evaluationDelta);
+				case 0xe:
+					return evaluatorType::template computeStages<PLAYER, 0, true, true, true, false, STAGES...>(alpha, beta, sc, stack, data, parameters.data(), evaluationDelta);
+				case 0xf:
+					return evaluatorType::template computeStages<PLAYER, 0, true, true, true, true, STAGES...>(alpha, beta, sc, stack, data, parameters.data(), evaluationDelta);
+				}
+			}
 			else
 				return sc;
 		}

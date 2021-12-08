@@ -1836,19 +1836,19 @@ namespace pygmalion
 		{
 			return generatorType::captureTargets_Implementation(pl, pc, from);
 		}
-		PYGMALION_INLINE static piecemaskType promotionResults(const playerType player) noexcept
+		PYGMALION_INLINE static piecesType promotionResults(const playerType player) noexcept
 		{
 			return generatorType::promotionResults_Implementation(player);
 		}
-		static deltaType computeMaterialDelta(const materialTableType& materialTable) noexcept
+		template<typename LAMBDA_QUIET, typename LAMBDA_CAPTURE, typename LAMBDA_PROMOTION, typename LAMBDA_PROMOCAPTURE>
+		static void computeDelta(deltaType& delta, const LAMBDA_QUIET& lambdaQuiet, const LAMBDA_CAPTURE& lambdaCapture, const LAMBDA_PROMOTION& lambdaPromotion, const LAMBDA_PROMOCAPTURE& lambdaPromoCapture) noexcept
 		{
 			constexpr const scoreType zero{ scoreType::zero() };
 			constexpr const scoreType maximum{ scoreType::maximum() };
-			constexpr const piecemaskType none{ piecemaskType::none() };
-			deltaType delta;
+			constexpr const piecesType none{ piecesType::none() };
 			for (const auto spl : playerType::range)
 			{
-				for (const auto originPieces : piecemaskType::range)
+				for (const auto originPieces : piecesType::range)
 				{
 					for (const auto pl : playerType::range)
 					{
@@ -1858,24 +1858,20 @@ namespace pygmalion
 						{
 							for (const auto from : generatorType::quietOrigins(pl, pc))
 							{
-								const objectiveType materialFrom{ materialTable.material(pl,pc,from) };
 								for (const auto to : generatorType::quietTargets(pl, pc, from))
 								{
-									const objectiveType materialTo{ materialTable.material(pl,pc,to) };
-									const scoreType materialDelta{ (materialTo - materialFrom).makeSubjective(spl) };
+									const scoreType materialDelta{ lambdaQuiet(spl, pl, pc, from, to) };
 									if (materialDelta > delta.maxQuietChange(spl, pl, originPieces))
 										delta.maxQuietChange(spl, pl, originPieces) = materialDelta;
 								}
 							}
 							for (const auto from : generatorType::promotionOrigins(pl, pc))
 							{
-								const objectiveType materialFrom{ materialTable.material(pl,pc,from) };
 								for (const auto to : generatorType::promotionTargets(pl, pc, from))
 								{
 									for (const auto promoted : generatorType::promotionResults(pl))
 									{
-										const objectiveType materialTo{ materialTable.material(pl,promoted,to) };
-										const scoreType materialDelta{ (materialTo - materialFrom).makeSubjective(spl) };
+										const scoreType materialDelta{ lambdaPromotion(spl, pl, pc, from, to, promoted) };
 										if (materialDelta > delta.maxPromotionChange(spl, pl, originPieces))
 											delta.maxPromotionChange(spl, pl, originPieces) = materialDelta;
 									}
@@ -1885,7 +1881,7 @@ namespace pygmalion
 					}
 					for (const auto pl : playerType::range)
 					{
-						for (const auto victimPieces : piecemaskType::range)
+						for (const auto victimPieces : piecesType::range)
 						{
 							delta.maxCaptureChange(spl, pl, originPieces, victimPieces) = zero;
 							delta.maxPromoCaptureChange(spl, pl, originPieces, victimPieces) = zero;
@@ -1893,18 +1889,15 @@ namespace pygmalion
 							{
 								for (const auto from : generatorType::captureOrigins(pl, pc))
 								{
-									const objectiveType materialFrom{ materialTable.material(pl,pc,from) };
 									for (const auto to : generatorType::captureTargets(pl, pc, from))
 									{
-										const objectiveType materialTo{ materialTable.material(pl,pc,to) };
 										for (const auto vpc : victimPieces)
 										{
 											for (const auto vpl : playerType::range)
 											{
 												if (vpl != pl)
 												{
-													const objectiveType materialVictim{ materialTable.material(vpl,vpc,to) };
-													const scoreType materialDelta{ (materialTo - materialFrom - materialVictim).makeSubjective(spl) };
+													const scoreType materialDelta{ lambdaCapture(spl, pl, pc, from, to, vpl, vpc) };
 													if (materialDelta > delta.maxCaptureChange(spl, pl, originPieces, victimPieces))
 														delta.maxCaptureChange(spl, pl, originPieces, victimPieces) = materialDelta;
 												}
@@ -1914,7 +1907,6 @@ namespace pygmalion
 								}
 								for (const auto from : generatorType::promoCaptureOrigins(pl, pc))
 								{
-									const objectiveType materialFrom{ materialTable.material(pl,pc,from) };
 									for (const auto to : generatorType::promoCaptureTargets(pl, pc, from))
 									{
 										for (const auto vpc : victimPieces)
@@ -1925,9 +1917,7 @@ namespace pygmalion
 												{
 													for (const auto promoted : generatorType::promotionResults(pl))
 													{
-														const objectiveType materialTo{ materialTable.material(pl,promoted,to) };
-														const objectiveType materialVictim{ materialTable.material(vpl,vpc,to) };
-														const scoreType materialDelta{ (materialTo - materialFrom - materialVictim).makeSubjective(spl) };
+														const scoreType materialDelta{ lambdaPromoCapture(spl, pl, pc, from, to, vpl, vpc, promoted) };
 														if (materialDelta > delta.maxPromoCaptureChange(spl, pl, originPieces, victimPieces))
 															delta.maxPromoCaptureChange(spl, pl, originPieces, victimPieces) = materialDelta;
 													}
@@ -1941,9 +1931,40 @@ namespace pygmalion
 					}
 				}
 			}
-			return delta;
 		}
-		PYGMALION_INLINE static piecemaskType promotionPieces(const playerType player) noexcept
+		static void computeMaterialDelta(const materialTableType& materialTable, deltaType& delta) noexcept
+		{
+			const auto lambdaQuiet
+			{
+				[&materialTable](const playerType spl, const playerType pl, const pieceType pc, const squareType from, const squareType to)
+				{
+					return (materialTable.material(pl,pc,to) - materialTable.material(pl,pc,from)).makeSubjective(spl);
+				}
+			};
+			const auto lambdaPromotion
+			{
+				[&materialTable](const playerType spl, const playerType pl, const pieceType pc, const squareType from, const squareType to, const pieceType promoted)
+				{
+					return (materialTable.material(pl,promoted,to) - materialTable.material(pl,pc,from)).makeSubjective(spl);
+				}
+			};
+			const auto lambdaCapture
+			{
+				[&materialTable](const playerType spl, const playerType pl, const pieceType pc, const squareType from, const squareType to, const playerType vpl, const pieceType vpc)
+				{
+					return (materialTable.material(pl,pc,to) - materialTable.material(pl,pc,from) - materialTable.material(vpl,vpc,to)).makeSubjective(spl);
+				}
+			};
+			const auto lambdaPromoCapture
+			{
+				[&materialTable](const playerType spl, const playerType pl, const pieceType pc, const squareType from, const squareType to, const playerType vpl, const pieceType vpc, const pieceType promoted)
+				{
+					return (materialTable.material(pl,promoted,to) - materialTable.material(pl,pc,from) - materialTable.material(vpl,vpc,to)).makeSubjective(spl);
+				}
+			};
+			computeDelta(delta, lambdaQuiet, lambdaCapture, lambdaPromotion, lambdaPromoCapture);
+		}
+		PYGMALION_INLINE static piecesType promotionPieces(const playerType player) noexcept
 		{
 			return generatorType::promotionPieces_Implementation(player);
 		}

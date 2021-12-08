@@ -12,7 +12,7 @@ namespace pygmalion::state
 		using materialTableType = state::materialTables<descriptorState, boardType>;
 #include "include_state.h"
 	private:
-		materialTableType m_MaterialTable;
+		materialTableType* m_pMaterialTable;
 		gameType m_Game;
 	protected:
 		virtual void onPositionChanged() noexcept
@@ -49,7 +49,8 @@ namespace pygmalion::state
 		engine(engine&&) = delete;
 		engine(std::istream& input, std::ostream& output) noexcept :
 			pygmalion::intrinsics::engine(input, output),
-			m_Game{ gameType() }
+			m_Game{ gameType() },
+			m_pMaterialTable{ new materialTableType() }
 		{
 			this->template addCommand<command_debugPlayers<descriptorState, boardType>>();
 			this->template addCommand<command_debugPieces<descriptorState, boardType>>();
@@ -75,13 +76,16 @@ namespace pygmalion::state
 		}
 		materialTableType& materialTable() noexcept
 		{
-			return m_MaterialTable;
+			return *m_pMaterialTable;
 		}
 		const materialTableType& materialTable() const noexcept
 		{
-			return m_MaterialTable;
+			return *m_pMaterialTable;
 		}
-		virtual ~engine() noexcept = default;
+		virtual ~engine() noexcept 
+		{
+			delete m_pMaterialTable;
+		}
 		virtual std::string version() const noexcept override
 		{
 			return "Pygmalion";

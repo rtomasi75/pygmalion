@@ -159,7 +159,7 @@ namespace pygmalion::frontend
 			depthType finalDepth{ depthType(-1) };
 			std::uintmax_t finalNodes{ UINTMAX_C(0) };
 			durationType finalDuration{ durationType(0) };
-			nodeType<PLAYER> node(stack, m_Stop, this->heuristics(), this->history().length(), this->parameters());
+			nodeType<PLAYER> node(stack, m_Stop, this->heuristics(), this->history().length(), this->parameters(), this->evaluationDelta());
 			m_ScoreFromPreviousDepth = node.evaluate(scoreType::minimum(), scoreType::maximum());
 			while (principalVariationSearch(node, m_CurrentDepth, finalDuration, finalNodes, finalDepth, finalVariation, finalScore))
 			{
@@ -278,7 +278,7 @@ namespace pygmalion::frontend
 				{
 					signal terminate{ signal(false) };
 					stackType<PLAYER> stack{ stackType<PLAYER>(board, history, pContext, this->materialTable(), this->delta()) };
-					nodeType<static_cast<size_t>(static_cast<playerType>(PLAYER))> node(stack, terminate, heuristics, 0, this->parameters());
+					nodeType<static_cast<size_t>(static_cast<playerType>(PLAYER))> node(stack, terminate, heuristics, 0, this->parameters(), this->evaluationDelta());
 					variationType principalVariation;
 					heuristics.beginSearch();
 					principalVariation.clear();

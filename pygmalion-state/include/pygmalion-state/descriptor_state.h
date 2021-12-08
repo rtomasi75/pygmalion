@@ -25,7 +25,7 @@ namespace pygmalion
 		using hashType = pygmalion::uint_t<countHashBits, false>;
 		using cumulationType = CUMULATION;
 		using scoreType = pygmalion::score<MANTISSA, SHIFT, MAXDIST>;
-		using piecemaskType = pygmalion::state::piecemask<descriptor_state>;
+		using piecesType = pygmalion::state::pieces<descriptor_state>;
 		using deltaType = pygmalion::state::delta<descriptor_state>;
 		using objectiveType = objectivescore <scoreType, countPlayers>;
 		constexpr static const size_t scoreMantissa{ MANTISSA };

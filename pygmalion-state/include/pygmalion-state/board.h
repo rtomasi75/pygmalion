@@ -18,7 +18,7 @@ namespace pygmalion
 		size_t m_ReversiblePlyCount;
 		objectiveType m_Material;
 		flagsType m_Flags;
-		std::array<piecemaskType, countPlayers> m_PieceMask;
+		std::array<piecesType, countPlayers> m_PieceMask;
 		gamestateType m_Arbitration;
 		playerType m_MovingPlayer;
 		static inline std::array<hashType, 1 << flagType::countValues> m_FlagsHash
@@ -120,14 +120,14 @@ namespace pygmalion
 			return boardType::template makeSubjective_Implementation<PLAYER>(score);
 		}
 	public:
-		PYGMALION_INLINE piecemaskType pieceMask(const playerType pl) const noexcept
+		PYGMALION_INLINE piecesType pieceMask(const playerType pl) const noexcept
 		{
 			return m_PieceMask[pl];
 		}
-		PYGMALION_INLINE piecemaskType opponentPieceMask(const playerType pl) const noexcept
+		PYGMALION_INLINE piecesType opponentPieceMask(const playerType pl) const noexcept
 		{
-			constexpr const piecemaskType none{ piecemaskType::none() };
-			piecemaskType opponents{ none };
+			constexpr const piecesType none{ piecesType::none() };
+			piecesType opponents{ none };
 			const size_t playerIndex{ static_cast<size_t>(pl) };
 			size_t i;
 			for (i = 0; i < playerIndex; i++)
@@ -299,12 +299,12 @@ namespace pygmalion
 		{
 			return boardType::parseFlags_Implementation(text, flags, count);
 		}
-		static std::string piecemaskToString(const piecemaskType mask, const playerType pl) noexcept
+		static std::string piecesToString(const piecesType mask, const playerType pl) noexcept
 		{
 			std::stringstream str;
 			for (const auto pc : pieceType::range)
 			{
-				if (mask.getPiece(pc))
+				if (mask[pc])
 					str << boardType::pieceToString(pc, pl);
 				else
 					str << "_";
@@ -471,7 +471,7 @@ namespace pygmalion
 			m_PieceOccupancy[piece] |= square;
 			m_Hash ^= pieceHash(piece, square, player);
 			m_Material += materialTable.material(player, piece, square);
-			m_PieceMask[player].setPiece(piece);
+			m_PieceMask[player] |= piece;
 			onAddedPiece(piece, square, player);
 		}
 		PYGMALION_INLINE void removePiece(const pieceType piece, const squareType square, const playerType player, const materialTableType& materialTable) noexcept
@@ -488,7 +488,7 @@ namespace pygmalion
 			m_Hash ^= pieceHash(piece, square, player);
 			m_Material -= materialTable.material(player, piece, square);
 			const squaresType occ{ m_PlayerOccupancy[player] & m_PieceOccupancy[piece] };
-			m_PieceMask[player].setPiece(piece, m_PlayerOccupancy[player] & m_PieceOccupancy[piece]);
+			m_PieceMask[player].checkElement(piece, m_PlayerOccupancy[player] & m_PieceOccupancy[piece]);
 			onRemovedPiece(piece, square, player);
 		}
 		PYGMALION_INLINE void movePiece(const pieceType piece, const squareType from, const squareType to, const playerType player, const materialTableType& materialTable) noexcept
@@ -636,13 +636,13 @@ namespace pygmalion
 			fen << parser::fromInt(getMoveCount() / 2);
 			return fen.str();
 		}
-		static std::string pieceMaskToString(const piecemaskType& piecemask, const playerType pl) noexcept
+		static std::string pieceMaskToString(const piecesType& pieces, const playerType pl) noexcept
 		{
 			std::stringstream str;
 			const std::string nullString{ "_" };
 			for (const auto pc : pieceType::range)
 			{
-				if (piecemask.getPiece(pc))
+				if (pieces[pc])
 				{
 					const std::string pcString{ boardType::pieceToString(pc,pl) };
 					str << pcString;

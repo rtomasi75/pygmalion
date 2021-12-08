@@ -9,6 +9,23 @@ namespace pygmalion
 		using dataType = DATATYPE;
 		using descriptorEvaluation = DESCRIPTION_EVALUATION;
 #include "include_evaluation.h"	
+	protected:
+		PYGMALION_INLINE static scoreType quietChange(const scoreType* pParameters, const playerType spl, const playerType pl, const pieceType pc, const squareType from, const squareType to) noexcept
+		{
+			return instanceType::quietChange_Implementation(pParameters, spl, pl, pc, from, to);
+		}
+		PYGMALION_INLINE static scoreType promotionChange(const scoreType* pParameters, const playerType spl, const playerType pl, const pieceType pc, const squareType from, const squareType to, const pieceType promoted) noexcept
+		{
+			return instanceType::promotionChange_Implementation(pParameters, spl, pl, pc, from, to, promoted);
+		}
+		PYGMALION_INLINE static scoreType captureChange(const scoreType* pParameters, const playerType spl, const playerType pl, const pieceType pc, const squareType from, const squareType to, const playerType vpl, const pieceType vpc) noexcept
+		{
+			return instanceType::captureChange_Implementation(pParameters, spl, pl, pc, from, to, vpl, vpc);
+		}
+		PYGMALION_INLINE static scoreType promoCaptureChange(const scoreType* pParameters, const playerType spl, const playerType pl, const pieceType pc, const squareType from, const squareType to, const playerType vpl, const pieceType vpc, const pieceType promoted) noexcept
+		{
+			return instanceType::promoCaptureChange_Implementation(pParameters, spl, pl, pc, from, to, vpl, vpc, promoted);
+		}
 	public:
 		constexpr static size_t getParameterCount() noexcept
 		{
@@ -18,9 +35,37 @@ namespace pygmalion
 		{
 			return instanceType::getParameter_Implementation(index);
 		}
-		constexpr static deltaType computeDelta(const scoreType* pParameters) noexcept
+		static void computeDelta(const scoreType* pParameters, deltaType& delta) noexcept
 		{
-			return instanceType::computeDelta_Implementation(pParameters);
+			const auto lambdaQuiet
+			{
+				[pParameters](const playerType spl, const playerType pl, const pieceType pc, const squareType from, const squareType to)
+				{
+					return quietChange(pParameters, spl, pl, pc, from, to);
+				}
+			};
+			const auto lambdaPromotion
+			{
+				[pParameters](const playerType spl, const playerType pl, const pieceType pc, const squareType from, const squareType to, const pieceType promoted)
+				{
+					return promotionChange(pParameters, spl, pl, pc, from, to, promoted);
+				}
+			};
+			const auto lambdaCapture
+			{
+				[pParameters](const playerType spl, const playerType pl, const pieceType pc, const squareType from, const squareType to, const playerType vpl, const pieceType vpc)
+				{
+					return captureChange(pParameters, spl, pl, pc, from, to, vpl, vpc);
+				}
+			};
+			const auto lambdaPromoCapture
+			{
+				[pParameters](const playerType spl, const playerType pl, const pieceType pc, const squareType from, const squareType to, const playerType vpl, const pieceType vpc, const pieceType promoted)
+				{
+					return promoCaptureChange(pParameters, spl, pl, pc, from, to, vpl, vpc, promoted);
+				}
+			};
+			generatorType::computeDelta(delta, lambdaQuiet, lambdaCapture, lambdaPromotion, lambdaPromoCapture);
 		}
 		template<size_t PLAYER>
 		PYGMALION_INLINE static void computeData(const typename generatorType::template stackType<PLAYER>& stack, dataType& data) noexcept

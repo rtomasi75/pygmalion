@@ -22,13 +22,13 @@ namespace pygmalion::evaluation
 					this->output() << "material: \t" << stack.position().material().template makeSubjective<PLAYER>() << std::endl;
 					typename evaluatorType::dataType data;
 					evaluatorType::createData(data);
-					for (size_t i = 0; i < evaluatorType::countStages; i++)
+					for (size_t i = 0; i < evaluatorType::countEvaluationStages; i++)
 					{
 						const scoreType value{ evaluatorType::template stage<PLAYER>(i,stack,data, this->evaluationEngine().evaluationParameters()) };
 						this->output() << evaluatorType::stageName(i) << ": \t" << value << std::endl;
 					}
 					this->output() << "___________________________________________" << std::endl;
-					scoreType eval{ evaluatorType::template evaluate<PLAYER>(scoreType::minimum(), scoreType::maximum(),stack,data, this->evaluationEngine().evaluationParameters()) };
+					scoreType eval{ evaluatorType::template evaluate<PLAYER>(scoreType::minimum(), scoreType::maximum(),stack,data, this->evaluationEngine().evaluationParameters(), this->evaluationEngine().evaluationDelta()) };
 					this->output() << "total: \t\t" << eval << std::endl;
 				}
 				else

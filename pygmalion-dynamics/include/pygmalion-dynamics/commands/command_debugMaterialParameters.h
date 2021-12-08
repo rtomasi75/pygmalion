@@ -16,8 +16,7 @@ namespace pygmalion::dynamics
 			if (cmd == "debug-materialparameters")
 			{
 				this->output() << std::endl;
-				std::vector<scoreType> current;
-				this->dynamicsEngine().materialTable().getParameters(current);
+				std::vector<scoreType> current = this->dynamicsEngine().materialParameters();
 				std::vector<scoreType> standard;
 				materialTableType::defaultParameters(standard);
 				constexpr const size_t n{ materialTableType::countParameters };

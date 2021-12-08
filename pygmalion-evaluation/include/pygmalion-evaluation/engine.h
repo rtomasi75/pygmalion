@@ -9,46 +9,60 @@ namespace pygmalion::evaluation
 		using evaluatorType = EVALUATOR;
 		using descriptorEvaluation = typename EVALUATOR::descriptorEvaluation;
 #include "include_evaluation.h"
+		using evaluationDeltaType = typename evaluatorType::evaluationDeltaType;
 	private:
 		std::vector<scoreType> m_EvaluationParameters;
-		deltaType m_EvaluationDelta;
+		std::vector<scoreType> m_CombinedParameters;
+		evaluationDeltaType* m_pEvaluationTotalDelta;
+		deltaType* m_pEvaluationDelta;
 	public:
 		const std::vector<scoreType>& evaluationParameters() const noexcept
 		{
 			return m_EvaluationParameters;
 		}
-		virtual std::vector<scoreType> parameters() const noexcept override
+		virtual const std::vector<scoreType>& parameters() const noexcept override
 		{
-			std::vector<scoreType> vector1{ this->evaluationParameters() };
-			std::vector<scoreType> vector2{ this->materialParameters() };
-			vector1.insert(vector1.end(), vector2.begin(), vector2.end());
-			return vector1;
+			return m_CombinedParameters;
 		}
-		PYGMALION_INLINE const deltaType& evaluationDelta() const noexcept
+		PYGMALION_INLINE const evaluationDeltaType& evaluationDelta() const noexcept
 		{
-			return m_EvaluationDelta;
+			return *m_pEvaluationTotalDelta;
 		}
-		virtual deltaType delta() const noexcept override
+		virtual const deltaType& delta() const noexcept override
 		{
-			return this->materialDelta() + this->evaluationDelta();
+			return *m_pEvaluationDelta;
 		}
 		engine() noexcept = delete;
 		engine(const engine&) = delete;
 		engine(engine&&) = delete;
 		engine(std::istream& input, std::ostream& output) noexcept :
-			pygmalion::dynamics::engine<typename EVALUATOR::generatorType>(input, output)
+			pygmalion::dynamics::engine<typename EVALUATOR::generatorType>(input, output),
+			m_EvaluationParameters{ []() { std::vector<scoreType> result; evaluatorType::defaultParameters(result); return result; }() },
+			m_pEvaluationTotalDelta{ new evaluationDeltaType() },
+			m_pEvaluationDelta{ new deltaType() },
+			m_CombinedParameters{ m_EvaluationParameters }
 		{
-			evaluatorType::defaultParameters(m_EvaluationParameters);
-			m_EvaluationDelta = std::move(evaluatorType::delta(m_EvaluationParameters));
+			evaluatorType::delta(m_EvaluationParameters,*m_pEvaluationTotalDelta);
+			(*m_pEvaluationDelta) += this->materialDelta();
+			(*m_pEvaluationDelta) += m_pEvaluationTotalDelta->currentStageDelta();
 			this->template addCommand<command_debugEvaluation<descriptorEvaluation, evaluatorType>>();
 			this->template addCommand<command_debugEvaluate<descriptorEvaluation, evaluatorType>>();
+			this->template addCommand<command_debugEvaluationParameters<descriptorEvaluation, evaluatorType>>();
+			this->template addCommand<command_debugEvaluationDelta<descriptorEvaluation, evaluatorType>>();
 			std::deque<std::shared_ptr<pygmalion::intrinsics::command>> list{ evaluatorType::commands() };
 			for (auto& cmd : list)
 			{
 				this->addCommand(cmd);
 			}
+			std::vector<scoreType> vector2{ this->materialParameters() };
+			m_CombinedParameters.insert(m_CombinedParameters.end(), vector2.begin(), vector2.end());
 		}
-		virtual ~engine() noexcept = default;
+		virtual ~engine() noexcept
+		{
+			delete m_pEvaluationDelta;
+			delete m_pEvaluationTotalDelta;
+		}
+
 #if defined(PYGMALION_TUNE)
 		std::array<parameter, evaluatorType::countParameters>&& getParameters() const noexcept
 		{

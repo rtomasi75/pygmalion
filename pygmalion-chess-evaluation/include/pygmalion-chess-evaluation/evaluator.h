@@ -2,10 +2,10 @@ namespace pygmalion::chess
 {
 	class evaluator :
 		public pygmalion::evaluator<descriptor_evaluation, evaluator
-		//, evaluationstage_attacks
-		//, evaluationstage_mobility
+		, evaluationstage_mobility
+		, evaluationstage_attacks
+		, evaluationstage_control
 		//, evaluationstage_pawnstructure
-		//, evaluationstage_control
 		//, evaluationstage_kingsafety
 		//		, evaluationstage_kingareasafety
 		>

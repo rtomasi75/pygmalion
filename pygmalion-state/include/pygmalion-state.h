@@ -14,7 +14,7 @@
 #include "pygmalion-state/flag.h"
 #include "pygmalion-state/flags.h"
 #include "pygmalion-state/gamestate.h"
-#include "pygmalion-state/piecemask.h"
+#include "pygmalion-state/pieces.h"
 #include "pygmalion-state/signature.h"
 #include "pygmalion-state/materialTables.h"
 #include "pygmalion-state/board.h"

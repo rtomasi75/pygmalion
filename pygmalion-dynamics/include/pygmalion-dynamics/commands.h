@@ -17,3 +17,4 @@
 #include "commands/command_debugPromotionOrigins.h"
 #include "commands/command_debugMaterialParameters.h"
 #include "commands/command_debugDelta.h"
+#include "commands/command_debugMaterialDelta.h"

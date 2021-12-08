@@ -23,7 +23,7 @@ using gamestateType = typename descriptorState::gamestateType;
 using cumulationType = typename descriptorState::cumulationType;
 using hashType = typename descriptorState::hashType;
 using signatureType = typename descriptorState::signatureType;
-using piecemaskType = typename descriptorState::piecemaskType;
+using piecesType = typename descriptorState::piecesType;
 using deltaType = typename descriptorState::deltaType;
 using objectiveType = typename descriptorState::objectiveType;
 

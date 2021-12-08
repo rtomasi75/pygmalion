@@ -15,6 +15,7 @@ using nodecountlistType = typename descriptorSearch::nodecountlistType;
 using quietkillernodecountlistType = typename descriptorSearch::quietkillernodecountlistType;
 using tacticalkillernodecountlistType = typename descriptorSearch::tacticalkillernodecountlistType;
 using ttnodecountlistType = typename descriptorSearch::ttnodecountlistType;
+using evaluationDeltaType = typename descriptorSearch::evaluationDeltaType;
 
 constexpr static const size_t countSearchPlies{ descriptorSearch::countSearchPlies };
 constexpr static const bool staticMoveScores{ descriptorSearch::staticMoveScores };
