@@ -7,6 +7,7 @@ namespace pygmalion::chess
 	public:
 		using descriptorDynamics = DESCRIPTOR_DYNAMICS;
 #include <pygmalion-dynamics/include_dynamics.h>
+		constexpr static const inline size_t countMaxSuccessors{ 10 };
 	private:
 		squaresType m_WhitePawns;
 		squaresType m_BlackPawns;
@@ -59,6 +60,62 @@ namespace pygmalion::chess
 		int& outcome() noexcept
 		{
 			return m_Outcome;
+		}
+		std::uint32_t computeIndex() const noexcept
+		{
+			std::uint32_t A_white{ 0 };
+			std::uint32_t B_white{ 0 };
+			std::uint32_t C_white{ 0 };
+			std::uint32_t A_black{ 0 };
+			std::uint32_t B_black{ 0 };
+			std::uint32_t C_black{ 0 };
+			std::uint32_t side{ 0 };
+			squareType sq;
+			if (whitePawns() & descriptorDynamics::fileB)
+			{
+				sq = (whitePawns() & descriptorDynamics::fileB).last();
+				A_white = static_cast<std::int8_t>(sq.rank());
+			}
+			else
+				A_white = 0;
+			if (whitePawns() & descriptorDynamics::fileC)
+			{
+				sq = (whitePawns() & descriptorDynamics::fileC).last();
+				B_white = static_cast<std::int8_t>(sq.rank());
+			}
+			else
+				B_white = 0;
+			if (whitePawns() & descriptorDynamics::fileD)
+			{
+				sq = (whitePawns() & descriptorDynamics::fileD).last();
+				C_white = static_cast<std::int8_t>(sq.rank());
+			}
+			else
+				C_white = 0;
+			if (blackPawns() & descriptorDynamics::fileB)
+			{
+				sq = (blackPawns() & descriptorDynamics::fileB).first();
+				A_black = static_cast<std::int8_t>(sq.rank());
+			}
+			else
+				A_black = 0;
+			if (blackPawns() & descriptorDynamics::fileC)
+			{
+				sq = (blackPawns() & descriptorDynamics::fileC).first();
+				B_black = static_cast<std::int8_t>(sq.rank());
+			}
+			else
+				B_black = 0;
+			if (blackPawns() & descriptorDynamics::fileD)
+			{
+				sq = (blackPawns() & descriptorDynamics::fileD).first();
+				C_black = static_cast<std::int8_t>(sq.rank());
+			}
+			else
+				C_black = 0;
+			side = static_cast<std::int8_t>(movingSide());
+			const std::uint32_t index2{ static_cast<std::uint32_t>(side + 2 * (A_white + 7 * (B_white + 7 * (C_white + 7 * (A_black + 7 * (B_black + 7 * C_black)))))) };
+			return index2;
 		}
 		void generateSuccessors(std::array<pawnlookupPosition, 10>& successors, size_t& countSuccessors) const noexcept
 		{
@@ -174,6 +231,7 @@ namespace pygmalion::chess
 #include "pygmalion-dynamics/include_dynamics.h"
 		constexpr static inline const std::uint32_t countPositions{ 7 * 7 * 7 * 7 * 7 * 7 * 2 };
 	private:
+		constexpr static const std::uint32_t fileVersion{ UINT64_C(6) };
 		signed char* m_pData;
 		const signed char& entry(const std::uint32_t index) const noexcept
 		{

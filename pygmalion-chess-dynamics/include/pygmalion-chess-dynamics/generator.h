@@ -112,7 +112,7 @@ namespace pygmalion::chess
 				mutable std::array<typename generatorType::tropismType, countPlayers> m_KingAreaTropism;
 				std::array<squaresType, countPlayers> m_Pawns;
 				std::array<squareType, countPlayers> m_KingSquare;
-				mutable scoreType m_PawnStructureScore[2];
+				mutable objectiveType m_PawnStructureScore[2];
 				mutable std::uint8_t m_Flags;
 				constexpr static inline std::uint8_t flagsNone{ UINT8_C(0x00) };
 				constexpr static inline std::uint8_t flagsUsed{ UINT8_C(0x01) };
@@ -130,12 +130,12 @@ namespace pygmalion::chess
 				{
 					return m_Flags & flagsPawnStructure[player];
 				}
-				PYGMALION_INLINE const scoreType& getPawnStructureScore(const playerType player) const noexcept
+				PYGMALION_INLINE const objectiveType& getPawnStructureScore(const playerType player) const noexcept
 				{
 					PYGMALION_ASSERT(hasPawnStructureScore(player));
 					return m_PawnStructureScore[player];
 				}
-				PYGMALION_INLINE void setPawnStructureScore(const playerType player, const scoreType pawnStructureScore) noexcept
+				PYGMALION_INLINE void setPawnStructureScore(const playerType player, const objectiveType pawnStructureScore) noexcept
 				{
 					m_PawnStructureScore[player] = pawnStructureScore;
 					m_Flags |= flagsPawnStructure[player];
@@ -951,20 +951,21 @@ namespace pygmalion::chess
 		{
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			constexpr const playerType nextPlayer{ movingPlayer.next() };
-			constexpr const squaresType none{ squaresType::none() };
-			squaresType selection{ none };
-			stack.materialTable().forStrongerPieces(rook, [&stack, &selection](const pieceType pc) {selection |= stack.position().pieceOccupancy(pc); });
-			squaresType selection2{ none };
-			stack.materialTable().forStrongerPieces(queen, [&stack, &selection2](const pieceType pc) {selection2 |= stack.position().pieceOccupancy(pc); });
 			for (const squareType from : stack.position().pieceOccupancy(rook)& stack.position().playerOccupancy(movingPlayer))
 			{
-				for (const squareType to : movegenSlidersHV.attacks(from, ~stack.position().totalOccupancy())& selection& stack.position().playerOccupancy(nextPlayer))
-					moves.add(motorType::move().createCapture(from, to));
+				for (const auto pc : stack.materialTable().strongerHints(movingPlayer, rook).allowedPieces() & ~generatorType::royalPieces(nextPlayer))
+				{
+					for (const squareType to : movegenSlidersHV.attacks(from, ~stack.position().totalOccupancy())& stack.materialTable().strongerHints(movingPlayer, rook).allowedSquares(pc)& stack.position().playerOccupancy(nextPlayer)& stack.position().pieceOccupancy(pc))
+						moves.add(motorType::move().createCapture(from, to));
+				}
 			}
 			for (const squareType from : stack.position().pieceOccupancy(queen)& stack.position().playerOccupancy(movingPlayer))
 			{
-				for (const squareType to : movegenSlidersHV.attacks(from, ~stack.position().totalOccupancy())& selection2& stack.position().playerOccupancy(nextPlayer))
-					moves.add(motorType::move().createCapture(from, to));
+				for (const auto pc : stack.materialTable().strongerHints(movingPlayer, queen).allowedPieces() & ~generatorType::royalPieces(nextPlayer))
+				{
+					for (const squareType to : movegenSlidersHV.attacks(from, ~stack.position().totalOccupancy())& stack.materialTable().strongerHints(movingPlayer, queen).allowedSquares(pc)& stack.position().playerOccupancy(nextPlayer)& stack.position().pieceOccupancy(pc))
+						moves.add(motorType::move().createCapture(from, to));
+				}
 			}
 		}
 		template<size_t PLAYER>
@@ -972,20 +973,21 @@ namespace pygmalion::chess
 		{
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			constexpr const playerType nextPlayer{ movingPlayer.next() };
-			constexpr const squaresType none{ squaresType::none() };
-			squaresType selection{ none };
-			stack.materialTable().forEqualPieces(rook, [&stack, &selection](const pieceType pc) {selection |= stack.position().pieceOccupancy(pc); });
-			squaresType selection2{ none };
-			stack.materialTable().forEqualPieces(queen, [&stack, &selection2](const pieceType pc) {selection2 |= stack.position().pieceOccupancy(pc); });
 			for (const squareType from : stack.position().pieceOccupancy(rook)& stack.position().playerOccupancy(movingPlayer))
 			{
-				for (const squareType to : movegenSlidersHV.attacks(from, ~stack.position().totalOccupancy())& selection& stack.position().playerOccupancy(nextPlayer))
-					moves.add(motorType::move().createCapture(from, to));
+				for (const auto pc : stack.materialTable().equalHints(movingPlayer, rook).allowedPieces() & ~generatorType::royalPieces(nextPlayer))
+				{
+					for (const squareType to : movegenSlidersHV.attacks(from, ~stack.position().totalOccupancy())& stack.materialTable().equalHints(movingPlayer, rook).allowedSquares(pc)& stack.position().playerOccupancy(nextPlayer)& stack.position().pieceOccupancy(pc))
+						moves.add(motorType::move().createCapture(from, to));
+				}
 			}
 			for (const squareType from : stack.position().pieceOccupancy(queen)& stack.position().playerOccupancy(movingPlayer))
 			{
-				for (const squareType to : movegenSlidersHV.attacks(from, ~stack.position().totalOccupancy())& selection2& stack.position().playerOccupancy(nextPlayer))
-					moves.add(motorType::move().createCapture(from, to));
+				for (const auto pc : stack.materialTable().equalHints(movingPlayer, queen).allowedPieces() & ~generatorType::royalPieces(nextPlayer))
+				{
+					for (const squareType to : movegenSlidersHV.attacks(from, ~stack.position().totalOccupancy())& stack.materialTable().equalHints(movingPlayer, queen).allowedSquares(pc)& stack.position().playerOccupancy(nextPlayer)& stack.position().pieceOccupancy(pc))
+						moves.add(motorType::move().createCapture(from, to));
+				}
 			}
 		}
 		template<size_t PLAYER>
@@ -993,20 +995,21 @@ namespace pygmalion::chess
 		{
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			constexpr const playerType nextPlayer{ movingPlayer.next() };
-			constexpr const squaresType none{ squaresType::none() };
-			squaresType selection{ none };
-			stack.materialTable().forWeakerPieces(rook, [&stack, &selection](const pieceType pc) {selection |= stack.position().pieceOccupancy(pc); });
-			squaresType selection2{ none };
-			stack.materialTable().forWeakerPieces(queen, [&stack, &selection2](const pieceType pc) {selection2 |= stack.position().pieceOccupancy(pc); });
 			for (const squareType from : stack.position().pieceOccupancy(rook)& stack.position().playerOccupancy(movingPlayer))
 			{
-				for (const squareType to : movegenSlidersHV.attacks(from, ~stack.position().totalOccupancy())& selection& stack.position().playerOccupancy(nextPlayer))
-					moves.add(motorType::move().createCapture(from, to));
+				for (const auto pc : stack.materialTable().weakerHints(movingPlayer, rook).allowedPieces() & ~generatorType::royalPieces(nextPlayer))
+				{
+					for (const squareType to : movegenSlidersHV.attacks(from, ~stack.position().totalOccupancy())& stack.materialTable().weakerHints(movingPlayer, rook).allowedSquares(pc)& stack.position().playerOccupancy(nextPlayer)& stack.position().pieceOccupancy(pc))
+						moves.add(motorType::move().createCapture(from, to));
+				}
 			}
 			for (const squareType from : stack.position().pieceOccupancy(queen)& stack.position().playerOccupancy(movingPlayer))
 			{
-				for (const squareType to : movegenSlidersHV.attacks(from, ~stack.position().totalOccupancy())& selection2& stack.position().playerOccupancy(nextPlayer))
-					moves.add(motorType::move().createCapture(from, to));
+				for (const auto pc : stack.materialTable().weakerHints(movingPlayer, queen).allowedPieces() & ~generatorType::royalPieces(nextPlayer))
+				{
+					for (const squareType to : movegenSlidersHV.attacks(from, ~stack.position().totalOccupancy())& stack.materialTable().weakerHints(movingPlayer, queen).allowedSquares(pc)& stack.position().playerOccupancy(nextPlayer)& stack.position().pieceOccupancy(pc))
+						moves.add(motorType::move().createCapture(from, to));
+				}
 			}
 		}
 		template<size_t PLAYER>
@@ -1025,20 +1028,21 @@ namespace pygmalion::chess
 		{
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			constexpr const playerType nextPlayer{ movingPlayer.next() };
-			constexpr const squaresType none{ squaresType::none() };
-			squaresType selection{ none };
-			stack.materialTable().forStrongerPieces(bishop, [&stack, &selection](const pieceType pc) {selection |= stack.position().pieceOccupancy(pc); });
-			squaresType selection2{ none };
-			stack.materialTable().forStrongerPieces(queen, [&stack, &selection2](const pieceType pc) {selection2 |= stack.position().pieceOccupancy(pc); });
 			for (const squareType from : stack.position().pieceOccupancy(bishop)& stack.position().playerOccupancy(movingPlayer))
 			{
-				for (const squareType to : movegenSlidersDiag.attacks(from, ~stack.position().totalOccupancy())& selection& stack.position().playerOccupancy(nextPlayer))
-					moves.add(motorType::move().createCapture(from, to));
+				for (const auto pc : stack.materialTable().strongerHints(movingPlayer, bishop).allowedPieces() & ~generatorType::royalPieces(nextPlayer))
+				{
+					for (const squareType to : movegenSlidersDiag.attacks(from, ~stack.position().totalOccupancy())& stack.materialTable().strongerHints(movingPlayer, bishop).allowedSquares(pc)& stack.position().playerOccupancy(nextPlayer)& stack.position().pieceOccupancy(pc))
+						moves.add(motorType::move().createCapture(from, to));
+				}
 			}
 			for (const squareType from : stack.position().pieceOccupancy(queen)& stack.position().playerOccupancy(movingPlayer))
 			{
-				for (const squareType to : movegenSlidersDiag.attacks(from, ~stack.position().totalOccupancy())& selection2& stack.position().playerOccupancy(nextPlayer))
-					moves.add(motorType::move().createCapture(from, to));
+				for (const auto pc : stack.materialTable().strongerHints(movingPlayer, queen).allowedPieces() & ~generatorType::royalPieces(nextPlayer))
+				{
+					for (const squareType to : movegenSlidersDiag.attacks(from, ~stack.position().totalOccupancy())& stack.materialTable().strongerHints(movingPlayer, queen).allowedSquares(pc)& stack.position().playerOccupancy(nextPlayer)& stack.position().pieceOccupancy(pc))
+						moves.add(motorType::move().createCapture(from, to));
+				}
 			}
 		}
 		template<size_t PLAYER>
@@ -1046,20 +1050,21 @@ namespace pygmalion::chess
 		{
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			constexpr const playerType nextPlayer{ movingPlayer.next() };
-			constexpr const squaresType none{ squaresType::none() };
-			squaresType selection{ none };
-			stack.materialTable().forEqualPieces(bishop, [&stack, &selection](const pieceType pc) {selection |= stack.position().pieceOccupancy(pc); });
-			squaresType selection2{ none };
-			stack.materialTable().forEqualPieces(queen, [&stack, &selection2](const pieceType pc) {selection2 |= stack.position().pieceOccupancy(pc); });
 			for (const squareType from : stack.position().pieceOccupancy(bishop)& stack.position().playerOccupancy(movingPlayer))
 			{
-				for (const squareType to : movegenSlidersDiag.attacks(from, ~stack.position().totalOccupancy())& selection& stack.position().playerOccupancy(nextPlayer))
-					moves.add(motorType::move().createCapture(from, to));
+				for (const auto pc : stack.materialTable().equalHints(movingPlayer, bishop).allowedPieces() & ~generatorType::royalPieces(nextPlayer))
+				{
+					for (const squareType to : movegenSlidersDiag.attacks(from, ~stack.position().totalOccupancy())& stack.materialTable().equalHints(movingPlayer, bishop).allowedSquares(pc)& stack.position().playerOccupancy(nextPlayer)& stack.position().pieceOccupancy(pc))
+						moves.add(motorType::move().createCapture(from, to));
+				}
 			}
 			for (const squareType from : stack.position().pieceOccupancy(queen)& stack.position().playerOccupancy(movingPlayer))
 			{
-				for (const squareType to : movegenSlidersDiag.attacks(from, ~stack.position().totalOccupancy())& selection2& stack.position().playerOccupancy(nextPlayer))
-					moves.add(motorType::move().createCapture(from, to));
+				for (const auto pc : stack.materialTable().equalHints(movingPlayer, queen).allowedPieces() & ~generatorType::royalPieces(nextPlayer))
+				{
+					for (const squareType to : movegenSlidersDiag.attacks(from, ~stack.position().totalOccupancy())& stack.materialTable().equalHints(movingPlayer, queen).allowedSquares(pc)& stack.position().playerOccupancy(nextPlayer)& stack.position().pieceOccupancy(pc))
+						moves.add(motorType::move().createCapture(from, to));
+				}
 			}
 		}
 		template<size_t PLAYER>
@@ -1067,20 +1072,21 @@ namespace pygmalion::chess
 		{
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			constexpr const playerType nextPlayer{ movingPlayer.next() };
-			constexpr const squaresType none{ squaresType::none() };
-			squaresType selection{ none };
-			stack.materialTable().forWeakerPieces(bishop, [&stack, &selection](const pieceType pc) {selection |= stack.position().pieceOccupancy(pc); });
-			squaresType selection2{ none };
-			stack.materialTable().forWeakerPieces(queen, [&stack, &selection2](const pieceType pc) {selection2 |= stack.position().pieceOccupancy(pc); });
 			for (const squareType from : stack.position().pieceOccupancy(bishop)& stack.position().playerOccupancy(movingPlayer))
 			{
-				for (const squareType to : movegenSlidersDiag.attacks(from, ~stack.position().totalOccupancy())& selection& stack.position().playerOccupancy(nextPlayer))
-					moves.add(motorType::move().createCapture(from, to));
+				for (const auto pc : stack.materialTable().weakerHints(movingPlayer, bishop).allowedPieces() & ~generatorType::royalPieces(nextPlayer))
+				{
+					for (const squareType to : movegenSlidersDiag.attacks(from, ~stack.position().totalOccupancy())& stack.materialTable().weakerHints(movingPlayer, bishop).allowedSquares(pc)& stack.position().playerOccupancy(nextPlayer)& stack.position().pieceOccupancy(pc))
+						moves.add(motorType::move().createCapture(from, to));
+				}
 			}
 			for (const squareType from : stack.position().pieceOccupancy(queen)& stack.position().playerOccupancy(movingPlayer))
 			{
-				for (const squareType to : movegenSlidersDiag.attacks(from, ~stack.position().totalOccupancy())& selection2& stack.position().playerOccupancy(nextPlayer))
-					moves.add(motorType::move().createCapture(from, to));
+				for (const auto pc : stack.materialTable().weakerHints(movingPlayer, queen).allowedPieces() & ~generatorType::royalPieces(nextPlayer))
+				{
+					for (const squareType to : movegenSlidersDiag.attacks(from, ~stack.position().totalOccupancy())& stack.materialTable().weakerHints(movingPlayer, queen).allowedSquares(pc)& stack.position().playerOccupancy(nextPlayer)& stack.position().pieceOccupancy(pc))
+						moves.add(motorType::move().createCapture(from, to));
+				}
 			}
 		}
 		template<size_t PLAYER>
@@ -1099,13 +1105,13 @@ namespace pygmalion::chess
 		{
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			constexpr const playerType nextPlayer{ movingPlayer.next() };
-			constexpr const squaresType none{ squaresType::none() };
-			squaresType selection{ none };
-			stack.materialTable().forStrongerPieces(knight, [&stack, &selection](const pieceType pc) {selection |= stack.position().pieceOccupancy(pc); });
 			for (const squareType from : stack.position().pieceOccupancy(knight)& stack.position().playerOccupancy(movingPlayer))
 			{
-				for (const squareType to : movegenKnight.attacks(from, ~stack.position().totalOccupancy())& selection& stack.position().playerOccupancy(nextPlayer))
-					moves.add(motorType::move().createCapture(from, to));
+				for (const auto pc : stack.materialTable().strongerHints(movingPlayer, knight).allowedPieces() & ~generatorType::royalPieces(nextPlayer))
+				{
+					for (const squareType to : movegenKnight.attacks(from, ~stack.position().totalOccupancy())& stack.materialTable().strongerHints(movingPlayer, knight).allowedSquares(pc)& stack.position().playerOccupancy(nextPlayer)& stack.position().pieceOccupancy(pc))
+						moves.add(motorType::move().createCapture(from, to));
+				}
 			}
 		}
 		template<size_t PLAYER>
@@ -1113,13 +1119,13 @@ namespace pygmalion::chess
 		{
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			constexpr const playerType nextPlayer{ movingPlayer.next() };
-			constexpr const squaresType none{ squaresType::none() };
-			squaresType selection{ none };
-			stack.materialTable().forEqualPieces(knight, [&stack, &selection](const pieceType pc) {selection |= stack.position().pieceOccupancy(pc); });
 			for (const squareType from : stack.position().pieceOccupancy(knight)& stack.position().playerOccupancy(movingPlayer))
 			{
-				for (const squareType to : movegenKnight.attacks(from, ~stack.position().totalOccupancy())& selection& stack.position().playerOccupancy(nextPlayer))
-					moves.add(motorType::move().createCapture(from, to));
+				for (const auto pc : stack.materialTable().equalHints(movingPlayer, knight).allowedPieces() & ~generatorType::royalPieces(nextPlayer))
+				{
+					for (const squareType to : movegenKnight.attacks(from, ~stack.position().totalOccupancy())& stack.materialTable().equalHints(movingPlayer, knight).allowedSquares(pc)& stack.position().playerOccupancy(nextPlayer)& stack.position().pieceOccupancy(pc))
+						moves.add(motorType::move().createCapture(from, to));
+				}
 			}
 		}
 		template<size_t PLAYER>
@@ -1127,13 +1133,13 @@ namespace pygmalion::chess
 		{
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			constexpr const playerType nextPlayer{ movingPlayer.next() };
-			constexpr const squaresType none{ squaresType::none() };
-			squaresType selection{ none };
-			stack.materialTable().forWeakerPieces(knight, [&stack, &selection](const pieceType pc) {selection |= stack.position().pieceOccupancy(pc); });
 			for (const squareType from : stack.position().pieceOccupancy(knight)& stack.position().playerOccupancy(movingPlayer))
 			{
-				for (const squareType to : movegenKnight.attacks(from, ~stack.position().totalOccupancy())& selection& stack.position().playerOccupancy(nextPlayer))
-					moves.add(motorType::move().createCapture(from, to));
+				for (const auto pc : stack.materialTable().weakerHints(movingPlayer, knight).allowedPieces() & ~generatorType::royalPieces(nextPlayer))
+				{
+					for (const squareType to : movegenKnight.attacks(from, ~stack.position().totalOccupancy())& stack.materialTable().weakerHints(movingPlayer, knight).allowedSquares(pc)& stack.position().playerOccupancy(nextPlayer)& stack.position().pieceOccupancy(pc))
+						moves.add(motorType::move().createCapture(from, to));
+				}
 			}
 		}
 		template<size_t PLAYER>
@@ -1215,93 +1221,34 @@ namespace pygmalion::chess
 			}
 		}
 		template<size_t PLAYER>
-		static void generatePawnWinningCapturesWhite(const stackType<PLAYER>& stack, movelistType& moves) noexcept
-		{
-			const squaresType whitePawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(whitePlayer) };
-			const squaresType betterThanPawn{ ~stack.position().pieceOccupancy(pawn) };
-			for (const squareType to : movegenPawnCaptureWhite.attacks(whitePawns, ~stack.position().totalOccupancy())& betterThanPawn& stack.position().playerOccupancy(blackPlayer))
-			{
-				if (to.file() > fileA)
-				{
-					const squareType fromLeft{ to.downLeft() };
-					if (whitePawns[fromLeft])
-						moves.add(motorType::move().createCapture(fromLeft, to));
-				}
-				if (to.file() < fileH)
-				{
-					const squareType fromRight{ to.downRight() };
-					if (whitePawns[fromRight])
-						moves.add(motorType::move().createCapture(fromRight, to));
-				}
-			}
-		}
-		template<size_t PLAYER>
-		static void generatePawnWinningCapturesBlack(const stackType<PLAYER>& stack, movelistType& moves) noexcept
-		{
-			const squaresType blackPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(blackPlayer) };
-			const squaresType betterThanPawn{ ~stack.position().pieceOccupancy(pawn) };
-			for (const squareType to : movegenPawnCaptureBlack.attacks(blackPawns, ~stack.position().totalOccupancy())& betterThanPawn& stack.position().playerOccupancy(whitePlayer))
-			{
-				if (to.file() > fileA)
-				{
-					const squareType fromLeft{ to.upLeft() };
-					if (blackPawns[fromLeft])
-						moves.add(motorType::move().createCapture(fromLeft, to));
-				}
-				if (to.file() < fileH)
-				{
-					const squareType fromRight{ to.upRight() };
-					if (blackPawns[fromRight])
-						moves.add(motorType::move().createCapture(fromRight, to));
-				}
-			}
-		}
-		template<size_t PLAYER>
 		static void generatePawnWinningCaptures(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
+			constexpr const playerType nextPlayer{ movingPlayer.next() };
 			if constexpr (movingPlayer == whitePlayer)
-				generatePawnWinningCapturesWhite(stack, moves);
-			else
-				generatePawnWinningCapturesBlack(stack, moves);
-		}
-		template<size_t PLAYER>
-		static void generatePawnEqualCapturesWhite(const stackType<PLAYER>& stack, movelistType& moves) noexcept
-		{
-			const squaresType whitePawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(whitePlayer) };
-			for (const squareType to : movegenPawnCaptureWhite.attacks(whitePawns, ~stack.position().totalOccupancy())& stack.position().pieceOccupancy(pawn)& stack.position().playerOccupancy(blackPlayer))
 			{
-				if (to.file() > fileA)
+				for (const squareType from : stack.position().pieceOccupancy(pawn)& stack.position().playerOccupancy(movingPlayer))
 				{
-					const squareType fromLeft{ to.downLeft() };
-					if (whitePawns[fromLeft])
-						moves.add(motorType::move().createCapture(fromLeft, to));
-				}
-				if (to.file() < fileH)
-				{
-					const squareType fromRight{ to.downRight() };
-					if (whitePawns[fromRight])
-						moves.add(motorType::move().createCapture(fromRight, to));
+					for (const auto pc : stack.materialTable().strongerHints(movingPlayer, pawn).allowedPieces() & ~generatorType::royalPieces(nextPlayer))
+					{
+						for (const squareType to : movegenPawnCaptureWhite.attacks(from, ~stack.position().totalOccupancy())& stack.materialTable().strongerHints(movingPlayer, pawn).allowedSquares(pc)& stack.position().playerOccupancy(nextPlayer)& stack.position().pieceOccupancy(pc))
+						{
+							moves.add(motorType::move().createCapture(from, to));
+						}
+					}
 				}
 			}
-		}
-		template<size_t PLAYER>
-		static void generatePawnEqualCapturesBlack(const stackType<PLAYER>& stack, movelistType& moves) noexcept
-		{
-			const squaresType blackPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(blackPlayer) };
-			for (const squareType to : movegenPawnCaptureBlack.attacks(blackPawns, ~stack.position().totalOccupancy())& stack.position().pieceOccupancy(pawn)& stack.position().playerOccupancy(whitePlayer))
+			else
 			{
-				if (to.file() > fileA)
+				for (const squareType from : stack.position().pieceOccupancy(pawn)& stack.position().playerOccupancy(movingPlayer))
 				{
-					const squareType fromLeft{ to.upLeft() };
-					if (blackPawns[fromLeft])
-						moves.add(motorType::move().createCapture(fromLeft, to));
-				}
-				if (to.file() < fileH)
-				{
-					const squareType fromRight{ to.upRight() };
-					if (blackPawns[fromRight])
-						moves.add(motorType::move().createCapture(fromRight, to));
+					for (const auto pc : stack.materialTable().strongerHints(movingPlayer, pawn).allowedPieces() & ~generatorType::royalPieces(nextPlayer))
+					{
+						for (const squareType to : movegenPawnCaptureBlack.attacks(from, ~stack.position().totalOccupancy())& stack.materialTable().strongerHints(movingPlayer, pawn).allowedSquares(pc)& stack.position().playerOccupancy(nextPlayer)& stack.position().pieceOccupancy(pc))
+						{
+							moves.add(motorType::move().createCapture(from, to));
+						}
+					}
 				}
 			}
 		}
@@ -1309,10 +1256,65 @@ namespace pygmalion::chess
 		static void generatePawnEqualCaptures(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
+			constexpr const playerType nextPlayer{ movingPlayer.next() };
 			if constexpr (movingPlayer == whitePlayer)
-				generatePawnEqualCapturesWhite(stack, moves);
+			{
+				for (const squareType from : stack.position().pieceOccupancy(pawn)& stack.position().playerOccupancy(movingPlayer))
+				{
+					for (const auto pc : stack.materialTable().equalHints(movingPlayer, pawn).allowedPieces() & ~generatorType::royalPieces(nextPlayer))
+					{
+						for (const squareType to : movegenPawnCaptureWhite.attacks(from, ~stack.position().totalOccupancy())& stack.materialTable().equalHints(movingPlayer, pawn).allowedSquares(pc)& stack.position().playerOccupancy(nextPlayer)& stack.position().pieceOccupancy(pc))
+						{
+							moves.add(motorType::move().createCapture(from, to));
+						}
+					}
+				}
+			}
 			else
-				generatePawnEqualCapturesBlack(stack, moves);
+			{
+				for (const squareType from : stack.position().pieceOccupancy(pawn)& stack.position().playerOccupancy(movingPlayer))
+				{
+					for (const auto pc : stack.materialTable().equalHints(movingPlayer, pawn).allowedPieces() & ~generatorType::royalPieces(nextPlayer))
+					{
+						for (const squareType to : movegenPawnCaptureBlack.attacks(from, ~stack.position().totalOccupancy())& stack.materialTable().equalHints(movingPlayer, pawn).allowedSquares(pc)& stack.position().playerOccupancy(nextPlayer)& stack.position().pieceOccupancy(pc))
+						{
+							moves.add(motorType::move().createCapture(from, to));
+						}
+					}
+				}
+			}
+		}
+		template<size_t PLAYER>
+		static void generatePawnLosingCaptures(const stackType<PLAYER>& stack, movelistType& moves) noexcept
+		{
+			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
+			constexpr const playerType nextPlayer{ movingPlayer.next() };
+			if constexpr (movingPlayer == whitePlayer)
+			{
+				for (const squareType from : stack.position().pieceOccupancy(pawn)& stack.position().playerOccupancy(movingPlayer))
+				{
+					for (const auto pc : stack.materialTable().weakerHints(movingPlayer, pawn).allowedPieces() & ~generatorType::royalPieces(nextPlayer))
+					{
+						for (const squareType to : movegenPawnCaptureWhite.attacks(from, ~stack.position().totalOccupancy())& stack.materialTable().weakerHints(movingPlayer, pawn).allowedSquares(pc)& stack.position().playerOccupancy(nextPlayer)& stack.position().pieceOccupancy(pc))
+						{
+							moves.add(motorType::move().createCapture(from, to));
+						}
+					}
+				}
+			}
+			else
+			{
+				for (const squareType from : stack.position().pieceOccupancy(pawn)& stack.position().playerOccupancy(movingPlayer))
+				{
+					for (const auto pc : stack.materialTable().weakerHints(movingPlayer, pawn).allowedPieces() & ~generatorType::royalPieces(nextPlayer))
+					{
+						for (const squareType to : movegenPawnCaptureBlack.attacks(from, ~stack.position().totalOccupancy())& stack.materialTable().weakerHints(movingPlayer, pawn).allowedSquares(pc)& stack.position().playerOccupancy(nextPlayer)& stack.position().pieceOccupancy(pc))
+						{
+							moves.add(motorType::move().createCapture(from, to));
+						}
+					}
+				}
+			}
 		}
 		template<size_t PLAYER>
 		static void generatePawnCapturesBlack(const stackType<PLAYER>& stack, movelistType& moves) noexcept
@@ -3414,6 +3416,7 @@ namespace pygmalion::chess
 		template<size_t PLAYER>
 		static void generateAllLosingMoves(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
+			generatorType::template generatePawnLosingCaptures<PLAYER>(stack, moves);
 			generatorType::template generateKnightLosingCaptures<PLAYER>(stack, moves);
 			generatorType::template generateSliderLosingCapturesHV<PLAYER>(stack, moves);
 			generatorType::template generateSliderLosingCapturesDiag<PLAYER>(stack, moves);
@@ -5964,8 +5967,13 @@ namespace pygmalion::chess
 		}
 		PYGMALION_INLINE static piecesType promotionPieces_Implementation(const playerType player) noexcept
 		{
-			constexpr const piecesType promoPieces{ []() { piecesType mask; mask|=pawn; return mask; }() };
+			constexpr const piecesType promoPieces{ []() { piecesType mask; mask |= pawn; return mask; }() };
 			return promoPieces;
+		}
+		PYGMALION_INLINE static piecesType royalPieces_Implementation(const playerType player) noexcept
+		{
+			constexpr const piecesType royalPieces{ []() { piecesType mask; mask |= king; return mask; }() };
+			return royalPieces;
 		}
 		PYGMALION_INLINE static piecesType promotionResults_Implementation(const playerType player) noexcept
 		{

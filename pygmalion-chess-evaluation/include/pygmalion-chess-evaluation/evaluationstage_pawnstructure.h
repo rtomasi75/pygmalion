@@ -1,116 +1,255 @@
 namespace pygmalion::chess
 {
 	class evaluationstage_pawnstructure :
-		public pygmalion::evaluationstage<descriptor_evaluation, evaluationstage_pawnstructure, typename descriptor_evaluation::scoreType>
+		public pygmalion::evaluationstage<descriptor_evaluation, evaluationstage_pawnstructure, typename descriptor_evaluation::objectiveType>
 	{
 	public:
-		PYGMALION_TUNABLE static inline double PawnStructure{ 0.5 };
-		PYGMALION_TUNABLE static inline scoreType PawnStructureDelta{ static_cast<scoreType>(1.5 * PawnStructure) };
+		static inline scoreType PawnStructure{ static_cast<scoreType>(0.5) };
 		constexpr static size_t getParameterCount_Implementation() noexcept
 		{
 			return 1;
 		}
-		static parameter getParameter_Implementation(const size_t index) noexcept
+		static parameterType getParameter_Implementation(const size_t index) noexcept
 		{
-			return parameter(PawnStructure, 0.0, 1.0, 0.001, "term_pawnstructure");
+			return parameterType(PawnStructure, static_cast<scoreType>(0.0), static_cast<scoreType>(1.0), static_cast<scoreType>(0.001), "term_pawnstructure");
 		}
-		PYGMALION_TUNABLE static scoreType computeDelta_Implementation(const scoreType* pParameters) noexcept
+		PYGMALION_INLINE static scoreType quietChange_Implementation(const scoreType* pParameters, const playerType spl, const playerType pl, const pieceType pc, const squareType from, const squareType to) noexcept
 		{
-			return (3 * pParameters[0]) / 2;
+			constexpr const scoreType zero{ scoreType::zero() };
+/*			constexpr const scoreType baseScore{ static_cast<scoreType>(1.0) };
+			if (pc == pawn)
+			{
+				const auto distanceToPromotion{ spl == whitePlayer ? pawnstructure::maxQuiet1(pl) + pawnstructure::maxQuiet2(pl) + pawnstructure::maxQuiet3(pl) : pawnstructure::minQuiet1(pl) + pawnstructure::minQuiet2(pl) + pawnstructure::minQuiet3(pl) };
+				scoreType pawnStructureScoreWhite{ zero };
+				scoreType pawnStructureScoreBlack{ zero };
+				if (distanceToPromotion > 0)
+				{
+					const int divisor{ 1 << distanceToPromotion };
+					pawnStructureScoreWhite += baseScore / divisor;
+				}
+				else if (distanceToPromotion < 0)
+				{
+					const int divisor{ 1 << -distanceToPromotion };
+					pawnStructureScoreBlack += baseScore / divisor;
+				}
+				const objectiveType scoreWhite{ objectiveType::template makeObjective<static_cast<size_t>(whitePlayer)>(pawnStructureScoreWhite) };
+				const objectiveType scoreBlack{ objectiveType::template makeObjective<static_cast<size_t>(blackPlayer)>(pawnStructureScoreBlack) };
+				return (scoreWhite + scoreBlack).makeSubjective(spl) * pParameters[0];
+			}
+			else*/
+				return zero;
+		}
+		PYGMALION_INLINE static scoreType promotionChange_Implementation(const scoreType* pParameters, const playerType spl, const playerType pl, const pieceType pc, const squareType from, const squareType to, const pieceType promoted) noexcept
+		{
+			constexpr const scoreType zero{ scoreType::zero() };
+	/*		constexpr const scoreType baseScore{ static_cast<scoreType>(1.0) };
+			if (pc == pawn)
+			{
+				const auto distanceToPromotion{ spl == whitePlayer ? pawnstructure::maxPromotion1(pl) + pawnstructure::maxPromotion2(pl) + pawnstructure::maxPromotion3(pl) : pawnstructure::minPromotion1(pl) + pawnstructure::minPromotion2(pl) + pawnstructure::minPromotion3(pl) };
+				scoreType pawnStructureScoreWhite{ zero };
+				scoreType pawnStructureScoreBlack{ zero };
+				if (distanceToPromotion > 0)
+				{
+					const int divisor{ 1 << distanceToPromotion };
+					pawnStructureScoreWhite += baseScore / divisor;
+				}
+				else if (distanceToPromotion < 0)
+				{
+					const int divisor{ 1 << -distanceToPromotion };
+					pawnStructureScoreBlack += baseScore / divisor;
+				}
+				const objectiveType scoreWhite{ objectiveType::template makeObjective<static_cast<size_t>(whitePlayer)>(pawnStructureScoreWhite) };
+				const objectiveType scoreBlack{ objectiveType::template makeObjective<static_cast<size_t>(blackPlayer)>(pawnStructureScoreBlack) };
+				return (scoreWhite + scoreBlack).makeSubjective(spl) * pParameters[0];
+			}
+			else*/
+				return zero;
+		}
+		PYGMALION_INLINE static scoreType captureChange_Implementation(const scoreType* pParameters, const playerType spl, const playerType pl, const pieceType pc, const squareType from, const squareType to, const playerType vpl, const pieceType vpc) noexcept
+		{
+		constexpr const scoreType zero{ scoreType::zero() };
+/*				constexpr const scoreType baseScore{ static_cast<scoreType>(1.0) };
+			if (pc == pawn)
+			{
+				if (vpc == pawn)
+				{
+					const auto distanceToPromotion{ spl == whitePlayer ? pawnstructure::maxCapture1(pl) + pawnstructure::maxCapture2(pl) + pawnstructure::maxCapture3(pl) : pawnstructure::minCapture1(pl) + pawnstructure::minCapture2(pl) + pawnstructure::minCapture3(pl) };
+					scoreType pawnStructureScoreWhite{ zero };
+					scoreType pawnStructureScoreBlack{ zero };
+					if (distanceToPromotion > 0)
+					{
+						const int divisor{ 1 << distanceToPromotion };
+						pawnStructureScoreWhite += baseScore / divisor;
+					}
+					else if (distanceToPromotion < 0)
+					{
+						const int divisor{ 1 << -distanceToPromotion };
+						pawnStructureScoreBlack += baseScore / divisor;
+					}
+					const objectiveType scoreWhite{ objectiveType::template makeObjective<static_cast<size_t>(whitePlayer)>(pawnStructureScoreWhite) };
+					const objectiveType scoreBlack{ objectiveType::template makeObjective<static_cast<size_t>(blackPlayer)>(pawnStructureScoreBlack) };
+					return (scoreWhite + scoreBlack).makeSubjective(spl) * pParameters[0];
+				}
+				else*/
+					return zero;
+/* }
+			else
+			{
+				if (vpc == pawn)
+				{
+					const auto distanceToPromotion{ spl == whitePlayer ? pawnstructure::maxDeath1(vpl) + pawnstructure::maxDeath2(vpl) + pawnstructure::maxDeath3(vpl) : pawnstructure::minDeath1(vpl) + pawnstructure::minDeath2(vpl) + pawnstructure::minDeath3(vpl) };
+					scoreType pawnStructureScoreWhite{ zero };
+					scoreType pawnStructureScoreBlack{ zero };
+					if (distanceToPromotion > 0)
+					{
+						const int divisor{ 1 << distanceToPromotion };
+						pawnStructureScoreWhite += baseScore / divisor;
+					}
+					else if (distanceToPromotion < 0)
+					{
+						const int divisor{ 1 << -distanceToPromotion };
+						pawnStructureScoreBlack += baseScore / divisor;
+					}
+					const objectiveType scoreWhite{ objectiveType::template makeObjective<static_cast<size_t>(whitePlayer)>(pawnStructureScoreWhite) };
+					const objectiveType scoreBlack{ objectiveType::template makeObjective<static_cast<size_t>(blackPlayer)>(pawnStructureScoreBlack) };
+					return (scoreWhite + scoreBlack).makeSubjective(spl) * pParameters[0];
+				}
+				else
+				{
+					const auto distanceToPromotion{ spl == whitePlayer ? pawnstructure::maxCaptureOther1(pl) + pawnstructure::maxCaptureOther2(pl) + pawnstructure::maxCaptureOther3(pl) : pawnstructure::minCaptureOther1(pl) + pawnstructure::minCaptureOther2(pl) + pawnstructure::minCaptureOther3(pl) };
+					scoreType pawnStructureScoreWhite{ zero };
+					scoreType pawnStructureScoreBlack{ zero };
+					if (distanceToPromotion > 0)
+					{
+						const int divisor{ 1 << distanceToPromotion };
+						pawnStructureScoreWhite += baseScore / divisor;
+					}
+					else if (distanceToPromotion < 0)
+					{
+						const int divisor{ 1 << -distanceToPromotion };
+						pawnStructureScoreBlack += baseScore / divisor;
+					}
+					const objectiveType scoreWhite{ objectiveType::template makeObjective<static_cast<size_t>(whitePlayer)>(pawnStructureScoreWhite) };
+					const objectiveType scoreBlack{ objectiveType::template makeObjective<static_cast<size_t>(blackPlayer)>(pawnStructureScoreBlack) };
+					return (scoreWhite + scoreBlack).makeSubjective(spl) * pParameters[0];
+				}
+			}*/
+		}
+		PYGMALION_INLINE static scoreType promoCaptureChange_Implementation(const scoreType* pParameters, const playerType spl, const playerType pl, const pieceType pc, const squareType from, const squareType to, const playerType vpl, const pieceType vpc, const pieceType promoted) noexcept
+		{
+			constexpr const scoreType zero{ scoreType::zero() };
+			/*constexpr const scoreType baseScore{ static_cast<scoreType>(1.0) };
+			if (pc == pawn)
+			{
+				const auto distanceToPromotion{ spl == whitePlayer ? pawnstructure::maxPromotion1(pl) + pawnstructure::maxPromotion2(pl) + pawnstructure::maxPromotion3(pl) : pawnstructure::minPromotion1(pl) + pawnstructure::minPromotion2(pl) + pawnstructure::minPromotion3(pl) };
+				scoreType pawnStructureScoreWhite{ zero };
+				scoreType pawnStructureScoreBlack{ zero };
+				if (distanceToPromotion > 0)
+				{
+					const int divisor{ 1 << distanceToPromotion };
+					pawnStructureScoreWhite += baseScore / divisor;
+				}
+				else if (distanceToPromotion < 0)
+				{
+					const int divisor{ 1 << -distanceToPromotion };
+					pawnStructureScoreBlack += baseScore / divisor;
+				}
+				const objectiveType scoreWhite{ objectiveType::template makeObjective<static_cast<size_t>(whitePlayer)>(pawnStructureScoreWhite) };
+				const objectiveType scoreBlack{ objectiveType::template makeObjective<static_cast<size_t>(blackPlayer)>(pawnStructureScoreBlack) };
+				return (scoreWhite + scoreBlack).makeSubjective(spl) * pParameters[0];
+			}
+			else*/
+				return zero;
 		}
 		template<size_t PLAYER>
-		PYGMALION_INLINE static void computeData_Implementation(const generatorType::template stackType<PLAYER>& stack, scoreType& data) noexcept
+		PYGMALION_INLINE static void computeData_Implementation(const generatorType::template stackType<PLAYER>& stack, dataType& data) noexcept
 		{
 			auto& entry{ generatorType::pawnTable().entry(stack) };
-			constexpr const playerType movingPlayer0{ static_cast<playerType>(PLAYER) };
-			constexpr const playerType otherPlayer0{ movingPlayer0.next() };
-			if (!entry.hasPawnStructureScore(movingPlayer0))
+			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
+			constexpr const playerType otherPlayer{ movingPlayer.next() };
+			if (!entry.hasPawnStructureScore(movingPlayer))
 			{
-				for (const auto movingPlayer : playerType::range)
+				constexpr const scoreType zero{ scoreType::zero() };
+				std::int8_t whiteRanks[countFiles];
+				std::int8_t blackRanks[countFiles];
+				for (const auto file : fileType::range)
 				{
-					constexpr const scoreType zero{ scoreType::zero() };
-					scoreType pawnStructureScore{ zero };
-					std::int8_t whiteRanks[countFiles];
-					std::int8_t blackRanks[countFiles];
-					for (const auto file : fileType::range)
+					if (entry.pawns(whitePlayer) & file)
 					{
-						if (entry.pawns(whitePlayer) & file)
-						{
-							const squareType sq{ (entry.pawns(whitePlayer) & file).last() };
-							whiteRanks[file] = static_cast<std::int8_t>(sq.rank());
-						}
-						else
-							whiteRanks[file] = 0;
-						if (entry.pawns(blackPlayer) & file)
-						{
-							const squareType sq{ (entry.pawns(blackPlayer) & file).first() };
-							blackRanks[file] = static_cast<std::int8_t>(sq.rank());
-						}
-						else
-							blackRanks[file] = 0;
+						const squareType sq{ (entry.pawns(whitePlayer) & file).last() };
+						whiteRanks[file] = static_cast<std::int8_t>(sq.rank());
 					}
-					for (size_t i = 0; i < countFiles; i++)
-					{
-						std::int8_t whiteRank1;
-						std::int8_t whiteRank2;
-						std::int8_t whiteRank3;
-						std::int8_t blackRank1;
-						std::int8_t blackRank2;
-						std::int8_t blackRank3;
-						if (i > 0)
-						{
-							whiteRank1 = whiteRanks[i - 1];
-							blackRank1 = blackRanks[i - 1];
-						}
-						else
-						{
-							whiteRank1 = 0;
-							blackRank1 = 0;
-						}
-						whiteRank2 = whiteRanks[i];
-						blackRank2 = blackRanks[i];
-						if (i < (countFiles - 1))
-						{
-							whiteRank3 = whiteRanks[i + 1];
-							blackRank3 = blackRanks[i + 1];
-						}
-						else
-						{
-							whiteRank3 = 0;
-							blackRank3 = 0;
-						}
-						std::int8_t distanceToPromotion{ pawnstructure::distance(movingPlayer, whiteRank1, whiteRank2, whiteRank3, blackRank1, blackRank2, blackRank3) };
-						constexpr const scoreType baseScore{ static_cast<scoreType>(1.0) };
-						if (distanceToPromotion > 0)
-						{
-							const int divisor{ 1 << distanceToPromotion };
-							pawnStructureScore += baseScore / divisor;
-						}
-						else if (distanceToPromotion < 0)
-						{
-							const int divisor{ 1 << -distanceToPromotion };
-							pawnStructureScore -= baseScore / divisor;
-						}
-					}
-					constexpr bool invert{ movingPlayer0 == blackPlayer };
-					if constexpr (invert)
-						entry.setPawnStructureScore(movingPlayer, -pawnStructureScore);
 					else
-						entry.setPawnStructureScore(movingPlayer, pawnStructureScore);
+						whiteRanks[file] = 0;
+					if (entry.pawns(blackPlayer) & file)
+					{
+						const squareType sq{ (entry.pawns(blackPlayer) & file).first() };
+						blackRanks[file] = static_cast<std::int8_t>(sq.rank());
+					}
+					else
+						blackRanks[file] = 0;
 				}
+				scoreType pawnStructureScoreWhite{ zero };
+				scoreType pawnStructureScoreBlack{ zero };
+				for (size_t i = 0; i < countFiles; i++)
+				{
+					std::int8_t whiteRank1;
+					std::int8_t whiteRank2;
+					std::int8_t whiteRank3;
+					std::int8_t blackRank1;
+					std::int8_t blackRank2;
+					std::int8_t blackRank3;
+					if (i > 0)
+					{
+						whiteRank1 = whiteRanks[i - 1];
+						blackRank1 = blackRanks[i - 1];
+					}
+					else
+					{
+						whiteRank1 = 0;
+						blackRank1 = 0;
+					}
+					whiteRank2 = whiteRanks[i];
+					blackRank2 = blackRanks[i];
+					if (i < (countFiles - 1))
+					{
+						whiteRank3 = whiteRanks[i + 1];
+						blackRank3 = blackRanks[i + 1];
+					}
+					else
+					{
+						whiteRank3 = 0;
+						blackRank3 = 0;
+					}
+					std::int8_t distanceToPromotion{ pawnstructure::distance(movingPlayer, whiteRank1, whiteRank2, whiteRank3, blackRank1, blackRank2, blackRank3) };
+					constexpr const scoreType baseScore{ static_cast<scoreType>(1.0) };
+					if (distanceToPromotion > 0)
+					{
+						const int divisor{ 1 << distanceToPromotion };
+						pawnStructureScoreWhite += baseScore / divisor;
+					}
+					else if (distanceToPromotion < 0)
+					{
+						const int divisor{ 1 << -distanceToPromotion };
+						pawnStructureScoreBlack += baseScore / divisor;
+					}
+				}
+				const objectiveType scoreWhite{ objectiveType::template makeObjective<static_cast<size_t>(whitePlayer)>(pawnStructureScoreWhite) };
+				const objectiveType scoreBlack{ objectiveType::template makeObjective<static_cast<size_t>(blackPlayer)>(pawnStructureScoreBlack) };
+				entry.setPawnStructureScore(movingPlayer, scoreWhite + scoreBlack);
 			}
-			data = entry.getPawnStructureScore(movingPlayer0) + entry.getPawnStructureScore(otherPlayer0);
+			data = entry.getPawnStructureScore(movingPlayer);
 		}
 		template<size_t PLAYER>
-		PYGMALION_INLINE static scoreType evaluate_Implementation(const scoreType data, const scoreType* pParameters) noexcept
+		PYGMALION_INLINE static scoreType evaluate_Implementation(const dataType& data, const scoreType* pParameters) noexcept
 		{
-			return pParameters[0] * data;
+			return pParameters[0] * (data.template makeSubjective<PLAYER>());
 		}
 		template<size_t PLAYER>
-		PYGMALION_INLINE static scoreType differentiate_Implementation(const dataType, const size_t parameterIndex, const scoreType* pParameters) noexcept
+		PYGMALION_INLINE static scoreType differentiate_Implementation(const dataType&, const size_t parameterIndex, const scoreType* pParameters) noexcept
 		{
 			PYGMALION_ASSERT(parameterIndex == 0);
-			return static_cast<scoreType>(data);
+			return data.template makeSubjective<PLAYER>();
 		}
 		PYGMALION_INLINE static std::string name_Implementation() noexcept
 		{

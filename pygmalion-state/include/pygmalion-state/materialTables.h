@@ -8,6 +8,38 @@ namespace pygmalion::state
 		using boardType = BOARD;
 		using descriptorState = DESCRIPTION_STATE;
 #include "include_state.h"
+		class movegenHints
+		{
+		private:
+			piecesType m_AllowedPieces;
+			std::array<squaresType, countPieces> m_AllowedSquares;
+		public:
+			movegenHints(const piecesType allowedPieces, const std::array<squaresType, countPieces>& allowedSquares) noexcept :
+				m_AllowedPieces{ allowedPieces },
+				m_AllowedSquares{ allowedSquares }
+			{
+
+			}
+			movegenHints() noexcept :
+				m_AllowedPieces{ piecesType::none() },
+				m_AllowedSquares{ arrayhelper::make<countPieces>(squaresType::none()) }
+			{
+
+			}
+			~movegenHints() noexcept = default;
+			movegenHints(movegenHints&&) noexcept = default;
+			movegenHints(const movegenHints&) noexcept = default;
+			movegenHints& operator=(movegenHints&&) noexcept = default;
+			movegenHints& operator=(const movegenHints&) noexcept = default;
+			PYGMALION_INLINE piecesType allowedPieces() const noexcept
+			{
+				return m_AllowedPieces;
+			}
+			PYGMALION_INLINE squaresType allowedSquares(const pieceType pc) const noexcept
+			{
+				return m_AllowedSquares[pc];
+			}
+		};
 	private:
 		std::array< std::array<std::array<scoreType, countSquares>, countPieces>, countPlayers> m_PST_Parameters
 		{
@@ -25,6 +57,9 @@ namespace pygmalion::state
 		{
 			arrayhelper::make<countPieces,scoreType>(scoreType::zero())
 		};
+		std::array<std::array<movegenHints, countPieces>, countPlayers> m_WeakerMovegenHints;
+		std::array<std::array<movegenHints, countPieces>, countPlayers> m_EqualMovegenHints;
+		std::array<std::array<movegenHints, countPieces>, countPlayers> m_StrongerMovegenHints;
 		void recomputePSTs() noexcept
 		{
 			for (const auto pl : playerType::range)
@@ -37,25 +72,55 @@ namespace pygmalion::state
 					}
 				}
 			}
-			for (const auto pc : pieceType::range)
+			for (const auto pl : playerType::range)
 			{
-				double value = 0.0;
-				for (const auto sq : squareType::range)
+				for (const auto pc : pieceType::range)
 				{
-					for (const auto pl : playerType::range)
+					std::array<squaresType, countPieces> weakerSquares{ arrayhelper::make<countPieces,squaresType>(squaresType::none()) };
+					std::array<squaresType, countPieces> strongerSquares{ arrayhelper::make<countPieces,squaresType>(squaresType::none()) };
+					std::array<squaresType, countPieces> equalSquares{ arrayhelper::make<countPieces,squaresType>(squaresType::none()) };
+					constexpr const piecesType noPieces{ piecesType::none() };
+					constexpr const squaresType noSquares{ squaresType::none() };
+					piecesType weakerPieces{ noPieces };
+					piecesType strongerPieces{ noPieces };
+					piecesType equalPieces{ noPieces };
+					for (const auto pc2 : pieceType::range)
 					{
-						value += static_cast<double>(this->material(pl, pc, sq).makeSubjective(pl));
+						for (const auto sq : squareType::range)
+						{
+							const scoreType sc1{ material(pl,pc,sq).makeSubjective(pl) };
+							const scoreType sc2{ material(pl,pc2,sq).makeSubjective(pl) };
+							if (sc1 == sc2)
+								equalSquares[pc2] |= sq;
+							else if (sc1 > sc2)
+								weakerSquares[pc2] |= sq;
+							else 
+								strongerSquares[pc2] |= sq;
+						}
+						weakerPieces.checkElement(pc2, weakerSquares[pc2]);
+						strongerPieces.checkElement(pc2, strongerSquares[pc2]);
+						equalPieces.checkElement(pc2, equalSquares[pc2]);
 					}
+					m_WeakerMovegenHints[pl][pc] = movegenHints(weakerPieces, weakerSquares);
+					m_StrongerMovegenHints[pl][pc] = movegenHints(strongerPieces, strongerSquares);
+					m_EqualMovegenHints[pl][pc] = movegenHints(equalPieces, equalSquares);
 				}
-				m_MaterialScore[pc] = static_cast<scoreType>(value / (countSquares * countPlayers));
 			}
 		}
 	public:
-		constexpr static size_t countParameters{ countPieces + countPlayers * countPieces * countSquares };
-		PYGMALION_INLINE scoreType materialScore(const pieceType pc) const noexcept
+		PYGMALION_INLINE const movegenHints& equalHints(const playerType pl, const pieceType pc) const noexcept
 		{
-			return m_MaterialScore[pc];
+			return m_EqualMovegenHints[pl][pc];
 		}
+		PYGMALION_INLINE const movegenHints& weakerHints(const playerType pl, const pieceType pc) const noexcept
+		{
+			return m_WeakerMovegenHints[pl][pc];
+		}
+		PYGMALION_INLINE const movegenHints& strongerHints(const playerType pl, const pieceType pc) const noexcept
+		{
+			return m_StrongerMovegenHints[pl][pc];
+		}
+		constexpr static size_t countParameters{ countPieces + countPlayers * countPieces * countSquares };
 		constexpr materialTables() noexcept
 		{
 		}
@@ -94,33 +159,6 @@ namespace pygmalion::state
 			{
 				minimum = -2.0;
 				maximum = 2.0;
-			}
-		}
-		template<typename LAMBDA>
-		PYGMALION_INLINE void forStrongerPieces(const pieceType pc, const LAMBDA& lambda) const noexcept
-		{
-			for (const auto pc2 : pieceType::range)
-			{
-				if (this->materialScore(pc) < this->materialScore(pc2))
-					lambda(pc2);
-			}
-		}
-		template<typename LAMBDA>
-		PYGMALION_INLINE void forWeakerPieces(const pieceType pc, const LAMBDA& lambda) const noexcept
-		{
-			for (const auto pc2 : pieceType::range)
-			{
-				if (this->materialScore(pc) > this->materialScore(pc2))
-					lambda(pc2);
-			}
-		}
-		template<typename LAMBDA>
-		PYGMALION_INLINE void forEqualPieces(const pieceType pc, const LAMBDA& lambda) const noexcept
-		{
-			for (const auto pc2 : pieceType::range)
-			{
-				if (this->materialScore(pc) == this->materialScore(pc2))
-					lambda(pc2);
 			}
 		}
 		static void defaultParameters(std::vector<scoreType>& parameters) noexcept

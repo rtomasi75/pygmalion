@@ -265,6 +265,29 @@ namespace pygmalion::state
 			assert((*this) != squares::none());
 			return squares(m_Bits.singleBit());
 		}
+		PYGMALION_INLINE constexpr void swapFiles(const fileType A,const fileType B) noexcept
+		{
+			const int r{ static_cast<int>(A) - static_cast<int>(B) };
+			if (r > 0)
+			{
+				const squaresType a{ (*this) & A };
+				const squaresType b{ (*this) & B };
+				(*this) -= A;
+				(*this) -= B;
+				m_Bits |= a.m_Bits >> r;
+				m_Bits |= b.m_Bits << -r;
+			}
+			else
+			{
+				const squaresType a{ (*this) & A };
+				const squaresType b{ (*this) & B };
+				(*this) -= A;
+				(*this) -= B;
+				m_Bits |= a.m_Bits << r;
+				m_Bits |= b.m_Bits >> -r;
+			}
+			return squares(m_Bits.singleBit());
+		}
 		PYGMALION_INLINE constexpr bool operator[](const squareType square) const noexcept
 		{
 			return m_Bits[static_cast<typename squareType::baseType>(square)];

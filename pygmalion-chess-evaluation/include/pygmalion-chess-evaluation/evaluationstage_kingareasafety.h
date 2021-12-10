@@ -12,12 +12,12 @@ namespace pygmalion::chess
 		public pygmalion::evaluationstage<descriptor_evaluation, evaluationstage_kingareasafety, detail::evaluationstage_kingareasafety_data>
 	{
 	public:
-		PYGMALION_TUNABLE static inline double KingAreaSafetyPawn{ 0.00625 };
-		PYGMALION_TUNABLE static inline double KingAreaSafetyKnight{ 0.00625 };
-		PYGMALION_TUNABLE static inline double KingAreaSafetyBishop{ 0.00625 };
-		PYGMALION_TUNABLE static inline double KingAreaSafetyRook{ 0.00625 };
-		PYGMALION_TUNABLE static inline double KingAreaSafetyQueen{ 0.00625 };
-		PYGMALION_TUNABLE static inline double KingAreaSafetyKing{ 0.00625 };
+		static inline scoreType KingAreaSafetyPawn{ static_cast<scoreType>(0.00625) };
+		static inline scoreType KingAreaSafetyKnight{ static_cast<scoreType>(0.00625) };
+		static inline scoreType KingAreaSafetyBishop{ static_cast<scoreType>(0.00625) };
+		static inline scoreType KingAreaSafetyRook{ static_cast<scoreType>(0.00625) };
+		static inline scoreType KingAreaSafetyQueen{ static_cast<scoreType>(0.00625) };
+		static inline scoreType KingAreaSafetyKing{ static_cast<scoreType>(0.00625) };
 		using dataType = detail::evaluationstage_kingareasafety_data;
 	private:
 		constexpr static const inline std::array<scoreType, generatorType::tropismType::maxDistance + 2> m_LookUp
@@ -37,13 +37,6 @@ namespace pygmalion::chess
 				}
 			)
 		};
-		PYGMALION_TUNABLE static inline scoreType m_KingAreaSafetyScoresPawn{ static_cast<scoreType>(KingAreaSafetyPawn) };
-		PYGMALION_TUNABLE static inline scoreType m_KingAreaSafetyScoresKnight{ static_cast<scoreType>(KingAreaSafetyKnight) };
-		PYGMALION_TUNABLE static inline scoreType m_KingAreaSafetyScoresBishop{ static_cast<scoreType>(KingAreaSafetyBishop) };
-		PYGMALION_TUNABLE static inline scoreType m_KingAreaSafetyScoresRook{ static_cast<scoreType>(KingAreaSafetyRook) };
-		PYGMALION_TUNABLE static inline scoreType m_KingAreaSafetyScoresQueen{ static_cast<scoreType>(KingAreaSafetyQueen) };
-		PYGMALION_TUNABLE static inline scoreType m_KingAreaSafetyScoresKing{ static_cast<scoreType>(KingAreaSafetyKing) };
-		PYGMALION_TUNABLE static inline scoreType KingAreaSafetyDelta{ static_cast<scoreType>(16.0 * std::max(std::max(std::max(KingAreaSafetyPawn,KingAreaSafetyKnight), std::max(KingAreaSafetyBishop, KingAreaSafetyRook)), std::max(KingAreaSafetyQueen, KingAreaSafetyKing))) };
 		template<size_t PLAYER, bool MOVINGPLAYER>
 		PYGMALION_INLINE static void scoreKingAreaSafety(const generatorType::template stackType<PLAYER>& stack, dataType& data) noexcept
 		{
@@ -371,66 +364,26 @@ namespace pygmalion::chess
 		{
 			return 6;
 		}
-		static parameter getParameter_Implementation(const size_t index) noexcept
+		static parameterType getParameter_Implementation(const size_t index) noexcept
 		{
 			switch (index)
 			{
 			default:
 				PYGMALION_ASSERT(false);
-				return parameter(0.0, 0.0, 1.0, 0.001, "term_kingareasafety_error");
+				return parameterType(scoreType::zero(), static_cast<scoreType>(0.0), static_cast<scoreType>(1.0), static_cast<scoreType>(0.001), "term_kingareasafety_error");
 			case 0:
-				return parameter(KingAreaSafetyPawn, 0.0, 1.0, 0.001, "term_kingareasafety_pawn");
+				return parameterType(KingAreaSafetyPawn, static_cast<scoreType>(0.0), static_cast<scoreType>(1.0), static_cast<scoreType>(0.001), "term_kingareasafety_pawn");
 			case 1:
-				return parameter(KingAreaSafetyKnight, 0.0, 1.0, 0.001, "term_kingareasafety_knight");
+				return parameterType(KingAreaSafetyKnight, static_cast<scoreType>(0.0), static_cast<scoreType>(1.0), static_cast<scoreType>(0.001), "term_kingareasafety_knight");
 			case 2:
-				return parameter(KingAreaSafetyBishop, 0.0, 1.0, 0.001, "term_kingareasafety_bishop");
+				return parameterType(KingAreaSafetyBishop, static_cast<scoreType>(0.0), static_cast<scoreType>(1.0), static_cast<scoreType>(0.001), "term_kingareasafety_bishop");
 			case 3:
-				return parameter(KingAreaSafetyRook, 0.0, 1.0, 0.001, "term_kingareasafety_rook");
+				return parameterType(KingAreaSafetyRook, static_cast<scoreType>(0.0), static_cast<scoreType>(1.0), static_cast<scoreType>(0.001), "term_kingareasafety_rook");
 			case 4:
-				return parameter(KingAreaSafetyQueen, 0.0, 1.0, 0.001, "term_kingareasafety_queen");
+				return parameterType(KingAreaSafetyQueen, static_cast<scoreType>(0.0), static_cast<scoreType>(1.0), static_cast<scoreType>(0.001), "term_kingareasafety_queen");
 			case 5:
-				return parameter(KingAreaSafetyKing, 0.0, 1.0, 0.001, "term_kingareasafety_king");
+				return parameterType(KingAreaSafetyKing, static_cast<scoreType>(0.0), static_cast<scoreType>(1.0), static_cast<scoreType>(0.001), "term_kingareasafety_king");
 			}
-		}
-#if defined(PYGMALION_TUNE)
-		static void setParameter_Implementation(const size_t index, double value) noexcept
-		{
-			switch (index)
-			{
-			default:
-				PYGMALION_ASSERT(false);
-				break;
-			case 0:
-				KingAreaSafetyPawn = value;
-				m_KingAreaSafetyScoresPawn = scoreLookUp(KingAreaSafetyPawn);
-				break;
-			case 1:
-				KingAreaSafetyKnight = value;
-				m_KingAreaSafetyScoresKnight = scoreLookUp(KingAreaSafetyKnight);
-				break;
-			case 2:
-				KingAreaSafetyBishop = value;
-				m_KingAreaSafetyScoresBishop = scoreLookUp(KingAreaSafetyBishop);
-				break;
-			case 3:
-				KingAreaSafetyRook = value;
-				m_KingAreaSafetyScoresRook = scoreLookUp(KingAreaSafetyRook);
-				break;
-			case 4:
-				KingAreaSafetyQueen = value;
-				m_KingAreaSafetyScoresQueen = scoreLookUp(KingAreaSafetyQueen);
-				break;
-			case 5:
-				KingAreaSafetyKing = value;
-				m_KingAreaSafetyScoresKing = scoreLookUp(KingAreaSafetyKing);
-				break;
-			}
-			KingAreaSafetyDelta = static_cast<scoreType>(8.0 * std::max(std::max(std::max(KingAreaSafetyPawn,KingAreaSafetyKnight), std::max(KingAreaSafetyBishop, KingAreaSafetyRook)), std::max(KingAreaSafetyQueen, KingAreaSafetyKing)));
-		}
-#endif
-		PYGMALION_TUNABLE static scoreType computeDelta_Implementation() noexcept
-		{
-			return KingAreaSafetyDelta;
 		}
 		template<size_t PLAYER>
 		PYGMALION_INLINE static void computeData_Implementation(const generatorType::template stackType<PLAYER>& stack, dataType& data) noexcept
@@ -457,7 +410,7 @@ namespace pygmalion::chess
 			return score;
 		}
 		template<size_t PLAYER>
-		PYGMALION_INLINE static scoreType differentiate_Implementation(const dataType, const size_t parameterIndex, const scoreType* pParameters) noexcept
+		PYGMALION_INLINE static scoreType differentiate_Implementation(const dataType&, const size_t parameterIndex, const scoreType* pParameters) noexcept
 		{
 			switch (parameterIndex)
 			{

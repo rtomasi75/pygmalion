@@ -1,27 +1,32 @@
-namespace pygmalion
+namespace pygmalion::evaluation
 {
-	class parameter
+	template<typename DESCRIPTION_EVALUATION>
+	class parameter :
+		public DESCRIPTION_EVALUATION
 	{
+	public:
+		using descriptorEvaluation = DESCRIPTION_EVALUATION;
+#include "include_evaluation.h"	
 	private:
-		double m_DefaultValue;
-		double m_MinimumValue;
-		double m_MaximumValue;
-		double m_Delta;
+		scoreType m_DefaultValue;
+		scoreType m_MinimumValue;
+		scoreType m_MaximumValue;
+		scoreType m_Delta;
 		std::string m_Name;
 	public:
-		double defaultValue() const noexcept
+		scoreType defaultValue() const noexcept
 		{
 			return m_DefaultValue;
 		}
-		double minimumValue() const noexcept
+		scoreType minimumValue() const noexcept
 		{
 			return m_MinimumValue;
 		}
-		double maximumValue() const noexcept
+		scoreType maximumValue() const noexcept
 		{
 			return m_MaximumValue;
 		}
-		double delta() const noexcept
+		scoreType delta() const noexcept
 		{
 			return m_Delta;
 		}
@@ -30,7 +35,7 @@ namespace pygmalion
 			return m_Name;
 		}
 		parameter() noexcept = delete;
-		parameter(const double defaultValue, const double minimumValue, const double maximumValue, const double delta, const std::string& name) noexcept :
+		parameter(const scoreType defaultValue, const scoreType minimumValue, const scoreType maximumValue, const scoreType delta, const std::string& name) noexcept :
 			m_DefaultValue{ defaultValue },
 			m_MinimumValue{ minimumValue },
 			m_MaximumValue{ maximumValue },

@@ -3,8 +3,8 @@
 
 #include <pygmalion-dynamics.h>
 
-#include "pygmalion-evaluation/descriptor_evaluation.h"
 #include "pygmalion-evaluation/parameter.h"
+#include "pygmalion-evaluation/descriptor_evaluation.h"
 #include "pygmalion-evaluation/evaluator.h"
 #include "pygmalion-evaluation/command.h"
 #include "pygmalion-evaluation/commands.h"

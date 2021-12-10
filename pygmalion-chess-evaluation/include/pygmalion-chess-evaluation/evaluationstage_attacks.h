@@ -5,7 +5,7 @@ namespace pygmalion::chess
 	{
 		friend pygmalion::evaluationstage<descriptor_evaluation, evaluationstage_attacks, int>;
 	public:
-		PYGMALION_TUNABLE static inline double Attack{ 0.125 / 64.0 };
+		PYGMALION_TUNABLE static inline scoreType Attack{ static_cast<scoreType>(0.125 / 64.0) };
 	private:
 		PYGMALION_INLINE static scoreType quietChange_Implementation(const scoreType* pParameters, const playerType spl, const playerType pl, const pieceType pc, const squareType from, const squareType to) noexcept
 		{
@@ -41,12 +41,12 @@ namespace pygmalion::chess
 		{
 			return 1;
 		}
-		static parameter getParameter_Implementation(const size_t index) noexcept
+		static parameterType getParameter_Implementation(const size_t index) noexcept
 		{
-			return parameter(Attack, 0.0, 1.0, 0.001, "term_attack");
+			return parameterType(Attack, static_cast<scoreType>(0.0), static_cast<scoreType>(1.0), static_cast<scoreType>(0.001), "term_attack");
 		}
 		template<size_t PLAYER>
-		PYGMALION_INLINE static void computeData_Implementation(const generatorType::template stackType<PLAYER>& stack, int& data) noexcept
+		PYGMALION_INLINE static void computeData_Implementation(const generatorType::template stackType<PLAYER>& stack, dataType& data) noexcept
 		{
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			const squaresType attackedByBlack{ stack.template squaresAttackedByPlayer<static_cast<size_t>(blackPlayer)>() };
@@ -58,13 +58,13 @@ namespace pygmalion::chess
 				data = attacks;
 		}
 		template<size_t PLAYER>
-		PYGMALION_INLINE static scoreType evaluate_Implementation(const int data, const scoreType* pParameters) noexcept
+		PYGMALION_INLINE static scoreType evaluate_Implementation(const dataType& data, const scoreType* pParameters) noexcept
 		{
 			const scoreType scoreAttacks{ data * pParameters[0] };
 			return scoreAttacks;
 		}
 		template<size_t PLAYER>
-		PYGMALION_INLINE static scoreType differentiate_Implementation(const dataType, const size_t parameterIndex, const scoreType* pParameters) noexcept
+		PYGMALION_INLINE static scoreType differentiate_Implementation(const dataType&, const size_t parameterIndex, const scoreType* pParameters) noexcept
 		{
 			PYGMALION_ASSERT(parameterIndex == 0);
 			return static_cast<scoreType>(data);

@@ -42,9 +42,10 @@ namespace pygmalion::evaluation
 			m_pEvaluationDelta{ new deltaType() },
 			m_CombinedParameters{ m_EvaluationParameters }
 		{
-			evaluatorType::delta(m_EvaluationParameters,*m_pEvaluationTotalDelta);
+			evaluatorType::delta(m_EvaluationParameters, *m_pEvaluationTotalDelta);
 			(*m_pEvaluationDelta) += this->materialDelta();
-			(*m_pEvaluationDelta) += m_pEvaluationTotalDelta->currentStageDelta();
+			if constexpr (evaluatorType::countEvaluationStages > 0)
+				(*m_pEvaluationDelta) += m_pEvaluationTotalDelta->currentStageDelta();
 			this->template addCommand<command_debugEvaluation<descriptorEvaluation, evaluatorType>>();
 			this->template addCommand<command_debugEvaluate<descriptorEvaluation, evaluatorType>>();
 			this->template addCommand<command_debugEvaluationParameters<descriptorEvaluation, evaluatorType>>();
@@ -72,7 +73,7 @@ namespace pygmalion::evaluation
 		{
 			for (size_t index = 0; index < evaluatorType::countParameters; index++)
 				evaluatorType::setParameter(index, parameters[index].value());
-		}
+	}
 #endif
-	};
+};
 }

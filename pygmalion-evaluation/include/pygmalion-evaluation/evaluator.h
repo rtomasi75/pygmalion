@@ -48,7 +48,7 @@ namespace pygmalion
 			deltaType m_CurrentStageDelta;
 			evaluationdelta<COUNTSTAGES - 1> m_TailDelta;
 		public:
-			PYGMALION_INLINE ~evaluationdelta() noexcept = default;
+			~evaluationdelta() noexcept = default;
 			PYGMALION_INLINE evaluationdelta(const evaluationdelta&) noexcept = default;
 			PYGMALION_INLINE evaluationdelta& operator=(const evaluationdelta&) noexcept = default;
 			PYGMALION_INLINE evaluationdelta(evaluationdelta&&) noexcept = default;
@@ -84,7 +84,7 @@ namespace pygmalion
 			{
 				return m_TailDelta;
 			}
-			PYGMALION_INLINE evaluationdelta() noexcept :
+			evaluationdelta() noexcept :
 				m_CurrentStageDelta{ deltaType() },
 				m_TailDelta{ evaluationdelta<COUNTSTAGES - 1>() }
 			{
@@ -96,7 +96,7 @@ namespace pygmalion
 		private:
 			deltaType m_CurrentStageDelta;
 		public:
-			PYGMALION_INLINE ~evaluationdelta() noexcept = default;
+			~evaluationdelta() noexcept = default;
 			PYGMALION_INLINE evaluationdelta(const evaluationdelta&) noexcept = default;
 			PYGMALION_INLINE evaluationdelta& operator=(const evaluationdelta&) noexcept = default;
 			PYGMALION_INLINE evaluationdelta(evaluationdelta&&) noexcept = default;
@@ -120,7 +120,7 @@ namespace pygmalion
 			{
 				return m_CurrentStageDelta;
 			}
-			PYGMALION_INLINE evaluationdelta() noexcept :
+			evaluationdelta() noexcept :
 				m_CurrentStageDelta{ deltaType() }
 			{
 			}
@@ -132,8 +132,8 @@ namespace pygmalion
 			PYGMALION_INLINE evaluationdelta() noexcept
 			{
 			}
-			PYGMALION_INLINE ~evaluationdelta() noexcept = default;
-			PYGMALION_INLINE evaluationdelta(const evaluationdelta&) noexcept = default;
+			~evaluationdelta() noexcept = default;
+			evaluationdelta(const evaluationdelta&) noexcept = default;
 			PYGMALION_INLINE evaluationdelta& operator=(const evaluationdelta&) noexcept = default;
 			PYGMALION_INLINE evaluationdelta(evaluationdelta&&) noexcept = default;
 			PYGMALION_INLINE evaluationdelta& operator=(evaluationdelta&&) noexcept = default;
@@ -193,7 +193,7 @@ namespace pygmalion
 			return (approx + marginPlayer0 <= alpha) && (approx + marginPlayer1 < beta);
 		}
 		template<size_t PLAYER, size_t INDEX, bool QUIET, bool PROMO, bool CAPTURE, bool PROMOCAPTURE, typename STAGE, typename... STAGES2>
-		PYGMALION_INLINE static scoreType computeStages(const scoreType alpha, const scoreType beta, const scoreType sc, const typename generatorType::template stackType<PLAYER>& stack, const dataType& data, const scoreType* pParameters, const evaluationDeltaType& evaluationDelta) noexcept
+		static scoreType computeStages(const scoreType alpha, const scoreType beta, const scoreType sc, const typename generatorType::template stackType<PLAYER>& stack, const dataType& data, const scoreType* pParameters, const evaluationDeltaType& evaluationDelta) noexcept
 		{
 			scoreType sc2{ sc };
 			if (!evaluatorType::template isFutile<PLAYER, QUIET, PROMO, CAPTURE, PROMOCAPTURE>(stack, alpha, beta, sc, evaluationDelta.currentStageDelta()))
@@ -237,7 +237,7 @@ namespace pygmalion
 			}
 		}
 		template<typename STAGE, typename... STAGES2>
-		static parameter stageParameter(const size_t index) noexcept
+		static parameterType stageParameter(const size_t index) noexcept
 		{
 			size_t count{ STAGE::getParameterCount() };
 			if (index < count)
@@ -305,8 +305,11 @@ namespace pygmalion
 	public:
 		constexpr static const size_t countParameters() noexcept
 		{
-			return evaluator::template stageParameterCount<STAGES...>();
-		};
+			if constexpr (sizeof...(STAGES) > 0)
+				return evaluator::template stageParameterCount<STAGES...>();
+			else
+				return 0;
+		};	
 		static void defaultParameters(std::vector<scoreType>& parameters) noexcept
 		{
 			parameters.clear();
@@ -319,7 +322,7 @@ namespace pygmalion
 			if constexpr (sizeof...(STAGES) > 0)
 				return evaluator::template computeStageParameterNames<STAGES...>(parameterNames);
 		}
-		PYGMALION_INLINE static void createData(dataType& data) noexcept
+		static void createData(dataType& data) noexcept
 		{
 			data = dataType();
 		}
@@ -354,7 +357,7 @@ namespace pygmalion
 			return evaluatorType::commandsImplementation();
 		}
 		template<size_t PLAYER>
-		PYGMALION_INLINE static scoreType evaluate(const scoreType& alpha, const scoreType& beta, const typename generatorType::template stackType<PLAYER>& stack, const dataType& data, const std::vector<scoreType>& parameters, const evaluationDeltaType& evaluationDelta) noexcept
+		static scoreType evaluate(const scoreType& alpha, const scoreType& beta, const typename generatorType::template stackType<PLAYER>& stack, const dataType& data, const std::vector<scoreType>& parameters, const evaluationDeltaType& evaluationDelta) noexcept
 		{
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			const scoreType sc{ stack.position().material().template makeSubjective<PLAYER>() };

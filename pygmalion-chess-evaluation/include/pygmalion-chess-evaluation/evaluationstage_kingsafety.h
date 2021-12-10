@@ -11,13 +11,14 @@ namespace pygmalion::chess
 	class evaluationstage_kingsafety :
 		public pygmalion::evaluationstage<descriptor_evaluation, evaluationstage_kingsafety, detail::evaluationstage_kingsafety_data>
 	{
+		friend pygmalion::evaluationstage<descriptor_evaluation, evaluationstage_kingsafety, detail::evaluationstage_kingsafety_data>;
 	public:
-		PYGMALION_TUNABLE static inline double KingSafetyPawn{ 0.0125 };
-		PYGMALION_TUNABLE static inline double KingSafetyKnight{ 0.0125 };
-		PYGMALION_TUNABLE static inline double KingSafetyBishop{ 0.0125 };
-		PYGMALION_TUNABLE static inline double KingSafetyRook{ 0.0125 };
-		PYGMALION_TUNABLE static inline double KingSafetyQueen{ 0.0125 };
-		PYGMALION_TUNABLE static inline double KingSafetyKing{ 0.0125 };
+		static inline scoreType KingSafetyPawn{ static_cast<scoreType>(0.0125) };
+		static inline scoreType KingSafetyKnight{ static_cast<scoreType>(0.0125) };
+		static inline scoreType KingSafetyBishop{ static_cast<scoreType>(0.0125) };
+		static inline scoreType KingSafetyRook{ static_cast<scoreType>(0.0125) };
+		static inline scoreType KingSafetyQueen{ static_cast<scoreType>(0.0125) };
+		static inline scoreType KingSafetyKing{ static_cast<scoreType>(0.0125) };
 		using dataType = detail::evaluationstage_kingsafety_data;
 	private:
 		constexpr static const inline std::array<scoreType, generatorType::tropismType::maxDistance + 2> m_LookUp
@@ -203,34 +204,67 @@ namespace pygmalion::chess
 				}
 			}
 		}
+		PYGMALION_INLINE static scoreType quietChange_Implementation(const scoreType* pParameters, const playerType spl, const playerType pl, const pieceType pc, const squareType from, const squareType to) noexcept
+		{
+			constexpr const auto maxDistance{ generatorType::tropismType::maxDistance + 1 };
+			const int maxFrom{ static_cast<int>(generatorType::quietTargets(pl,pc,from).count() + generatorType::promotionTargets(pl,pc,from).count()) };
+			const int maxTo{ static_cast<int>(generatorType::quietTargets(pl,pc,to).count() + generatorType::promotionTargets(pl,pc,to).count()) };
+			const auto d{ std::max(maxFrom,maxTo) * maxDistance + 1 };
+			return d * (pParameters[0]);
+		}
+		PYGMALION_INLINE static scoreType promotionChange_Implementation(const scoreType* pParameters, const playerType spl, const playerType pl, const pieceType pc, const squareType from, const squareType to, const pieceType promoted) noexcept
+		{
+			constexpr const auto maxDistance{ generatorType::tropismType::maxDistance + 1 };
+			const int maxFrom{ static_cast<int>(generatorType::quietTargets(pl,pc,from).count() + generatorType::promotionTargets(pl,pc,from).count()) };
+			const int maxTo{ static_cast<int>(generatorType::quietTargets(pl,promoted,to).count() + generatorType::promotionTargets(pl,promoted,to).count()) };
+			const auto d{ std::max(maxFrom,maxTo) * maxDistance + 1 };
+			return d * (pParameters[0]);
+		}
+		PYGMALION_INLINE static scoreType captureChange_Implementation(const scoreType* pParameters, const playerType spl, const playerType pl, const pieceType pc, const squareType from, const squareType to, const playerType vpl, const pieceType vpc) noexcept
+		{
+			constexpr const auto maxDistance{ generatorType::tropismType::maxDistance + 1 };
+			const int maxTo{ static_cast<int>(generatorType::quietTargets(pl,pc,to).count() + generatorType::promotionTargets(pl,pc,to).count()) };
+			const int maxFrom{ static_cast<int>(generatorType::quietTargets(pl,pc,from).count() + generatorType::promotionTargets(pl,pc,from).count()) };
+			const int maxVictim{ static_cast<int>(generatorType::quietTargets(vpl,vpc,to).count() + generatorType::promotionTargets(vpl,vpc,to).count()) };
+			const auto d{ (std::max(maxFrom,maxTo) + maxVictim) * maxDistance + 1 };
+			return d * (pParameters[0]);
+		}
+		PYGMALION_INLINE static scoreType promoCaptureChange_Implementation(const scoreType* pParameters, const playerType spl, const playerType pl, const pieceType pc, const squareType from, const squareType to, const playerType vpl, const pieceType vpc, const pieceType promoted) noexcept
+		{
+			constexpr const auto maxDistance{ generatorType::tropismType::maxDistance + 1 };
+			const int maxFrom{ static_cast<int>(generatorType::quietTargets(pl,pc,from).count() + generatorType::promotionTargets(pl,pc,from).count()) };
+			const int maxTo{ static_cast<int>(generatorType::quietTargets(pl,promoted,to).count() + generatorType::promotionTargets(pl,promoted,to).count()) };
+			const int maxVictim{ static_cast<int>(generatorType::quietTargets(vpl,vpc,to).count() + generatorType::promotionTargets(vpl,vpc,to).count()) };
+			const auto d{ (std::max(maxFrom,maxTo) + maxVictim) * maxDistance + 1 };
+			return d * (pParameters[0]);
+		}
 	public:
 		constexpr static size_t getParameterCount_Implementation() noexcept
 		{
 			return 6;
 		}
-		static parameter getParameter_Implementation(const size_t index) noexcept
+		static parameterType getParameter_Implementation(const size_t index) noexcept
 		{
 			switch (index)
 			{
 			default:
 				PYGMALION_ASSERT(false);
-				return parameter(0.0, 0.0, 1.0, 0.001, "term_kingsafety_error");
+				return parameterType(scoreType::zero(), static_cast<scoreType>(0.0), static_cast<scoreType>(1.0), static_cast<scoreType>(0.001), "term_kingsafety_error");
 			case 0:
-				return parameter(KingSafetyPawn, 0.0, 1.0, 0.001, "term_kingsafety_pawn");
+				return parameterType(KingSafetyPawn, static_cast<scoreType>(0.0), static_cast<scoreType>(1.0), static_cast<scoreType>(0.001), "term_kingsafety_pawn");
 			case 1:
-				return parameter(KingSafetyKnight, 0.0, 1.0, 0.001, "term_kingsafety_knight");
+				return parameterType(KingSafetyKnight, static_cast<scoreType>(0.0), static_cast<scoreType>(1.0), static_cast<scoreType>(0.001), "term_kingsafety_knight");
 			case 2:
-				return parameter(KingSafetyBishop, 0.0, 1.0, 0.001, "term_kingsafety_bishop");
+				return parameterType(KingSafetyBishop, static_cast<scoreType>(0.0), static_cast<scoreType>(1.0), static_cast<scoreType>(0.001), "term_kingsafety_bishop");
 			case 3:
-				return parameter(KingSafetyRook, 0.0, 1.0, 0.001, "term_kingsafety_rook");
+				return parameterType(KingSafetyRook, static_cast<scoreType>(0.0), static_cast<scoreType>(1.0), static_cast<scoreType>(0.001), "term_kingsafety_rook");
 			case 4:
-				return parameter(KingSafetyQueen, 0.0, 1.0, 0.001, "term_kingsafety_queen");
+				return parameterType(KingSafetyQueen, static_cast<scoreType>(0.0), static_cast<scoreType>(1.0), static_cast<scoreType>(0.001), "term_kingsafety_queen");
 			case 5:
-				return parameter(KingSafetyKing, 0.0, 1.0, 0.001, "term_kingsafety_king");
+				return parameterType(KingSafetyKing, static_cast<scoreType>(0.0), static_cast<scoreType>(1.0), static_cast<scoreType>(0.001), "term_kingsafety_king");
 			}
 		}
-#if defined(PYGMALION_TUNE)
-		static void setParameter_Implementation(const size_t index, double value) noexcept
+		static void setParameter_Implementation(const size_t index, scoreType value) noexcept
 		{
 			switch (index)
 			{
@@ -239,36 +273,23 @@ namespace pygmalion::chess
 				break;
 			case 0:
 				KingSafetyPawn = value;
-				m_KingSafetyScoresPawn = scoreLookUp(KingSafetyPawn);
 				break;
 			case 1:
 				KingSafetyKnight = value;
-				m_KingSafetyScoresKnight = scoreLookUp(KingSafetyKnight);
 				break;
 			case 2:
 				KingSafetyBishop = value;
-				m_KingSafetyScoresBishop = scoreLookUp(KingSafetyBishop);
 				break;
 			case 3:
 				KingSafetyRook = value;
-				m_KingSafetyScoresRook = scoreLookUp(KingSafetyRook);
 				break;
 			case 4:
 				KingSafetyQueen = value;
-				m_KingSafetyScoresQueen = scoreLookUp(KingSafetyQueen);
 				break;
 			case 5:
 				KingSafetyKing = value;
-				m_KingSafetyScoresKing = scoreLookUp(KingSafetyKing);
 				break;
 			}
-			KingSafetyDelta = static_cast<scoreType>(8.0 * std::max(std::max(std::max(KingSafetyPawn, KingSafetyKnight), std::max(KingSafetyBishop, KingSafetyRook)), std::max(KingSafetyQueen, KingSafetyKing)));
-		}
-#endif
-		PYGMALION_INLINE static scoreType computeDelta_Implementation(const scoreType* pParameters) noexcept
-		{
-			const scoreType kingSafetyDelta{ 8 * scoreType::max(scoreType::max(scoreType::max(pParameters[0],pParameters[1]), scoreType::max(pParameters[2], pParameters[3])), scoreType::max(pParameters[4], pParameters[5])) };
-			return kingSafetyDelta;
 		}
 		template<size_t PLAYER>
 		PYGMALION_INLINE static void computeData_Implementation(const generatorType::template stackType<PLAYER>& stack, dataType& data) noexcept

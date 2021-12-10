@@ -147,7 +147,7 @@ namespace pygmalion::chess::evaluation
 			this->output() << "    " << whiteWins << " white wins (" << ((100 * whiteWins) / countPositions) << "%)." << std::endl;
 			this->output() << "    " << blackWins << " black wins (" << ((100 * blackWins) / countPositions) << "%)." << std::endl;
 			this->output() << "    " << draws << " draws (" << ((100 * draws) / countPositions) << "%)." << std::endl;
-			std::array<positionType, 10> successors;
+			std::array<positionType, positionType::countMaxSuccessors> successors;
 			size_t successorCount;
 			this->output() << std::endl;
 			this->output() << "  duplicating positions...";

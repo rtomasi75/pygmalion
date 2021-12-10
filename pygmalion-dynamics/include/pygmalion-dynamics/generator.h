@@ -1891,11 +1891,11 @@ namespace pygmalion
 								{
 									for (const auto to : generatorType::captureTargets(pl, pc, from))
 									{
-										for (const auto vpc : victimPieces)
+										for (const auto vpl : playerType::range)
 										{
-											for (const auto vpl : playerType::range)
+											if (vpl != pl)
 											{
-												if (vpl != pl)
+												for (const auto vpc : victimPieces & ~royalPieces(vpl))
 												{
 													const scoreType materialDelta{ lambdaCapture(spl, pl, pc, from, to, vpl, vpc) };
 													if (materialDelta > delta.maxCaptureChange(spl, pl, originPieces, victimPieces))
@@ -1909,11 +1909,11 @@ namespace pygmalion
 								{
 									for (const auto to : generatorType::promoCaptureTargets(pl, pc, from))
 									{
-										for (const auto vpc : victimPieces)
+										for (const auto vpl : playerType::range)
 										{
-											for (const auto vpl : playerType::range)
+											if (vpl != pl)
 											{
-												if (vpl != pl)
+												for (const auto vpc : victimPieces & ~royalPieces(vpl))
 												{
 													for (const auto promoted : generatorType::promotionResults(pl))
 													{
@@ -1967,6 +1967,10 @@ namespace pygmalion
 		PYGMALION_INLINE static piecesType promotionPieces(const playerType player) noexcept
 		{
 			return generatorType::promotionPieces_Implementation(player);
+		}
+		PYGMALION_INLINE static piecesType royalPieces(const playerType player) noexcept
+		{
+			return generatorType::royalPieces_Implementation(player);
 		}
 	};
 }

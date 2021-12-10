@@ -426,6 +426,15 @@ namespace pygmalion
 			PYGMALION_ASSERT(pc.isValid());
 			return m_PieceOccupancy[pc];
 		}
+		PYGMALION_INLINE squaresType pieceOccupancy(const piecesType pcs) const noexcept
+		{
+			PYGMALION_ASSERT(pc.isValid());
+			constexpr const squaresType none{ squaresType::none() };
+			squaresType occupied{ none };
+			for (const auto pc : pcs)
+				occupied|= m_PieceOccupancy[pc];
+			return occupied;
+		}
 		PYGMALION_INLINE const squaresType& playerOccupancy(const playerType p) const noexcept
 		{
 			PYGMALION_ASSERT(p.isValid());

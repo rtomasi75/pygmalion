@@ -429,8 +429,8 @@ namespace pygmalion
 			const size_t wbit{ bit % countBitsPerWord };
 			const wordType mask{ static_cast<wordType>(wordType(1) << wbit) };
 			constexpr const wordType zero{ static_cast<wordType>(0) };
-			m_Words[word] &= mask;
-			m_Words[word] |= value ? ~mask : zero;
+			m_Words[word] &= ~mask;
+			m_Words[word] |= value ? mask : zero;
 			m_Words[countWords - 1] = normalizeHighestWord(m_Words[countWords - 1]);
 		}
 		constexpr bool test(const size_t bit) const noexcept
@@ -1841,7 +1841,7 @@ namespace pygmalion
 		{
 			const wordType mask{ static_cast<wordType>(wordType(1) << bit) };
 			constexpr const wordType zero{ static_cast<wordType>(0) };
-			m_Word = normalizeWord((m_Word & mask) | (value ? ~mask : zero));
+			m_Word = normalizeWord((m_Word & ~mask) | (value ? mask : zero));
 		}
 		PYGMALION_INLINE constexpr bool test(const size_t bit) const noexcept
 		{

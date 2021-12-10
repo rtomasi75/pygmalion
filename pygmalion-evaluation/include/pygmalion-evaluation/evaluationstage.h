@@ -31,7 +31,7 @@ namespace pygmalion
 		{
 			return instanceType::getParameterCount_Implementation();
 		}
-		static parameter getParameter(const size_t index) noexcept
+		static parameterType getParameter(const size_t index) noexcept
 		{
 			return instanceType::getParameter_Implementation(index);
 		}
@@ -78,7 +78,7 @@ namespace pygmalion
 			return instanceType::template evaluate_Implementation<PLAYER>(data, pParameters);
 		}
 		template<size_t PLAYER>
-		PYGMALION_INLINE static scoreType differentiate(const dataType, const size_t parameterIndex, const scoreType* pParameters) noexcept
+		PYGMALION_INLINE static scoreType differentiate(const dataType&, const size_t parameterIndex, const scoreType* pParameters) noexcept
 		{
 			return instanceType::template differentiate_Implementation<PLAYER>(data, parameterIndex, pParameters);
 		}

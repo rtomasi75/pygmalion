@@ -21,38 +21,41 @@ namespace pygmalion::evaluation
 						for (const auto pl : playerType::range)
 						{
 							this->output() << boardType::playerToString(spl) << "=>" << boardType::piecesToString(mask, pl) << ": ";
-							for (size_t i = 0; i < evaluatorType::countEvaluationStages; i++)
+							if constexpr (evaluatorType::countEvaluationStages > 0)
 							{
-								const auto& delta(this->evaluationEngine().evaluationDelta().stageDelta(i));
-								this->output() << "\t" << delta.maxQuietChange(spl, pl, mask);
-							}
-							this->output() << std::endl;
-							this->output() << boardType::playerToString(spl) << "=>" << boardType::piecesToString(mask, pl) << "=" << boardType::piecesToString(generatorType::promotionResults(pl), pl) << ": ";
-							for (size_t i = 0; i < evaluatorType::countEvaluationStages; i++)
-							{
-								const auto& delta(this->evaluationEngine().evaluationDelta().stageDelta(i));
-								this->output() << "\t" << delta.maxPromotionChange(spl, pl, mask);
-							}
-							this->output() << std::endl;
-							for (const auto mask2 : piecesType::range)
-							{
-								this->output() << boardType::playerToString(spl) << "=>" << boardType::piecesToString(mask, pl) << "-" << boardType::piecesToString(mask2, pl.next()) << ": ";
 								for (size_t i = 0; i < evaluatorType::countEvaluationStages; i++)
 								{
 									const auto& delta(this->evaluationEngine().evaluationDelta().stageDelta(i));
-									this->output() << "\t" << delta.maxCaptureChange(spl, pl, mask, mask2);
+									this->output() << "\t" << delta.maxQuietChange(spl, pl, mask);
 								}
 								this->output() << std::endl;
-							}
-							for (const auto mask2 : piecesType::range)
-							{
-								this->output() << boardType::playerToString(spl) << "=>" << boardType::piecesToString(mask, pl) << "-" << boardType::piecesToString(mask2, pl.next()) << "=" << boardType::piecesToString(generatorType::promotionResults(pl), pl) << ": ";
+								this->output() << boardType::playerToString(spl) << "=>" << boardType::piecesToString(mask, pl) << "=" << boardType::piecesToString(generatorType::promotionResults(pl), pl) << ": ";
 								for (size_t i = 0; i < evaluatorType::countEvaluationStages; i++)
 								{
 									const auto& delta(this->evaluationEngine().evaluationDelta().stageDelta(i));
-									this->output() << "\t" << delta.maxPromoCaptureChange(spl, pl, mask, mask2);
+									this->output() << "\t" << delta.maxPromotionChange(spl, pl, mask);
 								}
 								this->output() << std::endl;
+								for (const auto mask2 : piecesType::range)
+								{
+									this->output() << boardType::playerToString(spl) << "=>" << boardType::piecesToString(mask, pl) << "-" << boardType::piecesToString(mask2, pl.next()) << ": ";
+									for (size_t i = 0; i < evaluatorType::countEvaluationStages; i++)
+									{
+										const auto& delta(this->evaluationEngine().evaluationDelta().stageDelta(i));
+										this->output() << "\t" << delta.maxCaptureChange(spl, pl, mask, mask2);
+									}
+									this->output() << std::endl;
+								}
+								for (const auto mask2 : piecesType::range)
+								{
+									this->output() << boardType::playerToString(spl) << "=>" << boardType::piecesToString(mask, pl) << "-" << boardType::piecesToString(mask2, pl.next()) << "=" << boardType::piecesToString(generatorType::promotionResults(pl), pl) << ": ";
+									for (size_t i = 0; i < evaluatorType::countEvaluationStages; i++)
+									{
+										const auto& delta(this->evaluationEngine().evaluationDelta().stageDelta(i));
+										this->output() << "\t" << delta.maxPromoCaptureChange(spl, pl, mask, mask2);
+									}
+									this->output() << std::endl;
+								}
 							}
 							this->output() << std::endl;
 						}

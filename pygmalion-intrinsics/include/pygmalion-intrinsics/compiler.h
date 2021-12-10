@@ -65,6 +65,7 @@
 #else
 #define PYGMALION_INLINE
 #endif
+//#define PYGMALION_INLINE
 
 namespace pygmalion
 {
