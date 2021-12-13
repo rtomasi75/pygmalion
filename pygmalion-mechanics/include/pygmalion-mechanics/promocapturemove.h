@@ -3,7 +3,8 @@ namespace pygmalion::mechanics
 	namespace detail
 	{
 		template<typename BOARD>
-		class promocaptureMovedata
+		class promocaptureMovedata :
+			public pygmalion::mechanics::movedataBase<BOARD>
 		{
 		public:
 			using boardType = BOARD;

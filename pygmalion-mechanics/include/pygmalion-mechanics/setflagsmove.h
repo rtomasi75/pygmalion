@@ -3,7 +3,8 @@ namespace pygmalion::mechanics
 	namespace detail
 	{
 		template<typename BOARD, size_t FIRST, size_t LAST>
-		class setflagsMovedata
+		class setflagsMovedata :
+			public pygmalion::mechanics::movedataBase<BOARD>
 		{
 		public:
 			using boardType = BOARD;

@@ -2,11 +2,11 @@ namespace pygmalion::state
 {
 	template<typename DESCRIPTION_STATE>
 	class gamestate : 
-		public enumeration<1 + arrayhelper::requiredUnsignedBits(DESCRIPTION_STATE::countPlayers), DESCRIPTION_STATE::countHashBits, gamestate<DESCRIPTION_STATE>>,
+		public enumeration<1 + arrayhelper::requiredUnsignedBits(DESCRIPTION_STATE::countPlayers), DESCRIPTION_STATE::countHashBits, gamestate<DESCRIPTION_STATE>, void>,
 		public DESCRIPTION_STATE
 	{
 	public:
-		using parentType = enumeration<1 + arrayhelper::requiredUnsignedBits(DESCRIPTION_STATE::countPlayers), DESCRIPTION_STATE::countHashBits, gamestate<DESCRIPTION_STATE>>;
+		using parentType = enumeration<1 + arrayhelper::requiredUnsignedBits(DESCRIPTION_STATE::countPlayers), DESCRIPTION_STATE::countHashBits, gamestate<DESCRIPTION_STATE>, void>;
 		using descriptorState = DESCRIPTION_STATE;
 #include "include_state.h"	
 		PYGMALION_INLINE constexpr gamestate(const gamestate&) noexcept = default;
@@ -51,13 +51,13 @@ namespace pygmalion::state
 		}
 		PYGMALION_INLINE constexpr static gamestate win(const playerType winningPlayer) noexcept
 		{
-			gamestate result{ static_cast<gamestate>(0) };
+			typename gamestate::baseType result{ static_cast<typename gamestate::baseType>(0) };
 			for (const auto i : playerType::range)
 			{
 				if (i != winningPlayer)
-					result |= loss(i);
+					result |= static_cast<typename gamestate::baseType>(loss(i));
 			}
-			return result;
+			return static_cast<gamestate>(result);
 		}
 		PYGMALION_INLINE constexpr static bool isWin(const gamestate state, const playerType p) noexcept
 		{

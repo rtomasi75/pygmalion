@@ -10,11 +10,14 @@ constexpr static const bool hasCustomHashing{ descriptorState::hasCustomHashing 
 constexpr static const size_t scoreMantissa{ descriptorState::scoreMantissa };
 constexpr static const size_t scoreShift{ descriptorState::scoreShift };
 constexpr static const size_t scoreMaxDistance{ descriptorState::scoreMaxDistance };
+constexpr static const size_t countPlayerpieces{ descriptorState::countPlayerpieces };
 using scoreType = typename descriptorState::scoreType;
 using playerType = typename descriptorState::playerType;
 using pieceType = typename descriptorState::pieceType;
 using rankType = typename descriptorState::rankType;
+using ranksType = typename descriptorState::ranksType;
 using fileType = typename descriptorState::fileType;
+using filesType = typename descriptorState::filesType;
 using squareType = typename descriptorState::squareType;
 using flagType = typename descriptorState::flagType;
 using flagsType = typename descriptorState::flagsType;
@@ -26,4 +29,6 @@ using signatureType = typename descriptorState::signatureType;
 using piecesType = typename descriptorState::piecesType;
 using deltaType = typename descriptorState::deltaType;
 using objectiveType = typename descriptorState::objectiveType;
-
+using playersType = typename descriptorState::playersType;
+using playerpieceType = typename descriptorState::playerpieceType;
+using playerpiecesType = typename descriptorState::playerpiecesType;

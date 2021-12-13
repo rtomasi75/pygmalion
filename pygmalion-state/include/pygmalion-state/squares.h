@@ -36,7 +36,7 @@ namespace pygmalion::state
 		PYGMALION_INLINE squareType first() const noexcept
 		{
 			size_t bit;
-#if defined(_DEBUG)
+#if _DEBUG
 			const bool bResult{ m_Bits.bitscanForward(bit) };
 			PYGMALION_ASSERT(bResult);
 #else
@@ -220,6 +220,14 @@ namespace pygmalion::state
 			m_Bits.toggle(static_cast<typename squareType::baseType>(square));
 			return *this;
 		}
+		PYGMALION_INLINE constexpr bool operator==(const squareType square) const noexcept
+		{
+			return ((*this) & square) == (*this);
+		}
+		PYGMALION_INLINE constexpr bool operator!=(const squareType square) const noexcept
+		{
+			return ((*this) & square) != (*this);
+		}
 		PYGMALION_INLINE constexpr squares& operator|=(const fileType file) noexcept
 		{
 			m_Bits |= squares(file).m_Bits;
@@ -240,6 +248,14 @@ namespace pygmalion::state
 			m_Bits ^= squares(file).m_Bits;
 			return *this;
 		}
+		PYGMALION_INLINE constexpr bool operator==(const fileType file) const noexcept
+		{
+			return ((*this) & file) == (*this);
+		}
+		PYGMALION_INLINE constexpr bool operator!=(const fileType file) const noexcept
+		{
+			return ((*this) & file) != (*this);
+		}
 		PYGMALION_INLINE constexpr squares& operator|=(const rankType rank) noexcept
 		{
 			m_Bits |= squares(rank).m_Bits;
@@ -259,6 +275,14 @@ namespace pygmalion::state
 		{
 			m_Bits ^= squares(rank).m_Bits;
 			return *this;
+		}
+		PYGMALION_INLINE constexpr bool operator==(const rankType rank) const noexcept
+		{
+			return ((*this) & rank) == (*this);
+		}
+		PYGMALION_INLINE constexpr bool operator!=(const rankType rank) const noexcept
+		{
+			return ((*this) & rank) != (*this);
 		}
 		PYGMALION_INLINE constexpr squares singleSquare() const noexcept
 		{

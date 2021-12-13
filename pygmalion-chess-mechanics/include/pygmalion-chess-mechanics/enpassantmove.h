@@ -2,43 +2,44 @@ namespace pygmalion::chess
 {
 	namespace detail
 	{
-		class enpassantMovedata
+		class enpassantMovedata :
+			public pygmalion::mechanics::movedataBase<board>
 		{
 		public:
 			using boardType = board;
 			using descriptorState = typename boardType::descriptorState;
 #include <pygmalion-state/include_state.h>
 		private:
-			uint_t<countFiles, false> m_OldFlags;
+			squareType m_OldEnPassantSquare;
 			squareType m_From;
 			squareType m_To;
 			squareType m_CaptureSquare;
-			std::uint16_t m_ReversiblePlies{ 0 };
+			size_t m_ReversiblePlies{ 0 };
 		public:
-			PYGMALION_INLINE std::uint16_t reversiblePlies() const noexcept
+			PYGMALION_INLINE const size_t& reversiblePlies() const noexcept
 			{
 				return m_ReversiblePlies;
 			}
-			PYGMALION_INLINE const uint_t<countFiles, false> oldFlags() const noexcept
+			PYGMALION_INLINE const squareType& oldEnPassantSquare() const noexcept
 			{
-				return m_OldFlags;
+				return m_OldEnPassantSquare;
 			}
-			PYGMALION_INLINE squareType from() const noexcept
+			PYGMALION_INLINE const squareType& from() const noexcept
 			{
 				return m_From;
 			}
-			PYGMALION_INLINE squareType captureSquare() const noexcept
+			PYGMALION_INLINE const squareType& captureSquare() const noexcept
 			{
 				return m_CaptureSquare;
 			}
-			PYGMALION_INLINE squareType to() const noexcept
+			PYGMALION_INLINE const squareType& to() const noexcept
 			{
 				return m_To;
 			}
-			PYGMALION_INLINE enpassantMovedata(const squareType from_, const squareType to_, const uint_t<countFiles, false> oldFlags_, const squareType captureSquare, const std::uint16_t reversiblePlies_) noexcept :
+			PYGMALION_INLINE enpassantMovedata(const squareType from_, const squareType to_, const squareType oldEnPassantSquare_, const squareType captureSquare, const size_t reversiblePlies_) noexcept :
 				m_From{ from_ },
 				m_To{ to_ },
-				m_OldFlags{ oldFlags_ },
+				m_OldEnPassantSquare{ oldEnPassantSquare_ },
 				m_CaptureSquare{ captureSquare },
 				m_ReversiblePlies{ reversiblePlies_ }
 			{}
@@ -105,35 +106,41 @@ namespace pygmalion::chess
 			const playerType p2{ ++position.movingPlayer() };
 			const fileType f1{ enpassantmove::extractFile1(moveBits) };
 			const fileType f2{ enpassantmove::extractFile2(moveBits) };
-			const uint_t<countFiles, false> oldFlags{ position.extractFlagRange<4, 11>() };
-			const std::uint16_t reversiblePlies{ static_cast<std::uint16_t>(position.getReversiblePlyCount()) };
+			const squareType oldEnPassantSquare{ position.enPassantSquare() };
+			const size_t reversiblePlies{ position.getReversiblePlyCount() };
 			if (p == whitePlayer)
 			{
-				const rankType r1{ rank5 };
-				const rankType r2{ rank6 };
+				constexpr const rankType r1{ rank5 };
+				constexpr const rankType r2{ rank6 };
 				const squareType from{ f1 & r1 };
 				const squareType to{ f2 & r2 };
 				const squareType capture{ f2 & r1 };
-				position.clearEnPassantFiles();
+				if (to != oldEnPassantSquare)
+					std::cout << position << position.getFen() << std::endl;
+				PYGMALION_ASSERT(to == oldEnPassantSquare);
+				position.clearEnPassantSquare();
 				position.removePiece(pawn, capture, p2, materialTable);
 				position.movePiece(pawn, from, to, p, materialTable);
 				position.setMovingPlayer(p2);
 				position.resetReversiblePlyCount();
-				movedata = typename enpassantmove::movedataType(from, to, oldFlags, capture, reversiblePlies);
+				movedata = typename enpassantmove::movedataType(from, to, oldEnPassantSquare, capture, reversiblePlies);
 			}
 			else
 			{
-				const rankType r1{ rank4 };
-				const rankType r2{ rank3 };
+				constexpr const rankType r1{ rank4 };
+				constexpr const rankType r2{ rank3 };
 				const squareType from{ f1 & r1 };
 				const squareType to{ f2 & r2 };
 				const squareType capture{ f2 & r1 };
-				position.clearEnPassantFiles();
+				if (to != oldEnPassantSquare)
+					std::cout << position << position.getFen() << std::endl;
+				PYGMALION_ASSERT(to == oldEnPassantSquare);
+				position.clearEnPassantSquare();
 				position.removePiece(pawn, capture, p2, materialTable);
 				position.movePiece(pawn, from, to, p, materialTable);
 				position.setMovingPlayer(p2);
 				position.resetReversiblePlyCount();
-				movedata = typename enpassantmove::movedataType(from, to, oldFlags, capture, reversiblePlies);
+				movedata = typename enpassantmove::movedataType(from, to, oldEnPassantSquare, capture, reversiblePlies);
 			}
 		}
 		PYGMALION_INLINE void undoMove_Implementation(boardType& position, const typename enpassantmove::movedataType& data, const materialTableType& materialTable) const noexcept
@@ -143,8 +150,8 @@ namespace pygmalion::chess
 			position.setMovingPlayer(p);
 			position.movePiece(pawn, data.to(), data.from(), p, materialTable);
 			position.addPiece(pawn, data.captureSquare(), p2, materialTable);
-			position.storeFlagRange<4, 11>(data.oldFlags());
-			position.setReversiblePlyCount(static_cast<size_t>(data.reversiblePlies()));
+			position.setEnPassantSquare(data.oldEnPassantSquare());
+			position.setReversiblePlyCount(data.reversiblePlies());
 		}
 		PYGMALION_INLINE typename enpassantmove::movebitsType create(const fileType file1, const fileType file2) const noexcept
 		{
@@ -169,7 +176,7 @@ namespace pygmalion::chess
 					{
 						if (boardType::parseSquare(temp2, to, cnt))
 						{
-							if ((position.checkEnPassantFile(to.file())) && (position.playerOccupancy(((movingPlayer + 1) % countPlayers)) & position.pieceOccupancy(descriptorState::pawn))[rank5 & to.file()] && (to.rank() == rank6))
+							if ((position.checkEnPassantSquare(to)) && (position.playerOccupancy(((movingPlayer + 1) % countPlayers)) & position.pieceOccupancy(descriptorState::pawn))[rank5 & to.file()] && (to.rank() == rank6))
 							{
 								if (!position.totalOccupancy()[to])
 								{
@@ -191,7 +198,7 @@ namespace pygmalion::chess
 					{
 						if (boardType::parseSquare(temp2, to, cnt))
 						{
-							if ((position.checkEnPassantFile(to.file())) && (position.playerOccupancy((movingPlayer + 1) % countPlayers) & position.pieceOccupancy(descriptorState::pawn))[rank4 & to.file()] && (to.rank() == rank3))
+							if ((position.checkEnPassantSquare(to)) && (position.playerOccupancy((movingPlayer + 1) % countPlayers) & position.pieceOccupancy(descriptorState::pawn))[rank4 & to.file()] && (to.rank() == rank3))
 							{
 								if (!position.totalOccupancy()[to])
 								{

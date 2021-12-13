@@ -870,36 +870,46 @@ namespace pygmalion::chess
 		template<size_t PLAYER>
 		static void generatePawnEnPassant(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
-			const uint_t<8, false> epFlags{ stack.position().flags().template extractRange<4,11>() };
-			if (epFlags)
+			const squareType epSquare{ stack.position().enPassantSquare() };
+			if (epSquare.isValid())
 			{
 				constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 				size_t bit;
 				if constexpr (movingPlayer == whitePlayer)
 				{
-					if (epFlags.bitscanForward(bit))
+					const squaresType whitePawns{ stack.position().playerOccupancy(whitePlayer) & stack.position().pieceOccupancy(pawn) };
+					const fileType epFile{ epSquare.file() };
+					if (epFile != fileA)
 					{
-						const fileType epFile{ static_cast<typename fileType::baseType>(bit) };
-						const squaresType leftFile{ static_cast<squaresType>(epFile).left() };
-						const squaresType rightFile{ static_cast<squaresType>(epFile).right() };
-						const squaresType rank{ static_cast<squaresType>(rank5) };
-						const squaresType fromSquares = (leftFile | rightFile) & rank;
-						const squareType toSquare{ epFile & rank6 };
-						for (const squareType from : fromSquares & (stack.position().playerOccupancy(whitePlayer)& stack.position().pieceOccupancy(pawn)))
+						const fileType leftFile{ epFile.left() };
+						const squareType from{ leftFile & rank5 };
+						if (whitePawns[from])
+							moves.add(motorType::move().createEnPassant(from.file(), epFile));
+					}
+					if (epFile != fileH)
+					{
+						const fileType rightFile{ epFile.right() };
+						const squareType from{ rightFile & rank5 };
+						if (whitePawns[from])
 							moves.add(motorType::move().createEnPassant(from.file(), epFile));
 					}
 				}
 				else
 				{
-					if (epFlags.bitscanForward(bit))
+					const squaresType blackPawns{ stack.position().playerOccupancy(blackPlayer) & stack.position().pieceOccupancy(pawn) };
+					const fileType epFile{ epSquare.file() };
+					if (epFile != fileA)
 					{
-						const fileType epFile{ static_cast<typename fileType::baseType>(bit) };
-						const squaresType leftFile{ static_cast<squaresType>(epFile).left() };
-						const squaresType rightFile{ static_cast<squaresType>(epFile).right() };
-						const squaresType rank{ static_cast<squaresType>(rank4) };
-						const squaresType fromSquares = (leftFile | rightFile) & rank;
-						const squareType toSquare{ epFile & rank3 };
-						for (const squareType from : fromSquares & (stack.position().playerOccupancy(blackPlayer)& stack.position().pieceOccupancy(pawn)))
+						const fileType leftFile{ epFile.left() };
+						const squareType from{ leftFile & rank4 };
+						if (blackPawns[from])
+							moves.add(motorType::move().createEnPassant(from.file(), epFile));
+					}
+					if (epFile != fileH)
+					{
+						const fileType rightFile{ epFile.right() };
+						const squareType from{ rightFile & rank4 };
+						if (blackPawns[from])
 							moves.add(motorType::move().createEnPassant(from.file(), epFile));
 					}
 				}
@@ -1532,25 +1542,22 @@ namespace pygmalion::chess
 						moves.add(motorType::move().createDoublePush(to.file()));
 				}
 				const rankType toRank{ to.rank() };
-				if (toRank == rank6)
+				if (stack.position().checkEnPassantSquare(to))
 				{
 					const fileType toFile{ to.file() };
-					if (stack.position().checkEnPassantFile(toFile))
+					if (toFile > fileA)
 					{
-						if (toFile > fileA)
-						{
-							const fileType fromFile{ static_cast<fileType>(toFile - 1) };
-							const squareType from{ fromFile & rank5 };
-							if (ownPawns[from])
-								moves.add(motorType::move().createEnPassant(fromFile, toFile));
-						}
-						if (toFile < fileH)
-						{
-							const fileType fromFile{ static_cast<fileType>(toFile + 1) };
-							const squareType from{ fromFile & rank5 };
-							if (ownPawns[from])
-								moves.add(motorType::move().createEnPassant(fromFile, toFile));
-						}
+						const fileType fromFile{ static_cast<fileType>(toFile - 1) };
+						const squareType from{ fromFile & rank5 };
+						if (ownPawns[from])
+							moves.add(motorType::move().createEnPassant(fromFile, toFile));
+					}
+					if (toFile < fileH)
+					{
+						const fileType fromFile{ static_cast<fileType>(toFile + 1) };
+						const squareType from{ fromFile & rank5 };
+						if (ownPawns[from])
+							moves.add(motorType::move().createEnPassant(fromFile, toFile));
 					}
 				}
 			}
@@ -1590,25 +1597,22 @@ namespace pygmalion::chess
 						moves.add(motorType::move().createDoublePush(to.file()));
 				}
 				const rankType toRank{ to.rank() };
-				if (toRank == rank3)
+				if (stack.position().checkEnPassantSquare(to))
 				{
 					const fileType toFile{ to.file() };
-					if (stack.position().checkEnPassantFile(toFile))
+					if (toFile > fileA)
 					{
-						if (toFile > fileA)
-						{
-							const fileType fromFile{ static_cast<fileType>(toFile - 1) };
-							const squareType from{ fromFile & rank4 };
-							if (ownPawns[from])
-								moves.add(motorType::move().createEnPassant(fromFile, toFile));
-						}
-						if (toFile < fileH)
-						{
-							const fileType fromFile{ static_cast<fileType>(toFile + 1) };
-							const squareType from{ fromFile & rank4 };
-							if (ownPawns[from])
-								moves.add(motorType::move().createEnPassant(fromFile, toFile));
-						}
+						const fileType fromFile{ static_cast<fileType>(toFile - 1) };
+						const squareType from{ fromFile & rank4 };
+						if (ownPawns[from])
+							moves.add(motorType::move().createEnPassant(fromFile, toFile));
+					}
+					if (toFile < fileH)
+					{
+						const fileType fromFile{ static_cast<fileType>(toFile + 1) };
+						const squareType from{ fromFile & rank4 };
+						if (ownPawns[from])
+							moves.add(motorType::move().createEnPassant(fromFile, toFile));
 					}
 				}
 			}
@@ -1786,71 +1790,65 @@ namespace pygmalion::chess
 					}
 				}
 			}
-			const uint_t<8, false> epFlags{ stack.position().flags().template extractRange<4,11>() };
-			if (epFlags)
+			const squareType epSquare{ stack.position().enPassantSquare() };
+			if (epSquare.isValid())
 			{
 				size_t bit;
 				if constexpr (movingPlayer == whitePlayer)
 				{
-					if (epFlags.bitscanForward(bit))
+					constexpr const squaresType notRank1{ ~rank1 };
+					const squaresType tempSquare{ squaresType(otherKing).down() & notRank1 };
+					const squaresType criticalSquares2{ tempSquare.left() | tempSquare.right() };
+					const fileType epFile{ epSquare.file() };
+					const squareType toSquare{ epFile & rank6 };
+					const squaresType allowedDestinations2{ ~criticalSquares2 };
+					const squaresType leftFile{ static_cast<squaresType>(epFile).left() };
+					const squaresType rightFile{ static_cast<squaresType>(epFile).right() };
+					const squaresType rank{ static_cast<squaresType>(rank5) };
+					const squaresType fromSquares = (leftFile | rightFile) & rank;
+					for (const squareType from : fromSquares & (stack.position().playerOccupancy(whitePlayer)& stack.position().pieceOccupancy(pawn)))
 					{
-						constexpr const squaresType notRank1{ ~rank1 };
-						const squaresType tempSquare{ squaresType(otherKing).down() & notRank1 };
-						const squaresType criticalSquares2{ tempSquare.left() | tempSquare.right() };
-						const fileType epFile{ static_cast<typename fileType::baseType>(bit) };
-						const squareType toSquare{ epFile & rank6 };
-						const squaresType allowedDestinations2{ ~criticalSquares2 };
-						const squaresType leftFile{ static_cast<squaresType>(epFile).left() };
-						const squaresType rightFile{ static_cast<squaresType>(epFile).right() };
-						const squaresType rank{ static_cast<squaresType>(rank5) };
-						const squaresType fromSquares = (leftFile | rightFile) & rank;
-						for (const squareType from : fromSquares & (stack.position().playerOccupancy(whitePlayer)& stack.position().pieceOccupancy(pawn)))
+						const movebitsType mv{ motorType::move().createEnPassant(from.file(), epFile) };
+						const squareType to{ motorType::move().toSquare(stack.position(),mv) };
+						if (allowedDestinations2[to])
 						{
-							const movebitsType mv{ motorType::move().createEnPassant(from.file(), epFile) };
-							const squareType to{ motorType::move().toSquare(stack.position(),mv) };
-							if (allowedDestinations2[to])
-							{
-								const squaresType ownDelta{ motorType::move().ownOccupancyDelta(stack.position(),mv) };
-								const squaresType otherDelta{ motorType::move().otherOccupancyDelta(stack.position(),mv) };
-								const squaresType ownOcc{ ownDelta ^ stack.position().playerOccupancy(whitePlayer) };
-								const squaresType otherOcc{ otherDelta ^ stack.position().playerOccupancy(blackPlayer) };
-								const squaresType unoccupied2{ ~(ownOcc | otherOcc) };
-								const squaresType criticalSquares3{ movegenSlidersHV.inverseAttacks(otherKing, unoccupied2) };
-								if (criticalSquares3 & ownSlidersHV)
-									moves.add(mv);
-							}
+							const squaresType ownDelta{ motorType::move().ownOccupancyDelta(stack.position(),mv) };
+							const squaresType otherDelta{ motorType::move().otherOccupancyDelta(stack.position(),mv) };
+							const squaresType ownOcc{ ownDelta ^ stack.position().playerOccupancy(whitePlayer) };
+							const squaresType otherOcc{ otherDelta ^ stack.position().playerOccupancy(blackPlayer) };
+							const squaresType unoccupied2{ ~(ownOcc | otherOcc) };
+							const squaresType criticalSquares3{ movegenSlidersHV.inverseAttacks(otherKing, unoccupied2) };
+							if (criticalSquares3 & ownSlidersHV)
+								moves.add(mv);
 						}
 					}
 				}
 				else
 				{
-					if (epFlags.bitscanForward(bit))
+					constexpr const squaresType notRank8{ ~rank8 };
+					const squaresType tempSquare{ squaresType(otherKing).up() & notRank8 };
+					const squaresType criticalSquares2{ tempSquare.left() | tempSquare.right() };
+					const fileType epFile{ epSquare.file() };
+					const squareType toSquare{ epFile & rank3 };
+					const squaresType allowedDestinations2{ ~criticalSquares2 };
+					const squaresType leftFile{ static_cast<squaresType>(epFile).left() };
+					const squaresType rightFile{ static_cast<squaresType>(epFile).right() };
+					const squaresType rank{ static_cast<squaresType>(rank4) };
+					const squaresType fromSquares = (leftFile | rightFile) & rank;
+					for (const squareType from : fromSquares & (stack.position().playerOccupancy(blackPlayer)& stack.position().pieceOccupancy(pawn)))
 					{
-						constexpr const squaresType notRank8{ ~rank8 };
-						const squaresType tempSquare{ squaresType(otherKing).up() & notRank8 };
-						const squaresType criticalSquares2{ tempSquare.left() | tempSquare.right() };
-						const fileType epFile{ static_cast<typename fileType::baseType>(bit) };
-						const squareType toSquare{ epFile & rank3 };
-						const squaresType allowedDestinations2{ ~criticalSquares2 };
-						const squaresType leftFile{ static_cast<squaresType>(epFile).left() };
-						const squaresType rightFile{ static_cast<squaresType>(epFile).right() };
-						const squaresType rank{ static_cast<squaresType>(rank4) };
-						const squaresType fromSquares = (leftFile | rightFile) & rank;
-						for (const squareType from : fromSquares & (stack.position().playerOccupancy(blackPlayer)& stack.position().pieceOccupancy(pawn)))
+						const movebitsType mv{ motorType::move().createEnPassant(from.file(), epFile) };
+						const squareType to{ motorType::move().toSquare(stack.position(),mv) };
+						if (allowedDestinations2[to])
 						{
-							const movebitsType mv{ motorType::move().createEnPassant(from.file(), epFile) };
-							const squareType to{ motorType::move().toSquare(stack.position(),mv) };
-							if (allowedDestinations2[to])
-							{
-								const squaresType ownDelta{ motorType::move().ownOccupancyDelta(stack.position(),mv) };
-								const squaresType otherDelta{ motorType::move().otherOccupancyDelta(stack.position(),mv) };
-								const squaresType ownOcc{ ownDelta ^ stack.position().playerOccupancy(blackPlayer) };
-								const squaresType otherOcc{ otherDelta ^ stack.position().playerOccupancy(whitePlayer) };
-								const squaresType unoccupied2{ ~(ownOcc | otherOcc) };
-								const squaresType criticalSquares3{ movegenSlidersHV.inverseAttacks(otherKing, unoccupied2) };
-								if (criticalSquares3 & ownSlidersHV)
-									moves.add(mv);
-							}
+							const squaresType ownDelta{ motorType::move().ownOccupancyDelta(stack.position(),mv) };
+							const squaresType otherDelta{ motorType::move().otherOccupancyDelta(stack.position(),mv) };
+							const squaresType ownOcc{ ownDelta ^ stack.position().playerOccupancy(blackPlayer) };
+							const squaresType otherOcc{ otherDelta ^ stack.position().playerOccupancy(whitePlayer) };
+							const squaresType unoccupied2{ ~(ownOcc | otherOcc) };
+							const squaresType criticalSquares3{ movegenSlidersHV.inverseAttacks(otherKing, unoccupied2) };
+							if (criticalSquares3 & ownSlidersHV)
+								moves.add(mv);
 						}
 					}
 				}
@@ -2163,71 +2161,65 @@ namespace pygmalion::chess
 					}
 				}
 			}
-			const uint_t<8, false> epFlags{ stack.position().flags().template extractRange<4,11>() };
-			if (epFlags)
+			const squareType epSquare{ stack.position().enPassantSquare() };
+			if (epSquare.isValid())
 			{
 				size_t bit;
 				if constexpr (movingPlayer == whitePlayer)
 				{
-					if (epFlags.bitscanForward(bit))
+					constexpr const squaresType notRank1{ ~rank1 };
+					const squaresType tempSquare{ squaresType(otherKing).down() & notRank1 };
+					const squaresType criticalSquares2{ tempSquare.left() | tempSquare.right() };
+					const fileType epFile{ epSquare.file() };
+					const squareType toSquare{ epFile & rank6 };
+					const squaresType allowedDestinations2{ ~criticalSquares2 };
+					const squaresType leftFile{ static_cast<squaresType>(epFile).left() };
+					const squaresType rightFile{ static_cast<squaresType>(epFile).right() };
+					const squaresType rank{ static_cast<squaresType>(rank5) };
+					const squaresType fromSquares = (leftFile | rightFile) & rank;
+					for (const squareType from : fromSquares & (stack.position().playerOccupancy(whitePlayer)& stack.position().pieceOccupancy(pawn)))
 					{
-						constexpr const squaresType notRank1{ ~rank1 };
-						const squaresType tempSquare{ squaresType(otherKing).down() & notRank1 };
-						const squaresType criticalSquares2{ tempSquare.left() | tempSquare.right() };
-						const fileType epFile{ static_cast<typename fileType::baseType>(bit) };
-						const squareType toSquare{ epFile & rank6 };
-						const squaresType allowedDestinations2{ ~criticalSquares2 };
-						const squaresType leftFile{ static_cast<squaresType>(epFile).left() };
-						const squaresType rightFile{ static_cast<squaresType>(epFile).right() };
-						const squaresType rank{ static_cast<squaresType>(rank5) };
-						const squaresType fromSquares = (leftFile | rightFile) & rank;
-						for (const squareType from : fromSquares & (stack.position().playerOccupancy(whitePlayer)& stack.position().pieceOccupancy(pawn)))
+						const movebitsType mv{ motorType::move().createEnPassant(from.file(), epFile) };
+						const squareType to{ motorType::move().toSquare(stack.position(),mv) };
+						if (allowedDestinations2[to])
 						{
-							const movebitsType mv{ motorType::move().createEnPassant(from.file(), epFile) };
-							const squareType to{ motorType::move().toSquare(stack.position(),mv) };
-							if (allowedDestinations2[to])
-							{
-								const squaresType ownDelta{ motorType::move().ownOccupancyDelta(stack.position(),mv) };
-								const squaresType otherDelta{ motorType::move().otherOccupancyDelta(stack.position(),mv) };
-								const squaresType ownOcc{ ownDelta ^ stack.position().playerOccupancy(whitePlayer) };
-								const squaresType otherOcc{ otherDelta ^ stack.position().playerOccupancy(blackPlayer) };
-								const squaresType unoccupied2{ ~(ownOcc | otherOcc) };
-								const squaresType criticalSquares3{ movegenSlidersDiag.inverseAttacks(otherKing, unoccupied2) };
-								if (criticalSquares3 & ownSlidersDiag)
-									moves.add(mv);
-							}
+							const squaresType ownDelta{ motorType::move().ownOccupancyDelta(stack.position(),mv) };
+							const squaresType otherDelta{ motorType::move().otherOccupancyDelta(stack.position(),mv) };
+							const squaresType ownOcc{ ownDelta ^ stack.position().playerOccupancy(whitePlayer) };
+							const squaresType otherOcc{ otherDelta ^ stack.position().playerOccupancy(blackPlayer) };
+							const squaresType unoccupied2{ ~(ownOcc | otherOcc) };
+							const squaresType criticalSquares3{ movegenSlidersDiag.inverseAttacks(otherKing, unoccupied2) };
+							if (criticalSquares3 & ownSlidersDiag)
+								moves.add(mv);
 						}
 					}
 				}
 				else
 				{
-					if (epFlags.bitscanForward(bit))
+					constexpr const squaresType notRank8{ ~rank8 };
+					const squaresType tempSquare{ squaresType(otherKing).up() & notRank8 };
+					const squaresType criticalSquares2{ tempSquare.left() | tempSquare.right() };
+					const fileType epFile{ epSquare.file() };
+					const squareType toSquare{ epFile & rank3 };
+					const squaresType allowedDestinations2{ ~criticalSquares2 };
+					const squaresType leftFile{ static_cast<squaresType>(epFile).left() };
+					const squaresType rightFile{ static_cast<squaresType>(epFile).right() };
+					const squaresType rank{ static_cast<squaresType>(rank4) };
+					const squaresType fromSquares = (leftFile | rightFile) & rank;
+					for (const squareType from : fromSquares & (stack.position().playerOccupancy(blackPlayer)& stack.position().pieceOccupancy(pawn)))
 					{
-						constexpr const squaresType notRank8{ ~rank8 };
-						const squaresType tempSquare{ squaresType(otherKing).up() & notRank8 };
-						const squaresType criticalSquares2{ tempSquare.left() | tempSquare.right() };
-						const fileType epFile{ static_cast<typename fileType::baseType>(bit) };
-						const squareType toSquare{ epFile & rank3 };
-						const squaresType allowedDestinations2{ ~criticalSquares2 };
-						const squaresType leftFile{ static_cast<squaresType>(epFile).left() };
-						const squaresType rightFile{ static_cast<squaresType>(epFile).right() };
-						const squaresType rank{ static_cast<squaresType>(rank4) };
-						const squaresType fromSquares = (leftFile | rightFile) & rank;
-						for (const squareType from : fromSquares & (stack.position().playerOccupancy(blackPlayer)& stack.position().pieceOccupancy(pawn)))
+						const movebitsType mv{ motorType::move().createEnPassant(from.file(), epFile) };
+						const squareType to{ motorType::move().toSquare(stack.position(),mv) };
+						if (allowedDestinations2[to])
 						{
-							const movebitsType mv{ motorType::move().createEnPassant(from.file(), epFile) };
-							const squareType to{ motorType::move().toSquare(stack.position(),mv) };
-							if (allowedDestinations2[to])
-							{
-								const squaresType ownDelta{ motorType::move().ownOccupancyDelta(stack.position(),mv) };
-								const squaresType otherDelta{ motorType::move().otherOccupancyDelta(stack.position(),mv) };
-								const squaresType ownOcc{ ownDelta ^ stack.position().playerOccupancy(blackPlayer) };
-								const squaresType otherOcc{ otherDelta ^ stack.position().playerOccupancy(whitePlayer) };
-								const squaresType unoccupied2{ ~(ownOcc | otherOcc) };
-								const squaresType criticalSquares3{ movegenSlidersDiag.inverseAttacks(otherKing, unoccupied2) };
-								if (criticalSquares3 & ownSlidersDiag)
-									moves.add(mv);
-							}
+							const squaresType ownDelta{ motorType::move().ownOccupancyDelta(stack.position(),mv) };
+							const squaresType otherDelta{ motorType::move().otherOccupancyDelta(stack.position(),mv) };
+							const squaresType ownOcc{ ownDelta ^ stack.position().playerOccupancy(blackPlayer) };
+							const squaresType otherOcc{ otherDelta ^ stack.position().playerOccupancy(whitePlayer) };
+							const squaresType unoccupied2{ ~(ownOcc | otherOcc) };
+							const squaresType criticalSquares3{ movegenSlidersDiag.inverseAttacks(otherKing, unoccupied2) };
+							if (criticalSquares3 & ownSlidersDiag)
+								moves.add(mv);
 						}
 					}
 				}
@@ -2871,7 +2863,7 @@ namespace pygmalion::chess
 				const squaresType ownKnights = stack.position().pieceOccupancy(knight) & ownOcc;
 				const squaresType ownDiagSliders = (stack.position().pieceOccupancy(bishop) | stack.position().pieceOccupancy(queen)) & ownOcc;
 				const squaresType ownHVSliders = (stack.position().pieceOccupancy(rook) | stack.position().pieceOccupancy(queen)) & ownOcc;
-				const squareType attackerSquare{ *attackers.begin() };
+				const squareType attackerSquare{ attackers.first() };
 				// Can the attacker be captured with a knight?
 				squaresType defenders = ownKnights & movegenKnight.attacks(attackerSquare, all);
 				for (const auto defenderSquare : defenders)
@@ -2985,7 +2977,7 @@ namespace pygmalion::chess
 				if (attackers & otherPawns)
 				{
 					const fileType attackerFile{ attackerSquare.file() };
-					if (stack.position().checkEnPassantFile(attackerFile))
+					if (stack.position().enPassantSquare().file() == attackerSquare.file())
 					{
 						if (sideIsWhite && (attackerRank == rank5))
 						{
@@ -3102,9 +3094,10 @@ namespace pygmalion::chess
 					{
 						if (rank != rank1)
 						{
-							const squareType defenderSquare{ file & rank.down() };
-							if (ownPawns[defenderSquare])
+							const squaresType defenderSquares{ squaresType(file & rank).down() };
+							if (ownPawns & defenderSquares)
 							{
+								const squareType defenderSquare{ defenderSquares.first() };
 								if (rank == rank8)
 								{
 									// It's actually a pawn promotion...
@@ -3124,9 +3117,10 @@ namespace pygmalion::chess
 					{
 						if (rank != rank8)
 						{
-							const squareType defenderSquare{ file & rank.up() };
-							if (ownPawns[defenderSquare])
+							const squaresType defenderSquares{ squaresType(file & rank).up() };
+							if (ownPawns & defenderSquares)
 							{
+								const squareType defenderSquare{ defenderSquares.first() };
 								if (rank == rank1)
 								{
 									// It's actually a pawn promotion...
@@ -3192,7 +3186,7 @@ namespace pygmalion::chess
 				const squaresType ownKnights = stack.position().pieceOccupancy(knight) & stack.position().playerOccupancy(side);
 				const squaresType ownDiagSliders = (stack.position().pieceOccupancy(bishop) | stack.position().pieceOccupancy(queen)) & stack.position().playerOccupancy(side);
 				const squaresType ownHVSliders = (stack.position().pieceOccupancy(rook) | stack.position().pieceOccupancy(queen)) & stack.position().playerOccupancy(side);
-				const squareType attackerSquare{ *attackers.begin() };
+				const squareType attackerSquare{ attackers.first() };
 				// Can the attacker be captured with a knight?
 				squaresType defenders = ownKnights & movegenKnight.attacks(attackerSquare, all);
 				for (const auto defenderSquare : defenders)
@@ -3306,7 +3300,7 @@ namespace pygmalion::chess
 				if (attackers & otherPawns)
 				{
 					const fileType attackerFile{ attackerSquare.file() };
-					if (stack.position().checkEnPassantFile(attackerFile))
+					if (stack.position().enPassantSquare().file() == attackerSquare.file())
 					{
 						if (sideIsWhite && (attackerRank == rank5))
 						{
@@ -3895,8 +3889,7 @@ namespace pygmalion::chess
 					return false;
 
 				// do we have en Passant rights?
-				const fileType epFile{ to.file() };
-				if (!position.checkEnPassantFile(epFile))
+				if (!position.checkEnPassantSquare(to))
 					return false;
 			}
 			else if (motorType::move().isPromotion(moveBits))
@@ -4877,8 +4870,9 @@ namespace pygmalion::chess
 					{
 						if constexpr (stackType<PLAYER>::MovingPlayer == whitePlayer)
 						{
-							if (stack.position().checkEnPassantFile(to.file()) && to.rank() == rank6)
-								mv = motorType::move().createEnPassant(testFrom.file(), to.file());
+							const fileType toFile{ to.file() };
+							if (stack.position().checkEnPassantSquare(to) && (to.rank() == rank6))
+								mv = motorType::move().createEnPassant(testFrom.file(), toFile);
 							else
 							{
 								if (to.rank() != rank8)
@@ -4913,8 +4907,9 @@ namespace pygmalion::chess
 						}
 						else
 						{
-							if (stack.position().checkEnPassantFile(to.file()) && to.rank() == rank3)
-								mv = motorType::move().createEnPassant(testFrom.file(), to.file());
+							const fileType toFile{ to.file() };
+							if (stack.position().checkEnPassantSquare(to) && (to.rank() == rank3))
+								mv = motorType::move().createEnPassant(testFrom.file(), toFile);
 							else
 							{
 								if (to.rank() != rank1)
@@ -4957,7 +4952,7 @@ namespace pygmalion::chess
 					{
 						if constexpr (stackType<PLAYER>::MovingPlayer == whitePlayer)
 						{
-							if (to.rank() == rank4 && testFrom.rank() == rank2)
+							if ((to.rank() == rank4) && (testFrom.rank() == rank2))
 								mv = motorType::move().createDoublePush(testFrom.file());
 							else
 							{
@@ -4993,7 +4988,7 @@ namespace pygmalion::chess
 						}
 						else
 						{
-							if (to.rank() == rank5 && testFrom.rank() == rank7)
+							if ((to.rank() == rank5) && (testFrom.rank() == rank7))
 								mv = motorType::move().createDoublePush(testFrom.file());
 							else
 							{
@@ -5050,8 +5045,9 @@ namespace pygmalion::chess
 				{
 					if constexpr (stackType<PLAYER>::MovingPlayer == whitePlayer)
 					{
-						if (stack.position().checkEnPassantFile(to.file()) && to.rank() == rank6)
-							mv = motorType::move().createEnPassant(from.file(), to.file());
+						const fileType toFile{ to.file() };
+						if (stack.position().checkEnPassantSquare(to) && (to.rank() == rank6))
+							mv = motorType::move().createEnPassant(from.file(), toFile);
 						else
 						{
 							if (to.rank() != rank8)
@@ -5086,7 +5082,7 @@ namespace pygmalion::chess
 					}
 					else
 					{
-						if (stack.position().checkEnPassantFile(to.file()) && to.rank() == rank3)
+						if (stack.position().checkEnPassantSquare(to) && (to.rank() == rank3))
 							mv = motorType::move().createEnPassant(from.file(), to.file());
 						else
 						{
@@ -5130,7 +5126,7 @@ namespace pygmalion::chess
 				{
 					if constexpr (stackType<PLAYER>::MovingPlayer == whitePlayer)
 					{
-						if (to.rank() == rank4 && from.rank() == rank2)
+						if ((to.rank() == rank4) && (from.rank() == rank2))
 							mv = motorType::move().createDoublePush(from.file());
 						else
 						{
@@ -5166,7 +5162,7 @@ namespace pygmalion::chess
 					}
 					else
 					{
-						if (to.rank() == rank5 && from.rank() == rank7)
+						if ((to.rank() == rank5) && (from.rank() == rank7))
 							mv = motorType::move().createDoublePush(from.file());
 						else
 						{

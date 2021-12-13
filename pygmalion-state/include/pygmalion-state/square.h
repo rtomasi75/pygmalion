@@ -2,13 +2,13 @@ namespace pygmalion::state
 {
 	template<typename DESCRIPTION_STATE>
 	class square :
-		public enumeration<DESCRIPTION_STATE::countSquares, DESCRIPTION_STATE::countHashBits, square<DESCRIPTION_STATE>>,
+		public enumeration < DESCRIPTION_STATE::countSquares, DESCRIPTION_STATE::countHashBits, square<DESCRIPTION_STATE>, set<square<DESCRIPTION_STATE>, typename DESCRIPTION_STATE::squaresType>>,
 		public DESCRIPTION_STATE
 	{
 		friend class file<DESCRIPTION_STATE>;
 		friend class rank<DESCRIPTION_STATE>;
 	public:
-		using parentType = enumeration<DESCRIPTION_STATE::countSquares, DESCRIPTION_STATE::countHashBits, square<DESCRIPTION_STATE>>;
+		using parentType = enumeration < DESCRIPTION_STATE::countSquares, DESCRIPTION_STATE::countHashBits, square<DESCRIPTION_STATE>, set<square<DESCRIPTION_STATE>, typename DESCRIPTION_STATE::squaresType>>;
 		using descriptorState = DESCRIPTION_STATE;
 #include "include_state.h"
 	private:
@@ -97,6 +97,30 @@ namespace pygmalion::state
 		PYGMALION_INLINE constexpr square flipRank() const noexcept
 		{
 			return static_cast<rankType>(countRanks - static_cast<int>(this->rank()) - 1) & this->file();
+		}
+		PYGMALION_INLINE constexpr bool operator==(const rankType rank) const noexcept
+		{
+			return static_cast<squaresType>(*this) == static_cast<squaresType>(rank);
+		}
+		PYGMALION_INLINE constexpr bool operator!=(const rankType rank) const noexcept
+		{
+			return static_cast<squaresType>(*this) != static_cast<squaresType>(rank);
+		}
+		PYGMALION_INLINE constexpr bool operator==(const fileType other) const noexcept
+		{
+			return static_cast<squaresType>(*this) == static_cast<squaresType>(other);
+		}
+		PYGMALION_INLINE constexpr bool operator!=(const fileType other) const noexcept
+		{
+			return static_cast<squaresType>(*this) != static_cast<squaresType>(other);
+		}
+		PYGMALION_INLINE constexpr bool operator==(const squaresType other) const noexcept
+		{
+			return static_cast<squaresType>(*this) == other;
+		}
+		PYGMALION_INLINE constexpr bool operator!=(const squaresType other) const noexcept
+		{
+			return static_cast<squaresType>(*this) != other;
 		}
 	};
 }

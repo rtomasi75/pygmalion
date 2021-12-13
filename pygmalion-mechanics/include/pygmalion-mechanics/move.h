@@ -1,8 +1,22 @@
 namespace pygmalion::mechanics
 {
+	template<typename BOARD>
+	class movedataBase
+	{
+	private:
+	protected:
+		movedataBase() noexcept = default;
+	public:
+		movedataBase(const movedataBase&) noexcept = default;
+		movedataBase(movedataBase&&) noexcept = default;
+		movedataBase& operator=(const movedataBase&) noexcept = default;
+		movedataBase& operator=(movedataBase&&) noexcept = default;
+		~movedataBase() noexcept = default;
+	};
 	template<typename BOARD, size_t COUNT_BITS, typename MOVEDATA, typename INSTANCE>
 	class move
 	{
+		static_assert(std::is_base_of<movedataBase<BOARD>, MOVEDATA>::value);
 	public:
 		using instanceType = INSTANCE;
 		using boardType = BOARD;
@@ -28,9 +42,9 @@ namespace pygmalion::mechanics
 		{
 			static_cast<const instanceType*>(this)->doMove_Implementation(position, moveBits, movedata, materialTable);
 		}
-		PYGMALION_INLINE void undoMove(boardType& position, const movedataType& data, const materialTableType& materialTable) const noexcept
+		PYGMALION_INLINE void undoMove(boardType& position, const movedataType& movedata, const materialTableType& materialTable) const noexcept
 		{
-			static_cast<const instanceType*>(this)->undoMove_Implementation(position, data, materialTable);
+			static_cast<const instanceType*>(this)->undoMove_Implementation(position, movedata, materialTable);
 		}
 		bool parse(const boardType& position, const std::string& text, movebitsType& moveBits, size_t& count) const noexcept
 		{

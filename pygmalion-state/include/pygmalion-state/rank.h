@@ -2,11 +2,11 @@ namespace pygmalion::state
 {
 	template<typename DESCRIPTION_STATE>
 	class rank :
-		public enumeration<DESCRIPTION_STATE::countRanks, DESCRIPTION_STATE::countHashBits, rank<DESCRIPTION_STATE>>,
+		public enumeration<DESCRIPTION_STATE::countRanks, DESCRIPTION_STATE::countHashBits, rank<DESCRIPTION_STATE>, set<rank<DESCRIPTION_STATE>, typename DESCRIPTION_STATE::ranksType>>,
 		public DESCRIPTION_STATE
 	{
 	public:
-		using parentType = enumeration<DESCRIPTION_STATE::countRanks, DESCRIPTION_STATE::countHashBits, rank<DESCRIPTION_STATE>>;
+		using parentType = enumeration<DESCRIPTION_STATE::countRanks, DESCRIPTION_STATE::countHashBits, rank<DESCRIPTION_STATE>, set<rank<DESCRIPTION_STATE>, typename DESCRIPTION_STATE::ranksType>>;
 		using descriptorState = DESCRIPTION_STATE;
 #include "include_state.h"	
 		PYGMALION_INLINE constexpr rank(const rank&) noexcept = default;
@@ -30,9 +30,25 @@ namespace pygmalion::state
 		{
 			return rank(countRanks - 1 - (*this));
 		}
+		PYGMALION_INLINE constexpr squaresType operator|(const fileType file) const noexcept
+		{
+			return static_cast<squaresType>(*this) | static_cast<squaresType>(file);
+		}
 		PYGMALION_INLINE constexpr squareType operator&(const fileType file) const noexcept
 		{
 			return squareType::fromRankFile(*this, file);
+		}
+		PYGMALION_INLINE constexpr squaresType operator^(const fileType file) const noexcept
+		{
+			return static_cast<squaresType>(*this) ^ static_cast<squaresType>(file);
+		}
+		PYGMALION_INLINE constexpr bool operator==(const fileType file) const noexcept
+		{
+			return static_cast<squaresType>(*this) == static_cast<squaresType>(file);
+		}
+		PYGMALION_INLINE constexpr bool operator!=(const fileType file) const noexcept
+		{
+			return static_cast<squaresType>(*this) != static_cast<squaresType>(file);
 		}
 		PYGMALION_INLINE constexpr squaresType operator|(const rankType other) const noexcept
 		{
@@ -49,6 +65,46 @@ namespace pygmalion::state
 		PYGMALION_INLINE constexpr squaresType operator~() const noexcept
 		{
 			return ~static_cast<squaresType>(*this);
+		}
+		PYGMALION_INLINE constexpr squaresType operator|(const squareType other) const noexcept
+		{
+			return static_cast<squaresType>(*this) | other;
+		}
+		PYGMALION_INLINE constexpr squaresType operator&(const squareType other) const noexcept
+		{
+			return static_cast<squaresType>(*this) & other;
+		}
+		PYGMALION_INLINE constexpr squaresType operator^(const squareType other) const noexcept
+		{
+			return static_cast<squaresType>(*this) ^ other;
+		}
+		PYGMALION_INLINE constexpr bool operator==(const squareType other) const noexcept
+		{
+			return static_cast<squaresType>(*this) == static_cast<squaresType>(other);
+		}
+		PYGMALION_INLINE constexpr bool operator!=(const squareType other) const noexcept
+		{
+			return static_cast<squaresType>(*this) != static_cast<squaresType>(other);
+		}
+		PYGMALION_INLINE constexpr squaresType operator|(const squaresType other) const noexcept
+		{
+			return static_cast<squaresType>(*this) | other;
+		}
+		PYGMALION_INLINE constexpr squaresType operator&(const squaresType other) const noexcept
+		{
+			return static_cast<squaresType>(*this) & other;
+		}
+		PYGMALION_INLINE constexpr squaresType operator^(const squaresType other) const noexcept
+		{
+			return static_cast<squaresType>(*this) ^ other;
+		}
+		PYGMALION_INLINE constexpr bool operator==(const squaresType other) const noexcept
+		{
+			return static_cast<squaresType>(*this) == other;
+		}
+		PYGMALION_INLINE constexpr bool operator!=(const squaresType other) const noexcept
+		{
+			return static_cast<squaresType>(*this) != other;
 		}
 		PYGMALION_INLINE constexpr rank down() const noexcept
 		{

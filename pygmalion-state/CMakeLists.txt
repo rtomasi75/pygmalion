@@ -13,7 +13,7 @@ set (CMAKE_CXX_STANDARD 17)
 file(GLOB SOURCES src/*.cpp)
 file(GLOB HEADERS include/pygmalion-state/*.h)
 
-add_library(pygmalion-state ${SOURCES} ${HEADERS} "include/pygmalion-state.h")
+add_library(pygmalion-state ${SOURCES} ${HEADERS} "include/pygmalion-state.h" )
 target_include_directories(pygmalion-state PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include> PRIVATE src)
 target_link_libraries(pygmalion-state PUBLIC pygmalion-intrinsics)
 

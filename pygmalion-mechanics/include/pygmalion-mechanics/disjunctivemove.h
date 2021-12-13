@@ -22,7 +22,8 @@ namespace pygmalion::mechanics
 		}
 
 		template<typename BOARD, typename... MOVES>
-		class disjunctiveMovedata
+		class disjunctiveMovedata :
+			public pygmalion::mechanics::movedataBase<BOARD>
 		{
 		public:
 			using boardType = BOARD;
@@ -33,9 +34,30 @@ namespace pygmalion::mechanics
 			constexpr static const size_t countMoveBits{ countMuxBits + countDataBits };
 			constexpr static size_t payloadSize{ detail::computeDisjunctiveDataSize<MOVES...>() };
 			using muxbitsType = uint_t<countMuxBits, false>;
+			template<typename MOVE, typename... MOVES2>
+			union movedataHolder
+			{
+			public:
+				typename MOVE::movedataType CurrentDataView;
+				movedataHolder<MOVES2...> OtherDataViews;
+				movedataHolder() noexcept :
+					CurrentDataView{ typename MOVE::movedataType() }
+				{
+				}
+			};
+			template<typename MOVE>
+			union movedataHolder<MOVE>
+			{
+			public:
+				typename MOVE::movedataType CurrentDataView;
+				movedataHolder() noexcept :
+					CurrentDataView{ typename MOVE::movedataType() }
+				{
+				}
+			};
 		private:
+			movedataHolder<MOVES...> m_Data;
 			muxbitsType m_Mux;
-			std::array<unsigned char, payloadSize> m_Data;
 		public:
 			PYGMALION_INLINE muxbitsType& mux() noexcept
 			{
@@ -45,17 +67,19 @@ namespace pygmalion::mechanics
 			{
 				return m_Mux;
 			}
-			PYGMALION_INLINE unsigned char* dataPtr() noexcept
+			PYGMALION_INLINE movedataHolder<MOVES...>& data() noexcept
 			{
-				return m_Data.data();
+				return m_Data;
 			}
-			PYGMALION_INLINE const unsigned char* dataPtr() const noexcept
+			PYGMALION_INLINE const movedataHolder<MOVES...>& data() const noexcept
 			{
-				return m_Data.data();
+				return m_Data;
 			}
 			PYGMALION_INLINE disjunctiveMovedata() noexcept :
-				m_Data{ arrayhelper::make<payloadSize, unsigned char>(0) }
-			{}
+				m_Data{ movedataHolder<MOVES...>() },
+				m_Mux{ muxbitsType(0) }
+			{
+			}
 			PYGMALION_INLINE disjunctiveMovedata(disjunctiveMovedata&&) noexcept = default;
 			PYGMALION_INLINE disjunctiveMovedata(const disjunctiveMovedata&) noexcept = default;
 			PYGMALION_INLINE disjunctiveMovedata& operator=(disjunctiveMovedata&&) noexcept = default;
@@ -163,7 +187,7 @@ namespace pygmalion::mechanics
 		}
 	private:
 		template<size_t INDEX, typename MOVE, typename... MOVES2>
-		PYGMALION_INLINE void doMovePack(boardType& position, const size_t selector, const typename disjunctivemove::movebitsType moveBits, typename disjunctivemove::movedataType& combinedData, const materialTableType& materialTable) const noexcept
+		PYGMALION_INLINE void doMovePack(boardType& position, const size_t selector, const typename disjunctivemove::movebitsType moveBits, typename disjunctivemove::movedataType::template movedataHolder<MOVE, MOVES2...>& combinedData, const materialTableType& materialTable) const noexcept
 		{
 			if (INDEX == selector)
 			{
@@ -171,15 +195,13 @@ namespace pygmalion::mechanics
 				m_Statistics[INDEX]++;
 #endif
 				typename MOVE::movebitsType bits{ moveBits.template extractBits<0,MOVE::countBits>() };
-				typename MOVE::movedataType& data{ *reinterpret_cast<typename MOVE::movedataType*>(combinedData.dataPtr()) };
-				std::get<INDEX>(this->m_Moves).doMove(position, bits, data, materialTable);
+				std::get<INDEX>(this->m_Moves).doMove(position, bits, combinedData.CurrentDataView, materialTable);
 				constexpr const muxbitsType mux{ static_cast<muxbitsType>(static_cast<typename std::make_unsigned<size_t>::type>(INDEX)) };
-				combinedData.mux() = mux;
 			}
 			else
 			{
 				if constexpr (sizeof...(MOVES2) > 0)
-					this->template doMovePack<INDEX + 1, MOVES2...>(position, selector, moveBits, combinedData, materialTable);
+					this->template doMovePack<INDEX + 1, MOVES2...>(position, selector, moveBits, combinedData.OtherDataViews, materialTable);
 			}
 		}
 	public:
@@ -187,30 +209,32 @@ namespace pygmalion::mechanics
 		{
 			const muxbitsType mux{ disjunctivemove::muxbits(moveBits) };
 			const size_t selector{ static_cast<size_t>(static_cast<typename std::make_unsigned<size_t>::type>(mux)) };
+			movedata.mux() = mux;
 			if constexpr (sizeof...(MOVES) > 0)
-				this->template doMovePack<0, MOVES...>(position, selector, moveBits, movedata, materialTable);
+				this->template doMovePack<0, MOVES...>(position, selector, moveBits, movedata.data(), materialTable);
 		}
 	private:
 		template<size_t INDEX, typename MOVE, typename... MOVES2>
-		PYGMALION_INLINE void undoMovePack(boardType& position, const typename disjunctivemove::movedataType& combinedData, const materialTableType& materialTable) const noexcept
+		PYGMALION_INLINE void undoMovePack(boardType& position, const size_t selector, const typename disjunctivemove::movedataType::template movedataHolder<MOVE, MOVES2...>& combinedData, const materialTableType& materialTable) const noexcept
 		{
 			constexpr const muxbitsType mux{ static_cast<muxbitsType>(static_cast<typename std::make_unsigned<size_t>::type>(INDEX)) };
-			if (mux == combinedData.mux())
+			if (mux == selector)
 			{
-				const typename MOVE::movedataType& data{ *reinterpret_cast<const typename MOVE::movedataType*>(combinedData.dataPtr()) };
-				std::get<INDEX>(this->m_Moves).undoMove(position, data, materialTable);
+				std::get<INDEX>(this->m_Moves).undoMove(position, combinedData.CurrentDataView, materialTable);
 			}
 			else
 			{
 				if constexpr (sizeof...(MOVES2) > 0)
-					this->template undoMovePack<INDEX + 1, MOVES2...>(position, combinedData, materialTable);
+					this->template undoMovePack<INDEX + 1, MOVES2...>(position, selector, combinedData.OtherDataViews, materialTable);
 			}
 		}
 	public:
-		PYGMALION_INLINE void undoMove_Implementation(boardType& position, const typename disjunctivemove::movedataType& data, const materialTableType& materialTable) const noexcept
+		PYGMALION_INLINE void undoMove_Implementation(boardType& position, const typename disjunctivemove::movedataType& movedata, const materialTableType& materialTable) const noexcept
 		{
+			const muxbitsType mux{ movedata.mux() };
+			const size_t selector{ static_cast<size_t>(static_cast<typename std::make_unsigned<size_t>::type>(mux)) };
 			if constexpr (sizeof...(MOVES) > 0)
-				this->template undoMovePack<0, MOVES...>(position, data, materialTable);
+				this->template undoMovePack<0, MOVES...>(position, selector, movedata.data(), materialTable);
 		}
 	private:
 		template<size_t INDEX, typename MOVE, typename... MOVES2>

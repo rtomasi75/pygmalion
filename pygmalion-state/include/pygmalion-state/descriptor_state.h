@@ -7,15 +7,19 @@ namespace pygmalion
 		constexpr static const bool hasCustomHashing{ CUSTOM_HASHING_ENABLED };
 		constexpr static const size_t countPlayers{ 2 };
 		constexpr static const size_t countPieces{ COUNT_PIECES };
+		constexpr static const size_t countPlayerpieces{ countPlayers * countPieces };
 		constexpr static const size_t countRanks{ COUNT_RANKS };
 		constexpr static const size_t countFiles{ COUNT_FILES };
 		constexpr static const size_t countSquares{ countRanks * countFiles };
 		constexpr static const size_t countFlags{ COUNT_FLAGS };
 		constexpr static const size_t countHashBits{ std::min(sizeof(void*) * CHAR_BIT,COUNT_HASHBITS) };
+		using playerpieceType = pygmalion::state::playerpiece<descriptor_state>;
 		using playerType = pygmalion::state::player<descriptor_state>;
 		using pieceType = pygmalion::state::piece<descriptor_state>;
 		using rankType = pygmalion::state::rank<descriptor_state>;
+		using ranksType = pygmalion::state::ranks<descriptor_state>;
 		using fileType = pygmalion::state::file<descriptor_state>;
+		using filesType = pygmalion::state::files<descriptor_state>;
 		using squareType = pygmalion::state::square<descriptor_state>;
 		using squaresType = pygmalion::state::squares<descriptor_state>;
 		using flagType = pygmalion::state::flag<descriptor_state>;
@@ -26,6 +30,8 @@ namespace pygmalion
 		using cumulationType = CUMULATION;
 		using scoreType = pygmalion::score<MANTISSA, SHIFT, MAXDIST>;
 		using piecesType = pygmalion::state::pieces<descriptor_state>;
+		using playersType = pygmalion::state::players<descriptor_state>;
+		using playerpiecesType = pygmalion::state::playerpieces<descriptor_state>;
 		using deltaType = pygmalion::state::delta<descriptor_state>;
 		using objectiveType = objectivescore <scoreType, countPlayers>;
 		constexpr static const size_t scoreMantissa{ MANTISSA };

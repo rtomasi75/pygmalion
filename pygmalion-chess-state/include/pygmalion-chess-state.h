@@ -3,6 +3,7 @@
 
 #include <pygmalion-state.h>
 
+#include "pygmalion-chess-state/config.h"
 #include "pygmalion-chess-state/score.h"
 #include "pygmalion-chess-state/cumulation.h"
 #include "pygmalion-chess-state/descriptor_state.h"

@@ -9,6 +9,24 @@ namespace pygmalion
 	private:
 		std::array<subjectiveType, countPlayers> m_PlayerScores;
 	public:
+		constexpr PYGMALION_INLINE bool operator==(const objectivescore& other) const noexcept
+		{
+			for (size_t i = 0; i < countPlayers; i++)
+			{
+				if (this->m_PlayerScores[i] != other.m_PlayerScores[i])
+					return false;
+			}
+			return true;
+		}
+		constexpr PYGMALION_INLINE bool operator!=(const objectivescore& other) const noexcept
+		{
+			for (size_t i = 0; i < countPlayers; i++)
+			{
+				if (this->m_PlayerScores[i] != other.m_PlayerScores[i])
+					return true;
+			}
+			return false;
+		}
 		constexpr PYGMALION_INLINE objectivescore() noexcept :
 			m_PlayerScores{ arrayhelper::template generate<countPlayers,subjectiveType>([](const size_t playerIndex) { constexpr const subjectiveType zero{subjectiveType::zero()}; return zero; }) }
 		{
@@ -117,6 +135,14 @@ namespace pygmalion
 	private:
 		subjectiveType m_PlayerZeroScore;
 	public:
+		constexpr PYGMALION_INLINE bool operator==(const objectivescore& other) const noexcept
+		{
+			return this->m_PlayerZeroScore == other.m_PlayerZeroScore;
+		}
+		constexpr PYGMALION_INLINE bool operator!=(const objectivescore& other) const noexcept
+		{
+			return this->m_PlayerZeroScore != other.m_PlayerZeroScore;
+		}
 		constexpr PYGMALION_INLINE objectivescore() noexcept :
 			m_PlayerZeroScore{ []() { constexpr const subjectiveType zero{subjectiveType::zero()}; return zero; }() }
 		{

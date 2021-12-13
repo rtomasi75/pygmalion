@@ -13,22 +13,6 @@ namespace pygmalion::chess
 			return "q";
 		case castleRightQueensideWhite:
 			return "Q";
-		case enPassantFileA:
-			return "A";
-		case enPassantFileB:
-			return "B";
-		case enPassantFileC:
-			return "C";
-		case enPassantFileD:
-			return "D";
-		case enPassantFileE:
-			return "E";
-		case enPassantFileF:
-			return "F";
-		case enPassantFileG:
-			return "G";
-		case enPassantFileH:
-			return "H";
 		default:
 			PYGMALION_UNREACHABLE;
 			return "?";
@@ -60,46 +44,6 @@ namespace pygmalion::chess
 				return true;
 			case 'Q':
 				flag = castleRightQueensideWhite;
-				count++;
-				return true;
-			case 'a':
-			case 'A':
-				flag = enPassantFileA;
-				count++;
-				return true;
-			case 'b':
-			case 'B':
-				flag = enPassantFileB;
-				count++;
-				return true;
-			case 'd':
-			case 'D':
-				flag = enPassantFileC;
-				count++;
-				return true;
-			case 'c':
-			case 'C':
-				flag = enPassantFileD;
-				count++;
-				return true;
-			case 'e':
-			case 'E':
-				flag = enPassantFileE;
-				count++;
-				return true;
-			case 'f':
-			case 'F':
-				flag = enPassantFileF;
-				count++;
-				return true;
-			case 'g':
-			case 'G':
-				flag = enPassantFileG;
-				count++;
-				return true;
-			case 'h':
-			case 'H':
-				flag = enPassantFileH;
 				count++;
 				return true;
 			default:
@@ -331,7 +275,7 @@ namespace pygmalion::chess
 	{
 		std::stringstream fen;
 		if (!flags.extractRange<0, 3>())
-			fen << "- ";
+			fen << "-";
 		else
 		{
 			if (flags[castleRightKingsideWhite])
@@ -342,32 +286,6 @@ namespace pygmalion::chess
 				fen << "k";
 			if (flags[castleRightQueensideBlack])
 				fen << "q";
-			fen << " ";
-		}
-		if (!flags.extractRange<4, 11>())
-			fen << "-";
-		else
-		{
-			if (flags[enPassantFlag(fileA)])
-				fen << "a";
-			else if (flags[enPassantFlag(fileB)])
-				fen << "b";
-			else if (flags[enPassantFlag(fileC)])
-				fen << "c";
-			else if (flags[enPassantFlag(fileD)])
-				fen << "d";
-			else if (flags[enPassantFlag(fileE)])
-				fen << "e";
-			else if (flags[enPassantFlag(fileF)])
-				fen << "f";
-			else if (flags[enPassantFlag(fileG)])
-				fen << "g";
-			else if (flags[enPassantFlag(fileH)])
-				fen << "h";
-			if (movingPlayer == whitePlayer)
-				fen << "6";
-			else
-				fen << "3";
 		}
 		return fen.str();
 	}
@@ -383,15 +301,6 @@ namespace pygmalion::chess
 		if (text[pos] == '-')
 		{
 			pos++;
-			if (text.length() <= pos)
-			{
-				return false;
-			}
-			if (text[pos] != ' ')
-			{
-				return false;
-			}
-			pos++;
 		}
 		else
 		{
@@ -399,10 +308,8 @@ namespace pygmalion::chess
 			size_t len = 0;
 			while (bParsing)
 			{
-				if (len >= 5)
-				{
+				if (len > countFlags)
 					return false;
-				}
 				switch (text[pos])
 				{
 				default:
@@ -411,84 +318,28 @@ namespace pygmalion::chess
 					bParsing = false;
 					break;
 				case 'K':
-					flags.set(castleRightKingsideWhite);
+					flags |= castleRightKingsideWhite;
+					pos++;
+					len++;
 					break;
 				case 'k':
-					flags.set(castleRightKingsideBlack);
+					flags |= castleRightKingsideBlack;
+					pos++;
+					len++;
 					break;
 				case 'Q':
-					flags.set(castleRightQueensideWhite);
+					flags |= castleRightQueensideWhite;
+					pos++;
+					len++;
 					break;
 				case 'q':
-					flags.set(castleRightQueensideBlack);
+					flags |= castleRightQueensideBlack;
+					pos++;
+					len++;
 					break;
 				}
-				pos++;
-				len++;
-			}
-			if (len == 0)
-			{
-				return false;
 			}
 		}
-		if (text.length() <= pos)
-		{
-			return false;
-		}
-		if (text[pos] != '-')
-		{
-			typename fileType::baseType epfile{ 0 };
-			typename rankType::baseType eprank{ 0 };
-			switch (text[pos])
-			{
-			default:
-				return false;
-			case 'a':
-				epfile = 0;
-				break;
-			case 'b':
-				epfile = 1;
-				break;
-			case 'c':
-				epfile = 2;
-				break;
-			case 'd':
-				epfile = 3;
-				break;
-			case 'e':
-				epfile = 4;
-				break;
-			case 'f':
-				epfile = 5;
-				break;
-			case 'g':
-				epfile = 6;
-				break;
-			case 'h':
-				epfile = 7;
-				break;
-			}
-			pos++;
-			if (text.length() <= pos)
-			{
-				return false;
-			}
-			switch (text[pos])
-			{
-			default:
-				return false;
-			case '3':
-				eprank = 3;
-				break;
-			case '6':
-				eprank = 6;
-				break;
-			}
-			pos++;
-			flags.set(enPassantFlag(epfile));
-		}
-		else
-			pos++;
 		count += pos;
 		return true;
 	}
@@ -502,7 +353,7 @@ namespace pygmalion::chess
 			addPiece(pawn, rank2 & f, whitePlayer, materialTable);
 			addPiece(pawn, rank7 & f, blackPlayer, materialTable);
 		}
-		clearEnPassantFiles();
+		clearEnPassantSquare();
 		addPiece(king, squareE1, whitePlayer, materialTable);
 		addPiece(king, squareE8, blackPlayer, materialTable);
 		// rooks
@@ -588,7 +439,7 @@ namespace pygmalion::chess
 		str << "-+";
 		for (const auto file : fileType::range)
 		{
-			if (position.checkEnPassantFile(file))
+			if (position.enPassantSquare().isValid() && position.enPassantSquare().file() == file)
 				str << "^";
 			else
 				str << "-";
@@ -609,7 +460,7 @@ namespace pygmalion::chess
 				str << "_";
 		}
 		str << std::endl;
-		str << "Pieces: " << boardType::pieceMaskToString(position.pieceMask(descriptorState::whitePlayer), descriptorState::whitePlayer) << ":" << boardType::pieceMaskToString(position.pieceMask(descriptorState::blackPlayer), descriptorState::blackPlayer) << std::endl;
+		str << "Pieces: " << boardType::pieceMaskToString(position.pieces(descriptorState::whitePlayer), descriptorState::whitePlayer) << ":" << boardType::pieceMaskToString(position.pieces(descriptorState::blackPlayer), descriptorState::blackPlayer) << std::endl;
 		str << std::endl;
 		str << std::endl;
 		str << "Material: " << position.material().makeSubjective(position.movingPlayer()) << std::endl;

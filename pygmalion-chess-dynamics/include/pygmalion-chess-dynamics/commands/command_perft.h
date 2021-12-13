@@ -39,7 +39,7 @@ namespace pygmalion::chess::dynamics
 			perftdata& operator+=(const perftdata& data) noexcept;
 		};
 		template<size_t PLAYER>
-		static void perft(const stackType<PLAYER>& stack, const size_t depth, const size_t maxDepth, perftdata& data) noexcept
+		void perft(const stackType<PLAYER>& stack, const size_t depth, const size_t maxDepth, perftdata& data) noexcept
 		{
 			constexpr const playerType player{ static_cast<playerType>(PLAYER) };
 			movebitsType moveBits;
@@ -48,6 +48,8 @@ namespace pygmalion::chess::dynamics
 			{
 				while (stack.nextMove(moveBits))
 				{
+				//	this->output() << depth << "  " << motorType::move().toString(stack.position(), moveBits) << std::endl;
+				//	this->flushOutput();
 					data.Leafs++;
 					if (motorType::move().isCapture(moveBits))
 						data.Captures++;
@@ -73,14 +75,20 @@ namespace pygmalion::chess::dynamics
 								data.Checkmates++;
 						}
 					}
+					//if (depth == 1)
+					//	this->output() << "    " << motorType::move().toString(this->position(), moveBits)  << std::endl;
 				}
 			}
 			else
 			{
 				while (stack.nextMove(moveBits))
 				{
+				//	this->output() << depth << "  " << motorType::move().toString(stack.position(), moveBits) << std::endl;
+				//	this->flushOutput();
 					const stackType<static_cast<size_t>(player.next())> substack{ stackType<static_cast<size_t>(player.next())>(stack,moveBits) };
 					perft<static_cast<size_t>(player.next())>(substack, depth + 1, maxDepth, data);
+					//if (depth == 1)
+					//	this->output() << "    " << motorType::move().toString(this->position(), moveBits) << "\t: " << data.Leafs << std::endl;
 				}
 			}
 		}
@@ -103,6 +111,8 @@ namespace pygmalion::chess::dynamics
 						movebitsType moveBits;
 						while (stack.nextMove(moveBits))
 						{
+						//	this->output() << depth << "  " << motorType::move().toString(stack.position(), moveBits) << std::endl;
+						//	this->flushOutput();
 							data.Nodes++;
 							if (depth == 1)
 							{

@@ -2,7 +2,8 @@ namespace pygmalion::chess
 {
 	namespace detail
 	{
-		class promocaptureMovedata
+		class promocaptureMovedata :
+			public pygmalion::mechanics::movedataBase<board>
 		{
 		public:
 			using boardType = board;
@@ -12,38 +13,49 @@ namespace pygmalion::chess
 		private:
 			squareType m_From;
 			squareType m_To;
-			uint_t<countFlags, false> m_OldFlags;
+			flagsType m_OldFlags;
+			squareType m_OldEnPassantSquare;
 			pieceType m_CapturedPiece;
-			std::uint16_t m_ReversiblePlies{ 0 };
+			size_t m_ReversiblePlies{ 0 };
+			constexpr static const flagsType noFlags{ flagsType::none() };
 		public:
-			PYGMALION_INLINE std::uint16_t reversiblePlies() const noexcept
+			PYGMALION_INLINE const size_t& reversiblePlies() const noexcept
 			{
 				return m_ReversiblePlies;
 			}
-			PYGMALION_INLINE const uint_t<countFlags, false> oldFlags() const noexcept
+			PYGMALION_INLINE const flagsType& oldFlags() const noexcept
 			{
 				return m_OldFlags;
 			}
-			PYGMALION_INLINE squareType from() const noexcept
+			PYGMALION_INLINE const squareType& oldEnPassantSquare() const noexcept
+			{
+				return m_OldEnPassantSquare;
+			}
+			PYGMALION_INLINE const squareType& from() const noexcept
 			{
 				return m_From;
 			}
-			PYGMALION_INLINE squareType to() const noexcept
+			PYGMALION_INLINE const squareType& to() const noexcept
 			{
 				return m_To;
 			}
-			PYGMALION_INLINE pieceType capturedPiece() const noexcept
+			PYGMALION_INLINE const pieceType& capturedPiece() const noexcept
 			{
 				return m_CapturedPiece;
 			}
-			PYGMALION_INLINE promocaptureMovedata(const squareType fromSquare, const squareType toSquare, const uint_t<countFlags, false> oldFlags_, const pieceType capturedPiece_, const std::uint16_t reversiblePlies_) noexcept :
+			PYGMALION_INLINE promocaptureMovedata(const squareType fromSquare, const squareType toSquare, const flagsType oldFlags_, const pieceType capturedPiece_, const size_t reversiblePlies_, const squareType  oldEnPassantSquare_) noexcept :
 				m_From{ fromSquare },
 				m_To{ toSquare },
 				m_OldFlags{ oldFlags_ },
 				m_CapturedPiece{ capturedPiece_ },
-				m_ReversiblePlies{ reversiblePlies_ }
+				m_ReversiblePlies{ reversiblePlies_ },
+				m_OldEnPassantSquare{ oldEnPassantSquare_ }
 			{}
-			PYGMALION_INLINE promocaptureMovedata() noexcept = default;
+			PYGMALION_INLINE promocaptureMovedata() noexcept :
+				m_OldFlags{ noFlags }
+			{
+
+			}
 			PYGMALION_INLINE promocaptureMovedata(promocaptureMovedata&&) noexcept = default;
 			PYGMALION_INLINE promocaptureMovedata(const promocaptureMovedata&) noexcept = default;
 			PYGMALION_INLINE promocaptureMovedata& operator=(promocaptureMovedata&&) noexcept = default;
@@ -109,9 +121,10 @@ namespace pygmalion::chess
 			const playerType p{ position.movingPlayer() };
 			const pieceType pc2{ position.getPiece(to) };
 			const playerType p2{ ++position.movingPlayer() };
-			const uint_t<countFlags, false> oldFlags{ position.extractFlagRange<0, 11>() };
-			const std::uint16_t reversiblePlies{ static_cast<std::uint16_t>(position.getReversiblePlyCount()) };
-			position.clearEnPassantFiles();
+			const flagsType oldFlags{ position.flags() };
+			const squareType enPassantSquare{ position.enPassantSquare() };
+			const size_t reversiblePlies{ position.getReversiblePlyCount() };
+			position.clearEnPassantSquare();
 			position.removePiece(pawn, from, p, materialTable);
 			position.removePiece(pc2, to, p2, materialTable);
 			position.addPiece(m_PromotedPiece, to, p, materialTable);
@@ -147,7 +160,7 @@ namespace pygmalion::chess
 					}
 				}
 			}
-			movedata = typename promocapturemove::movedataType(from, to, oldFlags, pc2, reversiblePlies);
+			movedata = typename promocapturemove::movedataType(from, to, oldFlags, pc2, reversiblePlies, enPassantSquare);
 		}
 		PYGMALION_INLINE void undoMove_Implementation(boardType& position, const typename promocapturemove::movedataType& data, const materialTableType& materialTable) const noexcept
 		{
@@ -157,8 +170,9 @@ namespace pygmalion::chess
 			position.removePiece(m_PromotedPiece, data.to(), p, materialTable);
 			position.addPiece(pawn, data.from(), p, materialTable);
 			position.addPiece(data.capturedPiece(), data.to(), p2, materialTable);
-			position.storeFlagRange<0, 11>(data.oldFlags());
-			position.setReversiblePlyCount(static_cast<size_t>(data.reversiblePlies()));
+			position.flags()=data.oldFlags();
+			position.setReversiblePlyCount(data.reversiblePlies());
+			position.setEnPassantSquare(data.oldEnPassantSquare());
 		}
 		PYGMALION_INLINE constexpr typename promocapturemove::movebitsType create(const squareType from, const squareType to) const noexcept
 		{

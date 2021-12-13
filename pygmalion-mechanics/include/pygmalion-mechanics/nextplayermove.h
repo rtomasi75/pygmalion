@@ -3,7 +3,8 @@ namespace pygmalion::mechanics
 	namespace detail
 	{
 		template<typename BOARD>
-		class nextplayermoveMovedata
+		class nextplayermoveMovedata :
+			public pygmalion::mechanics::movedataBase<BOARD>
 		{
 		public:
 			using boardType = BOARD;

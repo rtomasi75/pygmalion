@@ -20,7 +20,8 @@ namespace pygmalion::mechanics
 		}
 
 		template<typename BOARD, typename... MOVES>
-		class conjunctiveMovedata
+		class conjunctiveMovedata :
+			public pygmalion::mechanics::movedataBase<BOARD>
 		{
 		public:
 			using boardType = BOARD;

@@ -683,19 +683,19 @@ namespace pygmalion
 			{
 				constexpr const scoreType zero{ scoreType::zero() };
 				constexpr const squaresType none{ squaresType::none() };
-				const scoreType positionalMargin{ stack.delta().maxQuietChange(stackType::MovingPlayer,stackType::MovingPlayer,stack.position().pieceMask(stackType::MovingPlayer)) };
+				const scoreType positionalMargin{ stack.delta().maxQuietChange(stackType::MovingPlayer,stackType::MovingPlayer,stack.position().template pieces<static_cast<size_t>(stackType::MovingPlayer)>()) };
 				playerType player{ stackType::NextPlayer };
 				scoreType margin{ positionalMargin };
 				size_t d{ 0 };
 				while (depthRemaining > d)
 				{
-					const piecesType playerPieces{ stack.position().pieceMask(player) };
-					const piecesType opponentPieces{ stack.position().opponentPieceMask(player) };
+					const piecesType playerPieces{ stack.position().pieces(player) };
+					const piecesType opponentPieces{ stack.position().opponentPieces(player) };
 					const scoreType quietMargin{ stack.delta().maxQuietChange(stackType::MovingPlayer,player,playerPieces) };
 					const scoreType captureMargin{ stack.delta().maxCaptureChange(stackType::MovingPlayer,player,playerPieces,opponentPieces) };
 					const squaresType promotionOrigins{ none };
 					bool bPromotionPossible{ false };
-					for (const auto promoPiece : (generatorType::promotionPieces(player)& stack.position().pieceMask(player)))
+					for (const auto promoPiece : (generatorType::promotionPieces(player)& stack.position().pieces(player)))
 					{
 						if (stack.position().pieceOccupancy(promoPiece) & stack.position().playerOccupancy(player) & generatorType::promotionOrigins(player, promoPiece))
 						{
@@ -759,13 +759,13 @@ namespace pygmalion
 				size_t d{ 0 };
 				while (depthRemaining >= d)
 				{
-					const piecesType playerPieces{ stack.position().pieceMask(player) };
-					const piecesType opponentPieces{ stack.position().opponentPieceMask(player) };
+					const piecesType playerPieces{ stack.position().pieces(player) };
+					const piecesType opponentPieces{ stack.position().opponentPieces(player) };
 					const scoreType quietMargin{ stack.delta().maxQuietChange(stackType::MovingPlayer,player,playerPieces) };
 					const scoreType captureMargin{ stack.delta().maxCaptureChange(stackType::MovingPlayer,player,playerPieces,opponentPieces) };
 					const squaresType promotionOrigins{ none };
 					bool bPromotionPossible{ false };
-					for (const auto promoPiece : (generatorType::promotionPieces(player)& stack.position().pieceMask(player)))
+					for (const auto promoPiece : (generatorType::promotionPieces(player)& stack.position().template pieces<static_cast<size_t>(movingPlayer)>()))
 					{
 						if (stack.position().pieceOccupancy(promoPiece) & stack.position().playerOccupancy(player) & generatorType::promotionOrigins(player, promoPiece))
 						{

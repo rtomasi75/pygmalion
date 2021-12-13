@@ -2,38 +2,39 @@ namespace pygmalion::chess
 {
 	namespace detail
 	{
-		class doublepushMovedata
+		class doublepushMovedata :
+			public pygmalion::mechanics::movedataBase<board>
 		{
 		public:
 			using boardType = board;
 			using descriptorState = typename boardType::descriptorState;
 #include <pygmalion-state/include_state.h>
 		private:
-			uint_t<countFiles, false> m_OldFlags;
+			size_t m_ReversiblePlies{ 0 };
+			squareType m_OldEnPassantSquare;
 			squareType m_From;
 			squareType m_To;
-			std::uint16_t m_ReversiblePlies{ 0 };
 		public:
-			PYGMALION_INLINE std::uint16_t reversiblePlies() const noexcept
+			PYGMALION_INLINE const size_t& reversiblePlies() const noexcept
 			{
 				return m_ReversiblePlies;
 			}
-			PYGMALION_INLINE const uint_t<countFiles, false> oldFlags() const noexcept
+			PYGMALION_INLINE const squareType& oldEnPassantSquare() const noexcept
 			{
-				return m_OldFlags;
+				return m_OldEnPassantSquare;
 			}
-			PYGMALION_INLINE squareType from() const noexcept
+			PYGMALION_INLINE const squareType& from() const noexcept
 			{
 				return m_From;
 			}
-			PYGMALION_INLINE squareType to() const noexcept
+			PYGMALION_INLINE const squareType& to() const noexcept
 			{
 				return m_To;
 			}
-			PYGMALION_INLINE doublepushMovedata(const squareType from_, const squareType to_, const uint_t<countFiles, false>& oldFlags_, const std::uint16_t reversiblePlies_) noexcept :
+			PYGMALION_INLINE doublepushMovedata(const squareType from_, const squareType to_, const squareType oldEnPassantSquare_, const size_t reversiblePlies_) noexcept :
 				m_From{ from_ },
 				m_To{ to_ },
-				m_OldFlags{ oldFlags_ },
+				m_OldEnPassantSquare{ oldEnPassantSquare_ },
 				m_ReversiblePlies{ reversiblePlies_ }
 			{}
 			PYGMALION_INLINE doublepushMovedata() noexcept = default;
@@ -87,33 +88,35 @@ namespace pygmalion::chess
 		{
 			const playerType p{ position.movingPlayer() };
 			const fileType f{ doublepushmove::extractFile(moveBits) };
-			const uint_t<countFiles, false> oldFlags{ position.extractFlagRange<4, 11>() };
-			const std::uint16_t reversiblePlies{ static_cast<std::uint16_t>(position.getReversiblePlyCount()) };
+			const squareType oldEnPassantSquare{ position.enPassantSquare() };
+			const size_t reversiblePlies{ position.getReversiblePlyCount() };
 			if (p == whitePlayer)
 			{
-				const rankType r1{ rank2 };
-				const rankType r2{ rank4 };
+				constexpr const rankType r1{ rank2 };
+				constexpr const rankType r2{ rank4 };
+				constexpr const rankType r3{ rank3 };
 				const squareType from{ f & r1 };
 				const squareType to{ f & r2 };
-				position.clearEnPassantFiles();
+				const squareType ep{ f & r3 };
 				position.movePiece(pawn, from, to, p, materialTable);
-				position.setEnPassantFile(f);
+				position.setEnPassantSquare(ep);
 				position.setMovingPlayer(++position.movingPlayer());
 				position.resetReversiblePlyCount();
-				movedata = doublepushmove::movedataType(from, to, oldFlags, reversiblePlies);
+				movedata = doublepushmove::movedataType(from, to, oldEnPassantSquare, reversiblePlies);
 			}
 			else
 			{
-				const rankType r1{ rank7 };
-				const rankType r2{ rank5 };
+				constexpr const rankType r1{ rank7 };
+				constexpr const rankType r2{ rank5 };
+				constexpr const rankType r3{ rank6 };
 				const squareType from{ f & r1 };
 				const squareType to{ f & r2 };
-				position.clearEnPassantFiles();
+				const squareType ep{ f & r3 };
 				position.movePiece(pawn, from, to, p, materialTable);
-				position.setEnPassantFile(f);
+				position.setEnPassantSquare(ep);
 				position.setMovingPlayer(++position.movingPlayer());
 				position.resetReversiblePlyCount();
-				movedata = typename doublepushmove::movedataType(from, to, oldFlags, reversiblePlies);
+				movedata = typename doublepushmove::movedataType(from, to, oldEnPassantSquare, reversiblePlies);
 			}
 		}
 		PYGMALION_INLINE void undoMove_Implementation(boardType& position, const typename doublepushmove::movedataType& data, const materialTableType& materialTable) const noexcept
@@ -121,8 +124,8 @@ namespace pygmalion::chess
 			const playerType p{ --position.movingPlayer() };
 			position.setMovingPlayer(p);
 			position.movePiece(pawn, data.to(), data.from(), p, materialTable);
-			position.storeFlagRange<4, 11>(data.oldFlags());
-			position.setReversiblePlyCount(static_cast<size_t>(data.reversiblePlies()));
+			position.setEnPassantSquare(data.oldEnPassantSquare());
+			position.setReversiblePlyCount(data.reversiblePlies());
 		}
 		PYGMALION_INLINE typename doublepushmove::movebitsType create(const fileType file) const noexcept
 		{

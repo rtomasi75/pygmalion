@@ -57,7 +57,7 @@ using timeType = typename chronographType::time_point;
 #include "pygmalion-intrinsics/threadqueue.h"
 #include "pygmalion-intrinsics/hashprovider.h"
 #include "pygmalion-intrinsics/enumeration.h"
-#include "pygmalion-intrinsics/bit.h"
+#include "pygmalion-intrinsics/set.h"
 #include "pygmalion-intrinsics/uint_t_traits.h"
 #include "pygmalion-intrinsics/uint_t_detail.h"
 #include "pygmalion-intrinsics/uint_t.h"

@@ -258,21 +258,11 @@ namespace pygmalion::chess
 		{
 			arrayhelper::generate<1 << countFlags,hashType>([](const size_t index)
 				{
-					const flagsType flags{static_cast<flagsType>(static_cast<typename flagsType::bitsType>(index))};
-					const auto castleFlags{ flags.bits().extractBits<0,4>() };
-					const auto epFlags{ flags.bits().extractBits<4,8>() };
-					const size_t castleFlagsIndex{ static_cast<size_t>(static_cast<std::uint64_t>(castleFlags)) };
-					const size_t epFlagsIndex{ static_cast<size_t>(static_cast<std::uint64_t>(epFlags)) };
 					hashType hash{ hashType(0) };
 					for (size_t i = 0; i < 4; i++)
 					{
 						if (castleFlags[i])
 							hash ^= m_CastleHash[i];
-					}
-					for (size_t i = 0; i < 8; i++)
-					{
-						if (epFlags[i])
-							hash ^= m_EpHash[i];
 					}
 					return hash;
 				})
@@ -358,34 +348,6 @@ namespace pygmalion::chess
 		PYGMALION_INLINE void clearCastleRightsWhite() noexcept
 		{
 			clearFlags(castleFlagsWhite);
-		}
-		PYGMALION_INLINE void setEnPassantFile(const fileType file) noexcept
-		{
-			setFlag(enPassantFlag(file));
-		}
-		PYGMALION_INLINE bool getEnPassantFile(fileType& file) noexcept
-		{
-			const auto epFlags{ this->template extractFlagRange<4, 8>() };
-			size_t epBit;
-			if (epFlags.bitscanForward(epBit))
-			{
-				file = fileType(epBit);
-				return true;
-			}
-			else
-				return false;
-		}
-		PYGMALION_INLINE void clearEnPassantFile(const fileType file) noexcept
-		{
-			clearFlag(enPassantFlag(file));
-		}
-		PYGMALION_INLINE bool checkEnPassantFile(const fileType file) const noexcept
-		{
-			return checkFlag(enPassantFlag(file));
-		}
-		PYGMALION_INLINE void clearEnPassantFiles() noexcept
-		{
-			clearFlags(enPassantFlags);
 		}
 		PYGMALION_INLINE squareType kingSquare(const playerType player) const noexcept
 		{

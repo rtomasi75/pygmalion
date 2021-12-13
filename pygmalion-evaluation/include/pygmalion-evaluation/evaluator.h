@@ -172,23 +172,23 @@ namespace pygmalion
 			scoreType marginPlayer1{ zero };
 			if constexpr (QUIET)
 			{
-				marginPlayer0 = scoreType::max(marginPlayer0, stageDelta.maxQuietChange(movingPlayer, movingPlayer, stack.position().pieceMask(movingPlayer)));
-				marginPlayer1 = scoreType::max(marginPlayer1, stageDelta.maxQuietChange(nextPlayer, movingPlayer, stack.position().pieceMask(movingPlayer)));
+				marginPlayer0 = scoreType::max(marginPlayer0, stageDelta.maxQuietChange(movingPlayer, movingPlayer, stack.position().pieces(movingPlayer)));
+				marginPlayer1 = scoreType::max(marginPlayer1, stageDelta.maxQuietChange(nextPlayer, movingPlayer, stack.position().pieces(movingPlayer)));
 			}
 			if constexpr (PROMO)
 			{
-				marginPlayer0 = scoreType::max(marginPlayer0, stageDelta.maxPromotionChange(movingPlayer, movingPlayer, stack.position().pieceMask(movingPlayer)));
-				marginPlayer1 = scoreType::max(marginPlayer1, stageDelta.maxPromotionChange(nextPlayer, movingPlayer, stack.position().pieceMask(movingPlayer)));
+				marginPlayer0 = scoreType::max(marginPlayer0, stageDelta.maxPromotionChange(movingPlayer, movingPlayer, stack.position().pieces(movingPlayer)));
+				marginPlayer1 = scoreType::max(marginPlayer1, stageDelta.maxPromotionChange(nextPlayer, movingPlayer, stack.position().pieces(movingPlayer)));
 			}
 			if constexpr (CAPTURE)
 			{
-				marginPlayer0 = scoreType::max(marginPlayer0, stageDelta.maxCaptureChange(movingPlayer, movingPlayer, stack.position().pieceMask(movingPlayer), stack.position().opponentPieceMask(movingPlayer)));
-				marginPlayer1 = scoreType::max(marginPlayer1, stageDelta.maxCaptureChange(nextPlayer, movingPlayer, stack.position().pieceMask(movingPlayer), stack.position().opponentPieceMask(movingPlayer)));
+				marginPlayer0 = scoreType::max(marginPlayer0, stageDelta.maxCaptureChange(movingPlayer, movingPlayer, stack.position().pieces(movingPlayer), stack.position().opponentPieces(movingPlayer)));
+				marginPlayer1 = scoreType::max(marginPlayer1, stageDelta.maxCaptureChange(nextPlayer, movingPlayer, stack.position().pieces(movingPlayer), stack.position().opponentPieces(movingPlayer)));
 			}
 			if constexpr (PROMOCAPTURE)
 			{
-				marginPlayer0 = scoreType::max(marginPlayer0, stageDelta.maxPromoCaptureChange(movingPlayer, movingPlayer, stack.position().pieceMask(movingPlayer), stack.position().opponentPieceMask(movingPlayer)));
-				marginPlayer1 = scoreType::max(marginPlayer1, stageDelta.maxPromoCaptureChange(nextPlayer, movingPlayer, stack.position().pieceMask(movingPlayer), stack.position().opponentPieceMask(movingPlayer)));
+				marginPlayer0 = scoreType::max(marginPlayer0, stageDelta.maxPromoCaptureChange(movingPlayer, movingPlayer, stack.position().pieces(movingPlayer), stack.position().opponentPieces(movingPlayer)));
+				marginPlayer1 = scoreType::max(marginPlayer1, stageDelta.maxPromoCaptureChange(nextPlayer, movingPlayer, stack.position().pieces(movingPlayer), stack.position().opponentPieces(movingPlayer)));
 			}
 			return (approx + marginPlayer0 <= alpha) && (approx + marginPlayer1 < beta);
 		}
@@ -362,7 +362,7 @@ namespace pygmalion
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			const scoreType sc{ stack.position().material().template makeSubjective<PLAYER>() };
 			bool bQuietPossible{ false };
-			for (const auto quietPiece : stack.position().pieceMask(movingPlayer))
+			for (const auto quietPiece : stack.position().template pieces<static_cast<size_t>(movingPlayer)>())
 			{
 				if (stack.position().pieceOccupancy(quietPiece) & stack.position().playerOccupancy(movingPlayer) & generatorType::promotionOrigins(movingPlayer, quietPiece))
 				{
@@ -371,7 +371,7 @@ namespace pygmalion
 				}
 			}
 			bool bPromotionPossible{ false };
-			for (const auto promoPiece : (generatorType::promotionPieces(movingPlayer)& stack.position().pieceMask(movingPlayer)))
+			for (const auto promoPiece : (generatorType::promotionPieces(movingPlayer)& stack.position().template pieces<static_cast<size_t>(movingPlayer)>()))
 			{
 				if (stack.position().pieceOccupancy(promoPiece) & stack.position().playerOccupancy(movingPlayer) & generatorType::promotionOrigins(movingPlayer, promoPiece))
 				{
@@ -380,7 +380,7 @@ namespace pygmalion
 				}
 			}
 			bool bCapturePossible{ false };
-			for (const auto capturePiece : stack.position().pieceMask(movingPlayer))
+			for (const auto capturePiece : stack.position().template pieces<static_cast<size_t>(movingPlayer)>())
 			{
 				if (stack.position().pieceOccupancy(capturePiece) & stack.position().playerOccupancy(movingPlayer) & generatorType::captureOrigins(movingPlayer, capturePiece))
 				{
@@ -389,7 +389,7 @@ namespace pygmalion
 				}
 			}
 			bool bPromoCapturePossible{ false };
-			for (const auto promoCapturePiece : (generatorType::promotionPieces(movingPlayer)& stack.position().pieceMask(movingPlayer)))
+			for (const auto promoCapturePiece : (generatorType::promotionPieces(movingPlayer)& stack.position().template pieces<static_cast<size_t>(movingPlayer)>()))
 			{
 				if (stack.position().pieceOccupancy(promoCapturePiece) & stack.position().playerOccupancy(movingPlayer) & generatorType::promotionOrigins(movingPlayer, promoCapturePiece))
 				{

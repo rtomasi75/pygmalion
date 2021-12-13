@@ -1,7 +1,7 @@
 namespace pygmalion::chess::state
 {
 	class descriptor_state :
-		public pygmalion::descriptor_state<6, 8, 8, 12, 32, true, pygmalion::chess::state::cumulation, 31, 15, 1024>
+		public pygmalion::descriptor_state<6, 8, 8, 4, 32, true, pygmalion::chess::state::cumulation, 31, 15, 1024>
 	{
 	public:
 		constexpr static const playerType whitePlayer{ 0 };
@@ -104,19 +104,6 @@ namespace pygmalion::chess::state
 		constexpr static const flagType castleRightQueensideWhite{ 1 };
 		constexpr static const flagType castleRightKingsideBlack{ 2 };
 		constexpr static const flagType castleRightQueensideBlack{ 3 };
-		constexpr static const flagType enPassantFileA{ 4 };
-		constexpr static const flagType enPassantFileB{ 5 };
-		constexpr static const flagType enPassantFileC{ 6 };
-		constexpr static const flagType enPassantFileD{ 7 };
-		constexpr static const flagType enPassantFileE{ 8 };
-		constexpr static const flagType enPassantFileF{ 9 };
-		constexpr static const flagType enPassantFileG{ 10 };
-		constexpr static const flagType enPassantFileH{ 11 };
-		constexpr static flagType enPassantFlag(const fileType file)
-		{
-			return 4 + file;
-		}
-		constexpr static const flagsType enPassantFlags{ enPassantFileA | enPassantFileB | enPassantFileC | enPassantFileD | enPassantFileE | enPassantFileF | enPassantFileG | enPassantFileH };
 		constexpr static const flagsType castleFlags{ castleRightQueensideWhite | castleRightQueensideBlack | castleRightKingsideWhite | castleRightKingsideBlack };
 		constexpr static const flagsType castleFlagsWhite{ castleRightQueensideWhite | castleRightKingsideWhite };
 		constexpr static const flagsType castleFlagsBlack{ castleRightQueensideBlack | castleRightKingsideBlack };
