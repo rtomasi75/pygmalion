@@ -10,21 +10,27 @@ namespace pygmalion::chess
 			using descriptorState = typename boardType::descriptorState;
 #include <pygmalion-state/include_state.h>
 		private:
+			squaresType m_OldEnPassantTargets;
+			squareType m_OldEnPassantVictim;
 			flagsType m_OldFlags;
-			squareType m_OldEnPassantSquare;
 			constexpr static const flagsType noFlags{ flagsType::none() };
 		public:
 			PYGMALION_INLINE const flagsType& oldFlags() const noexcept
 			{
 				return m_OldFlags;
 			}
-			PYGMALION_INLINE const squareType& oldEnPassantSquare() const noexcept
+			PYGMALION_INLINE const squaresType& oldEnPassantTargets() const noexcept
 			{
-				return m_OldEnPassantSquare;
+				return m_OldEnPassantTargets;
 			}
-			PYGMALION_INLINE kingsidecastleMovedata(const flagsType oldFlags_, const squareType oldEnPassantSquare_) noexcept :
+			PYGMALION_INLINE const squareType& oldEnPassantVictim() const noexcept
+			{
+				return m_OldEnPassantVictim;
+			}
+			PYGMALION_INLINE kingsidecastleMovedata(const flagsType oldFlags_, const squaresType oldEnPassantTargets_, const squareType oldEnPassantVictim_) noexcept :
 				m_OldFlags{ oldFlags_ },
-				m_OldEnPassantSquare{ oldEnPassantSquare_ }
+				m_OldEnPassantTargets{ oldEnPassantTargets_ },
+				m_OldEnPassantVictim{ oldEnPassantVictim_ }
 			{}
 			PYGMALION_INLINE kingsidecastleMovedata() noexcept :
 				m_OldFlags{ noFlags }
@@ -71,8 +77,9 @@ namespace pygmalion::chess
 		{
 			const playerType p{ position.movingPlayer() };
 			const flagsType oldFlags{ position.flags() };
-			const squareType oldEnPassantSquare{ position.enPassantSquare() };
-			position.clearEnPassantSquare();
+			const squaresType oldEnPassantTargets{ position.enPassantTargets() };
+			const squareType oldEnPassantVictim{ position.enPassantVictim() };
+			position.clearEnPassant();
 			position.setMovingPlayer(++position.movingPlayer());
 			if (p == whitePlayer)
 			{
@@ -84,7 +91,7 @@ namespace pygmalion::chess
 				position.movePiece(king, kingFrom, kingTo, whitePlayer, materialTable);
 				position.movePiece(rook, rookFrom, rookTo, whitePlayer, materialTable);
 				position.doReversiblePly();
-				movedata = typename kingsidecastlemove::movedataType(oldFlags, oldEnPassantSquare);
+				movedata = typename kingsidecastlemove::movedataType(oldFlags, oldEnPassantTargets, oldEnPassantVictim);
 			}
 			else
 			{
@@ -96,7 +103,7 @@ namespace pygmalion::chess
 				position.movePiece(king, kingFrom, kingTo, blackPlayer, materialTable);
 				position.movePiece(rook, rookFrom, rookTo, blackPlayer, materialTable);
 				position.doReversiblePly();
-				movedata = typename kingsidecastlemove::movedataType(oldFlags, oldEnPassantSquare);
+				movedata = typename kingsidecastlemove::movedataType(oldFlags, oldEnPassantTargets, oldEnPassantVictim);
 			}
 		}
 		PYGMALION_INLINE void undoMove_Implementation(boardType& position, const typename kingsidecastlemove::movedataType& data, const materialTableType& materialTable) const noexcept
@@ -104,7 +111,7 @@ namespace pygmalion::chess
 			const playerType p{ --position.movingPlayer() };
 			position.setMovingPlayer(p);
 			position.checkFlags(data.oldFlags());
-			position.setEnPassantSquare(data.oldEnPassantSquare());
+			position.setEnPassant(data.oldEnPassantTargets(), data.oldEnPassantVictim());
 			if (p == whitePlayer)
 			{
 				constexpr const squareType kingFrom{ squareE1 };

@@ -870,9 +870,10 @@ namespace pygmalion::chess
 		template<size_t PLAYER>
 		static void generatePawnEnPassant(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
-			const squareType epSquare{ stack.position().enPassantSquare() };
-			if (epSquare.isValid())
+			const squaresType epSquares{ stack.position().enPassantTargets() };
+			if (epSquares)
 			{
+				const squareType epSquare{ epSquares.first() };
 				constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 				size_t bit;
 				if constexpr (movingPlayer == whitePlayer)
@@ -1542,7 +1543,7 @@ namespace pygmalion::chess
 						moves.add(motorType::move().createDoublePush(to.file()));
 				}
 				const rankType toRank{ to.rank() };
-				if (stack.position().checkEnPassantSquare(to))
+				if (stack.position().checkEnPassantTarget(to))
 				{
 					const fileType toFile{ to.file() };
 					if (toFile > fileA)
@@ -1597,7 +1598,7 @@ namespace pygmalion::chess
 						moves.add(motorType::move().createDoublePush(to.file()));
 				}
 				const rankType toRank{ to.rank() };
-				if (stack.position().checkEnPassantSquare(to))
+				if (stack.position().checkEnPassantTarget(to))
 				{
 					const fileType toFile{ to.file() };
 					if (toFile > fileA)
@@ -1790,9 +1791,10 @@ namespace pygmalion::chess
 					}
 				}
 			}
-			const squareType epSquare{ stack.position().enPassantSquare() };
-			if (epSquare.isValid())
+			const squaresType epSquares{ stack.position().enPassantTargets() };
+			if (epSquares)
 			{
+				const squareType epSquare{ epSquares.first() };
 				size_t bit;
 				if constexpr (movingPlayer == whitePlayer)
 				{
@@ -2161,9 +2163,10 @@ namespace pygmalion::chess
 					}
 				}
 			}
-			const squareType epSquare{ stack.position().enPassantSquare() };
-			if (epSquare.isValid())
+			const squaresType epSquares{ stack.position().enPassantTargets() };
+			if (epSquares)
 			{
+				const squareType epSquare{ epSquares.first() };
 				size_t bit;
 				if constexpr (movingPlayer == whitePlayer)
 				{
@@ -2977,7 +2980,7 @@ namespace pygmalion::chess
 				if (attackers & otherPawns)
 				{
 					const fileType attackerFile{ attackerSquare.file() };
-					if (stack.position().enPassantSquare().file() == attackerSquare.file())
+					if (stack.position().enPassantTargets() & attackerSquare.file())
 					{
 						if (sideIsWhite && (attackerRank == rank5))
 						{
@@ -3300,7 +3303,7 @@ namespace pygmalion::chess
 				if (attackers & otherPawns)
 				{
 					const fileType attackerFile{ attackerSquare.file() };
-					if (stack.position().enPassantSquare().file() == attackerSquare.file())
+					if (stack.position().enPassantTargets() & attackerSquare.file())
 					{
 						if (sideIsWhite && (attackerRank == rank5))
 						{
@@ -3889,7 +3892,7 @@ namespace pygmalion::chess
 					return false;
 
 				// do we have en Passant rights?
-				if (!position.checkEnPassantSquare(to))
+				if (!position.checkEnPassantTarget(to))
 					return false;
 			}
 			else if (motorType::move().isPromotion(moveBits))
@@ -4870,7 +4873,7 @@ namespace pygmalion::chess
 						if constexpr (stackType<PLAYER>::MovingPlayer == whitePlayer)
 						{
 							const fileType toFile{ to.file() };
-							if (stack.position().checkEnPassantSquare(to) && (to.rank() == rank6))
+							if (stack.position().checkEnPassantTarget(to) && (to.rank() == rank6))
 								mv = motorType::move().createEnPassant(testFrom.file(), toFile);
 							else
 							{
@@ -4907,7 +4910,7 @@ namespace pygmalion::chess
 						else
 						{
 							const fileType toFile{ to.file() };
-							if (stack.position().checkEnPassantSquare(to) && (to.rank() == rank3))
+							if (stack.position().checkEnPassantTarget(to) && (to.rank() == rank3))
 								mv = motorType::move().createEnPassant(testFrom.file(), toFile);
 							else
 							{
@@ -5045,7 +5048,7 @@ namespace pygmalion::chess
 					if constexpr (stackType<PLAYER>::MovingPlayer == whitePlayer)
 					{
 						const fileType toFile{ to.file() };
-						if (stack.position().checkEnPassantSquare(to) && (to.rank() == rank6))
+						if (stack.position().checkEnPassantTarget(to) && (to.rank() == rank6))
 							mv = motorType::move().createEnPassant(from.file(), toFile);
 						else
 						{
@@ -5081,7 +5084,7 @@ namespace pygmalion::chess
 					}
 					else
 					{
-						if (stack.position().checkEnPassantSquare(to) && (to.rank() == rank3))
+						if (stack.position().checkEnPassantTarget(to) && (to.rank() == rank3))
 							mv = motorType::move().createEnPassant(from.file(), to.file());
 						else
 						{

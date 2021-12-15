@@ -11,7 +11,8 @@ namespace pygmalion::chess
 #include <pygmalion-state/include_state.h>
 		private:
 			flagsType m_OldFlags;
-			squareType m_OldEnPassantSquare;
+			squaresType m_OldEnPassantTargets;
+			squareType m_OldEnPassantVictim;
 			squareType m_From;
 			squareType m_To;
 			pieceType m_Piece;
@@ -26,9 +27,13 @@ namespace pygmalion::chess
 			{
 				return m_OldFlags;
 			}
-			PYGMALION_INLINE const squareType& oldEnPassantSquare() const noexcept
+			PYGMALION_INLINE const squaresType& oldEnPassantTargets() const noexcept
 			{
-				return m_OldEnPassantSquare;
+				return m_OldEnPassantTargets;
+			}
+			PYGMALION_INLINE const squareType& oldEnPassantVictim() const noexcept
+			{
+				return m_OldEnPassantVictim;
 			}
 			PYGMALION_INLINE const pieceType& piece() const noexcept
 			{
@@ -42,13 +47,14 @@ namespace pygmalion::chess
 			{
 				return m_To;
 			}
-			PYGMALION_INLINE quietMovedata(const pieceType transportedPiece, const squareType fromSquare, const squareType toSquare, const flagsType oldFlags_, const size_t reversiblePlies_, const squareType oldEnPassantSquare_) noexcept :
+			PYGMALION_INLINE quietMovedata(const pieceType transportedPiece, const squareType fromSquare, const squareType toSquare, const flagsType oldFlags_, const size_t reversiblePlies_, const squaresType oldEnPassantTargets_, const squareType oldEnPassantVictim_) noexcept :
 				m_Piece{ transportedPiece },
 				m_From{ fromSquare },
 				m_To{ toSquare },
 				m_OldFlags{ oldFlags_ },
 				m_ReversiblePlies{ reversiblePlies_ },
-				m_OldEnPassantSquare{oldEnPassantSquare_}
+				m_OldEnPassantTargets{ oldEnPassantTargets_ },
+				m_OldEnPassantVictim{ oldEnPassantVictim_ }
 			{}
 			PYGMALION_INLINE quietMovedata() noexcept :
 				m_OldFlags{ noFlags }
@@ -119,8 +125,9 @@ namespace pygmalion::chess
 			const playerType p{ position.movingPlayer() };
 			const flagsType oldFlags{ position.flags() };
 			const size_t reversiblePlies{ position.getReversiblePlyCount() };
-			const squareType oldEnPassantSquare{ position.enPassantSquare() };
-			position.clearEnPassantSquare();
+			const squaresType oldEnPassantTargets{ position.enPassantTargets() };
+			const squareType oldEnPassantVictim{ position.enPassantVictim() };
+			position.clearEnPassant();
 			position.movePiece(pc, from, to, p, materialTable);
 			position.setMovingPlayer(++position.movingPlayer());
 			if (pc == pawn)
@@ -167,7 +174,7 @@ namespace pygmalion::chess
 					break;
 				}
 			}
-			movedata = typename quietmove::movedataType(pc, from, to, oldFlags, reversiblePlies, oldEnPassantSquare);
+			movedata = typename quietmove::movedataType(pc, from, to, oldFlags, reversiblePlies, oldEnPassantTargets, oldEnPassantVictim);
 		}
 		PYGMALION_INLINE void undoMove_Implementation(boardType& position, const typename quietmove::movedataType& data, const materialTableType& materialTable) const noexcept
 		{
@@ -175,7 +182,7 @@ namespace pygmalion::chess
 			position.setMovingPlayer(p);
 			position.movePiece(data.piece(), data.to(), data.from(), p, materialTable);
 			position.checkFlags(data.oldFlags());
-			position.setEnPassantSquare(data.oldEnPassantSquare());
+			position.setEnPassant(data.oldEnPassantTargets(), data.oldEnPassantVictim());
 			position.setReversiblePlyCount(static_cast<size_t>(data.reversiblePlies()));
 		}
 		PYGMALION_INLINE constexpr typename quietmove::movebitsType create(const squareType from, const squareType to) const noexcept

@@ -13,7 +13,8 @@ namespace pygmalion::chess
 			flagsType m_OldFlags;
 			squareType m_From;
 			squareType m_To;
-			squareType m_OldEnPassantSquare;
+			squaresType m_OldEnPassantTargets;
+			squareType m_OldEnPassantVictim;
 			pieceType m_Piece;
 			pieceType m_CapturedPiece;
 			size_t m_ReversiblePlies{ 0 };
@@ -39,22 +40,27 @@ namespace pygmalion::chess
 			{
 				return m_From;
 			}
-			PYGMALION_INLINE const squareType& oldEnPassantSquare() const noexcept
+			PYGMALION_INLINE const squaresType& oldEnPassantTargets() const noexcept
 			{
-				return m_OldEnPassantSquare;
+				return m_OldEnPassantTargets;
+			}
+			PYGMALION_INLINE const squareType& oldEnPassantVictim() const noexcept
+			{
+				return m_OldEnPassantVictim;
 			}
 			PYGMALION_INLINE const squareType& to() const noexcept
 			{
 				return m_To;
 			}
-			PYGMALION_INLINE captureMovedata(const pieceType transportedPiece, const squareType fromSquare, const squareType toSquare, const flagsType oldFlags_, const pieceType capturedPiece_, const size_t reversiblePlies_, const squareType oldEnPassantSquare_) noexcept :
+			PYGMALION_INLINE captureMovedata(const pieceType transportedPiece, const squareType fromSquare, const squareType toSquare, const flagsType oldFlags_, const pieceType capturedPiece_, const size_t reversiblePlies_, const squaresType oldEnPassantTargets_, const squareType oldEnPassantVictim_) noexcept :
 				m_Piece{ transportedPiece },
 				m_From{ fromSquare },
 				m_To{ toSquare },
 				m_OldFlags{ oldFlags_ },
 				m_CapturedPiece{ capturedPiece_ },
 				m_ReversiblePlies{ reversiblePlies_ },
-				m_OldEnPassantSquare{ oldEnPassantSquare_ }
+				m_OldEnPassantTargets{ oldEnPassantTargets_ },
+				m_OldEnPassantVictim{ oldEnPassantVictim_ }
 			{}
 			PYGMALION_INLINE captureMovedata() noexcept :
 				m_OldFlags{ noFlags }
@@ -121,14 +127,15 @@ namespace pygmalion::chess
 		{
 			const squareType from{ capturemove::extractFrom(moveBits) };
 			const squareType to{ capturemove::extractTo(moveBits) };
-			const squareType enPassantSquare{ position.enPassantSquare() };
+			const squaresType oldEnPassantTargets{ position.enPassantTargets() };
+			const squareType oldEnPassantVictim{ position.enPassantVictim() };
 			const pieceType pc{ position.getPiece(from) };
 			const playerType p{ position.getPlayer(from) };
 			const pieceType pc2{ position.getPiece(to) };
 			const playerType p2{ position.getPlayer(to) };
 			const flagsType oldFlags{ position.flags() };
 			const size_t reversiblePlies{ position.getReversiblePlyCount() };
-			position.clearEnPassantSquare();
+			position.clearEnPassant();
 			position.removePiece(pc2, to, p2, materialTable);
 			position.movePiece(pc, from, to, p, materialTable);
 			position.setMovingPlayer(++position.movingPlayer());
@@ -197,7 +204,7 @@ namespace pygmalion::chess
 					}
 				}
 			}
-			movedata = typename capturemove::movedataType(pc, from, to, oldFlags, pc2, reversiblePlies, enPassantSquare);
+			movedata = typename capturemove::movedataType(pc, from, to, oldFlags, pc2, reversiblePlies, oldEnPassantTargets, oldEnPassantVictim);
 		}
 		PYGMALION_INLINE void undoMove_Implementation(boardType& position, const typename capturemove::movedataType& data, const materialTableType& materialTable) const noexcept
 		{
@@ -208,7 +215,7 @@ namespace pygmalion::chess
 			position.addPiece(data.capturedPiece(), data.to(), p2, materialTable);
 			position.checkFlags(data.oldFlags());
 			position.setReversiblePlyCount(data.reversiblePlies());
-			position.setEnPassantSquare(data.oldEnPassantSquare());
+			position.setEnPassant(data.oldEnPassantTargets(), data.oldEnPassantVictim());
 		}
 		PYGMALION_INLINE typename capturemove::movebitsType create(const squareType from, const squareType to) const noexcept
 		{

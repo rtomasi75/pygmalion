@@ -2,7 +2,7 @@ namespace pygmalion::chess
 {
 	namespace detail
 	{
-		class nullmoveMovedata : 
+		class nullmoveMovedata :
 			public pygmalion::mechanics::movedataBase<board>
 		{
 		public:
@@ -10,19 +10,25 @@ namespace pygmalion::chess
 			using descriptorState = typename boardType::descriptorState;
 #include <pygmalion-state/include_state.h>
 		private:
+			squaresType m_OldEnPassantTargets;
 			size_t m_ReversiblePlies{ 0 };
-			squareType m_OldEnPassantSqaure;
+			squareType m_OldEnPassantVictim;
 		public:
 			PYGMALION_INLINE const size_t& reversiblePlies() const noexcept
 			{
 				return m_ReversiblePlies;
 			}
-			PYGMALION_INLINE const squareType& oldEnPassantSqaure() const noexcept
+			PYGMALION_INLINE const squaresType& oldEnPassantTargets() const noexcept
 			{
-				return m_OldEnPassantSqaure;
+				return m_OldEnPassantTargets;
 			}
-			PYGMALION_INLINE nullmoveMovedata(const size_t reversiblePlies_, const squareType oldEnPassantSquare_) noexcept :
-				m_OldEnPassantSqaure{ oldEnPassantSquare_ },
+			PYGMALION_INLINE const squareType& oldEnPassantVictim() const noexcept
+			{
+				return m_OldEnPassantVictim;
+			}
+			PYGMALION_INLINE nullmoveMovedata(const size_t reversiblePlies_, const squaresType oldEnPassantTargets_, const squareType oldEnPassantVictim_) noexcept :
+				m_OldEnPassantTargets{ oldEnPassantTargets_ },
+				m_OldEnPassantVictim{ oldEnPassantVictim_ },
 				m_ReversiblePlies{ reversiblePlies_ }
 			{}
 			PYGMALION_INLINE nullmoveMovedata() noexcept = default;
@@ -66,18 +72,19 @@ namespace pygmalion::chess
 		}
 		PYGMALION_INLINE void doMove_Implementation(boardType& position, const typename nullmove::movebitsType moveBits, typename nullmove::movedataType& movedata, const materialTableType& materialTable) const noexcept
 		{
-			const squareType oldEnPassantSquare{ position.enPassantSquare() };
+			const squaresType oldEnPassantTargets{ position.enPassantTargets() };
+			const squareType oldEnPassantVictim{ position.enPassantVictim() };
 			const size_t reversiblePlies{ position.getReversiblePlyCount() };
-			position.clearEnPassantSquare();
+			position.clearEnPassant();
 			position.setMovingPlayer(++position.movingPlayer());
 			position.resetReversiblePlyCount();
-			movedata = typename nullmove::movedataType(reversiblePlies, oldEnPassantSquare);
+			movedata = typename nullmove::movedataType(reversiblePlies, oldEnPassantTargets, oldEnPassantVictim);
 		}
 		PYGMALION_INLINE void undoMove_Implementation(boardType& position, const typename nullmove::movedataType& data, const materialTableType& materialTable) const noexcept
 		{
 			const playerType p{ --position.movingPlayer() };
 			position.setMovingPlayer(p);
-			position.setEnPassantSquare(data.oldEnPassantSqaure());
+			position.setEnPassant(data.oldEnPassantTargets(), data.oldEnPassantVictim());
 			position.setReversiblePlyCount(data.reversiblePlies());
 		}
 		PYGMALION_INLINE constexpr typename nullmove::movebitsType create() const noexcept

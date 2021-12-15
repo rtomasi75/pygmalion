@@ -353,7 +353,7 @@ namespace pygmalion::chess
 			addPiece(pawn, rank2 & f, whitePlayer, materialTable);
 			addPiece(pawn, rank7 & f, blackPlayer, materialTable);
 		}
-		clearEnPassantSquare();
+		clearEnPassant();
 		addPiece(king, squareE1, whitePlayer, materialTable);
 		addPiece(king, squareE8, blackPlayer, materialTable);
 		// rooks
@@ -388,7 +388,8 @@ namespace pygmalion::chess
 		for (const auto r : rankType::range)
 		{
 			const rankType rank{ -r };
-			str << rank.toShortString() << "|";
+			str << rank.toShortString();
+			str << "|";
 			for (const auto file : fileType::range)
 			{
 				const squareType square{ rank & file };
@@ -414,7 +415,7 @@ namespace pygmalion::chess
 							str << (piece & player).toShortString();
 						}
 						else
-							str << "E";
+							str << "@";
 					}
 				}
 				else
@@ -431,7 +432,12 @@ namespace pygmalion::chess
 					if (hasPiece)
 						str << "?";
 					else
-						str << ".";
+					{
+						if (position.checkEnPassantTarget(square))
+							str << "#";
+						else
+							str << ".";
+					}
 				}
 			}
 			str << std::endl;
@@ -439,10 +445,7 @@ namespace pygmalion::chess
 		str << "-+";
 		for (const auto file : fileType::range)
 		{
-			if (position.enPassantSquare().isValid() && position.enPassantSquare().file() == file)
-				str << "^";
-			else
-				str << "-";
+			str << "-";
 		}
 		str << std::endl;
 		str << " |";

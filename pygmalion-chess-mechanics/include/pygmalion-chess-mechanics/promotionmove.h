@@ -11,7 +11,8 @@ namespace pygmalion::chess
 #include <pygmalion-state/include_state.h>
 			using materialTableType = pygmalion::state::materialTables<descriptorState, boardType>;
 		private:
-			squareType m_OldEnPassantSquare;
+			squaresType m_OldEnPassantTargets;
+			squareType m_OldEnPassantVictim;
 			squareType m_From;
 			squareType m_To;
 			size_t m_ReversiblePlies{ 0 };
@@ -29,15 +30,20 @@ namespace pygmalion::chess
 			{
 				return m_To;
 			}
-			PYGMALION_INLINE const squareType& oldEnPassantSquare() const noexcept
+			PYGMALION_INLINE const squaresType& oldEnPassantTargets() const noexcept
 			{
-				return m_OldEnPassantSquare;
+				return m_OldEnPassantTargets;
 			}
-			PYGMALION_INLINE promotionMovedata(const squareType fromSquare, const squareType toSquare, const squareType oldEnPassantSquare_, const std::uint16_t reversiblePlies_) noexcept :
+			PYGMALION_INLINE const squareType& oldEnPassantVictim() const noexcept
+			{
+				return m_OldEnPassantVictim;
+			}
+			PYGMALION_INLINE promotionMovedata(const squareType fromSquare, const squareType toSquare, const squaresType oldEnPassantTargets_, const squareType oldEnPassantVictim_, const std::uint16_t reversiblePlies_) noexcept :
 				m_From{ fromSquare },
 				m_To{ toSquare },
 				m_ReversiblePlies{ reversiblePlies_ },
-				m_OldEnPassantSquare{ oldEnPassantSquare_ }
+				m_OldEnPassantTargets{ oldEnPassantTargets_ },
+				m_OldEnPassantVictim{ oldEnPassantVictim_ }
 			{}
 			PYGMALION_INLINE promotionMovedata() noexcept = default;
 			PYGMALION_INLINE promotionMovedata(promotionMovedata&&) noexcept = default;
@@ -103,14 +109,15 @@ namespace pygmalion::chess
 			const squareType from{ promotionmove::extractFrom(moveBits) };
 			const squareType to{ promotionmove::extractTo(moveBits) };
 			const playerType p{ position.movingPlayer() };
-			const squareType enPassantSquare{ position.enPassantSquare() };
 			const size_t reversiblePlies{ position.getReversiblePlyCount() };
-			position.clearEnPassantSquare();
+			const squaresType oldEnPassantTargets{ position.enPassantTargets() };
+			const squareType oldEnPassantVictim{ position.enPassantVictim() };
+			position.clearEnPassant();
 			position.removePiece(pawn, from, p, materialTable);
 			position.addPiece(m_PromotedPiece, to, p, materialTable);
 			position.setMovingPlayer(++position.movingPlayer());
 			position.resetReversiblePlyCount();
-			movedata = typename promotionmove::movedataType(from, to, enPassantSquare, reversiblePlies);
+			movedata = typename promotionmove::movedataType(from, to, oldEnPassantTargets, oldEnPassantVictim, reversiblePlies);
 		}
 		PYGMALION_INLINE void undoMove_Implementation(boardType& position, const typename promotionmove::movedataType& data, const materialTableType& materialTable) const noexcept
 		{
@@ -118,7 +125,7 @@ namespace pygmalion::chess
 			position.setMovingPlayer(p);
 			position.removePiece(m_PromotedPiece, data.to(), p, materialTable);
 			position.addPiece(pawn, data.from(), p, materialTable);
-			position.setEnPassantSquare(data.oldEnPassantSquare());
+			position.setEnPassant(data.oldEnPassantTargets(), data.oldEnPassantVictim());
 			position.setReversiblePlyCount(static_cast<size_t>(data.reversiblePlies()));
 		}
 		PYGMALION_INLINE constexpr typename promotionmove::movebitsType create(const squareType from, const squareType to) const noexcept

@@ -20,8 +20,8 @@ namespace pygmalion::dynamics
 				if (player == this->position().movingPlayer())
 				{
 					movelistType moves;
-					typename generatorType::contextType context;
-					stackType<PLAYER> stack{ stackType<PLAYER>(this->position(), this->history(), &context, this->stateEngine().materialTable(), this->dynamicsEngine().delta()) };
+					typename generatorType::contextType context[2];
+					stackType<PLAYER> stack{ stackType<PLAYER>(this->position(), this->history(), &(context[0]), this->stateEngine().materialTable(), this->dynamicsEngine().delta()) };
 					movebitsType movebits;
 					bool hasMoves{ false };
 					while (stack.nextMove(movebits))

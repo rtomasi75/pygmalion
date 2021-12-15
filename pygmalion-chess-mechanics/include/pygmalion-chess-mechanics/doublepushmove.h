@@ -11,7 +11,8 @@ namespace pygmalion::chess
 #include <pygmalion-state/include_state.h>
 		private:
 			size_t m_ReversiblePlies{ 0 };
-			squareType m_OldEnPassantSquare;
+			squaresType m_OldEnPassantTargets;
+			squareType m_OldEnPassantVictim;
 			squareType m_From;
 			squareType m_To;
 		public:
@@ -19,9 +20,13 @@ namespace pygmalion::chess
 			{
 				return m_ReversiblePlies;
 			}
-			PYGMALION_INLINE const squareType& oldEnPassantSquare() const noexcept
+			PYGMALION_INLINE const squaresType& oldEnPassantTargets() const noexcept
 			{
-				return m_OldEnPassantSquare;
+				return m_OldEnPassantTargets;
+			}
+			PYGMALION_INLINE const squareType& oldEnPassantVictim() const noexcept
+			{
+				return m_OldEnPassantVictim;
 			}
 			PYGMALION_INLINE const squareType& from() const noexcept
 			{
@@ -31,10 +36,11 @@ namespace pygmalion::chess
 			{
 				return m_To;
 			}
-			PYGMALION_INLINE doublepushMovedata(const squareType from_, const squareType to_, const squareType oldEnPassantSquare_, const size_t reversiblePlies_) noexcept :
+			PYGMALION_INLINE doublepushMovedata(const squareType from_, const squareType to_, const squaresType oldEnPassantTargets_, const squareType oldEnPassantVictim_, const size_t reversiblePlies_) noexcept :
 				m_From{ from_ },
 				m_To{ to_ },
-				m_OldEnPassantSquare{ oldEnPassantSquare_ },
+				m_OldEnPassantTargets{ oldEnPassantTargets_ },
+				m_OldEnPassantVictim{ oldEnPassantVictim_ },
 				m_ReversiblePlies{ reversiblePlies_ }
 			{}
 			PYGMALION_INLINE doublepushMovedata() noexcept = default;
@@ -88,7 +94,8 @@ namespace pygmalion::chess
 		{
 			const playerType p{ position.movingPlayer() };
 			const fileType f{ doublepushmove::extractFile(moveBits) };
-			const squareType oldEnPassantSquare{ position.enPassantSquare() };
+			const squaresType oldEnPassantTargets{ position.enPassantTargets() };
+			const squareType oldEnPassantVictim{ position.enPassantTargets() };
 			const size_t reversiblePlies{ position.getReversiblePlyCount() };
 			if (p == whitePlayer)
 			{
@@ -99,10 +106,10 @@ namespace pygmalion::chess
 				const squareType to{ f & r2 };
 				const squareType ep{ f & r3 };
 				position.movePiece(pawn, from, to, p, materialTable);
-				position.setEnPassantSquare(ep);
+				position.setEnPassant(squaresType(ep), to);
 				position.setMovingPlayer(++position.movingPlayer());
 				position.resetReversiblePlyCount();
-				movedata = doublepushmove::movedataType(from, to, oldEnPassantSquare, reversiblePlies);
+				movedata = doublepushmove::movedataType(from, to, oldEnPassantTargets, oldEnPassantVictim, reversiblePlies);
 			}
 			else
 			{
@@ -113,10 +120,10 @@ namespace pygmalion::chess
 				const squareType to{ f & r2 };
 				const squareType ep{ f & r3 };
 				position.movePiece(pawn, from, to, p, materialTable);
-				position.setEnPassantSquare(ep);
+				position.setEnPassant(squaresType(ep), to);
 				position.setMovingPlayer(++position.movingPlayer());
 				position.resetReversiblePlyCount();
-				movedata = typename doublepushmove::movedataType(from, to, oldEnPassantSquare, reversiblePlies);
+				movedata = doublepushmove::movedataType(from, to, oldEnPassantTargets, oldEnPassantVictim, reversiblePlies);
 			}
 		}
 		PYGMALION_INLINE void undoMove_Implementation(boardType& position, const typename doublepushmove::movedataType& data, const materialTableType& materialTable) const noexcept
@@ -124,7 +131,7 @@ namespace pygmalion::chess
 			const playerType p{ --position.movingPlayer() };
 			position.setMovingPlayer(p);
 			position.movePiece(pawn, data.to(), data.from(), p, materialTable);
-			position.setEnPassantSquare(data.oldEnPassantSquare());
+			position.setEnPassant(data.oldEnPassantTargets(), data.oldEnPassantVictim());
 			position.setReversiblePlyCount(data.reversiblePlies());
 		}
 		PYGMALION_INLINE typename doublepushmove::movebitsType create(const fileType file) const noexcept

@@ -17,7 +17,8 @@ namespace pygmalion
 		size_t m_MoveCount;
 		size_t m_ReversiblePlyCount;
 		objectiveType m_Material;
-		squareType m_EnPassantSquare;
+		squaresType m_EnPassantSquares;
+		squareType m_EnPassantVictim;
 		flagsType m_Flags;
 		playerpiecesType m_PlayerPieces;
 		gamestateType m_Arbitration;
@@ -135,7 +136,9 @@ namespace pygmalion
 			}
 			if (this->flags() != other.flags())
 				return false;
-			if (this->enPassantSquare() != other.enPassantSquare())
+			if (this->enPassantTargets() != other.enPassantTargets())
+				return false;
+			if (this->enPassantVictim() != other.enPassantVictim())
 				return false;
 			if (this->getReversiblePlyCount() != other.getReversiblePlyCount())
 				return false;
@@ -169,7 +172,7 @@ namespace pygmalion
 			}
 			if (this->flags() != other.flags())
 				return true;
-			if (this->enPassantSquare() != other.enPassantSquare())
+			if (this->enPassantSquares() != other.enPassantSquares())
 				return true;
 			if (this->getReversiblePlyCount() != other.getReversiblePlayCount())
 				return true;
@@ -189,21 +192,31 @@ namespace pygmalion
 				return true;
 			return false;
 		}
-		PYGMALION_INLINE const squareType& enPassantSquare() const noexcept
+		PYGMALION_INLINE const squaresType& enPassantTargets() const noexcept
 		{
-			return m_EnPassantSquare;
+			return m_EnPassantSquares;
 		}
-		PYGMALION_INLINE bool checkEnPassantSquare(const squareType sq) const noexcept
+		PYGMALION_INLINE const squareType& enPassantVictim() const noexcept
 		{
-			return m_EnPassantSquare == sq;
+			return m_EnPassantVictim;
 		}
-		PYGMALION_INLINE void clearEnPassantSquare() noexcept
+		PYGMALION_INLINE bool checkEnPassantTarget(const squareType sq) const noexcept
 		{
-			m_EnPassantSquare = squareType::invalid;
+			return m_EnPassantSquares[sq];
 		}
-		PYGMALION_INLINE void setEnPassantSquare(const squareType sq) noexcept
+		PYGMALION_INLINE bool checkEnPassantVictim(const squareType sq) const noexcept
 		{
-			m_EnPassantSquare = sq;
+			return m_EnPassantVictim == sq;
+		}
+		PYGMALION_INLINE void clearEnPassant() noexcept
+		{
+			m_EnPassantSquares.clear();
+			m_EnPassantVictim = squareType::invalid;
+		}
+		PYGMALION_INLINE void setEnPassant(const squaresType targets, const squareType victim) noexcept
+		{
+			m_EnPassantSquares = targets;
+			m_EnPassantVictim = victim;
 		}
 		PYGMALION_INLINE const playerpiecesType& playerpieces() const noexcept
 		{
@@ -676,6 +689,24 @@ namespace pygmalion
 		{
 			clear();
 		}
+		static std::string pieceMaskToString(const piecesType& pieces, const playerType pl) noexcept
+		{
+			std::stringstream str;
+			const std::string nullString{ "_" };
+			for (const auto pc : pieceType::range)
+			{
+				if (pieces[pc])
+				{
+					const std::string pcString{ (pc & pl).toShortString() };
+					str << pcString;
+				}
+				else
+				{
+					str << nullString;
+				}
+			}
+			return str.str();
+		}
 		void initialize(const materialTableType& materialTable) noexcept
 		{
 			clear();
@@ -718,31 +749,37 @@ namespace pygmalion
 			fen << " ";
 			fen << movingPlayer().toShortString() << " ";
 			fen << flags().toString() << " ";
-			if (enPassantSquare().isValid())
-				fen << enPassantSquare().toShortString() << " ";
+			if (enPassantTargets())
+			{
+				for (const auto sq : enPassantTargets())
+					fen << sq.toShortString();
+				bool bNeedsVictim{ true };
+				if constexpr (countPlayers == 2)
+				{
+					if (enPassantTargets().count() == 1)
+					{
+						const squareType epSquare{ enPassantTargets().first() };
+						if (movingPlayer() == playerType(0))
+						{
+							if (epSquare.rank() == rankType(5) && enPassantVictim().rank() == rankType(4) && epSquare.file() == enPassantVictim().file())
+								bNeedsVictim = false;
+						}
+						else
+						{
+							if (epSquare.rank() == rankType(2) && enPassantVictim().rank() == rankType(3) && epSquare.file() == enPassantVictim().file())
+								bNeedsVictim = false;
+						}
+					}
+				}
+				if (bNeedsVictim)
+					fen << ":" << enPassantVictim().toShortString();
+				fen << " ";
+			}
 			else
 				fen << "- ";
 			fen << parser::fromInt(getReversiblePlyCount()) << " ";
 			fen << parser::fromInt(getMoveCount() / 2);
 			return fen.str();
-		}
-		static std::string pieceMaskToString(const piecesType& pieces, const playerType pl) noexcept
-		{
-			std::stringstream str;
-			const std::string nullString{ "_" };
-			for (const auto pc : pieceType::range)
-			{
-				if (pieces[pc])
-				{
-					const std::string pcString{ (pc & pl).toShortString() };
-					str << pcString;
-				}
-				else
-				{
-					str << nullString;
-				}
-			}
-			return str.str();
 		}
 		bool setFen(const std::string& fen, const materialTableType& materialTable) noexcept
 		{
@@ -775,6 +812,7 @@ namespace pygmalion
 						return false;
 					}
 					pos += count;
+					count = 0;
 					break;
 				case ' ':
 					bParse = false;
@@ -825,7 +863,6 @@ namespace pygmalion
 				clear();
 				return false;
 			}
-			count = 0;
 			playerType player;
 			if (!playerType::parse(fen.substr(pos, fen.length() - pos), count, player))
 			{
@@ -833,6 +870,7 @@ namespace pygmalion
 				return false;
 			}
 			pos += count;
+			count = 0;
 			setMovingPlayer(player);
 			if (fen.length() <= pos)
 			{
@@ -850,7 +888,6 @@ namespace pygmalion
 				clear();
 				return false;
 			}
-			count = 0;
 			flagsType flags{ flagsType::none() };
 			if (!flagsType::parse(fen.substr(pos, fen.length() - pos), count, flags))
 			{
@@ -859,6 +896,7 @@ namespace pygmalion
 			}
 			checkFlags(flags);
 			pos += count;
+			count = 0;
 			if (fen[pos] != ' ')
 			{
 				clear();
@@ -870,20 +908,101 @@ namespace pygmalion
 				clear();
 				return false;
 			}
-			count = 0;
 			if (fen[pos] == '-')
 			{
-				m_EnPassantSquare = squareType::invalid;
+				m_EnPassantSquares = squaresType::none();
 				pos++;
 			}
 			else
 			{
-				if (!squareType::parse(fen.substr(pos, fen.length() - pos), count, m_EnPassantSquare))
+				bool bAtLeastOne{ false };
+				squareType epSquare;
+				squaresType epSquares{ squaresType::none() };
+				while (squareType::parse(fen.substr(pos, fen.length() - pos), count, epSquare))
+				{
+					epSquares |= epSquare;
+					bAtLeastOne = true;
+					pos += count;
+					count = 0;
+				}
+				if (!bAtLeastOne)
 				{
 					clear();
 					return false;
 				}
-				pos += count;
+				bool bNeedsVictim{ true };
+				if constexpr (countPlayers == 2)
+				{
+					if (epSquares.count() == 1)
+					{
+						const squareType epSquare2{ epSquares.first() };
+						if (movingPlayer() == playerType(0))
+						{
+							if (epSquare2.rank() == rankType(5))
+								bNeedsVictim = false;
+						}
+						else
+						{
+							if (epSquare2.rank() == rankType(2))
+								bNeedsVictim = false;
+						}
+					}
+				}
+				squareType victim{ squareType::invalid };
+				if (fen.length() > pos)
+				{
+					if (fen[pos] == ':')
+					{
+						pos++;
+						if (fen.length() > pos)
+						{
+							if (squareType::parse(fen.substr(pos, fen.length() - pos), count, victim))
+							{
+								pos += count;
+								count = 0;
+							}
+							else
+							{
+								clear();
+								return false;
+							}
+						}
+						else
+						{
+							clear();
+							return false;
+						}
+					}
+				}
+				if (bNeedsVictim)
+				{
+					if (!victim.isValid())
+					{
+						clear();
+						return false;
+					}
+				}
+				else
+				{
+					if (!victim.isValid())
+					{
+						if ((epSquare.rank() == rankType(5)) && (movingPlayer() == playerType(0)))
+							victim = rankType(4) & epSquare.file();
+						else if ((epSquare.rank() == rankType(2)) && (movingPlayer() == playerType(1)))
+							victim = rankType(3) & epSquare.file();
+						else
+						{
+							clear();
+							return false;
+						}
+					}
+				}
+				setEnPassant(epSquares, victim);
+			}
+			if (fen.length() <= pos)
+			{
+				clear();
+				return false;
 			}
 			if (fen[pos] != ' ')
 			{
