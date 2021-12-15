@@ -13,9 +13,9 @@ namespace pygmalion::chess::dynamics
 			squareType sq;
 			this->output() << std::endl;
 			size_t count{ 0 };
-			if (boardType::parseSquare(token, sq, count))
+			if (squareType::parse(token, count, sq))
 			{
-				this->output() << "king area for " << boardType::squareToString(sq) << ": " << token << std::endl;
+				this->output() << "king area for " << sq.toShortString() << ": " << token << std::endl;
 				this->dumpSquares(generatorType::kingArea(sq));
 			}
 			else

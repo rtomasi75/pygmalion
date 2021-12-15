@@ -135,19 +135,17 @@ namespace pygmalion::chess
 		}
 		bool parse_Implementation(const boardType& position, const std::string& text, typename doublepushmove::movebitsType& moveBits, size_t& count) const noexcept
 		{
-			std::string temp{ text };
 			playerType movingPlayer{ position.movingPlayer() };
 			squareType from;
 			squareType to;
 			size_t cnt{ 0 };
 			if (movingPlayer == whitePlayer)
 			{
-				if (boardType::parseSquare(temp, from, cnt))
+				if (squareType::parse(text, cnt, from))
 				{
-					std::string temp2{ temp.substr(cnt, temp.length() - cnt) };
 					if ((position.playerOccupancy(movingPlayer) & position.pieceOccupancy(descriptorState::pawn))[from] && (from.rank() == rank2))
 					{
-						if (boardType::parseSquare(temp2, to, cnt))
+						if (squareType::parse(text, cnt, to))
 						{
 							if ((!position.totalOccupancy()[to]) && (to.rank() == rank4))
 							{
@@ -164,12 +162,11 @@ namespace pygmalion::chess
 			}
 			else
 			{
-				if (boardType::parseSquare(temp, from, cnt))
+				if (squareType::parse(text, cnt, from))
 				{
-					std::string temp2{ temp.substr(cnt, temp.length() - cnt) };
 					if ((position.playerOccupancy(movingPlayer) & position.pieceOccupancy(descriptorState::pawn))[from] && (from.rank() == rank7))
 					{
-						if (boardType::parseSquare(temp2, to, cnt))
+						if (squareType::parse(text, cnt, to))
 						{
 							if ((!position.totalOccupancy()[to]) && (to.rank() == rank5))
 							{
@@ -196,7 +193,7 @@ namespace pygmalion::chess
 				constexpr const rankType r2{ rank4 };
 				const squareType from{ f & r1 };
 				const squareType to{ f & r2 };
-				return boardType::squareToString(from) + boardType::squareToString(to);
+				return from.toShortString() + to.toShortString();
 			}
 			else
 			{
@@ -204,7 +201,7 @@ namespace pygmalion::chess
 				constexpr const rankType r2{ rank5 };
 				const squareType from{ f & r1 };
 				const squareType to{ f & r2 };
-				return boardType::squareToString(from) + boardType::squareToString(to);
+				return from.toShortString() + to.toShortString();
 			}
 		}
 		PYGMALION_INLINE squaresType otherOccupancyDelta_Implementation(const boardType& position, const movebitsType moveBits) const noexcept

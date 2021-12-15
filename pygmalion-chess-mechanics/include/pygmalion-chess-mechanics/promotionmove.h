@@ -67,7 +67,7 @@ namespace pygmalion::chess
 		static std::string name_Implementation() noexcept
 		{
 			std::stringstream sstr;
-			sstr << "" << sizeof(typename promotionmove::movedataType) << ":" << promotionmove::countBits << "@promotion" << boardType::pieceToString(m_PromotedPiece, whitePlayer);
+			sstr << "" << sizeof(typename promotionmove::movedataType) << ":" << promotionmove::countBits << "@promotion" << m_PromotedPiece.toShortString();
 			return sstr.str();
 		}
 	private:
@@ -131,29 +131,25 @@ namespace pygmalion::chess
 		bool parse_Implementation(const boardType& position, const std::string& text, typename promotionmove::movebitsType& moveBits, size_t& count) const noexcept
 		{
 			const playerType p{ position.movingPlayer() };
-			std::string temp{ text };
 			squareType from;
 			squareType to;
 			size_t cnt{ 0 };
-			if (boardType::parseSquare(temp, from, cnt))
+			if (squareType::parse(text,cnt, from))
 			{
-				std::string temp2{ temp.substr(cnt,temp.length() - cnt) };
 				if ((position.pieceOccupancy(pawn) & position.playerOccupancy(p))[from])
 				{
 					if (p == whitePlayer)
 					{
 						if (from.rank() == rank7)
 						{
-							if (boardType::parseSquare(temp2, to, cnt))
+							if (squareType::parse(text, cnt, to))
 							{
-								std::string temp3{ temp.substr(cnt,temp.length() - cnt) };
 								if (to.rank() == rank8)
 								{
 									if (!position.totalOccupancy()[to])
 									{
-										playerType p2;
 										pieceType pc;
-										if (boardType::parsePiece(temp3, pc, p2, cnt))
+										if (pieceType::parse(text, cnt, pc))
 										{
 											if (pc == m_PromotedPiece)
 											{
@@ -171,16 +167,14 @@ namespace pygmalion::chess
 					{
 						if (from.rank() == rank2)
 						{
-							if (boardType::parseSquare(temp2, to, cnt))
+							if (squareType::parse(text, cnt, to))
 							{
-								std::string temp3{ temp.substr(cnt,temp.length() - cnt) };
 								if (to.rank() == rank1)
 								{
 									if (!position.totalOccupancy()[to])
 									{
-										playerType p2;
 										pieceType pc;
-										if (boardType::parsePiece(temp3, pc, p2, cnt))
+										if (pieceType::parse(text, cnt, pc))
 										{
 											if (pc == m_PromotedPiece)
 											{
@@ -202,7 +196,7 @@ namespace pygmalion::chess
 		{
 			const squareType from{ promotionmove::extractFrom(moveBits) };
 			const squareType to{ promotionmove::extractTo(moveBits) };
-			return boardType::squareToString(from) + boardType::squareToString(to) + boardType::pieceToString(m_PromotedPiece, position.movingPlayer());
+			return from.toShortString() + to.toShortString() + (m_PromotedPiece & whitePlayer).toShortString();
 		}
 		PYGMALION_INLINE squaresType otherOccupancyDelta_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
 		{

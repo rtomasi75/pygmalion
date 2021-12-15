@@ -106,6 +106,25 @@ namespace pygmalion::state
 		{
 			return (*this) + 1;
 		}
+		std::string toShortString() const noexcept
+		{
+			return descriptorState::boardInfo.squares().files().toShortString(static_cast<size_t>(*this));
+		}
+		std::string toLongString() const noexcept
+		{
+			return descriptorState::boardInfo.squares().files().toLongString(static_cast<size_t>(*this));
+		}
+		static bool parse(const std::string text, size_t& pos, file& parsed) noexcept
+		{
+			size_t parsedIndex;
+			if (descriptorState::boardInfo.squares().files().parse(text, pos, parsedIndex))
+			{
+				parsed = file(parsedIndex);
+				return true;
+			}
+			else
+				return false;
+		}
 	};
 
 }

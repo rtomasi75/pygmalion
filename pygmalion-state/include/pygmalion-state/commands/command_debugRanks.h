@@ -19,7 +19,7 @@ namespace pygmalion::state
 				this->output() << std::endl;
 				this->output() << countRanks << " rank" << (countRanks != 1 ? "s" : "") << ":";
 				for (const auto rank : rankType::range)
-					this->output() << " " << boardType::rankToString(rank);
+					this->output() << " " << rank.toShortString();
 				this->output() << std::endl;
 				this->output() << std::endl;
 				return true;

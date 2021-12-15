@@ -23,15 +23,15 @@ namespace pygmalion::dynamics
 					{
 						for (const auto pl : playerType::range)
 						{
-							this->output() << boardType::playerToString(spl) << "=>" << boardType::piecesToString(mask, pl) << ": " << delta.maxQuietChange(spl, pl, mask) << std::endl;
-							this->output() << boardType::playerToString(spl) << "=>" << boardType::piecesToString(mask, pl) << "=" << boardType::piecesToString(generatorType::promotionResults(pl), pl) << ": " << delta.maxPromotionChange(spl, pl, mask) << std::endl;
+							this->output() << spl.toShortString() << "=>" << boardType::piecesToString(mask, pl) << ": " << delta.maxQuietChange(spl, pl, mask) << std::endl;
+							this->output() << spl.toShortString() << "=>" << boardType::piecesToString(mask, pl) << "=" << boardType::piecesToString(generatorType::promotionResults(pl), pl) << ": " << delta.maxPromotionChange(spl, pl, mask) << std::endl;
 							for (const auto mask2 : piecesType::range)
 							{
-								this->output() << boardType::playerToString(spl) << "=>" << boardType::piecesToString(mask, pl) << "-" << boardType::piecesToString(mask2, pl.next()) << ": " << delta.maxCaptureChange(spl, pl, mask, mask2) << std::endl;
+								this->output() << spl.toShortString() << "=>" << boardType::piecesToString(mask, pl) << "-" << boardType::piecesToString(mask2, pl.next()) << ": " << delta.maxCaptureChange(spl, pl, mask, mask2) << std::endl;
 							}
 							for (const auto mask2 : piecesType::range)
 							{
-								this->output() << boardType::playerToString(spl) << "=>" << boardType::piecesToString(mask, pl) << "-" << boardType::piecesToString(mask2, pl.next()) << "=" << boardType::piecesToString(generatorType::promotionResults(pl), pl) << ": " << delta.maxPromoCaptureChange(spl, pl, mask, mask2) << std::endl;
+								this->output() << spl.toShortString() << "=>" << boardType::piecesToString(mask, pl) << "-" << boardType::piecesToString(mask2, pl.next()) << "=" << boardType::piecesToString(generatorType::promotionResults(pl), pl) << ": " << delta.maxPromoCaptureChange(spl, pl, mask, mask2) << std::endl;
 							}
 							this->output() << std::endl;
 						}

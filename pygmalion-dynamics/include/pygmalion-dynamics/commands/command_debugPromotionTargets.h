@@ -39,7 +39,7 @@ namespace pygmalion::dynamics
 					{
 						for (const auto sq : squareType::range)
 						{
-							this->output() << boardType::pieceToString(pc, pl) << boardType::squareToString(sq) << std::endl;
+							this->output() << (pc & pl).toShortString() << sq.toShortString() << std::endl;
 							this->template process<0>(pl, pc, sq);
 						}
 					}

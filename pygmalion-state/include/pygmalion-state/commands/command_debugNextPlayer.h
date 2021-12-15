@@ -19,7 +19,7 @@ namespace pygmalion::state
 				playerType next{ this->position().movingPlayer() };
 				++next;
 				this->output() << std::endl;
-				this->output() << "advance moving player to " << boardType::playerToString(next) << "." << std::endl;
+				this->output() << "advance moving player to " << next.toShortString() << "." << std::endl;
 				this->position().setMovingPlayer(next);
 				this->output() << std::endl;
 				return true;

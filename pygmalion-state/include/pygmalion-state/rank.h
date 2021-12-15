@@ -114,5 +114,24 @@ namespace pygmalion::state
 		{
 			return (*this) + 1;
 		}
+		std::string toShortString() const noexcept
+		{
+			return descriptorState::boardInfo.squares().ranks().toShortString(static_cast<size_t>(*this));
+		}
+		std::string toLongString() const noexcept
+		{
+			return descriptorState::boardInfo.squares().ranks().toLongString(static_cast<size_t>(*this));
+		}
+		static bool parse(const std::string text, size_t& pos, rank& parsed) noexcept
+		{
+			size_t parsedIndex;
+			if (descriptorState::boardInfo.squares().ranks().parse(text, pos, parsedIndex))
+			{
+				parsed = rank(parsedIndex);
+				return true;
+			}
+			else
+				return false;
+		}
 	};
 }

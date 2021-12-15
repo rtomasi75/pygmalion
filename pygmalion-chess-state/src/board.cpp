@@ -388,7 +388,7 @@ namespace pygmalion::chess
 		for (const auto r : rankType::range)
 		{
 			const rankType rank{ -r };
-			str << boardType::rankToString(rank) << "|";
+			str << rank.toShortString() << "|";
 			for (const auto file : fileType::range)
 			{
 				const squareType square{ rank & file };
@@ -411,7 +411,7 @@ namespace pygmalion::chess
 						{
 							const pieceType piece{ position.getPiece(square) };
 							const playerType player{ position.getPlayer(square) };
-							str << boardType::pieceToString(piece, player);
+							str << (piece & player).toShortString();
 						}
 						else
 							str << "E";
@@ -448,14 +448,14 @@ namespace pygmalion::chess
 		str << " |";
 		for (const auto file : fileType::range)
 		{
-			str << boardType::fileToString(file);
+			str << file.toShortString();
 		}
 		str << std::endl;
 		str << std::endl;
 		for (const auto flag : descriptorState::castleFlags)
 		{
-			if (position.checkFlag(flag))
-				str << board::flagToString(flag);
+			if (position.testFlag(flag))
+				str << flag.toShortString();
 			else
 				str << "_";
 		}
@@ -470,7 +470,7 @@ namespace pygmalion::chess
 		str << "Half-move clock: " << static_cast<std::uint64_t>(position.getReversiblePlyCount()) << std::endl;
 		str << "Moves played:    " << static_cast<std::uint64_t>(position.getMoveCount()) << std::endl;
 		str << std::endl;
-		str << "Player " << boardType::playerToString(position.movingPlayer()) << " is on the move." << std::endl;
+		str << "Player " << position.movingPlayer().toShortString() << " is on the move." << std::endl;
 		return str;
 	}
 

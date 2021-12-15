@@ -15,7 +15,7 @@ namespace pygmalion::frontend
 			{
 				for (const auto pl : playerType::range)
 				{
-					this->output() << "player " << boardType::playerToString(pl) << " time left: " << this->searchEngine().currentGame().playerClock(pl).timeRemaining().count() << "mcs" << std::endl;
+					this->output() << "player " << pl.toShortString() << " time left: " << this->searchEngine().currentGame().playerClock(pl).timeRemaining().count() << "mcs" << std::endl;
 				}
 				this->output() << std::endl;
 				return true;

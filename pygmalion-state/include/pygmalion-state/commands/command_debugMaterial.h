@@ -17,7 +17,7 @@ namespace pygmalion::state
 				{
 					for (const auto pc : pieceType::range)
 					{
-						this->output() << boardType::pieceToString(pc, pl) << ":" << std::endl;
+						this->output() << (pc & pl).toLongString() << ":" << std::endl;
 						for (size_t r = countRanks; r > 0; r--)
 						{
 							const rankType rank{ static_cast<rankType>(r - 1) };

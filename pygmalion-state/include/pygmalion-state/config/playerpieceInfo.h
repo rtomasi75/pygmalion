@@ -1,14 +1,12 @@
 namespace pygmalion::config
 {
-	class playerpieceInfo
+	template<typename PLAYER, typename PIECE>
+	class playerpieceInfo :
+		public valueInfo
 	{
-	private:
 	public:
-		const std::string_view shortName;
-		const std::string_view longName;
-		constexpr playerpieceInfo(const std::string_view& shortName_, const std::string_view& longName_) :
-			shortName{ shortName_ },
-			longName{ longName_ }
+		constexpr playerpieceInfo(const PLAYER& pl, const PIECE& pc) :
+			valueInfo(pl.shortName + pc.shortName, pl.longName + " " + pc.longName)
 		{
 
 		}

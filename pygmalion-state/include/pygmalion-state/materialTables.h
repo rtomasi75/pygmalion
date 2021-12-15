@@ -94,7 +94,7 @@ namespace pygmalion::state
 								equalSquares[pc2] |= sq;
 							else if (sc1 > sc2)
 								weakerSquares[pc2] |= sq;
-							else 
+							else
 								strongerSquares[pc2] |= sq;
 						}
 						weakerPieces.checkElement(pc2, weakerSquares[pc2]);
@@ -133,7 +133,7 @@ namespace pygmalion::state
 		{
 			PYGMALION_ASSERT(parameterIndex < countParameters);
 			if (parameterIndex < countPieces)
-				return boardType::pieceToString(static_cast<pieceType>(parameterIndex), static_cast<playerType>(0)) + "_lazy";
+				return (static_cast<pieceType>(parameterIndex) & static_cast<playerType>(0)).toShortString() + "_lazy";
 			else
 			{
 				const size_t indexPST{ parameterIndex - countPieces };
@@ -144,7 +144,7 @@ namespace pygmalion::state
 				const squareType sq{ static_cast<squareType>(indexSQ) };
 				const pieceType pc{ static_cast<pieceType>(indexPC) };
 				const playerType pl{ static_cast<playerType>(indexPL) };
-				return boardType::pieceToString(pc, pl) + boardType::squareToString(sq) + "_pst";
+				return (pc & pl).toShortString() + sq.toShortString() + "_pst";
 			}
 		}
 		void getParameterRange(const size_t parameterIndex, double& minimum, double& maximum) const noexcept

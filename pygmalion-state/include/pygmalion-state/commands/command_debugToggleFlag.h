@@ -20,10 +20,10 @@ namespace pygmalion::state
 				parser::parseTokenCaseSensitive(remainder, token, remainder2);
 				flagType flag;
 				size_t count{ 0 };
-				if (boardType::parseFlag(token, flag, count))
+				if (flagType::parse(token, count, flag))
 				{
 					this->output() << std::endl;
-					this->output() << "changing " << boardType::flagToString(flag) << " flag." << std::endl;
+					this->output() << "changing " << flag.toShortString() << " flag." << std::endl;
 					this->position().toggleFlag(flag);
 					this->output() << std::endl;
 				}

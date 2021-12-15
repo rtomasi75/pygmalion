@@ -19,9 +19,9 @@ namespace pygmalion::state
 				this->output() << std::endl;
 				for (const auto player : playerType::range)
 				{
-					this->output() << "  player " << boardType::playerToString(player) << ":";
+					this->output() << "  " << player.toLongString() << ":";
 					for (const auto piece : pieceType::range)
-						this->output() << " " << boardType::pieceToString(piece, player);
+						this->output() << " " << (piece & player).toShortString();
 					this->output() << std::endl;
 				}
 				this->output() << std::endl;

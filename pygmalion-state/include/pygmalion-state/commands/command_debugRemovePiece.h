@@ -21,15 +21,15 @@ namespace pygmalion::state
 				squareType sq;
 				parser::parseTokenCaseSensitive(remainder, token, remainder2);
 				size_t count{ 0 };
-				if (boardType::parseSquare(token, sq, count))
+				if (squareType::parse(token, count, sq))
 				{
 					if (!this->position().totalOccupancy()[sq])
-						this->output() << "there is no piece on " << boardType::squareToString(sq) << "." << std::endl;
+						this->output() << "there is no piece on " << sq.toShortString() << "." << std::endl;
 					else
 					{
 						const pieceType pc{ this->position().getPiece(sq) };
 						const playerType p{ this->position().getPlayer(sq) };
-						this->output() << "removing " << boardType::pieceToString(pc, p) << " from " << boardType::squareToString(sq) << "." << std::endl;
+						this->output() << "removing " << (pc & p).toLongString() << " from " << sq.toShortString() << "." << std::endl;
 						this->position().removePiece(pc, sq, p, this->stateEngine().materialTable());
 					}
 				}

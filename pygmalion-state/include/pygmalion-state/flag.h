@@ -34,5 +34,24 @@ namespace pygmalion::state
 		{
 			return flagsType(*static_cast<flagsType>(this));
 		}
+		std::string toShortString() const noexcept
+		{
+			return descriptorState::boardInfo.flags().toShortString(static_cast<size_t>(*this));
+		}
+		std::string toLongString() const noexcept
+		{
+			return descriptorState::boardInfo.flags().toLongString(static_cast<size_t>(*this));
+		}
+		static bool parse(const std::string text, size_t& pos, flag& parsed) noexcept
+		{
+			size_t parsedIndex;
+			if (descriptorState::boardInfo.flags().parse(text, pos, parsedIndex))
+			{
+				parsed = flag(parsedIndex);
+				return true;
+			}
+			else
+				return false;
+		}
 	};
 }

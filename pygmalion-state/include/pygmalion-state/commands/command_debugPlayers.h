@@ -19,7 +19,7 @@ namespace pygmalion::state
 				this->output() << std::endl;
 				this->output() << countPlayers << " player" << (countPlayers != 1 ? "s" : "") << ":";
 				for (const auto player : playerType::range)
-					this->output() << " " << boardType::playerToString(player);
+					this->output() << " " << player.toShortString();
 				this->output() << std::endl;
 				this->output() << std::endl;
 				return true;

@@ -18,24 +18,23 @@ namespace pygmalion::state
 			{
 				this->output() << std::endl;
 				std::string remainder2;
-				playerType p;
-				pieceType pc;
+				playerpieceType ppc;
 				parser::parseTokenCaseSensitive(remainder, token, remainder2);
 				size_t count{ 0 };
-				if (boardType::parsePiece(token, pc, p, count))
+				if (playerpieceType::parse(token, count, ppc))
 				{
 					std::string remainder3;
 					squareType sq;
 					parser::parseTokenCaseSensitive(remainder2, token, remainder3);
 					count = 0;
-					if (boardType::parseSquare(token, sq, count))
+					if (squareType::parse(token, count, sq))
 					{
 						if (this->position().totalOccupancy()[sq])
-							this->output() << "there already is a piece on " << boardType::squareToString(sq) << "." << std::endl;
+							this->output() << "there already is a piece on " << sq.toShortString() << "." << std::endl;
 						else
 						{
-							this->output() << "adding " << boardType::pieceToString(pc, p) << " on " << boardType::squareToString(sq) << "." << std::endl;
-							this->position().addPiece(pc, sq, p, this->stateEngine().materialTable());
+							this->output() << "adding " << ppc.toLongString() << " on " << sq.toShortString() << "." << std::endl;
+							this->position().addPiece(ppc.piece(), sq, ppc.player(), this->stateEngine().materialTable());
 						}
 					}
 					else

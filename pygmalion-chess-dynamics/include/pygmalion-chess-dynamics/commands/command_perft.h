@@ -48,8 +48,6 @@ namespace pygmalion::chess::dynamics
 			{
 				while (stack.nextMove(moveBits))
 				{
-				//	this->output() << depth << "  " << motorType::move().toString(stack.position(), moveBits) << std::endl;
-				//	this->flushOutput();
 					data.Leafs++;
 					if (motorType::move().isCapture(moveBits))
 						data.Captures++;
@@ -65,6 +63,8 @@ namespace pygmalion::chess::dynamics
 						data.Castles++;
 					if (motorType::move().isPromotion(moveBits))
 						data.Promotions++;
+					const std::string fen{ stack.position().getFen() };
+					const hashType oldHash{ stack.position().hash() };
 					{
 						const stackType<static_cast<size_t>(player.next())> substack{ stackType<static_cast<size_t>(player.next())>(stack,moveBits) };
 						if (substack.isPositionCritical())
@@ -75,20 +75,30 @@ namespace pygmalion::chess::dynamics
 								data.Checkmates++;
 						}
 					}
-					//if (depth == 1)
-					//	this->output() << "    " << motorType::move().toString(this->position(), moveBits)  << std::endl;
+					const hashType newHash{ stack.position().hash() };
+					if (oldHash != newHash)
+					{
+						this->position().setFen(fen, this->dynamicsEngine().materialTable());
+						this->output() << "ERROR: hash before/after move does not match: " << motorType::move().toString(stack.position(), moveBits) << " | " << generatorType::moveToSAN(stack, moveBits) << " | " << fen << std::endl;
+					}
 				}
 			}
 			else
 			{
 				while (stack.nextMove(moveBits))
 				{
-				//	this->output() << depth << "  " << motorType::move().toString(stack.position(), moveBits) << std::endl;
-				//	this->flushOutput();
-					const stackType<static_cast<size_t>(player.next())> substack{ stackType<static_cast<size_t>(player.next())>(stack,moveBits) };
-					perft<static_cast<size_t>(player.next())>(substack, depth + 1, maxDepth, data);
-					//if (depth == 1)
-					//	this->output() << "    " << motorType::move().toString(this->position(), moveBits) << "\t: " << data.Leafs << std::endl;
+					const std::string fen{ stack.position().getFen() };
+					const hashType oldHash{ stack.position().hash() };
+					{
+						const stackType<static_cast<size_t>(player.next())> substack{ stackType<static_cast<size_t>(player.next())>(stack,moveBits) };
+						perft<static_cast<size_t>(player.next())>(substack, depth + 1, maxDepth, data);
+					}
+					const hashType newHash{ stack.position().hash() };
+					if (oldHash != newHash)
+					{
+						this->position().setFen(fen, this->dynamicsEngine().materialTable());
+						this->output() << "ERROR: hash before/after move does not match: " << motorType::move().toString(stack.position(), moveBits) << " | " << generatorType::moveToSAN(stack, moveBits) << " | " << fen << std::endl;
+					}
 				}
 			}
 		}
@@ -111,8 +121,6 @@ namespace pygmalion::chess::dynamics
 						movebitsType moveBits;
 						while (stack.nextMove(moveBits))
 						{
-						//	this->output() << depth << "  " << motorType::move().toString(stack.position(), moveBits) << std::endl;
-						//	this->flushOutput();
 							data.Nodes++;
 							if (depth == 1)
 							{
@@ -131,6 +139,8 @@ namespace pygmalion::chess::dynamics
 									data.Castles++;
 								if (motorType::move().isPromotion(moveBits))
 									data.Promotions++;
+								const std::string fen{ stack.position().getFen() };
+								const hashType oldHash{ stack.position().hash() };
 								{
 									const stackType<static_cast<size_t>(player.next())> substack{ stackType<static_cast<size_t>(player.next())>(stack,moveBits) };
 									if (substack.isPositionCritical())
@@ -141,16 +151,32 @@ namespace pygmalion::chess::dynamics
 											data.Checkmates++;
 									}
 								}
-								this->output() << "  " << motorType::move().toString(this->position(), moveBits) << std::endl;
+								const hashType newHash{ stack.position().hash() };
+								if (oldHash != newHash)
+								{
+									this->position().setFen(fen, this->dynamicsEngine().materialTable());
+									this->output() << std::endl << "ERROR: hash before/after move does not match: " << motorType::move().toString(stack.position(), moveBits) << " | " << generatorType::moveToSAN(stack, moveBits) << " | " << fen << std::endl;
+								}
+								else
+									this->output() << "  " << motorType::move().toString(this->position(), moveBits) << std::endl;
 							}
 							else
 							{
 								perftdata data2;
+								const std::string fen{ stack.position().getFen() };
+								const hashType oldHash{ stack.position().hash() };
 								{
 									const stackType<static_cast<size_t>(player.next())> substack{ stackType<static_cast<size_t>(player.next())>(stack,moveBits) };
 									perft(substack, 1, depth - 1, data2);
 								}
-								this->output() << "  " << motorType::move().toString(this->position(), moveBits) << "\t: " << data2.Leafs << std::endl;
+								const hashType newHash{ stack.position().hash() };
+								if (oldHash != newHash)
+								{
+									this->position().setFen(fen, this->dynamicsEngine().materialTable());
+									this->output() << std::endl << "ERROR: hash before/after move does not match: " << motorType::move().toString(stack.position(), moveBits) << " | " << generatorType::moveToSAN(stack, moveBits) << " | " << fen << std::endl;
+								}
+								else
+									this->output() << "  " << motorType::move().toString(this->position(), moveBits) << "\t: " << data2.Leafs << std::endl;
 								data += data2;
 							}
 						}

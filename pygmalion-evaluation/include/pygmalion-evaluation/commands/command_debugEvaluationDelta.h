@@ -20,7 +20,7 @@ namespace pygmalion::evaluation
 					{
 						for (const auto pl : playerType::range)
 						{
-							this->output() << boardType::playerToString(spl) << "=>" << boardType::piecesToString(mask, pl) << ": ";
+							this->output() << spl.toShortString() << "=>" << boardType::piecesToString(mask, pl) << ": ";
 							if constexpr (evaluatorType::countEvaluationStages > 0)
 							{
 								for (size_t i = 0; i < evaluatorType::countEvaluationStages; i++)
@@ -29,7 +29,7 @@ namespace pygmalion::evaluation
 									this->output() << "\t" << delta.maxQuietChange(spl, pl, mask);
 								}
 								this->output() << std::endl;
-								this->output() << boardType::playerToString(spl) << "=>" << boardType::piecesToString(mask, pl) << "=" << boardType::piecesToString(generatorType::promotionResults(pl), pl) << ": ";
+								this->output() << spl.toShortString() << "=>" << boardType::piecesToString(mask, pl) << "=" << boardType::piecesToString(generatorType::promotionResults(pl), pl) << ": ";
 								for (size_t i = 0; i < evaluatorType::countEvaluationStages; i++)
 								{
 									const auto& delta(this->evaluationEngine().evaluationDelta().stageDelta(i));
@@ -38,7 +38,7 @@ namespace pygmalion::evaluation
 								this->output() << std::endl;
 								for (const auto mask2 : piecesType::range)
 								{
-									this->output() << boardType::playerToString(spl) << "=>" << boardType::piecesToString(mask, pl) << "-" << boardType::piecesToString(mask2, pl.next()) << ": ";
+									this->output() << spl.toShortString() << "=>" << boardType::piecesToString(mask, pl) << "-" << boardType::piecesToString(mask2, pl.next()) << ": ";
 									for (size_t i = 0; i < evaluatorType::countEvaluationStages; i++)
 									{
 										const auto& delta(this->evaluationEngine().evaluationDelta().stageDelta(i));
@@ -48,7 +48,7 @@ namespace pygmalion::evaluation
 								}
 								for (const auto mask2 : piecesType::range)
 								{
-									this->output() << boardType::playerToString(spl) << "=>" << boardType::piecesToString(mask, pl) << "-" << boardType::piecesToString(mask2, pl.next()) << "=" << boardType::piecesToString(generatorType::promotionResults(pl), pl) << ": ";
+									this->output() << spl.toShortString() << "=>" << boardType::piecesToString(mask, pl) << "-" << boardType::piecesToString(mask2, pl.next()) << "=" << boardType::piecesToString(generatorType::promotionResults(pl), pl) << ": ";
 									for (size_t i = 0; i < evaluatorType::countEvaluationStages; i++)
 									{
 										const auto& delta(this->evaluationEngine().evaluationDelta().stageDelta(i));

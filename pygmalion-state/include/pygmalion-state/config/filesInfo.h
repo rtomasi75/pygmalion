@@ -1,24 +1,33 @@
 namespace pygmalion::config
 {
-	template<size_t COUNTFILES>
-	class filesInfo
+	class filesInfoBase
 	{
-	public:
-		const std::array<fileInfo, COUNTFILES> m_Files;
-	protected:
-		constexpr filesInfo(const std::array<fileInfo, COUNTFILES>& files) noexcept :
-			m_Files{ files }
-		{
-		}
-	public:
-		constexpr static const inline size_t countFiles{ COUNTFILES };
-		~filesInfo() noexcept
-		{
+		template<typename... FILES>
+		friend class filesInfo;
+	private:
+		filesInfoBase() noexcept = default;
+	};
 
-		}
-		constexpr const fileInfo& file(const size_t fileIndex) const noexcept
+	template<typename... FILES>
+	class filesInfo :
+		public enumerationInfo<FILES...>,
+		public filesInfoBase
+	{
+	private:
+		template<bool...> struct bool_pack;
+		template<bool... bs>
+		using all_true = std::is_same<bool_pack<bs..., true>, bool_pack<true, bs...>>;
+		static_assert(all_true<std::is_base_of<fileInfo, FILES>::value...>::value, "FILES... must inherit fileInfo type.");
+	public:
+		constexpr filesInfo(const FILES&... files) noexcept :
+			enumerationInfo<FILES...>(files...)
 		{
-			return m_Files[fileIndex];
+		}
+	public:
+		template<size_t INDEX>
+		constexpr const typename enumerationInfo<FILES...>::template valueType<INDEX>& file() const noexcept
+		{
+			return this->template value<INDEX>();
 		}
 	};
 }

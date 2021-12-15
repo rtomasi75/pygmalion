@@ -19,7 +19,7 @@ namespace pygmalion::state
 				this->output() << std::endl;
 				this->output() << countFiles << " file" << (countFiles != 1 ? "s" : "") << ":";
 				for (const auto file : fileType::range)
-					this->output() << " " << boardType::fileToString(file);
+					this->output() << " " << file.toShortString();
 				this->output() << std::endl;
 				this->output() << std::endl;
 				return true;

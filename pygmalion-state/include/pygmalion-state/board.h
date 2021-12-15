@@ -22,49 +22,33 @@ namespace pygmalion
 		playerpiecesType m_PlayerPieces;
 		gamestateType m_Arbitration;
 		playerType m_MovingPlayer;
+		constexpr static inline std::array<hashType, countPlayers> m_MovingPlayerHash
+		{
+			arrayhelper::generate<countPlayers,hashType>([](const size_t playerIndex) { return hashType(boardInfo.movingPlayerHash[playerIndex]); })
+		};
 		static inline std::array<hashType, 1 << flagType::countValues> m_FlagsHash
 		{
 			arrayhelper::generate<1 << flagType::countValues,hashType>([](const size_t index)
 				{
-					const flagsType flags{flagsType(static_cast<typename flagsType::bitsType>(index))};
-					hashType hash{hashType(0)};
-					for (size_t i = 0; i < flagType::countValues; i++)
-					{
-						if (flags[i])
-							hash ^= flagType::hash(i);
-					}
-					return hash;
+					return boardInfo.flagHash[index];
 				})
 		};
 		static inline std::array<std::array<std::array<hashType, countSquares>, countPieces>, countPlayers> m_PlayerPieceSquareHash
 		{
-			arrayhelper::generate<countPlayers, std::array<std::array<hashType, countSquares>, countPieces>>([](const size_t player) { return arrayhelper::generate<countPieces, std::array<hashType, countSquares>>([player](const size_t piece) {return arrayhelper::generate<countSquares, hashType>([player, piece](const size_t square) {return pieceType::hash(static_cast<pieceType>(piece)) ^ squareType::hash(static_cast<squareType>(square)) ^ playerType::hash(static_cast<playerType>(player)); }); }); })
+			arrayhelper::generate<countPlayers, std::array<std::array<hashType, countSquares>, countPieces>>([](const size_t player) { return arrayhelper::generate<countPieces, std::array<hashType, countSquares>>([player](const size_t piece) {return arrayhelper::generate<countSquares, hashType>([player, piece](const size_t square) {return boardInfo.playerPieceSquareHash[player][piece][square]; }); }); })
 		};
 	protected:
-		PYGMALION_INLINE static const hashType& playerHash(const playerType player) noexcept
+		PYGMALION_INLINE static const hashType playerHash(const playerType player) noexcept
 		{
-			if constexpr (hasCustomHashing)
-				return boardType::customPlayerHash(player);
-			else
-				return playerType::hash(player);
+			return m_MovingPlayerHash[player];
 		}
-		PYGMALION_INLINE static const hashType& flagsHash(const flagsType flags) noexcept
+		PYGMALION_INLINE static const hashType flagsHash(const flagsType flags) noexcept
 		{
-			if constexpr (hasCustomHashing)
-				return boardType::customFlagsHash(flags);
-			else
-			{
-				const typename flagsType::bitsType bits{ flags.bits() };
-				const size_t index{ static_cast<size_t>(static_cast<std::uintmax_t>(bits)) };
-				return m_FlagsHash[index];
-			}
+			return m_FlagsHash[flags.toIndex()];
 		}
-		PYGMALION_INLINE static const hashType& pieceHash(const pieceType piece, const squareType square, const playerType player) noexcept
+		PYGMALION_INLINE static const hashType pieceHash(const pieceType piece, const squareType square, const playerType player) noexcept
 		{
-			if constexpr (hasCustomHashing)
-				return boardType::customPieceHash(piece, square, player);
-			else
-				return m_PlayerPieceSquareHash[player][piece][square];
+			return m_PlayerPieceSquareHash[player][piece][square];
 		}
 		PYGMALION_INLINE void onClear() noexcept
 		{
@@ -121,25 +105,24 @@ namespace pygmalion
 			return boardType::template makeSubjective_Implementation<PLAYER>(score);
 		}
 	public:
-		PYGMALION_INLINE bool operator==(const boardType& other) const noexcept
+		hashType theoreticalHash() const noexcept
 		{
-#if defined(NDEBUG)
-			if (m_Hash != other.m_Hash)
-				return false;
-			for (const auto pc : pieceType::range)
-			{
-				if (m_PieceOccupancy[pc] != other.m_PieceOccupancy[pc])
-					return false;
-			}
+			constexpr const flagsType noFlags{ flagsType::none() };
+			hashType hash{ hashType(0) };
+			hash ^= playerHash(m_MovingPlayer);
+			hash ^= flagsHash(m_Flags);
 			for (const auto pl : playerType::range)
 			{
-				if (m_PlayerOccupancy[pl] != other.m_PlayerOccupancy[pl])
-					return false;
+				for (const auto pc : pieceType::range)
+				{
+					for (const auto sq : playerOccupancy(pl)& pieceOccupancy(pc))
+						hash ^= pieceHash(pc, sq, pl);
+				}
 			}
-			if (m_Flags != other.m_Flags)
-				return false;
-			return true;
-#else
+			return hash;
+		}
+		PYGMALION_INLINE bool operator==(const boardType& other) const noexcept
+		{
 			for (const auto pl : playerType::range)
 			{
 				if (playerOccupancy(pl) != other.playerOccupancy(pl))
@@ -171,27 +154,9 @@ namespace pygmalion
 			if (this->arbitration() != other.arbitration())
 				return false;
 			return true;
-#endif
 		}
 		PYGMALION_INLINE bool operator!=(const boardType& other) const noexcept
 		{
-#if defined(NDEBUG)
-			if (m_Hash != other.m_Hash)
-				return true;
-			for (const auto pc : pieceType::range)
-			{
-				if (m_PieceOccupancy[pc] != other.m_PieceOccupancy[pc])
-					return true;
-			}
-			for (const auto pl : playerType::range)
-			{
-				if (m_PlayerOccupancy[pl] != other.m_PlayerOccupancy[pl])
-					return true;
-			}
-			if (m_Flags != other.m_Flags)
-				return true;
-			return false;
-#else
 			for (const auto pl : playerType::range)
 			{
 				if (playerOccupancy(pl) != other.playerOccupancy(pl))
@@ -223,7 +188,6 @@ namespace pygmalion
 			if (this->arbitration() != other.arbitration())
 				return true;
 			return false;
-#endif
 		}
 		PYGMALION_INLINE const squareType& enPassantSquare() const noexcept
 		{
@@ -354,83 +318,13 @@ namespace pygmalion
 		{
 			return boardType::cumulationToString_Implementation(cumulation);
 		}
-		static std::string fileToString(const fileType file) noexcept
-		{
-			return boardType::fileToString_Implementation(file);
-		}
-		static bool parseFile(const std::string& text, fileType& file, size_t& count) noexcept
-		{
-			return boardType::parseFile_Implementation(text, file, count);
-		}
-		static std::string flagToString(const flagType flag) noexcept
-		{
-			return boardType::flagToString_Implementation(flag);
-		}
-		static bool parseFlag(const std::string& text, flagType& flag, size_t& count) noexcept
-		{
-			return boardType::parseFlag_Implementation(text, flag, count);
-		}
-		static std::string rankToString(const rankType rank) noexcept
-		{
-			return boardType::rankToString_Implementation(rank);
-		}
-		static bool parseRank(const std::string& text, rankType& rank, size_t& count) noexcept
-		{
-			return boardType::parseRank_Implementation(text, rank, count);
-		}
-		static std::string playerToString(const playerType player) noexcept
-		{
-			return boardType::playerToString_Implementation(player);
-		}
-		static bool parsePlayer(const std::string& text, playerType& player, size_t& count) noexcept
-		{
-			return boardType::parsePlayer_Implementation(text, player, count);
-		}
-		static std::string pieceToString(const pieceType piece, const playerType player) noexcept
-		{
-			return boardType::pieceToString_Implementation(piece, player);
-		}
-		static bool parsePiece(const std::string& text, pieceType& piece, playerType& player, size_t& count) noexcept
-		{
-			return boardType::parsePiece_Implementation(text, piece, player, count);
-		}
-		static std::string squareToString(const squareType square) noexcept
-		{
-			return fileToString(square.file()) + rankToString(square.rank());
-		}
-		static bool parseSquare(const std::string& text, squareType& square, size_t& count) noexcept
-		{
-			fileType f;
-			std::string temp{ text };
-			size_t cnt{ 0 };
-			if (parseFile(temp, f, cnt))
-			{
-				temp = temp.substr(cnt, temp.length() - cnt);
-				rankType r;
-				if (parseRank(temp, r, cnt))
-				{
-					count += cnt;
-					square = f & r;
-					return true;
-				}
-			}
-			return false;
-		}
-		static std::string flagsToString(const flagsType flags, const playerType movingPlayer) noexcept
-		{
-			return boardType::flagsToString_Implementation(flags, movingPlayer);
-		}
-		static bool parseFlags(const std::string& text, flagsType& flags, size_t& count) noexcept
-		{
-			return boardType::parseFlags_Implementation(text, flags, count);
-		}
 		static std::string piecesToString(const piecesType mask, const playerType pl) noexcept
 		{
 			std::stringstream str;
 			for (const auto pc : pieceType::range)
 			{
 				if (mask[pc])
-					str << boardType::pieceToString(pc, pl);
+					str << (pc & pl).toShortString();
 				else
 					str << "_";
 			}
@@ -438,79 +332,96 @@ namespace pygmalion
 		}
 		PYGMALION_INLINE void setFlag(const flagType flag) noexcept
 		{
+			PYGMALION_ASSERT(theoreticalHash() == hash());
 			if (!m_Flags[flag])
 			{
 				const flagsType oldFlags{ m_Flags };
 				m_Flags.setElement(flag);
 				onSetFlag(flag);
-				m_Hash ^= flagsHash(oldFlags) ^ flagsHash(m_Flags);
+				m_Hash ^= flagsHash(oldFlags);
+				m_Hash ^= flagsHash(m_Flags);
 			}
+			PYGMALION_ASSERT(theoreticalHash() == hash());
 		}
 		PYGMALION_INLINE void toggleFlag(const flagType flag) noexcept
 		{
+			PYGMALION_ASSERT(theoreticalHash() == hash());
 			const flagsType oldFlags{ m_Flags };
 			m_Flags ^= flag;
 			if (m_Flags[flag])
 				onSetFlag(flag);
 			else
 				onClearedFlag(flag);
-			m_Hash ^= flagsHash(oldFlags) ^ flagsHash(m_Flags);
+			m_Hash ^= flagsHash(oldFlags);
+			m_Hash ^= flagsHash(m_Flags);
+			PYGMALION_ASSERT(theoreticalHash() == hash());
 		}
 		PYGMALION_INLINE void clearFlag(const flagType flag) noexcept
 		{
+			PYGMALION_ASSERT(theoreticalHash() == hash());
 			if (m_Flags[flag])
 			{
 				const flagsType oldFlags{ m_Flags };
 				m_Flags.clearElement(flag);
 				onClearedFlag(flag);
-				m_Hash ^= flagsHash(oldFlags) ^ flagsHash(m_Flags);
+				m_Hash ^= flagsHash(oldFlags);
+				m_Hash ^= flagsHash(m_Flags);
 			}
+			PYGMALION_ASSERT(theoreticalHash() == hash());
 		}
-		PYGMALION_INLINE bool checkFlag(const flagType flag) const noexcept
+		PYGMALION_INLINE bool testFlag(const flagType flag) const noexcept
 		{
 			return m_Flags[flag];
 		}
 		PYGMALION_INLINE void setFlags(const flagsType flags) noexcept
 		{
+			PYGMALION_ASSERT(theoreticalHash() == hash());
 			const flagsType oldFlags{ m_Flags };
 			for (const auto f : flags & ~m_Flags)
 			{
 				m_Flags.set(f);
 				onSetFlag(f);
 			}
-			m_Hash ^= flagsHash(oldFlags) ^ flagsHash(m_Flags);
+			m_Hash ^= flagsHash(oldFlags);
+			m_Hash ^= flagsHash(m_Flags);
+			PYGMALION_ASSERT(theoreticalHash() == hash());
 		}
 		PYGMALION_INLINE void clearFlags(const flagsType flags) noexcept
 		{
+			PYGMALION_ASSERT(theoreticalHash() == hash());
 			const flagsType oldFlags{ m_Flags };
 			for (const auto f : flags & m_Flags)
 			{
 				m_Flags.clearElement(f);
 				onClearedFlag(f);
 			}
-			m_Hash ^= flagsHash(oldFlags) ^ flagsHash(m_Flags);
+			m_Hash ^= flagsHash(oldFlags);
+			m_Hash ^= flagsHash(m_Flags);
+			PYGMALION_ASSERT(theoreticalHash() == hash());
 		}
 		template<size_t FIRST, size_t LAST, typename = typename std::enable_if<board::enableRange(FIRST, LAST)>::type>
 		PYGMALION_INLINE void clearFlagRange() noexcept
 		{
-			flagsType oldFlags{ m_Flags };
+			PYGMALION_ASSERT(theoreticalHash() == hash());
+			const flagsType oldFlags{ m_Flags };
 			for (const auto f : m_Flags.template extractRange<FIRST, LAST>())
-			{
 				onClearedFlag(f);
-			}
 			m_Flags.template clearRange<FIRST, LAST>();
-			m_Hash ^= flagsHash(oldFlags) ^ flagsHash(m_Flags);
+			m_Hash ^= flagsHash(oldFlags);
+			m_Hash ^= flagsHash(m_Flags);
+			PYGMALION_ASSERT(theoreticalHash() == hash());
 		}
 		template<size_t FIRST, size_t LAST, typename = typename std::enable_if<board::enableRange(FIRST, LAST)>::type>
 		PYGMALION_INLINE void setFlagRange() noexcept
 		{
-			flagsType oldFlags{ m_Flags };
+			PYGMALION_ASSERT(theoreticalHash() == hash());
+			const flagsType oldFlags{ m_Flags };
 			for (const auto f : ~m_Flags.template extractRange<FIRST, LAST>())
-			{
 				onSetFlag(f);
-			}
 			m_Flags.template setRange<FIRST, LAST>();
-			m_Hash ^= flagsHash(oldFlags) ^ flagsHash(m_Flags);
+			m_Hash ^= flagsHash(oldFlags);
+			m_Hash ^= flagsHash(m_Flags);
+			PYGMALION_ASSERT(theoreticalHash() == hash());
 		}
 		template<size_t FIRST, size_t LAST, typename = typename std::enable_if<board::enableRange(FIRST, LAST)>::type>
 		uint_t<1 + LAST - FIRST, false> extractFlagRange() const noexcept
@@ -518,33 +429,52 @@ namespace pygmalion
 			return m_Flags.template extractRange<FIRST, LAST>();
 		}
 		template<size_t FIRST, size_t LAST, typename = typename std::enable_if<board::enableRange(FIRST, LAST)>::type>
-		PYGMALION_INLINE void storeFlagRange(const uint_t<1 + LAST - FIRST, false>& flags) noexcept
+		PYGMALION_INLINE void storeFlagRange(const uint_t<1 + LAST - FIRST, false> flags) noexcept
 		{
-			flagsType oldFlags{ m_Flags };
+			PYGMALION_ASSERT(theoreticalHash() == hash());
+			const flagsType oldFlags{ m_Flags };
 			m_Flags.template storeRange<FIRST, LAST>(flags);
-			for (const auto f : oldFlags ^ m_Flags)
+			const flagsType delta{ m_Flags ^ oldFlags };
+			for (const auto f : delta)
 			{
 				if (m_Flags[f])
 					onSetFlag(f);
 				else
 					onClearedFlag(f);
 			}
-			m_Hash ^= flagsHash(oldFlags) ^ flagsHash(m_Flags);
+			m_Hash ^= flagsHash(oldFlags);
+			m_Hash ^= flagsHash(m_Flags);
+			PYGMALION_ASSERT(theoreticalHash() == hash());
+		}
+		PYGMALION_INLINE void checkFlags(const flagsType flags) noexcept
+		{
+			PYGMALION_ASSERT(theoreticalHash() == hash());
+			const flagsType oldFlags{ m_Flags };
+			m_Flags = flags;
+			const flagsType delta{ m_Flags ^ oldFlags };
+			for (const auto f : delta & m_Flags)
+				onSetFlag(f);
+			for (const auto f : delta & ~m_Flags)
+				onClearedFlag(f);
+			m_Hash ^= flagsHash(oldFlags);
+			m_Hash ^= flagsHash(m_Flags);
+			PYGMALION_ASSERT(theoreticalHash() == hash());
 		}
 		PYGMALION_INLINE const flagsType& flags() const noexcept
 		{
 			return m_Flags;
 		}
-		PYGMALION_INLINE flagsType& flags() noexcept
-		{
-			return m_Flags;
-		}
 		PYGMALION_INLINE void setMovingPlayer(const playerType movingPlayer) noexcept
 		{
+			PYGMALION_ASSERT(theoreticalHash() == hash());
 			const playerType oldPlayer{ m_MovingPlayer };
-			m_MovingPlayer = movingPlayer;
-			onSetMovingPlayer(m_MovingPlayer);
-			m_Hash ^= playerHash(m_MovingPlayer) ^ playerHash(oldPlayer);
+			if (oldPlayer != movingPlayer)
+			{
+				m_MovingPlayer = movingPlayer;
+				onSetMovingPlayer(m_MovingPlayer);
+				m_Hash ^= playerHash(m_MovingPlayer) ^ playerHash(oldPlayer);
+			}
+			PYGMALION_ASSERT(theoreticalHash() == hash());
 		}
 		PYGMALION_INLINE playerType movingPlayer() const noexcept
 		{
@@ -605,6 +535,7 @@ namespace pygmalion
 		}
 		PYGMALION_INLINE void addPiece(const pieceType piece, const squareType square, const playerType player, const materialTableType& materialTable) noexcept
 		{
+			PYGMALION_ASSERT(theoreticalHash() == hash());
 			PYGMALION_ASSERT(player.isValid());
 			PYGMALION_ASSERT(piece.isValid());
 			PYGMALION_ASSERT(square.isValid());
@@ -620,9 +551,11 @@ namespace pygmalion
 			m_Material += materialTable.material(player, piece, square);
 			m_PlayerPieces.pieces(player) |= piece;
 			onAddedPiece(piece, square, player);
+			PYGMALION_ASSERT(theoreticalHash() == hash());
 		}
 		PYGMALION_INLINE void removePiece(const pieceType piece, const squareType square, const playerType player, const materialTableType& materialTable) noexcept
 		{
+			PYGMALION_ASSERT(theoreticalHash() == hash());
 			PYGMALION_ASSERT(player.isValid());
 			PYGMALION_ASSERT(piece.isValid());
 			PYGMALION_ASSERT(square.isValid());
@@ -637,9 +570,11 @@ namespace pygmalion
 			const squaresType occ{ m_PlayerOccupancy[player] & m_PieceOccupancy[piece] };
 			m_PlayerPieces.pieces(player).checkElement(piece, m_PlayerOccupancy[player] & m_PieceOccupancy[piece]);
 			onRemovedPiece(piece, square, player);
+			PYGMALION_ASSERT(theoreticalHash() == hash());
 		}
 		PYGMALION_INLINE void movePiece(const pieceType piece, const squareType from, const squareType to, const playerType player, const materialTableType& materialTable) noexcept
 		{
+			PYGMALION_ASSERT(theoreticalHash() == hash());
 			PYGMALION_ASSERT(player.isValid());
 			PYGMALION_ASSERT(piece.isValid());
 			PYGMALION_ASSERT(from.isValid());
@@ -661,6 +596,7 @@ namespace pygmalion
 			m_Material -= materialTable.material(player, piece, from);
 			m_Material += materialTable.material(player, piece, to);
 			onMovedPiece(piece, from, to, player);
+			PYGMALION_ASSERT(theoreticalHash() == hash());
 		}
 		PYGMALION_INLINE pieceType getPiece(const squareType sq) const noexcept
 		{
@@ -729,6 +665,7 @@ namespace pygmalion
 			constexpr const objectiveType zero{ objectiveType::zero() };
 			m_Material = zero;
 			m_PlayerPieces.clear();
+			PYGMALION_ASSERT(theoreticalHash() == hash());
 		}
 		board() noexcept :
 			m_PieceOccupancy{ },
@@ -743,6 +680,7 @@ namespace pygmalion
 		{
 			clear();
 			onInitialize(materialTable);
+			PYGMALION_ASSERT(theoreticalHash() == hash());
 		}
 		board(board&&) noexcept = default;
 		board(const board&) noexcept = default;
@@ -767,7 +705,7 @@ namespace pygmalion
 						l = 0;
 						const playerType side{ getPlayer(square) };
 						const pieceType piece{ getPiece(square) };
-						fen << boardType::pieceToString(piece, side);
+						fen << (piece & side).toShortString();
 					}
 					else
 						l++;
@@ -778,10 +716,10 @@ namespace pygmalion
 					fen << "/";
 			}
 			fen << " ";
-			fen << board::playerToString(movingPlayer()) << " ";
-			fen << board::flagsToString(flags(), movingPlayer()) << " ";
+			fen << movingPlayer().toShortString() << " ";
+			fen << flags().toString() << " ";
 			if (enPassantSquare().isValid())
-				fen << board::squareToString(enPassantSquare()) << " ";
+				fen << enPassantSquare().toShortString() << " ";
 			else
 				fen << "- ";
 			fen << parser::fromInt(getReversiblePlyCount()) << " ";
@@ -796,7 +734,7 @@ namespace pygmalion
 			{
 				if (pieces[pc])
 				{
-					const std::string pcString{ boardType::pieceToString(pc,pl) };
+					const std::string pcString{ (pc & pl).toShortString() };
 					str << pcString;
 				}
 				else
@@ -814,8 +752,7 @@ namespace pygmalion
 			typename rankType::baseType rank{ static_cast<typename rankType::baseType>(countRanks - 1) };
 			bool bParse{ true };
 			size_t count{ 0 };
-			pieceType piece;
-			playerType player;
+			playerpieceType ppc;
 			while (bParse)
 			{
 				if (fen.length() <= pos)
@@ -827,9 +764,9 @@ namespace pygmalion
 				{
 				default:
 					count = 0;
-					if (board::parsePiece(fen.substr(pos, fen.length() - pos), piece, player, count))
+					if (playerpieceType::parse(fen.substr(pos, fen.length() - pos), count, ppc))
 					{
-						addPiece(piece, fileType(file) & rankType(rank), player, materialTable);
+						addPiece(ppc.piece(), fileType(file) & rankType(rank), ppc.player(), materialTable);
 						file++;
 					}
 					else
@@ -889,7 +826,8 @@ namespace pygmalion
 				return false;
 			}
 			count = 0;
-			if (!board::parsePlayer(fen.substr(pos, fen.length() - pos), player, count))
+			playerType player;
+			if (!playerType::parse(fen.substr(pos, fen.length() - pos), count, player))
 			{
 				clear();
 				return false;
@@ -913,11 +851,13 @@ namespace pygmalion
 				return false;
 			}
 			count = 0;
-			if (!board::parseFlags(fen.substr(pos, fen.length() - pos), m_Flags, count))
+			flagsType flags{ flagsType::none() };
+			if (!flagsType::parse(fen.substr(pos, fen.length() - pos), count, flags))
 			{
 				clear();
 				return false;
 			}
+			checkFlags(flags);
 			pos += count;
 			if (fen[pos] != ' ')
 			{
@@ -938,7 +878,7 @@ namespace pygmalion
 			}
 			else
 			{
-				if (!board::parseSquare(fen.substr(pos, fen.length() - pos), m_EnPassantSquare, count))
+				if (!squareType::parse(fen.substr(pos, fen.length() - pos), count, m_EnPassantSquare))
 				{
 					clear();
 					return false;

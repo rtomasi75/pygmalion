@@ -206,7 +206,7 @@ namespace pygmalion::chess
 			position.setMovingPlayer(p1);
 			position.movePiece(data.piece(), data.to(), data.from(), p1, materialTable);
 			position.addPiece(data.capturedPiece(), data.to(), p2, materialTable);
-			position.flags() = data.oldFlags();
+			position.checkFlags(data.oldFlags());
 			position.setReversiblePlyCount(data.reversiblePlies());
 			position.setEnPassantSquare(data.oldEnPassantSquare());
 		}
@@ -219,16 +219,14 @@ namespace pygmalion::chess
 		}
 		bool parse_Implementation(const boardType& position, const std::string& text, typename capturemove::movebitsType& moveBits, size_t& count) const noexcept
 		{
-			std::string temp{ text };
 			squareType from;
 			squareType to;
 			size_t cnt{ 0 };
-			if (boardType::parseSquare(temp, from, cnt))
+			if (squareType::parse(text, cnt, from))
 			{
-				std::string temp2{ temp.substr(cnt, temp.length() - cnt) };
 				if (position.playerOccupancy(position.movingPlayer())[from])
 				{
-					if (boardType::parseSquare(temp2, to, cnt))
+					if (squareType::parse(text, cnt, to))
 					{
 						if (position.playerOccupancy(position.movingPlayer().next())[to])
 						{
@@ -245,7 +243,7 @@ namespace pygmalion::chess
 		{
 			const squareType from{ capturemove::extractFrom(moveBits) };
 			const squareType to{ capturemove::extractTo(moveBits) };
-			return boardType::squareToString(from) + boardType::squareToString(to);
+			return from.toShortString() + to.toShortString();
 		}
 		PYGMALION_INLINE squaresType otherOccupancyDelta_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
 		{

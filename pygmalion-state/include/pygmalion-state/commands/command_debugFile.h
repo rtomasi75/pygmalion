@@ -21,9 +21,9 @@ namespace pygmalion::state
 				fileType file;
 				parser::parseTokenCaseSensitive(remainder, token, remainder2);
 				size_t count{ 0 };
-				if (boardType::parseFile(token, file, count))
+				if (fileType::parse(token, count, file))
 				{
-					this->output() << "file " << boardType::fileToString(file) << std::endl;
+					this->output() << "file " << file.toShortString()<< std::endl;
 					this->dumpSquares(static_cast<squaresType>(file));
 				}
 				else

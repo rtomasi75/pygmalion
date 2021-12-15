@@ -1,24 +1,33 @@
 namespace pygmalion::config
 {
-	template<size_t COUNTRANKS>
-	class ranksInfo
+	class ranksInfoBase
 	{
-	public:
-		const std::array<rankInfo, COUNTRANKS> m_Ranks;
-	protected:
-		constexpr ranksInfo(const std::array<rankInfo, COUNTRANKS>& ranks) noexcept :
-			m_Ranks{ ranks }
-		{
-		}
-	public:
-		constexpr static const inline size_t countRanks{ COUNTRANKS };
-		~ranksInfo() noexcept
-		{
+		template<typename... RANKS>
+		friend class ranksInfo;
+	private:
+		ranksInfoBase() noexcept = default;
+	};
 
-		}
-		constexpr const rankInfo& rank(const size_t rankIndex) const noexcept
+	template<typename... RANKS>
+	class ranksInfo :
+		public enumerationInfo<RANKS...>,
+		public ranksInfoBase
+	{
+	private:
+		template<bool...> struct bool_pack;
+		template<bool... bs>
+		using all_true = std::is_same<bool_pack<bs..., true>, bool_pack<true, bs...>>;
+		static_assert(all_true < std::is_base_of<rankInfo, RANKS>::value...>::value, "RANKS... must inherit rankInfo type.");
+	public:
+		constexpr ranksInfo(const RANKS&... ranks) noexcept :
+			enumerationInfo<RANKS...>(ranks...)
 		{
-			return m_Ranks[rankIndex];
+		}
+	public:
+		template<size_t INDEX>
+		constexpr const typename enumerationInfo<RANKS...>::template valueType<INDEX>& rank() const noexcept
+		{
+			return this->template value<INDEX>();
 		}
 	};
 }

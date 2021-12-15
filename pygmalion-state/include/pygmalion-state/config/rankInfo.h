@@ -1,16 +1,13 @@
 namespace pygmalion::config
 {
-	class rankInfo
+	class rankInfo :
+		public valueInfo
 	{
 	public:
-		const std::string_view shortName;
-		const std::string_view longName;
-		constexpr rankInfo(const std::string_view& shortName_, const std::string_view& longName_) :
-			shortName{ shortName_ },
-			longName{ longName_ }
+		constexpr rankInfo(const std::string_view& shortName_, const std::string_view& longName_) noexcept :
+			valueInfo(shortName_, longName_)
 		{
 
 		}
-		~rankInfo() noexcept = default;
 	};
 }

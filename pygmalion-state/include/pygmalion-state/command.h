@@ -41,7 +41,7 @@ namespace pygmalion::state
 				this->output() << "squares:";
 				for (const auto sq : squares)
 				{
-					this->output() << " " << boardType::squareToString(sq);
+					this->output() << " " << sq.toShortString();
 				}
 				this->output() << std::endl;
 			}

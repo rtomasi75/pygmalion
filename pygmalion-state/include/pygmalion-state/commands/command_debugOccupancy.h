@@ -25,27 +25,41 @@ namespace pygmalion::state
 					parser::parseTokenCaseSensitive(remainder2, token, remainder3);
 					playerType p;
 					size_t count{ 0 };
-					if (boardType::parsePlayer(token, p, count))
+					if (playerType::parse(token, count, p))
 					{
 
-						this->output() << "occupancy bitboard for player " << boardType::playerToString(p) << ":" << std::endl;
+						this->output() << "occupancy bitboard for " << p.toLongString() << ":" << std::endl;
 						this->dumpSquares(this->position().playerOccupancy(p));
 					}
 					else
 						this->output() << "invalid player: " << token << std::endl;
+				}
+				else if (token == "ppc" || token == "playerpiece")
+				{
+					std::string remainder3;
+					parser::parseTokenCaseSensitive(remainder2, token, remainder3);
+					playerpieceType ppc;
+					size_t count{ 0 };
+					if (playerpieceType::parse(token, count, ppc))
+					{
+
+						this->output() << "occupancy bitboard for " << ppc.toLongString() << ":" << std::endl;
+						this->dumpSquares(this->position().pieceOccupancy(ppc.piece()) & this->position().playerOccupancy(ppc.player()));
+					}
+					else
+						this->output() << "invalid player/piece: " << token << std::endl;
 				}
 				else if (token == "pc" || token == "piece")
 				{
 					std::string remainder3;
 					parser::parseTokenCaseSensitive(remainder2, token, remainder3);
 					pieceType pc;
-					playerType p;
 					size_t count{ 0 };
-					if (boardType::parsePiece(token, pc, p, count))
+					if (pieceType::parse(token, count, pc))
 					{
 
-						this->output() << "occupancy bitboard for piece " << boardType::pieceToString(pc, p) << ":" << std::endl;
-						this->dumpSquares(this->position().pieceOccupancy(pc) & this->position().playerOccupancy(p));
+						this->output() << "occupancy bitboard for " << pc.toLongString() << ":" << std::endl;
+						this->dumpSquares(this->position().pieceOccupancy(pc));
 					}
 					else
 						this->output() << "invalid player: " << token << std::endl;
@@ -60,6 +74,7 @@ namespace pygmalion::state
 					this->output() << "need to specify one of the follwoing:" << std::endl;
 					this->output() << "  p (player)" << std::endl;
 					this->output() << "  pc (piece)" << std::endl;
+					this->output() << "  ppc (playerpiece)" << std::endl;
 					this->output() << "  t (total)" << std::endl;
 				}
 				this->output() << std::endl;

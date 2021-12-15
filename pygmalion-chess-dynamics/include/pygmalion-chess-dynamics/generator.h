@@ -4684,7 +4684,7 @@ namespace pygmalion::chess
 			case 0:
 				return false;
 			case 2:
-				if (boardType::parseSquare(san2.substr(pos, san2.length() - pos), to, count))
+				if (squareType::parse(san2.substr(pos, san2.length() - pos), count, to))
 				{
 					PYGMALION_ASSERT(count == 2);
 					pos += count;
@@ -4693,13 +4693,13 @@ namespace pygmalion::chess
 					return false;
 				break;
 			case 3:
-				if (boardType::parseFile(san2.substr(pos, san2.length() - pos), originFile, count))
+				if (fileType::parse(san2.substr(pos, san2.length() - pos), count, originFile))
 				{
 					PYGMALION_ASSERT(count == 1);
 					pos += count;
 					count = 0;
 				}
-				else if (boardType::parseRank(san2.substr(pos, san2.length() - pos), originRank, count))
+				else if (rankType::parse(san2.substr(pos, san2.length() - pos), count, originRank))
 				{
 					PYGMALION_ASSERT(count == 1);
 					pos += count;
@@ -4707,7 +4707,7 @@ namespace pygmalion::chess
 				}
 				else
 					return false;
-				if (boardType::parseSquare(san2.substr(pos, san2.length() - pos), to, count))
+				if (squareType::parse(san2.substr(pos, san2.length() - pos), count, to))
 				{
 					PYGMALION_ASSERT(count == 2);
 					pos += count;
@@ -4716,7 +4716,7 @@ namespace pygmalion::chess
 					return false;
 				break;
 			case 4:
-				if (boardType::parseSquare(san2.substr(pos, san2.length() - pos), from, count))
+				if (squareType::parse(san2.substr(pos, san2.length() - pos), count, from))
 				{
 					PYGMALION_ASSERT(count == 2);
 					pos += count;
@@ -4724,7 +4724,7 @@ namespace pygmalion::chess
 				}
 				else
 					return false;
-				if (boardType::parseSquare(san2.substr(pos, san2.length() - pos), to, count))
+				if (squareType::parse(san2.substr(pos, san2.length() - pos), count, to))
 				{
 					PYGMALION_ASSERT(count == 2);
 					pos += count;
@@ -4846,8 +4846,7 @@ namespace pygmalion::chess
 					break;
 				}
 				count = 0;
-				playerType dummy;
-				if (boardType::parsePiece(san2.substr(pos + offset, san2.length() - pos - offset), promoPiece, dummy, count))
+				if (pieceType::parse(san2.substr(pos + offset, san2.length() - pos - offset), count, promoPiece))
 				{
 					if (bBracket)
 					{
@@ -5304,7 +5303,7 @@ namespace pygmalion::chess
 					}
 					if (countamb > 1)
 					{
-						ret += boardType::squareToString(from);
+						ret += from.toShortString();
 					}
 					else
 					{
@@ -5377,10 +5376,10 @@ namespace pygmalion::chess
 			if (motorType::move().isCapture(mv))
 			{
 				ret += "x";
-				ret = ret + boardType::squareToString(to);
+				ret = ret + to.toShortString();
 			}
 			else
-				ret = ret + boardType::squareToString(to);
+				ret = ret + to.toShortString();
 			if (motorType::move().isPromotion(mv))
 			{
 				switch (motorType::move().promotedPiece(mv))

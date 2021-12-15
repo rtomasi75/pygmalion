@@ -13,7 +13,7 @@ namespace pygmalion::chess::evaluation
 			playerType p;
 			this->output() << std::endl;
 			size_t count{ 0 };
-			if (boardType::parsePlayer(token, p, count))
+			if (playerType::parse(token, count, p))
 			{
 				this->template process<0>(p);
 			}

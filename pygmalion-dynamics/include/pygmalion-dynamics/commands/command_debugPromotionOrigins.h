@@ -37,7 +37,7 @@ namespace pygmalion::dynamics
 				{
 					for (const auto pl : playerType::range)
 					{
-						this->output() << boardType::pieceToString(pc, pl) << std::endl;
+						this->output() << (pc & pl).toLongString() << std::endl;
 						this->template process<0>(pl, pc);
 					}
 				}

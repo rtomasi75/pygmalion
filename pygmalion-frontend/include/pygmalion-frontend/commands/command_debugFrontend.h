@@ -36,7 +36,7 @@ namespace pygmalion::frontend
 				this->output() << std::endl;
 				for (const auto pl : playerType::range)
 				{
-					this->output() << "player " << boardType::playerToString(pl) << " rating: " << static_cast<int>(this->front().playerRating(pl)) << std::endl;
+					this->output() << "player " << pl.toShortString() << " rating: " << static_cast<int>(this->front().playerRating(pl)) << std::endl;
 				}
 				this->output() << std::endl;
 				return true;

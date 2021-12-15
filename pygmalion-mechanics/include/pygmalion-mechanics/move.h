@@ -40,11 +40,15 @@ namespace pygmalion::mechanics
 		}
 		PYGMALION_INLINE void doMove(boardType& position, const movebitsType moveBits, movedataType& movedata, const materialTableType& materialTable) const noexcept
 		{
+			PYGMALION_ASSERT(position.theoreticalHash() == position.hash());
 			static_cast<const instanceType*>(this)->doMove_Implementation(position, moveBits, movedata, materialTable);
+			PYGMALION_ASSERT(position.theoreticalHash() == position.hash());
 		}
 		PYGMALION_INLINE void undoMove(boardType& position, const movedataType& movedata, const materialTableType& materialTable) const noexcept
 		{
+			PYGMALION_ASSERT(position.theoreticalHash() == position.hash());
 			static_cast<const instanceType*>(this)->undoMove_Implementation(position, movedata, materialTable);
+			PYGMALION_ASSERT(position.theoreticalHash() == position.hash());
 		}
 		bool parse(const boardType& position, const std::string& text, movebitsType& moveBits, size_t& count) const noexcept
 		{

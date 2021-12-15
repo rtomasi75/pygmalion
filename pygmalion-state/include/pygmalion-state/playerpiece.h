@@ -14,7 +14,7 @@ namespace pygmalion::state
 	private:
 		PYGMALION_INLINE constexpr static playerpiece fromPlayerPiece(const playerType pl, const pieceType pc) noexcept
 		{
-			return pl * countPlayers + pc;
+			return pl * countPieces + pc;
 		}
 	public:
 		PYGMALION_INLINE constexpr playerType player() const noexcept
@@ -57,6 +57,25 @@ namespace pygmalion::state
 		PYGMALION_INLINE constexpr playerpiecesType operator~() const noexcept
 		{
 			return ~static_cast<playerpiecesType>(*this);
+		}
+		std::string toShortString() const noexcept
+		{
+			return descriptorState::boardInfo.playerpieces().toShortString(static_cast<size_t>(*this));
+		}
+		std::string toLongString() const noexcept
+		{
+			return descriptorState::boardInfo.playerpieces().toLongString(static_cast<size_t>(*this));
+		}
+		static bool parse(const std::string text, size_t& pos, playerpiece& parsed) noexcept
+		{
+			size_t parsedIndex;
+			if (descriptorState::boardInfo.playerpieces().parse(text, pos, parsedIndex))
+			{
+				parsed = playerpiece(parsedIndex);
+				return true;
+			}
+			else
+				return false;
 		}
 	};
 }

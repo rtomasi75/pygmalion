@@ -101,7 +101,7 @@ namespace pygmalion::chess
 		{
 			const playerType p{ --position.movingPlayer() };
 			position.setMovingPlayer(p);
-			position.flags() = data.oldFlags();
+			position.checkFlags(data.oldFlags());
 			position.setEnPassantSquare(data.oldEnPassantSquare());
 			if (p == whitePlayer)
 			{
@@ -130,19 +130,17 @@ namespace pygmalion::chess
 		}
 		bool parse_Implementation(const boardType& position, const std::string& text, typename queensidecastlemove::movebitsType& moveBits, size_t& count) const noexcept
 		{
-			std::string temp{ text };
 			playerType movingPlayer{ position.movingPlayer() };
 			squareType from;
 			squareType to;
 			size_t cnt{ 0 };
 			if (movingPlayer == whitePlayer)
 			{
-				if (boardType::parseSquare(temp, from, cnt))
+				if (squareType::parse(text, cnt, from))
 				{
-					std::string temp2{ temp.substr(cnt,temp.length() - cnt) };
 					if ((position.playerOccupancy(movingPlayer) & position.pieceOccupancy(descriptorState::king))[from] && (from == squareE1))
 					{
-						if (boardType::parseSquare(temp2, to, cnt))
+						if (squareType::parse(text, cnt, to))
 						{
 							if (!position.totalOccupancy()[to])
 							{
@@ -162,12 +160,11 @@ namespace pygmalion::chess
 			}
 			else
 			{
-				if (boardType::parseSquare(temp, from, cnt))
+				if (squareType::parse(text, cnt, from))
 				{
-					std::string temp2{ temp.substr(cnt,temp.length() - cnt) };
 					if ((position.playerOccupancy(movingPlayer) & position.pieceOccupancy(descriptorState::king))[from] && (from == squareE8))
 					{
-						if (boardType::parseSquare(temp2, to, cnt))
+						if (squareType::parse(text, cnt, to))
 						{
 							if (!position.totalOccupancy()[to])
 							{
@@ -194,13 +191,13 @@ namespace pygmalion::chess
 			{
 				constexpr const squareType kingFrom{ squareE1 };
 				constexpr const squareType kingTo{ squareC1 };
-				return boardType::squareToString(kingFrom) + boardType::squareToString(kingTo);
+				return kingFrom.toShortString() + kingTo.toShortString();
 			}
 			else
 			{
 				constexpr const squareType kingFrom{ squareE8 };
 				constexpr const squareType kingTo{ squareC8 };
-				return boardType::squareToString(kingFrom) + boardType::squareToString(kingTo);
+				return kingFrom.toShortString() + kingTo.toShortString();
 			}
 		}
 		PYGMALION_INLINE squaresType otherOccupancyDelta_Implementation(const boardType& position, const movebitsType moveBits) const noexcept
