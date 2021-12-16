@@ -5,6 +5,7 @@ namespace pygmalion::state
 		public set<typename DESCRIPTION_STATE::pieceType, pieces<DESCRIPTION_STATE>>,
 		public DESCRIPTION_STATE
 	{
+		friend typename DESCRIPTION_STATE::pieceType;
 	public:
 		using descriptorState = DESCRIPTION_STATE;
 #include "include_state.h"	
@@ -24,5 +25,9 @@ namespace pygmalion::state
 		PYGMALION_INLINE ~pieces() noexcept = default;
 		PYGMALION_INLINE constexpr pieces& operator=(pieces&&) noexcept = default;
 		PYGMALION_INLINE constexpr pieces& operator=(const pieces&) noexcept = default;
+	private:
+		constexpr static inline const std::array<pieceType, countRoyalPieces> m_RoyalPieceIndex{ arrayhelper::generate<countRoyalPieces,pieceType>([](const size_t royalIndex) { return static_cast<pieceType>(boardInfo.playerpieces().pieces().indexRoyalPiece(royalIndex)); }) };
+		constexpr static inline const std::array<pieceType, countStructuralPieces> m_StructuralPieceIndex{ arrayhelper::generate<countStructuralPieces,pieceType>([](const size_t structuralIndex) { return static_cast<pieceType>(boardInfo.playerpieces().pieces().indexStructuralPiece(structuralIndex)); }) };
+
 	};
 }

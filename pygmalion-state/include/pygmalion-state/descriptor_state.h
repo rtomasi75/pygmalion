@@ -6,14 +6,16 @@ namespace pygmalion
 	public:
 		using boardinfoType = BOARDINFO;
 		constexpr static inline const boardinfoType boardInfo{ boardinfoType() };
-		constexpr static const size_t countPlayers{ boardinfoType::countPlayers };
-		constexpr static const size_t countPieces{ boardinfoType::countPieces };
-		constexpr static const size_t countPlayerpieces{ countPlayers * countPieces };
-		constexpr static const size_t countRanks{ boardinfoType::countRanks };
-		constexpr static const size_t countFiles{ boardinfoType::countFiles };
-		constexpr static const size_t countSquares{ countRanks * countFiles };
-		constexpr static const size_t countFlags{ boardinfoType::countFlags };
-		constexpr static const size_t countHashBits{ std::min(sizeof(void*) * CHAR_BIT,boardinfoType::countHashBits) };
+		constexpr static inline const size_t countPlayers{ boardinfoType::countPlayers };
+		constexpr static inline const size_t countPieces{ boardinfoType::countPieces };
+		constexpr static inline const size_t countPlayerpieces{ countPlayers * countPieces };
+		constexpr static inline const size_t countRanks{ boardinfoType::countRanks };
+		constexpr static inline const size_t countFiles{ boardinfoType::countFiles };
+		constexpr static inline const size_t countSquares{ countRanks * countFiles };
+		constexpr static inline const size_t countFlags{ boardinfoType::countFlags };
+		constexpr static inline const size_t countHashBits{ std::min(sizeof(void*) * CHAR_BIT,boardinfoType::countHashBits) };
+		constexpr static inline const size_t countRoyalPieces{ boardInfo.playerpieces().pieces().countRoyalPieces() };
+		constexpr static inline const size_t countStructuralPieces{ boardInfo.playerpieces().pieces().countStructuralPieces() };
 		using playerpieceType = pygmalion::state::playerpiece<descriptor_state>;
 		using playerType = pygmalion::state::player<descriptor_state>;
 		using pieceType = pygmalion::state::piece<descriptor_state>;
@@ -35,8 +37,12 @@ namespace pygmalion
 		using playerpiecesType = pygmalion::state::playerpieces<descriptor_state>;
 		using deltaType = pygmalion::state::delta<descriptor_state>;
 		using objectiveType = objectivescore <scoreType, countPlayers>;
-		constexpr static const size_t scoreMantissa{ MANTISSA };
-		constexpr static const size_t scoreShift{ SHIFT };
-		constexpr static const size_t scoreMaxDistance{ MAXDIST };
+		using royalpieceType = pygmalion::state::royalpiece<descriptor_state>;
+		using royalpiecesType = pygmalion::state::royalpiece<descriptor_state>;
+		using structuralpieceType = pygmalion::state::structuralpiece<descriptor_state>;
+		using structuralpiecesType = pygmalion::state::structuralpiece<descriptor_state>;
+		constexpr static inline const size_t scoreMantissa{ MANTISSA };
+		constexpr static inline const size_t scoreShift{ SHIFT };
+		constexpr static inline const size_t scoreMaxDistance{ MAXDIST };
 	};
 }

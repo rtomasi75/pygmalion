@@ -18,3 +18,5 @@
 #include "commands/command_debugSquares.h"
 #include "commands/command_debugState.h"
 #include "commands/command_debugMaterial.h"
+#include "commands/command_debugRoyalPieces.h"
+#include "commands/command_debugStructuralPieces.h"

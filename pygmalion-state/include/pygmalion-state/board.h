@@ -1040,6 +1040,10 @@ namespace pygmalion
 		{
 			return boardType::defaultMaterial_Implementation(pl, pc, sq);
 		}
+		PYGMALION_INLINE squareType royalSquare(const playerType player, const royalpieceType rp) const noexcept
+		{
+			return (pieceOccupancy(static_cast<pieceType>(rp)) & playerOccupancy(player)).first();
+		}
 	};
 
 	template<typename DESCRIPTOR_STATE, typename INSTANCE>

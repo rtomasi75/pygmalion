@@ -73,10 +73,6 @@ namespace pygmalion::chess
 		{
 			clearFlags(castleFlagsWhite);
 		}
-		PYGMALION_INLINE squareType kingSquare(const playerType player) const noexcept
-		{
-			return (pieceOccupancy(king) & playerOccupancy(player)).first();
-		}
 		template<size_t PLAYER>
 		PYGMALION_INLINE static scoreType makeSubjective_Implementation(const scoreType score) noexcept
 		{

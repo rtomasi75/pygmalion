@@ -5,7 +5,7 @@ namespace pygmalion::config::chess
 	{
 	public:
 		constexpr pawnInfo() noexcept :
-			pieceInfo("p", "pawn")
+			pieceInfo("p", "pawn", true, false)
 		{
 
 		}
@@ -16,7 +16,7 @@ namespace pygmalion::config::chess
 	{
 	public:
 		constexpr knightInfo() noexcept :
-			pygmalion::config::pieceInfo("n", "knight")
+			pygmalion::config::pieceInfo("n", "knight", false, false)
 		{
 
 		}
@@ -27,7 +27,7 @@ namespace pygmalion::config::chess
 	{
 	public:
 		constexpr bishopInfo()noexcept :
-			pieceInfo("b", "bishop")
+			pieceInfo("b", "bishop", false, false)
 		{
 
 		}
@@ -38,7 +38,7 @@ namespace pygmalion::config::chess
 	{
 	public:
 		constexpr rookInfo() noexcept :
-			pieceInfo("r", "rook")
+			pieceInfo("r", "rook", false, false)
 		{
 
 		}
@@ -49,7 +49,7 @@ namespace pygmalion::config::chess
 	{
 	public:
 		constexpr queenInfo() noexcept :
-			pieceInfo("q", "queen")
+			pieceInfo("q", "queen", false, false)
 		{
 
 		}
@@ -60,7 +60,7 @@ namespace pygmalion::config::chess
 	{
 	public:
 		constexpr kingInfo() noexcept :
-			pieceInfo("k", "king")
+			pieceInfo("k", "king", true, true)
 		{
 
 		}

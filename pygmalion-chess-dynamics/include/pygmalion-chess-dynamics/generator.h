@@ -54,10 +54,6 @@ namespace pygmalion::chess
 				white = m_ControlledByPlayer[whitePlayer];
 				black = m_ControlledByPlayer[blackPlayer];
 			}
-			PYGMALION_INLINE squareType kingSquare(const playerType player) const noexcept
-			{
-				return this->position().kingSquare(player);
-			}
 			template<size_t ATTACKER>
 			squaresType squaresTargetedByPlayer() const
 			{
@@ -729,8 +725,8 @@ namespace pygmalion::chess
 				blackControl |= open & attackedByBlackQueen & balancedQueenAttacks;
 				open &= ~(whiteControl | blackControl);
 
-				const squaresType whiteKingAttacks{ generatorType::movegenKing.attacks(stack.kingSquare(whitePlayer),all) };
-				const squaresType blackKingAttacks{ generatorType::movegenKing.attacks(stack.kingSquare(blackPlayer),all) };
+				const squaresType whiteKingAttacks{ generatorType::movegenKing.attacks(stack.position().royalSquare(whitePlayer,royalpieceType(king)),all) };
+				const squaresType blackKingAttacks{ generatorType::movegenKing.attacks(stack.position().royalSquare(blackPlayer,royalpieceType(king)),all) };
 				const squaresType balancedKingAttacks{ ~(whiteKingAttacks & blackKingAttacks) };
 				whiteControl |= open & whiteKingAttacks & balancedKingAttacks;
 				blackControl |= open & blackKingAttacks & balancedKingAttacks;
@@ -781,7 +777,7 @@ namespace pygmalion::chess
 			const squaresType attackerOccupancy{ position.playerOccupancy(attackingPlayer) };
 			const squaresType knights{ position.pieceOccupancy(knight) & attackerOccupancy };
 			squaresType attacked{ movegenKnight.attacks(knights, notBlockers) };
-			attacked |= movegenKing.attacks(stack.kingSquare(attackingPlayer), notBlockers);
+			attacked |= movegenKing.attacks(stack.position().royalSquare(attackingPlayer, royalpieceType(king)), notBlockers);
 			const squaresType queens{ position.pieceOccupancy(queen) };
 			const squaresType slidersHV{ (position.pieceOccupancy(rook) | queens) & attackerOccupancy };
 			const squaresType slidersDiag{ (position.pieceOccupancy(bishop) | queens) & attackerOccupancy };
@@ -804,7 +800,7 @@ namespace pygmalion::chess
 			const squaresType attackerOccupancy{ position.playerOccupancy(attackingPlayer) };
 			const squaresType knights{ position.pieceOccupancy(knight) & attackerOccupancy };
 			squaresType attacked{ movegenKnight.targets(knights, notBlockers) };
-			attacked |= movegenKing.targets(stack.kingSquare(attackingPlayer), notBlockers);
+			attacked |= movegenKing.targets(stack.position().royalSquare(attackingPlayer, royalpieceType(king)), notBlockers);
 			const squaresType queens{ position.pieceOccupancy(queen) };
 			const squaresType slidersHV{ (position.pieceOccupancy(rook) | queens) & attackerOccupancy };
 			const squaresType slidersDiag{ (position.pieceOccupancy(bishop) | queens) & attackerOccupancy };
@@ -821,7 +817,7 @@ namespace pygmalion::chess
 		static void generateKingMoves(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
-			const squareType from{ stack.kingSquare(movingPlayer) };
+			const squareType from{ stack.position().royalSquare(movingPlayer,royalpieceType(king)) };
 			const squaresType destinations{ movegenKing.targets(from, ~stack.position().totalOccupancy()) };
 			for (const squareType to : destinations)
 				moves.add(motorType::move().createQuiet(from, to));
@@ -831,7 +827,7 @@ namespace pygmalion::chess
 		{
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			constexpr const playerType nextPlayer{ movingPlayer.next() };
-			const squareType from{ stack.kingSquare(movingPlayer) };
+			const squareType from{ stack.position().royalSquare(movingPlayer,royalpieceType(king)) };
 			const squaresType destinations{ movegenKing.attacks(from, ~stack.position().totalOccupancy()) & stack.position().playerOccupancy(nextPlayer) };
 			for (const squareType to : destinations)
 				moves.add(motorType::move().createCapture(from, to));
@@ -964,7 +960,7 @@ namespace pygmalion::chess
 			constexpr const playerType nextPlayer{ movingPlayer.next() };
 			for (const squareType from : stack.position().pieceOccupancy(rook)& stack.position().playerOccupancy(movingPlayer))
 			{
-				for (const auto pc : stack.materialTable().strongerHints(movingPlayer, rook).allowedPieces() & ~generatorType::royalPieces(nextPlayer))
+				for (const auto pc : stack.materialTable().strongerHints(movingPlayer, rook).allowedPieces())
 				{
 					for (const squareType to : movegenSlidersHV.attacks(from, ~stack.position().totalOccupancy())& stack.materialTable().strongerHints(movingPlayer, rook).allowedSquares(pc)& stack.position().playerOccupancy(nextPlayer)& stack.position().pieceOccupancy(pc))
 						moves.add(motorType::move().createCapture(from, to));
@@ -972,7 +968,7 @@ namespace pygmalion::chess
 			}
 			for (const squareType from : stack.position().pieceOccupancy(queen)& stack.position().playerOccupancy(movingPlayer))
 			{
-				for (const auto pc : stack.materialTable().strongerHints(movingPlayer, queen).allowedPieces() & ~generatorType::royalPieces(nextPlayer))
+				for (const auto pc : stack.materialTable().strongerHints(movingPlayer, queen).allowedPieces())
 				{
 					for (const squareType to : movegenSlidersHV.attacks(from, ~stack.position().totalOccupancy())& stack.materialTable().strongerHints(movingPlayer, queen).allowedSquares(pc)& stack.position().playerOccupancy(nextPlayer)& stack.position().pieceOccupancy(pc))
 						moves.add(motorType::move().createCapture(from, to));
@@ -986,7 +982,7 @@ namespace pygmalion::chess
 			constexpr const playerType nextPlayer{ movingPlayer.next() };
 			for (const squareType from : stack.position().pieceOccupancy(rook)& stack.position().playerOccupancy(movingPlayer))
 			{
-				for (const auto pc : stack.materialTable().equalHints(movingPlayer, rook).allowedPieces() & ~generatorType::royalPieces(nextPlayer))
+				for (const auto pc : stack.materialTable().equalHints(movingPlayer, rook).allowedPieces())
 				{
 					for (const squareType to : movegenSlidersHV.attacks(from, ~stack.position().totalOccupancy())& stack.materialTable().equalHints(movingPlayer, rook).allowedSquares(pc)& stack.position().playerOccupancy(nextPlayer)& stack.position().pieceOccupancy(pc))
 						moves.add(motorType::move().createCapture(from, to));
@@ -994,7 +990,7 @@ namespace pygmalion::chess
 			}
 			for (const squareType from : stack.position().pieceOccupancy(queen)& stack.position().playerOccupancy(movingPlayer))
 			{
-				for (const auto pc : stack.materialTable().equalHints(movingPlayer, queen).allowedPieces() & ~generatorType::royalPieces(nextPlayer))
+				for (const auto pc : stack.materialTable().equalHints(movingPlayer, queen).allowedPieces())
 				{
 					for (const squareType to : movegenSlidersHV.attacks(from, ~stack.position().totalOccupancy())& stack.materialTable().equalHints(movingPlayer, queen).allowedSquares(pc)& stack.position().playerOccupancy(nextPlayer)& stack.position().pieceOccupancy(pc))
 						moves.add(motorType::move().createCapture(from, to));
@@ -1008,7 +1004,7 @@ namespace pygmalion::chess
 			constexpr const playerType nextPlayer{ movingPlayer.next() };
 			for (const squareType from : stack.position().pieceOccupancy(rook)& stack.position().playerOccupancy(movingPlayer))
 			{
-				for (const auto pc : stack.materialTable().weakerHints(movingPlayer, rook).allowedPieces() & ~generatorType::royalPieces(nextPlayer))
+				for (const auto pc : stack.materialTable().weakerHints(movingPlayer, rook).allowedPieces())
 				{
 					for (const squareType to : movegenSlidersHV.attacks(from, ~stack.position().totalOccupancy())& stack.materialTable().weakerHints(movingPlayer, rook).allowedSquares(pc)& stack.position().playerOccupancy(nextPlayer)& stack.position().pieceOccupancy(pc))
 						moves.add(motorType::move().createCapture(from, to));
@@ -1016,7 +1012,7 @@ namespace pygmalion::chess
 			}
 			for (const squareType from : stack.position().pieceOccupancy(queen)& stack.position().playerOccupancy(movingPlayer))
 			{
-				for (const auto pc : stack.materialTable().weakerHints(movingPlayer, queen).allowedPieces() & ~generatorType::royalPieces(nextPlayer))
+				for (const auto pc : stack.materialTable().weakerHints(movingPlayer, queen).allowedPieces())
 				{
 					for (const squareType to : movegenSlidersHV.attacks(from, ~stack.position().totalOccupancy())& stack.materialTable().weakerHints(movingPlayer, queen).allowedSquares(pc)& stack.position().playerOccupancy(nextPlayer)& stack.position().pieceOccupancy(pc))
 						moves.add(motorType::move().createCapture(from, to));
@@ -1041,7 +1037,7 @@ namespace pygmalion::chess
 			constexpr const playerType nextPlayer{ movingPlayer.next() };
 			for (const squareType from : stack.position().pieceOccupancy(bishop)& stack.position().playerOccupancy(movingPlayer))
 			{
-				for (const auto pc : stack.materialTable().strongerHints(movingPlayer, bishop).allowedPieces() & ~generatorType::royalPieces(nextPlayer))
+				for (const auto pc : stack.materialTable().strongerHints(movingPlayer, bishop).allowedPieces())
 				{
 					for (const squareType to : movegenSlidersDiag.attacks(from, ~stack.position().totalOccupancy())& stack.materialTable().strongerHints(movingPlayer, bishop).allowedSquares(pc)& stack.position().playerOccupancy(nextPlayer)& stack.position().pieceOccupancy(pc))
 						moves.add(motorType::move().createCapture(from, to));
@@ -1049,7 +1045,7 @@ namespace pygmalion::chess
 			}
 			for (const squareType from : stack.position().pieceOccupancy(queen)& stack.position().playerOccupancy(movingPlayer))
 			{
-				for (const auto pc : stack.materialTable().strongerHints(movingPlayer, queen).allowedPieces() & ~generatorType::royalPieces(nextPlayer))
+				for (const auto pc : stack.materialTable().strongerHints(movingPlayer, queen).allowedPieces())
 				{
 					for (const squareType to : movegenSlidersDiag.attacks(from, ~stack.position().totalOccupancy())& stack.materialTable().strongerHints(movingPlayer, queen).allowedSquares(pc)& stack.position().playerOccupancy(nextPlayer)& stack.position().pieceOccupancy(pc))
 						moves.add(motorType::move().createCapture(from, to));
@@ -1063,7 +1059,7 @@ namespace pygmalion::chess
 			constexpr const playerType nextPlayer{ movingPlayer.next() };
 			for (const squareType from : stack.position().pieceOccupancy(bishop)& stack.position().playerOccupancy(movingPlayer))
 			{
-				for (const auto pc : stack.materialTable().equalHints(movingPlayer, bishop).allowedPieces() & ~generatorType::royalPieces(nextPlayer))
+				for (const auto pc : stack.materialTable().equalHints(movingPlayer, bishop).allowedPieces())
 				{
 					for (const squareType to : movegenSlidersDiag.attacks(from, ~stack.position().totalOccupancy())& stack.materialTable().equalHints(movingPlayer, bishop).allowedSquares(pc)& stack.position().playerOccupancy(nextPlayer)& stack.position().pieceOccupancy(pc))
 						moves.add(motorType::move().createCapture(from, to));
@@ -1071,7 +1067,7 @@ namespace pygmalion::chess
 			}
 			for (const squareType from : stack.position().pieceOccupancy(queen)& stack.position().playerOccupancy(movingPlayer))
 			{
-				for (const auto pc : stack.materialTable().equalHints(movingPlayer, queen).allowedPieces() & ~generatorType::royalPieces(nextPlayer))
+				for (const auto pc : stack.materialTable().equalHints(movingPlayer, queen).allowedPieces())
 				{
 					for (const squareType to : movegenSlidersDiag.attacks(from, ~stack.position().totalOccupancy())& stack.materialTable().equalHints(movingPlayer, queen).allowedSquares(pc)& stack.position().playerOccupancy(nextPlayer)& stack.position().pieceOccupancy(pc))
 						moves.add(motorType::move().createCapture(from, to));
@@ -1085,7 +1081,7 @@ namespace pygmalion::chess
 			constexpr const playerType nextPlayer{ movingPlayer.next() };
 			for (const squareType from : stack.position().pieceOccupancy(bishop)& stack.position().playerOccupancy(movingPlayer))
 			{
-				for (const auto pc : stack.materialTable().weakerHints(movingPlayer, bishop).allowedPieces() & ~generatorType::royalPieces(nextPlayer))
+				for (const auto pc : stack.materialTable().weakerHints(movingPlayer, bishop).allowedPieces())
 				{
 					for (const squareType to : movegenSlidersDiag.attacks(from, ~stack.position().totalOccupancy())& stack.materialTable().weakerHints(movingPlayer, bishop).allowedSquares(pc)& stack.position().playerOccupancy(nextPlayer)& stack.position().pieceOccupancy(pc))
 						moves.add(motorType::move().createCapture(from, to));
@@ -1093,7 +1089,7 @@ namespace pygmalion::chess
 			}
 			for (const squareType from : stack.position().pieceOccupancy(queen)& stack.position().playerOccupancy(movingPlayer))
 			{
-				for (const auto pc : stack.materialTable().weakerHints(movingPlayer, queen).allowedPieces() & ~generatorType::royalPieces(nextPlayer))
+				for (const auto pc : stack.materialTable().weakerHints(movingPlayer, queen).allowedPieces())
 				{
 					for (const squareType to : movegenSlidersDiag.attacks(from, ~stack.position().totalOccupancy())& stack.materialTable().weakerHints(movingPlayer, queen).allowedSquares(pc)& stack.position().playerOccupancy(nextPlayer)& stack.position().pieceOccupancy(pc))
 						moves.add(motorType::move().createCapture(from, to));
@@ -1118,7 +1114,7 @@ namespace pygmalion::chess
 			constexpr const playerType nextPlayer{ movingPlayer.next() };
 			for (const squareType from : stack.position().pieceOccupancy(knight)& stack.position().playerOccupancy(movingPlayer))
 			{
-				for (const auto pc : stack.materialTable().strongerHints(movingPlayer, knight).allowedPieces() & ~generatorType::royalPieces(nextPlayer))
+				for (const auto pc : stack.materialTable().strongerHints(movingPlayer, knight).allowedPieces())
 				{
 					for (const squareType to : movegenKnight.attacks(from, ~stack.position().totalOccupancy())& stack.materialTable().strongerHints(movingPlayer, knight).allowedSquares(pc)& stack.position().playerOccupancy(nextPlayer)& stack.position().pieceOccupancy(pc))
 						moves.add(motorType::move().createCapture(from, to));
@@ -1132,7 +1128,7 @@ namespace pygmalion::chess
 			constexpr const playerType nextPlayer{ movingPlayer.next() };
 			for (const squareType from : stack.position().pieceOccupancy(knight)& stack.position().playerOccupancy(movingPlayer))
 			{
-				for (const auto pc : stack.materialTable().equalHints(movingPlayer, knight).allowedPieces() & ~generatorType::royalPieces(nextPlayer))
+				for (const auto pc : stack.materialTable().equalHints(movingPlayer, knight).allowedPieces())
 				{
 					for (const squareType to : movegenKnight.attacks(from, ~stack.position().totalOccupancy())& stack.materialTable().equalHints(movingPlayer, knight).allowedSquares(pc)& stack.position().playerOccupancy(nextPlayer)& stack.position().pieceOccupancy(pc))
 						moves.add(motorType::move().createCapture(from, to));
@@ -1146,7 +1142,7 @@ namespace pygmalion::chess
 			constexpr const playerType nextPlayer{ movingPlayer.next() };
 			for (const squareType from : stack.position().pieceOccupancy(knight)& stack.position().playerOccupancy(movingPlayer))
 			{
-				for (const auto pc : stack.materialTable().weakerHints(movingPlayer, knight).allowedPieces() & ~generatorType::royalPieces(nextPlayer))
+				for (const auto pc : stack.materialTable().weakerHints(movingPlayer, knight).allowedPieces())
 				{
 					for (const squareType to : movegenKnight.attacks(from, ~stack.position().totalOccupancy())& stack.materialTable().weakerHints(movingPlayer, knight).allowedSquares(pc)& stack.position().playerOccupancy(nextPlayer)& stack.position().pieceOccupancy(pc))
 						moves.add(motorType::move().createCapture(from, to));
@@ -1214,20 +1210,13 @@ namespace pygmalion::chess
 		template<size_t PLAYER>
 		static void generatePawnCapturesWhite(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
-			const squaresType whitePawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(whitePlayer) };
-			for (const squareType to : movegenPawnCaptureWhite.attacks(whitePawns, ~stack.position().totalOccupancy())& stack.position().playerOccupancy(blackPlayer))
+			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
+			constexpr const playerType nextPlayer{ movingPlayer.next() };
+			for (const squareType from : stack.position().pieceOccupancy(pawn)& stack.position().playerOccupancy(movingPlayer))
 			{
-				if (to.file() > fileA)
+				for (const squareType to : movegenPawnCaptureWhite.attacks(from, ~stack.position().totalOccupancy())& stack.position().playerOccupancy(nextPlayer))
 				{
-					const squareType fromLeft{ to.downLeft() };
-					if (whitePawns[fromLeft])
-						moves.add(motorType::move().createCapture(fromLeft, to));
-				}
-				if (to.file() < fileH)
-				{
-					const squareType fromRight{ to.downRight() };
-					if (whitePawns[fromRight])
-						moves.add(motorType::move().createCapture(fromRight, to));
+					moves.add(motorType::move().createCapture(from, to));
 				}
 			}
 		}
@@ -1240,7 +1229,7 @@ namespace pygmalion::chess
 			{
 				for (const squareType from : stack.position().pieceOccupancy(pawn)& stack.position().playerOccupancy(movingPlayer))
 				{
-					for (const auto pc : stack.materialTable().strongerHints(movingPlayer, pawn).allowedPieces() & ~generatorType::royalPieces(nextPlayer))
+					for (const auto pc : stack.materialTable().strongerHints(movingPlayer, pawn).allowedPieces())
 					{
 						for (const squareType to : movegenPawnCaptureWhite.attacks(from, ~stack.position().totalOccupancy())& stack.materialTable().strongerHints(movingPlayer, pawn).allowedSquares(pc)& stack.position().playerOccupancy(nextPlayer)& stack.position().pieceOccupancy(pc))
 						{
@@ -1253,7 +1242,7 @@ namespace pygmalion::chess
 			{
 				for (const squareType from : stack.position().pieceOccupancy(pawn)& stack.position().playerOccupancy(movingPlayer))
 				{
-					for (const auto pc : stack.materialTable().strongerHints(movingPlayer, pawn).allowedPieces() & ~generatorType::royalPieces(nextPlayer))
+					for (const auto pc : stack.materialTable().strongerHints(movingPlayer, pawn).allowedPieces())
 					{
 						for (const squareType to : movegenPawnCaptureBlack.attacks(from, ~stack.position().totalOccupancy())& stack.materialTable().strongerHints(movingPlayer, pawn).allowedSquares(pc)& stack.position().playerOccupancy(nextPlayer)& stack.position().pieceOccupancy(pc))
 						{
@@ -1272,7 +1261,7 @@ namespace pygmalion::chess
 			{
 				for (const squareType from : stack.position().pieceOccupancy(pawn)& stack.position().playerOccupancy(movingPlayer))
 				{
-					for (const auto pc : stack.materialTable().equalHints(movingPlayer, pawn).allowedPieces() & ~generatorType::royalPieces(nextPlayer))
+					for (const auto pc : stack.materialTable().equalHints(movingPlayer, pawn).allowedPieces())
 					{
 						for (const squareType to : movegenPawnCaptureWhite.attacks(from, ~stack.position().totalOccupancy())& stack.materialTable().equalHints(movingPlayer, pawn).allowedSquares(pc)& stack.position().playerOccupancy(nextPlayer)& stack.position().pieceOccupancy(pc))
 						{
@@ -1285,7 +1274,7 @@ namespace pygmalion::chess
 			{
 				for (const squareType from : stack.position().pieceOccupancy(pawn)& stack.position().playerOccupancy(movingPlayer))
 				{
-					for (const auto pc : stack.materialTable().equalHints(movingPlayer, pawn).allowedPieces() & ~generatorType::royalPieces(nextPlayer))
+					for (const auto pc : stack.materialTable().equalHints(movingPlayer, pawn).allowedPieces())
 					{
 						for (const squareType to : movegenPawnCaptureBlack.attacks(from, ~stack.position().totalOccupancy())& stack.materialTable().equalHints(movingPlayer, pawn).allowedSquares(pc)& stack.position().playerOccupancy(nextPlayer)& stack.position().pieceOccupancy(pc))
 						{
@@ -1304,7 +1293,7 @@ namespace pygmalion::chess
 			{
 				for (const squareType from : stack.position().pieceOccupancy(pawn)& stack.position().playerOccupancy(movingPlayer))
 				{
-					for (const auto pc : stack.materialTable().weakerHints(movingPlayer, pawn).allowedPieces() & ~generatorType::royalPieces(nextPlayer))
+					for (const auto pc : stack.materialTable().weakerHints(movingPlayer, pawn).allowedPieces())
 					{
 						for (const squareType to : movegenPawnCaptureWhite.attacks(from, ~stack.position().totalOccupancy())& stack.materialTable().weakerHints(movingPlayer, pawn).allowedSquares(pc)& stack.position().playerOccupancy(nextPlayer)& stack.position().pieceOccupancy(pc))
 						{
@@ -1317,7 +1306,7 @@ namespace pygmalion::chess
 			{
 				for (const squareType from : stack.position().pieceOccupancy(pawn)& stack.position().playerOccupancy(movingPlayer))
 				{
-					for (const auto pc : stack.materialTable().weakerHints(movingPlayer, pawn).allowedPieces() & ~generatorType::royalPieces(nextPlayer))
+					for (const auto pc : stack.materialTable().weakerHints(movingPlayer, pawn).allowedPieces())
 					{
 						for (const squareType to : movegenPawnCaptureBlack.attacks(from, ~stack.position().totalOccupancy())& stack.materialTable().weakerHints(movingPlayer, pawn).allowedSquares(pc)& stack.position().playerOccupancy(nextPlayer)& stack.position().pieceOccupancy(pc))
 						{
@@ -1330,20 +1319,13 @@ namespace pygmalion::chess
 		template<size_t PLAYER>
 		static void generatePawnCapturesBlack(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
-			const squaresType blackPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(blackPlayer) };
-			for (const squareType to : movegenPawnCaptureBlack.attacks(blackPawns, ~stack.position().totalOccupancy())& stack.position().playerOccupancy(whitePlayer))
+			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
+			constexpr const playerType nextPlayer{ movingPlayer.next() };
+			for (const squareType from : stack.position().pieceOccupancy(pawn)& stack.position().playerOccupancy(movingPlayer))
 			{
-				if (to.file() > fileA)
+				for (const squareType to : movegenPawnCaptureBlack.attacks(from, ~stack.position().totalOccupancy())& stack.position().playerOccupancy(nextPlayer))
 				{
-					const squareType fromLeft{ to.upLeft() };
-					if (blackPawns[fromLeft])
-						moves.add(motorType::move().createCapture(fromLeft, to));
-				}
-				if (to.file() < fileH)
-				{
-					const squareType fromRight{ to.upRight() };
-					if (blackPawns[fromRight])
-						moves.add(motorType::move().createCapture(fromRight, to));
+					moves.add(motorType::move().createCapture(from, to));
 				}
 			}
 		}
@@ -1454,7 +1436,7 @@ namespace pygmalion::chess
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			constexpr const playerType nextPlayer{ movingPlayer.next() };
 			const squaresType ownKnights{ stack.position().pieceOccupancy(knight) & stack.position().playerOccupancy(movingPlayer) };
-			const squareType otherKing{ stack.kingSquare(nextPlayer) };
+			const squareType otherKing{ stack.position().royalSquare(nextPlayer,royalpieceType(king)) };
 			constexpr const squaresType all{ squaresType::all() };
 			const squaresType criticalSquares{ movegenKnight.inverseAttacks(otherKing, all) };
 			const squaresType criticalTargets{ criticalSquares & ~stack.position().totalOccupancy() };
@@ -1519,7 +1501,7 @@ namespace pygmalion::chess
 		template<size_t PLAYER>
 		static void generateCriticalPawnMovesWhite(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
-			const squareType otherKing{ stack.kingSquare(blackPlayer) };
+			const squareType otherKing{ stack.position().royalSquare(blackPlayer,royalpieceType(king)) };
 			const rankType otherKingRank{ otherKing.rank() };
 			const squaresType unoccupied{ ~stack.position().totalOccupancy() };
 			const squaresType ownPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(whitePlayer) };
@@ -1574,7 +1556,7 @@ namespace pygmalion::chess
 		template<size_t PLAYER>
 		static void generateCriticalPawnMovesBlack(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
-			const squareType otherKing{ stack.kingSquare(whitePlayer) };
+			const squareType otherKing{ stack.position().royalSquare(whitePlayer,royalpieceType(king)) };
 			const rankType otherKingRank{ otherKing.rank() };
 			const squaresType unoccupied{ ~stack.position().totalOccupancy() };
 			const squaresType ownPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(blackPlayer) };
@@ -1643,7 +1625,7 @@ namespace pygmalion::chess
 			const squaresType ownQueens{ stack.position().pieceOccupancy(queen) & stack.position().playerOccupancy(movingPlayer) };
 			const squaresType ownRooks{ stack.position().pieceOccupancy(rook) & stack.position().playerOccupancy(movingPlayer) };
 			const squaresType ownSlidersHV{ ownQueens | ownRooks };
-			const squareType otherKing{ stack.kingSquare(nextPlayer) };
+			const squareType otherKing{ stack.position().royalSquare(nextPlayer,royalpieceType(king)) };
 			const squaresType occupied{ stack.position().totalOccupancy() };
 			const squaresType unoccupied{ ~occupied };
 			const squaresType criticalSquares{ movegenSlidersHV.inverseAttacks(otherKing, unoccupied) };
@@ -2017,7 +1999,7 @@ namespace pygmalion::chess
 			const squaresType ownQueens{ stack.position().pieceOccupancy(queen) & stack.position().playerOccupancy(movingPlayer) };
 			const squaresType ownBishops{ stack.position().pieceOccupancy(bishop) & stack.position().playerOccupancy(movingPlayer) };
 			const squaresType ownSlidersDiag{ ownQueens | ownBishops };
-			const squareType otherKing{ stack.kingSquare(nextPlayer) };
+			const squareType otherKing{ stack.position().royalSquare(nextPlayer,royalpieceType(king)) };
 			const squaresType unoccupied{ ~stack.position().totalOccupancy() };
 			const squaresType criticalSquares{ movegenSlidersDiag.inverseAttacks(otherKing, unoccupied) };
 			const squaresType criticalTargets{ criticalSquares & unoccupied };
@@ -2321,7 +2303,7 @@ namespace pygmalion::chess
 			constexpr const playerType movingPlayer{ static_cast<playerType>(PLAYER) };
 			constexpr const playerType nextPlayer{ movingPlayer.next() };
 			const squaresType ownKnights{ stack.position().pieceOccupancy(knight) & stack.position().playerOccupancy(movingPlayer) };
-			const squareType otherKing{ stack.kingSquare(nextPlayer) };
+			const squareType otherKing{ stack.position().royalSquare(nextPlayer,royalpieceType(king)) };
 			const squaresType criticalSquares{ movegenKnight.inverseAttacks(otherKing, all) };
 			const squaresType criticalTargets{ criticalSquares & ~stack.position().totalOccupancy() };
 			for (const auto to : criticalTargets)
@@ -2361,7 +2343,7 @@ namespace pygmalion::chess
 		template<size_t PLAYER>
 		static void generateQuietCriticalPawnMovesWhite(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
-			const squareType otherKing{ stack.kingSquare(blackPlayer) };
+			const squareType otherKing{ stack.position().royalSquare(blackPlayer,royalpieceType(king)) };
 			const rankType otherKingRank{ otherKing.rank() };
 			const squaresType unoccupied{ ~stack.position().totalOccupancy() };
 			const squaresType ownPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(whitePlayer) };
@@ -2388,7 +2370,7 @@ namespace pygmalion::chess
 		template<size_t PLAYER>
 		static void generateQuietCriticalPawnMovesBlack(const stackType<PLAYER>& stack, movelistType& moves) noexcept
 		{
-			const squareType otherKing{ stack.kingSquare(whitePlayer) };
+			const squareType otherKing{ stack.position().royalSquare(whitePlayer,royalpieceType(king)) };
 			const rankType otherKingRank{ otherKing.rank() };
 			const squaresType unoccupied{ ~stack.position().totalOccupancy() };
 			const squaresType ownPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(blackPlayer) };
@@ -2430,7 +2412,7 @@ namespace pygmalion::chess
 			const squaresType ownQueens{ stack.position().pieceOccupancy(queen) & stack.position().playerOccupancy(movingPlayer) };
 			const squaresType ownRooks{ stack.position().pieceOccupancy(rook) & stack.position().playerOccupancy(movingPlayer) };
 			const squaresType ownSlidersHV{ ownQueens | ownRooks };
-			const squareType otherKing{ stack.kingSquare(nextPlayer) };
+			const squareType otherKing{ stack.position().royalSquare(nextPlayer,royalpieceType(king)) };
 			const squaresType occupied{ stack.position().totalOccupancy() };
 			const squaresType unoccupied{ ~occupied };
 			const squaresType criticalSquares{ movegenSlidersHV.inverseAttacks(otherKing, unoccupied) };
@@ -2668,7 +2650,7 @@ namespace pygmalion::chess
 			const squaresType ownQueens{ stack.position().pieceOccupancy(queen) & stack.position().playerOccupancy(movingPlayer) };
 			const squaresType ownBishops{ stack.position().pieceOccupancy(bishop) & stack.position().playerOccupancy(movingPlayer) };
 			const squaresType ownSlidersDiag{ ownQueens | ownBishops };
-			const squareType otherKing{ stack.kingSquare(nextPlayer) };
+			const squareType otherKing{ stack.position().royalSquare(nextPlayer,royalpieceType(king)) };
 			const squaresType unoccupied{ ~stack.position().totalOccupancy() };
 			const squaresType criticalSquares{ movegenSlidersDiag.inverseAttacks(otherKing, unoccupied) };
 			const squaresType criticalTargets{ criticalSquares & unoccupied };
@@ -2839,7 +2821,7 @@ namespace pygmalion::chess
 			const squaresType totalOCC{ stack.position().totalOccupancy() };
 			const squaresType unoccupied{ ~totalOCC };
 			movebitsType move;
-			const squareType king{ stack.kingSquare(side) };
+			const squareType king{ stack.position().royalSquare(side,royalpieceType(descriptorState::king)) };
 			const squaresType otherOcc{ stack.position().playerOccupancy(otherSide) };
 			const squaresType otherPawns{ stack.position().pieceOccupancy(pawn) & otherOcc };
 			const squaresType otherKnights{ stack.position().pieceOccupancy(knight) & otherOcc };
@@ -3162,7 +3144,7 @@ namespace pygmalion::chess
 			movebitsType move;
 			constexpr const playerType side{ static_cast<playerType>(PLAYER) };
 			constexpr const playerType otherSide{ side.next() };
-			const squareType king{ stack.kingSquare(side) };
+			const squareType king{ stack.position().royalSquare(side,royalpieceType(descriptorState::king)) };
 			const squaresType otherPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(otherSide) };
 			const squaresType otherKnights{ stack.position().pieceOccupancy(knight) & stack.position().playerOccupancy(otherSide) };
 			const squaresType otherBishops{ stack.position().pieceOccupancy(bishop) & stack.position().playerOccupancy(otherSide) };
@@ -3998,7 +3980,7 @@ namespace pygmalion::chess
 					return false;
 
 				// are we illegally capturing the other king?
-				if (stack.kingSquare(otherPlayer) == captureSquare)
+				if (stack.position().royalSquare(otherPlayer, royalpieceType(king)) == captureSquare)
 					return false;
 
 
@@ -4096,7 +4078,7 @@ namespace pygmalion::chess
 			}
 
 			// No. Let's see where our king lives after the move as been made then...
-			const squareType kingsquareOld{ stack.kingSquare(movingPlayer) };
+			const squareType kingsquareOld{ stack.position().royalSquare(movingPlayer,royalpieceType(king)) };
 			const bool isKingMove{ from == kingsquareOld };
 			const squareType kingsquare{ isKingMove ? to : kingsquareOld };
 
@@ -4110,7 +4092,7 @@ namespace pygmalion::chess
 			if (isKingMove || stack.isPositionCritical())
 			{
 				// Does our king live on a square that is guarded by the other king?
-				const squaresType attackedByOtherKing{ movegenKing.attacks(stack.kingSquare(otherPlayer),all) };
+				const squaresType attackedByOtherKing{ movegenKing.attacks(stack.position().royalSquare(otherPlayer,royalpieceType(king)),all) };
 				if (attackedByOtherKing[kingsquare])
 					return false;
 
@@ -4214,13 +4196,13 @@ namespace pygmalion::chess
 
 			// are we illegally capturing the other king?
 			const bool isCapture{ motorType::move().isCapture(moveBits) };
-			const squareType otherking{ stack.kingSquare(otherPlayer) };
+			const squareType otherking{ stack.position().royalSquare(otherPlayer,royalpieceType(king)) };
 			if (isCapture && (otherking == to))
 				return false;
 
 			// No. Let's see where our king lives after the move as been made then...
 			const squareType from{ motorType::move().fromSquare(position, moveBits) };
-			const squareType kingsquareOld{ stack.kingSquare(movingPlayer) };
+			const squareType kingsquareOld{ stack.position().royalSquare(movingPlayer,royalpieceType(king)) };
 			const bool isKingMove{ from == kingsquareOld };
 			const squareType kingsquare{ isKingMove ? to : kingsquareOld };
 
@@ -5450,7 +5432,7 @@ namespace pygmalion::chess
 			const squareType to{ motorType::move().toSquare(position, moveBits) };
 
 			// We need to know where the enemy king lives
-			const squareType otherking{ stack.kingSquare(otherPlayer) };
+			const squareType otherking{ stack.position().royalSquare(otherPlayer,royalpieceType(king)) };
 
 			// We need our own occupancy bitboard as it would be after the move...
 			const squaresType ownOccupancy{ position.playerOccupancy(movingPlayer) };
@@ -5515,7 +5497,7 @@ namespace pygmalion::chess
 		{
 			constexpr const playerType player{ static_cast<playerType>(PLAYER) };
 			constexpr const playerType attacker{ player.next() };
-			return generatorType::template isAttacked<static_cast<size_t>(attacker)>(stack.position(), stack.kingSquare(player));
+			return generatorType::template isAttacked<static_cast<size_t>(attacker)>(stack.position(), stack.position().royalSquare(player, royalpieceType(king)));
 		}
 		constexpr static const size_t movegenStage_AllMoves{ 0 };
 		constexpr static const size_t movegenStage_TacticalMoves{ 1 };

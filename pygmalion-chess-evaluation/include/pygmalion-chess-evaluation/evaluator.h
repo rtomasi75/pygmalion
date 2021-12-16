@@ -44,9 +44,9 @@ namespace pygmalion::chess
 					return gamestateType::draw();
 				}
 			}
-			if (stack.position().playerOccupancy(whitePlayer) == squaresType(stack.kingSquare(whitePlayer)))
+			if (stack.position().playerOccupancy(whitePlayer) == squaresType(stack.position().royalSquare(whitePlayer, royalpieceType(king))))
 			{
-				if (stack.position().playerOccupancy(blackPlayer) == squaresType(stack.kingSquare(blackPlayer)))
+				if (stack.position().playerOccupancy(blackPlayer) == squaresType(stack.position().royalSquare(blackPlayer, royalpieceType(king))))
 					return gamestateType::draw();
 				if (!(stack.position().playerOccupancy(blackPlayer) & (stack.position().pieceOccupancy(rook) | stack.position().pieceOccupancy(queen) | stack.position().pieceOccupancy(pawn))))
 				{
@@ -68,7 +68,7 @@ namespace pygmalion::chess
 					}
 				}
 			}
-			else if (stack.position().playerOccupancy(blackPlayer) == squaresType(stack.kingSquare(blackPlayer)))
+			else if (stack.position().playerOccupancy(blackPlayer) == squaresType(stack.position().royalSquare(blackPlayer, royalpieceType(king))))
 			{
 				if (!(stack.position().playerOccupancy(whitePlayer) & (stack.position().pieceOccupancy(rook) | stack.position().pieceOccupancy(queen) | stack.position().pieceOccupancy(pawn))))
 				{

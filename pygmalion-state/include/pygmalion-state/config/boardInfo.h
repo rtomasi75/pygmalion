@@ -25,42 +25,41 @@ namespace pygmalion::config
 		const std::array<std::uint64_t, countSquares> enPassantHash;
 		const std::array<std::uint64_t, 1 << countFlags> flagHash;
 		const std::array<std::array<std::array<std::uint64_t, countSquares>, countPieces>, countPlayers> playerPieceSquareHash;
+		constexpr const FLAGS& flags() const noexcept
+		{
+			return m_Flags;
+		}
+		constexpr const squaresInfo<FILES, RANKS>& squares() const noexcept
+		{
+			return m_Squares;
+		}
+		constexpr const playerpiecesInfo<PLAYERS, PIECES>& playerpieces() const noexcept
+		{
+			return m_Playerpieces;
+		}
+	public:
 		constexpr boardInfo(const PLAYERS& players, const PIECES& pieces, const FILES& files, const RANKS& ranks, const FLAGS& flags, const std::array<std::uint64_t, PLAYERS::count>& movingPlayerHash_, const std::array<std::uint64_t, squaresInfo<FILES, RANKS>::count> enPassantHash_, const std::array<std::uint64_t, countFlags> flagHash_, const std::array<std::array<std::array<std::uint64_t, countSquares>, countPieces>, countPlayers>& playerPieceSquareHash_) noexcept :
 			m_Playerpieces{ playerpiecesInfo<PLAYERS, PIECES>(players,pieces) },
 			m_Squares{ squaresInfo<FILES, RANKS>(files,ranks) },
 			m_Flags{ flags },
 			movingPlayerHash{ movingPlayerHash_ },
 			enPassantHash{ enPassantHash_ },
-			flagHash
-			{
-				arrayhelper::generate<countFlagCombinations,std::uint64_t>(
-					[&flagHash_](const size_t flagsIndex)
+			flagHash{
+			arrayhelper::generate<countFlagCombinations,std::uint64_t>(
+				[&flagHash_](const size_t flagsIndex)
+				{
+					std::uint64_t result{UINT64_C(0)};
+					using flagsType = uint_t<countFlags, false>;
+					const flagsType idx{ flagsType(static_cast<std::make_unsigned_t<size_t>>(flagsIndex)) };
+					for (size_t f = 0; f < countFlags; f++)
 					{
-						std::uint64_t result{UINT64_C(0)};
-						using flagsType = uint_t<countFlags, false>;
-						const flagsType idx{ flagsType(static_cast<std::make_unsigned_t<size_t>>(flagsIndex)) };
-						for (size_t f = 0; f < countFlags; f++)
-						{
-							if (idx[f])
-								result |= flagHash_[f];
-						}
-						return result;
+						if (idx[f])
+							result |= flagHash_[f];
 					}
-				)
-			},
+					return result;
+				})
+		},
 			playerPieceSquareHash{ playerPieceSquareHash_ }
 				{}
-				constexpr const FLAGS& flags() const noexcept
-				{
-					return m_Flags;
-				}
-				constexpr const squaresInfo<FILES, RANKS>& squares() const noexcept
-				{
-					return m_Squares;
-				}
-				constexpr const playerpiecesInfo<PLAYERS, PIECES>& playerpieces() const noexcept
-				{
-					return m_Playerpieces;
-				}
 	};
 }

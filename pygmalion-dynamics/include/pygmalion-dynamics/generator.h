@@ -1895,11 +1895,14 @@ namespace pygmalion
 										{
 											if (vpl != pl)
 											{
-												for (const auto vpc : victimPieces & ~royalPieces(vpl))
+												for (const auto vpc : victimPieces)
 												{
-													const scoreType materialDelta{ lambdaCapture(spl, pl, pc, from, to, vpl, vpc) };
-													if (materialDelta > delta.maxCaptureChange(spl, pl, originPieces, victimPieces))
-														delta.maxCaptureChange(spl, pl, originPieces, victimPieces) = materialDelta;
+													if (!vpc.isRoyal())
+													{
+														const scoreType materialDelta{ lambdaCapture(spl, pl, pc, from, to, vpl, vpc) };
+														if (materialDelta > delta.maxCaptureChange(spl, pl, originPieces, victimPieces))
+															delta.maxCaptureChange(spl, pl, originPieces, victimPieces) = materialDelta;
+													}
 												}
 											}
 										}
@@ -1913,13 +1916,16 @@ namespace pygmalion
 										{
 											if (vpl != pl)
 											{
-												for (const auto vpc : victimPieces & ~royalPieces(vpl))
+												for (const auto vpc : victimPieces)
 												{
-													for (const auto promoted : generatorType::promotionResults(pl))
+													if (!vpc.isRoyal())
 													{
-														const scoreType materialDelta{ lambdaPromoCapture(spl, pl, pc, from, to, vpl, vpc, promoted) };
-														if (materialDelta > delta.maxPromoCaptureChange(spl, pl, originPieces, victimPieces))
-															delta.maxPromoCaptureChange(spl, pl, originPieces, victimPieces) = materialDelta;
+														for (const auto promoted : generatorType::promotionResults(pl))
+														{
+															const scoreType materialDelta{ lambdaPromoCapture(spl, pl, pc, from, to, vpl, vpc, promoted) };
+															if (materialDelta > delta.maxPromoCaptureChange(spl, pl, originPieces, victimPieces))
+																delta.maxPromoCaptureChange(spl, pl, originPieces, victimPieces) = materialDelta;
+														}
 													}
 												}
 											}
@@ -1967,10 +1973,6 @@ namespace pygmalion
 		PYGMALION_INLINE static piecesType promotionPieces(const playerType player) noexcept
 		{
 			return generatorType::promotionPieces_Implementation(player);
-		}
-		PYGMALION_INLINE static piecesType royalPieces(const playerType player) noexcept
-		{
-			return generatorType::royalPieces_Implementation(player);
 		}
 	};
 }

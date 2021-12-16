@@ -72,6 +72,8 @@ namespace pygmalion::state
 			this->template addCommand<command_debugSquares<descriptorState, boardType>>();
 			this->template addCommand<command_debugState<descriptorState, boardType>>();
 			this->template addCommand<command_debugMaterial<descriptorState, boardType>>();
+			this->template addCommand<command_debugRoyalPieces<descriptorState, boardType>>();
+			this->template addCommand<command_debugStructuralPieces<descriptorState, boardType>>();
 			m_Game.initialize(this->materialTable());
 		}
 		materialTableType& materialTable() noexcept
