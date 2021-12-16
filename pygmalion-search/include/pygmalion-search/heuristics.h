@@ -343,14 +343,6 @@ namespace pygmalion
 				}
 			}
 		}
-		PYGMALION_INLINE movegenFeedback& feedback() noexcept
-		{
-			return m_Feedback;
-		}
-		PYGMALION_INLINE const movegenFeedback& feedback() const noexcept
-		{
-			return m_Feedback;
-		}
 		PYGMALION_INLINE transpositiontable<descriptorSearch>& transpositionTable() noexcept
 		{
 			return m_TranspositionTable;

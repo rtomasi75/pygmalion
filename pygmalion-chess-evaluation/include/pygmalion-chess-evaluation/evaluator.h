@@ -21,7 +21,7 @@ namespace pygmalion::chess
 		template<size_t PLAYER>
 		PYGMALION_INLINE static scoreType differentiateMaterial_Implementation(const typename generatorType::template stackType<PLAYER>& stack, const size_t parameterIndex, const double parameterValue) noexcept
 		{
-
+			return scoreType::zero();
 		}
 		PYGMALION_INLINE PYGMALION_TUNABLE static scoreType initialAspirationWindowSize() noexcept
 		{

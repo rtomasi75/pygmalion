@@ -310,7 +310,6 @@ namespace pygmalion::state
 				m_Bits |= a.m_Bits << r;
 				m_Bits |= b.m_Bits >> -r;
 			}
-			return squares(m_Bits.singleBit());
 		}
 		PYGMALION_INLINE constexpr bool operator[](const squareType square) const noexcept
 		{

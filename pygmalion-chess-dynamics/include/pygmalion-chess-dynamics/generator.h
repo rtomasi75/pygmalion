@@ -5418,7 +5418,7 @@ namespace pygmalion::chess
 		{
 			return true;
 		}
-		constexpr PYGMALION_INLINE static movebitsType nullMove_Implementation() noexcept
+		PYGMALION_INLINE constexpr static movebitsType nullMove_Implementation() noexcept
 		{
 			return m_NullMove;
 		}

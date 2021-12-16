@@ -12,7 +12,7 @@ namespace pygmalion
 	private:
 		constexpr static const inline moveType m_Move{ moveType() };
 	public:
-		constexpr PYGMALION_INLINE static const moveType& move() noexcept
+		PYGMALION_INLINE constexpr static const moveType& move() noexcept
 		{
 			return m_Move;
 		}

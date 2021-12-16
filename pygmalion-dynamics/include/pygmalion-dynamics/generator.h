@@ -515,13 +515,17 @@ namespace pygmalion
 			{
 				return m_LastNormalScore;
 			}
-			PYGMALION_INLINE scoreType lastTacticalScore() const noexcept
+			PYGMALION_INLINE scoreType lastQSPhase1Score() const noexcept
 			{
-				return m_LastTacticalScore;
+				return m_LastQSPhase1Score;
 			}
-			PYGMALION_INLINE scoreType lastTacticalCriticalScore() const noexcept
+			PYGMALION_INLINE scoreType lastQSPhase2Score() const noexcept
 			{
-				return m_LastTacticalCriticalScore;
+				return m_LastQSPhase2Score;
+			}
+			PYGMALION_INLINE scoreType lastQSPhase3Score() const noexcept
+			{
+				return m_LastQSPhase3Score;
 			}
 			PYGMALION_INLINE scoreType lastCriticalScore() const noexcept
 			{
@@ -1023,7 +1027,7 @@ namespace pygmalion
 						{
 							if (m_CurrentQSPhase2Pass < countQSPhase2CriticalEvasionPasses[m_CurrentQSPhase2Stage])
 							{
-								const auto index{ feedback.index(m_QSPhase2CriticalEvasionStages[m_CurrentQSPhase2Stage], m_CurrentQSPhase2Pass, depth) };
+								const auto index{ generatorType::movegenFeedback::index(m_QSPhase2CriticalEvasionStages[m_CurrentQSPhase2Stage], m_CurrentQSPhase2Pass) };
 								generatorType::generateMoves(m_QSPhase2CriticalEvasionStages[m_CurrentQSPhase2Stage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->qsPhase2Moves(), index);
 								while (m_pContext->qsPhase2Passes().length() < m_pContext->qsPhase2Moves().length())
 								{
@@ -1047,7 +1051,7 @@ namespace pygmalion
 						{
 							if (m_CurrentQSPhase2Pass < countQSPhase2Passes[m_CurrentQSPhase2Stage])
 							{
-								const auto index{ feedback.index(m_QSPhase2Stages[m_CurrentQSPhase2Stage], m_CurrentQSPhase2Pass, depth) };
+								const auto index{ generatorType::movegenFeedback::index(m_QSPhase2Stages[m_CurrentQSPhase2Stage], m_CurrentQSPhase2Pass) };
 								generatorType::generateMoves(m_QSPhase2Stages[m_CurrentQSPhase2Stage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->qsPhase2Moves(), index);
 								while (m_pContext->qsPhase2Passes().length() < m_pContext->qsPhase2Moves().length())
 								{
@@ -1080,7 +1084,7 @@ namespace pygmalion
 					}
 					++m_CurrentQSPhase2Move;
 				}
-				return nextQSPhase2Move(moveBits, depth, feedback);
+				return nextQSPhase2Move(moveBits);
 			}
 			template<typename LAMBDA, bool EXPECT_CUTOFF>
 			bool nextQSPhase2Move(movebitsType& moveBits, const LAMBDA& lambda) const noexcept
@@ -1203,7 +1207,7 @@ namespace pygmalion
 						{
 							if (m_CurrentQSPhase3Pass < countQSPhase3CriticalEvasionPasses[m_CurrentQSPhase3Stage])
 							{
-								const auto index{ feedback.index(m_QSPhase3CriticalEvasionStages[m_CurrentQSPhase3Stage], m_CurrentQSPhase3Pass, depth) };
+								const auto index{ generatorType::movegenFeedback::index(m_QSPhase3CriticalEvasionStages[m_CurrentQSPhase3Stage], m_CurrentQSPhase3Pass) };
 								generatorType::generateMoves(m_QSPhase3CriticalEvasionStages[m_CurrentQSPhase3Stage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->qsPhase3Moves(), index);
 								while (m_pContext->qsPhase3Passes().length() < m_pContext->qsPhase3Moves().length())
 								{
@@ -1227,7 +1231,7 @@ namespace pygmalion
 						{
 							if (m_CurrentQSPhase3Pass < countQSPhase3Passes[m_CurrentQSPhase3Stage])
 							{
-								const auto index{ feedback.index(m_QSPhase3Stages[m_CurrentQSPhase3Stage], m_CurrentQSPhase3Pass, depth) };
+								const auto index{ generatorType::movegenFeedback::index(m_QSPhase3Stages[m_CurrentQSPhase3Stage], m_CurrentQSPhase3Pass) };
 								generatorType::generateMoves(m_QSPhase3Stages[m_CurrentQSPhase3Stage], *static_cast<const typename generatorType::template stackType<PLAYER>*>(this), m_pContext->qsPhase3Moves(), index);
 								while (m_pContext->qsPhase3Passes().length() < m_pContext->qsPhase3Moves().length())
 								{
@@ -1260,7 +1264,7 @@ namespace pygmalion
 					}
 					++m_CurrentQSPhase3Move;
 				}
-				return nextQSPhase3Move(moveBits, depth, feedback);
+				return nextQSPhase3Move(moveBits);
 			}
 			template<typename LAMBDA, bool EXPECT_CUTOFF>
 			bool nextQSPhase3Move(movebitsType& moveBits, const LAMBDA& lambda) const noexcept
@@ -1413,7 +1417,7 @@ namespace pygmalion
 					}
 					++m_CurrentCriticalMove;
 				}
-				return nextCriticalMove(moveBits, depth, feedback);
+				return nextCriticalMove(moveBits);
 			}
 			template<typename LAMBDA, bool EXPECT_CUTOFF>
 			bool nextCriticalMove(movebitsType& moveBits, const LAMBDA& lambda) const noexcept

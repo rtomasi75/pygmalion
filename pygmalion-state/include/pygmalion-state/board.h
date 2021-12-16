@@ -143,7 +143,7 @@ namespace pygmalion
 			}
 			for (const auto pc : pieceType::range)
 			{
-				if (pieceOccupancy(pl) != other.pieceOccupancy(pl))
+				if (pieceOccupancy(pc) != other.pieceOccupancy(pc))
 					return true;
 			}
 			if (this->flags() != other.flags())

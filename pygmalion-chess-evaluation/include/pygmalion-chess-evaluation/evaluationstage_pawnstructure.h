@@ -3,6 +3,9 @@ namespace pygmalion::chess
 	class evaluationstage_pawnstructure :
 		public pygmalion::evaluationstage<descriptor_evaluation, evaluationstage_pawnstructure, typename descriptor_evaluation::objectiveType>
 	{
+	private:
+		constexpr static inline size_t whitePlayerIndex{ static_cast<size_t>(descriptor_evaluation::whitePlayer) };
+		constexpr static inline size_t blackPlayerIndex{ static_cast<size_t>(descriptor_evaluation::blackPlayer) };
 	public:
 		static inline scoreType PawnStructure{ static_cast<scoreType>(0.5) };
 		constexpr static size_t getParameterCount_Implementation() noexcept
@@ -234,8 +237,8 @@ namespace pygmalion::chess
 						pawnStructureScoreBlack += baseScore / divisor;
 					}
 				}
-				const objectiveType scoreWhite{ objectiveType::template makeObjective<static_cast<size_t>(whitePlayer)>(pawnStructureScoreWhite) };
-				const objectiveType scoreBlack{ objectiveType::template makeObjective<static_cast<size_t>(blackPlayer)>(pawnStructureScoreBlack) };
+				const objectiveType scoreWhite{ objectiveType::template makeObjective<whitePlayerIndex>(pawnStructureScoreWhite) };
+				const objectiveType scoreBlack{ objectiveType::template makeObjective<blackPlayerIndex>(pawnStructureScoreBlack) };
 				entry.setPawnStructureScore(movingPlayer, scoreWhite + scoreBlack);
 			}
 			data = entry.getPawnStructureScore(movingPlayer);
@@ -246,7 +249,7 @@ namespace pygmalion::chess
 			return pParameters[0] * (data.template makeSubjective<PLAYER>());
 		}
 		template<size_t PLAYER>
-		PYGMALION_INLINE static scoreType differentiate_Implementation(const dataType&, const size_t parameterIndex, const scoreType* pParameters) noexcept
+		PYGMALION_INLINE static scoreType differentiate_Implementation(const dataType& data, const size_t parameterIndex, const scoreType* pParameters) noexcept
 		{
 			PYGMALION_ASSERT(parameterIndex == 0);
 			return data.template makeSubjective<PLAYER>();

@@ -170,7 +170,19 @@ namespace pygmalion
 			m_Outcome = gamestateType::open();
 		}
 		~record() noexcept = default;
-		record(const record&) noexcept = default;
+		record(const record& other) noexcept :
+			m_StartPosition{ other.m_StartPosition },
+			m_MaterialTable{ other.m_MaterialTable },
+			m_Moves{ other.m_Moves },
+			m_Event{ other.m_Event },
+			m_Site{ other.m_Site },
+			m_Date{ other.m_Date },
+			m_Round{ other.m_Round },
+			m_Outcome{ other.m_Outcome }
+		{
+			for (size_t i = 0; i < countPlayers; i++)
+				m_Players[i] = other.m_Players[i];
+		}
 		record(record&&) noexcept = default;
 		record& operator=(const record& other) noexcept
 		{

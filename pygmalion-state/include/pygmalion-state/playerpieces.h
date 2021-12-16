@@ -188,6 +188,7 @@ namespace pygmalion::state
 			size_t count{ 0 };
 			for (const auto pl : playerType::range)
 				count += m_Pieces[pl].count();
+			return count;
 		}
 		PYGMALION_INLINE constexpr void clearElement(const playerpieceType index) noexcept
 		{

@@ -66,7 +66,7 @@ namespace pygmalion::chess
 			return scoreControl;
 		}
 		template<size_t PLAYER>
-		PYGMALION_INLINE static scoreType differentiate_Implementation(const dataType&, const size_t parameterIndex, const scoreType* pParameters) noexcept
+		PYGMALION_INLINE static scoreType differentiate_Implementation(const dataType& data, const size_t parameterIndex, const scoreType* pParameters) noexcept
 		{
 			PYGMALION_ASSERT(parameterIndex == 0);
 			return static_cast<scoreType>(data);

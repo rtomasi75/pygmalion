@@ -1,5 +1,116 @@
 namespace pygmalion
 {
+	namespace details::evaluator
+	{
+		template<typename DESCRIPTOR_EVALUATION, size_t COUNTSTAGES>
+		class evaluationdelta :
+			public DESCRIPTOR_EVALUATION
+		{
+		public:
+			using descriptorEvaluation = DESCRIPTOR_EVALUATION;
+#include "include_evaluation.h"
+		private:
+			deltaType m_CurrentStageDelta;
+			evaluationdelta<DESCRIPTOR_EVALUATION, COUNTSTAGES - 1> m_TailDelta;
+		public:
+			~evaluationdelta() noexcept = default;
+			PYGMALION_INLINE evaluationdelta(const evaluationdelta&) noexcept = default;
+			PYGMALION_INLINE evaluationdelta& operator=(const evaluationdelta&) noexcept = default;
+			PYGMALION_INLINE evaluationdelta(evaluationdelta&&) noexcept = default;
+			PYGMALION_INLINE evaluationdelta& operator=(evaluationdelta&&) noexcept = default;
+			template<size_t EVALUATIONSTAGE>
+			PYGMALION_INLINE const deltaType& stageDelta() const noexcept
+			{
+				if constexpr (EVALUATIONSTAGE == 0)
+					return m_CurrentStageDelta;
+				else
+					return m_TailDelta.template stageDelta<EVALUATIONSTAGE - 1>();
+			}
+			PYGMALION_INLINE const deltaType& stageDelta(const size_t evaluationStage) const noexcept
+			{
+				if (evaluationStage == 0)
+					return m_CurrentStageDelta;
+				else
+					return m_TailDelta.stageDelta(evaluationStage - 1);
+			}
+			PYGMALION_INLINE const deltaType& currentStageDelta() const noexcept
+			{
+				return m_CurrentStageDelta;
+			}
+			PYGMALION_INLINE deltaType& currentStageDelta() noexcept
+			{
+				return m_CurrentStageDelta;
+			}
+			PYGMALION_INLINE const evaluationdelta<DESCRIPTOR_EVALUATION, COUNTSTAGES - 1>& tailDelta() const noexcept
+			{
+				return m_TailDelta;
+			}
+			PYGMALION_INLINE evaluationdelta<DESCRIPTOR_EVALUATION, COUNTSTAGES - 1>& tailDelta() noexcept
+			{
+				return m_TailDelta;
+			}
+			evaluationdelta() noexcept :
+				m_CurrentStageDelta{ deltaType() },
+				m_TailDelta{ evaluationdelta<DESCRIPTOR_EVALUATION,COUNTSTAGES - 1>() }
+			{
+			}
+		};
+		template<typename DESCRIPTOR_EVALUATION>
+		class evaluationdelta<DESCRIPTOR_EVALUATION, 1> :
+			public DESCRIPTOR_EVALUATION
+		{
+		public:
+			using descriptorEvaluation = DESCRIPTOR_EVALUATION;
+#include "include_evaluation.h"
+		private:
+			deltaType m_CurrentStageDelta;
+		public:
+			~evaluationdelta() noexcept = default;
+			PYGMALION_INLINE evaluationdelta(const evaluationdelta&) noexcept = default;
+			PYGMALION_INLINE evaluationdelta& operator=(const evaluationdelta&) noexcept = default;
+			PYGMALION_INLINE evaluationdelta(evaluationdelta&&) noexcept = default;
+			PYGMALION_INLINE evaluationdelta& operator=(evaluationdelta&&) noexcept = default;
+			template<size_t EVALUATIONSTAGE>
+			PYGMALION_INLINE const deltaType& stageDelta() const noexcept
+			{
+				static_assert(EVALUATIONSTAGE == 0);
+				return m_CurrentStageDelta;
+			}
+			PYGMALION_INLINE const deltaType& stageDelta(const size_t evaluationStage) const noexcept
+			{
+				PYGMALION_ASSERT(evaluationStage == 0);
+				return m_CurrentStageDelta;
+			}
+			PYGMALION_INLINE const deltaType& currentStageDelta() const noexcept
+			{
+				return m_CurrentStageDelta;
+			}
+			PYGMALION_INLINE deltaType& currentStageDelta() noexcept
+			{
+				return m_CurrentStageDelta;
+			}
+			evaluationdelta() noexcept :
+				m_CurrentStageDelta{ deltaType() }
+			{
+			}
+		};
+		template<typename DESCRIPTOR_EVALUATION>
+		class evaluationdelta<DESCRIPTOR_EVALUATION, 0> :
+			public DESCRIPTOR_EVALUATION
+		{
+		public:
+			using descriptorEvaluation = DESCRIPTOR_EVALUATION;
+#include "include_evaluation.h"
+			PYGMALION_INLINE evaluationdelta() noexcept
+			{
+			}
+			~evaluationdelta() noexcept = default;
+			evaluationdelta(const evaluationdelta&) noexcept = default;
+			PYGMALION_INLINE evaluationdelta& operator=(const evaluationdelta&) noexcept = default;
+			PYGMALION_INLINE evaluationdelta(evaluationdelta&&) noexcept = default;
+			PYGMALION_INLINE evaluationdelta& operator=(evaluationdelta&&) noexcept = default;
+		};
+	}
 	template<typename DESCRIPTOR_EVALUATION, typename INSTANCE, typename... STAGES >
 	class evaluator :
 		public DESCRIPTOR_EVALUATION
@@ -41,104 +152,7 @@ namespace pygmalion
 			dataType& operator=(const dataType&) noexcept = default;
 			dataType& operator=(dataType&&) noexcept = default;
 		};
-		template<size_t COUNTSTAGES>
-		class evaluationdelta
-		{
-		private:
-			deltaType m_CurrentStageDelta;
-			evaluationdelta<COUNTSTAGES - 1> m_TailDelta;
-		public:
-			~evaluationdelta() noexcept = default;
-			PYGMALION_INLINE evaluationdelta(const evaluationdelta&) noexcept = default;
-			PYGMALION_INLINE evaluationdelta& operator=(const evaluationdelta&) noexcept = default;
-			PYGMALION_INLINE evaluationdelta(evaluationdelta&&) noexcept = default;
-			PYGMALION_INLINE evaluationdelta& operator=(evaluationdelta&&) noexcept = default;
-			template<size_t EVALUATIONSTAGE>
-			PYGMALION_INLINE const deltaType& stageDelta() const noexcept
-			{
-				if constexpr (EVALUATIONSTAGE == 0)
-					return m_CurrentStageDelta;
-				else
-					return m_TailDelta.template stageDelta<EVALUATIONSTAGE - 1>();
-			}
-			PYGMALION_INLINE const deltaType& stageDelta(const size_t evaluationStage) const noexcept
-			{
-				if (evaluationStage == 0)
-					return m_CurrentStageDelta;
-				else
-					return m_TailDelta.stageDelta(evaluationStage - 1);
-			}
-			PYGMALION_INLINE const deltaType& currentStageDelta() const noexcept
-			{
-				return m_CurrentStageDelta;
-			}
-			PYGMALION_INLINE deltaType& currentStageDelta() noexcept
-			{
-				return m_CurrentStageDelta;
-			}
-			PYGMALION_INLINE const evaluationdelta<COUNTSTAGES - 1>& tailDelta() const noexcept
-			{
-				return m_TailDelta;
-			}
-			PYGMALION_INLINE evaluationdelta<COUNTSTAGES - 1>& tailDelta() noexcept
-			{
-				return m_TailDelta;
-			}
-			evaluationdelta() noexcept :
-				m_CurrentStageDelta{ deltaType() },
-				m_TailDelta{ evaluationdelta<COUNTSTAGES - 1>() }
-			{
-			}
-		};
-		template<>
-		class evaluationdelta<1>
-		{
-		private:
-			deltaType m_CurrentStageDelta;
-		public:
-			~evaluationdelta() noexcept = default;
-			PYGMALION_INLINE evaluationdelta(const evaluationdelta&) noexcept = default;
-			PYGMALION_INLINE evaluationdelta& operator=(const evaluationdelta&) noexcept = default;
-			PYGMALION_INLINE evaluationdelta(evaluationdelta&&) noexcept = default;
-			PYGMALION_INLINE evaluationdelta& operator=(evaluationdelta&&) noexcept = default;
-			template<size_t EVALUATIONSTAGE>
-			PYGMALION_INLINE const deltaType& stageDelta() const noexcept
-			{
-				static_assert(EVALUATIONSTAGE == 0);
-				return m_CurrentStageDelta;
-			}
-			PYGMALION_INLINE const deltaType& stageDelta(const size_t evaluationStage) const noexcept
-			{
-				PYGMALION_ASSERT(evaluationStage == 0);
-				return m_CurrentStageDelta;
-			}
-			PYGMALION_INLINE const deltaType& currentStageDelta() const noexcept
-			{
-				return m_CurrentStageDelta;
-			}
-			PYGMALION_INLINE deltaType& currentStageDelta() noexcept
-			{
-				return m_CurrentStageDelta;
-			}
-			evaluationdelta() noexcept :
-				m_CurrentStageDelta{ deltaType() }
-			{
-			}
-		};
-		template<>
-		class evaluationdelta<0>
-		{
-		public:
-			PYGMALION_INLINE evaluationdelta() noexcept
-			{
-			}
-			~evaluationdelta() noexcept = default;
-			evaluationdelta(const evaluationdelta&) noexcept = default;
-			PYGMALION_INLINE evaluationdelta& operator=(const evaluationdelta&) noexcept = default;
-			PYGMALION_INLINE evaluationdelta(evaluationdelta&&) noexcept = default;
-			PYGMALION_INLINE evaluationdelta& operator=(evaluationdelta&&) noexcept = default;
-		};
-		using evaluationDeltaType = evaluationdelta<countEvaluationStages>;
+		using evaluationDeltaType = details::evaluator::evaluationdelta<descriptorEvaluation, countEvaluationStages>;
 	private:
 		template<typename COMMAND>
 		static std::shared_ptr<pygmalion::intrinsics::command> createCommand() noexcept
@@ -151,7 +165,7 @@ namespace pygmalion
 			return pCommand;
 		}
 		template<typename STAGE, typename... STAGES2>
-		static void computeDelta(const scoreType* pParameters, evaluationdelta<1 + sizeof...(STAGES2)>& evaluationDelta) noexcept
+		static void computeDelta(const scoreType* pParameters, details::evaluator::evaluationdelta<descriptorEvaluation, 1 + sizeof...(STAGES2)>& evaluationDelta) noexcept
 		{
 			if constexpr (sizeof...(STAGES2) > 0)
 			{
@@ -247,7 +261,7 @@ namespace pygmalion
 			else
 			{
 				PYGMALION_ASSERT(false);
-				return parameter(0.0, 0.0, 0.0, 0.0, "???");
+				return parameterType(0.0, 0.0, 0.0, 0.0, "???");
 			}
 		}
 		template<typename STAGE, typename... STAGES2>

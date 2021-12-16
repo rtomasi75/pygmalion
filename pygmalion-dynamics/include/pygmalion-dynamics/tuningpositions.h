@@ -26,7 +26,12 @@ namespace pygmalion
 			m_Score = 0.0;
 		}
 		~tuningposition() noexcept = default;
-		tuningposition(const tuningposition&) noexcept = default;
+		tuningposition(const tuningposition& other) noexcept :
+			m_FEN{ other.m_FEN },
+			m_Score{ other.m_Score }
+		{
+
+		}
 		tuningposition(tuningposition&&) noexcept = default;
 		tuningposition& operator=(const tuningposition&) = default;
 		tuningposition& operator=(tuningposition&&) = default;
@@ -70,7 +75,7 @@ namespace pygmalion
 	public:
 		tuningpositions() noexcept = default;
 		~tuningpositions() noexcept = default;
-		tuningpositions(const tuningpositions&) noexcept = default;
+		tuningpositions(const tuningpositions& other) noexcept = default;
 		tuningpositions(tuningpositions&&) noexcept = default;
 		tuningpositions& operator=(const tuningpositions&) = default;
 		tuningpositions& operator=(tuningpositions&&) = default;
