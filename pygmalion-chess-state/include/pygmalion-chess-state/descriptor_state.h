@@ -1,7 +1,7 @@
 namespace pygmalion::chess::state
 {
 	class descriptor_state :
-		public pygmalion::descriptor_state<pygmalion::config::chess::standardboardInfo<32>>
+		public pygmalion::descriptor_state<pygmalion::config::chess::standardboardInfo>
 	{
 	public:
 		constexpr static const playerType whitePlayer{ 0 };

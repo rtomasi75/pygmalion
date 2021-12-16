@@ -168,7 +168,7 @@ namespace pygmalion::state
 			for (size_t parameterIndex = 0; parameterIndex < countParameters; parameterIndex++)
 			{
 				if (parameterIndex < countPieces)
-					parameters[parameterIndex] = boardType::defaultLazyMaterial(static_cast<pieceType>(parameterIndex));
+					parameters[parameterIndex] = static_cast<scoreType>(boardInfo.materialPiece(parameterIndex));
 				else
 				{
 					const size_t indexPST{ parameterIndex - countPieces };
@@ -179,7 +179,7 @@ namespace pygmalion::state
 					const squareType sq{ static_cast<squareType>(indexSQ) };
 					const pieceType pc{ static_cast<pieceType>(indexPC) };
 					const playerType pl{ static_cast<playerType>(indexPL) };
-					parameters[parameterIndex] = boardType::defaultMaterial(pl, pc, sq);
+					parameters[parameterIndex] = static_cast<scoreType>(boardInfo.materialPieceSquare(indexPL, indexPC, static_cast<size_t>(sq.file()), static_cast<size_t>(sq.rank())));
 				}
 			}
 		}

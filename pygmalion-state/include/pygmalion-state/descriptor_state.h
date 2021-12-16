@@ -13,7 +13,7 @@ namespace pygmalion
 		constexpr static inline const size_t countFiles{ boardinfoType::countFiles };
 		constexpr static inline const size_t countSquares{ countRanks * countFiles };
 		constexpr static inline const size_t countFlags{ boardinfoType::countFlags };
-		constexpr static inline const size_t countHashBits{ std::min(sizeof(void*) * CHAR_BIT,boardinfoType::countHashBits) };
+		constexpr static inline const size_t countHashBits{ std::min(sizeof(void*) * CHAR_BIT,boardInfo.countHashBits) };
 		constexpr static inline const size_t countRoyalPieces{ boardInfo.playerpieces().pieces().countRoyalPieces() };
 		constexpr static inline const size_t countStructuralPieces{ boardInfo.playerpieces().pieces().countStructuralPieces() };
 		constexpr static inline const size_t scoreMantissa{ boardInfo.materialScore().mantissaBits };

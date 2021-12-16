@@ -27,14 +27,18 @@ namespace pygmalion
 		{
 			arrayhelper::generate<countPlayers,hashType>([](const size_t playerIndex) { return hashType(boardInfo.movingPlayerHash[playerIndex]); })
 		};
-		static inline std::array<hashType, 1 << flagType::countValues> m_FlagsHash
+		constexpr static inline std::array<hashType, countSquares> m_EnPassantHash
+		{
+			arrayhelper::generate<countSquares,hashType>([](const size_t squareIndex) { return hashType(boardInfo.enPassantHash[squareIndex]); })
+		};
+		constexpr static inline std::array<hashType, 1 << flagType::countValues> m_FlagsHash
 		{
 			arrayhelper::generate<1 << flagType::countValues,hashType>([](const size_t index)
 				{
 					return boardInfo.flagHash[index];
 				})
 		};
-		static inline std::array<std::array<std::array<hashType, countSquares>, countPieces>, countPlayers> m_PlayerPieceSquareHash
+		constexpr static inline std::array<std::array<std::array<hashType, countSquares>, countPieces>, countPlayers> m_PlayerPieceSquareHash
 		{
 			arrayhelper::generate<countPlayers, std::array<std::array<hashType, countSquares>, countPieces>>([](const size_t player) { return arrayhelper::generate<countPieces, std::array<hashType, countSquares>>([player](const size_t piece) {return arrayhelper::generate<countSquares, hashType>([player, piece](const size_t square) {return boardInfo.playerPieceSquareHash[player][piece][square]; }); }); })
 		};
@@ -51,9 +55,9 @@ namespace pygmalion
 		{
 			return m_PlayerPieceSquareHash[player][piece][square];
 		}
-		PYGMALION_INLINE void onInitialize(const materialTableType& materialTable) noexcept
+		PYGMALION_INLINE static const hashType enPassantHash(const squareType square) noexcept
 		{
-			static_cast<boardType*>(this)->onInitialize_Implementation(materialTable);
+			return m_EnPassantHash[square];
 		}
 		constexpr static bool enableRange(const size_t first, const size_t last) noexcept
 		{
@@ -92,6 +96,8 @@ namespace pygmalion
 						hash ^= pieceHash(pc, sq, pl);
 				}
 			}
+			for (const auto sq : enPassantTargets())
+				hash ^= enPassantHash(sq);
 			return hash;
 		}
 		PYGMALION_INLINE bool operator==(const boardType& other) const noexcept
@@ -180,13 +186,23 @@ namespace pygmalion
 		}
 		PYGMALION_INLINE void clearEnPassant() noexcept
 		{
+			PYGMALION_ASSERT(theoreticalHash() == hash());
+			for (const auto sq : m_EnPassantSquares)
+				m_Hash ^= enPassantHash(sq);
 			m_EnPassantSquares.clear();
 			m_EnPassantVictim = squareType::invalid;
+			PYGMALION_ASSERT(theoreticalHash() == hash());
 		}
 		PYGMALION_INLINE void setEnPassant(const squaresType targets, const squareType victim) noexcept
 		{
+			PYGMALION_ASSERT(theoreticalHash() == hash());
+			for (const auto sq : m_EnPassantSquares)
+				m_Hash ^= enPassantHash(sq);
 			m_EnPassantSquares = targets;
 			m_EnPassantVictim = victim;
+			for (const auto sq : m_EnPassantSquares)
+				m_Hash ^= enPassantHash(sq);
+			PYGMALION_ASSERT(theoreticalHash() == hash());
 		}
 		PYGMALION_INLINE const playerpiecesType& playerpieces() const noexcept
 		{
@@ -283,28 +299,6 @@ namespace pygmalion
 		{
 			return m_StructureHash;
 		}
-		static std::string name_Implementation() noexcept
-		{
-			std::stringstream sstr;
-			sstr << "generic board, " << countFiles << "x" << countRanks << " square" << (countSquares != 1 ? "s" : "") << ", " << countPlayers << " player" << (countPlayers != 1 ? "s" : "") << ", " << countFlags << " flag" << (countFlags != 1 ? "s" : "");
-			return sstr.str();
-		}
-		static std::string name() noexcept
-		{
-			return boardType::name_Implementation();
-		}
-		static std::string piecesToString(const piecesType mask, const playerType pl) noexcept
-		{
-			std::stringstream str;
-			for (const auto pc : pieceType::range)
-			{
-				if (mask[pc])
-					str << (pc & pl).toShortString();
-				else
-					str << "_";
-			}
-			return str.str();
-		}
 		PYGMALION_INLINE void setFlag(const flagType flag) noexcept
 		{
 			PYGMALION_ASSERT(theoreticalHash() == hash());
@@ -349,7 +343,7 @@ namespace pygmalion
 		{
 			PYGMALION_ASSERT(theoreticalHash() == hash());
 			const flagsType oldFlags{ m_Flags };
-			m_Flags.clear();
+			m_Flags &= ~flags;
 			m_Hash ^= flagsHash(oldFlags);
 			m_Hash ^= flagsHash(m_Flags);
 			PYGMALION_ASSERT(theoreticalHash() == hash());
@@ -617,28 +611,36 @@ namespace pygmalion
 		{
 			clear();
 		}
-		static std::string pieceMaskToString(const piecesType& pieces, const playerType pl) noexcept
-		{
-			std::stringstream str;
-			const std::string nullString{ "_" };
-			for (const auto pc : pieceType::range)
-			{
-				if (pieces[pc])
-				{
-					const std::string pcString{ (pc & pl).toShortString() };
-					str << pcString;
-				}
-				else
-				{
-					str << nullString;
-				}
-			}
-			return str.str();
-		}
 		void initialize(const materialTableType& materialTable) noexcept
 		{
 			clear();
-			onInitialize(materialTable);
+			setMovingPlayer(static_cast<playerType>(boardInfo.initialPlayerIndex()));
+			size_t victimSquareIndex;
+			list<size_t, countSquares> targetSquareIndices;
+			if (boardInfo.initialEnPassant(victimSquareIndex, targetSquareIndices))
+			{
+				const squareType victim{ static_cast<squareType>(victimSquareIndex) };
+				squaresType targets{ squaresType::none() };
+				for (size_t i = 0; i < targetSquareIndices.length(); i++)
+					targets |= static_cast<squareType>(targetSquareIndices[i]);
+				setEnPassant(targets, victim);
+			}
+			else
+				clearEnPassant();
+			for (const auto sq : squareType::range)
+			{
+				size_t playerpieceIndex;
+				if (boardInfo.initialPlayerPieceOnSquare(static_cast<size_t>(sq), playerpieceIndex))
+				{
+					const playerpieceType ppc{ static_cast<playerpieceType>(playerpieceIndex) };
+					addPiece(ppc.piece(), sq, ppc.player(), materialTable);
+				}
+			}
+			for (const auto f : flagType::range)
+			{
+				if (boardInfo.initialFlag(static_cast<size_t>(f)))
+					setFlag(f);
+			}
 			PYGMALION_ASSERT(theoreticalHash() == hash());
 		}
 		board(board&&) noexcept = default;
@@ -960,14 +962,6 @@ namespace pygmalion
 			}
 			return true;
 		}
-		PYGMALION_INLINE static scoreType defaultLazyMaterial(const pieceType pc) noexcept
-		{
-			return boardType::defaultLazyMaterial_Implementation(pc);
-		}
-		PYGMALION_INLINE static scoreType defaultMaterial(const playerType pl, const pieceType pc, const squareType sq) noexcept
-		{
-			return boardType::defaultMaterial_Implementation(pl, pc, sq);
-		}
 		PYGMALION_INLINE squareType royalSquare(const playerType player, const royalpieceType rp) const noexcept
 		{
 			return (pieceOccupancy(static_cast<pieceType>(rp)) & playerOccupancy(player)).first();
@@ -977,24 +971,63 @@ namespace pygmalion
 	template<typename DESCRIPTOR_STATE, typename INSTANCE>
 	std::ostream& operator<<(std::ostream& str, const board<DESCRIPTOR_STATE, INSTANCE>& position) noexcept
 	{
-		using boardType = INSTANCE;
+		using boardType = board<DESCRIPTOR_STATE, INSTANCE>;
 		using descriptorState = DESCRIPTOR_STATE;
 #include "include_state.h"
 		for (const auto r : rankType::range)
 		{
 			const rankType rank{ -r };
-			str << boardType::rankToString(rank) << "|";
+			str << rank.toShortString();
+			str << "|";
 			for (const auto file : fileType::range)
 			{
 				const squareType square{ rank & file };
 				if (position.totalOccupancy()[square])
 				{
-					const pieceType piece{ position.getPiece(square) };
-					const playerType player{ position.getPlayer(square) };
-					str << boardType::pieceToString(piece, player);
+					if (position.playerOccupancy(descriptorState::whitePlayer)[square] && position.playerOccupancy(descriptorState::blackPlayer)[square])
+						str << "!";
+					else
+					{
+						bool hasPiece{ false };
+						for (const auto pc : pieceType::range)
+						{
+							if (position.pieceOccupancy(pc)[square])
+							{
+								hasPiece = true;
+								break;
+							}
+						}
+						if (hasPiece)
+						{
+							const pieceType piece{ position.getPiece(square) };
+							const playerType player{ position.getPlayer(square) };
+							str << (piece & player).toShortString();
+						}
+						else
+							str << "@";
+					}
 				}
 				else
-					str << ".";
+				{
+					bool hasPiece{ false };
+					for (const auto pc : pieceType::range)
+					{
+						if (position.pieceOccupancy(pc)[square])
+						{
+							hasPiece = true;
+							break;
+						}
+					}
+					if (hasPiece)
+						str << "?";
+					else
+					{
+						if (position.checkEnPassantTarget(square))
+							str << "#";
+						else
+							str << ".";
+					}
+				}
 			}
 			str << std::endl;
 		}
@@ -1007,30 +1040,38 @@ namespace pygmalion
 		str << " |";
 		for (const auto file : fileType::range)
 		{
-			str << boardType::fileToString(file);
+			str << file.toShortString();
 		}
 		str << std::endl;
-		if constexpr (countFlags > 0)
+		str << std::endl;
+		str << "Flags:    " << position.flags().toString() << std::endl;
+		str << "Pieces:   " << position.pieces(descriptorState::whitePlayer).toString(descriptorState::whitePlayer) << ":" << position.pieces(descriptorState::blackPlayer).toString(descriptorState::blackPlayer) << std::endl;
+		str << "Material: " << position.material().makeSubjective(position.movingPlayer()) << std::endl;
+		str << std::endl;
+		str << "Total Hash:     " << std::setw(8) << std::hex << static_cast<std::uint64_t>(position.hash()) << std::dec << std::endl;
+		str << "Structure Hash: " << std::setw(8) << std::hex << static_cast<std::uint64_t>(position.structureHash()) << std::dec << std::endl;
+		str << std::endl;
+		str << "FEN: " << position.getFen() << std::endl;
+		str << std::endl;
+		str << "EnPassant victim:  " << (position.enPassantVictim().isValid() ? position.enPassantVictim().toShortString() : std::string("none")) << std::endl;
+		str << "EnPassant targets:";
+		if (position.enPassantTargets())
 		{
-			str << std::endl;
-			str << "Flags: ";
-			for (const auto flag : flagType::range)
+			for (const auto ep : position.enPassantTargets())
 			{
-				if (position.checkFlag(flag))
-					str << boardType::flagToString(flag);
-				else
-					str << "_";
+				str << " " << ep.toShortString();
 			}
-			str << std::endl;
+		}
+		else
+		{
+			str << " none";
 		}
 		str << std::endl;
-		str << "Hash: ";
-		str << position.hash();
 		str << std::endl;
-		str << "Cumulation: ";
-		str << boardType::cumulationToString(position.cumulation());
+		str << "Half-move clock: " << static_cast<std::uint64_t>(position.getReversiblePlyCount()) << std::endl;
+		str << "Moves played:    " << static_cast<std::uint64_t>(position.getMoveCount()) << std::endl;
 		str << std::endl;
-		str << "Player " << boardType::playerToString(position.movingPlayer()) << " is on the move." << std::endl;
+		str << "Moving player: " << position.movingPlayer().toLongString() << std::endl;
 		return str;
 	}
 }

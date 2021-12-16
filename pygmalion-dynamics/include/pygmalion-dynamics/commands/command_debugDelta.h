@@ -9,7 +9,7 @@ namespace pygmalion::dynamics
 		template<size_t PLAYER>
 		using stackType = typename generatorType::template stackType<PLAYER>;
 		using descriptorDynamics = DESCRIPTION_DYNAMICS;
-#include "../include_dynamics.h"	
+#include "../include_dynamics.h"
 	protected:
 		virtual bool onProcess(const std::string& cmd) noexcept override
 		{
@@ -23,15 +23,15 @@ namespace pygmalion::dynamics
 					{
 						for (const auto pl : playerType::range)
 						{
-							this->output() << spl.toShortString() << "=>" << boardType::piecesToString(mask, pl) << ": " << delta.maxQuietChange(spl, pl, mask) << std::endl;
-							this->output() << spl.toShortString() << "=>" << boardType::piecesToString(mask, pl) << "=" << boardType::piecesToString(generatorType::promotionResults(pl), pl) << ": " << delta.maxPromotionChange(spl, pl, mask) << std::endl;
+							this->output() << spl.toShortString() << "=>" << mask.toString(pl) << ": " << delta.maxQuietChange(spl, pl, mask) << std::endl;
+							this->output() << spl.toShortString() << "=>" << mask.toString(pl) << "=" << generatorType::promotionResults(pl).toString(pl) << ": " << delta.maxPromotionChange(spl, pl, mask) << std::endl;
 							for (const auto mask2 : piecesType::range)
 							{
-								this->output() << spl.toShortString() << "=>" << boardType::piecesToString(mask, pl) << "-" << boardType::piecesToString(mask2, pl.next()) << ": " << delta.maxCaptureChange(spl, pl, mask, mask2) << std::endl;
+								this->output() << spl.toShortString() << "=>" << mask.toString(pl) << "-" << mask2.toString(pl.next()) << ": " << delta.maxCaptureChange(spl, pl, mask, mask2) << std::endl;
 							}
 							for (const auto mask2 : piecesType::range)
 							{
-								this->output() << spl.toShortString() << "=>" << boardType::piecesToString(mask, pl) << "-" << boardType::piecesToString(mask2, pl.next()) << "=" << boardType::piecesToString(generatorType::promotionResults(pl), pl) << ": " << delta.maxPromoCaptureChange(spl, pl, mask, mask2) << std::endl;
+								this->output() << spl.toShortString() << "=>" << mask.toString(pl) << "-" << mask2.toString(pl.next()) << "=" << generatorType::promotionResults(pl).toString(pl) << ": " << delta.maxPromoCaptureChange(spl, pl, mask, mask2) << std::endl;
 							}
 							this->output() << std::endl;
 						}

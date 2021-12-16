@@ -1,13 +1,368 @@
 namespace pygmalion::config::chess
 {
-	template<size_t COUNT_HASHBITS>
 	class standardboardInfo :
-		public boardInfo<standardplayersInfo, standardpiecesInfo, standardfilesInfo, standardranksInfo, standardflagsInfo, COUNT_HASHBITS>
+		public boardInfo<standardplayersInfo, standardpiecesInfo, standardfilesInfo, standardranksInfo, standardflagsInfo>
 	{
-		static_assert ((COUNT_HASHBITS <= 64) && (COUNT_HASHBITS > 0), "COUNT_HASHBITS must be from 1...64");
 	public:
+		constexpr static inline const size_t knight_Index{ 0 };
+		constexpr static inline const size_t bishop_Index{ 1 };
+		constexpr static inline const size_t rook_Index{ 2 };
+		constexpr static inline const size_t queen_Index{ 3 };
+		constexpr static inline const size_t pawn_Index{ 4 };
+		constexpr static inline const size_t king_Index{ 5 };
+		constexpr static inline const size_t whitePlayer_Index{ 0 };
+		constexpr static inline const size_t blackPlayer_Index{ 1 };
+		constexpr static inline const size_t whiteKnight_Index{ 0 };
+		constexpr static inline const size_t whiteBishop_Index{ 1 };
+		constexpr static inline const size_t whiteRook_Index{ 2 };
+		constexpr static inline const size_t whiteQueen_Index{ 3 };
+		constexpr static inline const size_t whitePawn_Index{ 4 };
+		constexpr static inline const size_t whiteKing_Index{ 5 };
+		constexpr static inline const size_t blackKnight_Index{ 6 };
+		constexpr static inline const size_t blackBishop_Index{ 7 };
+		constexpr static inline const size_t blackRook_Index{ 8 };
+		constexpr static inline const size_t blackQueen_Index{ 9 };
+		constexpr static inline const size_t blackPawn_Index{ 10 };
+		constexpr static inline const size_t blackKing_Index{ 11 };
+		constexpr static inline const size_t castleRightKingsideWhite_Index{ 0 };
+		constexpr static inline const size_t castleRightQueensideWhite_Index{ 1 };
+		constexpr static inline const size_t castleRightKingsideBlack_Index{ 2 };
+		constexpr static inline const size_t castleRightQueensideBlack_Index{ 3 };
+		constexpr static inline const size_t fileA_Index{ 0 };
+		constexpr static inline const size_t fileB_Index{ 1 };
+		constexpr static inline const size_t fileC_Index{ 2 };
+		constexpr static inline const size_t fileD_Index{ 3 };
+		constexpr static inline const size_t fileE_Index{ 4 };
+		constexpr static inline const size_t fileF_Index{ 5 };
+		constexpr static inline const size_t fileG_Index{ 6 };
+		constexpr static inline const size_t fileH_Index{ 7 };
+		constexpr static inline const size_t rank1_Index{ 0 };
+		constexpr static inline const size_t rank2_Index{ 1 };
+		constexpr static inline const size_t rank3_Index{ 2 };
+		constexpr static inline const size_t rank4_Index{ 3 };
+		constexpr static inline const size_t rank5_Index{ 4 };
+		constexpr static inline const size_t rank6_Index{ 5 };
+		constexpr static inline const size_t rank7_Index{ 6 };
+		constexpr static inline const size_t rank8_Index{ 7 };
+		constexpr static inline const size_t squareA1_Index{ 0 };
+		constexpr static inline const size_t squareB1_Index{ 1 };
+		constexpr static inline const size_t squareC1_Index{ 2 };
+		constexpr static inline const size_t squareD1_Index{ 3 };
+		constexpr static inline const size_t squareE1_Index{ 4 };
+		constexpr static inline const size_t squareF1_Index{ 5 };
+		constexpr static inline const size_t squareG1_Index{ 6 };
+		constexpr static inline const size_t squareH1_Index{ 7 };
+		constexpr static inline const size_t squareA2_Index{ 8 + 0 };
+		constexpr static inline const size_t squareB2_Index{ 8 + 1 };
+		constexpr static inline const size_t squareC2_Index{ 8 + 2 };
+		constexpr static inline const size_t squareD2_Index{ 8 + 3 };
+		constexpr static inline const size_t squareE2_Index{ 8 + 4 };
+		constexpr static inline const size_t squareF2_Index{ 8 + 5 };
+		constexpr static inline const size_t squareG2_Index{ 8 + 6 };
+		constexpr static inline const size_t squareH2_Index{ 8 + 7 };
+		constexpr static inline const size_t squareA3_Index{ 2 * 8 + 0 };
+		constexpr static inline const size_t squareB3_Index{ 2 * 8 + 1 };
+		constexpr static inline const size_t squareC3_Index{ 2 * 8 + 2 };
+		constexpr static inline const size_t squareD3_Index{ 2 * 8 + 3 };
+		constexpr static inline const size_t squareE3_Index{ 2 * 8 + 4 };
+		constexpr static inline const size_t squareF3_Index{ 2 * 8 + 5 };
+		constexpr static inline const size_t squareG3_Index{ 2 * 8 + 6 };
+		constexpr static inline const size_t squareH3_Index{ 2 * 8 + 7 };
+		constexpr static inline const size_t squareA4_Index{ 3 * 8 + 0 };
+		constexpr static inline const size_t squareB4_Index{ 3 * 8 + 1 };
+		constexpr static inline const size_t squareC4_Index{ 3 * 8 + 2 };
+		constexpr static inline const size_t squareD4_Index{ 3 * 8 + 3 };
+		constexpr static inline const size_t squareE4_Index{ 3 * 8 + 4 };
+		constexpr static inline const size_t squareF4_Index{ 3 * 8 + 5 };
+		constexpr static inline const size_t squareG4_Index{ 3 * 8 + 6 };
+		constexpr static inline const size_t squareH4_Index{ 3 * 8 + 7 };
+		constexpr static inline const size_t squareA5_Index{ 4 * 8 + 0 };
+		constexpr static inline const size_t squareB5_Index{ 4 * 8 + 1 };
+		constexpr static inline const size_t squareC5_Index{ 4 * 8 + 2 };
+		constexpr static inline const size_t squareD5_Index{ 4 * 8 + 3 };
+		constexpr static inline const size_t squareE5_Index{ 4 * 8 + 4 };
+		constexpr static inline const size_t squareF5_Index{ 4 * 8 + 5 };
+		constexpr static inline const size_t squareG5_Index{ 4 * 8 + 6 };
+		constexpr static inline const size_t squareH5_Index{ 4 * 8 + 7 };
+		constexpr static inline const size_t squareA6_Index{ 5 * 8 + 0 };
+		constexpr static inline const size_t squareB6_Index{ 5 * 8 + 1 };
+		constexpr static inline const size_t squareC6_Index{ 5 * 8 + 2 };
+		constexpr static inline const size_t squareD6_Index{ 5 * 8 + 3 };
+		constexpr static inline const size_t squareE6_Index{ 5 * 8 + 4 };
+		constexpr static inline const size_t squareF6_Index{ 5 * 8 + 5 };
+		constexpr static inline const size_t squareG6_Index{ 5 * 8 + 6 };
+		constexpr static inline const size_t squareH6_Index{ 5 * 8 + 7 };
+		constexpr static inline const size_t squareA7_Index{ 6 * 8 + 0 };
+		constexpr static inline const size_t squareB7_Index{ 6 * 8 + 1 };
+		constexpr static inline const size_t squareC7_Index{ 6 * 8 + 2 };
+		constexpr static inline const size_t squareD7_Index{ 6 * 8 + 3 };
+		constexpr static inline const size_t squareE7_Index{ 6 * 8 + 4 };
+		constexpr static inline const size_t squareF7_Index{ 6 * 8 + 5 };
+		constexpr static inline const size_t squareG7_Index{ 6 * 8 + 6 };
+		constexpr static inline const size_t squareH7_Index{ 6 * 8 + 7 };
+		constexpr static inline const size_t squareA8_Index{ 7 * 8 + 0 };
+		constexpr static inline const size_t squareB8_Index{ 7 * 8 + 1 };
+		constexpr static inline const size_t squareC8_Index{ 7 * 8 + 2 };
+		constexpr static inline const size_t squareD8_Index{ 7 * 8 + 3 };
+		constexpr static inline const size_t squareE8_Index{ 7 * 8 + 4 };
+		constexpr static inline const size_t squareF8_Index{ 7 * 8 + 5 };
+		constexpr static inline const size_t squareG8_Index{ 7 * 8 + 6 };
+		constexpr static inline const size_t squareH8_Index{ 7 * 8 + 7 };
+	private:
+		static double materialKingSquare(const size_t fileIndex, const size_t rankIndex, const size_t playerIndex) noexcept
+		{
+			constexpr const double PST_King[64]
+			{
+				-0.32, -0.064, -0.064, -0.064, -0.064, -0.064, -0.064, -0.32,
+				-0.064, 0.32, 0.32, 0.32, 0.32, 0.32, 0.32, -0.064,
+				-0.064, 0.32, 0.32, 0.32, 0.32, 0.32, 0.32, -0.064,
+				-0.064, 0.32, 0.32, 0.32, 0.32, 0.32, 0.32, -0.064,
+				-0.064, 0.32, 0.32, 0.32, 0.32, 0.32, 0.32, -0.064,
+				-0.064, 0.32, 0.32, 0.32, 0.32, 0.32, 0.32, -0.064,
+				-0.064, 0.32, 0.32, 0.32, 0.32, 0.32, 0.32, -0.064,
+				-0.32, -0.064, -0.064, -0.064, -0.064, -0.064, -0.064, -0.32,
+			};
+			if (playerIndex == whitePlayer_Index)
+				return PST_King[rankIndex * countFiles + fileIndex];
+			else
+				return PST_King[(countRanks - 1 - rankIndex) * countFiles + fileIndex];
+		}
+		static double materialBishopSquare(const size_t fileIndex, const size_t rankIndex, const size_t playerIndex) noexcept
+		{
+			constexpr const double PST_Bishop[64]
+			{
+				-0.384, -0.384, -0.384, -0.384, -0.384, -0.384, -0.384, -0.384,
+				-0.384, -0.128, -0.128, -0.128, -0.128, -0.128, -0.128, -0.384,
+				-0.384, -0.128, 0.128, 0.128, 0.128, 0.128, -0.128, -0.384,
+				-0.384, -0.128, 0.128, 0.384, 0.384, 0.128, -0.128, -0.384,
+				-0.384, -0.128, 0.128, 0.384, 0.384, 0.128, -0.128, -0.384,
+				-0.384, -0.128, 0.128, 0.128, 0.128, 0.128, -0.128, -0.384,
+				-0.384, -0.128, -0.128, -0.128, -0.128, -0.128, -0.128, -0.384,
+				-0.384, -0.384, -0.384, -0.384, -0.384, -0.384, -0.384, -0.384,
+			};
+			if (playerIndex == whitePlayer_Index)
+				return PST_Bishop[rankIndex * countFiles + fileIndex];
+			else
+				return PST_Bishop[(countRanks - 1 - rankIndex) * countFiles + fileIndex];
+		}
+		static double materialRookSquare(const size_t fileIndex, const size_t rankIndex, const size_t playerIndex) noexcept
+		{
+			constexpr const double PST_Rook[64]
+			{
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+			};
+			if (playerIndex == whitePlayer_Index)
+				return PST_Rook[rankIndex * countFiles + fileIndex];
+			else
+				return PST_Rook[(countRanks - 1 - rankIndex) * countFiles + fileIndex];
+		}
+		static double materialQueenSquare(const size_t fileIndex, const size_t rankIndex, const size_t playerIndex) noexcept
+		{
+			constexpr const double PST_Queen[64]
+			{
+				-0.384, -0.384, -0.384, -0.384, -0.384, -0.384, -0.384, -0.384,
+				-0.384, -0.128, -0.128, -0.128, -0.128, -0.128, -0.128, -0.384,
+				-0.384, -0.128, 0.128, 0.128, 0.128, 0.128, -0.128, -0.384,
+				-0.384, -0.128, 0.128, 0.384, 0.384, 0.128, -0.128, -0.384,
+				-0.384, -0.128, 0.128, 0.384, 0.384, 0.128, -0.128, -0.384,
+				-0.384, -0.128, 0.128, 0.128, 0.128, 0.128, -0.128, -0.384,
+				-0.384, -0.128, -0.128, -0.128, -0.128, -0.128, -0.128, -0.384,
+				-0.384, -0.384, -0.384, -0.384, -0.384, -0.384, -0.384, -0.384,
+			};
+			if (playerIndex == whitePlayer_Index)
+				return PST_Queen[rankIndex * countFiles + fileIndex];
+			else
+				return PST_Queen[(countRanks - 1 - rankIndex) * countFiles + fileIndex];
+		}
+		static double materialKnightSquare(const size_t fileIndex, const size_t rankIndex, const size_t playerIndex) noexcept
+		{
+			constexpr const double PST_Knight[64]
+			{
+				-0.384, -0.256, -0.128, -0.128, -0.128, -0.128, -0.256, -0.384,
+				-0.256, -0.128, 0.128, 0.128, 0.128, 0.128, -0.128, -0.256,
+				-0.128, 0.128, 0.384, 0.384, 0.384, 0.384, 0.128, -0.128,
+				-0.128, 0.128, 0.384, 0.384, 0.384, 0.384, 0.128, -0.128,
+				-0.128, 0.128, 0.384, 0.384, 0.384, 0.384, 0.128, -0.128,
+				-0.128, 0.128, 0.384, 0.384, 0.384, 0.384, 0.128, -0.128,
+				-0.256, -0.128, 0.128, 0.128, 0.128, 0.128, -0.128, -0.256,
+				-0.384, -0.256, -0.128, -0.128, -0.128, -0.128, -0.256, -0.384,
+			};
+			if (playerIndex == whitePlayer_Index)
+				return PST_Knight[rankIndex * countFiles + fileIndex];
+			else
+				return PST_Knight[(countRanks - 1 - rankIndex) * countFiles + fileIndex];
+		}
+		static double materialPawnSquare(const size_t fileIndex, const size_t rankIndex, const size_t playerIndex) noexcept
+		{
+			constexpr const double PST_Pawn[64]
+			{
+				0, 0, 0, 0, 0, 0, 0, 0,
+				-0.288, -0.224, -0.224, -0.224, -0.224, -0.224, -0.224, -0.288,
+				-0.224, -0.16, -0.16, -0.16, -0.16, -0.16, -0.16, -0.224,
+				-0.096, -0.032, -0.032, -0.032, -0.032, -0.032, -0.032, -0.096,
+				0.032, 0.096, 0.096, 0.096, 0.096, 0.096, 0.096, 0.032,
+				0.16, 0.224, 0.224, 0.224, 0.224, 0.224, 0.224, 0.16,
+				0.224, 0.288, 0.288, 0.288, 0.288, 0.288, 0.288, 0.224,
+				0, 0, 0, 0, 0, 0, 0, 0,
+			};
+			if (playerIndex == whitePlayer_Index)
+				return PST_Pawn[rankIndex * countFiles + fileIndex];
+			else
+				return PST_Pawn[(countRanks - 1 - rankIndex) * countFiles + fileIndex];
+		}
+	public:
+		virtual bool initialFlag(const size_t flagIndex) const noexcept override
+		{
+			switch (flagIndex)
+			{
+			case castleRightKingsideBlack_Index:
+				return true;
+			case castleRightKingsideWhite_Index:
+				return true;
+			case castleRightQueensideBlack_Index:
+				return true;
+			case castleRightQueensideWhite_Index:
+				return true;
+			default:
+				PYGMALION_UNREACHABLE;
+				return false;
+			}
+		}
+		virtual size_t initialPlayerIndex() const noexcept override
+		{
+			return whitePlayer_Index;
+		}
+		virtual bool initialEnPassant(size_t& victimSquareIndex, list<size_t, countSquares>& targetSquareIndices) const noexcept override
+		{
+			return false;
+		}
+		virtual bool initialPlayerPieceOnSquare(const size_t squareIndex, size_t& playerpieceIndex) const noexcept override
+		{
+			switch (squareIndex)
+			{
+			case squareA2_Index:
+			case squareB2_Index:
+			case squareC2_Index:
+			case squareD2_Index:
+			case squareE2_Index:
+			case squareF2_Index:
+			case squareG2_Index:
+			case squareH2_Index:
+				playerpieceIndex = whitePawn_Index;
+				return true;
+			case squareA7_Index:
+			case squareB7_Index:
+			case squareC7_Index:
+			case squareD7_Index:
+			case squareE7_Index:
+			case squareF7_Index:
+			case squareG7_Index:
+			case squareH7_Index:
+				playerpieceIndex = blackPawn_Index;
+				return true;
+			case squareD1_Index:
+				playerpieceIndex = whiteQueen_Index;
+				return true;
+			case squareD8_Index:
+				playerpieceIndex = blackQueen_Index;
+				return true;
+			case squareE1_Index:
+				playerpieceIndex = whiteKing_Index;
+				return true;
+			case squareE8_Index:
+				playerpieceIndex = blackKing_Index;
+				return true;
+			case squareA1_Index:
+				playerpieceIndex = whiteRook_Index;
+				return true;
+			case squareH1_Index:
+				playerpieceIndex = whiteRook_Index;
+				return true;
+			case squareA8_Index:
+				playerpieceIndex = blackRook_Index;
+				return true;
+			case squareH8_Index:
+				playerpieceIndex = blackRook_Index;
+				return true;
+			case squareB1_Index:
+				playerpieceIndex = whiteKnight_Index;
+				return true;
+			case squareG1_Index:
+				playerpieceIndex = whiteKnight_Index;
+				return true;
+			case squareB8_Index:
+				playerpieceIndex = blackKnight_Index;
+				return true;
+			case squareG8_Index:
+				playerpieceIndex = blackKnight_Index;
+				return true;
+			case squareC1_Index:
+				playerpieceIndex = whiteBishop_Index;
+				return true;
+			case squareF1_Index:
+				playerpieceIndex = whiteBishop_Index;
+				return true;
+			case squareC8_Index:
+				playerpieceIndex = blackBishop_Index;
+				return true;
+			case squareF8_Index:
+				playerpieceIndex = blackBishop_Index;
+				return true;
+			}
+			return false;
+		}
+		virtual double materialPiece(const size_t pieceIndex) const noexcept override
+		{
+			switch (pieceIndex)
+			{
+			default:
+				PYGMALION_UNREACHABLE;
+				return 0.0;
+			case knight_Index:
+				return 3.0;
+			case bishop_Index:
+				return 3.3;
+			case rook_Index:
+				return 5.5;
+			case queen_Index:
+				return 10.0;
+			case pawn_Index:
+				return 1.0;
+			case king_Index:
+				return 0.0;
+			}
+		}
+		virtual double materialPieceSquare(const size_t playerIndex, const size_t pieceIndex, const size_t fileIndex, const size_t rankIndex) const noexcept override
+		{
+			switch (pieceIndex)
+			{
+			default:
+				PYGMALION_UNREACHABLE;
+				return 0.0;
+			case knight_Index:
+				return materialKnightSquare(fileIndex, rankIndex, playerIndex);
+			case bishop_Index:
+				return materialBishopSquare(fileIndex, rankIndex, playerIndex);
+			case rook_Index:
+				return materialRookSquare(fileIndex, rankIndex, playerIndex);
+			case queen_Index:
+				return materialQueenSquare(fileIndex, rankIndex, playerIndex);
+			case pawn_Index:
+				return materialPawnSquare(fileIndex, rankIndex, playerIndex);
+			case king_Index:
+				return materialKingSquare(fileIndex, rankIndex, playerIndex);
+			}
+		}
 		constexpr standardboardInfo() noexcept :
-			boardInfo<standardplayersInfo, standardpiecesInfo, standardfilesInfo, standardranksInfo, standardflagsInfo, COUNT_HASHBITS>(
+			boardInfo<standardplayersInfo, standardpiecesInfo, standardfilesInfo, standardranksInfo, standardflagsInfo>(
+				32,
 				standardplayersInfo(),
 				standardpiecesInfo(),
 				standardfilesInfo(),
@@ -17,10 +372,10 @@ namespace pygmalion::config::chess
 					UINT64_C(0xF8D626AAAF278509),
 					UINT64_C(0x0000000000000000)
 				},
-				arrayhelper::generate<boardInfo<standardplayersInfo, standardpiecesInfo, standardfilesInfo, standardranksInfo, standardflagsInfo, COUNT_HASHBITS>::countSquares, std::uint64_t>(
+				arrayhelper::generate<boardInfo<standardplayersInfo, standardpiecesInfo, standardfilesInfo, standardranksInfo, standardflagsInfo>::countSquares, std::uint64_t>(
 					[](const size_t squareIndex)
 					{
-						constexpr const std::uint64_t epHash[boardInfo<standardplayersInfo, standardpiecesInfo, standardfilesInfo, standardranksInfo, standardflagsInfo, COUNT_HASHBITS>::countFiles]
+						constexpr const std::uint64_t epHash[boardInfo<standardplayersInfo, standardpiecesInfo, standardfilesInfo, standardranksInfo, standardflagsInfo>::countFiles]
 						{
 							UINT64_C(0x70CC73D90BC26E24),
 							UINT64_C(0xE21A6B35DF0C3AD7),
@@ -31,26 +386,26 @@ namespace pygmalion::config::chess
 							UINT64_C(0x77C621CC9FB3A483),
 							UINT64_C(0x67A34DAC4356550B)
 						};
-						const size_t fileIndex{ squareIndex % boardInfo<standardplayersInfo, standardpiecesInfo, standardfilesInfo, standardranksInfo, standardflagsInfo, COUNT_HASHBITS>::countFiles };
+						const size_t fileIndex{ squareIndex % boardInfo<standardplayersInfo, standardpiecesInfo, standardfilesInfo, standardranksInfo, standardflagsInfo>::countFiles };
 						return epHash[fileIndex];
 					}
-				),
-				{
-					UINT64_C(0x31D71DCE64B2C310),
-					UINT64_C(0xF165B587DF898190),
-					UINT64_C(0xA57E6339DD2CF3A0),
-					UINT64_C(0x1EF6E6DBB1961EC9)
-				},
-				arrayhelper::generate<boardInfo<standardplayersInfo, standardpiecesInfo, standardfilesInfo, standardranksInfo, standardflagsInfo, COUNT_HASHBITS>::countPlayers, std::array<std::array<std::uint64_t, boardInfo<standardplayersInfo, standardpiecesInfo, standardfilesInfo, standardranksInfo, standardflagsInfo, COUNT_HASHBITS>::countSquares>, boardInfo<standardplayersInfo, standardpiecesInfo, standardfilesInfo, standardranksInfo, standardflagsInfo, COUNT_HASHBITS>::countPieces>>(
-					[](const size_t player)
+					),
+					{
+						UINT64_C(0x31D71DCE64B2C310),
+						UINT64_C(0xF165B587DF898190),
+						UINT64_C(0xA57E6339DD2CF3A0),
+						UINT64_C(0x1EF6E6DBB1961EC9)
+					},
+						arrayhelper::generate<boardInfo<standardplayersInfo, standardpiecesInfo, standardfilesInfo, standardranksInfo, standardflagsInfo>::countPlayers, std::array<std::array<std::uint64_t, boardInfo<standardplayersInfo, standardpiecesInfo, standardfilesInfo, standardranksInfo, standardflagsInfo>::countSquares>, boardInfo<standardplayersInfo, standardpiecesInfo, standardfilesInfo, standardranksInfo, standardflagsInfo>::countPieces>>(
+							[](const size_t player)
 							{
-								return arrayhelper::generate<boardInfo<standardplayersInfo, standardpiecesInfo, standardfilesInfo, standardranksInfo, standardflagsInfo, COUNT_HASHBITS>::countPieces, std::array<std::uint64_t, boardInfo<standardplayersInfo, standardpiecesInfo, standardfilesInfo, standardranksInfo, standardflagsInfo, COUNT_HASHBITS>::countSquares>>(
+								return arrayhelper::generate<boardInfo<standardplayersInfo, standardpiecesInfo, standardfilesInfo, standardranksInfo, standardflagsInfo>::countPieces, std::array<std::uint64_t, boardInfo<standardplayersInfo, standardpiecesInfo, standardfilesInfo, standardranksInfo, standardflagsInfo>::countSquares>>(
 									[player](const size_t piece)
 									{
-										return arrayhelper::generate<boardInfo<standardplayersInfo, standardpiecesInfo, standardfilesInfo, standardranksInfo, standardflagsInfo, COUNT_HASHBITS>::countSquares, std::uint64_t>(
+										return arrayhelper::generate<boardInfo<standardplayersInfo, standardpiecesInfo, standardfilesInfo, standardranksInfo, standardflagsInfo>::countSquares, std::uint64_t>(
 											[player, piece](const size_t square)
 											{
-												constexpr const std::array<std::uint64_t, boardInfo<standardplayersInfo, standardpiecesInfo, standardfilesInfo, standardranksInfo, standardflagsInfo, COUNT_HASHBITS>::countSquares* boardInfo<standardplayersInfo, standardpiecesInfo, standardfilesInfo, standardranksInfo, standardflagsInfo, COUNT_HASHBITS>::countPieces* boardInfo<standardplayersInfo, standardpiecesInfo, standardfilesInfo, standardranksInfo, standardflagsInfo, COUNT_HASHBITS>::countPlayers> pieceHash
+												constexpr const std::array<std::uint64_t, boardInfo<standardplayersInfo, standardpiecesInfo, standardfilesInfo, standardranksInfo, standardflagsInfo>::countSquares* boardInfo<standardplayersInfo, standardpiecesInfo, standardfilesInfo, standardranksInfo, standardflagsInfo>::countPieces* boardInfo<standardplayersInfo, standardpiecesInfo, standardfilesInfo, standardranksInfo, standardflagsInfo>::countPlayers> pieceHash
 												{
 													UINT64_C(0x9D39247E33776D41), UINT64_C(0x2AF7398005AAA5C7), UINT64_C(0x44DB015024623547), UINT64_C(0x9C15F73E62A76AE2),
 													UINT64_C(0x75834465489C0C89), UINT64_C(0x3290AC3A203001BF), UINT64_C(0x0FBBAD1F61042279), UINT64_C(0xE83A908FF2FB60CA),
@@ -264,19 +619,19 @@ namespace pygmalion::config::chess
 														10,
 													}
 												};
-												const size_t rank{ square / boardInfo<standardplayersInfo, standardpiecesInfo, standardfilesInfo, standardranksInfo, standardflagsInfo, COUNT_HASHBITS>::countFiles };
-												const size_t file{ square % boardInfo<standardplayersInfo, standardpiecesInfo, standardfilesInfo, standardranksInfo, standardflagsInfo, COUNT_HASHBITS>::countFiles };
+												const size_t rank{ square / boardInfo<standardplayersInfo, standardpiecesInfo, standardfilesInfo, standardranksInfo, standardflagsInfo>::countFiles };
+												const size_t file{ square % boardInfo<standardplayersInfo, standardpiecesInfo, standardfilesInfo, standardranksInfo, standardflagsInfo>::countFiles };
 												const size_t kind_of_piece{ piecePlayerIndex[player][piece] };
-												const size_t offset_piece{ boardInfo<standardplayersInfo, standardpiecesInfo, standardfilesInfo, standardranksInfo, standardflagsInfo, COUNT_HASHBITS>::countSquares * kind_of_piece + boardInfo<standardplayersInfo, standardpiecesInfo, standardfilesInfo, standardranksInfo, standardflagsInfo, COUNT_HASHBITS>::countFiles * rank + file };
+												const size_t offset_piece{ boardInfo<standardplayersInfo, standardpiecesInfo, standardfilesInfo, standardranksInfo, standardflagsInfo>::countSquares * kind_of_piece + boardInfo<standardplayersInfo, standardpiecesInfo, standardfilesInfo, standardranksInfo, standardflagsInfo>::countFiles * rank + file };
 												return pieceHash[offset_piece];
 											}
 										);
 									}
 								);
 							}
-				),
-				materialScoreInfo()
-			)
+							),
+						materialScoreInfo()
+								)
 		{
 		}
 	};

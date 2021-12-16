@@ -1,6 +1,6 @@
 namespace pygmalion::config
 {
-	template<typename PLAYERS, typename PIECES, typename FILES, typename RANKS, typename FLAGS, size_t COUNT_HASHBITS>
+	template<typename PLAYERS, typename PIECES, typename FILES, typename RANKS, typename FLAGS>
 	class boardInfo
 	{
 	private:
@@ -14,7 +14,6 @@ namespace pygmalion::config
 		const scoreInfo m_MaterialScore;
 		const FLAGS m_Flags;
 	public:
-		constexpr static inline const size_t countHashBits{ COUNT_HASHBITS };
 		constexpr static inline const size_t countPlayers{ PLAYERS::count };
 		constexpr static inline const size_t countPieces{ PIECES::count };
 		constexpr static inline const size_t countFiles{ FILES::count };
@@ -26,6 +25,7 @@ namespace pygmalion::config
 		const std::array<std::uint64_t, countSquares> enPassantHash;
 		const std::array<std::uint64_t, 1 << countFlags> flagHash;
 		const std::array<std::uint64_t, PLAYERS::count> movingPlayerHash;
+		const size_t countHashBits;
 		constexpr const FLAGS& flags() const noexcept
 		{
 			return m_Flags;
@@ -43,13 +43,44 @@ namespace pygmalion::config
 			return m_MaterialScore;
 		}
 	public:
-		constexpr boardInfo(const PLAYERS& players, const PIECES& pieces, const FILES& files, const RANKS& ranks, const FLAGS& flags, const std::array<std::uint64_t, PLAYERS::count>& movingPlayerHash_, const std::array<std::uint64_t, squaresInfo<FILES, RANKS>::count> enPassantHash_, const std::array<std::uint64_t, countFlags> flagHash_, const std::array<std::array<std::array<std::uint64_t, countSquares>, countPieces>, countPlayers>& playerPieceSquareHash_, const scoreInfo& materialScore) noexcept :
+		virtual bool initialFlag(const size_t flagIndex) const noexcept
+		{
+			PYGMALION_ASSERT(false);
+			return false;
+		}
+		virtual size_t initialPlayerIndex() const noexcept
+		{
+			PYGMALION_ASSERT(false);
+			return 0;
+		}
+		virtual bool initialPlayerPieceOnSquare(const size_t squareIndex, size_t& playerpieceIndex) const noexcept
+		{
+			PYGMALION_ASSERT(false);
+			return false;
+		}
+		virtual bool initialEnPassant(size_t& victimSquareIndex, list<size_t, countSquares>& targetSquareIndices) const noexcept
+		{
+			PYGMALION_ASSERT(false);
+			return false;
+		}
+		virtual double materialPiece(const size_t pieceIndex) const noexcept
+		{
+			PYGMALION_ASSERT(false);
+			return 0.0;
+		}
+		virtual double materialPieceSquare(const size_t playerIndex, const size_t pieceIndex, const size_t fileIndex, const size_t rankIndex) const noexcept
+		{
+			PYGMALION_ASSERT(false);
+			return 0.0;
+		}
+		constexpr boardInfo(const size_t countHashBits_, const PLAYERS& players, const PIECES& pieces, const FILES& files, const RANKS& ranks, const FLAGS& flags, const std::array<std::uint64_t, PLAYERS::count>& movingPlayerHash_, const std::array<std::uint64_t, squaresInfo<FILES, RANKS>::count> enPassantHash_, const std::array<std::uint64_t, countFlags> flagHash_, const std::array<std::array<std::array<std::uint64_t, countSquares>, countPieces>, countPlayers>& playerPieceSquareHash_, const scoreInfo& materialScore) noexcept :
 			m_Playerpieces{ playerpiecesInfo<PLAYERS, PIECES>(players,pieces) },
 			m_Squares{ squaresInfo<FILES, RANKS>(files,ranks) },
 			m_MaterialScore{ materialScore },
 			m_Flags{ flags },
 			movingPlayerHash{ movingPlayerHash_ },
 			enPassantHash{ enPassantHash_ },
+			countHashBits{ countHashBits_ },
 			flagHash{
 			arrayhelper::generate<countFlagCombinations,std::uint64_t>(
 				[&flagHash_](const size_t flagsIndex)

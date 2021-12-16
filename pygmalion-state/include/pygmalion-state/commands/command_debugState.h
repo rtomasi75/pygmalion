@@ -17,9 +17,6 @@ namespace pygmalion::state
 			parser::parseToken(cmd, token, remainder);
 			if (token == "debug-state")
 			{
-				this->output() << std::endl;
-				this->output() << boardType::name() << std::endl;
-				this->output() << std::endl;
 				this->output() << "player:        " << std::setw(4) << sizeof(playerType) << " = " << sizeof(playerType) * CHAR_BIT << "bit" << std::endl;
 				this->output() << "piece:         " << std::setw(4) << sizeof(pieceType) << " = " << sizeof(pieceType) * CHAR_BIT << "bit" << std::endl;
 				this->output() << "rank:          " << std::setw(4) << sizeof(rankType) << " = " << sizeof(rankType) * CHAR_BIT << "bit" << std::endl;
