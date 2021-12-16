@@ -93,63 +93,7 @@ namespace pygmalion::chess
 		static bool parsePlayer_Implementation(const std::string& text, playerType& player, size_t& count) noexcept;
 		static std::string pieceToString_Implementation(const pieceType piece, const playerType player) noexcept;
 		static bool parsePiece_Implementation(const std::string& text, pieceType& piece, playerType& player, size_t& count) noexcept;
-		PYGMALION_INLINE void onClear_Implementation() noexcept
-		{
-			cumulation().clear();
-		}
-		PYGMALION_INLINE void onAddedPiece_Implementation(const pieceType piece, const squareType square, const playerType player) noexcept
-		{
-			switch (piece)
-			{
-			case pawn:
-				cumulation().pawnHash() ^= pieceHash(pawn, square, player);
-				break;
-			case king:
-				cumulation().pawnHash() ^= pieceHash(king, square, player);
-				break;
-			}
-		}
-		PYGMALION_INLINE void onSetMovingPlayer_Implementation(const playerType player) noexcept
-		{
-		}
-		PYGMALION_INLINE void onMovedPiece_Implementation(const pieceType piece, const squareType from, const squareType to, const playerType player) noexcept
-		{
-			switch (piece)
-			{
-			case pawn:
-				cumulation().pawnHash() ^= pieceHash(pawn, from, player);
-				cumulation().pawnHash() ^= pieceHash(pawn, to, player);
-				break;
-			case king:
-				cumulation().pawnHash() ^= pieceHash(king, from, player);
-				cumulation().pawnHash() ^= pieceHash(king, to, player);
-				break;
-			}
-		}
-		PYGMALION_INLINE void onRemovedPiece_Implementation(const pieceType piece, const squareType square, const playerType player) noexcept
-		{
-			switch (piece)
-			{
-			case pawn:
-				cumulation().pawnHash() ^= pieceHash(pawn, square, player);
-				break;
-			case king:
-				cumulation().pawnHash() ^= pieceHash(king, square, player);
-				break;
-			}
-		}
-		PYGMALION_INLINE void onSetFlag_Implementation(const flagType flag) noexcept
-		{
-		}
-		PYGMALION_INLINE void onClearedFlag_Implementation(const flagType flag) noexcept
-		{
-		}
 		void onInitialize_Implementation(const materialTableType& materialTable) noexcept;
-		static std::string cumulationToString_Implementation(const cumulationType&) noexcept;
-		PYGMALION_INLINE hashType pawnHash() const noexcept
-		{
-			return cumulation().pawnHash();
-		}
 		static std::string flagsToString_Implementation(const flagsType flags, const playerType movingPlayer) noexcept;
 		static bool parseFlags_Implementation(const std::string& text, flagsType& flags, size_t& count) noexcept;
 	private:

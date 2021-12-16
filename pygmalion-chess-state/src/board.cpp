@@ -19,11 +19,6 @@ namespace pygmalion::chess
 		}
 	}
 
-	std::string board::cumulationToString_Implementation(const cumulationType&) noexcept
-	{
-		return "none";
-	}
-
 	bool board::parseFlag_Implementation(const std::string& text, flagType& flag, size_t& count) noexcept
 	{
 		if (text.length() > 0)

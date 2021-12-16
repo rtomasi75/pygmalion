@@ -22,8 +22,8 @@ namespace pygmalion::chess::dynamics
 					stackType<PLAYER> stack{ stackType<PLAYER>(this->position(), this->history(), &context, this->stateEngine().materialTable(), this->dynamicsEngine().delta()) };
 					const squaresType whitePawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(whitePlayer) };
 					const squaresType blackPawns{ stack.position().pieceOccupancy(pawn) & stack.position().playerOccupancy(blackPlayer) };
-					const squareType whiteKing{ stack.position().royalSquare(whitePlayer,royalpieceType(king)) };
-					const squareType blackKing{ stack.position().royalSquare(blackPlayer,royalpieceType(king)) };
+					const squareType whiteKing{ stack.position().royalSquare(whitePlayer,royalKing) };
+					const squareType blackKing{ stack.position().royalSquare(blackPlayer,royalKing) };
 					typename generatorType::tropismType tropism;
 					if (pl == whitePlayer)
 						tropism.compute<PLAYER>(sq, whitePawns, blackPawns, whiteKing, blackKing);

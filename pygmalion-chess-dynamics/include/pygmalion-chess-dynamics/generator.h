@@ -298,7 +298,7 @@ namespace pygmalion::chess
 			template<size_t PLAYER>
 			PYGMALION_INLINE void prefetch(const stack<PLAYER>& stack) const noexcept
 			{
-				const size_t idx{ computeIndex(stack.position().pawnHash()) };
+				const size_t idx{ computeIndex(stack.position().structureHash()) };
 				memory::prefetchRead(&(m_Entry[idx]));
 			}
 		};
@@ -5497,7 +5497,7 @@ namespace pygmalion::chess
 		{
 			constexpr const playerType player{ static_cast<playerType>(PLAYER) };
 			constexpr const playerType attacker{ player.next() };
-			return generatorType::template isAttacked<static_cast<size_t>(attacker)>(stack.position(), stack.position().royalSquare(player, royalpieceType(king)));
+			return generatorType::template isAttacked<static_cast<size_t>(attacker)>(stack.position(), stack.position().royalSquare(player, static_cast<royalpieceType>(king)));
 		}
 		constexpr static const size_t movegenStage_AllMoves{ 0 };
 		constexpr static const size_t movegenStage_TacticalMoves{ 1 };

@@ -2,11 +2,11 @@ namespace pygmalion::state
 {
 	template<typename DESCRIPTION_STATE>
 	class royalpiece :
-		public enumeration<DESCRIPTION_STATE::countRoyalPieces, DESCRIPTION_STATE::countHashBits, royalpiece<DESCRIPTION_STATE>, set<royalpiece<DESCRIPTION_STATE>, typename DESCRIPTION_STATE::royalpiecesType>>,
+		public enumeration<DESCRIPTION_STATE::countRoyalPieces, DESCRIPTION_STATE::countHashBits, royalpiece<DESCRIPTION_STATE>, set<royalpiece<DESCRIPTION_STATE>, royalpiece<DESCRIPTION_STATE>>>,
 		public DESCRIPTION_STATE
 	{
 	public:
-		using parentType = enumeration<DESCRIPTION_STATE::countRoyalPieces, DESCRIPTION_STATE::countHashBits, royalpiece<DESCRIPTION_STATE>, set<royalpiece<DESCRIPTION_STATE>, typename DESCRIPTION_STATE::royalpiecesType>>;
+		using parentType = enumeration<DESCRIPTION_STATE::countRoyalPieces, DESCRIPTION_STATE::countHashBits, royalpiece<DESCRIPTION_STATE>, set<royalpiece<DESCRIPTION_STATE>, royalpiece<DESCRIPTION_STATE>>>;
 		using descriptorState = DESCRIPTION_STATE;
 #include "include_state.h"	
 		PYGMALION_INLINE constexpr royalpiece(const royalpiece&) noexcept = default;
@@ -60,6 +60,11 @@ namespace pygmalion::state
 			}
 			else
 				return false;
+		}
+		PYGMALION_INLINE constexpr royalpiece(const pieceType& other) noexcept :
+			parentType(pieceType::m_InverseRoyalPieceIndex[other])
+		{
+
 		}
 	};
 }

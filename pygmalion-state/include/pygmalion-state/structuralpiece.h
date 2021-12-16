@@ -61,5 +61,10 @@ namespace pygmalion::state
 			else
 				return false;
 		}
+		PYGMALION_INLINE constexpr structuralpiece(const pieceType& other) noexcept :
+			parentType(pieceType::m_InverseStructuralPieceIndex[other])
+		{
+
+		}
 	};
 }

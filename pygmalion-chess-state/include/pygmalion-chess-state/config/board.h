@@ -274,7 +274,8 @@ namespace pygmalion::config::chess
 									}
 								);
 							}
-				)
+				),
+				materialScoreInfo()
 			)
 		{
 		}

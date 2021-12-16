@@ -29,7 +29,6 @@ namespace pygmalion::state
 				this->output() << "flag:          " << std::setw(4) << sizeof(flagType) <<" = " << sizeof(flagType) * CHAR_BIT << "bit" << std::endl;
 				this->output() << "flags:         " << std::setw(4) << sizeof(flagsType) << " = " << sizeof(flagsType) * CHAR_BIT << "bit" << std::endl;
 				this->output() << "gamestate:     " << std::setw(4) << sizeof(gamestateType) << " = " << sizeof(gamestateType) * CHAR_BIT << "bit" << std::endl;
-				this->output() << "cumulation:    " << std::setw(4) << sizeof(cumulationType) << " = " << sizeof(cumulationType) * CHAR_BIT << "bit" << std::endl;
 				this->output() << "board:         " << std::setw(4) << sizeof(boardType) << " = " << sizeof(boardType) * CHAR_BIT << "bit" << std::endl;
 				this->output() << "delta:         " << std::setw(4) << sizeof(deltaType) << " = " << sizeof(deltaType) * CHAR_BIT << "bit" << std::endl;
 				this->output() << "materialtable: " << std::setw(4) << sizeof(materialTableType) << " = " << sizeof(materialTableType) * CHAR_BIT << "bit" << std::endl;

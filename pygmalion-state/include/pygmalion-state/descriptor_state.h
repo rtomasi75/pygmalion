@@ -1,6 +1,6 @@
 namespace pygmalion
 {
-	template<typename BOARDINFO, typename CUMULATION, size_t MANTISSA, size_t SHIFT, size_t MAXDIST>
+	template<typename BOARDINFO>
 	class descriptor_state
 	{
 	public:
@@ -16,6 +16,9 @@ namespace pygmalion
 		constexpr static inline const size_t countHashBits{ std::min(sizeof(void*) * CHAR_BIT,boardinfoType::countHashBits) };
 		constexpr static inline const size_t countRoyalPieces{ boardInfo.playerpieces().pieces().countRoyalPieces() };
 		constexpr static inline const size_t countStructuralPieces{ boardInfo.playerpieces().pieces().countStructuralPieces() };
+		constexpr static inline const size_t scoreMantissa{ boardInfo.materialScore().mantissaBits };
+		constexpr static inline const size_t scoreShift{ boardInfo.materialScore().shiftBits };
+		constexpr static inline const size_t scoreMaxDistance{ boardInfo.materialScore().maxDTM };
 		using playerpieceType = pygmalion::state::playerpiece<descriptor_state>;
 		using playerType = pygmalion::state::player<descriptor_state>;
 		using pieceType = pygmalion::state::piece<descriptor_state>;
@@ -30,8 +33,7 @@ namespace pygmalion
 		using gamestateType = pygmalion::state::gamestate<descriptor_state>;
 		using signatureType = pygmalion::state::signature<descriptor_state>;
 		using hashType = pygmalion::uint_t<countHashBits, false>;
-		using cumulationType = CUMULATION;
-		using scoreType = pygmalion::score<MANTISSA, SHIFT, MAXDIST>;
+		using scoreType = pygmalion::score<scoreMantissa, scoreShift, scoreMaxDistance>;
 		using piecesType = pygmalion::state::pieces<descriptor_state>;
 		using playersType = pygmalion::state::players<descriptor_state>;
 		using playerpiecesType = pygmalion::state::playerpieces<descriptor_state>;
@@ -41,8 +43,5 @@ namespace pygmalion
 		using royalpiecesType = pygmalion::state::royalpiece<descriptor_state>;
 		using structuralpieceType = pygmalion::state::structuralpiece<descriptor_state>;
 		using structuralpiecesType = pygmalion::state::structuralpiece<descriptor_state>;
-		constexpr static inline const size_t scoreMantissa{ MANTISSA };
-		constexpr static inline const size_t scoreShift{ SHIFT };
-		constexpr static inline const size_t scoreMaxDistance{ MAXDIST };
 	};
 }

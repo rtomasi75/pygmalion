@@ -1,7 +1,7 @@
 namespace pygmalion::chess::state
 {
 	class descriptor_state :
-		public pygmalion::descriptor_state<pygmalion::config::chess::standardboardInfo<32>, pygmalion::chess::state::cumulation, 31, 15, 1024>
+		public pygmalion::descriptor_state<pygmalion::config::chess::standardboardInfo<32>>
 	{
 	public:
 		constexpr static const playerType whitePlayer{ 0 };
@@ -107,5 +107,6 @@ namespace pygmalion::chess::state
 		constexpr static const flagsType castleFlags{ castleRightQueensideWhite | castleRightQueensideBlack | castleRightKingsideWhite | castleRightKingsideBlack };
 		constexpr static const flagsType castleFlagsWhite{ castleRightQueensideWhite | castleRightKingsideWhite };
 		constexpr static const flagsType castleFlagsBlack{ castleRightQueensideBlack | castleRightKingsideBlack };
+		constexpr static const royalpieceType royalKing{ royalpieceType(king) };
 	};
 }

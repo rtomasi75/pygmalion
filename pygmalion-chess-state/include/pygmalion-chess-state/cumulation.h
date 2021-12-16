@@ -5,24 +5,12 @@ namespace pygmalion::chess::state
 	class cumulation
 	{
 	public:
-		using hashType = pygmalion::uint_t<64, false>;
 	private:
-		hashType m_PawnHash;
 	public:
 		PYGMALION_INLINE constexpr void clear() noexcept
 		{
-			m_PawnHash = 0;
 		}
-		PYGMALION_INLINE constexpr const hashType& pawnHash() const noexcept
-		{
-			return m_PawnHash;
-		}
-		PYGMALION_INLINE constexpr hashType& pawnHash() noexcept
-		{
-			return m_PawnHash;
-		}
-		constexpr cumulation() noexcept :
-			m_PawnHash{ 0 }
+		constexpr cumulation() noexcept 
 		{
 		}
 		constexpr cumulation(cumulation&&) noexcept = default;
@@ -31,11 +19,11 @@ namespace pygmalion::chess::state
 		constexpr cumulation& operator=(const cumulation&) noexcept = default;
 		PYGMALION_INLINE constexpr bool operator==(const cumulation& other) const noexcept
 		{
-			return m_PawnHash == other.m_PawnHash;
+			return true;
 		}
 		PYGMALION_INLINE constexpr bool operator!=(const cumulation& other) const noexcept
 		{
-			return m_PawnHash != other.m_PawnHash;
+			return false;
 		}
 		~cumulation() noexcept = default;
 	};

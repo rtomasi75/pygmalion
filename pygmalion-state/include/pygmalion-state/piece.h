@@ -9,6 +9,8 @@ namespace pygmalion::state
 		using parentType = enumeration<DESCRIPTION_STATE::countPieces, DESCRIPTION_STATE::countHashBits, piece<DESCRIPTION_STATE>, set<piece<DESCRIPTION_STATE>, typename DESCRIPTION_STATE::piecesType>>;
 		using descriptorState = DESCRIPTION_STATE;
 #include "include_state.h"	
+		friend royalpieceType;
+		friend structuralpieceType;
 		PYGMALION_INLINE constexpr piece(const piece&) noexcept = default;
 		PYGMALION_INLINE constexpr piece(piece&&) noexcept = default;
 		PYGMALION_INLINE constexpr piece() noexcept :
@@ -72,18 +74,6 @@ namespace pygmalion::state
 			piece(piecesType::m_StructuralPieceIndex[other])
 		{
 
-		}
-		PYGMALION_INLINE constexpr operator royalpieceType() const noexcept
-		{
-			PYGMALION_ASSERT(this->isValid());
-			PYGMALION_ASSERT(this->isRoyal());
-			return m_InverseRoyalPieceIndex[*this];
-		}
-		PYGMALION_INLINE constexpr operator structuralpieceType() const noexcept
-		{
-			PYGMALION_ASSERT(this->isValid());
-			PYGMALION_ASSERT(this->isStructural());
-			return m_InverseStructuralPieceIndex[*this];
 		}
 	};
 }

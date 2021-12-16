@@ -11,6 +11,7 @@ namespace pygmalion::config
 		static_assert(std::is_base_of<flagsInfoBase, FLAGS>::value, "FLAGS must inherit flagsInfoBase type.");
 		const playerpiecesInfo<PLAYERS, PIECES> m_Playerpieces;
 		const squaresInfo<FILES, RANKS> m_Squares;
+		const scoreInfo m_MaterialScore;
 		const FLAGS m_Flags;
 	public:
 		constexpr static inline const size_t countHashBits{ COUNT_HASHBITS };
@@ -21,10 +22,10 @@ namespace pygmalion::config
 		constexpr static inline const size_t countFlags{ FLAGS::count };
 		constexpr static inline const size_t countSquares{ squaresInfo<FILES, RANKS>::count };
 		constexpr static inline const size_t countFlagCombinations{ 1 << countFlags };
-		const std::array<std::uint64_t, PLAYERS::count> movingPlayerHash;
+		const std::array<std::array<std::array<std::uint64_t, countSquares>, countPieces>, countPlayers> playerPieceSquareHash;
 		const std::array<std::uint64_t, countSquares> enPassantHash;
 		const std::array<std::uint64_t, 1 << countFlags> flagHash;
-		const std::array<std::array<std::array<std::uint64_t, countSquares>, countPieces>, countPlayers> playerPieceSquareHash;
+		const std::array<std::uint64_t, PLAYERS::count> movingPlayerHash;
 		constexpr const FLAGS& flags() const noexcept
 		{
 			return m_Flags;
@@ -37,10 +38,15 @@ namespace pygmalion::config
 		{
 			return m_Playerpieces;
 		}
+		constexpr const scoreInfo& materialScore() const noexcept
+		{
+			return m_MaterialScore;
+		}
 	public:
-		constexpr boardInfo(const PLAYERS& players, const PIECES& pieces, const FILES& files, const RANKS& ranks, const FLAGS& flags, const std::array<std::uint64_t, PLAYERS::count>& movingPlayerHash_, const std::array<std::uint64_t, squaresInfo<FILES, RANKS>::count> enPassantHash_, const std::array<std::uint64_t, countFlags> flagHash_, const std::array<std::array<std::array<std::uint64_t, countSquares>, countPieces>, countPlayers>& playerPieceSquareHash_) noexcept :
+		constexpr boardInfo(const PLAYERS& players, const PIECES& pieces, const FILES& files, const RANKS& ranks, const FLAGS& flags, const std::array<std::uint64_t, PLAYERS::count>& movingPlayerHash_, const std::array<std::uint64_t, squaresInfo<FILES, RANKS>::count> enPassantHash_, const std::array<std::uint64_t, countFlags> flagHash_, const std::array<std::array<std::array<std::uint64_t, countSquares>, countPieces>, countPlayers>& playerPieceSquareHash_, const scoreInfo& materialScore) noexcept :
 			m_Playerpieces{ playerpiecesInfo<PLAYERS, PIECES>(players,pieces) },
 			m_Squares{ squaresInfo<FILES, RANKS>(files,ranks) },
+			m_MaterialScore{ materialScore },
 			m_Flags{ flags },
 			movingPlayerHash{ movingPlayerHash_ },
 			enPassantHash{ enPassantHash_ },

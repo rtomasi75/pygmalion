@@ -24,7 +24,6 @@ using flagType = typename descriptorState::flagType;
 using flagsType = typename descriptorState::flagsType;
 using squaresType = typename descriptorState::squaresType;
 using gamestateType = typename descriptorState::gamestateType;
-using cumulationType = typename descriptorState::cumulationType;
 using hashType = typename descriptorState::hashType;
 using signatureType = typename descriptorState::signatureType;
 using piecesType = typename descriptorState::piecesType;
