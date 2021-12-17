@@ -186,23 +186,17 @@ namespace pygmalion
 		}
 		PYGMALION_INLINE void clearEnPassant() noexcept
 		{
-			PYGMALION_ASSERT(theoreticalHash() == hash());
 			for (const auto sq : m_EnPassantSquares)
 				m_Hash ^= enPassantHash(sq);
 			m_EnPassantSquares.clear();
 			m_EnPassantVictim = squareType::invalid;
-			PYGMALION_ASSERT(theoreticalHash() == hash());
 		}
 		PYGMALION_INLINE void setEnPassant(const squaresType targets, const squareType victim) noexcept
 		{
-			PYGMALION_ASSERT(theoreticalHash() == hash());
-			for (const auto sq : m_EnPassantSquares)
+			for (const auto sq : m_EnPassantSquares ^ targets)
 				m_Hash ^= enPassantHash(sq);
 			m_EnPassantSquares = targets;
 			m_EnPassantVictim = victim;
-			for (const auto sq : m_EnPassantSquares)
-				m_Hash ^= enPassantHash(sq);
-			PYGMALION_ASSERT(theoreticalHash() == hash());
 		}
 		PYGMALION_INLINE const playerpiecesType& playerpieces() const noexcept
 		{
@@ -301,30 +295,18 @@ namespace pygmalion
 		}
 		PYGMALION_INLINE void setFlag(const flagType flag) noexcept
 		{
-			PYGMALION_ASSERT(theoreticalHash() == hash());
-			const flagsType oldFlags{ m_Flags };
+			m_Hash ^= flagsHash((~m_Flags) & flagsType(flag));
 			m_Flags.setElement(flag);
-			m_Hash ^= flagsHash(oldFlags);
-			m_Hash ^= flagsHash(m_Flags);
-			PYGMALION_ASSERT(theoreticalHash() == hash());
 		}
 		PYGMALION_INLINE void toggleFlag(const flagType flag) noexcept
 		{
-			PYGMALION_ASSERT(theoreticalHash() == hash());
-			const flagsType oldFlags{ m_Flags };
+			m_Hash ^= flagsHash(flagsType(flag));
 			m_Flags ^= flag;
-			m_Hash ^= flagsHash(oldFlags);
-			m_Hash ^= flagsHash(m_Flags);
-			PYGMALION_ASSERT(theoreticalHash() == hash());
 		}
 		PYGMALION_INLINE void clearFlag(const flagType flag) noexcept
 		{
-			PYGMALION_ASSERT(theoreticalHash() == hash());
-			const flagsType oldFlags{ m_Flags };
+			m_Hash ^= flagsHash(m_Flags & flagsType(flag));
 			m_Flags.clearElement(flag);
-			m_Hash ^= flagsHash(oldFlags);
-			m_Hash ^= flagsHash(m_Flags);
-			PYGMALION_ASSERT(theoreticalHash() == hash());
 		}
 		PYGMALION_INLINE bool testFlag(const flagType flag) const noexcept
 		{
@@ -332,21 +314,13 @@ namespace pygmalion
 		}
 		PYGMALION_INLINE void setFlags(const flagsType flags) noexcept
 		{
-			PYGMALION_ASSERT(theoreticalHash() == hash());
-			const flagsType oldFlags{ m_Flags };
+			m_Hash ^= flagsHash((~m_Flags) & flags);
 			m_Flags |= flags;
-			m_Hash ^= flagsHash(oldFlags);
-			m_Hash ^= flagsHash(m_Flags);
-			PYGMALION_ASSERT(theoreticalHash() == hash());
 		}
 		PYGMALION_INLINE void clearFlags(const flagsType flags) noexcept
 		{
-			PYGMALION_ASSERT(theoreticalHash() == hash());
-			const flagsType oldFlags{ m_Flags };
+			m_Hash ^= flagsHash(m_Flags & flags);
 			m_Flags &= ~flags;
-			m_Hash ^= flagsHash(oldFlags);
-			m_Hash ^= flagsHash(m_Flags);
-			PYGMALION_ASSERT(theoreticalHash() == hash());
 		}
 		template<size_t FIRST, size_t LAST, typename = typename std::enable_if<board::enableRange(FIRST, LAST)>::type>
 		PYGMALION_INLINE void clearFlagRange() noexcept
@@ -385,12 +359,8 @@ namespace pygmalion
 		}
 		PYGMALION_INLINE void checkFlags(const flagsType flags) noexcept
 		{
-			PYGMALION_ASSERT(theoreticalHash() == hash());
-			const flagsType oldFlags{ m_Flags };
+			m_Hash ^= flagsHash(flags ^ m_Flags);
 			m_Flags = flags;
-			m_Hash ^= flagsHash(oldFlags);
-			m_Hash ^= flagsHash(m_Flags);
-			PYGMALION_ASSERT(theoreticalHash() == hash());
 		}
 		PYGMALION_INLINE const flagsType& flags() const noexcept
 		{
@@ -398,12 +368,10 @@ namespace pygmalion
 		}
 		PYGMALION_INLINE void setMovingPlayer(const playerType movingPlayer) noexcept
 		{
-			PYGMALION_ASSERT(theoreticalHash() == hash());
-			const playerType oldPlayer{ m_MovingPlayer };
+			const hashType combinedHash{ playerHash(m_MovingPlayer) ^ playerHash(movingPlayer) };
 			m_MovingPlayer = movingPlayer;
-			m_Hash ^= playerHash(m_MovingPlayer) ^ playerHash(oldPlayer);
-			m_StructureHash ^= playerHash(m_MovingPlayer) ^ playerHash(oldPlayer);
-			PYGMALION_ASSERT(theoreticalHash() == hash());
+			m_Hash ^= combinedHash;
+			m_StructureHash ^= combinedHash;
 		}
 		PYGMALION_INLINE playerType movingPlayer() const noexcept
 		{
@@ -464,11 +432,10 @@ namespace pygmalion
 		}
 		PYGMALION_INLINE void addPiece(const pieceType piece, const squareType square, const playerType player, const materialTableType& materialTable) noexcept
 		{
-			PYGMALION_ASSERT(theoreticalHash() == hash());
+#if !defined(NDEBUG)
 			PYGMALION_ASSERT(player.isValid());
 			PYGMALION_ASSERT(piece.isValid());
 			PYGMALION_ASSERT(square.isValid());
-#if !defined(NDEBUG)
 			for (const auto pl : playerType::range)
 				PYGMALION_ASSERT(!m_PlayerOccupancy[pl][square]);
 			for (const auto pc : pieceType::range)
@@ -476,41 +443,37 @@ namespace pygmalion
 #endif
 			m_PlayerOccupancy[player] |= square;
 			m_PieceOccupancy[piece] |= square;
-			m_Hash ^= pieceHash(piece, square, player);
-			if (piece.isStructural())
-				m_StructureHash ^= pieceHash(piece, square, player);
+			const hashType hash1{ pieceHash(piece, square, player) };
+			m_Hash ^= hash1;
+			m_StructureHash ^= hashType(static_cast<hashType>(static_cast<unsigned>(piece.isStructural()))) * hash1;
 			m_Material += materialTable.material(player, piece, square);
 			m_PlayerPieces.pieces(player) |= piece;
-			PYGMALION_ASSERT(theoreticalHash() == hash());
 		}
 		PYGMALION_INLINE void removePiece(const pieceType piece, const squareType square, const playerType player, const materialTableType& materialTable) noexcept
 		{
-			PYGMALION_ASSERT(theoreticalHash() == hash());
+#if !defined(NDEBUG)
 			PYGMALION_ASSERT(player.isValid());
 			PYGMALION_ASSERT(piece.isValid());
 			PYGMALION_ASSERT(square.isValid());
-#if !defined(NDEBUG)
 			PYGMALION_ASSERT(m_PlayerOccupancy[player][square]);
 			PYGMALION_ASSERT(m_PieceOccupancy[piece][square]);
 #endif
 			m_PlayerOccupancy[player] -= square;
 			m_PieceOccupancy[piece] -= square;
-			m_Hash ^= pieceHash(piece, square, player);
-			if (piece.isStructural())
-				m_StructureHash ^= pieceHash(piece, square, player);
+			const hashType hash1{ pieceHash(piece, square, player) };
+			m_Hash ^= hash1;
+			m_StructureHash ^= hashType(static_cast<hashType>(static_cast<unsigned>(piece.isStructural()))) * hash1;
 			m_Material -= materialTable.material(player, piece, square);
 			const squaresType occ{ m_PlayerOccupancy[player] & m_PieceOccupancy[piece] };
 			m_PlayerPieces.pieces(player).checkElement(piece, m_PlayerOccupancy[player] & m_PieceOccupancy[piece]);
-			PYGMALION_ASSERT(theoreticalHash() == hash());
 		}
 		PYGMALION_INLINE void movePiece(const pieceType piece, const squareType from, const squareType to, const playerType player, const materialTableType& materialTable) noexcept
 		{
-			PYGMALION_ASSERT(theoreticalHash() == hash());
+#if !defined(NDEBUG)
 			PYGMALION_ASSERT(player.isValid());
 			PYGMALION_ASSERT(piece.isValid());
 			PYGMALION_ASSERT(from.isValid());
 			PYGMALION_ASSERT(to.isValid());
-#if !defined(NDEBUG)
 			PYGMALION_ASSERT(m_PlayerOccupancy[player][from]);
 			PYGMALION_ASSERT(m_PieceOccupancy[piece][from]);
 			for (const auto pl : playerType::range)
@@ -522,16 +485,13 @@ namespace pygmalion
 			m_PieceOccupancy[piece] -= from;
 			m_PlayerOccupancy[player] |= to;
 			m_PieceOccupancy[piece] |= to;
-			m_Hash ^= pieceHash(piece, from, player);
-			m_Hash ^= pieceHash(piece, to, player);
-			if (piece.isStructural())
-			{
-				m_StructureHash ^= pieceHash(piece, from, player);
-				m_StructureHash ^= pieceHash(piece, to, player);
-			}
+			const hashType hash1{ pieceHash(piece, from, player) };
+			const hashType hash2{ pieceHash(piece, to, player) };
+			const hashType combinedHash{ hash1 ^ hash2 };
+			m_Hash ^= combinedHash;
+			m_StructureHash ^= hashType(static_cast<hashType>(static_cast<unsigned>(piece.isStructural()))) * combinedHash;
 			m_Material -= materialTable.material(player, piece, from);
 			m_Material += materialTable.material(player, piece, to);
-			PYGMALION_ASSERT(theoreticalHash() == hash());
 		}
 		PYGMALION_INLINE pieceType getPiece(const squareType sq) const noexcept
 		{
