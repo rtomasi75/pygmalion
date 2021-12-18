@@ -295,18 +295,21 @@ namespace pygmalion
 		}
 		PYGMALION_INLINE void setFlag(const flagType flag) noexcept
 		{
-			m_Hash ^= flagsHash((~m_Flags) & flagsType(flag));
+			m_Hash ^= flagsHash(m_Flags);
 			m_Flags.setElement(flag);
+			m_Hash ^= flagsHash(m_Flags);
 		}
 		PYGMALION_INLINE void toggleFlag(const flagType flag) noexcept
 		{
-			m_Hash ^= flagsHash(flagsType(flag));
+			m_Hash ^= flagsHash(m_Flags);
 			m_Flags ^= flag;
+			m_Hash ^= flagsHash(m_Flags);
 		}
 		PYGMALION_INLINE void clearFlag(const flagType flag) noexcept
 		{
-			m_Hash ^= flagsHash(m_Flags & flagsType(flag));
+			m_Hash ^= flagsHash(m_Flags);
 			m_Flags.clearElement(flag);
+			m_Hash ^= flagsHash(m_Flags);
 		}
 		PYGMALION_INLINE bool testFlag(const flagType flag) const noexcept
 		{
@@ -314,13 +317,15 @@ namespace pygmalion
 		}
 		PYGMALION_INLINE void setFlags(const flagsType flags) noexcept
 		{
-			m_Hash ^= flagsHash((~m_Flags) & flags);
+			m_Hash ^= flagsHash(m_Flags);
 			m_Flags |= flags;
+			m_Hash ^= flagsHash(m_Flags);
 		}
 		PYGMALION_INLINE void clearFlags(const flagsType flags) noexcept
 		{
-			m_Hash ^= flagsHash(m_Flags & flags);
+			m_Hash ^= flagsHash(m_Flags);
 			m_Flags &= ~flags;
+			m_Hash ^= flagsHash(m_Flags);
 		}
 		template<size_t FIRST, size_t LAST, typename = typename std::enable_if<board::enableRange(FIRST, LAST)>::type>
 		PYGMALION_INLINE void clearFlagRange() noexcept
@@ -359,8 +364,9 @@ namespace pygmalion
 		}
 		PYGMALION_INLINE void checkFlags(const flagsType flags) noexcept
 		{
-			m_Hash ^= flagsHash(flags ^ m_Flags);
+			m_Hash ^= flagsHash(m_Flags);
 			m_Flags = flags;
+			m_Hash ^= flagsHash(m_Flags);
 		}
 		PYGMALION_INLINE const flagsType& flags() const noexcept
 		{

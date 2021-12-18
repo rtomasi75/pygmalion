@@ -219,7 +219,7 @@ namespace pygmalion::chess::dynamics
 						p.stop();
 						delete[] pContext;
 						this->output() << std::endl;
-						this->output() << "depth: " << std::setw(2) << static_cast<int>(depth) << " nodes: " << parser::valueToString(static_cast<double>(data.Nodes), "N") /* << " time: " << parser::durationToString(p.duration()) << " speed: " << p.computeSpeed(data.Nodes, "N")*/ << std::endl;
+						this->output() << "depth: " << std::setw(2) << static_cast<int>(depth) << " nodes: " << parser::valueToString(static_cast<double>(data.Nodes), "N") << " time: " << parser::durationToString(p.duration()) << " speed: " << p.computeSpeed(data.Nodes, "N") << std::endl;
 						this->output() << std::endl;
 						this->output() << " Leafs:             " << data.Leafs << std::endl;
 						this->output() << " Captures:          " << data.Captures << std::endl;
@@ -232,33 +232,33 @@ namespace pygmalion::chess::dynamics
 						this->output() << " Queenside castles: " << data.QueensideCastles << std::endl;
 						this->output() << " Kingside castles:  " << data.KingsideCastles << std::endl;
 						this->output() << std::endl;
-						}
 					}
-					else
-						this->process<PLAYER + 1>(depth);
 				}
 				else
-					PYGMALION_ASSERT(false);
+					this->process<PLAYER + 1>(depth);
 			}
-		protected:
-			virtual std::string help() noexcept override
+			else
+				PYGMALION_ASSERT(false);
+		}
+	protected:
+		virtual std::string help() noexcept override
+		{
+			return "CPERFT";
+		}
+		virtual bool onProcess(const std::string& cmd) noexcept override
+		{
+			std::string token;
+			std::string remainder;
+			parser::parseToken(cmd, token, remainder);
+			if (token == "cperft")
 			{
-				return "CPERFT";
+				size_t depth{ static_cast<size_t>(parser::parseInt(remainder)) };
+				this->process<0>(depth);
+				return true;
 			}
-			virtual bool onProcess(const std::string & cmd) noexcept override
-			{
-				std::string token;
-				std::string remainder;
-				parser::parseToken(cmd, token, remainder);
-				if (token == "cperft")
-				{
-					size_t depth{ static_cast<size_t>(parser::parseInt(remainder)) };
-					this->process<0>(depth);
-					return true;
-				}
-				else
-					return false;
-			}
+			else
+				return false;
+		}
 	};
 
-	}
+}
