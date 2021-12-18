@@ -41,8 +41,7 @@ namespace pygmalion
 			{
 				for (size_t i = 0; i < m_QuietKillerCount; i++)
 				{
-					if (generatorType::isMoveLegal(stack, m_QuietKillers[i]))
-						killerMoves.add(m_QuietKillers[i]);
+					killerMoves.add(m_QuietKillers[i]);
 				}
 			}
 			template<size_t PLAYER, int QSPHASE>
@@ -52,21 +51,17 @@ namespace pygmalion
 				{
 					if constexpr (QSPHASE == 0)
 					{
-						if (generatorType::isMoveLegal(stack, m_TacticalKillers[i]))
-							killerMoves.add(m_TacticalKillers[i]);
+						killerMoves.add(m_TacticalKillers[i]);
 					}
 					else if constexpr (QSPHASE == 1)
 					{
-						if (generatorType::isMoveLegal(stack, m_TacticalKillers[i]))
-							if (generatorType::isMoveTactical(stack, m_TacticalKillers[i]))
-								killerMoves.add(m_TacticalKillers[i]);
+						if (generatorType::isMoveTactical(stack, m_TacticalKillers[i]))
+							killerMoves.add(m_TacticalKillers[i]);
 					}
 					else
 					{
-						constexpr const scoreType zero{ scoreType::zero() };
-						if (generatorType::isMoveLegal(stack, m_TacticalKillers[i]))
-							if (generatorType::isMoveTactical(stack, m_TacticalKillers[i]))
-								killerMoves.add(m_TacticalKillers[i]);
+						if (generatorType::isMoveTactical(stack, m_TacticalKillers[i]))
+							killerMoves.add(m_TacticalKillers[i]);
 					}
 				}
 			}
@@ -294,7 +289,14 @@ namespace pygmalion
 		{
 			if constexpr (quietKillerMoves > 0)
 			{
-				m_KillerSlots[depth].quietKillers(stack, killermoves);
+				quietKillermovesType temp;
+				killermoves.clear();
+				m_KillerSlots[depth].quietKillers(stack, temp);
+				for (size_t i = 0; i < temp.length(); i++)
+				{
+					if (generatorType::isMoveLegal(stack, temp[i]))
+						killermoves.add(temp[i]);
+				}
 				if constexpr (killerLookBackDistance > 0)
 				{
 					quietKillermovesType lookBackKillers;
@@ -310,7 +312,7 @@ namespace pygmalion
 					}
 					for (size_t i = 0; i < lookBackKillers.length(); i++)
 					{
-						if (!killermoves.contains(lookBackKillers[i]))
+						if ((!killermoves.contains(lookBackKillers[i]) && generatorType::isMoveLegal(stack, lookBackKillers[i])))
 							killermoves.add(lookBackKillers[i]);
 					}
 				}
@@ -321,7 +323,14 @@ namespace pygmalion
 		{
 			if constexpr (tacticalKillerMoves > 0)
 			{
-				m_KillerSlots[depth].template tacticalKillers<PLAYER, QSPHASE>(stack, killermoves);
+				quietKillermovesType temp;
+				killermoves.clear();
+				m_KillerSlots[depth].template tacticalKillers<PLAYER, QSPHASE>(stack, temp);
+				for (size_t i = 0; i < temp.length(); i++)
+				{
+					if (generatorType::isMoveLegal(stack, temp[i]))
+						killermoves.add(temp[i]);
+				}
 				if constexpr (killerLookBackDistance > 0)
 				{
 					tacticalKillermovesType lookBackKillers;
@@ -337,7 +346,7 @@ namespace pygmalion
 					}
 					for (size_t i = 0; i < lookBackKillers.length(); i++)
 					{
-						if (!killermoves.contains(lookBackKillers[i]))
+						if ((!killermoves.contains(lookBackKillers[i]) && generatorType::isMoveLegal(stack, lookBackKillers[i])))
 							killermoves.add(lookBackKillers[i]);
 					}
 				}
