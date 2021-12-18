@@ -12,6 +12,7 @@ namespace pygmalion::chess
 		generatorType::addCommand<pygmalion::chess::dynamics::command_debugTargeted>(list);
 		generatorType::addCommand<pygmalion::chess::dynamics::command_debugCheck>(list);
 		generatorType::addCommand<pygmalion::chess::dynamics::command_perft>(list);
+		generatorType::addCommand<pygmalion::chess::dynamics::command_cperft>(list);
 		generatorType::addCommand<pygmalion::chess::dynamics::command_testMovegen>(list);
 		generatorType::addCommand<pygmalion::chess::dynamics::command_debugKingArea>(list);
 		generatorType::addCommand<pygmalion::chess::dynamics::command_debugTropism>(list);

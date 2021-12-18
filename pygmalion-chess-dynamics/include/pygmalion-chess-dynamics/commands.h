@@ -7,6 +7,7 @@
 #include "commands/command_debugTropism.h"
 #include "commands/command_debugCheck.h"
 #include "commands/command_perft.h"
+#include "commands/command_cperft.h"
 #include "commands/command_testMovegen.h"
 #include "commands/command_debugMoveStats.h"
 #include "commands/command_debugPawntable.h"
